@@ -10,16 +10,16 @@ from pathlib import Path
 sys.path[:0] = [str(Path(os.environ["ACMACSD_ROOT"]).resolve().joinpath("py"))]
 import logging; module_logger = logging.getLogger(__name__)
 
-import acmacs_chart
+import acmacs_map_draw
 from acmacs_base.timeit import timeit
 
 # ----------------------------------------------------------------------
 
 def main(args):
     with timeit("Reading chart from " + args.chart[0]):
-        chart = acmacs_chart.import_chart(args.chart[0])
+        chart = acmacs_map_draw.import_chart(args.chart[0])
     with timeit("Drawing chart to " + args.output[0]):
-        acmacs_chart.draw_chart(output_file=args.output[0], chart=chart, settings={}, output_width=args.output_width)
+        acmacs_map_draw.draw_chart(output_file=args.output[0], chart=chart, settings={}, output_width=args.output_width)
 
 # ----------------------------------------------------------------------
 

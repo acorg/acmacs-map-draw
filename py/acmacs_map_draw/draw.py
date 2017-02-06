@@ -7,7 +7,7 @@ import copy, pprint
 import logging; module_logger = logging.getLogger(__name__)
 from .hidb_access import get_hidb
 from .vaccines import vaccines
-from acmacs_chart_backend import ChartDraw, PointStyle
+from acmacs_map_draw_backend import ChartDraw, PointStyle
 
 # ----------------------------------------------------------------------
 
