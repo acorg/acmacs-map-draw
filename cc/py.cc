@@ -1,9 +1,11 @@
 #include "acmacs-base/pybind11.hh"
 #include "locationdb/locdb.hh"
 #include "hidb/hidb.hh"
+#include "seqdb/seqdb.hh"
 
-#include "chart.hh"
-#include "ace.hh"
+#include "acmacs-chart/chart.hh"
+#include "acmacs-chart/ace.hh"
+#include "vaccines.hh"
 #include "draw.hh"
 
 // ----------------------------------------------------------------------
@@ -43,9 +45,9 @@ static inline PointStyle& point_style_shape(PointStyle& aStyle, std::string aSha
 
 // ----------------------------------------------------------------------
 
-PYBIND11_PLUGIN(acmacs_chart_backend)
+PYBIND11_PLUGIN(acmacs_map_draw_backend)
 {
-    py::module m("acmacs_chart_backend", "Acmacs chart access plugin");
+    py::module m("acmacs_map_draw_backend", "Acmacs map draw plugin");
 
       // ----------------------------------------------------------------------
       // HiDb
@@ -105,14 +107,12 @@ PYBIND11_PLUGIN(acmacs_chart_backend)
     py::class_<Antigen, AntigenSerum>(m, "Antigen")
             .def("date", py::overload_cast<>(&Antigen::date, py::const_))
             .def("lab_id", [](const Antigen &a) { py::list list; for (const auto& li: a.lab_id()) { list.append(py::str(li)); } return list; }, py::doc("returns a copy of the lab_id list, modifications to the returned list are not applied"))
-            .def("find_in_hidb", &Antigen::find_in_hidb, py::arg("hidb"), py::return_value_policy::reference)
             ;
 
     py::class_<Serum, AntigenSerum>(m, "Serum")
             .def("serum_id", py::overload_cast<>(&Serum::serum_id, py::const_))
             .def("serum_species", py::overload_cast<>(&Serum::serum_species, py::const_))
             .def("homologous", py::overload_cast<>(&Serum::homologous, py::const_))
-            .def("find_in_hidb", &Serum::find_in_hidb, py::arg("hidb"), py::return_value_policy::reference)
             ;
 
     py::class_<LocDb>(m, "LocDb")
@@ -122,8 +122,6 @@ PYBIND11_PLUGIN(acmacs_chart_backend)
 
     py::class_<Antigens>(m, "Antigens")
             .def("continents", [](const Antigens& antigens, const LocDb& aLocDb) { Antigens::ContinentData data; antigens.continents(data, aLocDb); return data; })
-            .def("match_seqdb", &Antigens::match_seqdb, py::arg("seqdb"), py::arg("verbose") = false)
-            .def("clades", [](const Antigens& antigens) { Antigens::CladeData data; antigens.clades(data); return data; })
             ;
 
     py::class_<Sera>(m, "Sera")
@@ -153,7 +151,6 @@ PYBIND11_PLUGIN(acmacs_chart_backend)
             .def("antigen", &Chart::antigen, py::arg("no"), py::return_value_policy::reference)
             .def("serum", &Chart::serum, py::arg("no"), py::return_value_policy::reference)
             .def("lineage", &Chart::lineage)
-            .def("vaccines", &Chart::vaccines, py::arg("name"), py::arg("hidb"))
             // .def("table_id", &Chart::table_id)
             // .def("find_homologous_antigen_for_sera", &Chart::find_homologous_antigen_for_sera)
             .def("chart_info", py::overload_cast<>(&Chart::chart_info, py::const_), py::return_value_policy::reference)

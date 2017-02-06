@@ -3,11 +3,10 @@
 #include <string>
 #include <vector>
 
+#include "acmacs-chart/layout.hh"
 #include "acmacs-draw/viewport.hh"
-
-#include "layout.hh"
-#include "point-style.hh"
-#include "map-elements.hh"
+#include "acmacs-map-draw/point-style.hh"
+#include "acmacs-map-draw/map-elements.hh"
 
 class Chart;
 class Surface;
@@ -66,7 +65,7 @@ class ChartDraw
     inline void grid(Color aGridColor, double aGridLineWidth) { dynamic_cast<BackgroundBorderGrid&>(mMapElements["background-border-grid"]).grid(aGridColor, aGridLineWidth); }
     inline void border(Color aBorderColor, double aBorderWidth) { dynamic_cast<BackgroundBorderGrid&>(mMapElements["background-border-grid"]).border(aBorderColor, aBorderWidth); }
     inline void continent_map(const Location& aOffset, Pixels aWidth) { dynamic_cast<ContinentMap&>(mMapElements["continent-map"]).offset_width(aOffset, aWidth); }
-    
+
  private:
     Chart& mChart;
     size_t mProjectionNo;

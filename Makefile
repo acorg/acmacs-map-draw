@@ -9,7 +9,7 @@ MAKEFLAGS = -w
 
 SOURCES = vaccines.cc draw.cc point-style.cc map-elements.cc
 PY_SOURCES = py.cc $(SOURCES)
-BACKEND = $(DIST)/acmacs_chart_backend$(PYTHON_MODULE_SUFFIX)
+BACKEND = $(DIST)/acmacs_map_draw_backend$(PYTHON_MODULE_SUFFIX)
 
 # ----------------------------------------------------------------------
 
@@ -35,10 +35,9 @@ OPTIMIZATION = -O3 #-fvisibility=hidden -flto
 PROFILE = # -pg
 CXXFLAGS = -g -MMD $(OPTIMIZATION) $(PROFILE) -fPIC -std=$(STD) $(WEVERYTHING) $(WARNINGS) -Icc -I$(BUILD)/include -I$(ACMACSD_ROOT)/include $(PKG_INCLUDES)
 LDFLAGS = $(OPTIMIZATION) $(PROFILE)
-LDLIBS = -L$(LIB_DIR) -lacmacsbase -lacmacsdraw -llocationdb -lhidb -lseqdb -lboost_filesystem -lboost_system $$(pkg-config --libs cairo) $$(pkg-config --libs liblzma) $$($(PYTHON_CONFIG) --ldflags | sed -E 's/-Wl,-stack_size,[0-9]+//')
+LDLIBS = -L$(LIB_DIR) -lacmacsbase -lacmacschart -lacmacsdraw -llocationdb -lhidb -lseqdb -lboost_filesystem -lboost_system $$(pkg-config --libs cairo) $$(pkg-config --libs liblzma) $$($(PYTHON_CONFIG) --ldflags | sed -E 's/-Wl,-stack_size,[0-9]+//')
 
 PKG_INCLUDES = $$(pkg-config --cflags cairo) $$(pkg-config --cflags liblzma) $$($(PYTHON_CONFIG) --includes)
-
 
 # ----------------------------------------------------------------------
 
@@ -50,10 +49,10 @@ all: check-acmacsd-root $(BACKEND)
 install: check-acmacsd-root $(BACKEND)
 	ln -sf $(BACKEND) $(ACMACSD_ROOT)/lib
 	ln -sf $(BACKEND) $(ACMACSD_ROOT)/py
-	if [ ! -d $(ACMACSD_ROOT)/include/acmacs-chart ]; then mkdir $(ACMACSD_ROOT)/include/acmacs-chart; fi
-	ln -sf $(abspath cc)/acmacs-chart.hh $(abspath cc)/chart.hh $(ACMACSD_ROOT)/include/acmacs-chart
+	if [ ! -d $(ACMACSD_ROOT)/include/acmacs-map-draw ]; then mkdir $(ACMACSD_ROOT)/include/acmacs-map-draw; fi
+	ln -sf $(abspath cc)/acmacs-map-draw.hh $(abspath cc)/chart.hh $(ACMACSD_ROOT)/include/acmacs-map-draw
 	ln -sf $(abspath py)/* $(ACMACSD_ROOT)/py
-	ln -sf $(abspath bin)/acmacs-chart-* $(ACMACSD_ROOT)/bin
+	ln -sf $(abspath bin)/acmacs-map-draw-* $(ACMACSD_ROOT)/bin
 
 test: install
 	test/test

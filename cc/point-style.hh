@@ -4,8 +4,7 @@
 #include <limits>
 
 #include "acmacs-draw/surface.hh"
-
-#include "layout.hh"
+#include "acmacs-chart/layout.hh"
 
 // ----------------------------------------------------------------------
 

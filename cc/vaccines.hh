@@ -4,6 +4,8 @@
 #include <vector>
 #include <algorithm>
 
+#include "acmacs-chart/chart.hh"
+
 // ----------------------------------------------------------------------
 
 namespace hidb

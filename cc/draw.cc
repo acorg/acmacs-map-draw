@@ -1,12 +1,12 @@
 #include <memory>
 #include <algorithm>
 
-#include "draw.hh"
-#include "chart.hh"
-
 #include "acmacs-base/range.hh"
 #include "acmacs-base/float.hh"
+#include "acmacs-chart/chart.hh"
 #include "acmacs-draw/surface-cairo.hh"
+
+#include "draw.hh"
 
 // ----------------------------------------------------------------------
 
