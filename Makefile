@@ -46,13 +46,15 @@ DIST = $(abspath dist)
 
 all: check-acmacsd-root $(BACKEND)
 
-install: check-acmacsd-root $(BACKEND)
+install: check-acmacsd-root install-headers $(BACKEND)
 	ln -sf $(BACKEND) $(ACMACSD_ROOT)/lib
 	ln -sf $(BACKEND) $(ACMACSD_ROOT)/py
-	if [ ! -d $(ACMACSD_ROOT)/include/acmacs-map-draw ]; then mkdir $(ACMACSD_ROOT)/include/acmacs-map-draw; fi
-	ln -sf $(abspath cc)/acmacs-map-draw.hh $(abspath cc)/chart.hh $(ACMACSD_ROOT)/include/acmacs-map-draw
 	ln -sf $(abspath py)/* $(ACMACSD_ROOT)/py
 	ln -sf $(abspath bin)/acmacs-map-draw-* $(ACMACSD_ROOT)/bin
+
+install-headers: check-acmacsd-root
+	if [ ! -d $(ACMACSD_ROOT)/include/acmacs-map-draw ]; then mkdir $(ACMACSD_ROOT)/include/acmacs-map-draw; fi
+	ln -sf $(abspath cc)/*.hh $(ACMACSD_ROOT)/include/acmacs-map-draw
 
 test: install
 	test/test
@@ -74,7 +76,7 @@ distclean: clean
 
 # ----------------------------------------------------------------------
 
-$(BUILD)/%.o: cc/%.cc | $(BUILD)
+$(BUILD)/%.o: cc/%.cc | $(BUILD) install-headers
 	@echo $<
 	@g++ $(CXXFLAGS) -c -o $@ $<
 
