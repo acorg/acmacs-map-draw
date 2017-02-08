@@ -11,11 +11,12 @@
 namespace hidb
 {
     class HiDb;
-    class Antigen;
-    class Serum;
     template <typename AS> class AntigenSerumData;
     class AntigenRefs;
 }
+
+class Antigen;
+class Serum;
 
 // ----------------------------------------------------------------------
 
@@ -25,28 +26,28 @@ class Vaccines
     class HomologousSerum
     {
      public:
-        inline HomologousSerum(size_t aSerumIndex, const Serum* aSerum, const hidb::AntigenSerumData<hidb::Serum>* aSerumData, std::string aMostRecentTableDate)
+        inline HomologousSerum(size_t aSerumIndex, const Serum* aSerum, const hidb::AntigenSerumData<Serum>* aSerumData, std::string aMostRecentTableDate)
             : serum(aSerum), serum_index(aSerumIndex), serum_data(aSerumData), most_recent_table_date(aMostRecentTableDate) {}
         bool operator < (const HomologousSerum& a) const;
         size_t number_of_tables() const;
 
         const Serum* serum;
         size_t serum_index;
-        const hidb::AntigenSerumData<hidb::Serum>* serum_data;
+        const hidb::AntigenSerumData<Serum>* serum_data;
         std::string most_recent_table_date;
     };
 
     class Entry
     {
      public:
-        inline Entry(size_t aAntigenIndex, const Antigen* aAntigen, const hidb::AntigenSerumData<hidb::Antigen>* aAntigenData, std::vector<HomologousSerum>&& aSera, std::string aMostRecentTableDate)
+        inline Entry(size_t aAntigenIndex, const Antigen* aAntigen, const hidb::AntigenSerumData<Antigen>* aAntigenData, std::vector<HomologousSerum>&& aSera, std::string aMostRecentTableDate)
             : antigen(aAntigen), antigen_index(aAntigenIndex), antigen_data(aAntigenData), homologous_sera(aSera), most_recent_table_date(aMostRecentTableDate)
             { std::sort(homologous_sera.begin(), homologous_sera.end()); }
         bool operator < (const Entry& a) const;
 
         const Antigen* antigen;
         size_t antigen_index;
-        const hidb::AntigenSerumData<hidb::Antigen>* antigen_data;
+        const hidb::AntigenSerumData<Antigen>* antigen_data;
         std::vector<HomologousSerum> homologous_sera; // sorted by number of tables and the most recent table
         std::string most_recent_table_date;
     };
@@ -66,7 +67,7 @@ class Vaccines
 
     friend class Chart;
 
-    void add(size_t aAntigenIndex, const Antigen& aAntigen, const hidb::AntigenSerumData<hidb::Antigen>* aAntigenData, std::vector<HomologousSerum>&& aSera, std::string aMostRecentTableDate);
+    void add(size_t aAntigenIndex, const Antigen& aAntigen, const hidb::AntigenSerumData<Antigen>* aAntigenData, std::vector<HomologousSerum>&& aSera, std::string aMostRecentTableDate);
     void sort();
 
 }; // class Vaccines

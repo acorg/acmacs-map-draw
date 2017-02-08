@@ -39,7 +39,7 @@ class PointStyle
           mSize(Pixels::make_empty()), mOutlineWidth(Pixels::make_empty()), mAspect(AspectNoChange), mRotation(RotationNoChange) {}
     PointStyle& operator = (const PointStyle& aPS);
 
-    void draw(Surface& aSurface, const Point& aCoord);
+    void draw(Surface& aSurface, const Coordinates& aCoord);
 
     inline PointStyle& show(Shown aShown = Shown::Shown) { mShown = aShown; return *this; }
     inline PointStyle& hide() { mShown = Shown::Hidden; return *this; }

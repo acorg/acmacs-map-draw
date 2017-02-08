@@ -27,7 +27,7 @@ PointStyle& PointStyle::operator = (const PointStyle& aPS)
 
 // ----------------------------------------------------------------------
 
-void PointStyle::draw(Surface& aSurface, const Point& aCoord)
+void PointStyle::draw(Surface& aSurface, const Coordinates& aCoord)
 {
     if (mShown == Shown::Shown && !aCoord.empty()) {
         switch (mShape) {
