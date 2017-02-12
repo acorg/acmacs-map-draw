@@ -5,7 +5,7 @@
 
 sVaccines = {
     "A(H1N1)": [
-        {"name": "CALIFORNIA/7/2009", "type": "current"},
+        {"name": "CALIFORNIA/7/2009", "type": "previous"},
         {"name": "MICHIGAN/45/2015", "type": "current"},
         ],
     "A(H3N2)": [
