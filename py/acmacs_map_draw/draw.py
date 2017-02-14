@@ -98,22 +98,22 @@ def mark_continents(chart_draw, chart):
 
 sStyleByClade = {
     # H3
-    "3C3":   {"fill": "cornflowerblue"},
-    "3C2a":  {"fill": "red"},
-    "3C2a1": {"fill": "darkred"},
-    "3C3a":  {"fill": "green"},
-    "3C3b":  {"fill": "blue"},
+    "3C3":   {"fill": "cornflowerblue", "outline": "black"},
+    "3C2a":  {"fill": "red", "outline": "black"},
+    "3C2a1": {"fill": "darkred", "outline": "black"},
+    "3C3a":  {"fill": "green", "outline": "black"},
+    "3C3b":  {"fill": "blue", "outline": "black"},
     # H1pdm
-    "6B1": {"fill": "blue"},
-    "6B2": {"fill": "red"},
+    "6B1": {"fill": "blue", "outline": "black"},
+    "6B2": {"fill": "red", "outline": "black"},
     # B/Yam
-    "Y2": {"fill": "cornflowerblue"},
-    "Y3": {"fill": "red"},
+    "Y2": {"fill": "cornflowerblue", "outline": "black"},
+    "Y3": {"fill": "red", "outline": "black"},
     # B/Vic
-    "1": {"fill": "blue", "outline": "blue"},
-    "1A": {"fill": "cornflowerblue", "outline": "cornflowerblue"},
-    "1B": {"fill": "red", "outline": "red"},
-    "": {"fill": "green", "outline": "green"},                # sequenced but not in any clade
+    "1": {"fill": "blue", "outline": "black"},
+    "1A": {"fill": "cornflowerblue", "outline": "black"},
+    "1B": {"fill": "red", "outline": "black"},
+    "": {"fill": "green", "outline": "black"},                # sequenced but not in any clade
     }
 
 def mark_clades(chart_draw, chart):
