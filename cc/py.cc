@@ -195,6 +195,8 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("reassortant", &Vaccines::reassortant, py::return_value_policy::reference)
             ;
 
+    m.def("find_vaccines_in_chart", &find_vaccines_in_chart, py::arg("name"), py::arg("chart"), py::arg("hidb"));
+
       // ----------------------------------------------------------------------
       // Draw
       // ----------------------------------------------------------------------

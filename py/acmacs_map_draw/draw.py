@@ -7,7 +7,7 @@ import copy, pprint
 import logging; module_logger = logging.getLogger(__name__)
 from .hidb_access import get_hidb
 from .vaccines import vaccines
-from acmacs_map_draw_backend import ChartDraw, PointStyle
+from acmacs_map_draw_backend import ChartDraw, PointStyle, find_vaccines_in_chart
 
 # ----------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ def mark_vaccines(chart_draw, chart, style={"size": 15}, raise_=True):
     hidb = get_hidb(chart=chart)
     for vaccine_entry in vaccines(chart=chart):
         # module_logger.debug('{}'.format(vaccine_entry))
-        antigens = chart.vaccines(vaccine_entry["name"], hidb)
+        antigens = find_vaccines_in_chart(vaccine_entry["name"], chart, hidb)
         for passage_type in ["egg", "reassortant", "cell"]:
             vaccine_data = getattr(antigens, passage_type)()
             if vaccine_data:

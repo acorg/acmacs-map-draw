@@ -4,15 +4,12 @@
 #include <vector>
 #include <algorithm>
 
-#include "acmacs-chart/chart.hh"
-
 // ----------------------------------------------------------------------
 
 namespace hidb
 {
     class HiDb;
     template <typename AS> class AntigenSerumData;
-    class AntigenRefs;
 }
 
 class Antigen;
@@ -65,12 +62,16 @@ class Vaccines
     std::vector<Entry> mCell;
     std::vector<Entry> mReassortant;
 
-    friend class Chart;
+    friend Vaccines* find_vaccines_in_chart(std::string aName, const Chart& aChart, const hidb::HiDb& aHiDb);
 
     void add(size_t aAntigenIndex, const Antigen& aAntigen, const hidb::AntigenSerumData<Antigen>* aAntigenData, std::vector<HomologousSerum>&& aSera, std::string aMostRecentTableDate);
     void sort();
 
 }; // class Vaccines
+
+// ----------------------------------------------------------------------
+
+Vaccines* find_vaccines_in_chart(std::string aName, const Chart& aChart, const hidb::HiDb& aHiDb);
 
 // ----------------------------------------------------------------------
 /// Local Variables:
