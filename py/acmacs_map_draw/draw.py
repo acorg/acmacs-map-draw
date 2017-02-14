@@ -98,10 +98,11 @@ def mark_continents(chart_draw, chart):
 
 sStyleByClade = {
     # H3
-    "3C3":  {"fill": "cornflowerblue"},
-    "3C2a": {"fill": "red"},
-    "3C3a": {"fill": "green"},
-    "3C3b": {"fill": "blue"},
+    "3C3":   {"fill": "cornflowerblue"},
+    "3C2a":  {"fill": "red"},
+    "3C2a1": {"fill": "darkred"},
+    "3C3a":  {"fill": "green"},
+    "3C3b":  {"fill": "blue"},
     # H1pdm
     "6B1": {"fill": "blue"},
     "6B2": {"fill": "red"},
