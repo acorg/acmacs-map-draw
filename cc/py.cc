@@ -82,10 +82,24 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
       // SeqDb
       // ----------------------------------------------------------------------
 
+    py::class_<seqdb::SeqdbSeq>(m, "SeqdbSeq")
+            .def("clades", py::overload_cast<>(&seqdb::SeqdbSeq::clades))
+            ;
+
+    py::class_<seqdb::SeqdbEntry>(m, "SeqdbEntry")
+            ;
+
+    py::class_<seqdb::SeqdbEntrySeq>(m, "SeqdbEntrySeq")
+            .def_property_readonly("entry", py::overload_cast<>(&seqdb::SeqdbEntrySeq::entry), py::return_value_policy::reference)
+            .def_property_readonly("seq", py::overload_cast<>(&seqdb::SeqdbEntrySeq::seq), py::return_value_policy::reference)
+            .def("__bool__", &seqdb::SeqdbEntrySeq::operator bool)
+            ;
+
     py::class_<seqdb::Seqdb>(m, "Seqdb")
             .def(py::init<>())
             .def("load", &seqdb::Seqdb::load, py::arg("filename") = std::string(), py::doc("reads seqdb from file containing json"))
             .def("build_hi_name_index", &seqdb::Seqdb::build_hi_name_index)
+            .def("match_antigens", [](const seqdb::Seqdb& aSeqdb, const Antigens& aAntigens, bool aVerbose) { std::vector<seqdb::SeqdbEntrySeq> r; aSeqdb.match(aAntigens, r, aVerbose); return r; }, py::arg("antigens"), py::arg("verbose"))
               // .def("find_hi_name", &seqdb::Seqdb::find_hi_name, py::arg("name"), py::return_value_policy::reference, py::doc("returns entry_seq found by hi name or None"))
             ;
 

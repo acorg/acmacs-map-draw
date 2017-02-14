@@ -116,9 +116,8 @@ sStyleByClade = {
     }
 
 def mark_clades(chart_draw, chart):
-    from .seqdb_access import match
-    match(chart)
-    clade_data = chart.antigens().clades()
+    from .seqdb_access import antigen_clades
+    clade_data = antigen_clades(chart)
     # pprint.pprint(clade_data)
     global sStyleByClade
     clades_used = {}                      # for legend
