@@ -105,6 +105,8 @@ class LegendPointLabel : public MapElement
     virtual void draw(Surface& aSurface) const;
     inline void offset(const Location& aOrigin) { mOrigin = aOrigin; }
     inline void add_line(Color outline, Color fill, std::string label) { mLines.emplace_back(outline, fill, label); }
+    inline void label_size(double aLabelSize) { mLabelSize = aLabelSize; }
+    inline void point_size(double aPointSize) { mPointSize = aPointSize; }
 
  private:
     Location mOrigin;

@@ -234,6 +234,8 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
 
     py::class_<LegendPointLabel>(m, "LegendPointLabel")
             .def("add_line", [](LegendPointLabel& legend, std::string outline, std::string fill, std::string label) { legend.add_line(outline, fill, label); }, py::arg("outline"), py::arg("fill"), py::arg("label"))
+            .def("label_size", &LegendPointLabel::label_size, py::arg("label_size"))
+            .def("point_size", &LegendPointLabel::point_size, py::arg("point_size"))
             ;
 
     py::class_<ChartDraw>(m, "ChartDraw")
