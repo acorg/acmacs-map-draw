@@ -107,6 +107,9 @@ class LegendPointLabel : public MapElement
     inline void add_line(Color outline, Color fill, std::string label) { mLines.emplace_back(outline, fill, label); }
     inline void label_size(double aLabelSize) { mLabelSize = aLabelSize; }
     inline void point_size(double aPointSize) { mPointSize = aPointSize; }
+    inline void background(Color aBackgroud) { mBackgroud = aBackgroud; }
+    inline void border_color(Color aBorderColor) { mBorderColor = aBorderColor; }
+    inline void border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; }
 
  private:
     Location mOrigin;
