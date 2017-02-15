@@ -86,6 +86,15 @@ void ContinentMap::draw(Surface& aSurface) const
 
 // ----------------------------------------------------------------------
 
+LegendPointLabel::LegendPointLabel()
+    : MapElement("legend-point-label", MapElements::AfterPoints), mOrigin{-10, -10}, mWidthInParent(0),
+      mBackgroud("white"), mBorderColor("black"), mBorderWidth(0.3), mPointSize(8),
+      mLabelColor("black"), mLabelSize(12), mInterline(2.0)
+{
+} // LegendPointLabel::LegendPointLabel
+
+// ----------------------------------------------------------------------
+
 void LegendPointLabel::draw(Surface& aSurface) const
 {
     double width = 0, height = 0;
@@ -97,22 +106,26 @@ void LegendPointLabel::draw(Surface& aSurface) const
             height = line_size.height;
     }
     const Size padding = aSurface.text_size("O", mLabelSize, mLabelStyle);
-    const Scaled point_size = aSurface.convert(mPointSize);
+    const double scaled_point_size = aSurface.convert(mPointSize).value();
 
-    std::cerr << "LegendPointLabel width:" << width << " height:" << height << " lines:" << mLines.size() << " this " << this << std::endl;
+    const double legend_surface_height = height * (mLines.size() - 1) * mInterline + height + padding.height * 2;
+    const double legend_surface_width = width + padding.width * 3 + scaled_point_size;
+    Location legend_surface_origin{aSurface.convert(Pixels{mOrigin.x}).value(), aSurface.convert(Pixels{mOrigin.y}).value()};
+    const Size& surface_size = aSurface.viewport().size;
+    if (legend_surface_origin.x < 0)
+        legend_surface_origin.x += surface_size.width - legend_surface_width;
+    if (legend_surface_origin.y < 0)
+        legend_surface_origin.y += surface_size.height - legend_surface_height;
 
-    const double area_height = height * (mLines.size() - 1) * mInterline + height + padding.height * 2;
-    const double area_width = width + padding.width * 3 + point_size.value();
-      // const double aspect = height / width;
-    Surface& legend_surface = aSurface.subsurface({1, 1}, Scaled{area_width}, Size{area_width, area_height}, false);
+    Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_width}, Size{legend_surface_width, legend_surface_height}, false);
     legend_surface.background(mBackgroud);
     legend_surface.border(mBorderColor, mBorderWidth);
-    std::cerr << "legend_surface " << legend_surface << std::endl;
-    double x = padding.width * 2 + point_size.value(), y = padding.height + height;
+    const double point_x = padding.width + scaled_point_size / 2;
+    const double text_x = padding.width * 2 + scaled_point_size;
+    double y = padding.height + height;
     for (const auto& line: mLines) {
-        legend_surface.circle_filled({padding.width, y - height / 2}, mPointSize, Aspect{1.0}, NoRotation, line.outline, Pixels{1}, line.fill);
-          // legend_surface.circle({padding.width, y}, mPointSize, Aspect{1.0}, NoRotation, line.fill, Pixels{1});
-        legend_surface.text({x, y}, line.label, mLabelColor, mLabelSize, mLabelStyle);
+        legend_surface.circle_filled({point_x, y - height / 2}, mPointSize, AspectNormal, NoRotation, line.outline, Pixels{1}, line.fill);
+        legend_surface.text({text_x, y}, line.label, mLabelColor, mLabelSize, mLabelStyle);
         y += height * mInterline;
     }
 

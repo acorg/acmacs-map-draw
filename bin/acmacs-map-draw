@@ -16,6 +16,8 @@ from acmacs_base.timeit import timeit
 # ----------------------------------------------------------------------
 
 def main(args):
+    if not Path(args.chart[0]).exists():
+        raise RuntimeError("File not found: " + args.chart[0])
     with timeit("Reading chart from " + args.chart[0]):
         chart = acmacs_map_draw.import_chart(args.chart[0])
     with timeit("Drawing chart to " + args.output[0]):

@@ -66,6 +66,7 @@ class ChartDraw
     inline void border(Color aBorderColor, double aBorderWidth) { dynamic_cast<BackgroundBorderGrid&>(mMapElements["background-border-grid"]).border(aBorderColor, aBorderWidth); }
     inline void continent_map(const Location& aOffset, Pixels aWidth) { dynamic_cast<ContinentMap&>(mMapElements["continent-map"]).offset_width(aOffset, aWidth); }
     inline LegendPointLabel& legend(const Location& aOffset) { auto& legend = dynamic_cast<LegendPointLabel&>(mMapElements["legend-point-label"]); legend.offset(aOffset); return legend; }
+    inline LegendPointLabel& legend() { return dynamic_cast<LegendPointLabel&>(mMapElements["legend-point-label"]); }
 
  private:
     Chart& mChart;

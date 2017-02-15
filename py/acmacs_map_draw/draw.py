@@ -32,7 +32,7 @@ def draw_chart(output_file, chart, settings, output_width):
     # mark_continents(chart_draw=chart_draw, chart=chart)
     legend_data = mark_clades(chart_draw=chart_draw, chart=chart)
     if legend_data:
-        legend = chart_draw.legend([-1, -1])
+        legend = chart_draw.legend() # [-10, 10])
         for legend_entry in legend_data:
             legend.add_line(**legend_entry)
 

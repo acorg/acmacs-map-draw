@@ -256,6 +256,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("border", [](ChartDraw& cd, std::string color, double line_width) { cd.border(color, line_width); }, py::arg("color") = "black", py::arg("line_width") = 1.0)
             .def("continent_map", [](ChartDraw& cd, std::vector<double> aOrigin, double aWidth) { cd.continent_map({aOrigin[0], aOrigin[1]}, Pixels{aWidth}); }, py::arg("origin"), py::arg("width"), py::doc("Origin and width are in pixels. Negative values in orinin mean from right/bottom of the surface"))
             .def("legend", [](ChartDraw& cd, std::vector<double> aOrigin) -> LegendPointLabel& { return cd.legend({aOrigin[0], aOrigin[1]}); }, py::arg("origin"), py::return_value_policy::reference, py::doc("Origin is in pixels. Negative values in orinin mean from right/bottom of the surface"))
+            .def("legend", [](ChartDraw& cd) -> LegendPointLabel& { return cd.legend(); }, py::return_value_policy::reference)
             ;
 
       // ----------------------------------------------------------------------
