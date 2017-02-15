@@ -241,6 +241,14 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("border_width", &LegendPointLabel::border_width, py::arg("border_width"))
             ;
 
+    py::class_<Title>(m, "Title")
+            .def("add_line", &Title::add_line, py::arg("text"))
+            .def("text_size", &Title::text_size, py::arg("text_size"))
+            .def("background", [](Title& legend, std::string aBackground) { legend.background(aBackground); }, py::arg("background"))
+            .def("border_color", [](Title& legend, std::string aBorderColor) { legend.border_color(aBorderColor); }, py::arg("border_color"))
+            .def("border_width", &Title::border_width, py::arg("border_width"))
+            ;
+
     py::class_<ChartDraw>(m, "ChartDraw")
             .def(py::init<Chart&, size_t>(), py::arg("chart"), py::arg("projection_no") = 0)
             .def("prepare", &ChartDraw::prepare)
@@ -262,6 +270,8 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("continent_map", [](ChartDraw& cd, std::vector<double> aOrigin, double aWidth) { cd.continent_map({aOrigin[0], aOrigin[1]}, Pixels{aWidth}); }, py::arg("origin"), py::arg("width"), py::doc("Origin and width are in pixels. Negative values in orinin mean from right/bottom of the surface"))
             .def("legend", [](ChartDraw& cd, std::vector<double> aOrigin) -> LegendPointLabel& { return cd.legend({aOrigin[0], aOrigin[1]}); }, py::arg("origin"), py::return_value_policy::reference, py::doc("Origin is in pixels. Negative values in orinin mean from right/bottom of the surface"))
             .def("legend", [](ChartDraw& cd) -> LegendPointLabel& { return cd.legend(); }, py::return_value_policy::reference)
+            .def("title", [](ChartDraw& cd, std::vector<double> aOrigin) -> Title& { return cd.title({aOrigin[0], aOrigin[1]}); }, py::arg("origin"), py::return_value_policy::reference, py::doc("Origin is in pixels. Negative values in orinin mean from right/bottom of the surface"))
+            .def("title", [](ChartDraw& cd) -> Title& { return cd.title(); }, py::return_value_policy::reference)
             ;
 
       // ----------------------------------------------------------------------

@@ -43,6 +43,9 @@ class MapElement
     inline MapElements::Order order() const { return mOrder; }
     virtual void draw(Surface& aSurface) const = 0;
 
+ protected:
+    virtual Location subsurface_origin(Surface& aSurface, const Location& aPixelOrigin, const Size& aScaledSubsurfaceSize) const;
+
  private:
     std::string mKeyword;
     MapElements::Order mOrder;
@@ -113,7 +116,6 @@ class LegendPointLabel : public MapElement
 
  private:
     Location mOrigin;
-    Pixels mWidthInParent;
     Color mBackgroud;
     Color mBorderColor;
     Pixels mBorderWidth;
@@ -123,6 +125,34 @@ class LegendPointLabel : public MapElement
     TextStyle mLabelStyle;
     double mInterline;
     std::vector<Line> mLines;
+
+}; // class ContinentMap
+
+// ----------------------------------------------------------------------
+
+class Title : public MapElement
+{
+ public:
+    Title();
+
+    virtual void draw(Surface& aSurface) const;
+    inline void offset(const Location& aOrigin) { mOrigin = aOrigin; }
+    inline void add_line(std::string aText) { mLines.emplace_back(aText); }
+    inline void text_size(double aTextSize) { mTextSize = aTextSize; }
+    inline void background(Color aBackgroud) { mBackgroud = aBackgroud; }
+    inline void border_color(Color aBorderColor) { mBorderColor = aBorderColor; }
+    inline void border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; }
+
+ private:
+    Location mOrigin;
+    Color mBackgroud;
+    Color mBorderColor;
+    Pixels mBorderWidth;
+    Color mTextColor;
+    Pixels mTextSize;
+    TextStyle mTextStyle;
+    double mInterline;
+    std::vector<std::string> mLines;
 
 }; // class ContinentMap
 

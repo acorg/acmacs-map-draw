@@ -67,6 +67,8 @@ class ChartDraw
     inline void continent_map(const Location& aOffset, Pixels aWidth) { dynamic_cast<ContinentMap&>(mMapElements["continent-map"]).offset_width(aOffset, aWidth); }
     inline LegendPointLabel& legend(const Location& aOffset) { auto& legend = dynamic_cast<LegendPointLabel&>(mMapElements["legend-point-label"]); legend.offset(aOffset); return legend; }
     inline LegendPointLabel& legend() { return dynamic_cast<LegendPointLabel&>(mMapElements["legend-point-label"]); }
+    inline Title& title(const Location& aOffset) { auto& title = dynamic_cast<Title&>(mMapElements["title"]); title.offset(aOffset); return title; }
+    inline Title& title() { return dynamic_cast<Title&>(mMapElements["title"]); }
 
  private:
     Chart& mChart;
