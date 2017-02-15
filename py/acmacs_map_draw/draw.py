@@ -132,7 +132,7 @@ def mark_clades(chart_draw, chart):
             chart_draw.modify_points_by_indices(indices, make_point_style(style), raise_=True)
             clades_used[clade] = [style, len(indices), indices if len(indices) < 10 else []]
     # pprint.pprint(clades_used)
-    # print("all clades:", sorted(clade_data))
+    module_logger.info('Clades {}'.format(sorted(clades_used)))
     legend_data = sorted(({"label": clade if clade else "sequenced", **data[0]} for clade, data in clades_used.items()), key=operator.itemgetter("label"))
     # pprint.pprint(legend_data)
     return legend_data

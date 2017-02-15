@@ -102,7 +102,7 @@ class LegendPointLabel : public MapElement
 
     inline LegendPointLabel()
         : MapElement("legend-point-label", MapElements::AfterPoints), mOrigin{0, 0}, mWidthInParent(0),
-          mBorderColor("black"), mBorderWidth(1) {}
+          mBackgroud("white"), mBorderColor("black"), mBorderWidth(1), mPointSize(5), mLabelColor("black"), mLabelSize(10), mInterline(1.5) {}
 
     virtual void draw(Surface& aSurface) const;
     inline void offset(const Location& aOrigin) { mOrigin = aOrigin; }
@@ -111,8 +111,14 @@ class LegendPointLabel : public MapElement
  private:
     Location mOrigin;
     Pixels mWidthInParent;
+    Color mBackgroud;
     Color mBorderColor;
     Pixels mBorderWidth;
+    Pixels mPointSize;
+    Color mLabelColor;
+    Pixels mLabelSize;
+    TextStyle mLabelStyle;
+    double mInterline;
     std::vector<Line> mLines;
 
 }; // class ContinentMap
