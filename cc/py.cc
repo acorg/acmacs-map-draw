@@ -232,6 +232,10 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("lower", &DrawingOrder::lower, py::arg("point_no"))
             ;
 
+    py::class_<LegendPointLabel>(m, "LegendPointLabel")
+            .def("add_line", [](LegendPointLabel& legend, std::string outline, std::string fill, std::string label) { legend.add_line(outline, fill, label); }, py::arg("outline"), py::arg("fill"), py::arg("label"))
+            ;
+
     py::class_<ChartDraw>(m, "ChartDraw")
             .def(py::init<Chart&, size_t>(), py::arg("chart"), py::arg("projection_no") = 0)
             .def("prepare", &ChartDraw::prepare)
@@ -251,6 +255,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("grid", [](ChartDraw& cd, std::string color, double line_width) { cd.grid(color, line_width); }, py::arg("color") = "grey80", py::arg("line_width") = 1.0)
             .def("border", [](ChartDraw& cd, std::string color, double line_width) { cd.border(color, line_width); }, py::arg("color") = "black", py::arg("line_width") = 1.0)
             .def("continent_map", [](ChartDraw& cd, std::vector<double> aOrigin, double aWidth) { cd.continent_map({aOrigin[0], aOrigin[1]}, Pixels{aWidth}); }, py::arg("origin"), py::arg("width"), py::doc("Origin and width are in pixels. Negative values in orinin mean from right/bottom of the surface"))
+            .def("legend", [](ChartDraw& cd, std::vector<double> aOrigin) { return cd.legend({aOrigin[0], aOrigin[1]}); }, py::arg("origin"), py::return_value_policy::reference, py::doc("Origin is in pixels. Negative values in orinin mean from right/bottom of the surface"))
             ;
 
       // ----------------------------------------------------------------------

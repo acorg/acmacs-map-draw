@@ -36,6 +36,7 @@ class MapElement
 {
  public:
     inline MapElement(std::string aKeyword, MapElements::Order aOrder) : mKeyword(aKeyword), mOrder(aOrder) {}
+    inline MapElement(const MapElement&) = default;
     virtual ~MapElement();
 
     inline std::string keyword() const { return mKeyword; }
@@ -68,6 +69,7 @@ class BackgroundBorderGrid : public MapElement
     Pixels mGridLineWidth;
     Color mBorderColor;
     Pixels mBorderWidth;
+
 }; // class BackgroundBorderGrid
 
 // ----------------------------------------------------------------------
@@ -83,6 +85,35 @@ class ContinentMap : public MapElement
  private:
     Location mOrigin;
     Pixels mWidthInParent;
+
+}; // class ContinentMap
+
+// ----------------------------------------------------------------------
+
+class LegendPointLabel : public MapElement
+{
+ public:
+    struct Line
+    {
+        inline Line(Color aOutline, Color aFill, std::string aLabel) : outline(aOutline), fill(aFill), label(aLabel) {}
+        Color outline, fill;
+        std::string label;
+    };
+
+    inline LegendPointLabel()
+        : MapElement("legend-point-label", MapElements::AfterPoints), mOrigin{0, 0}, mWidthInParent(0),
+          mBorderColor("black"), mBorderWidth(1) {}
+
+    virtual void draw(Surface& aSurface) const;
+    inline void offset(const Location& aOrigin) { mOrigin = aOrigin; }
+    inline void add_line(Color outline, Color fill, std::string label) { mLines.emplace_back(outline, fill, label); }
+
+ private:
+    Location mOrigin;
+    Pixels mWidthInParent;
+    Color mBorderColor;
+    Pixels mBorderWidth;
+    std::vector<Line> mLines;
 
 }; // class ContinentMap
 

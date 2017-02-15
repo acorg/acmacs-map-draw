@@ -32,6 +32,9 @@ MapElement& MapElements::add(std::string aKeyword)
     else if (aKeyword == "continent-map") {
         mElements.emplace_back(new ContinentMap{});
     }
+    else if (aKeyword == "legend-point-label") {
+        mElements.emplace_back(new LegendPointLabel{});
+    }
     else {
         throw std::runtime_error("Don't know how to make map element " + aKeyword);
     }
@@ -80,6 +83,13 @@ void ContinentMap::draw(Surface& aSurface) const
     continent_map_draw(continent_surface);
 
 } // ContinentMap::draw
+
+// ----------------------------------------------------------------------
+
+void LegendPointLabel::draw(Surface& aSurface) const
+{
+
+} // LegendPointLabel::draw
 
 // ----------------------------------------------------------------------
 

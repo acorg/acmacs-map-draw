@@ -3,7 +3,7 @@
 # license.
 # ----------------------------------------------------------------------
 
-import copy, pprint
+import copy, operator, pprint
 import logging; module_logger = logging.getLogger(__name__)
 from .hidb_access import get_hidb
 from .vaccines import vaccines
@@ -30,7 +30,11 @@ def draw_chart(output_file, chart, settings, output_width):
     # chart_draw.flip(-1, 1)                # flip about diagonal from [0,0] to [1,1], i.e. flip in direction [-1,1]
 
     # mark_continents(chart_draw=chart_draw, chart=chart)
-    mark_clades(chart_draw=chart_draw, chart=chart)
+    legend_data = mark_clades(chart_draw=chart_draw, chart=chart)
+    if legend_data:
+        legend = chart_draw.legend([-1, -1])
+        for legend_entry in legend_data:
+            legend.add_line(**legend_entry)
 
     mark_vaccines(chart_draw=chart_draw, chart=chart)
     chart_draw.draw(str(output_file), output_width)
@@ -127,8 +131,11 @@ def mark_clades(chart_draw, chart):
         if style:
             chart_draw.modify_points_by_indices(indices, make_point_style(style), raise_=True)
             clades_used[clade] = [style, len(indices), indices if len(indices) < 10 else []]
-    pprint.pprint(clades_used)
-    print("all clades:", sorted(clade_data))
+    # pprint.pprint(clades_used)
+    # print("all clades:", sorted(clade_data))
+    legend_data = sorted(({"label": clade if clade else "sequenced", **data[0]} for clade, data in clades_used.items()), key=operator.itemgetter("label"))
+    # pprint.pprint(legend_data)
+    return legend_data
 
 # ----------------------------------------------------------------------
 
