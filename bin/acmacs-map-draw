@@ -21,7 +21,7 @@ def main(args):
     with timeit("Reading chart from " + args.chart[0]):
         chart = acmacs_map_draw.import_chart(args.chart[0])
     with timeit("Drawing chart to " + args.output[0]):
-        acmacs_map_draw.draw_chart(output_file=args.output[0], chart=chart, settings={}, output_width=args.output_width)
+        acmacs_map_draw.draw_chart(output_file=args.output[0], chart=chart, settings={}, output_width=args.output_width, verbose=args.verbose)
 
 # ----------------------------------------------------------------------
 
@@ -32,6 +32,7 @@ try:
 
     # parser.add_argument('--hidb-dir', action='store', dest='hidb_dir', default="~/AD/data", help='Directory with hidb4.*.json.xz.')
     parser.add_argument('-s', '--output-size', action='store', dest='output_width', default=600, help='Width of the output image.')
+    parser.add_argument('-v', '--verbose', action='store_true', dest='verbose', default=False)
 
     parser.add_argument('chart', nargs=1, help='Chart file.')
     parser.add_argument('output', nargs=1, help='Output pdf file.')

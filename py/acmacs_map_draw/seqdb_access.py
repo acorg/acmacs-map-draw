@@ -11,18 +11,18 @@ from acmacs_map_draw_backend import Seqdb
 
 # ----------------------------------------------------------------------
 
-def match(chart):
+def match(chart, verbose=False):
     seqdb = get_seqdb()
     with timeit("Matching seqdb"):
-        per_antigen = seqdb.match_antigens(antigens=chart.antigens(), verbose=False)
+        per_antigen = seqdb.match_antigens(antigens=chart.antigens(), verbose=verbose)
         module_logger.info('{} antigens matched against seqdb'.format(sum(1 for e in per_antigen if e)))
         return per_antigen
 
 # ----------------------------------------------------------------------
 
-def antigen_clades(chart):
+def antigen_clades(chart, verbose=False):
     clade_data = {}
-    for ag_no, antigen_seq in enumerate(match(chart)):
+    for ag_no, antigen_seq in enumerate(match(chart, verbose=verbose)):
         if antigen_seq:
             clades = antigen_seq.seq.clades()
             if clades:

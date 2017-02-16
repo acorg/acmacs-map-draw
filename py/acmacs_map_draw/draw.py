@@ -11,7 +11,7 @@ from acmacs_map_draw_backend import ChartDraw, PointStyle, find_vaccines_in_char
 
 # ----------------------------------------------------------------------
 
-def draw_chart(output_file, chart, settings, output_width):
+def draw_chart(output_file, chart, settings, output_width, verbose=False):
     chart_draw = ChartDraw(chart)
     chart_draw.prepare()
     # chart_draw.background_color("green")
@@ -30,7 +30,7 @@ def draw_chart(output_file, chart, settings, output_width):
     # chart_draw.flip(-1, 1)                # flip about diagonal from [0,0] to [1,1], i.e. flip in direction [-1,1]
 
     # mark_continents(chart_draw=chart_draw, chart=chart)
-    legend_data = mark_clades(chart_draw=chart_draw, chart=chart)
+    legend_data = mark_clades(chart_draw=chart_draw, chart=chart, verbose=verbose)
     if legend_data:
         legend = chart_draw.legend([-10, -10])
         # legend.label_size(20)             # pixels
@@ -127,9 +127,9 @@ sStyleByClade = {
     "": {"fill": "green", "outline": "black"},                # sequenced but not in any clade
     }
 
-def mark_clades(chart_draw, chart):
+def mark_clades(chart_draw, chart, verbose=False):
     from .seqdb_access import antigen_clades
-    clade_data = antigen_clades(chart)
+    clade_data = antigen_clades(chart, verbose=verbose)
     # pprint.pprint(clade_data)
     global sStyleByClade
     clades_used = {}                      # for legend
