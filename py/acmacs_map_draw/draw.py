@@ -41,7 +41,7 @@ def draw_chart(output_file, chart, settings, output_width):
             legend.add_line(**legend_entry)
 
     title = chart_draw.title()
-    title.add_line("Title") # chart.chart_info().name())
+    title.add_line(chart.make_name())
 
     mark_vaccines(chart_draw=chart_draw, chart=chart)
     chart_draw.draw(str(output_file), output_width)
