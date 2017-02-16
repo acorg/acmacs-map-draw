@@ -11,6 +11,8 @@
 class Chart;
 class Surface;
 class ChartDraw;
+class Layout;
+class PointStyle;
 
 // ----------------------------------------------------------------------
 
@@ -19,7 +21,7 @@ class Label
  public:
     inline Label(size_t aIndex);
 
-    void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
+    void draw(Surface& aSurface, const Layout& aLayout, const std::vector<PointStyle>& aPointStyles) const;
 
     inline Label& offset(double x, double y) { mOffset.set(x, y); return *this; }
     inline Label& display_name(std::string aDisplayName) { mDisplayName = aDisplayName; return *this; }
@@ -33,6 +35,8 @@ class Label
     Color mTextColor;
     Pixels mTextSize;
     TextStyle mTextStyle;
+
+    double text_offset(double offset_hint, double point_size, double text_size, bool text_origin_at_opposite) const;
 };
 
 // ----------------------------------------------------------------------
@@ -44,7 +48,7 @@ class Labels
 
     Label& add(std::string aName, const Chart& aChart);
     Label& add(size_t aIndex, const Chart& aChart);
-    void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
+    void draw(Surface& aSurface, const Layout& aLayout, const std::vector<PointStyle>& aPointStyles) const;
 
  private:
     std::vector<Label> mLabels;

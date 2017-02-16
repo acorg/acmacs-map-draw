@@ -86,7 +86,7 @@ void ChartDraw::draw(Surface& aSurface)
     for (size_t index: mDrawingOrder) {
         mPointStyles[index].draw(rescaled_surface, layout[index]);
     }
-    mLabels.draw(rescaled_surface, *this);
+    mLabels.draw(rescaled_surface, layout, mPointStyles);
 
     mMapElements.draw(rescaled_surface, MapElements::AfterPoints);
 
