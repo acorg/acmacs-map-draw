@@ -7,6 +7,7 @@
 #include "acmacs-draw/viewport.hh"
 #include "acmacs-map-draw/point-style.hh"
 #include "acmacs-map-draw/map-elements.hh"
+#include "acmacs-map-draw/labels.hh"
 
 class Chart;
 class Surface;
@@ -70,6 +71,8 @@ class ChartDraw
     inline Title& title(const Location& aOffset) { auto& title = dynamic_cast<Title&>(mMapElements["title"]); title.offset(aOffset); return title; }
     inline Title& title() { return dynamic_cast<Title&>(mMapElements["title"]); }
 
+    inline Labels& labels() { return mLabels; }
+
  private:
     Chart& mChart;
     size_t mProjectionNo;
@@ -78,6 +81,7 @@ class ChartDraw
     std::vector<PointStyle> mPointStyles;
     DrawingOrder mDrawingOrder;
     MapElements mMapElements;
+    Labels mLabels;
 
 }; // class ChartDraw
 
