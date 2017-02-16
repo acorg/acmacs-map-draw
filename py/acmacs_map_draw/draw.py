@@ -40,6 +40,8 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
         for legend_entry in legend_data:
             legend.add_line(**legend_entry)
 
+    chart_draw.label(0).color("red").size(30)
+
     title = chart_draw.title()
     title.add_line(chart.make_name())
 

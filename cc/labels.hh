@@ -21,13 +21,18 @@ class Label
 
     void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
 
+    inline Label& offset(double x, double y) { mOffset.set(x, y); return *this; }
+    inline Label& display_name(std::string aDisplayName) { mDisplayName = aDisplayName; return *this; }
+    inline Label& color(Color aColor) { mTextColor = aColor; return *this; }
+    inline Label& size(double aSize) { mTextSize = aSize; return *this; }
+
  private:
     size_t mIndex;
     Location mOffset;
     std::string mDisplayName;
-    Color mColor;
-    Pixels mSize;
-    TextStyle mStyle;
+    Color mTextColor;
+    Pixels mTextSize;
+    TextStyle mTextStyle;
 };
 
 // ----------------------------------------------------------------------
@@ -38,14 +43,12 @@ class Labels
     Labels();
 
     Label& add(std::string aName, const Chart& aChart);
+    Label& add(size_t aIndex, const Chart& aChart);
     void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
 
  private:
     std::vector<Label> mLabels;
 };
-
-// ----------------------------------------------------------------------
-
 
 // ----------------------------------------------------------------------
 /// Local Variables:
