@@ -140,6 +140,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             ;
 
     py::class_<Sera>(m, "Sera")
+            .def("find_by_name_matching", [](const Sera& sera, std::string aName) { std::vector<size_t> indices; sera.find_by_name_matching(aName, indices); return indices; })
             ;
 
       // ----------------------------------------------------------------------

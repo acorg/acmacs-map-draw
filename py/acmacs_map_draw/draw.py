@@ -40,8 +40,12 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
         for legend_entry in legend_data:
             legend.add_line(**legend_entry)
 
-    chart_draw.label(0).offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
-    chart_draw.label(1) #.color("red").size(10).offset(0.01, 2.01)
+    indices = chart.antigens().find_by_name_matching("SW/9715293")
+    for index in indices:
+        ag = chart.antigen(index)
+        module_logger.info('Label {:4d} {}'.format(index, f"{ag.name()} {ag.reassortant()} {ag.passage()} {ag.annotations() or ''} [{ag.date()}] {ag.lab_id()}"))
+        chart_draw.label(index) # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
+    # chart_draw.label(1) #.color("red").size(10).offset(0.01, 2.01)
 
     title = chart_draw.title()
     title.add_line(chart.make_name())
@@ -82,6 +86,7 @@ def mark_vaccines(chart_draw, chart, style={"size": 15}, raise_=True):
                     vstyle.update(style)
                 module_logger.info('Marking vaccine {} {}'.format(vaccine_data.antigen_index, vaccine_data.antigen.full_name()))
                 chart_draw.modify_point_by_index(vaccine_data.antigen_index, make_point_style(vstyle), raise_=raise_)
+                chart_draw.label(vaccine_data.antigen_index).offset(-0.1, 1).color("red")
 
 # ----------------------------------------------------------------------
 
