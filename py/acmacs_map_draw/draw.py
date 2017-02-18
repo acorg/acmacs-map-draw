@@ -30,8 +30,8 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
     # chart_draw.flip(-1, 1)                # flip about diagonal from [0,0] to [1,1], i.e. flip in direction [-1,1]
 
     # mark_continents(chart_draw=chart_draw, chart=chart)
-    clade_legend = {"show": True, "offset": [-10, -10], "background": "grey99", "border_color": "blue4", "border_width": 0.1, "label_size": 12, "point_size": 8}
-    legend_data = mark_clades(chart_draw=chart_draw, chart=chart, legend=clade_legend, verbose=verbose)
+    clade_legend = {"show": True, "offset": [-10, -10], "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}
+    legend_data = mark_clades(chart_draw=chart_draw, chart=chart, legend_settings=clade_legend, verbose=verbose)
 
     indices = chart.antigens().find_by_name_matching("SW/9715293")
     for index in indices:
@@ -134,7 +134,7 @@ sStyleByClade = {
     "": {"fill": "green", "outline": "black"},                # sequenced but not in any clade
     }
 
-def mark_clades(chart_draw, chart, legend, verbose=False):
+def mark_clades(chart_draw, chart, legend_settings=None, verbose=False):
     from .seqdb_access import antigen_clades
     clade_data = antigen_clades(chart, verbose=verbose)
     # pprint.pprint(clade_data)
@@ -148,13 +148,19 @@ def mark_clades(chart_draw, chart, legend, verbose=False):
     # pprint.pprint(clades_used)
     module_logger.info('Clades {}'.format(sorted(clades_used)))
 
-    legend_data = sorted(({"label": clade if clade else "sequenced", **data[0]} for clade, data in clades_used.items()), key=operator.itemgetter("label"))
+    make_legend(chart_draw,
+                    legend_data=sorted(({"label": clade if clade else "sequenced", **data[0]} for clade, data in clades_used.items()), key=operator.itemgetter("label")),
+                    legend_settings=legend_settings)
+
+# ----------------------------------------------------------------------
+
+def make_legend(chart_draw, legend_data, legend_settings):
     # pprint.pprint(legend_data)
-    if legend and legend.get("show", True) and legend_data:
-        legend_box = chart_draw.legend(legend.get("offset", [-10, -10]))
+    if legend_settings and legend_settings.get("show", True) and legend_data:
+        legend_box = chart_draw.legend(legend_settings.get("offset", [-10, -10]))
         for k in ["label_size", "background", "border_color", "border_width", "label_size", "point_size"]:
-            if k in legend:
-                getattr(legend_box, k)(legend[k])
+            if k in legend_settings:
+                getattr(legend_box, k)(legend_settings[k])
         for legend_entry in legend_data:
             legend_box.add_line(**legend_entry)
 
