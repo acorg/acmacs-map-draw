@@ -46,7 +46,6 @@ class Labels
  public:
     Labels();
 
-    Label& add(std::string aName, const Chart& aChart);
     Label& add(size_t aIndex, const Chart& aChart);
     void draw(Surface& aSurface, const Layout& aLayout, const std::vector<PointStyle>& aPointStyles) const;
 

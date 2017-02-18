@@ -53,13 +53,6 @@ Labels::Labels()
 
 // ----------------------------------------------------------------------
 
-Label& Labels::add(std::string aName, const Chart& aChart)
-{
-
-} // Labels::add
-
-// ----------------------------------------------------------------------
-
 Label& Labels::add(size_t aIndex, const Chart& aChart)
 {
     mLabels.emplace_back(aIndex);

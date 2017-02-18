@@ -73,7 +73,6 @@ class ChartDraw
 
     inline Labels& labels() { return mLabels; }
     inline Label& add_label(size_t aIndex) { return mLabels.add(aIndex, mChart); }
-    inline Label& add_label(std::string aName) { return mLabels.add(aName, mChart); }
 
  private:
     Chart& mChart;

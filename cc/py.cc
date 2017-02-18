@@ -136,6 +136,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
 
     py::class_<Antigens>(m, "Antigens")
             .def("continents", [](const Antigens& antigens, const LocDb& aLocDb) { Antigens::ContinentData data; antigens.continents(data, aLocDb); return data; })
+            .def("find_by_name_matching", [](const Antigens& antigens, std::string aName) { std::vector<size_t> indices; antigens.find_by_name_matching(aName, indices); return indices; })
             ;
 
     py::class_<Sera>(m, "Sera")
@@ -283,7 +284,6 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("title", [](ChartDraw& cd, std::vector<double> aOrigin) -> Title& { return cd.title({aOrigin[0], aOrigin[1]}); }, py::arg("origin"), py::return_value_policy::reference, py::doc("Origin is in pixels. Negative values in orinin mean from right/bottom of the surface"))
             .def("title", [](ChartDraw& cd) -> Title& { return cd.title(); }, py::return_value_policy::reference)
             .def("label", py::overload_cast<size_t>(&ChartDraw::add_label), py::arg("index"), py::return_value_policy::reference)
-            .def("label", py::overload_cast<std::string>(&ChartDraw::add_label), py::arg("name"), py::return_value_policy::reference)
             ;
 
       // ----------------------------------------------------------------------
