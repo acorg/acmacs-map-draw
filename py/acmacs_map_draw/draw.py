@@ -47,6 +47,12 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
         chart_draw.label(index) # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
     # chart_draw.label(1) #.color("red").size(10).offset(0.01, 2.01)
 
+    indices = chart.sera().find_by_name_matching("SW/9715293 2015-027")
+    for index in indices:
+        sr = chart.serum(index)
+        module_logger.info('Label {:4d} {}'.format(index, f"{sr.name()} {sr.reassortant()} {sr.annotations() or ''} [{sr.serum_id()}]"))
+        chart_draw.label(index + chart.number_of_antigens()).color("orange") # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
+
     title = chart_draw.title()
     title.add_line(chart.make_name())
 

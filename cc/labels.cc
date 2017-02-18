@@ -55,12 +55,16 @@ Labels::Labels()
 
 Label& Labels::add(size_t aIndex, const Chart& aChart)
 {
-    mLabels.emplace_back(aIndex);
-    if (aIndex < aChart.number_of_antigens())
-        mLabels.back().display_name(aChart.antigens()[aIndex].full_name());
-    else
-        mLabels.back().display_name(aChart.sera()[aIndex - aChart.number_of_antigens()].full_name());
-    return mLabels.back();
+    auto found = std::find_if(mLabels.begin(), mLabels.end(), [&aIndex](const auto& label) { return label.index() == aIndex; });
+    if (found == mLabels.end()) {
+        mLabels.emplace_back(aIndex);
+        found = mLabels.end() - 1;
+        if (aIndex < aChart.number_of_antigens())
+            found->display_name(aChart.antigens()[aIndex].full_name());
+        else
+            found->display_name(aChart.sera()[aIndex - aChart.number_of_antigens()].full_name());
+    }
+    return *found;
 
 } // Labels::add
 

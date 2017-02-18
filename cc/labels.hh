@@ -28,6 +28,8 @@ class Label
     inline Label& color(Color aColor) { mTextColor = aColor; return *this; }
     inline Label& size(double aSize) { mTextSize = aSize; return *this; }
 
+    inline size_t index() const { return mIndex; }
+
  private:
     size_t mIndex;
     Location mOffset;
