@@ -46,8 +46,8 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
         module_logger.info('Label {:4d} {}'.format(index, f"{sr.name()} {sr.reassortant()} {sr.annotations() or ''} [{sr.serum_id()}]"))
         chart_draw.label(index + chart.number_of_antigens()).color("orange") # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
 
-    title = chart_draw.title()
-    title.add_line(chart.make_name())
+    chart_draw.title().add_line(chart.make_name())
+    # chart_draw.title().add_line("WHOA")
 
     mark_vaccines(chart_draw=chart_draw, chart=chart)
     chart_draw.draw(str(output_file), output_width)

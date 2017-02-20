@@ -109,7 +109,9 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
 
     py::class_<AntigenSerum>(m, "AntigenSerum")
             .def("full_name", &AntigenSerum::full_name)
-            // .def("variant_id", &AntigenSerum::variant_id)
+            .def("abbreviated_name", &AntigenSerum::abbreviated_name, py::arg("locdb"), py::doc("includes passage, reassortant, annotations"))
+            .def("name_abbreviated", &AntigenSerum::name_abbreviated, py::arg("locdb"), py::doc("just name without passage, reassortant, annotations"))
+            .def("location_abbreviated", &AntigenSerum::location_abbreviated, py::arg("locdb"))
             .def("name", py::overload_cast<>(&AntigenSerum::name, py::const_))
             .def("lineage", py::overload_cast<>(&AntigenSerum::lineage, py::const_))
             .def("passage", py::overload_cast<>(&AntigenSerum::passage, py::const_))
@@ -119,6 +121,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             ;
 
     py::class_<Antigen, AntigenSerum>(m, "Antigen")
+            .def("abbreviated_name_with_passage_type", &Antigen::abbreviated_name_with_passage_type, py::arg("locdb"))
             .def("date", py::overload_cast<>(&Antigen::date, py::const_))
             .def("lab_id", [](const Antigen &a) { py::list list; for (const auto& li: a.lab_id()) { list.append(py::str(li)); } return list; }, py::doc("returns a copy of the lab_id list, modifications to the returned list are not applied"))
             ;
