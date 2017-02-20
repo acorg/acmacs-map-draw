@@ -38,7 +38,7 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
 
     # mark_clades(chart_draw=chart_draw, chart=chart, legend_settings=settings["legend"], verbose=verbose)
 
-    mark_aa_substitutions(chart_draw=chart_draw, chart=chart, position=159, legend_settings=settings["legend"], verbose=verbose)
+    mark_aa_substitutions(chart_draw=chart_draw, chart=chart, positions=[159], legend_settings=settings["legend"], verbose=verbose)
 
     if False:
         # labels
@@ -165,14 +165,13 @@ def mark_clades(chart_draw, chart, legend_settings, verbose=False):
 
 # ----------------------------------------------------------------------
 
-def mark_aa_substitutions(chart_draw, chart, position, legend_settings, verbose=False):
+def mark_aa_substitutions(chart_draw, chart, positions, legend_settings, verbose=False):
     from . import seqdb_access
-    aa_indices = {}
-    for ag_no, ag_data in enumerate(seqdb_access.match(chart=chart, verbose=verbose)):
-        if ag_data:
-            aa_indices.setdefault(ag_data.seq.amino_acid_at(position), []).append(ag_no)
+
+    aa_indices = seqdb_access.aa_at_positions(chart=chart, positions=positions, verbose=verbose)
     aa_order = sorted(aa_indices, key=lambda aa: - len(aa_indices[aa]))
-    aa_color = {aa: distinct_colors()[no] for no, aa in enumerate(aa_order)}
+    dc = distinct_colors()
+    aa_color = {aa: dc[no] for no, aa in enumerate(aa_order)}
     if "X" in aa_color:
         aa_color["X"] = "grey25"
     # print(aa_color)

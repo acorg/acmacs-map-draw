@@ -20,6 +20,15 @@ def match(chart, verbose=False):
 
 # ----------------------------------------------------------------------
 
+def aa_at_positions(chart, positions, verbose=False):
+    seqdb = get_seqdb()
+    with timeit("Matching seqdb"):
+        aa_indices = seqdb.aa_at_positions_for_antigens(antigens=chart.antigens(), positions=positions, verbose=verbose)
+        module_logger.info('{} antigens matched against seqdb'.format(sum(len(v) for v in aa_indices.values())))
+    return aa_indices
+
+# ----------------------------------------------------------------------
+
 def antigen_clades(chart, verbose=False):
     clade_data = {}
     for ag_no, antigen_seq in enumerate(match(chart, verbose=verbose)):
