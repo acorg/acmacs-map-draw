@@ -38,7 +38,7 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
 
     # mark_clades(chart_draw=chart_draw, chart=chart, legend_settings=settings["legend"], verbose=verbose)
 
-    mark_aa_substitutions(chart_draw=chart_draw, chart=chart, positions=[159], legend_settings=settings["legend"], verbose=verbose)
+    mark_aa_substitutions(chart_draw=chart_draw, chart=chart, positions=[158, 159], legend_settings=settings["legend"], verbose=verbose)
 
     if False:
         # labels
