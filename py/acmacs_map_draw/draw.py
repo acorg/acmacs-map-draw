@@ -3,11 +3,25 @@
 # license.
 # ----------------------------------------------------------------------
 
-import copy, operator, pprint
+import os, copy, operator, pprint
+from pathlib import Path
 import logging; module_logger = logging.getLogger(__name__)
 from .hidb_access import get_hidb
 from .vaccines import vaccines
-from acmacs_map_draw_backend import ChartDraw, PointStyle, find_vaccines_in_chart
+from acmacs_map_draw_backend import ChartDraw, PointStyle, find_vaccines_in_chart, LocDb
+
+# ----------------------------------------------------------------------
+
+sLocDb = None
+
+def get_locdb(locdb_file :Path = Path(os.environ["ACMACSD_ROOT"], "data", "locationdb.json.xz")):
+    from acmacs_base.timeit import timeit
+    global sLocDb
+    if sLocDb is None:
+        with timeit("Loading locationdb from " + str(locdb_file)):
+            sLocDb = LocDb()
+            sLocDb.import_from(str(locdb_file))
+    return sLocDb
 
 # ----------------------------------------------------------------------
 
@@ -33,18 +47,20 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
     clade_legend = {"show": True, "offset": [-10, -10], "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}
     legend_data = mark_clades(chart_draw=chart_draw, chart=chart, legend_settings=clade_legend, verbose=verbose)
 
+    locdb = get_locdb()
+
     indices = chart.antigens().find_by_name_matching("SW/9715293")
     for index in indices:
         ag = chart.antigen(index)
         module_logger.info('Label {:4d} {}'.format(index, f"{ag.name()} {ag.reassortant()} {ag.passage()} {ag.annotations() or ''} [{ag.date()}] {ag.lab_id()}"))
-        chart_draw.label(index) # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
+        chart_draw.label(index).display_name(ag.abbreviated_name_with_passage_type(locdb)) # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
     # chart_draw.label(1) #.color("red").size(10).offset(0.01, 2.01)
 
     indices = chart.sera().find_by_name_matching("SW/9715293 2015-027")
     for index in indices:
         sr = chart.serum(index)
         module_logger.info('Label {:4d} {}'.format(index, f"{sr.name()} {sr.reassortant()} {sr.annotations() or ''} [{sr.serum_id()}]"))
-        chart_draw.label(index + chart.number_of_antigens()).color("orange") # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
+        chart_draw.label(index + chart.number_of_antigens()).display_name(sr.abbreviated_name(locdb)).color("orange") # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
 
     chart_draw.title().add_line(chart.make_name())
     # chart_draw.title().add_line("WHOA")
