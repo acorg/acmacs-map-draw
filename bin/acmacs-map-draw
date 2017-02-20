@@ -21,7 +21,13 @@ def main(args):
     with timeit("Reading chart from " + args.chart[0]):
         chart = acmacs_map_draw.import_chart(args.chart[0])
     with timeit("Drawing chart to " + args.output[0]):
-        acmacs_map_draw.draw_chart(output_file=args.output[0], chart=chart, settings={}, output_width=args.output_width, verbose=args.verbose)
+        acmacs_map_draw.draw_chart(output_file=args.output[0], chart=chart, settings=sSettings, output_width=args.output_width, verbose=args.verbose)
+
+# ----------------------------------------------------------------------
+
+sSettings = {
+    "legend": {"show": True, "offset": [-10, -10], "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}
+    }
 
 # ----------------------------------------------------------------------
 

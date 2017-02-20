@@ -16,7 +16,7 @@ def match(chart, verbose=False):
     with timeit("Matching seqdb"):
         per_antigen = seqdb.match_antigens(antigens=chart.antigens(), verbose=verbose)
         module_logger.info('{} antigens matched against seqdb'.format(sum(1 for e in per_antigen if e)))
-        return per_antigen
+    return per_antigen
 
 # ----------------------------------------------------------------------
 

@@ -7,21 +7,12 @@ import os, copy, operator, pprint
 from pathlib import Path
 import logging; module_logger = logging.getLogger(__name__)
 from .hidb_access import get_hidb
+from .locdb_access import get_locdb
 from .vaccines import vaccines
-from acmacs_map_draw_backend import ChartDraw, PointStyle, find_vaccines_in_chart, LocDb
+from acmacs_map_draw_backend import ChartDraw, PointStyle, find_vaccines_in_chart, LocDb, distinct_colors
 
 # ----------------------------------------------------------------------
 
-sLocDb = None
-
-def get_locdb(locdb_file :Path = Path(os.environ["ACMACSD_ROOT"], "data", "locationdb.json.xz")):
-    from acmacs_base.timeit import timeit
-    global sLocDb
-    if sLocDb is None:
-        with timeit("Loading locationdb from " + str(locdb_file)):
-            sLocDb = LocDb()
-            sLocDb.import_from(str(locdb_file))
-    return sLocDb
 
 # ----------------------------------------------------------------------
 
@@ -44,23 +35,27 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
     # chart_draw.flip(-1, 1)                # flip about diagonal from [0,0] to [1,1], i.e. flip in direction [-1,1]
 
     # mark_continents(chart_draw=chart_draw, chart=chart)
-    clade_legend = {"show": True, "offset": [-10, -10], "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}
-    legend_data = mark_clades(chart_draw=chart_draw, chart=chart, legend_settings=clade_legend, verbose=verbose)
 
-    locdb = get_locdb()
+    # mark_clades(chart_draw=chart_draw, chart=chart, legend_settings=settings["legend"], verbose=verbose)
 
-    indices = chart.antigens().find_by_name_matching("SW/9715293")
-    for index in indices:
-        ag = chart.antigen(index)
-        module_logger.info('Label {:4d} {}'.format(index, f"{ag.name()} {ag.reassortant()} {ag.passage()} {ag.annotations() or ''} [{ag.date()}] {ag.lab_id()}"))
-        chart_draw.label(index).display_name(ag.abbreviated_name_with_passage_type(locdb)) # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
-    # chart_draw.label(1) #.color("red").size(10).offset(0.01, 2.01)
+    mark_aa_substitutions(chart_draw=chart_draw, chart=chart, position=159, legend_settings=settings["legend"], verbose=verbose)
 
-    indices = chart.sera().find_by_name_matching("SW/9715293 2015-027")
-    for index in indices:
-        sr = chart.serum(index)
-        module_logger.info('Label {:4d} {}'.format(index, f"{sr.name()} {sr.reassortant()} {sr.annotations() or ''} [{sr.serum_id()}]"))
-        chart_draw.label(index + chart.number_of_antigens()).display_name(sr.abbreviated_name(locdb)).color("orange") # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
+    if False:
+        # labels
+        locdb = get_locdb()
+
+        indices = chart.antigens().find_by_name_matching("SW/9715293")
+        for index in indices:
+            ag = chart.antigen(index)
+            module_logger.info('Label {:4d} {}'.format(index, f"{ag.name()} {ag.reassortant()} {ag.passage()} {ag.annotations() or ''} [{ag.date()}] {ag.lab_id()}"))
+            chart_draw.label(index).display_name(ag.abbreviated_name_with_passage_type(locdb)) # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
+        # chart_draw.label(1) #.color("red").size(10).offset(0.01, 2.01)
+
+        indices = chart.sera().find_by_name_matching("SW/9715293 2015-027")
+        for index in indices:
+            sr = chart.serum(index)
+            module_logger.info('Label {:4d} {}'.format(index, f"{sr.name()} {sr.reassortant()} {sr.annotations() or ''} [{sr.serum_id()}]"))
+            chart_draw.label(index + chart.number_of_antigens()).display_name(sr.abbreviated_name(locdb)).color("orange") # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
 
     chart_draw.title().add_line(chart.make_name())
     # chart_draw.title().add_line("WHOA")
@@ -101,7 +96,7 @@ def mark_vaccines(chart_draw, chart, style={"size": 15}, raise_=True):
                     vstyle.update(style)
                 module_logger.info('Marking vaccine {} {}'.format(vaccine_data.antigen_index, vaccine_data.antigen.full_name()))
                 chart_draw.modify_point_by_index(vaccine_data.antigen_index, make_point_style(vstyle), raise_=raise_)
-                chart_draw.label(vaccine_data.antigen_index).offset(-0.1, 1).color("red")
+                # chart_draw.label(vaccine_data.antigen_index).offset(-0.1, 1).color("red")
 
 # ----------------------------------------------------------------------
 
@@ -150,7 +145,7 @@ sStyleByClade = {
     "": {"fill": "green", "outline": "black"},                # sequenced but not in any clade
     }
 
-def mark_clades(chart_draw, chart, legend_settings=None, verbose=False):
+def mark_clades(chart_draw, chart, legend_settings, verbose=False):
     from .seqdb_access import antigen_clades
     clade_data = antigen_clades(chart, verbose=verbose)
     # pprint.pprint(clade_data)
@@ -166,6 +161,26 @@ def mark_clades(chart_draw, chart, legend_settings=None, verbose=False):
 
     make_legend(chart_draw,
                     legend_data=sorted(({"label": clade if clade else "sequenced", **data[0]} for clade, data in clades_used.items()), key=operator.itemgetter("label")),
+                    legend_settings=legend_settings)
+
+# ----------------------------------------------------------------------
+
+def mark_aa_substitutions(chart_draw, chart, position, legend_settings, verbose=False):
+    from . import seqdb_access
+    aa_indices = {}
+    for ag_no, ag_data in enumerate(seqdb_access.match(chart=chart, verbose=verbose)):
+        if ag_data:
+            aa_indices.setdefault(ag_data.seq.amino_acid_at(position), []).append(ag_no)
+    aa_order = sorted(aa_indices, key=lambda aa: - len(aa_indices[aa]))
+    aa_color = {aa: distinct_colors()[no] for no, aa in enumerate(aa_order)}
+    if "X" in aa_color:
+        aa_color["X"] = "grey25"
+    # print(aa_color)
+    for aa in aa_order:
+        chart_draw.modify_points_by_indices(aa_indices[aa], make_point_style({"outline": "black", "fill": aa_color[aa]}), raise_=True)
+
+    make_legend(chart_draw,
+                    legend_data=[{"label": "{} {:3d}".format(aa, len(aa_indices[aa])), "outline": "black", "fill": aa_color[aa]} for aa in aa_order],
                     legend_settings=legend_settings)
 
 # ----------------------------------------------------------------------

@@ -84,6 +84,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
 
     py::class_<seqdb::SeqdbSeq>(m, "SeqdbSeq")
             .def("clades", py::overload_cast<>(&seqdb::SeqdbSeq::clades))
+            .def("amino_acid_at", &seqdb::SeqdbSeq::amino_acid_at, py::arg("pos"), py::doc("pos starts from 1"))
             ;
 
     py::class_<seqdb::SeqdbEntry>(m, "SeqdbEntry")
@@ -210,7 +211,10 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
 
     py::class_<Color>(m, "Color")
             .def(py::init<std::string>(), py::arg("color") = "black")
+            .def("__str__", &Color::to_string)
             ;
+
+    m.def("distinct_colors", &Color::distinct_colors);
 
     py::class_<PointStyle> point_style(m, "PointStyle");
     py::enum_<enum PointStyle::Empty>(point_style, "PointStyle_Empty").value("Empty", PointStyle::Empty).export_values();
