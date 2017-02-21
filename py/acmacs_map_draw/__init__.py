@@ -3,9 +3,9 @@
 # license.
 # ----------------------------------------------------------------------
 
-from acmacs_map_draw_backend import *
-from .hidb_access import get_hidb
-from .draw import draw_chart
+from acmacs_map_draw_backend import import_chart
+# from .hidb_access import get_hidb
+from .draw import draw_chart, UnrecognizedMod
 
 # ----------------------------------------------------------------------
 ### Local Variables:
