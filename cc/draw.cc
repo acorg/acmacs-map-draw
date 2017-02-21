@@ -75,10 +75,10 @@ void ChartDraw::draw(Surface& aSurface)
     Viewport viewport;
     viewport.set_from_center_size(bb->center(), bb->diameter());
     viewport.whole_width();
-    std::cout << "[Calculated]: " << viewport << std::endl;
+    std::cout << "INFO: [Calculated]: " << viewport << std::endl;
     if (mViewport.empty())
         mViewport = viewport;
-    std::cout << "[Used]:       " << viewport << std::endl;
+    std::cout << "INFO: [Used]:       " << mViewport << std::endl;
     Surface& rescaled_surface = aSurface.subsurface({0, 0}, Scaled{aSurface.viewport().size.width}, mViewport, true);
 
     mMapElements.draw(rescaled_surface, MapElements::BeforePoints);

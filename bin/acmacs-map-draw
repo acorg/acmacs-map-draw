@@ -26,7 +26,16 @@ def main(args):
 # ----------------------------------------------------------------------
 
 sSettings = {
-    "legend": {"show": True, "offset": [-10, -10], "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}
+    "flip?": "'ns', 'ew', [-1, 1] - diagonal",
+    "flip": "",
+    "rotate?": "-4.99 ... 4.99 - radians, otherwise degrees, positive - counterclockwise",
+    "rotate": 0,
+    "viewport?": "[X, Y, SIZE]",
+    "viewport": [-6, -6, 10],
+    "legend": {"show": True, "offset": [-10, -10], "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8},
+    "background": "white",
+    "grid": {"color": "grey80", "width": 1},
+    "border": {"color": "black", "width": 1},
     }
 
 # ----------------------------------------------------------------------

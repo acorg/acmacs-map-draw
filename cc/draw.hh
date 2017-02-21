@@ -57,8 +57,19 @@ class ChartDraw
     void mark_reassortant_antigens();
     void mark_all_grey(Color aColor);
     void scale_points(double aPointScale, double aOulineScale);
-    inline void rotate(double aAngle) { mTransformation.rotate(aAngle); }
-    inline void flip(double aX, double aY) { mTransformation.flip(aX, aY); } // reflect about a line specified with vector [aX, aY]
+    inline void rotate(double aAngle)
+        {
+            std::cout << "INFO: rotate " << aAngle << " radians = " << (180.0 * aAngle / M_PI) << " degrees" << std::endl;
+            mTransformation.rotate(aAngle);
+        }
+
+    inline void flip(double aX, double aY)
+        {
+            std::cout << "INFO: flip " << aX << " " << aY << std::endl;
+            mTransformation.flip(aX, aY); // reflect about a line specified with vector [aX, aY]
+        }
+
+    inline void viewport(double aX, double aY, double aSize) { mViewport.set(aX, aY, aSize); }
 
     DrawingOrder& drawing_order() { return mDrawingOrder; }
 

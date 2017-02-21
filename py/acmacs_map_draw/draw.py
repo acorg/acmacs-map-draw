@@ -3,7 +3,7 @@
 # license.
 # ----------------------------------------------------------------------
 
-import os, copy, operator, pprint
+import os, copy, math, operator, pprint
 from pathlib import Path
 import logging; module_logger = logging.getLogger(__name__)
 from .hidb_access import get_hidb
@@ -19,26 +19,28 @@ from acmacs_map_draw_backend import ChartDraw, PointStyle, find_vaccines_in_char
 def draw_chart(output_file, chart, settings, output_width, verbose=False):
     chart_draw = ChartDraw(chart)
     chart_draw.prepare()
-    # chart_draw.background_color("green")
-    # chart_draw.grid("red", 1)
-    # chart_draw.border("orange", 2)
-    chart_draw.mark_egg_antigens()
-    chart_draw.mark_reassortant_antigens()
-    #chart_draw.scale_points(3)
-    chart_draw.all_grey()
-    # chart_draw.modify_point_by_index(0, PointStyle().fill("blue").outline("black").size(20))
-    # chart_draw.modify_point_by_index(0, make_point_style({"fill": "blue", "outline": "black", "size": 20}))
-    # chart_draw.modify_point_by_index(10, acmacs_chart.PointStyle(fill="red", outline="black", size=20))
-    # chart_draw.rotate(1.57)
-    # chart_draw.flip_ns()
-    # chart_draw.flip_ew()
-    # chart_draw.flip(-1, 1)                # flip about diagonal from [0,0] to [1,1], i.e. flip in direction [-1,1]
 
-    # mark_continents(chart_draw=chart_draw, chart=chart)
+    flip(chart_draw, settings.get("flip"))
+    rotate(chart_draw, settings.get("rotate"))
+    viewport(chart_draw, settings.get("viewport"))
+    if settings.get("background"):
+        chart_draw.background_color(settings["background"])
+    if settings.get("grid"):
+        chart_draw.grid(settings["grid"].get("color", "grey80"), settings["grid"].get("width", 1.0))
+    if settings.get("border"):
+        chart_draw.border(settings["border"].get("color", "grey80"), settings["border"].get("width", 1.0))
 
-    # mark_clades(chart_draw=chart_draw, chart=chart, legend_settings=settings["legend"], verbose=verbose)
-
-    mark_aa_substitutions(chart_draw=chart_draw, chart=chart, positions=[158, 159], legend_settings=settings["legend"], verbose=verbose)
+    if False: # mods
+        chart_draw.mark_egg_antigens()
+        chart_draw.mark_reassortant_antigens()
+        chart_draw.all_grey()
+        #chart_draw.scale_points(3)
+        # chart_draw.modify_point_by_index(0, PointStyle().fill("blue").outline("black").size(20))
+        # chart_draw.modify_point_by_index(0, make_point_style({"fill": "blue", "outline": "black", "size": 20}))
+        # chart_draw.modify_point_by_index(10, acmacs_chart.PointStyle(fill="red", outline="black", size=20))
+        # mark_continents(chart_draw=chart_draw, chart=chart)
+        # mark_clades(chart_draw=chart_draw, chart=chart, legend_settings=settings["legend"], verbose=verbose)
+        mark_aa_substitutions(chart_draw=chart_draw, chart=chart, positions=[158, 159], legend_settings=settings["legend"], verbose=verbose)
 
     if False:
         # labels
@@ -62,6 +64,41 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
 
     mark_vaccines(chart_draw=chart_draw, chart=chart)
     chart_draw.draw(str(output_file), output_width)
+
+# ----------------------------------------------------------------------
+
+def rotate(chart_draw, angle):
+    if angle:
+        if isinstance(angle, int):
+            angle = float(angle)
+        if isinstance(angle, float) and angle > -5.0 and angle < 5.0:
+            chart_draw.rotate(angle)
+        elif isinstance(angle, float) and angle > -360.0 and angle < 360.0:
+            chart_draw.rotate(angle * math.pi / 180.0)
+        else:
+            raise ValueError("Unrecognized rotate: {}".format(angle))
+
+# ----------------------------------------------------------------------
+
+def flip(chart_draw, value):
+    if value:
+        if value == "ns":
+            chart_draw.flip_ns()
+        elif value == "ew":
+            chart_draw.flip_ew()
+        elif isinstance(value, list) and len(value) == 2:
+            chart_draw.flip(*value)
+        else:
+            raise ValueError("Unrecognized flip: {}".format(value))
+
+# ----------------------------------------------------------------------
+
+def viewport(chart_draw, value):
+    if value:
+        if isinstance(value, list) and len(value) == 3:
+            chart_draw.viewport(value)
+        else:
+            raise ValueError("Unrecognized viewport: {}".format(value))
 
 # ----------------------------------------------------------------------
 
