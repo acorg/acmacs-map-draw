@@ -35,28 +35,25 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
                 raise UnrecognizedMod(mod)
         else:
             raise UnrecognizedMod(mod)
-
-    if False: # mods
-        mark_aa_substitutions(chart_draw=chart_draw, chart=chart, positions=[158, 159], legend_settings=settings["legend"], verbose=verbose)
-
-    if False:
-        # labels
-        locdb = get_locdb()
-
-        indices = chart.antigens().find_by_name_matching("SW/9715293")
-        for index in indices:
-            ag = chart.antigen(index)
-            module_logger.info('Label {:4d} {}'.format(index, f"{ag.name()} {ag.reassortant()} {ag.passage()} {ag.annotations() or ''} [{ag.date()}] {ag.lab_id()}"))
-            chart_draw.label(index).display_name(ag.abbreviated_name_with_passage_type(locdb)) # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
-        # chart_draw.label(1) #.color("red").size(10).offset(0.01, 2.01)
-
-        indices = chart.sera().find_by_name_matching("SW/9715293 2015-027")
-        for index in indices:
-            sr = chart.serum(index)
-            module_logger.info('Label {:4d} {}'.format(index, f"{sr.name()} {sr.reassortant()} {sr.annotations() or ''} [{sr.serum_id()}]"))
-            chart_draw.label(index + chart.number_of_antigens()).display_name(sr.abbreviated_name(locdb)).color("orange") # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
-
     chart_draw.draw(str(output_file), output_width)
+
+    # if False:
+    #     # labels
+    #     locdb = get_locdb()
+
+    #     indices = chart.antigens().find_by_name_matching("SW/9715293")
+    #     for index in indices:
+    #         ag = chart.antigen(index)
+    #         module_logger.info('Label {:4d} {}'.format(index, f"{ag.name()} {ag.reassortant()} {ag.passage()} {ag.annotations() or ''} [{ag.date()}] {ag.lab_id()}"))
+    #         chart_draw.label(index).display_name(ag.abbreviated_name_with_passage_type(locdb)) # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
+    #     # chart_draw.label(1) #.color("red").size(10).offset(0.01, 2.01)
+
+    #     indices = chart.sera().find_by_name_matching("SW/9715293 2015-027")
+    #     for index in indices:
+    #         sr = chart.serum(index)
+    #         module_logger.info('Label {:4d} {}'.format(index, f"{sr.name()} {sr.reassortant()} {sr.annotations() or ''} [{sr.serum_id()}]"))
+    #         chart_draw.label(index + chart.number_of_antigens()).display_name(sr.abbreviated_name(locdb)).color("orange") # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
+
 
 # ----------------------------------------------------------------------
 
@@ -210,6 +207,22 @@ class ModApplicator:
                 legend_data=sorted(({"label": make_label(clade, data[1]), **data[0]} for clade, data in clades_used.items()), key=operator.itemgetter("label")),
                 legend_settings=legend)
 
+    def aa_substitutions(self, positions, legend=None, **args):
+        from . import seqdb_access
+        aa_indices = seqdb_access.aa_at_positions(chart=self._chart, positions=positions, verbose=self._verbose)
+        aa_order = sorted(aa_indices, key=lambda aa: - len(aa_indices[aa]))
+        dc = distinct_colors()
+        aa_color = {aa: dc[no] for no, aa in enumerate(aa_order)}
+        if "X" in aa_color:
+            aa_color["X"] = "grey25"
+        # print(aa_color)
+        for aa in aa_order:
+            self._chart_draw.modify_points_by_indices(aa_indices[aa], self._make_point_style({"outline": "black", "fill": aa_color[aa]}), raise_=True)
+        if legend and legend.get("show", True):
+            self._make_legend(
+                legend_data=[{"label": "{} {:3d}".format(aa, len(aa_indices[aa])), "outline": "black", "fill": aa_color[aa]} for aa in aa_order],
+                legend_settings=legend)
+
     def vaccines(self, raise_=True, label=None, **args):
         # fill=None, outline=None, show=None, shape=None, size=None, outline_width=None, aspect=None, rotation=None
         hidb = get_hidb(chart=self._chart)
@@ -279,47 +292,6 @@ class ModApplicator:
                     getattr(legend_box, k)(legend_settings[k])
             for legend_entry in legend_data:
                 legend_box.add_line(**legend_entry)
-
-# ----------------------------------------------------------------------
-
-def mark_aa_substitutions(chart_draw, chart, positions, legend_settings, verbose=False):
-    from . import seqdb_access
-
-    aa_indices = seqdb_access.aa_at_positions(chart=chart, positions=positions, verbose=verbose)
-    aa_order = sorted(aa_indices, key=lambda aa: - len(aa_indices[aa]))
-    dc = distinct_colors()
-    aa_color = {aa: dc[no] for no, aa in enumerate(aa_order)}
-    if "X" in aa_color:
-        aa_color["X"] = "grey25"
-    # print(aa_color)
-    for aa in aa_order:
-        chart_draw.modify_points_by_indices(aa_indices[aa], make_point_style({"outline": "black", "fill": aa_color[aa]}), raise_=True)
-
-    make_legend(chart_draw,
-                    legend_data=[{"label": "{} {:3d}".format(aa, len(aa_indices[aa])), "outline": "black", "fill": aa_color[aa]} for aa in aa_order],
-                    legend_settings=legend_settings)
-
-# ----------------------------------------------------------------------
-
-def make_legend(chart_draw, legend_data, legend_settings):
-    # pprint.pprint(legend_data)
-    if legend_settings and legend_settings.get("show", True) and legend_data:
-        legend_box = chart_draw.legend(legend_settings.get("offset", [-10, -10]))
-        for k in ["label_size", "background", "border_color", "border_width", "label_size", "point_size"]:
-            if k in legend_settings:
-                getattr(legend_box, k)(legend_settings[k])
-        for legend_entry in legend_data:
-            legend_box.add_line(**legend_entry)
-
-# ----------------------------------------------------------------------
-
-# def make_point_style(data):
-#     ps = PointStyle()
-#     for k, v in data.items():
-#         setter = getattr(ps, k, None)
-#         if setter:
-#             setter(v)
-#     return ps
 
 # ----------------------------------------------------------------------
 ### Local Variables:
