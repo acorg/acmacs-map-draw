@@ -93,9 +93,9 @@ void ContinentMap::draw(Surface& aSurface) const
 {
     Location origin = mOrigin;
     if (origin.x < 0)
-        origin.x += aSurface.width_in_pixels();
+        origin.x += aSurface.width_in_pixels() - mWidthInParent.value();
     if (origin.y < 0)
-        origin.y += aSurface.height_in_pixels();
+        origin.y += aSurface.height_in_pixels() - mWidthInParent.value() / continent_map_aspect();
     Surface& continent_surface = aSurface.subsurface(origin, mWidthInParent, continent_map_size(), true);
     continent_map_draw(continent_surface);
 

@@ -37,11 +37,6 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
             raise UnrecognizedMod(mod)
 
     if False: # mods
-        #chart_draw.scale_points(3)
-        # chart_draw.modify_point_by_index(0, PointStyle().fill("blue").outline("black").size(20))
-        # chart_draw.modify_point_by_index(0, make_point_style({"fill": "blue", "outline": "black", "size": 20}))
-        # chart_draw.modify_point_by_index(10, acmacs_chart.PointStyle(fill="red", outline="black", size=20))
-        # mark_continents(chart_draw=chart_draw, chart=chart)
         # mark_clades(chart_draw=chart_draw, chart=chart, legend_settings=settings["legend"], verbose=verbose)
         mark_aa_substitutions(chart_draw=chart_draw, chart=chart, positions=[158, 159], legend_settings=settings["legend"], verbose=verbose)
         mark_vaccines(chart_draw=chart_draw, chart=chart)
@@ -71,6 +66,20 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
 # ----------------------------------------------------------------------
 
 class ModApplicator:
+
+    sStyleByContinent = {
+        "EUROPE":            {"fill": "green"},
+        "CENTRAL-AMERICA":   {"fill": "#AAF9FF"},
+        "MIDDLE-EAST":       {"fill": "#8000FF"},
+        "NORTH-AMERICA":     {"fill": "blue4"},
+        "AFRICA":            {"fill": "darkorange1"},
+        "ASIA":              {"fill": "red"},
+        "RUSSIA":            {"fill": "maroon"},
+        "AUSTRALIA-OCEANIA": {"fill": "hotpink"},
+        "SOUTH-AMERICA":     {"fill": "turquoise"},
+        "ANTARCTICA":        {"fill": "grey50"},
+        "":                  {"fill": "grey50"},
+        }
 
     def __init__(self, chart_draw, chart):
         self._chart_draw = chart_draw
@@ -109,6 +118,49 @@ class ModApplicator:
     def all_grey(self, **args):
         self._chart_draw.all_grey()
 
+    def background(self, color, **args):
+        self._chart_draw.background_color(color=color)
+
+    def grid(self, color="grey80", line_width=1, **args):
+        self._chart_draw.grid(color=color, line_width=line_width)
+
+    def border(self, color="grey80", line_width=1, **args):
+        self._chart_draw.border(color=color, line_width=line_width)
+
+    def point_scale(self, scale=1, outline_scale=1, **args):
+        self._chart_draw.scale_points(scale=scale, outline_scale=outline_scale)
+
+    def style(self, index=None, indices=None, raise_=None, lower=None, **args):
+        # fill=None, outline=None, show=None, shape=None, size=None, outline_width=None, aspect=None, rotation=None
+        if index is None:
+            if indices is None:
+                raise ValueError("One of index or indices must be provided")
+            index = indices
+        elif indices is not None:
+            raise ValueError("Either index or indices must be provided")
+        if isinstance(index, list):
+            func = self._chart_draw.modify_points_by_indices
+        else:
+            func = self._chart_draw.modify_point_by_index
+        func(index, style=self._make_point_style(args), raise_=bool(raise_), lower=bool(lower))
+
+    def continents(self, legend=None, **args):
+        from .locdb_access import get_locdb
+        data = self._chart.antigens().continents(get_locdb())
+        module_logger.info('[Continents] {}'.format(" ".join(f"{continent}:{len(data[continent])}" for continent in sorted(data))))
+        for continent, indices in data.items():
+            self._chart_draw.modify_points_by_indices(indices, self._make_point_style(self.sStyleByContinent[continent]))
+        if legend and legend.get("show", True):
+            self._chart_draw.continent_map(legend.get("offset", [0, 0]), legend.get("size", 100))
+
+    def _make_point_style(self, data):
+        style = PointStyle()
+        for k, v in data.items():
+            setter = getattr(style, k, None)
+            if setter:
+                setter(v)
+        return style
+
 # ----------------------------------------------------------------------
 
 sStyleByVaccineType = {
@@ -143,31 +195,6 @@ def mark_vaccines(chart_draw, chart, style={"size": 15}, raise_=True):
                 module_logger.info('Marking vaccine {} {}'.format(vaccine_data.antigen_index, vaccine_data.antigen.full_name()))
                 chart_draw.modify_point_by_index(vaccine_data.antigen_index, make_point_style(vstyle), raise_=raise_)
                 # chart_draw.label(vaccine_data.antigen_index).offset(-0.1, 1).color("red")
-
-# ----------------------------------------------------------------------
-
-sStyleByContinent = {
-    "EUROPE":            {"fill": "green"},
-    "CENTRAL-AMERICA":   {"fill": "#AAF9FF"},
-    "MIDDLE-EAST":       {"fill": "#8000FF"},
-    "NORTH-AMERICA":     {"fill": "blue4"},
-    "AFRICA":            {"fill": "darkorange1"},
-    "ASIA":              {"fill": "red"},
-    "RUSSIA":            {"fill": "maroon"},
-    "AUSTRALIA-OCEANIA": {"fill": "hotpink"},
-    "SOUTH-AMERICA":     {"fill": "turquoise"},
-    "ANTARCTICA":        {"fill": "grey50"},
-    "":                  {"fill": "grey50"},
-    }
-
-def mark_continents(chart_draw, chart):
-    from .locdb_access import get_locdb
-    data = chart.antigens().continents(get_locdb())
-    module_logger.info('[Continents] {}'.format(" ".join(f"{continent}:{len(data[continent])}" for continent in sorted(data))))
-    global sStyleByContinent
-    for continent, indices in data.items():
-        chart_draw.modify_points_by_indices(indices, make_point_style(sStyleByContinent[continent]))
-    chart_draw.continent_map([0, -50], 100)
 
 # ----------------------------------------------------------------------
 
@@ -242,13 +269,13 @@ def make_legend(chart_draw, legend_data, legend_settings):
 
 # ----------------------------------------------------------------------
 
-def make_point_style(data):
-    ps = PointStyle()
-    for k, v in data.items():
-        setter = getattr(ps, k, None)
-        if setter:
-            setter(v)
-    return ps
+# def make_point_style(data):
+#     ps = PointStyle()
+#     for k, v in data.items():
+#         setter = getattr(ps, k, None)
+#         if setter:
+#             setter(v)
+#     return ps
 
 # ----------------------------------------------------------------------
 ### Local Variables:

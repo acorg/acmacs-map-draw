@@ -32,25 +32,26 @@ def main(args):
 # ----------------------------------------------------------------------
 
 sSettings = {
-    "flip?": "'ns', 'ew', [-1, 1] - diagonal",
-    "flip": "",
-    "rotate?": "-4.99 ... 4.99 - radians, otherwise degrees, positive - counterclockwise",
-    "rotate": 0,
-    "viewport?": "[X, Y, SIZE]",
-    "viewport": [-6, -6, 10],
+    "mods": [
+        "egg", "reassortant",
+        ],
     "mods?": [
         "flip_ns", "flip_ew", {"N": "flip", "value": [-1, 1]},
         {"N": "rotate_degrees", "angle": 30}, {"N": "rotate_radians", "angle": -1},
         {"N": "viewport", "value": [-6, -6, 10]},
-        "egg", "reassortant", "all_grey"
+        "egg", "reassortant", "all_grey",
+        {},
+        {"N": "continents", "legend": {"show": False, "offset": [-1, -1], "size": 100}},
+        {},
+        {"N": "style", "index": 0, "fill": "red", "outline": "green", "show": True, "shape": "triangle", "size": 10, "outline_width": 1, "aspect": 1, "rotation": 0, "raise_": True, "lower": None},
+        {"N": "style", "index": [1,2,3], "fill": "red", "outline": "green", "show": True, "shape": "triangle", "size": 10, "outline_width": 1, "aspect": 1, "rotation": 0, "raise_": True, "lower": None},
+        {},
+        {"N": "point_scale", "scale": 1, "outline_scale": 1},
+        {"N": "background", "color": "white"},
+        {"N": "grid", "color": "grey80", "line_width": 1},
+        {"N": "border", "color": "black", "line_width": 1},
         ],
-    "mods": [
-        "egg", "reassortant",
-        ],
-    "legend": {"show": True, "offset": [-10, -10], "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8},
-    "background": "white",
-    "grid": {"color": "grey80", "width": 1},
-    "border": {"color": "black", "width": 1},
+    # "legend": {"show": True, "offset": [-10, -10], "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8},
     }
 
 # ----------------------------------------------------------------------

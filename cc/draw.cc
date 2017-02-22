@@ -130,8 +130,8 @@ void ChartDraw::mark_reassortant_antigens()
 
 void ChartDraw::scale_points(double aPointScale, double aOulineScale)
 {
-    if (float_zero(aOulineScale))
-        aOulineScale = aPointScale;
+    // if (float_zero(aOulineScale))
+    //     aOulineScale = aPointScale;
     for (auto& style: mPointStyles)
         style.scale(aPointScale).scale_outline(aOulineScale);
 
