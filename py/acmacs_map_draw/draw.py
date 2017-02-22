@@ -21,7 +21,7 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
     chart_draw = ChartDraw(chart)
     chart_draw.prepare()
 
-    applicator = ModApplicator(chart_draw=chart_draw, chart=chart)
+    applicator = ModApplicator(chart_draw=chart_draw, chart=chart, verbose=verbose)
     for mod in settings.get("mods", []):
         if isinstance(mod, str):
             try:
@@ -37,9 +37,8 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
             raise UnrecognizedMod(mod)
 
     if False: # mods
-        # mark_clades(chart_draw=chart_draw, chart=chart, legend_settings=settings["legend"], verbose=verbose)
+        mark_clades(chart_draw=chart_draw, chart=chart, legend_settings=settings["legend"], verbose=verbose)
         mark_aa_substitutions(chart_draw=chart_draw, chart=chart, positions=[158, 159], legend_settings=settings["legend"], verbose=verbose)
-        mark_vaccines(chart_draw=chart_draw, chart=chart)
 
     if False:
         # labels
@@ -99,11 +98,32 @@ class ModApplicator:
             },
         }
 
+    sStyleByClade = [                     # bottom raised entries above top entries
+        {"N": "", "fill": "grey50", "outline": "black"},                # sequenced but not in any clade
+        # H3
+        {"N": "3C3",   "fill": "cornflowerblue", "outline": "black"},
+        {"N": "3C2a",  "fill": "red", "outline": "black"},
+        {"N": "3C2a1", "fill": "darkred", "outline": "black"},
+        {"N": "3C3a",  "fill": "green", "outline": "black"},
+        {"N": "3C3b",  "fill": "blue", "outline": "black"},
+        # H1pdm
+        {"N": "6B1", "fill": "blue", "outline": "black"},
+        {"N": "6B2", "fill": "red", "outline": "black"},
+        # B/Yam
+        {"N": "Y2", "fill": "cornflowerblue", "outline": "black"},
+        {"N": "Y3", "fill": "red", "outline": "black"},
+        # B/Vic
+        {"N": "1",  "fill": "blue", "outline": "black"},
+        {"N": "1A", "fill": "cornflowerblue", "outline": "black"},
+        {"N": "1B", "fill": "red", "outline": "black"},
+        ]
+
     # ----------------------------------------------------------------------
 
-    def __init__(self, chart_draw, chart):
+    def __init__(self, chart_draw, chart, verbose=False):
         self._chart_draw = chart_draw
         self._chart = chart
+        self._verbose = verbose
 
     def flip_ns(self, **args):
         self._chart_draw.flip_ns()
@@ -165,13 +185,34 @@ class ModApplicator:
         func(index, style=self._make_point_style(args), raise_=bool(raise_), lower=bool(lower))
 
     def continents(self, legend=None, **args):
-        from .locdb_access import get_locdb
         data = self._chart.antigens().continents(get_locdb())
         module_logger.info('[Continents] {}'.format(" ".join(f"{continent}:{len(data[continent])}" for continent in sorted(data))))
         for continent, indices in data.items():
             self._chart_draw.modify_points_by_indices(indices, self._make_point_style(self.sStyleByContinent[continent]))
         if legend and legend.get("show", True):
             self._chart_draw.continent_map(legend.get("offset", [0, 0]), legend.get("size", 100))
+
+    def clades(self, legend=None, **args):
+        from .seqdb_access import antigen_clades
+        clade_data = antigen_clades(self._chart, verbose=self._verbose)
+        # pprint.pprint(clade_data)
+        clades_used = {}                      # for legend
+        for clade_style in self.sStyleByClade:
+            indices = clade_data.get(clade_style["N"])
+            if indices:
+                self._chart_draw.modify_points_by_indices(indices, self._make_point_style(clade_style), raise_=True)
+                clades_used[clade_style["N"]] = [clade_style, len(indices)]
+        module_logger.info('Clades {}'.format(clades_used))
+        # module_logger.info('Clades {}'.format(sorted(clades_used)))
+        if legend and legend.get("show", True):
+            def make_label(clade, count):
+                label = clade or "sequenced"
+                if legend.get("point_count"):
+                    label += " ({})".format(count)
+                return label
+            self._make_legend(
+                legend_data=sorted(({"label": make_label(clade, data[1]), **data[0]} for clade, data in clades_used.items()), key=operator.itemgetter("label")),
+                legend_settings=legend)
 
     def vaccines(self, raise_=True, label=None, **args):
         # fill=None, outline=None, show=None, shape=None, size=None, outline_width=None, aspect=None, rotation=None
@@ -219,45 +260,15 @@ class ModApplicator:
                 setter(v)
         return style
 
-# ----------------------------------------------------------------------
-
-sStyleByClade = {
-    # H3
-    "3C3":   {"fill": "cornflowerblue", "outline": "black"},
-    "3C2a":  {"fill": "red", "outline": "black"},
-    "3C2a1": {"fill": "darkred", "outline": "black"},
-    "3C3a":  {"fill": "green", "outline": "black"},
-    "3C3b":  {"fill": "blue", "outline": "black"},
-    # H1pdm
-    "6B1": {"fill": "blue", "outline": "black"},
-    "6B2": {"fill": "red", "outline": "black"},
-    # B/Yam
-    "Y2": {"fill": "cornflowerblue", "outline": "black"},
-    "Y3": {"fill": "red", "outline": "black"},
-    # B/Vic
-    "1": {"fill": "blue", "outline": "black"},
-    "1A": {"fill": "cornflowerblue", "outline": "black"},
-    "1B": {"fill": "red", "outline": "black"},
-    "": {"fill": "green", "outline": "black"},                # sequenced but not in any clade
-    }
-
-def mark_clades(chart_draw, chart, legend_settings, verbose=False):
-    from .seqdb_access import antigen_clades
-    clade_data = antigen_clades(chart, verbose=verbose)
-    # pprint.pprint(clade_data)
-    global sStyleByClade
-    clades_used = {}                      # for legend
-    for clade, indices in clade_data.items():
-        style = sStyleByClade.get(clade)
-        if style:
-            chart_draw.modify_points_by_indices(indices, make_point_style(style), raise_=True)
-            clades_used[clade] = [style, len(indices), indices if len(indices) < 10 else []]
-    # pprint.pprint(clades_used)
-    module_logger.info('Clades {}'.format(sorted(clades_used)))
-
-    make_legend(chart_draw,
-                    legend_data=sorted(({"label": clade if clade else "sequenced", **data[0]} for clade, data in clades_used.items()), key=operator.itemgetter("label")),
-                    legend_settings=legend_settings)
+    def _make_legend(self, legend_data, legend_settings):
+        # pprint.pprint(legend_data)
+        if legend_settings and legend_settings.get("show", True) and legend_data:
+            legend_box = self._chart_draw.legend(legend_settings.get("offset", [-10, -10]))
+            for k in ["label_size", "background", "border_color", "border_width", "label_size", "point_size"]:
+                if k in legend_settings:
+                    getattr(legend_box, k)(legend_settings[k])
+            for legend_entry in legend_data:
+                legend_box.add_line(**{k: v for k, v in legend_entry.items() if k not in ["N"]})
 
 # ----------------------------------------------------------------------
 
