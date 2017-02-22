@@ -34,6 +34,13 @@ def main(args):
 sSettings = {
     "mods": [
         "egg", "reassortant",
+        "all_grey",
+        {"N": "vaccines", "size": 15, "label": {
+            "": {"offset": [0, 1], "color": "black", "size": 12, "name_type": "abbreviated_with_passage_type"},
+            "current-reassortant": {"offset": [1, 0]},
+            "current-cell": {"offset": [-1, 1]},
+            }
+        },
         ],
     "mods?": [
         "flip_ns", "flip_ew", {"N": "flip", "value": [-1, 1]},
@@ -42,6 +49,12 @@ sSettings = {
         "egg", "reassortant", "all_grey",
         {},
         {"N": "continents", "legend": {"show": False, "offset": [-1, -1], "size": 100}},
+        {"N": "vaccines", "size": 15},
+        {"N": "vaccines", "size": 15, "label": {
+            "": {"offset": [0, 1], "color": "black", "size": 12, "name_type": "abbreviated_with_passage_type"},
+            "current-egg": {"offset": [0, 1]},
+            "current-cell": {"offset": [-1, 1]},
+        }},
         {},
         {"N": "style", "index": 0, "fill": "red", "outline": "green", "show": True, "shape": "triangle", "size": 10, "outline_width": 1, "aspect": 1, "rotation": 0, "raise_": True, "lower": None},
         {"N": "style", "index": [1,2,3], "fill": "red", "outline": "green", "show": True, "shape": "triangle", "size": 10, "outline_width": 1, "aspect": 1, "rotation": 0, "raise_": True, "lower": None},

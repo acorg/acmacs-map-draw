@@ -81,6 +81,26 @@ class ModApplicator:
         "":                  {"fill": "grey50"},
         }
 
+    sStyleByVaccineType = {
+        "previous": {
+            "egg": {"fill": "blue", "outline": "black", "aspect": 0.75},
+            "reassortant": {"fill": "blue", "outline": "black", "aspect": 0.75, "rotation": 0.5},
+            "cell": {"fill": "blue", "outline": "black"}
+            },
+        "current": {
+            "egg": {"fill": "red", "outline": "black", "aspect": 0.75},
+            "reassortant": {"fill": "green", "outline": "black", "aspect": 0.75, "rotation": 0.5},
+            "cell": {"fill": "red", "outline": "black"}
+            },
+        "surrogate": {
+            "egg": {"fill": "pink", "outline": "black", "aspect": 0.75},
+            "reassortant": {"fill": "pink", "outline": "black", "aspect": 0.75, "rotation": 0.5},
+            "cell": {"fill": "pink", "outline": "black"}
+            },
+        }
+
+    # ----------------------------------------------------------------------
+
     def __init__(self, chart_draw, chart):
         self._chart_draw = chart_draw
         self._chart = chart
@@ -153,6 +173,44 @@ class ModApplicator:
         if legend and legend.get("show", True):
             self._chart_draw.continent_map(legend.get("offset", [0, 0]), legend.get("size", 100))
 
+    def vaccines(self, raise_=True, label=None, **args):
+        # fill=None, outline=None, show=None, shape=None, size=None, outline_width=None, aspect=None, rotation=None
+        hidb = get_hidb(chart=self._chart)
+        for vaccine_entry in vaccines(chart=self._chart):
+            # module_logger.debug('{}'.format(vaccine_entry))
+            antigens = find_vaccines_in_chart(vaccine_entry["name"], self._chart, hidb)
+            for passage_type in ["egg", "reassortant", "cell"]:
+                vaccine_data = getattr(antigens, passage_type)()
+                if vaccine_data:
+                    module_logger.info('Marking vaccine {} {}'.format(vaccine_data.antigen_index, vaccine_data.antigen.full_name()))
+                    self._chart_draw.modify_point_by_index(vaccine_data.antigen_index, self._make_point_style({**self.sStyleByVaccineType[vaccine_entry["type"]][passage_type], **args}), raise_=raise_)
+                    label_key = vaccine_entry["type"] + "-" + passage_type
+                    if label:
+                        if label.get(label_key):
+                            self.label(index=vaccine_data.antigen_index, **{**label.get("", {}), **label[label_key]})
+                        elif label.get(""):
+                            self.label(index=vaccine_data.antigen_index, **label[""])
+
+    def label(self, index, name_type="full", **args):
+        lbl = self._chart_draw.label(index)
+        if "display_name" not in args:
+            if index < self._chart.number_of_antigens():
+                if name_type == "abbreviated":
+                    args["display_name"] = self._chart.antigen(index).abbreviated_name(get_locdb())
+                elif name_type == "abbreviated_with_passage_type":
+                    args["display_name"] = self._chart.antigen(index).abbreviated_name_with_passage_type(get_locdb())
+                else:
+                    args["display_name"] = self._chart.antigen(index).full_name(get_locdb())
+            else:
+                if name_type in ["abbreviated", "abbreviated_with_passage_type"]:
+                    args["display_name"] = self._chart.serum(index - self._chart.number_of_antigens()).abbreviated_name(get_locdb())
+                else:
+                    args["display_name"] = self._chart.serum(index - self._chart.number_of_antigens()).full_name(get_locdb())
+        for k, v in args.items():
+            setter = getattr(lbl, k, None)
+            if setter:
+                setter(v)
+
     def _make_point_style(self, data):
         style = PointStyle()
         for k, v in data.items():
@@ -160,41 +218,6 @@ class ModApplicator:
             if setter:
                 setter(v)
         return style
-
-# ----------------------------------------------------------------------
-
-sStyleByVaccineType = {
-    "previous": {
-        "egg": {"fill": "blue", "outline": "black", "aspect": 0.75},
-        "reassortant": {"fill": "blue", "outline": "black", "aspect": 0.75, "rotation": 0.5},
-        "cell": {"fill": "blue", "outline": "black"}
-        },
-    "current": {
-        "egg": {"fill": "red", "outline": "black", "aspect": 0.75},
-        "reassortant": {"fill": "green", "outline": "black", "aspect": 0.75, "rotation": 0.5},
-        "cell": {"fill": "red", "outline": "black"}
-        },
-    "surrogate": {
-        "egg": {"fill": "pink", "outline": "black", "aspect": 0.75},
-        "reassortant": {"fill": "pink", "outline": "black", "aspect": 0.75, "rotation": 0.5},
-        "cell": {"fill": "pink", "outline": "black"}
-        },
-    }
-
-def mark_vaccines(chart_draw, chart, style={"size": 15}, raise_=True):
-    hidb = get_hidb(chart=chart)
-    for vaccine_entry in vaccines(chart=chart):
-        # module_logger.debug('{}'.format(vaccine_entry))
-        antigens = find_vaccines_in_chart(vaccine_entry["name"], chart, hidb)
-        for passage_type in ["egg", "reassortant", "cell"]:
-            vaccine_data = getattr(antigens, passage_type)()
-            if vaccine_data:
-                vstyle = sStyleByVaccineType[vaccine_entry["type"]][passage_type] # copy.deepcopy
-                if style:
-                    vstyle.update(style)
-                module_logger.info('Marking vaccine {} {}'.format(vaccine_data.antigen_index, vaccine_data.antigen.full_name()))
-                chart_draw.modify_point_by_index(vaccine_data.antigen_index, make_point_style(vstyle), raise_=raise_)
-                # chart_draw.label(vaccine_data.antigen_index).offset(-0.1, 1).color("red")
 
 # ----------------------------------------------------------------------
 
