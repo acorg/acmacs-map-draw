@@ -37,7 +37,6 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
             raise UnrecognizedMod(mod)
 
     if False: # mods
-        mark_clades(chart_draw=chart_draw, chart=chart, legend_settings=settings["legend"], verbose=verbose)
         mark_aa_substitutions(chart_draw=chart_draw, chart=chart, positions=[158, 159], legend_settings=settings["legend"], verbose=verbose)
 
     if False:
@@ -56,9 +55,6 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
             sr = chart.serum(index)
             module_logger.info('Label {:4d} {}'.format(index, f"{sr.name()} {sr.reassortant()} {sr.annotations() or ''} [{sr.serum_id()}]"))
             chart_draw.label(index + chart.number_of_antigens()).display_name(sr.abbreviated_name(locdb)).color("orange") # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
-
-    chart_draw.title().add_line(chart.make_name())
-    # chart_draw.title().add_line("WHOA")
 
     chart_draw.draw(str(output_file), output_width)
 
@@ -201,8 +197,8 @@ class ModApplicator:
             indices = clade_data.get(clade_style["N"])
             if indices:
                 self._chart_draw.modify_points_by_indices(indices, self._make_point_style(clade_style), raise_=True)
-                clades_used[clade_style["N"]] = [clade_style, len(indices)]
-        module_logger.info('Clades {}'.format(clades_used))
+                clades_used[clade_style["N"]] = [{k: v for k, v in clade_style.items() if k not in ["N"]}, len(indices)]
+        module_logger.info('Clades\n{}'.format(pprint.pformat(clades_used)))
         # module_logger.info('Clades {}'.format(sorted(clades_used)))
         if legend and legend.get("show", True):
             def make_label(clade, count):
@@ -252,6 +248,20 @@ class ModApplicator:
             if setter:
                 setter(v)
 
+    def title(self, display_name=None, **args):
+        ttl = self._chart_draw.title()
+        if isinstance(display_name, str):
+            ttl.add_line(display_name)
+        elif isinstance(display_name, list):
+            for n in display_name:
+                ttl.add_line(n)
+        else:
+            ttl.add_line(self._chart.make_name())
+        for k, v in args.items():
+            setter = getattr(ttl, k, None)
+            if setter:
+                setter(v)
+
     def _make_point_style(self, data):
         style = PointStyle()
         for k, v in data.items():
@@ -268,7 +278,7 @@ class ModApplicator:
                 if k in legend_settings:
                     getattr(legend_box, k)(legend_settings[k])
             for legend_entry in legend_data:
-                legend_box.add_line(**{k: v for k, v in legend_entry.items() if k not in ["N"]})
+                legend_box.add_line(**legend_entry)
 
 # ----------------------------------------------------------------------
 
