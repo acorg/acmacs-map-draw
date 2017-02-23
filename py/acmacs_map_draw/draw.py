@@ -25,7 +25,7 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
     for mod in settings.get("mods", []):
         if isinstance(mod, str):
             try:
-                getattr(applicator, mod)()
+                getattr(applicator, mod)(N=mod)
             except:
                 raise UnrecognizedMod(mod)
         elif isinstance(mod, dict):
@@ -162,6 +162,49 @@ class ModApplicator:
 
     def point_scale(self, scale=1, outline_scale=1, **args):
         self._chart_draw.scale_points(scale=scale, outline_scale=outline_scale)
+
+    def antigens(self, N, select, report_names_threshold=5, **args):
+        indices = None
+        antigens = self._chart.antigens()
+        if isinstance(select, str):
+            if select == "reference":
+                indices = antigens.reference_indices()
+            elif select == "test":
+                indices = antigens.test_indices()
+            elif select == "all":
+                indices = list(range(self._chart.number_of_antigens()))
+        elif isinstance(select, dict):
+            if "date_range" in select:
+                indices = antigens.date_range_indices(first=select["date_range"][0], after_last=select["date_range"][1])
+        if indices is not None:
+            if len(indices) <= report_names_threshold:
+                names = ["{:4d} {} [{}]".format(index, antigens[index].full_name(), antigens[index].date()) for index in indices]
+                module_logger.info('Antigens {}: select:{!r} {}\n    {}'.format(len(indices), select, args, "\n    ".join(names)))
+            elif len(indices) < 20:
+                module_logger.info('Antigens {}:{}: select:{!r} {}'.format(len(indices), indices, select, args))
+            else:
+                module_logger.info('Antigens {}: select:{!r} {}'.format(len(indices), select, args))
+            self.style(index=indices, **args)
+        else:
+            raise ValueError("Unsupported \"select\": " + repr(select))
+
+    def sera(self, N, select, report_names_threshold=5, **args):
+        indices = None
+        if isinstance(select, str):
+            if select == "all":
+                indices = list(range(self._chart.number_of_sera()))
+        if indices is not None:
+            if len(indices) <= report_names_threshold:
+                names = ["{:4d} {}".format(index, sera[index].full_name()) for index in indices]
+                module_logger.info('Sera {}: select:{!r} {}\n    {}'.format(len(indices), select, args, "\n    ".join(names)))
+            elif len(indices) < 20:
+                module_logger.info('Sera {}:{}: select:{!r} {}'.format(len(indices), indices, select, args))
+            else:
+                module_logger.info('Sera {}: select:{!r} {}'.format(len(indices), select, args))
+            number_of_antigens = self._chart.number_of_antigens()
+            self.style(index=[index + number_of_antigens for index in indices], **args)
+        else:
+            raise ValueError("Unsupported \"select\": " + repr(select))
 
     def style(self, index=None, indices=None, raise_=None, lower=None, **args):
         # fill=None, outline=None, show=None, shape=None, size=None, outline_width=None, aspect=None, rotation=None

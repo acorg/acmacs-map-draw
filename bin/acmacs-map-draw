@@ -35,8 +35,10 @@ sSettings = {
     "mods": [
         "egg", "reassortant",
         "all_grey",
-        {"N": "title", "text_size": 12, "background": "#F0F0FF", "border_color": "black", "border_width": 0.1},
-        {"N": "aa_substitutions", "positions": [159], "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
+        {"N": "title", "?display_name": ["CDC H3 FRA 20161004-20170209", "AA at 158, 159"], "text_size": 12, "background": "#F0F0FF", "border_color": "black", "border_width": 0.1},
+        {"N": "antigens", "select": {"date_range": ["2017-01-10", ""]}, "fill": "blue4", "outline": "red", "raise_": True},
+        # {"N": "aa_substitutions", "positions": [158, 159], "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
+        # {"N": "clades", "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
         {"N": "vaccines", "size": 15, "label": {
             "": {"offset": [0, 1], "color": "black", "size": 12, "name_type": "abbreviated_with_passage_type"},
             "current-reassortant": {"offset": [1, 0]},
@@ -50,14 +52,29 @@ sSettings = {
         {"N": "viewport", "value": [-6, -6, 10]},
         "egg", "reassortant", "all_grey",
         {},
+        {"N": "antigens", "select": "?", "fill": "blue4", "outline": "red", "raise_": True, "report_names_threshold": 5,
+             "?select_variants": [
+                 "reference", "test", "all", {"date_range": ["2010-01-01", ""]}
+                 ]},
+        {"N": "sera", "select": "all", "outline": "cyan3", "raise_": True, "report_names_threshold": 5,
+             "?select_variants": [
+                 "all"
+                 ]},
         {"N": "continents", "legend": {"show": False, "offset": [-1, -1], "size": 100}},
         {"N": "clades", "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
         {"N": "aa_substitutions", "positions": [159], "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
         {"N": "vaccines", "size": 15},
         {"N": "vaccines", "size": 15, "label": {
-            "": {"offset": [0, 1], "color": "black", "size": 12, "name_type": "abbreviated_with_passage_type"},
-            "current-egg": {"offset": [0, 1]},
-            "current-cell": {"offset": [-1, 1]},
+            "": {"offset": [0, 1], "color": "black", "size": 12, "name_type": "abbreviated_with_passage_type", "?": "default values for all vaccines"},
+            "current-egg": {},
+            "current-cell": {},
+            "current-reassortant": {},
+            "previous-egg": {},
+            "previous-cell": {},
+            "previous-reassortant": {},
+            "surrogate-egg": {},
+            "surrogate-cell": {},
+            "surrogate-reassortant": {},
         }},
         {},
         {"N": "style", "index": 0, "fill": "red", "outline": "green", "show": True, "shape": "triangle", "size": 10, "outline_width": 1, "aspect": 1, "rotation": 0, "raise_": True, "lower": None},
@@ -70,7 +87,6 @@ sSettings = {
         {"N": "grid", "color": "grey80", "line_width": 1},
         {"N": "border", "color": "black", "line_width": 1},
         ],
-    # "legend": {"show": True, "offset": [-10, -10], "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8},
     }
 
 # ----------------------------------------------------------------------

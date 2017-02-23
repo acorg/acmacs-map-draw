@@ -141,8 +141,12 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             ;
 
     py::class_<Antigens>(m, "Antigens")
+            .def("__getitem__", [](Antigens& antigens, size_t index) -> Antigen& { return antigens[index]; })
             .def("continents", [](const Antigens& antigens, const LocDb& aLocDb) { Antigens::ContinentData data; antigens.continents(data, aLocDb); return data; })
             .def("find_by_name_matching", [](const Antigens& antigens, std::string aName) { std::vector<size_t> indices; antigens.find_by_name_matching(aName, indices); return indices; })
+            .def("reference_indices", [](const Antigens& antigens) { std::vector<size_t> indices; antigens.reference_indices(indices); return indices; })
+            .def("test_indices", [](const Antigens& antigens) { std::vector<size_t> indices; antigens.test_indices(indices); return indices; })
+            .def("date_range_indices", [](const Antigens& antigens, std::string first_date, std::string after_last_date) { std::vector<size_t> indices; antigens.date_range_indices(first_date, after_last_date, indices); return indices; }, py::arg("first") = std::string(), py::arg("after_last") = std::string())
             ;
 
     py::class_<Sera>(m, "Sera")
