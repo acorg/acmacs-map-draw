@@ -3,10 +3,7 @@ Drawing antigenic maps
 
 # TODO
 
-- select ref, test antigens, sera
 - select by name
-- select by date range, older_than_days
-- select by passage type
 - select by lineage
 - comparing_with_previous: select antigens not found in another chart
 - select by country, by continent

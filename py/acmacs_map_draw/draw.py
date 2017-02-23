@@ -3,7 +3,7 @@
 # license.
 # ----------------------------------------------------------------------
 
-import os, copy, math, operator, pprint
+import os, copy, math, operator, datetime, pprint
 from pathlib import Path
 import logging; module_logger = logging.getLogger(__name__)
 from .hidb_access import get_hidb
@@ -163,7 +163,7 @@ class ModApplicator:
     def point_scale(self, scale=1, outline_scale=1, **args):
         self._chart_draw.scale_points(scale=scale, outline_scale=outline_scale)
 
-    def antigens(self, N, select, report_names_threshold=5, **args):
+    def antigens(self, N, select, report_names_threshold=10, **args):
         indices = None
         antigens = self._chart.antigens()
         if isinstance(select, str):
@@ -176,8 +176,19 @@ class ModApplicator:
         elif isinstance(select, dict):
             if "date_range" in select:
                 indices = antigens.date_range_indices(first=select["date_range"][0], after_last=select["date_range"][1])
+            elif "older_than_days" in select:
+                indices = antigens.date_range_indices(after_last=(datetime.date.today() - datetime.timedelta(days=select["older_than_days"])).strftime("%Y-%m-%d"))
+            elif "younger_than_days" in select:
+                indices = antigens.date_range_indices(first=(datetime.date.today() - datetime.timedelta(days=select["younger_than_days"])).strftime("%Y-%m-%d"))
+            elif "passage_type" in select:
+                if select["passage_type"] == "egg":
+                    indices = antigens.egg_indices()
+                elif select["passage_type"] == "cell":
+                    indices = antigens.cell_indices()
+                elif select["passage_type"] == "reassortant":
+                    indices = antigens.reassortant_indices()
         if indices is not None:
-            if len(indices) <= report_names_threshold:
+            if report_names_threshold is None or len(indices) <= report_names_threshold:
                 names = ["{:4d} {} [{}]".format(index, antigens[index].full_name(), antigens[index].date()) for index in indices]
                 module_logger.info('Antigens {}: select:{!r} {}\n    {}'.format(len(indices), select, args, "\n    ".join(names)))
             elif len(indices) < 20:
@@ -190,12 +201,13 @@ class ModApplicator:
 
     def sera(self, N, select, report_names_threshold=5, **args):
         indices = None
+        sera = self._chart.sera()
         if isinstance(select, str):
             if select == "all":
                 indices = list(range(self._chart.number_of_sera()))
         if indices is not None:
-            if len(indices) <= report_names_threshold:
-                names = ["{:4d} {}".format(index, sera[index].full_name()) for index in indices]
+            if report_names_threshold is None or len(indices) <= report_names_threshold:
+                names = ["{:3d} {}".format(index, sera[index].full_name()) for index in indices]
                 module_logger.info('Sera {}: select:{!r} {}\n    {}'.format(len(indices), select, args, "\n    ".join(names)))
             elif len(indices) < 20:
                 module_logger.info('Sera {}:{}: select:{!r} {}'.format(len(indices), indices, select, args))
