@@ -6,7 +6,6 @@ Drawing antigenic maps
 - select by name
 - select by lineage
 - comparing_with_previous: select antigens not found in another chart
-- select by country, by continent
 
 
 - serum circles and sectors

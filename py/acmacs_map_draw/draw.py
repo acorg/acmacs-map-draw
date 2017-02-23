@@ -187,11 +187,18 @@ class ModApplicator:
                     indices = antigens.cell_indices()
                 elif select["passage_type"] == "reassortant":
                     indices = antigens.reassortant_indices()
+            elif "country" in select:
+                indices = antigens.country(select["country"].upper(), get_locdb())
+                if not indices:
+                    countries = antigens.countries(get_locdb())
+                    module_logger.warning('No antigens from {},\n   there are antigens from: {}'.format(select["country"].upper(), " ".join("{}={}".format(c, len(countries[c])) for c in sorted(countries))))
+            elif "continent" in select:
+                indices = antigens.continents(get_locdb())[select["continent"].upper()]
         if indices is not None:
-            if report_names_threshold is None or len(indices) <= report_names_threshold:
+            if report_names_threshold is None or (indices and len(indices) <= report_names_threshold):
                 names = ["{:4d} {} [{}]".format(index, antigens[index].full_name(), antigens[index].date()) for index in indices]
                 module_logger.info('Antigens {}: select:{!r} {}\n    {}'.format(len(indices), select, args, "\n    ".join(names)))
-            elif len(indices) < 20:
+            elif indices and len(indices) < 20:
                 module_logger.info('Antigens {}:{}: select:{!r} {}'.format(len(indices), indices, select, args))
             else:
                 module_logger.info('Antigens {}: select:{!r} {}'.format(len(indices), select, args))
