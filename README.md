@@ -7,9 +7,9 @@ Drawing antigenic maps
 - select by lineage
 - comparing_with_previous: select antigens not found in another chart
 
-
 - serum circles and sectors
 - serum coverage
+
 - match antigens and sera of two charts
 - procrustes
 - time series

@@ -194,6 +194,8 @@ class ModApplicator:
                     module_logger.warning('No antigens from {},\n   there are antigens from: {}'.format(select["country"].upper(), " ".join("{}={}".format(c, len(countries[c])) for c in sorted(countries))))
             elif "continent" in select:
                 indices = antigens.continents(get_locdb())[select["continent"].upper()]
+            elif "name" in select:
+                indices = antigens.find_by_name_matching(select["name"])
         if indices is not None:
             if report_names_threshold is None or (indices and len(indices) <= report_names_threshold):
                 names = ["{:4d} {} [{}]".format(index, antigens[index].full_name(), antigens[index].date()) for index in indices]
@@ -206,12 +208,15 @@ class ModApplicator:
         else:
             raise ValueError("Unsupported \"select\": " + repr(select))
 
-    def sera(self, N, select, report_names_threshold=5, **args):
+    def sera(self, N, select, report_names_threshold=10, **args):
         indices = None
         sera = self._chart.sera()
         if isinstance(select, str):
             if select == "all":
                 indices = list(range(self._chart.number_of_sera()))
+        elif isinstance(select, dict):
+            if "name" in select:
+                indices = sera.find_by_name_matching(select["name"])
         if indices is not None:
             if report_names_threshold is None or len(indices) <= report_names_threshold:
                 names = ["{:3d} {}".format(index, sera[index].full_name()) for index in indices]

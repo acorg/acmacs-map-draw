@@ -36,7 +36,6 @@ sSettings = {
         "egg", "reassortant",
         "all_grey",
         {"N": "title", "?display_name": ["CDC H3 FRA 20161004-20170209", "AA at 158, 159"], "text_size": 12, "background": "#F0F0FF", "border_color": "black", "border_width": 0.1},
-        {"N": "antigens", "select": {"continent": "EUROPE"}, "fill": "blue4", "outline": "red", "raise_": True},
         # {"N": "aa_substitutions", "positions": [158, 159], "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
         # {"N": "clades", "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
         {"N": "vaccines", "size": 15, "label": {
@@ -54,12 +53,14 @@ sSettings = {
         {},
         {"N": "antigens", "select": "?", "fill": "blue4", "outline": "red", "raise_": True, "report_names_threshold": 10,
              "?select_variants": [
+                 {"name": "NEBRASKA/4/"},
                  "reference", "test", "all", {"date_range": ["2010-01-01", ""]}, {"older_than_days": 365}, {"younger_than_days": 365},
                  {"passage_type": "egg"}, {"passage_type": "cell"}, {"passage_type": "reassortant"},
                  {"country": "GERMANY"}, {"continent": "NORTH-AMERICA"}
                  ]},
         {"N": "sera", "select": "all", "outline": "cyan3", "raise_": True, "report_names_threshold": 10,
              "?select_variants": [
+                 {"name": "NEBRASKA/4/"},
                  "all"
                  ]},
         {"N": "continents", "legend": {"show": False, "offset": [-1, -1], "size": 100}},
