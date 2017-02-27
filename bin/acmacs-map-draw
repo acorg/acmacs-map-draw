@@ -12,6 +12,7 @@ import logging; module_logger = logging.getLogger(__name__)
 
 import acmacs_map_draw
 from acmacs_base.timeit import timeit
+from acmacs_base.json import read_json, write_json
 
 # ----------------------------------------------------------------------
 
@@ -20,9 +21,16 @@ def main(args):
         raise RuntimeError("File not found: " + args.chart[0])
     with timeit("Reading chart from " + args.chart[0]):
         chart = acmacs_map_draw.import_chart(args.chart[0])
+    settings = sSettings
+    if args.settings:
+        settings_file = Path(args.settings)
+        if settings_file.exists():
+            settings = read_json(settings_file)
+        else:
+            write_json(path=settings_file, data=settings)
     with timeit("Drawing chart to " + args.output[0]):
         try:
-            acmacs_map_draw.draw_chart(output_file=args.output[0], chart=chart, settings=sSettings, output_width=args.output_width, verbose=args.verbose)
+            acmacs_map_draw.draw_chart(output_file=args.output[0], chart=chart, settings=settings, output_width=args.output_width, verbose=args.verbose)
         except acmacs_map_draw.UnrecognizedMod as err:
             if args.verbose:
                 raise
@@ -33,17 +41,20 @@ def main(args):
 
 sSettings = {
     "mods": [
+        # "flip_ew",
+        # {"N": "rotate_degrees", "angle": -20},
         "egg", "reassortant",
         "all_grey",
-        {"N": "title", "?display_name": ["CDC H3 FRA 20161004-20170209", "AA at 158, 159"], "text_size": 12, "background": "#F0F0FF", "border_color": "black", "border_width": 0.1},
+        {"N": "title", "?display_name": ["1", "2"], "text_size": 12, "background": "#F0F0FF", "border_color": "black", "border_width": 0.1},
         # {"N": "aa_substitutions", "positions": [158, 159], "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
         # {"N": "clades", "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
-        {"N": "vaccines", "size": 15, "label": {
-            "": {"offset": [0, 1], "color": "black", "size": 12, "name_type": "abbreviated_with_passage_type"},
-            "current-reassortant": {"offset": [1, 0]},
-            "current-cell": {"offset": [-1, 1]},
-            }
-        },
+        {"N": "vaccines", "size": 15}
+        # {"N": "vaccines", "size": 15, "label": {
+        #     "": {"offset": [0, 1], "color": "black", "size": 12, "name_type": "abbreviated_with_passage_type"},
+        #     "current-reassortant": {"offset": [1, 0]},
+        #     "current-cell": {"offset": [-1, 1]},
+        #     }
+        # },
         ],
     "mods?": [
         "flip_ns", "flip_ew", {"N": "flip", "value": [-1, 1]},
@@ -100,8 +111,9 @@ try:
     parser.add_argument('-d', '--debug', action='store_const', dest='loglevel', const=logging.DEBUG, default=logging.INFO, help='Enable debugging output.')
 
     # parser.add_argument('--hidb-dir', action='store', dest='hidb_dir', default="~/AD/data", help='Directory with hidb4.*.json.xz.')
-    parser.add_argument('-s', '--output-size', action='store', dest='output_width', default=600, help='Width of the output image.')
+    parser.add_argument('--output-size', action='store', dest='output_width', default=600, help='Width of the output image.')
     parser.add_argument('-v', '--verbose', action='store_true', dest='verbose', default=False)
+    parser.add_argument('-s', '--settings', action='store', dest='settings', default=None, help='Settings file. Autocreated, if does not exist.')
 
     parser.add_argument('chart', nargs=1, help='Chart file.')
     parser.add_argument('output', nargs=1, help='Output pdf file.')

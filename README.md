@@ -3,7 +3,6 @@ Drawing antigenic maps
 
 # TODO
 
-- select by name
 - select by lineage
 - comparing_with_previous: select antigens not found in another chart
 
