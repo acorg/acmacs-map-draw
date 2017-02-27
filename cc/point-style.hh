@@ -57,7 +57,11 @@ class PointStyle
     inline PointStyle& scale_outline(double aScale) { mOutlineWidth *= aScale; return *this; }
 
     inline bool shown() const { return mShown == Shown::Shown; }
+    inline Shape shape() const { return mShape; }
     inline Pixels size() const { return mSize; }
+    inline std::string fill() const { return mFill.to_string(); }
+    inline std::string outline() const { return mOutline.to_string(); }
+    inline double outline_width() const { return mOutlineWidth.value(); }
     inline Aspect aspect() const { return mAspect; }
     inline Rotation rotation() const { return mRotation; }
 

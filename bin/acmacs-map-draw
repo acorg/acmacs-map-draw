@@ -30,7 +30,7 @@ def main(args):
             write_json(path=settings_file, data=settings)
     with timeit("Drawing chart to " + args.output[0]):
         try:
-            acmacs_map_draw.draw_chart(output_file=args.output[0], chart=chart, settings=settings, output_width=args.output_width, verbose=args.verbose)
+            chart_draw = acmacs_map_draw.draw_chart(output_file=args.output[0], chart=chart, settings=settings, output_width=args.output_width, verbose=args.verbose)
         except acmacs_map_draw.UnrecognizedMod as err:
             if args.verbose:
                 raise

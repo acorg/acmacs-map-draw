@@ -23,6 +23,27 @@ static inline PointStyle& point_style_shape(PointStyle& aStyle, std::string aSha
 
 // ----------------------------------------------------------------------
 
+static inline std::string get_point_style_shape(PointStyle& aStyle)
+{
+    std::string shape;
+    switch (aStyle.shape()) {
+      case PointStyle::Shape::Circle:
+          shape = "circle";
+          break;
+      case PointStyle::Shape::Box:
+          shape = "box";
+          break;
+      case PointStyle::Shape::Triangle:
+          shape = "triangle";
+          break;
+      case PointStyle::Shape::NoChange:
+          break;
+    }
+    return shape;
+}
+
+// ----------------------------------------------------------------------
+
 // static inline PointStyle* point_style_kw(PointStyle& aStyle, py::args args, py::kwargs kwargs)
 // {
 //     PointStyle* obj = new (&aStyle) PointStyle(PointStyle::Empty);
@@ -237,12 +258,14 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("show", [](PointStyle& style, bool show) -> PointStyle& { return style.show(show ? PointStyle::Shown::Shown : PointStyle::Shown::Hidden); }, py::arg("show") = true)
             .def("hide", &PointStyle::hide)
             .def("shape", &point_style_shape, py::arg("shape"))
+            .def("shape", &get_point_style_shape)
             .def("fill", [](PointStyle& style, std::string color) -> PointStyle& { return style.fill(color); }, py::arg("fill"))
-            .def("fill", &PointStyle::fill, py::arg("fill"))
+            .def("fill", py::overload_cast<>(&PointStyle::fill, py::const_))
             .def("outline", [](PointStyle& style, std::string color) -> PointStyle& { return style.outline(color); }, py::arg("outline"))
-            .def("outline", &PointStyle::outline, py::arg("outline"))
+            .def("outline", py::overload_cast<>(&PointStyle::outline, py::const_))
             .def("size", [](PointStyle& style, double aSize) -> PointStyle& { return style.size(Pixels{aSize}); }, py::arg("size"))
             .def("outline_width", [](PointStyle& style, double aOutlineWidth) -> PointStyle& { return style.outline_width(Pixels{aOutlineWidth}); }, py::arg("outline_width"))
+            .def("outline_width", py::overload_cast<>(&PointStyle::outline_width, py::const_))
             .def("aspect", py::overload_cast<double>(&PointStyle::aspect), py::arg("aspect"))
             .def("rotation", py::overload_cast<double>(&PointStyle::rotation), py::arg("rotation"))
             .def("scale", &PointStyle::scale, py::arg("scale"))
@@ -283,6 +306,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
     py::class_<ChartDraw>(m, "ChartDraw")
             .def(py::init<Chart&, size_t>(), py::arg("chart"), py::arg("projection_no") = 0)
             .def("prepare", &ChartDraw::prepare)
+            .def("point_styles", &ChartDraw::point_styles)
             .def("draw", py::overload_cast<std::string, double>(&ChartDraw::draw), py::arg("filename"), py::arg("size"))
             .def("mark_egg_antigens", &ChartDraw::mark_egg_antigens)
             .def("mark_reassortant_antigens", &ChartDraw::mark_reassortant_antigens)

@@ -36,6 +36,7 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
         else:
             raise UnrecognizedMod(mod)
     chart_draw.draw(str(output_file), output_width)
+    return chart_draw
 
     # if False:
     #     # labels
