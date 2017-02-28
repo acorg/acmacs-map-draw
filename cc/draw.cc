@@ -59,8 +59,8 @@ ChartDraw::ChartDraw(Chart& aChart, size_t aProjectionNo)
 
 void ChartDraw::prepare()
 {
-    modify(mChart.reference_antigen_indices(), PointStyle(PointStyle::Empty).fill("transparent").size(Pixels{8}), false, true); // lower
-    modify(mChart.serum_indices(), PointStyle(PointStyle::Empty).shape(PointStyle::Shape::Box).fill("transparent").size(Pixels{8}), false, true); // lower
+    modify(mChart.reference_antigen_indices(), PointStyleDraw(PointStyle::Empty).fill("transparent").size(Pixels{8}), false, true); // lower
+    modify(mChart.serum_indices(), PointStyleDraw(PointStyle::Empty).shape(PointStyle::Shape::Box).fill("transparent").size(Pixels{8}), false, true); // lower
 
 } // ChartDraw::prepare
 
@@ -114,7 +114,7 @@ void ChartDraw::modify(IndexGenerator&& aGen, const PointStyle& aStyle, bool aRa
 
 void ChartDraw::mark_egg_antigens()
 {
-    modify(mChart.egg_antigen_indices(), PointStyle(PointStyle::Empty).aspect(AspectEgg));
+    modify(mChart.egg_antigen_indices(), PointStyleDraw(PointStyle::Empty).aspect(AspectEgg));
 
 } // ChartDraw::mark_egg_antigens
 
@@ -122,7 +122,7 @@ void ChartDraw::mark_egg_antigens()
 
 void ChartDraw::mark_reassortant_antigens()
 {
-    modify(mChart.reassortant_antigen_indices(), PointStyle(PointStyle::Empty).rotation(RotationReassortant));
+    modify(mChart.reassortant_antigen_indices(), PointStyleDraw(PointStyle::Empty).rotation(RotationReassortant));
 
 } // ChartDraw::mark_reassortant_antigens
 
@@ -141,14 +141,11 @@ void ChartDraw::scale_points(double aPointScale, double aOulineScale)
 
 void ChartDraw::mark_all_grey(Color aColor)
 {
-    modify(mChart.reference_antigen_indices(), PointStyle(PointStyle::Empty).outline(aColor));
-    modify(mChart.test_antigen_indices(), PointStyle(PointStyle::Empty).fill(aColor).outline(aColor));
-    modify(mChart.serum_indices(), PointStyle(PointStyle::Empty).outline(aColor));
+    modify(mChart.reference_antigen_indices(), PointStyleDraw(PointStyle::Empty).outline(aColor));
+    modify(mChart.test_antigen_indices(), PointStyleDraw(PointStyle::Empty).fill(aColor).outline(aColor));
+    modify(mChart.serum_indices(), PointStyleDraw(PointStyle::Empty).outline(aColor));
 
 } // ChartDraw::mark_all_grey
-
-// ----------------------------------------------------------------------
-
 
 // ----------------------------------------------------------------------
 /// Local Variables:

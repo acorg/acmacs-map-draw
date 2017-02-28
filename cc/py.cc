@@ -44,22 +44,22 @@ static inline std::string get_point_style_shape(PointStyle& aStyle)
 
 // ----------------------------------------------------------------------
 
-// static inline PointStyle* point_style_kw(PointStyle& aStyle, py::args args, py::kwargs kwargs)
+// static inline PointStyleDraw* point_style_kw(PointStyleDraw& aStyle, py::args args, py::kwargs kwargs)
 // {
-//     PointStyle* obj = new (&aStyle) PointStyle(PointStyle::Empty);
+//     PointStyleDraw* obj = new (&aStyle) PointStyleDraw(PointStyle::Empty);
 //     std::cerr << "point_style_kw" << std::endl;
 //     return obj;
 // }
 
-// static inline PointStyle* point_style_modify_kw(PointStyle* aStyle, py::args args, py::kwargs kwargs)
+// static inline PointStyleDraw* point_style_modify_kw(PointStyleDraw* aStyle, py::args args, py::kwargs kwargs)
 // {
 //     std::cerr << "point_style_modify_kw" << std::endl;
 //     return aStyle;
 // }
 
-// static inline PointStyle* new_point_style_kw(py::args args, py::kwargs kwargs)
+// static inline PointStyleDraw* new_point_style_kw(py::args args, py::kwargs kwargs)
 // {
-//     PointStyle* style = new PointStyle(PointStyle::Empty);
+//     PointStyleDraw* style = new PointStyleDraw(PointStyle::Empty);
 //     std::cerr << "new_point_style_kw" << std::endl;
 //     return style;
 // }
@@ -271,7 +271,6 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("scale", &PointStyle::scale, py::arg("scale"))
             .def("scale_outline", &PointStyle::scale_outline, py::arg("scale"))
             ;
-      // m.def("point_style", &new_point_style_kw);
 
     py::class_<DrawingOrder>(m, "DrawingOrder")
             .def("raise_", &DrawingOrder::raise, py::arg("point_no"))

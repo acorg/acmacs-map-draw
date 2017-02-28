@@ -5,7 +5,7 @@
 
 #include "acmacs-chart/layout.hh"
 #include "acmacs-draw/viewport.hh"
-#include "acmacs-map-draw/point-style.hh"
+#include "acmacs-map-draw/point-style-draw.hh"
 #include "acmacs-map-draw/map-elements.hh"
 #include "acmacs-map-draw/labels.hh"
 
@@ -36,7 +36,7 @@ class ChartDraw
     void draw(Surface& aSurface);
     void draw(std::string aFilename, double aSize);
 
-    inline const std::vector<PointStyle>& point_styles() const { return mPointStyles; }
+    inline const std::vector<PointStyleDraw>& point_styles() const { return mPointStyles; }
 
     void modify(IndexGenerator&& aGen, const PointStyle& aStyle, bool aRaise = false, bool aLower = false);
 
@@ -92,7 +92,7 @@ class ChartDraw
     size_t mProjectionNo;
     Viewport mViewport;
     Transformation mTransformation;
-    std::vector<PointStyle> mPointStyles;
+    std::vector<PointStyleDraw> mPointStyles;
     DrawingOrder mDrawingOrder;
     MapElements mMapElements;
     Labels mLabels;
