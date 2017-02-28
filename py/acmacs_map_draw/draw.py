@@ -29,10 +29,11 @@ def draw_chart(output_file, chart, settings, output_width, verbose=False):
             except:
                 raise UnrecognizedMod(mod)
         elif isinstance(mod, dict):
-            try:
-                getattr(applicator, mod["N"])(**mod)
-            except:
-                raise UnrecognizedMod(mod)
+            if "N" in mod and mod["N"] and mod["N"][0] != "?":      # no "N" - commented out
+                try:
+                    getattr(applicator, mod["N"])(**mod)
+                except:
+                    raise UnrecognizedMod(mod)
         else:
             raise UnrecognizedMod(mod)
     chart_draw.draw(str(output_file), output_width)
@@ -197,6 +198,12 @@ class ModApplicator:
                 indices = antigens.continents(get_locdb())[select["continent"].upper()]
             elif "name" in select:
                 indices = antigens.find_by_name_matching(select["name"])
+            elif "index" in select:
+                indices = select["index"]
+                if isinstance(indices, int):
+                    indices = [indices]
+            elif "indices" in select:
+                indices = select["indices"]
         if indices is not None:
             if report_names_threshold is None or (indices and len(indices) <= report_names_threshold):
                 names = ["{:4d} {} [{}]".format(index, antigens[index].full_name(), antigens[index].date()) for index in indices]
@@ -206,6 +213,9 @@ class ModApplicator:
             else:
                 module_logger.info('Antigens {}: select:{!r} {}'.format(len(indices), select, args))
             self.style(index=indices, **args)
+            if "label" in args:
+                for index in indices:
+                    self.label(index=index, **args["label"])
         else:
             raise ValueError("Unsupported \"select\": " + repr(select))
 
@@ -218,6 +228,12 @@ class ModApplicator:
         elif isinstance(select, dict):
             if "name" in select:
                 indices = sera.find_by_name_matching(select["name"])
+            elif "index" in select:
+                indices = select["index"]
+                if isinstance(indices, int):
+                    indices = [indices]
+            elif "indices" in select:
+                indices = select["indices"]
         if indices is not None:
             if report_names_threshold is None or len(indices) <= report_names_threshold:
                 names = ["{:3d} {}".format(index, sera[index].full_name()) for index in indices]
@@ -228,6 +244,9 @@ class ModApplicator:
                 module_logger.info('Sera {}: select:{!r} {}'.format(len(indices), select, args))
             number_of_antigens = self._chart.number_of_antigens()
             self.style(index=[index + number_of_antigens for index in indices], **args)
+            if "label" in args:
+                for index in indices:
+                    self.label(index=index + number_of_antigens, **args["label"])
         else:
             raise ValueError("Unsupported \"select\": " + repr(select))
 
@@ -259,10 +278,11 @@ class ModApplicator:
         # pprint.pprint(clade_data)
         clades_used = {}                      # for legend
         for clade_style in self.sStyleByClade:
-            indices = clade_data.get(clade_style["N"])
-            if indices:
-                self._chart_draw.modify_points_by_indices(indices, self._make_point_style(clade_style), raise_=True)
-                clades_used[clade_style["N"]] = [{k: v for k, v in clade_style.items() if k not in ["N"]}, len(indices)]
+            if args.get(clade_style["N"], {}).get("show", True):
+                indices = clade_data.get(clade_style["N"])
+                if indices:
+                    self._chart_draw.modify_points_by_indices(indices, self._make_point_style(clade_style), raise_=True)
+                    clades_used[clade_style["N"]] = [{k: v for k, v in clade_style.items() if k not in ["N"]}, len(indices)]
         module_logger.info('Clades\n{}'.format(pprint.pformat(clades_used)))
         # module_logger.info('Clades {}'.format(sorted(clades_used)))
         if legend and legend.get("show", True):
@@ -314,13 +334,14 @@ class ModApplicator:
                 vaccine_data = getattr(antigens, passage_type)()
                 if vaccine_data:
                     module_logger.info('Marking vaccine {} {}'.format(vaccine_data.antigen_index, vaccine_data.antigen.full_name()))
-                    self._chart_draw.modify_point_by_index(vaccine_data.antigen_index, self._make_point_style({**self.sStyleByVaccineType[vaccine_entry["type"]][passage_type], **args}), raise_=raise_)
-                    label_key = vaccine_entry["type"] + "-" + passage_type
-                    if label:
-                        if label.get(label_key):
-                            self.label(index=vaccine_data.antigen_index, **{**label.get("", {}), **label[label_key]})
-                        elif label.get(""):
-                            self.label(index=vaccine_data.antigen_index, **label[""])
+                    vaccine_key = vaccine_entry["type"] + "-" + passage_type
+                    if args.get(vaccine_key, {}).get("show", True):
+                        self._chart_draw.modify_point_by_index(vaccine_data.antigen_index, self._make_point_style({**self.sStyleByVaccineType[vaccine_entry["type"]][passage_type], **args}), raise_=raise_)
+                        if label:
+                            if label.get(vaccine_key):
+                                self.label(index=vaccine_data.antigen_index, **{**label.get("", {}), **label[vaccine_key]})
+                            elif label.get(""):
+                                self.label(index=vaccine_data.antigen_index, **label[""])
 
     def label(self, index, name_type="full", **args):
         lbl = self._chart_draw.label(index)
@@ -336,7 +357,7 @@ class ModApplicator:
                 if name_type in ["abbreviated", "abbreviated_with_passage_type"]:
                     args["display_name"] = self._chart.serum(index - self._chart.number_of_antigens()).abbreviated_name(get_locdb())
                 else:
-                    args["display_name"] = self._chart.serum(index - self._chart.number_of_antigens()).full_name(get_locdb())
+                    args["display_name"] = self._chart.serum(index - self._chart.number_of_antigens()).full_name()
         for k, v in args.items():
             setter = getattr(lbl, k, None)
             if setter:
