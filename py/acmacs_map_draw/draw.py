@@ -291,6 +291,19 @@ class ModApplicator:
                 legend_data=[{"label": "{} {:3d}".format(aa, len(aa_indices[aa])), "outline": "black", "fill": aa_color[aa]} for aa in aa_order],
                 legend_settings=legend)
 
+    def aa_substitution_groups(self, groups, legend=None, **args):
+        """groups: [{"pos_aa": ["121K", "144K"], "color": "#03569b"}]
+        """
+        from . import seqdb_access
+        for group in groups:
+            positions = [int(pos_aa[:-1]) for pos_aa in group["pos_aa"]]
+            target_aas = "".join(pos_aa[-1] for pos_aa in group["pos_aa"])
+            aa_indices = seqdb_access.aa_at_positions(chart=self._chart, positions=positions, verbose=self._verbose)
+            if target_aas in aa_indices:
+                self._chart_draw.modify_points_by_indices(aa_indices[target_aas], self._make_point_style({"outline": "black", "fill": group["color"]}), raise_=True)
+            else:
+                module_logger.warning('No {}: {}'.format(target_aas, sorted(aa_indices)))
+
     def vaccines(self, raise_=True, label=None, **args):
         # fill=None, outline=None, show=None, shape=None, size=None, outline_width=None, aspect=None, rotation=None
         hidb = get_hidb(chart=self._chart)
