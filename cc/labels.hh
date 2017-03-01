@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "acmacs-draw/color.hh"
+#include "acmacs-base/color.hh"
 #include "acmacs-draw/size.hh"
 #include "acmacs-draw/size-scale.hh"
 #include "acmacs-draw/text-style.hh"

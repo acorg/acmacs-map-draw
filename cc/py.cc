@@ -250,6 +250,8 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
     py::class_<Color>(m, "Color")
             .def(py::init<std::string>(), py::arg("color") = "black")
             .def("__str__", &Color::to_string)
+            .def("to_string", &Color::to_string)
+            .def("to_hex_string", &Color::to_string)
             ;
 
     m.def("distinct_colors", &Color::distinct_colors);
