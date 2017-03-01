@@ -341,6 +341,8 @@ class ModApplicator:
         for vaccine_entry in vaccines(chart=self._chart):
             # module_logger.debug('{}'.format(vaccine_entry))
             antigens = find_vaccines_in_chart(vaccine_entry["name"], self._chart, hidb)
+            if self._verbose:
+                module_logger.debug("Vaccines {}\n{}".format(vaccine_entry, antigens.report(indent=4)))
             for passage_type in ["egg", "reassortant", "cell"]:
                 vaccine_data = getattr(antigens, passage_type)()
                 if vaccine_data:

@@ -1,11 +1,11 @@
 #include "acmacs-base/pybind11.hh"
 #include "locationdb/locdb.hh"
-#include "hidb/hidb.hh"
-#include "seqdb/seqdb.hh"
-
 #include "acmacs-chart/chart.hh"
 #include "acmacs-chart/ace.hh"
-#include "vaccines.hh"
+#include "hidb/hidb.hh"
+#include "hidb/vaccines.hh"
+#include "seqdb/seqdb.hh"
+
 #include "draw.hh"
 
 // ----------------------------------------------------------------------
@@ -215,6 +215,8 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
     m.def("export_chart", &export_chart, py::arg("filename"), py::arg("chart"), py::doc("Exports chart into a file in the ace format."));
 
       // ----------------------------------------------------------------------
+      // Vaccines (hidb)
+      // ----------------------------------------------------------------------
 
     py::class_<Vaccines::HomologousSerum>(m, "Vaccines_HomologousSerum")
             .def_readonly("serum", &Vaccines::HomologousSerum::serum)
@@ -230,10 +232,13 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             ;
 
     py::class_<Vaccines>(m, "Vaccines")
-            .def("report", &Vaccines::report)
-            .def("egg", &Vaccines::egg, py::return_value_policy::reference)
-            .def("cell", &Vaccines::cell, py::return_value_policy::reference)
-            .def("reassortant", &Vaccines::reassortant, py::return_value_policy::reference)
+            .def("report", &Vaccines::report, py::arg("indent") = 0)
+            .def("egg", &Vaccines::egg, py::arg("no") = 0, py::return_value_policy::reference)
+            .def("cell", &Vaccines::cell, py::arg("no") = 0, py::return_value_policy::reference)
+            .def("reassortant", &Vaccines::reassortant, py::arg("no") = 0, py::return_value_policy::reference)
+            .def("number_of_eggs", &Vaccines::number_of_eggs)
+            .def("number_of_cells", &Vaccines::number_of_cells)
+            .def("number_of_reassortants", &Vaccines::number_of_reassortants)
             ;
 
     m.def("find_vaccines_in_chart", &find_vaccines_in_chart, py::arg("name"), py::arg("chart"), py::arg("hidb"));

@@ -137,6 +137,8 @@ try:
     parser.add_argument('output', nargs=1, help='Output pdf file.')
 
     args = parser.parse_args()
+    if args.verbose:
+        args.loglevel = logging.DEBUG
     logging.basicConfig(level=args.loglevel, format="%(levelname)s %(asctime)s: %(message)s")
     exit_code = main(args)
 except Exception as err:
