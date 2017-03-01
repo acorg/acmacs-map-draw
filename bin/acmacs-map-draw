@@ -67,7 +67,8 @@ sSettings = {
              "?select_variants": [
                  {"name": "NEBRASKA/4/"},
                  {"index": 0}, {"indices": [0, 1]},
-                 "reference", "test", "all", {"date_range": ["2010-01-01", ""]}, {"older_than_days": 365}, {"younger_than_days": 365},
+                 "reference", "test", "all", "sequenced", "not_sequenced",
+                 {"date_range": ["2010-01-01", ""]}, {"older_than_days": 365}, {"younger_than_days": 365},
                  {"passage_type": "egg"}, {"passage_type": "cell"}, {"passage_type": "reassortant"},
                  {"country": "GERMANY"}, {"continent": "NORTH-AMERICA"}
                  ]},

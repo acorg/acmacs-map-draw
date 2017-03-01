@@ -3,7 +3,7 @@
 # license.
 # ----------------------------------------------------------------------
 
-import os
+import os, pprint
 from pathlib import Path
 import logging; module_logger = logging.getLogger(__name__)
 from acmacs_base.timeit import timeit
@@ -17,6 +17,20 @@ def match(chart, verbose=False):
         per_antigen = seqdb.match_antigens(antigens=chart.antigens(), verbose=verbose)
         module_logger.info('{} antigens matched against seqdb'.format(sum(1 for e in per_antigen if e)))
     return per_antigen
+
+# ----------------------------------------------------------------------
+
+def sequenced(chart, verbose=False):
+    r = [ag_no for ag_no, entry_seq in enumerate(match(chart, verbose=verbose)) if entry_seq]
+    return r
+
+# ----------------------------------------------------------------------
+
+def not_sequenced(chart, verbose=False):
+    """Returns list of antigen indices for antigens not found in seqdb"""
+    r = [ag_no for ag_no, entry_seq in enumerate(match(chart, verbose=verbose)) if not entry_seq]
+    module_logger.info('{} antigens NOT matched against seqdb'.format(len(r)))
+    return r
 
 # ----------------------------------------------------------------------
 

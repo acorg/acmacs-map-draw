@@ -175,6 +175,12 @@ class ModApplicator:
                 indices = antigens.test_indices()
             elif select == "all":
                 indices = list(range(self._chart.number_of_antigens()))
+            elif select == "sequenced":
+                from .seqdb_access import sequenced
+                indices = sequenced(chart=self._chart, verbose=self._verbose)
+            elif select == "not_sequenced":
+                from .seqdb_access import not_sequenced
+                indices = not_sequenced(chart=self._chart, verbose=self._verbose)
         elif isinstance(select, dict):
             if "date_range" in select:
                 indices = antigens.date_range_indices(first=select["date_range"][0], after_last=select["date_range"][1])
@@ -278,11 +284,14 @@ class ModApplicator:
         # pprint.pprint(clade_data)
         clades_used = {}                      # for legend
         for clade_style in self.sStyleByClade:
-            if args.get(clade_style["N"], {}).get("show", True):
+            clade_style_mod = args.get(clade_style["N"], {"show": True})
+            if clade_style_mod.get("show", True):
                 indices = clade_data.get(clade_style["N"])
+                lower = clade_style_mod.get("lower", False)
+                raise_ = clade_style_mod.get("raise_", True) if not lower else False
                 if indices:
-                    self._chart_draw.modify_points_by_indices(indices, self._make_point_style(clade_style), raise_=True)
-                    clades_used[clade_style["N"]] = [{k: v for k, v in clade_style.items() if k not in ["N"]}, len(indices)]
+                    self._chart_draw.modify_points_by_indices(indices, self._make_point_style(clade_style, clade_style_mod), raise_=raise_, lower=lower)
+                    clades_used[clade_style["N"]] = [{**clade_style, **clade_style_mod}, len(indices)]
         module_logger.info('Clades\n{}'.format(pprint.pformat(clades_used)))
         # module_logger.info('Clades {}'.format(sorted(clades_used)))
         if legend and legend.get("show", True):
@@ -292,7 +301,7 @@ class ModApplicator:
                     label += " ({})".format(count)
                 return label
             self._make_legend(
-                legend_data=sorted(({"label": make_label(clade, data[1]), **data[0]} for clade, data in clades_used.items()), key=operator.itemgetter("label")),
+                legend_data=sorted(({"label": make_label(clade, data[1]), **{k:v for k,v in data[0].items() if k not in ["N", "show"]}} for clade, data in clades_used.items()), key=operator.itemgetter("label")),
                 legend_settings=legend)
 
     def aa_substitutions(self, positions, legend=None, **args):
@@ -377,12 +386,13 @@ class ModApplicator:
             if setter:
                 setter(v)
 
-    def _make_point_style(self, data):
+    def _make_point_style(self, *data):
         style = PointStyle()
-        for k, v in data.items():
-            setter = getattr(style, k, None)
-            if setter:
-                setter(v)
+        for source in data:
+            for k, v in source.items():
+                setter = getattr(style, k, None)
+                if setter:
+                    setter(v)
         return style
 
     def _make_legend(self, legend_data, legend_settings):
