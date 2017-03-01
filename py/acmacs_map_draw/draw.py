@@ -344,10 +344,10 @@ class ModApplicator:
             if self._verbose:
                 module_logger.debug("Vaccines {}\n{}".format(vaccine_entry, antigens.report(indent=4)))
             for passage_type in ["egg", "reassortant", "cell"]:
-                vaccine_data = getattr(antigens, passage_type)()
+                vaccine_key = vaccine_entry["type"] + "-" + passage_type
+                vaccine_data = getattr(antigens, passage_type)(args.get(vaccine_key, {}).get("no", 0))
                 if vaccine_data:
                     module_logger.info('Marking vaccine {} {}'.format(vaccine_data.antigen_index, vaccine_data.antigen.full_name()))
-                    vaccine_key = vaccine_entry["type"] + "-" + passage_type
                     if args.get(vaccine_key, {}).get("show", True):
                         self._chart_draw.modify_point_by_index(vaccine_data.antigen_index, self._make_point_style({**self.sStyleByVaccineType[vaccine_entry["type"]][passage_type], **args}), raise_=raise_)
                         if label:
