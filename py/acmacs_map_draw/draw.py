@@ -95,6 +95,8 @@ class ModApplicator:
 
     sStyleByClade = [                     # bottom raised entries above top entries
         {"N": "", "fill": "grey50", "outline": "black"},                # sequenced but not in any clade
+        # {"N": "gly", "fill": "grey50", "outline": "black"},
+        # {"N": "no-gly", "fill": "grey50", "outline": "black"},
         # H3
         {"N": "3C3",   "fill": "cornflowerblue", "outline": "black"},
         {"N": "3C2a",  "fill": "red", "outline": "black"},
