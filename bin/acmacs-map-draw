@@ -4,7 +4,7 @@
 """
 """
 
-import sys, os, tempfile, traceback, pprint
+import sys, os, tempfile, datetime, traceback, pprint
 if sys.version_info.major != 3: raise RuntimeError("Run script with python3")
 from pathlib import Path
 sys.path[:0] = [str(Path(os.environ["ACMACSD_ROOT"]).resolve().joinpath("py"))]
@@ -26,8 +26,13 @@ def main(args):
         settings_file = Path(args.settings)
         if settings_file.exists():
             settings = read_json(settings_file)
+            update_settings = False
         else:
-            write_json(path=settings_file, data=settings)
+            update_settings = True
+    if mod_settings(settings, args):
+        update_settings = True
+    if args.verbose:
+        module_logger.debug('mods:\n{}'.format(pprint.pformat(settings["mods"])))
     remove_output = not args.output
     try:
         output = args.output or tempfile.mkstemp(suffix=".pdf")[1]
@@ -41,6 +46,8 @@ def main(args):
                     raise
                 module_logger.error('Unrecognized mod: {} (-v to get details)'.format(repr(err.args[0])))
                 return 1
+        if args.settings and update_settings:
+            write_json(path=settings_file, data=settings)
         open_image(output)
     finally:
         if remove_output and output:
@@ -139,6 +146,36 @@ sSettings = {
 
 # ----------------------------------------------------------------------
 
+def mod_settings(settings, args):
+    update_settings = False
+    if args.rotate_degrees is not None:
+        update_settings = True
+        disable_mods(settings, ["rotate_degrees", "rotate_radians"])
+        settings["mods"][0:0] = [{"N": "rotate_degrees", "angle": args.rotate_degrees}]
+    if args.flip_ew:
+        update_settings = True
+        disable_mods(settings, ["flip", "flip_ns", "flip_ew"])
+        settings["mods"][0:0] = ["flip_ew"]
+    if args.flip_ns:
+        update_settings = True
+        disable_mods(settings, ["flip", "flip_ns", "flip_ew"])
+        settings["mods"][0:0] = ["flip_ns"]
+    return update_settings
+
+# ----------------------------------------------------------------------
+
+def disable_mods(settings, mods):
+    for mod_no in range(len(settings["mods"])):
+        mod = settings["mods"][mod_no]
+        if isinstance(mod, dict) and mod.get("N") in mods:
+            mod["?N"] = "?" + mod["N"]
+            mod["?disabled"] = str(datetime.datetime.now())[:19]
+            del mod["N"]
+        elif isinstance(mod, str) and mod in mods:
+            settings["mods"][mod_no] = {"?N": "?" + mod, "?disabled": str(datetime.datetime.now())[:19]}
+
+# ----------------------------------------------------------------------
+
 def open_image(filename):
     import os, socket
     hostname = socket.gethostname()
@@ -172,6 +209,9 @@ try:
     parser.add_argument('-v', '--verbose', action='store_true', dest='verbose', default=False)
     parser.add_argument('-s', '--settings', action='store', dest='settings', default=None, help='Settings file. Autocreated, if does not exist.')
     parser.add_argument('--save', action='store', dest='save', default=None, help='Save resulting chart with transformation and plot specification (into lispmds).')
+    parser.add_argument('-r', '--rotate', action='store', type=float, dest='rotate_degrees', default=None, help='Add rotation mod (degrees).')
+    parser.add_argument('--flip-ew', action='store_true', dest='flip_ew', default=None, help='Add flip_ew mod.')
+    parser.add_argument('--flip-ns', action='store_true', dest='flip_ns', default=None, help='Add flip_ew mod.')
 
     parser.add_argument('chart', nargs=1, help='Chart file.')
     parser.add_argument('output', nargs='?', default=None, help='Output pdf file.')
