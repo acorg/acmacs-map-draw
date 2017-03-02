@@ -1,3 +1,4 @@
+#include "acmacs-draw/surface.hh"
 #include "point-style-draw.hh"
 
 // ----------------------------------------------------------------------
