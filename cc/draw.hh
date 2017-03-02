@@ -37,6 +37,7 @@ class ChartDraw
     void draw(std::string aFilename, double aSize);
 
     inline const std::vector<PointStyleDraw>& point_styles() const { return mPointStyles; }
+    inline std::vector<PointStyle> point_styles_base() const { std::vector<PointStyle> ps{mPointStyles.begin(), mPointStyles.end()}; return ps; }
 
     void modify(IndexGenerator&& aGen, const PointStyle& aStyle, bool aRaise = false, bool aLower = false);
 

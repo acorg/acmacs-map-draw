@@ -2,6 +2,7 @@
 #include "locationdb/locdb.hh"
 #include "acmacs-chart/chart.hh"
 #include "acmacs-chart/ace.hh"
+#include "acmacs-chart/lispmds.hh"
 #include "hidb/hidb.hh"
 #include "hidb/vaccines.hh"
 #include "seqdb/seqdb.hh"
@@ -213,6 +214,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
 
     m.def("import_chart", &import_chart, py::arg("data"), py::doc("Imports chart from a buffer or file in the ace format."));
     m.def("export_chart", &export_chart, py::arg("filename"), py::arg("chart"), py::doc("Exports chart into a file in the ace format."));
+    m.def("export_chart_lispmds", py::overload_cast<std::string, const Chart&, const std::vector<PointStyle>&>(&export_chart_lispmds), py::arg("filename"), py::arg("chart"), py::arg("point_styles"), py::doc("Exports chart into a file in the lispmds save format."));
 
       // ----------------------------------------------------------------------
       // Vaccines (hidb)
@@ -313,6 +315,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def(py::init<Chart&, size_t>(), py::arg("chart"), py::arg("projection_no") = 0)
             .def("prepare", &ChartDraw::prepare)
             .def("point_styles", &ChartDraw::point_styles)
+            .def("point_styles_base", &ChartDraw::point_styles_base)
             .def("draw", py::overload_cast<std::string, double>(&ChartDraw::draw), py::arg("filename"), py::arg("size"))
             .def("mark_egg_antigens", &ChartDraw::mark_egg_antigens)
             .def("mark_reassortant_antigens", &ChartDraw::mark_reassortant_antigens)
