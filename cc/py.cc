@@ -212,9 +212,12 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("chart_info", py::overload_cast<>(&Chart::chart_info, py::const_), py::return_value_policy::reference)
         ;
 
+    py::class_<Transformation>(m, "Transformation")
+            ;
+
     m.def("import_chart", &import_chart, py::arg("data"), py::doc("Imports chart from a buffer or file in the ace format."));
     m.def("export_chart", &export_chart, py::arg("filename"), py::arg("chart"), py::doc("Exports chart into a file in the ace format."));
-    m.def("export_chart_lispmds", py::overload_cast<std::string, const Chart&, const std::vector<PointStyle>&>(&export_chart_lispmds), py::arg("filename"), py::arg("chart"), py::arg("point_styles"), py::doc("Exports chart into a file in the lispmds save format."));
+    m.def("export_chart_lispmds", py::overload_cast<std::string, const Chart&, const std::vector<PointStyle>&, const Transformation&>(&export_chart_lispmds), py::arg("filename"), py::arg("chart"), py::arg("point_styles"), py::arg("transformation"), py::doc("Exports chart into a file in the lispmds save format."));
 
       // ----------------------------------------------------------------------
       // Vaccines (hidb)
@@ -328,6 +331,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("flip", &ChartDraw::flip, py::arg("x"), py::arg("y"))
             .def("flip_ns", [](ChartDraw& cd) { cd.flip(1, 0); })
             .def("flip_ew", [](ChartDraw& cd) { cd.flip(0, 1); })
+            .def("transformation", &ChartDraw::transformation, py::return_value_policy::reference)
             .def("viewport", &ChartDraw::viewport, py::arg("x"), py::arg("y"), py::arg("size"))
             .def("viewport", [](ChartDraw& cd, const std::vector<double>& a) { cd.viewport(a[0], a[1], a[2]); }, py::arg("viewport"))
             .def("background_color", [](ChartDraw& cd, std::string color) { cd.background_color(color); }, py::arg("color"))
