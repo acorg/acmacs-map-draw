@@ -93,6 +93,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             ;
 
     py::class_<hidb::HiDb>(m, "HiDb")
+            .def("find_homologous_antigens_for_sera_of_chart", &hidb::HiDb::find_homologous_antigens_for_sera_of_chart, py::arg("chart"))
             ;
 
     py::class_<hidb::HiDbSet>(m, "HiDbSet")
@@ -207,9 +208,8 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("serum", &Chart::serum, py::arg("no"), py::return_value_policy::reference)
             .def("lineage", &Chart::lineage)
             .def("make_name", &Chart::make_name)
-            // .def("table_id", &Chart::table_id)
-            // .def("find_homologous_antigen_for_sera", &Chart::find_homologous_antigen_for_sera)
             .def("chart_info", py::overload_cast<>(&Chart::chart_info, py::const_), py::return_value_policy::reference)
+            .def("serum_circle_radius", &Chart::serum_circle_radius, py::arg("antigen_no"), py::arg("serum_no"), py::arg("projection_no") = 0, py::arg("verbose") = false)
         ;
 
     py::class_<Transformation>(m, "Transformation")
