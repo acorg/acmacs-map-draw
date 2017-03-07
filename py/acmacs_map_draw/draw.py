@@ -180,7 +180,7 @@ class ModApplicator:
         else:
             module_logger.info('Antigens {}: select:{!r} {}'.format(len(indices), select, args))
         self.style(index=indices, **args)
-        if "label" in args:
+        if "label" in args and args["label"].get("show", True):
             for index in indices:
                 self.label(index=index, **args["label"])
 
@@ -196,7 +196,7 @@ class ModApplicator:
             module_logger.info('Sera {}: select:{!r} {}'.format(len(indices), select, args))
         number_of_antigens = self._chart.number_of_antigens()
         self.style(index=[index + number_of_antigens for index in indices], **args)
-        if "label" in args:
+        if "label" in args and args["label"].get("show", True):
             for index in indices:
                 self.label(index=index + number_of_antigens, **args["label"])
 
