@@ -332,7 +332,7 @@ class ModApplicator:
             if setter:
                 setter(v)
 
-    def serum_circle(self, serum, antigen=None, mark_serum=None, mark_antigen=None, **args):
+    def serum_circle(self, serum, antigen=None, mark_serum=None, mark_antigen=None, circle={}, **args):
         serum_index = self._select_sera(select=serum, raise_if_not_found=True, raise_if_multiple=True)[0]
         if mark_serum:
             self.sera(N="sera", select=serum_index, **mark_serum)
@@ -349,6 +349,10 @@ class ModApplicator:
         radius = min(r for r in radii if r > 0)
         module_logger.info('serum_circle:\n  SR {} {}\n    {}\n  RADIUS: {}'.format(serum_index, sera[serum_index].full_name(), "\n    ".join("AG {:4d} {} {}".format(ag_no, antigens[ag_no].full_name(), radius) for ag_no, radius in zip(antigen_indices, radii)), radius))
         serum_circle = self._chart_draw.serum_circle(serum_no=serum_index, radius=radius)
+        if circle.get("fill"):
+            serum_circle.fill(color=circle["fill"])
+        if circle.get("outline"):
+            serum_circle.outline(color=circle["outline"], line_width=circle.get("outline_width", 1.0))
 
     def _make_point_style(self, *data):
         style = PointStyle()
