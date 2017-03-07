@@ -66,10 +66,25 @@ void ChartDraw::prepare()
 
 // ----------------------------------------------------------------------
 
+size_t ChartDraw::number_of_antigens() const
+{
+    return mChart.number_of_antigens();
+
+} // ChartDraw::number_of_antigens
+
+// ----------------------------------------------------------------------
+
+size_t ChartDraw::number_of_sera() const
+{
+    return mChart.number_of_sera();
+
+} // ChartDraw::number_of_sera
+
+// ----------------------------------------------------------------------
+
 void ChartDraw::draw(Surface& aSurface)
 {
-    Layout layout = mChart.projection(mProjectionNo).layout();
-    layout.transform(mTransformation);
+    const Layout& layout = transformed_layout();
 
     std::unique_ptr<BoundingBall> bb(layout.minimum_bounding_ball());
     Viewport viewport;
@@ -81,14 +96,14 @@ void ChartDraw::draw(Surface& aSurface)
     std::cout << "INFO: [Used]:       " << mViewport << std::endl;
     Surface& rescaled_surface = aSurface.subsurface({0, 0}, Scaled{aSurface.viewport().size.width}, mViewport, true);
 
-    mMapElements.draw(rescaled_surface, MapElements::BeforePoints);
+    mMapElements.draw(rescaled_surface, MapElements::BeforePoints, *this);
 
     for (size_t index: mDrawingOrder) {
         mPointStyles[index].draw(rescaled_surface, layout[index]);
     }
     mLabels.draw(rescaled_surface, layout, mPointStyles);
 
-    mMapElements.draw(rescaled_surface, MapElements::AfterPoints);
+    mMapElements.draw(rescaled_surface, MapElements::AfterPoints, *this);
 
 } // ChartDraw::draw
 
@@ -146,6 +161,17 @@ void ChartDraw::mark_all_grey(Color aColor)
     modify(mChart.serum_indices(), PointStyleDraw(PointStyle::Empty).outline(aColor));
 
 } // ChartDraw::mark_all_grey
+
+// ----------------------------------------------------------------------
+
+SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadius)
+{
+    auto& serum_circle = dynamic_cast<SerumCircle&>(mMapElements.add("serum-circle"));
+    serum_circle.serum_no(aSerumNo);
+    serum_circle.radius(aRadius);
+    return serum_circle;
+
+} // ChartDraw::serum_circle
 
 // ----------------------------------------------------------------------
 /// Local Variables:

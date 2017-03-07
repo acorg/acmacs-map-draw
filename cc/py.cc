@@ -314,6 +314,9 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("size", &Label::size, py::arg("size"), py::return_value_policy::reference)
             ;
 
+    py::class_<SerumCircle>(m, "SerumCircle")
+            ;
+
     py::class_<ChartDraw>(m, "ChartDraw")
             .def(py::init<Chart&, size_t>(), py::arg("chart"), py::arg("projection_no") = 0)
             .def("prepare", &ChartDraw::prepare)
@@ -343,6 +346,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("title", [](ChartDraw& cd, std::vector<double> aOrigin) -> Title& { return cd.title({aOrigin[0], aOrigin[1]}); }, py::arg("origin"), py::return_value_policy::reference, py::doc("Origin is in pixels. Negative values in orinin mean from right/bottom of the surface"))
             .def("title", [](ChartDraw& cd) -> Title& { return cd.title(); }, py::return_value_policy::reference)
             .def("label", py::overload_cast<size_t>(&ChartDraw::add_label), py::arg("index"), py::return_value_policy::reference)
+            .def("serum_circle", [](ChartDraw& cd, size_t aSerumNo, double aRadius) -> SerumCircle& { return cd.serum_circle(aSerumNo, Scaled(aRadius)); }, py::arg("serum_no"), py::arg("radius"), py::return_value_policy::reference)
             ;
 
       // ----------------------------------------------------------------------

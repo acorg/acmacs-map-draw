@@ -1,6 +1,8 @@
 #include "acmacs-draw/surface.hh"
 #include "acmacs-draw/continent-map.hh"
+#include "acmacs-chart/chart.hh"
 #include "map-elements.hh"
+#include "draw.hh"
 
 // ----------------------------------------------------------------------
 
@@ -38,6 +40,9 @@ MapElement& MapElements::add(std::string aKeyword)
     else if (aKeyword == "title") {
         mElements.emplace_back(new Title{});
     }
+    else if (aKeyword == "serum-circle") {
+        mElements.emplace_back(new SerumCircle{});
+    }
     else {
         throw std::runtime_error("Don't know how to make map element " + aKeyword);
     }
@@ -47,11 +52,11 @@ MapElement& MapElements::add(std::string aKeyword)
 
 // ----------------------------------------------------------------------
 
-void MapElements::draw(Surface& aSurface, Order aOrder) const
+void MapElements::draw(Surface& aSurface, Order aOrder, const ChartDraw& aChartDraw) const
 {
     for (const auto& element: mElements) {
         if (element->order() == aOrder)
-            element->draw(aSurface);
+            element->draw(aSurface, aChartDraw);
     }
 
 } // MapElements::draw
@@ -79,7 +84,7 @@ Location MapElement::subsurface_origin(Surface& aSurface, const Location& aPixel
 
 // ----------------------------------------------------------------------
 
-void BackgroundBorderGrid::draw(Surface& aSurface) const
+void BackgroundBorderGrid::draw(Surface& aSurface, const ChartDraw&) const
 {
     aSurface.background(mBackgroud);
     aSurface.grid(Scaled{1}, mGridColor, mGridLineWidth);
@@ -89,7 +94,7 @@ void BackgroundBorderGrid::draw(Surface& aSurface) const
 
 // ----------------------------------------------------------------------
 
-void ContinentMap::draw(Surface& aSurface) const
+void ContinentMap::draw(Surface& aSurface, const ChartDraw&) const
 {
     Location origin = mOrigin;
     if (origin.x < 0)
@@ -112,7 +117,7 @@ LegendPointLabel::LegendPointLabel()
 
 // ----------------------------------------------------------------------
 
-void LegendPointLabel::draw(Surface& aSurface) const
+void LegendPointLabel::draw(Surface& aSurface, const ChartDraw&) const
 {
     double width = 0, height = 0;
     for (const auto& line: mLines) {
@@ -154,7 +159,7 @@ Title::Title()
 
 // ----------------------------------------------------------------------
 
-void Title::draw(Surface& aSurface) const
+void Title::draw(Surface& aSurface, const ChartDraw&) const
 {
     double width = 0, height = 0;
     for (const auto& line: mLines) {
@@ -184,6 +189,14 @@ void Title::draw(Surface& aSurface) const
 
 // ----------------------------------------------------------------------
 
+void SerumCircle::draw(Surface& aSurface, const ChartDraw& aChartDraw) const
+{
+    if (mSerumNo != static_cast<size_t>(-1)) {
+        const Coordinates& coord = aChartDraw.transformed_layout()[mSerumNo + aChartDraw.number_of_antigens()];
+        aSurface.circle_filled(coord, mRadius * 2.0, AspectNormal, NoRotation, mOutline, mOutlineWidth, mFill);
+    }
+
+} // SerumCircle::draw
 
 // ----------------------------------------------------------------------
 /// Local Variables:

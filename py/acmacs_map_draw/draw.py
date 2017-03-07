@@ -348,6 +348,7 @@ class ModApplicator:
         radii = [self._chart.serum_circle_radius(serum_no=serum_index, antigen_no=ag_no, projection_no=self._projection_no) for ag_no in antigen_indices]
         radius = min(r for r in radii if r > 0)
         module_logger.info('serum_circle:\n  SR {} {}\n    {}\n  RADIUS: {}'.format(serum_index, sera[serum_index].full_name(), "\n    ".join("AG {:4d} {} {}".format(ag_no, antigens[ag_no].full_name(), radius) for ag_no, radius in zip(antigen_indices, radii)), radius))
+        serum_circle = self._chart_draw.serum_circle(serum_no=serum_index, radius=radius)
 
     def _make_point_style(self, *data):
         style = PointStyle()

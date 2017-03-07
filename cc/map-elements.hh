@@ -12,6 +12,7 @@
 
 class MapElement;
 class Surface;
+class ChartDraw;
 
 // ----------------------------------------------------------------------
 
@@ -22,14 +23,14 @@ class MapElements
 
     MapElements();
     MapElement& operator[](std::string aKeyword);
+    MapElement& add(std::string aKeyword);
 
-    void draw(Surface& aSurface, Order aOrder) const;
+    void draw(Surface& aSurface, Order aOrder, const ChartDraw& aChartDraw) const;
 
  private:
     std::vector<std::shared_ptr<MapElement>> mElements;
 
-    MapElement& add(std::string aKeyword);
-};
+}; // class MapElements
 
 // ----------------------------------------------------------------------
 
@@ -42,7 +43,7 @@ class MapElement
 
     inline std::string keyword() const { return mKeyword; }
     inline MapElements::Order order() const { return mOrder; }
-    virtual void draw(Surface& aSurface) const = 0;
+    virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const = 0;
 
  protected:
     virtual Location subsurface_origin(Surface& aSurface, const Location& aPixelOrigin, const Size& aScaledSubsurfaceSize) const;
@@ -61,7 +62,7 @@ class BackgroundBorderGrid : public MapElement
         : MapElement("background-border-grid", MapElements::BeforePoints),
           mBackgroud("white"), mGridColor("grey80"), mGridLineWidth(1), mBorderColor("black"), mBorderWidth(1) {}
 
-    virtual void draw(Surface& aSurface) const;
+    virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
 
     inline void background_color(Color aBackgroud) { mBackgroud = aBackgroud; }
     inline void grid(Color aGridColor, double aGridLineWidth) { mGridColor = aGridColor; mGridLineWidth = aGridLineWidth; }
@@ -83,7 +84,7 @@ class ContinentMap : public MapElement
  public:
     inline ContinentMap() : MapElement("continent-map", MapElements::AfterPoints), mOrigin{0, 0}, mWidthInParent(100) {}
 
-    virtual void draw(Surface& aSurface) const;
+    virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
     inline void offset_width(const Location& aOrigin, Pixels aWidthInParent) { mOrigin = aOrigin; mWidthInParent = aWidthInParent; }
 
  private:
@@ -106,7 +107,7 @@ class LegendPointLabel : public MapElement
 
     LegendPointLabel();
 
-    virtual void draw(Surface& aSurface) const;
+    virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
     inline void offset(const Location& aOrigin) { mOrigin = aOrigin; }
     inline void add_line(Color outline, Color fill, std::string label) { mLines.emplace_back(outline, fill, label); }
     inline void label_size(double aLabelSize) { mLabelSize = aLabelSize; }
@@ -136,7 +137,7 @@ class Title : public MapElement
  public:
     Title();
 
-    virtual void draw(Surface& aSurface) const;
+    virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
     inline void offset(const Location& aOrigin) { mOrigin = aOrigin; }
     inline void add_line(std::string aText) { mLines.emplace_back(aText); }
     inline void text_size(double aTextSize) { mTextSize = aTextSize; }
@@ -156,6 +157,33 @@ class Title : public MapElement
     std::vector<std::string> mLines;
 
 }; // class ContinentMap
+
+// ----------------------------------------------------------------------
+
+class SerumCircle : public MapElement
+{
+ public:
+    inline SerumCircle()
+        : MapElement("serum-circle", MapElements::AfterPoints), mSerumNo(static_cast<size_t>(-1)),
+          mFill("transparent"), mOutline("pink"), mOutlineWidth(1), mStart(0), mEnd(0) {}
+
+    virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
+
+    inline void serum_no(size_t aSerumNo) { mSerumNo = aSerumNo; }
+    inline void radius(Scaled aRadius) { mRadius = aRadius; }
+    inline void fill(Color aFill) { mFill = aFill; }
+    inline void outline(Color aOutline, double aOutlineWidth) { mOutline = aOutline; mOutlineWidth = aOutlineWidth; }
+
+ private:
+    size_t mSerumNo;
+    Scaled mRadius;
+    Color mFill;
+    Color mOutline;
+    Pixels mOutlineWidth;
+    Rotation mStart;
+    Rotation mEnd;
+
+}; // class SerumCircle
 
 // ----------------------------------------------------------------------
 /// Local Variables:

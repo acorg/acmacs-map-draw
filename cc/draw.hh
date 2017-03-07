@@ -86,9 +86,21 @@ class ChartDraw
     inline LegendPointLabel& legend() { return dynamic_cast<LegendPointLabel&>(mMapElements["legend-point-label"]); }
     inline Title& title(const Location& aOffset) { auto& title = dynamic_cast<Title&>(mMapElements["title"]); title.offset(aOffset); return title; }
     inline Title& title() { return dynamic_cast<Title&>(mMapElements["title"]); }
-
     inline Labels& labels() { return mLabels; }
     inline Label& add_label(size_t aIndex) { return mLabels.add(aIndex, mChart); }
+    SerumCircle& serum_circle(size_t aSerumNo, Scaled aRadius);
+
+    inline const Layout& transformed_layout() const
+        {
+            if (mTransformedLayout.empty()) {
+                mTransformedLayout = mChart.projection(mProjectionNo).layout();
+                mTransformedLayout.transform(mTransformation);
+            }
+            return mTransformedLayout;
+        }
+
+    size_t number_of_antigens() const;
+    size_t number_of_sera() const;
 
  private:
     Chart& mChart;
@@ -99,6 +111,7 @@ class ChartDraw
     DrawingOrder mDrawingOrder;
     MapElements mMapElements;
     Labels mLabels;
+    mutable Layout mTransformedLayout;
 
 }; // class ChartDraw
 
