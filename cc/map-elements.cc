@@ -193,7 +193,11 @@ void SerumCircle::draw(Surface& aSurface, const ChartDraw& aChartDraw) const
 {
     if (mSerumNo != static_cast<size_t>(-1)) {
         const Coordinates& coord = aChartDraw.transformed_layout()[mSerumNo + aChartDraw.number_of_antigens()];
-        aSurface.circle_filled(coord, mRadius * 2.0, AspectNormal, NoRotation, mOutline, mOutlineWidth, mFill);
+        if (mStart == mEnd) {
+            aSurface.circle_filled(coord, mRadius * 2.0, AspectNormal, NoRotation, mOutline, mOutlineWidth, mFill);
+        }
+        else {
+        }
     }
 
 } // SerumCircle::draw

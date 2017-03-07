@@ -173,6 +173,7 @@ class SerumCircle : public MapElement
     inline void radius(Scaled aRadius) { mRadius = aRadius; }
     inline void fill(Color aFill) { mFill = aFill; }
     inline void outline(Color aOutline, double aOutlineWidth) { mOutline = aOutline; mOutlineWidth = aOutlineWidth; }
+    inline void angles(double aStart, double aEnd) { mStart = aStart; mEnd = aEnd; }
 
  private:
     size_t mSerumNo;

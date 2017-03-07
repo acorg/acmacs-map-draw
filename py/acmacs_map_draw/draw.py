@@ -353,6 +353,8 @@ class ModApplicator:
             serum_circle.fill(color=circle["fill"])
         if circle.get("outline"):
             serum_circle.outline(color=circle["outline"], line_width=circle.get("outline_width", 1.0))
+        if circle.get("angle_degrees"):
+            serum_circle.angles(circle["angle_degrees"][0] * math.pi / 180.0, circle["angle_degrees"][1] * math.pi / 180.0)
 
     def _make_point_style(self, *data):
         style = PointStyle()
