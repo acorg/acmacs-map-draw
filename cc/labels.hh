@@ -27,6 +27,9 @@ class Label
     inline Label& display_name(std::string aDisplayName) { mDisplayName = aDisplayName; return *this; }
     inline Label& color(Color aColor) { mTextColor = aColor; return *this; }
     inline Label& size(double aSize) { mTextSize = aSize; return *this; }
+    inline Label& weight(std::string aWeight) { mTextStyle.weight(aWeight); return *this; }
+    inline Label& slant(std::string aSlant) { mTextStyle.slant(aSlant); return *this; }
+    inline Label& font_family(std::string aFamily) { mTextStyle.font_family(aFamily); return *this; }
 
     inline size_t index() const { return mIndex; }
 

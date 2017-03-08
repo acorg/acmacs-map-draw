@@ -313,6 +313,9 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("display_name", &Label::display_name, py::arg("name"), py::return_value_policy::reference)
             .def("color", [](Label& aLabel, std::string aColor) -> Label& { return aLabel.color(aColor); }, py::arg("color"), py::return_value_policy::reference)
             .def("size", &Label::size, py::arg("size"), py::return_value_policy::reference)
+            .def("weight", &Label::weight, py::arg("weight"), py::return_value_policy::reference)
+            .def("slant", &Label::slant, py::arg("slant"), py::return_value_policy::reference)
+            .def("font_family", &Label::font_family, py::arg("font_family"), py::return_value_policy::reference)
             ;
 
     py::class_<SerumCircle>(m, "SerumCircle")
