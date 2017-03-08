@@ -6,14 +6,12 @@ Drawing antigenic maps
 - select by lineage
 - comparing_with_previous: select antigens not found in another chart
 
-- serum circles and sectors
-- serum coverage
-
 - geographic maps
+
+- time series
 
 - match antigens and sera of two charts
 - procrustes
-- time series
 - show_connection_lines
 - show_error_lines
 - blobs

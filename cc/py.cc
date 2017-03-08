@@ -8,6 +8,7 @@
 #include "seqdb/seqdb.hh"
 
 #include "draw.hh"
+#include "geographic-map.hh"
 
 // ----------------------------------------------------------------------
 
@@ -358,6 +359,14 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("title", [](ChartDraw& cd) -> Title& { return cd.title(); }, py::return_value_policy::reference)
             .def("label", py::overload_cast<size_t>(&ChartDraw::add_label), py::arg("index"), py::return_value_policy::reference)
             .def("serum_circle", [](ChartDraw& cd, size_t aSerumNo, double aRadius) -> SerumCircle& { return cd.serum_circle(aSerumNo, Scaled(aRadius)); }, py::arg("serum_no"), py::arg("radius"), py::return_value_policy::reference)
+            ;
+
+      // ----------------------------------------------------------------------
+
+    py::class_<GeographicMapDraw>(m, "GeographicMapDraw")
+            .def(py::init<>())
+            .def("prepare", &GeographicMapDraw::prepare)
+            .def("draw", py::overload_cast<std::string>(&GeographicMapDraw::draw), py::arg("filename"))
             ;
 
       // ----------------------------------------------------------------------

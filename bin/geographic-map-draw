@@ -1,0 +1,78 @@
+#! /usr/bin/env python3
+# -*- Python -*-
+
+"""
+"""
+
+import sys, os, tempfile, datetime, traceback, pprint
+if sys.version_info.major != 3: raise RuntimeError("Run script with python3")
+from pathlib import Path
+sys.path[:0] = [str(Path(os.environ["ACMACSD_ROOT"]).resolve().joinpath("py"))]
+import logging; module_logger = logging.getLogger(__name__)
+
+import acmacs_map_draw
+from acmacs_base.timeit import timeit
+
+# ----------------------------------------------------------------------
+
+def main(args):
+    remove_output = not args.output
+    try:
+        output = args.output or tempfile.mkstemp(suffix=".pdf")[1]
+        with timeit("Drawing geographic map to " + str(output)):
+                geographic_map = acmacs_map_draw.GeographicMapDraw()
+                geographic_map.prepare()
+                geographic_map.draw(str(output))
+        open_image(output)
+    finally:
+        if remove_output and output:
+            try:
+                if os.path.isdir(output):
+                    import shutil
+                    shutil.rmtree(output)
+                else:
+                    os.remove(output)
+            except Exception as err:
+                module_logger.error(err)
+
+# ----------------------------------------------------------------------
+
+sSettings = {
+    }
+
+# ----------------------------------------------------------------------
+
+def open_image(filename):
+    import os, socket
+    hostname = socket.gethostname()
+    if os.environ.get('USER') == 'eu' and hostname[:4] == 'jagd':
+        import subprocess
+        if os.path.isdir(filename):
+            import glob
+            subprocess.run("qlmanage -p '{}'".format("' '".join(glob.glob(os.path.join(filename, "*.pdf")))), shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            # os.system("open '{}'".format(filename))
+            subprocess.run("qlmanage -p '{}'".format(filename), shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+# ----------------------------------------------------------------------
+
+try:
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('-d', '--debug', action='store_const', dest='loglevel', const=logging.DEBUG, default=logging.INFO, help='Enable debugging output.')
+
+
+    parser.add_argument('output', nargs='?', default=None, help='Output pdf file.')
+
+    args = parser.parse_args()
+    logging.basicConfig(level=args.loglevel, format="%(levelname)s %(asctime)s: %(message)s")
+    exit_code = main(args)
+except Exception as err:
+    logging.error('{}\n{}'.format(err, traceback.format_exc()))
+    exit_code = 1
+exit(exit_code)
+
+# ======================================================================
+### Local Variables:
+### eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
+### End:

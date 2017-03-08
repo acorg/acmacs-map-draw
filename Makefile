@@ -7,7 +7,7 @@ MAKEFLAGS = -w
 
 # ----------------------------------------------------------------------
 
-SOURCES = draw.cc point-style-draw.cc map-elements.cc labels.cc
+SOURCES = draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc
 PY_SOURCES = py.cc $(SOURCES)
 BACKEND = $(DIST)/acmacs_map_draw_backend$(PYTHON_MODULE_SUFFIX)
 
@@ -51,6 +51,7 @@ install: check-acmacsd-root install-headers $(BACKEND)
 	ln -sf $(BACKEND) $(ACMACSD_ROOT)/py
 	ln -sf $(abspath py)/* $(ACMACSD_ROOT)/py
 	ln -sf $(abspath bin)/acmacs-map-* $(ACMACSD_ROOT)/bin
+	ln -sf $(abspath bin)/geographic-map-draw $(ACMACSD_ROOT)/bin
 
 install-headers: check-acmacsd-root
 	if [ ! -d $(ACMACSD_ROOT)/include/acmacs-map-draw ]; then mkdir $(ACMACSD_ROOT)/include/acmacs-map-draw; fi
