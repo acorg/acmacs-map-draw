@@ -15,7 +15,7 @@ class PointStyleDraw : public PointStyle
     inline PointStyleDraw(enum Empty e) : PointStyle(e) {}
     inline PointStyleDraw& operator = (const PointStyle& aPS) { PointStyle::operator=(aPS); return *this; }
 
-    void draw(Surface& aSurface, const Coordinates& aCoord);
+    void draw(Surface& aSurface, const Coordinates& aCoord) const;
 
 }; // class PointStyleDraw
 

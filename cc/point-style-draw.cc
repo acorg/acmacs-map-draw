@@ -3,7 +3,7 @@
 
 // ----------------------------------------------------------------------
 
-void PointStyleDraw::draw(Surface& aSurface, const Coordinates& aCoord)
+void PointStyleDraw::draw(Surface& aSurface, const Coordinates& aCoord) const
 {
     if (shown_raw() == Shown::Shown && !aCoord.empty()) {
         switch (shape()) {
