@@ -22,7 +22,7 @@ void GeographicMapDraw::draw(Surface& aSurface)
 void GeographicMapDraw::draw(std::string aFilename)
 {
     const Size size = geographic_map_size();
-    PdfCairo surface(aFilename, size.width, size.height);
+    PdfCairo surface(aFilename, size.width, size.height, size.width);
     draw(surface);
 
 } // GeographicMapDraw::draw
