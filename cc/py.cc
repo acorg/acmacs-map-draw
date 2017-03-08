@@ -317,7 +317,11 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
     py::class_<SerumCircle>(m, "SerumCircle")
             .def("fill", [](SerumCircle& sc, std::string color) { sc.fill(color); }, py::arg("color") = "pink")
             .def("outline", [](SerumCircle& sc, std::string color, double line_width) { sc.outline(color, line_width); }, py::arg("color") = "pink", py::arg("line_width") = 1.0)
+            .def("radius_line", [](SerumCircle& sc, std::string color, double line_width) { sc.radius_line(color, line_width); }, py::arg("color") = "pink", py::arg("line_width") = 1.0)
             .def("angles", &SerumCircle::angles, py::arg("start") = 0.0, py::arg("end") = 0.0)
+            .def("radius_line_no_dash", &SerumCircle::radius_line_no_dash)
+            .def("radius_line_dash1", &SerumCircle::radius_line_dash1)
+            .def("radius_line_dash2", &SerumCircle::radius_line_dash2)
             ;
 
     py::class_<ChartDraw>(m, "ChartDraw")

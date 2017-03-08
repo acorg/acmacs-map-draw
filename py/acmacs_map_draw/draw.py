@@ -353,6 +353,16 @@ class ModApplicator:
             serum_circle.fill(color=circle["fill"])
         if circle.get("outline"):
             serum_circle.outline(color=circle["outline"], line_width=circle.get("outline_width", 1.0))
+            serum_circle.radius_line(color=circle["outline"], line_width=circle.get("outline_width", 1.0))
+        if circle.get("radius_line"):
+            serum_circle.radius_line(color=circle["radius_line"], line_width=circle.get("radius_line", 1.0))
+        if circle.get("radius_line_dash") is not None:
+            if circle["radius_line_dash"] == "nodash" or not circle["radius_line_dash"]:
+                serum_circle.radius_line_no_dash()
+            elif circle["radius_line_dash"] == "dash1":
+                serum_circle.radius_line_dash1()
+            elif circle["radius_line_dash"] == "dash2":
+                serum_circle.radius_line_dash2()
         if circle.get("angle_degrees"):
             serum_circle.angles(circle["angle_degrees"][0] * math.pi / 180.0, circle["angle_degrees"][1] * math.pi / 180.0)
 

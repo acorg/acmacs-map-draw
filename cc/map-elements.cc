@@ -1,4 +1,3 @@
-#include "acmacs-draw/surface.hh"
 #include "acmacs-draw/continent-map.hh"
 #include "acmacs-chart/chart.hh"
 #include "map-elements.hh"
@@ -194,9 +193,10 @@ void SerumCircle::draw(Surface& aSurface, const ChartDraw& aChartDraw) const
     if (mSerumNo != static_cast<size_t>(-1)) {
         const Coordinates& coord = aChartDraw.transformed_layout()[mSerumNo + aChartDraw.number_of_antigens()];
         if (mStart == mEnd) {
-            aSurface.circle_filled(coord, mRadius * 2.0, AspectNormal, NoRotation, mOutline, mOutlineWidth, mFill);
+            aSurface.circle_filled(coord, mRadius * 2.0, AspectNormal, NoRotation, mOutlineColor, mOutlineWidth, mFillColor);
         }
         else {
+            aSurface.sector_filled(coord, mRadius * 2.0, mStart, mEnd, mOutlineColor, mOutlineWidth, mRadiusColor, mRadiusWidth, mRadiusDash, mFillColor);
         }
     }
 

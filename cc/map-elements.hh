@@ -7,6 +7,7 @@
 #include "acmacs-base/color.hh"
 #include "acmacs-base/size-scale.hh"
 #include "acmacs-draw/text-style.hh"
+#include "acmacs-draw/surface.hh"
 
 // ----------------------------------------------------------------------
 
@@ -165,22 +166,30 @@ class SerumCircle : public MapElement
  public:
     inline SerumCircle()
         : MapElement("serum-circle", MapElements::AfterPoints), mSerumNo(static_cast<size_t>(-1)),
-          mFill("transparent"), mOutline("pink"), mOutlineWidth(1), mStart(0), mEnd(0) {}
+          mFillColor("transparent"), mOutlineColor("pink"), mOutlineWidth(1),
+          mRadiusColor("pink"), mRadiusWidth(1), mRadiusDash(Surface::Dash::Dash1), mStart(0), mEnd(0) {}
 
     virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
 
     inline void serum_no(size_t aSerumNo) { mSerumNo = aSerumNo; }
     inline void radius(Scaled aRadius) { mRadius = aRadius; }
-    inline void fill(Color aFill) { mFill = aFill; }
-    inline void outline(Color aOutline, double aOutlineWidth) { mOutline = aOutline; mOutlineWidth = aOutlineWidth; }
+    inline void fill(Color aFill) { mFillColor = aFill; }
+    inline void outline(Color aOutline, double aOutlineWidth) { mOutlineColor = aOutline; mOutlineWidth = aOutlineWidth; }
+    inline void radius_line(Color aRadius, double aRadiusWidth) { mRadiusColor = aRadius; mRadiusWidth = aRadiusWidth; }
     inline void angles(double aStart, double aEnd) { mStart = aStart; mEnd = aEnd; }
+    inline void radius_line_no_dash() { mRadiusDash = Surface::Dash::NoDash; }
+    inline void radius_line_dash1() { mRadiusDash = Surface::Dash::Dash1; }
+    inline void radius_line_dash2() { mRadiusDash = Surface::Dash::Dash2; }
 
  private:
     size_t mSerumNo;
     Scaled mRadius;
-    Color mFill;
-    Color mOutline;
+    Color mFillColor;
+    Color mOutlineColor;
     Pixels mOutlineWidth;
+    Color mRadiusColor;
+    Pixels mRadiusWidth;
+    Surface::Dash mRadiusDash;
     Rotation mStart;
     Rotation mEnd;
 
