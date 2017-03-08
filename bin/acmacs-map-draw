@@ -44,7 +44,7 @@ def main(args):
             except acmacs_map_draw.UnrecognizedMod as err:
                 if args.verbose:
                     raise
-                module_logger.error('Unrecognized mod: {} (-v to get details)'.format(repr(err.args[0])))
+                module_logger.error('Unrecognized mod: {} (-v to get details)\n{}'.format(repr(err.args[0]), err.args[1] if len(err.args) > 1 else ""))
                 return 1
         if args.settings and update_settings:
             write_json(path=settings_file, data=settings)
@@ -70,9 +70,13 @@ sSettings = {
         "egg", "reassortant",
         "all_grey",
         {"N": "title", "?display_name": ["1", "2"], "text_size": 12, "background": "#F0F0FF", "border_color": "black", "border_width": 0.1},
-        #{"N": "serum_circle", "serum": "A(H3N2)/TEXAS/50/2012 CDC 2013-189,2013-194"},
+        {"N": "serum_coverage", "serum": "A(H3N2)/HONG KONG/4801/2014 CDC 2015-073,2016-022", "antigen": 1862, "report": False,
+             "within_4fold": {"outline": "pink", "outline_width": 3, "raise_": True},
+             "outside_4fold": {"fill": "grey50", "outline": "black", "raise_": True},
+             "mark_serum": {"fill": "red", "outline": "black", "raise_": True, "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
+             },
         {"N": "serum_circle", "serum": "A(H3N2)/TEXAS/50/2012 CDC 2014-084,2014-085", "?antigen": 1,
-             "circle": {"fill": "#C08080FF", "outline": "blue", "outline_width": 2, "angle_degrees": [0, 30], "radius_line_dash": "dash2"},
+             "circle": {"fill": "#E08080FF", "outline": "blue", "outline_width": 1, "angle_degrees": [0, 240], "radius_line_dash": "dash2"},
              "mark_serum": {"fill": "lightblue", "outline": "black", "raise_": True, "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
              "mark_antigen": {"fill": "lightblue", "outline": "black", "raise_": True, "label": {"show": False, "name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
         },
@@ -92,7 +96,7 @@ sSettings = {
         {"N": "viewport", "value": [-6, -6, 10]},
         "egg", "reassortant", "all_grey",
         {},
-        {"N": "antigens", "select": "?", "fill": "blue4", "outline": "red", "raise_": True, "report_names_threshold": 10,
+        {"N": "antigens", "select": "?", "fill": "blue4", "outline": "red", "raise_": True, "report": True, "report_names_threshold": 10,
              "?label": {"name_type": "abbreviated_with_passage_type", "offset": [0, 1], "color": "black", "size": 12},
              "?select_variants": [
                  {"name": "NEBRASKA/4/"},
@@ -102,7 +106,7 @@ sSettings = {
                  {"passage_type": "egg"}, {"passage_type": "cell"}, {"passage_type": "reassortant"},
                  {"country": "GERMANY"}, {"continent": "NORTH-AMERICA"}
                  ]},
-        {"N": "sera", "select": "all", "outline": "cyan3", "raise_": True, "report_names_threshold": 10,
+        {"N": "sera", "select": "all", "outline": "cyan3", "raise_": True, "report": True, "report_names_threshold": 10,
              "?label": {"name_type": "abbreviated_with_passage_type", "offset": [0, 1], "color": "black", "size": 12},
              "?select_variants": [
                  {"name": "NEBRASKA/4/"},

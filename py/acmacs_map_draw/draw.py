@@ -32,8 +32,8 @@ def draw_chart(output_file, chart, settings, output_width, draw_map=True, verbos
             if "N" in mod and mod["N"] and mod["N"][0] != "?":      # no "N" - commented out
                 try:
                     getattr(applicator, mod["N"])(**mod)
-                except:
-                    raise UnrecognizedMod(mod)
+                except Exception as err:
+                    raise UnrecognizedMod(mod, err)
         else:
             raise UnrecognizedMod(mod)
     if draw_map:
@@ -169,31 +169,33 @@ class ModApplicator:
     def point_scale(self, scale=1, outline_scale=1, **args):
         self._chart_draw.scale_points(scale=scale, outline_scale=outline_scale)
 
-    def antigens(self, N, select, report_names_threshold=10, **args):
+    def antigens(self, N, select, report=True, report_names_threshold=10, **args):
         indices = self._select_antigens(select=select, raise_if_not_found=True, raise_if_multiple=False)
         antigens = self._chart.antigens()
-        if report_names_threshold is None or (indices and len(indices) <= report_names_threshold):
-            names = ["{:4d} {} [{}]".format(index, antigens[index].full_name(), antigens[index].date()) for index in indices]
-            module_logger.info('Antigens {}: select:{!r} {}\n    {}'.format(len(indices), select, args, "\n    ".join(names)))
-        elif indices and len(indices) < 20:
-            module_logger.info('Antigens {}:{}: select:{!r} {}'.format(len(indices), indices, select, args))
-        else:
-            module_logger.info('Antigens {}: select:{!r} {}'.format(len(indices), select, args))
+        if report:
+            if report_names_threshold is None or (indices and len(indices) <= report_names_threshold):
+                names = ["{:4d} {} [{}]".format(index, antigens[index].full_name(), antigens[index].date()) for index in indices]
+                module_logger.info('Antigens {}: select:{!r} {}\n    {}'.format(len(indices), select, args, "\n    ".join(names)))
+            elif indices and len(indices) < 20:
+                module_logger.info('Antigens {}:{}: select:{!r} {}'.format(len(indices), indices, select, args))
+            else:
+                module_logger.info('Antigens {}: select:{!r} {}'.format(len(indices), select, args))
         self.style(index=indices, **args)
         if "label" in args and args["label"].get("show", True):
             for index in indices:
                 self.label(index=index, **args["label"])
 
-    def sera(self, N, select, report_names_threshold=10, **args):
+    def sera(self, N, select, report=True, report_names_threshold=10, **args):
         indices = self._select_sera(select=select, raise_if_not_found=True, raise_if_multiple=False)
         sera = self._chart.sera()
-        if report_names_threshold is None or len(indices) <= report_names_threshold:
-            names = ["{:3d} {}".format(index, sera[index].full_name()) for index in indices]
-            module_logger.info('Sera {}: select:{!r} {}\n    {}'.format(len(indices), select, args, "\n    ".join(names)))
-        elif len(indices) < 20:
-            module_logger.info('Sera {}:{}: select:{!r} {}'.format(len(indices), indices, select, args))
-        else:
-            module_logger.info('Sera {}: select:{!r} {}'.format(len(indices), select, args))
+        if report:
+            if report_names_threshold is None or len(indices) <= report_names_threshold:
+                names = ["{:3d} {}".format(index, sera[index].full_name()) for index in indices]
+                module_logger.info('Sera {}: select:{!r} {}\n    {}'.format(len(indices), select, args, "\n    ".join(names)))
+            elif len(indices) < 20:
+                module_logger.info('Sera {}:{}: select:{!r} {}'.format(len(indices), indices, select, args))
+            else:
+                module_logger.info('Sera {}: select:{!r} {}'.format(len(indices), select, args))
         number_of_antigens = self._chart.number_of_antigens()
         self.style(index=[index + number_of_antigens for index in indices], **args)
         if "label" in args and args["label"].get("show", True):
@@ -336,18 +338,12 @@ class ModApplicator:
         serum_index = self._select_sera(select=serum, raise_if_not_found=True, raise_if_multiple=True)[0]
         if mark_serum:
             self.sera(N="sera", select=serum_index, **mark_serum)
-        sera = self._chart.sera()
-        if antigen is None:
-            get_hidb(chart=self._chart).find_homologous_antigens_for_sera_of_chart(chart=self._chart)
-            antigen_indices = sera[serum_index].homologous()
-        else:
-            antigen_indices = self._select_antigens(select=antigen, raise_if_not_found=True, raise_if_multiple=False)
+        antigen_indices = self._homologous_antigen_indices(serum_no=serum_index, select=antigen, raise_if_not_found=True, raise_if_multiple=False)
         if mark_antigen:
             self.antigens(N="antigens", select=antigen_indices, **mark_antigen)
-        antigens = self._chart.antigens()
         radii = [self._chart.serum_circle_radius(serum_no=serum_index, antigen_no=ag_no, projection_no=self._projection_no) for ag_no in antigen_indices]
         radius = min(r for r in radii if r > 0)
-        module_logger.info('serum_circle:\n  SR {} {}\n    {}\n  RADIUS: {}'.format(serum_index, sera[serum_index].full_name(), "\n    ".join("AG {:4d} {} {}".format(ag_no, antigens[ag_no].full_name(), radius) for ag_no, radius in zip(antigen_indices, radii)), radius))
+        module_logger.info('serum_circle:\n  SR {} {}\n    {}\n  RADIUS: {}'.format(serum_index, self._chart.serum(serum_index).full_name(), "\n    ".join("AG {:4d} {} {}".format(ag_no, self._chart.antigen(ag_no).full_name(), radius) for ag_no, radius in zip(antigen_indices, radii)), radius))
         serum_circle = self._chart_draw.serum_circle(serum_no=serum_index, radius=radius)
         if circle.get("fill"):
             serum_circle.fill(color=circle["fill"])
@@ -365,6 +361,18 @@ class ModApplicator:
                 serum_circle.radius_line_dash2()
         if circle.get("angle_degrees"):
             serum_circle.angles(circle["angle_degrees"][0] * math.pi / 180.0, circle["angle_degrees"][1] * math.pi / 180.0)
+
+    def serum_coverage(self, serum, antigen=None, within_4fold={"outline": "pink", "outline_width": 5, "raise_": True}, outside_4fold={}, mark_serum=None, report=False, **args):
+        serum_index = self._select_sera(select=serum, raise_if_not_found=True, raise_if_multiple=True)[0]
+        if mark_serum:
+            self.sera(N="sera", select=serum_index, **mark_serum)
+        antigen_index = self._homologous_antigen_indices(serum_no=serum_index, select=antigen, raise_if_not_found=True, raise_if_multiple=True)[0]
+        within, outside = self._chart.serum_coverage(antigen_no=antigen_index, serum_no=serum_index)
+        if report:
+            module_logger.info('Antigens within 4fold: {}'.format(within))
+            module_logger.info('Antigens outside 4fold: {}'.format(outside))
+        self.antigens(N="antigens", select=within, report=False, **within_4fold)
+        self.antigens(N="antigens", select=outside, report=False, **outside_4fold)
 
     def _make_point_style(self, *data):
         style = PointStyle()
@@ -384,6 +392,12 @@ class ModApplicator:
                     getattr(legend_box, k)(legend_settings[k])
             for legend_entry in legend_data:
                 legend_box.add_line(**legend_entry)
+
+    def _homologous_antigen_indices(self, serum_no, select, raise_if_not_found, raise_if_multiple):
+        if select is None:
+            get_hidb(chart=self._chart).find_homologous_antigens_for_sera_of_chart(chart=self._chart)
+            select = self._chart.serum(serum_no).homologous()
+        return self._select_antigens(select=select, raise_if_not_found=raise_if_not_found, raise_if_multiple=raise_if_multiple)
 
     def _select_antigens(self, select, raise_if_not_found, raise_if_multiple):
         indices = None
@@ -438,7 +452,7 @@ class ModApplicator:
             indices = [select]
         if indices:
             if raise_if_multiple and len(indices) > 1:
-                raise ValueError("Multiple antigens selected using " + repr(select) + ": " + str(indices))
+                raise ValueError("Multiple antigens selected using " + repr(select) + ": " + str(indices) + "\n  " + "\n  ".join("AG {} {}".format(antigen_no, antigens[antigen_no].full_name()) for antigen_no in indices))
         elif raise_if_not_found:
             raise ValueError("No antigens selected using " + repr(select))
         return indices
@@ -469,7 +483,7 @@ class ModApplicator:
             indices = [select]
         if indices:
             if raise_if_multiple and len(indices) > 1:
-                raise ValueError("Multiple sera selected using " + repr(select) + ": " + str(indices))
+                raise ValueError("Multiple sera selected using " + repr(select) + ": " + str(indices) + "\n  " + "\n  ".join("SR {} {}".format(serum_no, sera[serum_no].full_name()) for serum_no in indices))
         elif raise_if_not_found:
             raise ValueError("No sera selected using " + repr(select))
         return indices
