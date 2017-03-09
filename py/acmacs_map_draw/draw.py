@@ -10,6 +10,7 @@ from .hidb_access import get_hidb
 from .locdb_access import get_locdb
 from .vaccines import vaccines
 from acmacs_map_draw_backend import ChartDraw, PointStyle, find_vaccines_in_chart, LocDb, distinct_colors
+from . import coloring
 
 # ----------------------------------------------------------------------
 
@@ -62,19 +63,19 @@ def draw_chart(output_file, chart, settings, output_width, draw_map=True, verbos
 
 class ModApplicator:
 
-    sStyleByContinent = {
-        "EUROPE":            {"fill": "green"},
-        "CENTRAL-AMERICA":   {"fill": "#AAF9FF"},
-        "MIDDLE-EAST":       {"fill": "#8000FF"},
-        "NORTH-AMERICA":     {"fill": "blue4"},
-        "AFRICA":            {"fill": "darkorange1"},
-        "ASIA":              {"fill": "red"},
-        "RUSSIA":            {"fill": "maroon"},
-        "AUSTRALIA-OCEANIA": {"fill": "hotpink"},
-        "SOUTH-AMERICA":     {"fill": "turquoise"},
-        "ANTARCTICA":        {"fill": "grey50"},
-        "":                  {"fill": "grey50"},
-        }
+    # sStyleByContinent = {
+    #     "EUROPE":            {"fill": "green"},
+    #     "CENTRAL-AMERICA":   {"fill": "#AAF9FF"},
+    #     "MIDDLE-EAST":       {"fill": "#8000FF"},
+    #     "NORTH-AMERICA":     {"fill": "blue4"},
+    #     "AFRICA":            {"fill": "darkorange1"},
+    #     "ASIA":              {"fill": "red"},
+    #     "RUSSIA":            {"fill": "maroon"},
+    #     "AUSTRALIA-OCEANIA": {"fill": "hotpink"},
+    #     "SOUTH-AMERICA":     {"fill": "turquoise"},
+    #     "ANTARCTICA":        {"fill": "grey50"},
+    #     "":                  {"fill": "grey50"},
+    #     }
 
     sStyleByVaccineType = {
         "previous": {
@@ -220,7 +221,7 @@ class ModApplicator:
         data = self._chart.antigens().continents(get_locdb())
         module_logger.info('[Continents] {}'.format(" ".join(f"{continent}:{len(data[continent])}" for continent in sorted(data))))
         for continent, indices in data.items():
-            self._chart_draw.modify_points_by_indices(indices, self._make_point_style(self.sStyleByContinent[continent]))
+            self._chart_draw.modify_points_by_indices(indices, self._make_point_style({"fill": coloring.sContinentColor[continent]}))
         if legend and legend.get("show", True):
             self._chart_draw.continent_map(legend.get("offset", [0, 0]), legend.get("size", 100))
 

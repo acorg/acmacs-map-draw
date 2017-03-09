@@ -10,9 +10,8 @@ from pathlib import Path
 sys.path[:0] = [str(Path(os.environ["ACMACSD_ROOT"]).resolve().joinpath("py"))]
 import logging; module_logger = logging.getLogger(__name__)
 
-import acmacs_map_draw
-from acmacs_map_draw.hidb_access import get_hidb
-from acmacs_map_draw.locdb_access import get_locdb
+from acmacs_map_draw import GeographicMapWithPointsFromHidb, get_hidb, get_locdb
+from acmacs_map_draw.coloring import sContinentColor
 from acmacs_base.timeit import timeit
 
 # ----------------------------------------------------------------------
@@ -24,8 +23,11 @@ def main(args):
         output = args.output or tempfile.mkstemp(suffix=".pdf")[1]
         hidb = get_hidb(virus_type="h3")
         with timeit("Drawing geographic map to " + str(output)):
-            geographic_map = acmacs_map_draw.GeographicMapWithPointsFromHidb(hidb=hidb, locdb=get_locdb(), point_size_in_pixels=settings["point_size_in_pixels"], point_density=settings["point_density"])
-            geographic_map.add_points_from_hidb(start_date="2016-12-01", end_date="2017-01-01")
+            geographic_map = GeographicMapWithPointsFromHidb(hidb=hidb, locdb=get_locdb(), point_size_in_pixels=settings["point_size_in_pixels"], point_density=settings["point_density"])
+            if settings["coloring"] == "continent":
+                geographic_map.add_points_from_hidb_colored_by_continent(continent_color=sContinentColor, start_date="2016-12-01", end_date="2017-01-01")
+            else:
+                raise ValueError("Unsupported coloring: " + repr(settings["coloring"]))
             geographic_map.draw(str(output))
         open_image(output)
     finally:
@@ -42,6 +44,7 @@ def main(args):
 # ----------------------------------------------------------------------
 
 sSettings = {
+    "coloring": "continent",
     "point_size_in_pixels": 6.0,
     "point_density": 0.8,
     }

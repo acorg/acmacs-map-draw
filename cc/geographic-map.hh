@@ -8,6 +8,7 @@
 class Surface;
 class LocDb;
 namespace hidb { class HiDb; }
+class GeographicMapColoring;    // private, defined in geographic-map.cc
 
 // ----------------------------------------------------------------------
 
@@ -61,7 +62,7 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
 
     virtual void prepare(Surface& aSurface);
 
-    void add_points_from_hidb(std::string aStartDate, std::string aEndDate);
+    void add_points_from_hidb_colored_by_continent(const std::map<std::string, std::string>& aContinentColor, std::string aStartDate, std::string aEndDate);
 
  private:
     const hidb::HiDb& mHiDb;
@@ -103,6 +104,8 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
     };
 
     Points mPoints;
+
+    void add_points_from_hidb(const GeographicMapColoring& aColoring, std::string aStartDate, std::string aEndDate);
 
 }; // class GeographicMapWithPointsFromHidb
 

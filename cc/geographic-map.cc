@@ -99,15 +99,54 @@ void GeographicMapWithPointsFromHidb::prepare(Surface& aSurface)
 
 // ----------------------------------------------------------------------
 
-void GeographicMapWithPointsFromHidb::add_points_from_hidb(std::string aStartDate, std::string aEndDate)
+class GeographicMapColoring
+{
+ public:
+    virtual ~GeographicMapColoring() {}
+
+    virtual Color color(const hidb::AntigenData& aAntigen) const = 0;
+};
+
+class ColoringByContinent : public GeographicMapColoring
+{
+ public:
+    inline ColoringByContinent(const std::map<std::string, std::string>& aContinentColor, const LocDb& aLocDb)
+        : mColors{aContinentColor.begin(), aContinentColor.end()}, mLocDb(aLocDb) {}
+
+    virtual Color color(const hidb::AntigenData& aAntigen) const
+        {
+            try {
+                return mColors.at(mLocDb.continent(virus_name::location(aAntigen.data().name())));
+            }
+            catch (...) {
+                return "grey50";
+            }
+        }
+
+ private:
+    std::map<std::string, Color> mColors;
+    const LocDb& mLocDb;
+};
+
+
+// ----------------------------------------------------------------------
+
+
+void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_continent(const std::map<std::string, std::string>& aContinentColor, std::string aStartDate, std::string aEndDate)
+{
+    add_points_from_hidb(ColoringByContinent(aContinentColor, mLocDb), aStartDate, aEndDate);
+
+} // GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_continent
+
+// ----------------------------------------------------------------------
+
+void GeographicMapWithPointsFromHidb::add_points_from_hidb(const GeographicMapColoring& aColoring, std::string aStartDate, std::string aEndDate)
 {
     auto antigens = mHiDb.all_antigens();
     antigens.date_range(aStartDate, aEndDate);
     std::cerr << "Antigens selected: " << antigens.size() << std::endl;
-    bool cc = false;
     for (auto& antigen: antigens) {
-        mPoints.add(virus_name::location(antigen->data().name()), cc ? "red" : "blue");
-        cc = !cc;
+        mPoints.add(virus_name::location(antigen->data().name()), aColoring.color(*antigen));
     }
     std::cerr << "Locations: " << mPoints.size() << std::endl;
 
