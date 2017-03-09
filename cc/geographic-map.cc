@@ -107,6 +107,8 @@ class GeographicMapColoring
     virtual Color color(const hidb::AntigenData& aAntigen) const = 0;
 };
 
+// ----------------------------------------------------------------------
+
 class ColoringByContinent : public GeographicMapColoring
 {
  public:
@@ -126,17 +128,46 @@ class ColoringByContinent : public GeographicMapColoring
  private:
     std::map<std::string, Color> mColors;
     const LocDb& mLocDb;
-};
-
+}; // class ColoringByContinent
 
 // ----------------------------------------------------------------------
 
+class ColoringByClade : public GeographicMapColoring
+{
+ public:
+    inline ColoringByClade(const std::map<std::string, std::string>& aCladeColor)
+        : mColors{aCladeColor.begin(), aCladeColor.end()} {}
+
+    virtual Color color(const hidb::AntigenData& aAntigen) const
+        {
+            try {
+                return "red";
+            }
+            catch (...) {
+                return "grey50";
+            }
+        }
+
+ private:
+    std::map<std::string, Color> mColors;
+
+}; // class ColoringByClade
+
+// ----------------------------------------------------------------------
 
 void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_continent(const std::map<std::string, std::string>& aContinentColor, std::string aStartDate, std::string aEndDate)
 {
     add_points_from_hidb(ColoringByContinent(aContinentColor, mLocDb), aStartDate, aEndDate);
 
 } // GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_continent
+
+// ----------------------------------------------------------------------
+
+void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_clade(const std::map<std::string, std::string>& aCladeColor, std::string aStartDate, std::string aEndDate)
+{
+    add_points_from_hidb(ColoringByClade(aCladeColor), aStartDate, aEndDate);
+
+} // GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_clade
 
 // ----------------------------------------------------------------------
 

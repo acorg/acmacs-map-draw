@@ -63,6 +63,7 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
     virtual void prepare(Surface& aSurface);
 
     void add_points_from_hidb_colored_by_continent(const std::map<std::string, std::string>& aContinentColor, std::string aStartDate, std::string aEndDate);
+    void add_points_from_hidb_colored_by_clade(const std::map<std::string, std::string>& aCladeColor, std::string aStartDate, std::string aEndDate);
 
  private:
     const hidb::HiDb& mHiDb;

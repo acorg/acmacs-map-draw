@@ -96,25 +96,25 @@ class ModApplicator:
         }
 
     sStyleByClade = [                     # bottom raised entries above top entries
-        {"N": "", "fill": "grey50", "outline": "black"},                # sequenced but not in any clade
+        {"N": "", "outline": "black"},                # sequenced but not in any clade
         # {"N": "gly", "fill": "grey50", "outline": "black"},
         # {"N": "no-gly", "fill": "grey50", "outline": "black"},
         # H3
-        {"N": "3C3",   "fill": "cornflowerblue", "outline": "black"},
-        {"N": "3C2a",  "fill": "red", "outline": "black"},
-        {"N": "3C2a1", "fill": "darkred", "outline": "black"},
-        {"N": "3C3a",  "fill": "green", "outline": "black"},
-        {"N": "3C3b",  "fill": "blue", "outline": "black"},
+        {"N": "3C3",   "outline": "black"},
+        {"N": "3C2a",  "outline": "black"},
+        {"N": "3C2a1", "outline": "black"},
+        {"N": "3C3a",  "outline": "black"},
+        {"N": "3C3b",  "outline": "black"},
         # H1pdm
-        {"N": "6B1", "fill": "blue", "outline": "black"},
-        {"N": "6B2", "fill": "red", "outline": "black"},
+        {"N": "6B1", "outline": "black"},
+        {"N": "6B2", "outline": "black"},
         # B/Yam
-        {"N": "Y2", "fill": "cornflowerblue", "outline": "black"},
-        {"N": "Y3", "fill": "red", "outline": "black"},
+        {"N": "Y2", "outline": "black"},
+        {"N": "Y3", "outline": "black"},
         # B/Vic
-        {"N": "1",  "fill": "blue", "outline": "black"},
-        {"N": "1A", "fill": "cornflowerblue", "outline": "black"},
-        {"N": "1B", "fill": "red", "outline": "black"},
+        {"N": "1",  "outline": "black"},
+        {"N": "1A", "outline": "black"},
+        {"N": "1B", "outline": "black"},
         ]
 
     # ----------------------------------------------------------------------
@@ -221,7 +221,7 @@ class ModApplicator:
         data = self._chart.antigens().continents(get_locdb())
         module_logger.info('[Continents] {}'.format(" ".join(f"{continent}:{len(data[continent])}" for continent in sorted(data))))
         for continent, indices in data.items():
-            self._chart_draw.modify_points_by_indices(indices, self._make_point_style({"fill": coloring.sContinentColor[continent]}))
+            self._chart_draw.modify_points_by_indices(indices, self._make_point_style(args, {"fill": coloring.sContinentColor[continent]}))
         if legend and legend.get("show", True):
             self._chart_draw.continent_map(legend.get("offset", [0, 0]), legend.get("size", 100))
 
@@ -237,8 +237,9 @@ class ModApplicator:
                 lower = clade_style_mod.get("lower", False)
                 raise_ = clade_style_mod.get("raise_", True) if not lower else False
                 if indices:
-                    self._chart_draw.modify_points_by_indices(indices, self._make_point_style(clade_style, clade_style_mod), raise_=raise_, lower=lower)
-                    clades_used[clade_style["N"]] = [{**clade_style, **clade_style_mod}, len(indices)]
+                    style = {**clade_style, "fill": coloring.sCladeColor[clade_style["N"]], **clade_style_mod}
+                    self._chart_draw.modify_points_by_indices(indices, self._make_point_style(style), raise_=raise_, lower=lower)
+                    clades_used[clade_style["N"]] = [style, len(indices)]
         module_logger.info('Clades\n{}'.format(pprint.pformat(clades_used)))
         # module_logger.info('Clades {}'.format(sorted(clades_used)))
         if legend and legend.get("show", True):
