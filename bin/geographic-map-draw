@@ -11,6 +11,7 @@ sys.path[:0] = [str(Path(os.environ["ACMACSD_ROOT"]).resolve().joinpath("py"))]
 import logging; module_logger = logging.getLogger(__name__)
 
 import acmacs_map_draw
+from acmacs_map_draw.hidb_access import get_hidb
 from acmacs_base.timeit import timeit
 
 # ----------------------------------------------------------------------
@@ -19,10 +20,12 @@ def main(args):
     remove_output = not args.output
     try:
         output = args.output or tempfile.mkstemp(suffix=".pdf")[1]
+        hidb = get_hidb(virus_type="h3")
         with timeit("Drawing geographic map to " + str(output)):
-                geographic_map = acmacs_map_draw.GeographicMapDraw()
-                geographic_map.prepare()
-                geographic_map.draw(str(output))
+            geographic_map = acmacs_map_draw.GeographicMapDraw()
+            geographic_map.add_points_from_hidb(hidb=hidb, start_date="2016-12-01", end_date="2017-02-01")
+            geographic_map.prepare()
+            geographic_map.draw(str(output))
         open_image(output)
     finally:
         if remove_output and output:

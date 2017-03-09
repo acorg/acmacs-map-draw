@@ -1,5 +1,6 @@
 #include "acmacs-draw/surface-cairo.hh"
 #include "acmacs-draw/geographic-map.hh"
+#include "hidb/hidb.hh"
 #include "geographic-map.hh"
 
 // ----------------------------------------------------------------------
@@ -17,13 +18,13 @@ void GeographicMapPoints::draw(Surface& aSurface) const
 
 void GeographicMapDraw::prepare()
 {
-    add_point(0, 0, "pink", Pixels{5});
-    add_point(-33.87, 151.21, "pink", Pixels{5}); // sydney
-    add_point( 40.71, -74.01, "pink", Pixels{5}); // new york
-    add_point( 51.51,   0.13, "pink", Pixels{5}); // london
-    add_point( 36.13,  -5.37, "pink", Pixels{5}); // gibraltar
-    add_point( 12.42, -71.72, "pink", Pixels{5}); // top of south america
-    add_point( 34.29, 126.52, "pink", Pixels{5}); // south-west of south korea
+    // add_point(0, 0, "pink", Pixels{5});
+    // add_point(-33.87, 151.21, "pink", Pixels{5}); // sydney
+    // add_point( 40.71, -74.01, "pink", Pixels{5}); // new york
+    // add_point( 51.51,   0.13, "pink", Pixels{5}); // london
+    // add_point( 36.13,  -5.37, "pink", Pixels{5}); // gibraltar
+    // add_point( 12.42, -71.72, "pink", Pixels{5}); // top of south america
+    // add_point( 34.29, 126.52, "pink", Pixels{5}); // south-west of south korea
 
 } // GeographicMapDraw::prepare
 
@@ -54,6 +55,19 @@ void GeographicMapDraw::add_point(double aLat, double aLong, Color aFill, Pixels
     mPoints.back().shape(PointStyle::Shape::Circle).fill(aFill).outline_width(Pixels{0}).size(aSize);
 
 } // GeographicMapDraw::add_point
+
+// ----------------------------------------------------------------------
+
+void GeographicMapDraw::add_points_from_hidb(const hidb::HiDb& aHiDb, std::string aStartDate, std::string aEndDate)
+{
+    auto antigens = aHiDb.all_antigens();
+    antigens.date_range(aStartDate, aEndDate);
+    std::cerr << "Antigens selected: " << antigens.size() << std::endl;
+    for (auto& antigen: antigens) {
+    }
+    add_point( 51.51,   0.13, "red", Pixels{5}); // london
+
+} // GeographicMapDraw::add_points_from_hidb
 
 // ----------------------------------------------------------------------
 /// Local Variables:

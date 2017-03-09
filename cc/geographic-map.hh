@@ -5,6 +5,7 @@
 #include "acmacs-map-draw/point-style-draw.hh"
 
 class Surface;
+namespace hidb { class HiDb; }
 
 // ----------------------------------------------------------------------
 
@@ -40,6 +41,7 @@ class GeographicMapDraw
     void draw(std::string aFilename);
 
     void add_point(double aLat, double aLong, Color aFill, Pixels aSize);
+    void add_points_from_hidb(const hidb::HiDb& aHiDb, std::string aStartDate, std::string aEndDate);
 
  private:
     GeographicMapPoints mPoints;
