@@ -1,5 +1,7 @@
+#include "acmacs-base/virus-name.hh"
 #include "acmacs-draw/surface-cairo.hh"
 #include "acmacs-draw/geographic-map.hh"
+#include "locationdb/locdb.hh"
 #include "hidb/hidb.hh"
 #include "geographic-map.hh"
 
@@ -58,14 +60,19 @@ void GeographicMapDraw::add_point(double aLat, double aLong, Color aFill, Pixels
 
 // ----------------------------------------------------------------------
 
-void GeographicMapDraw::add_points_from_hidb(const hidb::HiDb& aHiDb, std::string aStartDate, std::string aEndDate)
+void GeographicMapDraw::add_points_from_hidb(const hidb::HiDb& aHiDb, const LocDb& aLocDb, std::string aStartDate, std::string aEndDate)
 {
     auto antigens = aHiDb.all_antigens();
     antigens.date_range(aStartDate, aEndDate);
     std::cerr << "Antigens selected: " << antigens.size() << std::endl;
     for (auto& antigen: antigens) {
+        try {
+            const auto location = aLocDb.find(virus_name::location(antigen->data().name()));
+            add_point(location.latitude(), location.longitude(), "red", Pixels{5});
+        }
+        catch (LocationNotFound&) {
+        }
     }
-    add_point( 51.51,   0.13, "red", Pixels{5}); // london
 
 } // GeographicMapDraw::add_points_from_hidb
 

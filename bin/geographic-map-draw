@@ -12,6 +12,7 @@ import logging; module_logger = logging.getLogger(__name__)
 
 import acmacs_map_draw
 from acmacs_map_draw.hidb_access import get_hidb
+from acmacs_map_draw.locdb_access import get_locdb
 from acmacs_base.timeit import timeit
 
 # ----------------------------------------------------------------------
@@ -23,7 +24,7 @@ def main(args):
         hidb = get_hidb(virus_type="h3")
         with timeit("Drawing geographic map to " + str(output)):
             geographic_map = acmacs_map_draw.GeographicMapDraw()
-            geographic_map.add_points_from_hidb(hidb=hidb, start_date="2016-12-01", end_date="2017-02-01")
+            geographic_map.add_points_from_hidb(hidb=hidb, locdb=get_locdb(), start_date="2016-12-01", end_date="2017-02-01")
             geographic_map.prepare()
             geographic_map.draw(str(output))
         open_image(output)
