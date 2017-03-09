@@ -39,14 +39,15 @@ class GeographicMapDraw
     inline GeographicMapDraw() = default;
     virtual ~GeographicMapDraw();
 
-    virtual void prepare();
-    virtual void draw(Surface& aSurface) const;
-    virtual void draw(std::string aFilename) const;
+    virtual void prepare(Surface& aSurface);
+    virtual void draw(std::string aFilename);
 
     void add_point(double aLat, double aLong, Color aFill, Pixels aSize);
 
  private:
     GeographicMapPoints mPoints;
+
+    virtual void draw(Surface& aOutlineSurface, Surface& aPointSurface) const;
 
 }; // class GeographicMapDraw
 
@@ -65,8 +66,7 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
 
     inline GeographicMapWithPointsFromHidb(const hidb::HiDb& aHiDb, const LocDb& aLocDb) : mHiDb(aHiDb), mLocDb(aLocDb) {}
 
-    virtual void prepare();
-      // virtual void draw(Surface& aSurface) const;
+    virtual void prepare(Surface& aSurface);
 
     void add_points_from_hidb(std::string aStartDate, std::string aEndDate);
 

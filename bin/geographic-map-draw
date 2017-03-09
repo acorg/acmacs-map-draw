@@ -25,7 +25,6 @@ def main(args):
         with timeit("Drawing geographic map to " + str(output)):
             geographic_map = acmacs_map_draw.GeographicMapWithPointsFromHidb(hidb=hidb, locdb=get_locdb())
             geographic_map.add_points_from_hidb(start_date="2016-12-01", end_date="2017-02-01")
-            geographic_map.prepare()
             geographic_map.draw(str(output))
         open_image(output)
     finally:

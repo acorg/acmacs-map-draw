@@ -365,8 +365,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
 
     py::class_<GeographicMapDraw>(m, "GeographicMapDraw")
             .def(py::init<>())
-            .def("prepare", &GeographicMapDraw::prepare)
-            .def("draw", static_cast<void (GeographicMapDraw::*)(std::string) const>(&GeographicMapDraw::draw), py::arg("filename"))
+            .def("draw", static_cast<void (GeographicMapDraw::*)(std::string)>(&GeographicMapDraw::draw), py::arg("filename"))
             ;
 
     py::class_<GeographicMapWithPointsFromHidb, GeographicMapDraw>(m, "GeographicMapWithPointsFromHidb")
