@@ -4,6 +4,7 @@
 #include "acmacs-draw/geographic-map.hh"
 #include "locationdb/locdb.hh"
 #include "hidb/hidb.hh"
+#include "seqdb/seqdb.hh"
 #include "geographic-map.hh"
 
 // ----------------------------------------------------------------------
@@ -128,6 +129,7 @@ class ColoringByContinent : public GeographicMapColoring
  private:
     std::map<std::string, Color> mColors;
     const LocDb& mLocDb;
+
 }; // class ColoringByContinent
 
 // ----------------------------------------------------------------------
@@ -135,21 +137,32 @@ class ColoringByContinent : public GeographicMapColoring
 class ColoringByClade : public GeographicMapColoring
 {
  public:
-    inline ColoringByClade(const std::map<std::string, std::string>& aCladeColor)
-        : mColors{aCladeColor.begin(), aCladeColor.end()} {}
+    inline ColoringByClade(const std::map<std::string, std::string>& aCladeColor, const seqdb::Seqdb& aSeqdb)
+        : mColors{aCladeColor.begin(), aCladeColor.end()}, mSeqdb(aSeqdb) {}
 
     virtual Color color(const hidb::AntigenData& aAntigen) const
         {
+            Color result("grey50");
             try {
-                return "red";
+                const auto* entry_seq = mSeqdb.find_hi_name(aAntigen.full_name());
+                if (entry_seq) {
+                    for (const auto& clade: entry_seq->seq().clades()) {
+                        try {
+                            result = mColors.at(clade); // find first clade that has corresponding entry in mColors and use it
+                        }
+                        catch (...) {
+                        }
+                    }
+                }
             }
             catch (...) {
-                return "grey50";
             }
+            return result;
         }
 
  private:
     std::map<std::string, Color> mColors;
+    const seqdb::Seqdb& mSeqdb;
 
 }; // class ColoringByClade
 
@@ -163,9 +176,9 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_continent(
 
 // ----------------------------------------------------------------------
 
-void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_clade(const std::map<std::string, std::string>& aCladeColor, std::string aStartDate, std::string aEndDate)
+void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_clade(const std::map<std::string, std::string>& aCladeColor, const seqdb::Seqdb& aSeqdb, std::string aStartDate, std::string aEndDate)
 {
-    add_points_from_hidb(ColoringByClade(aCladeColor), aStartDate, aEndDate);
+    add_points_from_hidb(ColoringByClade(aCladeColor, aSeqdb), aStartDate, aEndDate);
 
 } // GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_clade
 
