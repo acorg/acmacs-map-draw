@@ -18,6 +18,12 @@ void GeographicMapPoints::draw(Surface& aSurface) const
 
 // ----------------------------------------------------------------------
 
+GeographicMapDraw::~GeographicMapDraw()
+{
+} // GeographicMapDraw::~GeographicMapDraw
+
+// ----------------------------------------------------------------------
+
 void GeographicMapDraw::prepare()
 {
     // add_point(0, 0, "pink", Pixels{5});
@@ -32,20 +38,20 @@ void GeographicMapDraw::prepare()
 
 // ----------------------------------------------------------------------
 
-void GeographicMapDraw::draw(Surface& aSurface)
+void GeographicMapDraw::draw(Surface& aSurface) const
 {
     geographic_map_draw(aSurface, "black", Pixels{1});
+    mPoints.draw(aSurface);
 
 } // GeographicMapDraw::draw
 
 // ----------------------------------------------------------------------
 
-void GeographicMapDraw::draw(std::string aFilename)
+void GeographicMapDraw::draw(std::string aFilename) const
 {
     const Size size = geographic_map_size();
     PdfCairo surface(aFilename, size.width, size.height, size.width);
     draw(surface);
-    mPoints.draw(surface);
 
 } // GeographicMapDraw::draw
 
@@ -60,21 +66,45 @@ void GeographicMapDraw::add_point(double aLat, double aLong, Color aFill, Pixels
 
 // ----------------------------------------------------------------------
 
-void GeographicMapDraw::add_points_from_hidb(const hidb::HiDb& aHiDb, const LocDb& aLocDb, std::string aStartDate, std::string aEndDate)
+void GeographicMapWithPointsFromHidb::prepare()
 {
-    auto antigens = aHiDb.all_antigens();
+    GeographicMapDraw::prepare();
+
+    for (auto& location_color: mPoints) {
+        const auto location = mLocDb.find(location_color.first);
+        add_point(location.latitude(), location.longitude(), location_color.second.begin()->first, Pixels{5});
+    }
+
+} // GeographicMapWithPointsFromHidb::prepare
+
+// ----------------------------------------------------------------------
+
+// void GeographicMapWithPointsFromHidb::draw(Surface& aSurface) const
+// {
+//     GeographicMapDraw::draw(aSurface);
+
+
+// } // GeographicMapWithPointsFromHidb::draw
+
+// ----------------------------------------------------------------------
+
+void GeographicMapWithPointsFromHidb::add_points_from_hidb(std::string aStartDate, std::string aEndDate)
+{
+    auto antigens = mHiDb.all_antigens();
     antigens.date_range(aStartDate, aEndDate);
     std::cerr << "Antigens selected: " << antigens.size() << std::endl;
     for (auto& antigen: antigens) {
-        try {
-            const auto location = aLocDb.find(virus_name::location(antigen->data().name()));
-            add_point(location.latitude(), location.longitude(), "red", Pixels{5});
-        }
-        catch (LocationNotFound&) {
-        }
+        mPoints.add(virus_name::location(antigen->data().name()), "red");
+        // try {
+        //     const auto location = mLocDb.find(virus_name::location(antigen->data().name()));
+        //     add_point(location.latitude(), location.longitude(), "red", Pixels{5});
+        // }
+        // catch (LocationNotFound&) {
+        // }
     }
+    std::cerr << "Locations: " << mPoints.size() << std::endl;
 
-} // GeographicMapDraw::add_points_from_hidb
+} // GeographicMapWithPointsFromHidb::add_points_from_hidb
 
 // ----------------------------------------------------------------------
 /// Local Variables:

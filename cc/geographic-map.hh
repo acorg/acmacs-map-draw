@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <map>
 
 #include "acmacs-map-draw/point-style-draw.hh"
 
@@ -36,18 +37,45 @@ class GeographicMapDraw
 {
  public:
     inline GeographicMapDraw() = default;
+    virtual ~GeographicMapDraw();
 
-    void prepare();
-    void draw(Surface& aSurface);
-    void draw(std::string aFilename);
+    virtual void prepare();
+    virtual void draw(Surface& aSurface) const;
+    virtual void draw(std::string aFilename) const;
 
     void add_point(double aLat, double aLong, Color aFill, Pixels aSize);
-    void add_points_from_hidb(const hidb::HiDb& aHiDb, const LocDb& aLocDb, std::string aStartDate, std::string aEndDate);
 
  private:
     GeographicMapPoints mPoints;
 
 }; // class GeographicMapDraw
+
+// ----------------------------------------------------------------------
+
+class GeographicMapWithPointsFromHidb : public GeographicMapDraw
+{
+ public:
+    class Points : public std::map<std::string, std::map<Color, size_t>>
+    {
+          // location-name to color to number-of-points
+     public:
+        inline void add(std::string aLocation, Color aColor) { ++(*this)[aLocation][aColor]; }
+        static inline size_t number_of_points_at_location(const std::map<Color, size_t>& colors) { return std::accumulate(colors.begin(), colors.end(), 0U, [](size_t sum, auto elt) -> size_t {return sum + elt.second; }); }
+    };
+
+    inline GeographicMapWithPointsFromHidb(const hidb::HiDb& aHiDb, const LocDb& aLocDb) : mHiDb(aHiDb), mLocDb(aLocDb) {}
+
+    virtual void prepare();
+      // virtual void draw(Surface& aSurface) const;
+
+    void add_points_from_hidb(std::string aStartDate, std::string aEndDate);
+
+ private:
+    const hidb::HiDb& mHiDb;
+    const LocDb& mLocDb;
+    Points mPoints;
+
+}; // class GeographicMapWithPointsFromHidb
 
 // ----------------------------------------------------------------------
 /// Local Variables:
