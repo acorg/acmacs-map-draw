@@ -72,25 +72,24 @@ void GeographicMapWithPointsFromHidb::prepare(Surface& aSurface)
 {
     GeographicMapDraw::prepare(aSurface);
 
-    const Pixels point_pixels{5};
-    const double point_scaled = aSurface.convert(point_pixels).value();
-    const double density = 0.5;
-
-    for (auto& location_color: mPoints) {
+    const double point_scaled = aSurface.convert(mPointSize).value();
+    for (const auto& location_color: mPoints) {
         try {
             const auto location = mLocDb.find(location_color.first);
             const double center_lat = location.latitude(), center_long = location.longitude();
-            size_t num_points = Points::number_of_points_at_location(location_color.second);
-            for (size_t circle_no = 1; num_points > 0; ++circle_no) {
-                const double distance = point_scaled * density * circle_no * 2.0;
-                const size_t circle_capacity = static_cast<size_t>(M_PI * distance / (point_scaled * 2.0));
-                const double step = 2.0 * M_PI / std::min(circle_capacity, num_points);
-                add_point(center_lat, center_long, "brown" /*location_color.second.begin()->first*/, point_pixels);
-                for (auto index  = Range<size_t>::begin(std::min(num_points - 1, circle_capacity)); index != Range<size_t>::end(); ++index, --num_points) {
-                    add_point(center_lat + distance * std::cos(*index * step), center_long + distance * std::sin(*index * step), location_color.second.begin()->first, point_pixels);
+            auto iter = location_color.second.iterator();
+            add_point(center_lat, center_long, *iter, mPointSize);
+            ++iter;
+            for (size_t circle_no = 1; iter; ++circle_no) {
+                const double distance = point_scaled * mDensity * circle_no;
+                const size_t circle_capacity = static_cast<size_t>(M_PI * 2.0 * distance * circle_no / (point_scaled * mDensity));
+                const size_t points_on_circle = std::min(circle_capacity, iter.left());
+                const double step = 2.0 * M_PI / points_on_circle;
+                for (auto index = Range<size_t>::begin(points_on_circle); index != Range<size_t>::end(); ++index) {
+                    add_point(center_lat + distance * std::cos(*index * step), center_long + distance * std::sin(*index * step), *iter, mPointSize);
+                    ++iter;
                 }
             }
-            // add_point(location.latitude(), location.longitude(), location_color.second.begin()->first, point_pixels);
         }
         catch (LocationNotFound&) {
         }
