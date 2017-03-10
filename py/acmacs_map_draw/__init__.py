@@ -8,6 +8,8 @@ from .hidb_access import get_hidb
 from .locdb_access import get_locdb
 from .seqdb_access import get_seqdb
 from .draw import draw_chart, UnrecognizedMod
+from .geographic import geographic_map, geographic_map_default_setting
+from .utilities import open_image, temp_output
 
 # ----------------------------------------------------------------------
 ### Local Variables:

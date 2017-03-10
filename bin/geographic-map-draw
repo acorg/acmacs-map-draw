@@ -4,45 +4,20 @@
 """
 """
 
-import sys, os, tempfile, datetime, traceback, pprint
+import sys, os, datetime, traceback, pprint
 if sys.version_info.major != 3: raise RuntimeError("Run script with python3")
 from pathlib import Path
 sys.path[:0] = [str(Path(os.environ["ACMACSD_ROOT"]).resolve().joinpath("py"))]
 import logging; module_logger = logging.getLogger(__name__)
 
-from acmacs_map_draw import GeographicMapWithPointsFromHidb, get_hidb, get_locdb, get_seqdb
-from acmacs_map_draw.coloring import sContinentColor, sCladeColor
-from acmacs_base.timeit import timeit
+from acmacs_map_draw import geographic_map, open_image, temp_output
 
 # ----------------------------------------------------------------------
 
 def main(args):
-    remove_output = not args.output
-    try:
-        settings = sSettings
-        output = args.output or tempfile.mkstemp(suffix=".pdf")[1]
-        hidb = get_hidb(virus_type="h3")
-        with timeit("Drawing geographic map to " + str(output)):
-            geographic_map = GeographicMapWithPointsFromHidb(hidb=hidb, locdb=get_locdb(), point_size_in_pixels=settings["point_size_in_pixels"],
-                                                                 point_density=settings["point_density"], outline_color=settings["outline_color"], outline_width=settings["outline_width"])
-            if settings["coloring"] == "continent":
-                geographic_map.add_points_from_hidb_colored_by_continent(continent_color=sContinentColor, start_date="2016-12-01", end_date="2017-01-01")
-            elif settings["coloring"] == "clade":
-                geographic_map.add_points_from_hidb_colored_by_clade(clade_color=sCladeColor, seqdb=get_seqdb(), start_date="2016-12-01", end_date="2017-01-01")
-            else:
-                raise ValueError("Unsupported coloring: " + repr(settings["coloring"]))
-            geographic_map.draw(str(output), 800)
+    with temp_output(args.output) as output:
+        geographic_map(output=output, virus_type="h3", title="H3 Period", start_date="2016-12-01", end_date="2017-01-01", settings=sSettings)
         open_image(output)
-    finally:
-        if remove_output and output:
-            try:
-                if os.path.isdir(output):
-                    import shutil
-                    shutil.rmtree(output)
-                else:
-                    os.remove(output)
-            except Exception as err:
-                module_logger.error(err)
 
 # ----------------------------------------------------------------------
 
@@ -53,20 +28,6 @@ sSettings = {
     "outline_color": "grey63",
     "outline_width": 0.5,
     }
-
-# ----------------------------------------------------------------------
-
-def open_image(filename):
-    import os, socket
-    hostname = socket.gethostname()
-    if os.environ.get('USER') == 'eu' and hostname[:4] == 'jagd':
-        import subprocess
-        if os.path.isdir(filename):
-            import glob
-            subprocess.run("qlmanage -p '{}'".format("' '".join(glob.glob(os.path.join(filename, "*.pdf")))), shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        else:
-            # os.system("open '{}'".format(filename))
-            subprocess.run("qlmanage -p '{}'".format(filename), shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 # ----------------------------------------------------------------------
 

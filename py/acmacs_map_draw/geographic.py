@@ -1,0 +1,50 @@
+# -*- Python -*-
+# license
+# license.
+# ----------------------------------------------------------------------
+
+import logging; module_logger = logging.getLogger(__name__)
+
+from acmacs_base.timeit import timeit
+
+from acmacs_map_draw_backend import GeographicMapWithPointsFromHidb
+from .hidb_access import get_hidb
+from .locdb_access import get_locdb
+from .seqdb_access import get_seqdb
+
+# ----------------------------------------------------------------------
+
+def geographic_map_default_setting():
+    return {
+        "coloring": "clade",
+        "coloring?": ["continent", "clade"],
+        "point_size_in_pixels": 4.0,
+        "point_density": 0.8,
+        "outline_color": "grey63",
+        "outline_width": 0.5,
+        "output_image_width": 800,
+        }
+
+# ----------------------------------------------------------------------
+
+def geographic_map(output, virus_type, title, start_date, end_date, settings):
+    with timeit("Drawing geographic map to " + str(output)):
+        options = {}
+        for key in ["point_size_in_pixels", "point_density", "outline_color", "outline_width"]:
+            if settings.get(key) is not None:
+                options[key] = settings[key]
+        geographic_map = GeographicMapWithPointsFromHidb(hidb=get_hidb(virus_type=virus_type), locdb=get_locdb(), **options)
+        if not settings.get("coloring") or settings["coloring"] == "continent":
+            from .coloring import sContinentColor
+            geographic_map.add_points_from_hidb_colored_by_continent(continent_color=sContinentColor, start_date=start_date, end_date=end_date)
+        elif settings["coloring"] == "clade":
+            from .coloring import sCladeColor
+            geographic_map.add_points_from_hidb_colored_by_clade(clade_color=sCladeColor, seqdb=get_seqdb(), start_date=start_date, end_date=end_date)
+        else:
+            raise ValueError("Unsupported coloring: " + repr(settings["coloring"]))
+        geographic_map.draw(str(output), settings.get("output_image_width", 800))
+
+# ----------------------------------------------------------------------
+### Local Variables:
+### eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
+### End:
