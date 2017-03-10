@@ -364,12 +364,12 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
       // ----------------------------------------------------------------------
 
     py::class_<GeographicMapDraw>(m, "GeographicMapDraw")
-            .def(py::init<>())
-            .def("draw", static_cast<void (GeographicMapDraw::*)(std::string)>(&GeographicMapDraw::draw), py::arg("filename"))
+              // .def(py::init<Color, Pixels>())
+            .def("draw", static_cast<void (GeographicMapDraw::*)(std::string, double)>(&GeographicMapDraw::draw), py::arg("filename"), py::arg("image_width"))
             ;
 
     py::class_<GeographicMapWithPointsFromHidb, GeographicMapDraw>(m, "GeographicMapWithPointsFromHidb")
-            .def(py::init<const hidb::HiDb&, const LocDb&, double, double>(), py::arg("hidb"), py::arg("locdb"), py::arg("point_size_in_pixels") = 6.0, py::arg("point_density") = 0.8)
+            .def(py::init<const hidb::HiDb&, const LocDb&, double, double, std::string, double>(), py::arg("hidb"), py::arg("locdb"), py::arg("point_size_in_pixels") = 4.0, py::arg("point_density") = 0.8, py::arg("outline_color") = "grey63", py::arg("outline_width") = 0.5)
             .def("add_points_from_hidb_colored_by_continent", &GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_continent, py::arg("continent_color"), py::arg("start_date"), py::arg("end_date"))
             .def("add_points_from_hidb_colored_by_clade", &GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_clade, py::arg("clade_color"), py::arg("seqdb"), py::arg("start_date"), py::arg("end_date"))
             ;

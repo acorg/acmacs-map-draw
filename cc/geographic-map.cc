@@ -41,17 +41,17 @@ void GeographicMapDraw::prepare(Surface&)
 
 void GeographicMapDraw::draw(Surface& aOutlineSurface, Surface& aPointSurface) const
 {
-    geographic_map_draw(aOutlineSurface, "black", Pixels{1});
+    geographic_map_draw(aOutlineSurface, mOutline, mOutlineWidth);
     mPoints.draw(aPointSurface);
 
 } // GeographicMapDraw::draw
 
 // ----------------------------------------------------------------------
 
-void GeographicMapDraw::draw(std::string aFilename)
+void GeographicMapDraw::draw(std::string aFilename, double aImageWidth)
 {
     const Size size = geographic_map_size();
-    PdfCairo outline_surface(aFilename, size.width, size.height, size.width);
+    PdfCairo outline_surface(aFilename, aImageWidth, aImageWidth / size.width * size.height, size.width);
     auto& point_surface = outline_surface.subsurface(outline_surface.viewport().origin, Scaled{outline_surface.viewport().size.width}, geographic_map_viewport(), false);
     prepare(point_surface);
     draw(outline_surface, point_surface);

@@ -38,15 +38,17 @@ class GeographicMapPoints : public std::vector<GeographicMapPoint>
 class GeographicMapDraw
 {
  public:
-    inline GeographicMapDraw() = default;
+    inline GeographicMapDraw(Color aOutline, Pixels aOutlineWidth) : mOutline(aOutline), mOutlineWidth(aOutlineWidth) {}
     virtual ~GeographicMapDraw();
 
     virtual void prepare(Surface& aSurface);
-    virtual void draw(std::string aFilename);
+    virtual void draw(std::string aFilename, double aImageWidth);
 
     void add_point(double aLat, double aLong, Color aFill, Pixels aSize);
 
  private:
+    Color mOutline;
+    Pixels mOutlineWidth;
     GeographicMapPoints mPoints;
 
     virtual void draw(Surface& aOutlineSurface, Surface& aPointSurface) const;
@@ -58,8 +60,8 @@ class GeographicMapDraw
 class GeographicMapWithPointsFromHidb : public GeographicMapDraw
 {
  public:
-    inline GeographicMapWithPointsFromHidb(const hidb::HiDb& aHiDb, const LocDb& aLocDb, double aPointSizeInPixels, double aPointDensity)
-        : mHiDb(aHiDb), mLocDb(aLocDb), mPointSize(aPointSizeInPixels), mDensity(aPointDensity) {}
+    inline GeographicMapWithPointsFromHidb(const hidb::HiDb& aHiDb, const LocDb& aLocDb, double aPointSizeInPixels, double aPointDensity, std::string aOutlineColor, double aOutlineWidth)
+        : GeographicMapDraw(aOutlineColor, Pixels{aOutlineWidth}), mHiDb(aHiDb), mLocDb(aLocDb), mPointSize(aPointSizeInPixels), mDensity(aPointDensity) {}
 
     virtual void prepare(Surface& aSurface);
 
