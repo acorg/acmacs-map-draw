@@ -9,6 +9,7 @@
 
 #include "draw.hh"
 #include "geographic-map.hh"
+#include "time-series.hh"
 
 // ----------------------------------------------------------------------
 
@@ -378,6 +379,8 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             ;
 
       // ----------------------------------------------------------------------
+
+    m.def("test_time_series", &test_time_series);
 
     return m.ptr();
 }
