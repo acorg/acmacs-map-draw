@@ -158,30 +158,32 @@ Title::Title()
 
 // ----------------------------------------------------------------------
 
-void Title::draw(Surface& aSurface, const ChartDraw&) const
+void Title::draw(Surface& aSurface) const
 {
-    double width = 0, height = 0;
-    for (const auto& line: mLines) {
-        const Size line_size = aSurface.text_size(line, mTextSize, mTextStyle);
-        if (line_size.width > width)
-            width = line_size.width;
-        if (line_size.height > height)
-            height = line_size.height;
-    }
-    const Size padding = aSurface.text_size("O", mTextSize, mTextStyle);
+    if (mLines.size() > 1 || (!mLines.empty() && !mLines.front().empty())) {
+        double width = 0, height = 0;
+        for (const auto& line: mLines) {
+            const Size line_size = aSurface.text_size(line, mTextSize, mTextStyle);
+            if (line_size.width > width)
+                width = line_size.width;
+            if (line_size.height > height)
+                height = line_size.height;
+        }
+        const Size padding = aSurface.text_size("O", mTextSize, mTextStyle);
 
-    const Size legend_surface_size{width + padding.width * 2,
-                                   height * (mLines.size() - 1) * mInterline + height + padding.height * 2};
-    const Location legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
+        const Size legend_surface_size{width + padding.width * 2,
+                    height * (mLines.size() - 1) * mInterline + height + padding.height * 2};
+        const Location legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
 
-    Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
-    legend_surface.background(mBackgroud);
-    legend_surface.border(mBorderColor, mBorderWidth);
-    const double text_x = padding.width;
-    double y = padding.height + height;
-    for (const auto& line: mLines) {
-        legend_surface.text({text_x, y}, line, mTextColor, mTextSize, mTextStyle);
-        y += height * mInterline;
+        Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
+        legend_surface.background(mBackgroud);
+        legend_surface.border(mBorderColor, mBorderWidth);
+        const double text_x = padding.width;
+        double y = padding.height + height;
+        for (const auto& line: mLines) {
+            legend_surface.text({text_x, y}, line, mTextColor, mTextSize, mTextStyle);
+            y += height * mInterline;
+        }
     }
 
 } // Title::draw

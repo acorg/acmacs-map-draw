@@ -16,7 +16,7 @@ from acmacs_map_draw import geographic_map, open_image, temp_output
 
 def main(args):
     with temp_output(args.output) as output:
-        geographic_map(output=output, virus_type="h3", title="H3 Period", start_date="2016-12-01", end_date="2017-01-01", settings=sSettings)
+        geographic_map(output=output, virus_type="h3", title="December 2016", start_date="2016-12-01", end_date="2017-01-01", settings=sSettings)
         open_image(output)
 
 # ----------------------------------------------------------------------
@@ -27,6 +27,7 @@ sSettings = {
     "point_density": 0.8,
     "outline_color": "grey63",
     "outline_width": 0.5,
+    "title": {"offset": [0, 0], "text_size": 20, "background": "transparent", "border_width": 0},
     }
 
 # ----------------------------------------------------------------------

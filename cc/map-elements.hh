@@ -138,8 +138,10 @@ class Title : public MapElement
  public:
     Title();
 
-    virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
+    virtual void draw(Surface& aSurface) const;
+    virtual inline void draw(Surface& aSurface, const ChartDraw&) const { draw(aSurface); }
     inline void offset(const Location& aOrigin) { mOrigin = aOrigin; }
+    inline void offset(double x, double y) { mOrigin.set(x, y); }
     inline void add_line(std::string aText) { mLines.emplace_back(aText); }
     inline void text_size(double aTextSize) { mTextSize = aTextSize; }
     inline void background(Color aBackgroud) { mBackgroud = aBackgroud; }

@@ -43,6 +43,7 @@ void GeographicMapDraw::draw(Surface& aOutlineSurface, Surface& aPointSurface) c
 {
     geographic_map_draw(aOutlineSurface, mOutline, mOutlineWidth);
     mPoints.draw(aPointSurface);
+    mTitle.draw(aOutlineSurface);
 
 } // GeographicMapDraw::draw
 

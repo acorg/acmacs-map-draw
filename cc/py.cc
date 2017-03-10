@@ -301,10 +301,12 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             ;
 
     py::class_<Title>(m, "Title")
-            .def("add_line", &Title::add_line, py::arg("text"))
+            .def("add_line", [](Title& aTitle, std::string aLine) { aTitle.add_line(aLine); }, py::arg("text"))
+            .def("add_line", [](Title& aTitle, const std::vector<std::string>& aLines) { for (const auto& line: aLines) { aTitle.add_line(line); } }, py::arg("lines"))
+            .def("offset", py::overload_cast<double, double>(&Title::offset), py::arg("x"), py::arg("y"))
             .def("text_size", &Title::text_size, py::arg("text_size"))
-            .def("background", [](Title& legend, std::string aBackground) { legend.background(aBackground); }, py::arg("background"))
-            .def("border_color", [](Title& legend, std::string aBorderColor) { legend.border_color(aBorderColor); }, py::arg("border_color"))
+            .def("background", [](Title& aTitle, std::string aBackground) { aTitle.background(aBackground); }, py::arg("background"))
+            .def("border_color", [](Title& aTitle, std::string aBorderColor) { aTitle.border_color(aBorderColor); }, py::arg("border_color"))
             .def("border_width", &Title::border_width, py::arg("border_width"))
             ;
 
@@ -366,6 +368,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
     py::class_<GeographicMapDraw>(m, "GeographicMapDraw")
               // .def(py::init<Color, Pixels>())
             .def("draw", static_cast<void (GeographicMapDraw::*)(std::string, double)>(&GeographicMapDraw::draw), py::arg("filename"), py::arg("image_width"))
+            .def("title", &GeographicMapDraw::title, py::return_value_policy::reference)
             ;
 
     py::class_<GeographicMapWithPointsFromHidb, GeographicMapDraw>(m, "GeographicMapWithPointsFromHidb")

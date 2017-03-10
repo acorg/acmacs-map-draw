@@ -23,6 +23,7 @@ def geographic_map_default_setting():
         "outline_color": "grey63",
         "outline_width": 0.5,
         "output_image_width": 800,
+        "title": {"offset": [0, 0], "text_size": 20, "background": "transparent", "border_width": 0},
         }
 
 # ----------------------------------------------------------------------
@@ -42,6 +43,16 @@ def geographic_map(output, virus_type, title, start_date, end_date, settings):
             geographic_map.add_points_from_hidb_colored_by_clade(clade_color=sCladeColor, seqdb=get_seqdb(), start_date=start_date, end_date=end_date)
         else:
             raise ValueError("Unsupported coloring: " + repr(settings["coloring"]))
+        if title:
+            ttl = geographic_map.title()
+            ttl.add_line(title)
+            for k, v in settings.get("title", {}).items():
+                setter = getattr(ttl, k, None)
+                if setter:
+                    if isinstance(v, list):
+                        setter(*v)
+                    else:
+                        setter(v)
         geographic_map.draw(str(output), settings.get("output_image_width", 800))
 
 # ----------------------------------------------------------------------

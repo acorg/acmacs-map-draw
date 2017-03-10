@@ -324,13 +324,7 @@ class ModApplicator:
 
     def title(self, display_name=None, **args):
         ttl = self._chart_draw.title()
-        if isinstance(display_name, str):
-            ttl.add_line(display_name)
-        elif isinstance(display_name, list):
-            for n in display_name:
-                ttl.add_line(n)
-        else:
-            ttl.add_line(self._chart.make_name())
+        ttl.add_line(display_name or self._chart.make_name())
         for k, v in args.items():
             setter = getattr(ttl, k, None)
             if setter:

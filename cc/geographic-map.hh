@@ -4,6 +4,9 @@
 #include <map>
 
 #include "acmacs-map-draw/point-style-draw.hh"
+#include "map-elements.hh"
+
+// ----------------------------------------------------------------------
 
 class Surface;
 class LocDb;
@@ -45,11 +48,13 @@ class GeographicMapDraw
     virtual void draw(std::string aFilename, double aImageWidth);
 
     void add_point(double aLat, double aLong, Color aFill, Pixels aSize);
+    inline Title& title() { return mTitle; }
 
  private:
     Color mOutline;
     Pixels mOutlineWidth;
     GeographicMapPoints mPoints;
+    Title mTitle;
 
     virtual void draw(Surface& aOutlineSurface, Surface& aPointSurface) const;
 
