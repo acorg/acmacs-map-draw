@@ -26,6 +26,8 @@ void test_time_series()
     std::cout << "MonthlyTimeSeries0: " << mts0 << std::endl;
     MonthlyTimeSeries mts1{Date::months_ago(6), Date::today()};
     std::cout << "MonthlyTimeSeries1: " << mts1 << std::endl;
+    for (auto it = mts1.begin(); it != mts1.end(); ++it)
+        std::cout << "  " << *it << std::endl;
 
 } // test_time_series
 
