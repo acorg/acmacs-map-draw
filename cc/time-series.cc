@@ -34,6 +34,11 @@ void test_time_series()
     for (auto it = yts1.begin(); it != yts1.end(); ++it)
         std::cout << "  " << *it << std::endl;
 
+    WeeklyTimeSeries wts1{Date::weeks_ago(20), Date::today()};
+    std::cout << "WeeklyTimeSeries1: " << wts1 << std::endl;
+    for (auto it = wts1.begin(); it != wts1.end(); ++it)
+        std::cout << "  " << *it << std::endl;
+
 } // test_time_series
 
 // ----------------------------------------------------------------------
