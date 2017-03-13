@@ -11,7 +11,7 @@ sys.path[:0] = [str(Path(os.environ["ACMACSD_ROOT"]).resolve().joinpath("py"))]
 import logging; module_logger = logging.getLogger(__name__)
 
 from acmacs_map_draw_backend import test_time_series
-from acmacs_map_draw import geographic_time_series, geographic_map_default_setting
+from acmacs_map_draw import geographic_time_series
 
 # ----------------------------------------------------------------------
 
@@ -19,7 +19,18 @@ def main(args):
     # test_time_series()
     output_dir = Path("/tmp/gts")
     output_dir.mkdir(exist_ok=True)
-    geographic_time_series(output_prefix=str(output_dir.joinpath("H3-geographic-")), virus_type="H3", start_date="2016-08-01", end_date="2017-03-01", settings=geographic_map_default_setting())
+    geographic_time_series(output_prefix=str(output_dir.joinpath("H3-geographic-")), virus_type="H3", start_date="2016-08-01", end_date="2017-03-01", settings=sSettings)
+
+# ----------------------------------------------------------------------
+
+sSettings = {
+    "coloring": "clade",        # "continent", "clade"
+    "point_size_in_pixels": 4.0,
+    "point_density": 0.8,
+    "outline_color": "grey63",
+    "outline_width": 0.5,
+    "title": {"offset": [0, 0], "text_size": 20, "background": "transparent", "border_width": 0},
+    }
 
 # ----------------------------------------------------------------------
 

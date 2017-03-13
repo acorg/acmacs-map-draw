@@ -128,6 +128,7 @@ class GeographicTimeSeriesMonthly
     inline GeographicTimeSeriesMonthly(std::string aStart, std::string aEnd, const hidb::HiDb& aHiDb, const LocDb& aLocDb, double aPointSizeInPixels, double aPointDensity, std::string aOutlineColor, double aOutlineWidth)
         : mMap(aHiDb, aLocDb, aPointSizeInPixels, aPointDensity, aOutlineColor, aOutlineWidth), mTS(aStart, aEnd) {}
 
+    inline Title& title() { return mMap.title(); }
     void draw_colored_by_continent(std::string aFilenamePrefix, const std::map<std::string, std::string>& aContinentColor, double aImageWidth);
     void draw_colored_by_clade(std::string aFilenamePrefix, const std::map<std::string, std::string>& aCladeColor, const seqdb::Seqdb& aSeqdb, double aImageWidth);
 

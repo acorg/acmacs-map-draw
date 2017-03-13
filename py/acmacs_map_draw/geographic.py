@@ -44,15 +44,7 @@ def geographic_map(output, virus_type, title, start_date, end_date, settings):
         else:
             raise ValueError("Unsupported coloring: " + repr(settings["coloring"]))
         if title:
-            ttl = geographic_map.title()
-            ttl.add_line(title)
-            for k, v in settings.get("title", {}).items():
-                setter = getattr(ttl, k, None)
-                if setter:
-                    if isinstance(v, list):
-                        setter(*v)
-                    else:
-                        setter(v)
+            _update_title(geographic_map.title(), settings).add_line(title)
         geographic_map.draw(str(output), settings.get("output_image_width", 800))
 
 # ----------------------------------------------------------------------
@@ -63,6 +55,7 @@ def geographic_time_series(output_prefix, virus_type, start_date, end_date, sett
         if settings.get(key) is not None:
             options[key] = settings[key]
     ts = GeographicTimeSeriesMonthly(start_date=start_date, end_date=end_date, hidb=get_hidb(virus_type=virus_type), locdb=get_locdb(), **options)
+    _update_title(ts.title(), settings)
     if not settings.get("coloring") or settings["coloring"] == "continent":
         from .coloring import sContinentColor
         ts.draw_colored_by_continent(filename_prefix=output_prefix, continent_color=sContinentColor, image_width=settings.get("output_image_width", 800))
@@ -71,6 +64,18 @@ def geographic_time_series(output_prefix, virus_type, start_date, end_date, sett
         ts.draw_colored_by_clade(filename_prefix=output_prefix, clade_color=sCladeColor, seqdb=get_seqdb(), image_width=settings.get("output_image_width", 800))
     else:
         raise ValueError("Unsupported coloring: " + repr(settings["coloring"]))
+
+# ----------------------------------------------------------------------
+
+def _update_title(title, settings):
+    for k, v in settings.get("title", {}).items():
+        setter = getattr(title, k, None)
+        if setter:
+            if isinstance(v, list):
+                setter(*v)
+            else:
+                setter(v)
+    return title
 
 # ----------------------------------------------------------------------
 ### Local Variables:
