@@ -378,6 +378,12 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("add_points_from_hidb_colored_by_clade", &GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_clade, py::arg("clade_color"), py::arg("seqdb"), py::arg("start_date"), py::arg("end_date"))
             ;
 
+    py::class_<GeographicTimeSeriesMonthly>(m, "GeographicTimeSeriesMonthly")
+            .def(py::init<std::string, std::string, const hidb::HiDb&, const LocDb&, double, double, std::string, double>(), py::arg("start_date"), py::arg("end_date"), py::arg("hidb"), py::arg("locdb"), py::arg("point_size_in_pixels") = 4.0, py::arg("point_density") = 0.8, py::arg("outline_color") = "grey63", py::arg("outline_width") = 0.5)
+            .def("draw_colored_by_continent", &GeographicTimeSeriesMonthly::draw_colored_by_continent, py::arg("filename_prefix"), py::arg("continent_color"), py::arg("image_width"))
+            .def("draw_colored_by_clade", &GeographicTimeSeriesMonthly::draw_colored_by_clade, py::arg("filename_prefix"), py::arg("clade_color"), py::arg("seqdb"), py::arg("image_width"))
+            ;
+
       // ----------------------------------------------------------------------
 
     m.def("test_time_series", &test_time_series);

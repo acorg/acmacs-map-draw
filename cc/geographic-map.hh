@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 
+#include "acmacs-base/time-series.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 #include "map-elements.hh"
 
@@ -42,6 +43,7 @@ class GeographicMapDraw
 {
  public:
     inline GeographicMapDraw(Color aOutline, Pixels aOutlineWidth) : mOutline(aOutline), mOutlineWidth(aOutlineWidth) {}
+    inline GeographicMapDraw(const GeographicMapDraw&) = default;
     virtual ~GeographicMapDraw();
 
     virtual void prepare(Surface& aSurface);
@@ -117,6 +119,23 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
     void add_points_from_hidb(const GeographicMapColoring& aColoring, std::string aStartDate, std::string aEndDate);
 
 }; // class GeographicMapWithPointsFromHidb
+
+// ----------------------------------------------------------------------
+
+class GeographicTimeSeriesMonthly
+{
+ public:
+    inline GeographicTimeSeriesMonthly(std::string aStart, std::string aEnd, const hidb::HiDb& aHiDb, const LocDb& aLocDb, double aPointSizeInPixels, double aPointDensity, std::string aOutlineColor, double aOutlineWidth)
+        : mMap(aHiDb, aLocDb, aPointSizeInPixels, aPointDensity, aOutlineColor, aOutlineWidth), mTS(aStart, aEnd) {}
+
+    void draw_colored_by_continent(std::string aFilenamePrefix, const std::map<std::string, std::string>& aContinentColor, double aImageWidth);
+    void draw_colored_by_clade(std::string aFilenamePrefix, const std::map<std::string, std::string>& aCladeColor, const seqdb::Seqdb& aSeqdb, double aImageWidth);
+
+ private:
+    GeographicMapWithPointsFromHidb mMap;
+    MonthlyTimeSeries mTS;
+
+}; // class GeographicTimeSeriesMonthly
 
 // ----------------------------------------------------------------------
 /// Local Variables:

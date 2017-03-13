@@ -27,14 +27,6 @@ GeographicMapDraw::~GeographicMapDraw()
 
 void GeographicMapDraw::prepare(Surface&)
 {
-    // add_point(0, 0, "pink", Pixels{5});
-    // add_point(-33.87, 151.21, "pink", Pixels{5}); // sydney
-    // add_point( 40.71, -74.01, "pink", Pixels{5}); // new york
-    // add_point( 51.51,   0.13, "pink", Pixels{5}); // london
-    // add_point( 36.13,  -5.37, "pink", Pixels{5}); // gibraltar
-    // add_point( 12.42, -71.72, "pink", Pixels{5}); // top of south america
-    // add_point( 34.29, 126.52, "pink", Pixels{5}); // south-west of south korea
-
 } // GeographicMapDraw::prepare
 
 // ----------------------------------------------------------------------
@@ -196,6 +188,37 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb(const GeographicMapCo
     std::cerr << "Locations: " << mPoints.size() << std::endl;
 
 } // GeographicMapWithPointsFromHidb::add_points_from_hidb
+
+// ----------------------------------------------------------------------
+
+void GeographicTimeSeriesMonthly::draw_colored_by_continent(std::string aFilenamePrefix, const std::map<std::string, std::string>& aContinentColor, double aImageWidth)
+{
+    for (auto ts_iter = mTS.begin(); ts_iter != mTS.end(); ++ts_iter) {
+        GeographicMapWithPointsFromHidb map = mMap;
+        const Date start{*ts_iter}, end{Date{*ts_iter}.increment_month(1)};
+        map.add_points_from_hidb_colored_by_continent(aContinentColor, start, end);
+        map.title().add_line(start.monthtext_year());
+        map.draw(aFilenamePrefix + start.year4_month2() + ".pdf", aImageWidth);
+    }
+
+} // GeographicTimeSeriesMonthly::draw_colored_by_continent
+
+// ----------------------------------------------------------------------
+
+void GeographicTimeSeriesMonthly::draw_colored_by_clade(std::string aFilenamePrefix, const std::map<std::string, std::string>& aCladeColor, const seqdb::Seqdb& aSeqdb, double aImageWidth)
+{
+    for (auto ts_iter = mTS.begin(); ts_iter != mTS.end(); ++ts_iter) {
+        GeographicMapWithPointsFromHidb map = mMap;
+        const Date start{*ts_iter}, end{Date{*ts_iter}.increment_month(1)};
+        map.add_points_from_hidb_colored_by_clade(aCladeColor, aSeqdb, start, end);
+        map.title().add_line(start.monthtext_year());
+        map.draw(aFilenamePrefix + start.year4_month2() + ".pdf", aImageWidth);
+    }
+
+} // GeographicTimeSeriesMonthly::draw_colored_by_clade
+
+// ----------------------------------------------------------------------
+
 
 // ----------------------------------------------------------------------
 /// Local Variables:

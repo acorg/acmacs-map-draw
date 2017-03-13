@@ -7,7 +7,7 @@ import logging; module_logger = logging.getLogger(__name__)
 
 from acmacs_base.timeit import timeit
 
-from acmacs_map_draw_backend import GeographicMapWithPointsFromHidb
+from acmacs_map_draw_backend import GeographicMapWithPointsFromHidb, GeographicTimeSeriesMonthly
 from .hidb_access import get_hidb
 from .locdb_access import get_locdb
 from .seqdb_access import get_seqdb
@@ -54,6 +54,23 @@ def geographic_map(output, virus_type, title, start_date, end_date, settings):
                     else:
                         setter(v)
         geographic_map.draw(str(output), settings.get("output_image_width", 800))
+
+# ----------------------------------------------------------------------
+
+def geographic_time_series(output_prefix, virus_type, start_date, end_date, settings):
+    options = {}
+    for key in ["point_size_in_pixels", "point_density", "outline_color", "outline_width"]:
+        if settings.get(key) is not None:
+            options[key] = settings[key]
+    ts = GeographicTimeSeriesMonthly(start_date=start_date, end_date=end_date, hidb=get_hidb(virus_type=virus_type), locdb=get_locdb(), **options)
+    if not settings.get("coloring") or settings["coloring"] == "continent":
+        from .coloring import sContinentColor
+        ts.draw_colored_by_continent(filename_prefix=output_prefix, continent_color=sContinentColor, image_width=settings.get("output_image_width", 800))
+    elif settings["coloring"] == "clade":
+        from .coloring import sCladeColor
+        ts.draw_colored_by_clade(filename_prefix=output_prefix, clade_color=sCladeColor, seqdb=get_seqdb(), image_width=settings.get("output_image_width", 800))
+    else:
+        raise ValueError("Unsupported coloring: " + repr(settings["coloring"]))
 
 # ----------------------------------------------------------------------
 ### Local Variables:

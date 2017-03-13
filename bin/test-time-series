@@ -11,11 +11,15 @@ sys.path[:0] = [str(Path(os.environ["ACMACSD_ROOT"]).resolve().joinpath("py"))]
 import logging; module_logger = logging.getLogger(__name__)
 
 from acmacs_map_draw_backend import test_time_series
+from acmacs_map_draw import geographic_time_series, geographic_map_default_setting
 
 # ----------------------------------------------------------------------
 
 def main(args):
-    test_time_series()
+    # test_time_series()
+    output_dir = Path("/tmp/gts")
+    output_dir.mkdir(exist_ok=True)
+    geographic_time_series(output_prefix=str(output_dir.joinpath("H3-geographic-")), virus_type="H3", start_date="2016-08-01", end_date="2017-03-01", settings=geographic_map_default_setting())
 
 # ----------------------------------------------------------------------
 
