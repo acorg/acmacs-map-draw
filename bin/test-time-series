@@ -19,12 +19,12 @@ def main(args):
     # test_time_series()
     output_dir = Path("/tmp/gts")
     output_dir.mkdir(exist_ok=True)
-    geographic_time_series(output_prefix=str(output_dir.joinpath("H3-geographic-")), virus_type="H3", start_date="2016-08-01", end_date="2017-03-01", settings=sSettings)
+    geographic_time_series(output_prefix=str(output_dir.joinpath("B-geographic-")), virus_type="B", start_date="2016-08-01", end_date="2017-03-01", settings=sSettings)
 
 # ----------------------------------------------------------------------
 
 sSettings = {
-    "coloring": "clade",        # "continent", "clade"
+    "coloring": "lineage",        # "continent", "clade", "lineage"
     "point_size_in_pixels": 4.0,
     "point_density": 0.8,
     "outline_color": "grey63",

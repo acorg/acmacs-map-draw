@@ -17,6 +17,8 @@ sContinentColor = {
     "":                  "grey50",
     }
 
+# ----------------------------------------------------------------------
+
 sCladeColor = {
         "": "grey50",                # sequenced but not in any clade
         # H3
@@ -36,6 +38,13 @@ sCladeColor = {
         "1A": "cornflowerblue",
         "1B": "red",
         }
+
+# ----------------------------------------------------------------------
+
+sLineageColor = {
+    "YAMAGATA": "red",
+    "VICTORIA": "blue",
+    }
 
 # ----------------------------------------------------------------------
 ### Local Variables:

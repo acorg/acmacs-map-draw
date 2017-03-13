@@ -161,6 +161,29 @@ class ColoringByClade : public GeographicMapColoring
 
 // ----------------------------------------------------------------------
 
+class ColoringByLineage : public GeographicMapColoring
+{
+ public:
+    inline ColoringByLineage(const std::map<std::string, std::string>& aLineageColor)
+        : mColors{aLineageColor.begin(), aLineageColor.end()} {}
+
+    virtual Color color(const hidb::AntigenData& aAntigen) const
+        {
+            try {
+                return mColors.at(aAntigen.data().lineage());
+            }
+            catch (...) {
+                return "grey50";
+            }
+        }
+
+ private:
+    std::map<std::string, Color> mColors;
+
+}; // class ColoringByLineage
+
+// ----------------------------------------------------------------------
+
 void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_continent(const std::map<std::string, std::string>& aContinentColor, std::string aStartDate, std::string aEndDate)
 {
     add_points_from_hidb(ColoringByContinent(aContinentColor, mLocDb), aStartDate, aEndDate);
@@ -174,6 +197,14 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_clade(cons
     add_points_from_hidb(ColoringByClade(aCladeColor, aSeqdb), aStartDate, aEndDate);
 
 } // GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_clade
+
+// ----------------------------------------------------------------------
+
+void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_lineage(const std::map<std::string, std::string>& aLineageColor, std::string aStartDate, std::string aEndDate)
+{
+    add_points_from_hidb(ColoringByLineage(aLineageColor), aStartDate, aEndDate);
+
+} // GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_lineage
 
 // ----------------------------------------------------------------------
 
@@ -216,6 +247,20 @@ void GeographicTimeSeriesMonthly::draw_colored_by_clade(std::string aFilenamePre
     }
 
 } // GeographicTimeSeriesMonthly::draw_colored_by_clade
+
+// ----------------------------------------------------------------------
+
+void GeographicTimeSeriesMonthly::draw_colored_by_lineage(std::string aFilenamePrefix, const std::map<std::string, std::string>& aLineageColor, double aImageWidth)
+{
+    for (auto ts_iter = mTS.begin(); ts_iter != mTS.end(); ++ts_iter) {
+        GeographicMapWithPointsFromHidb map = mMap;
+        const Date start{*ts_iter}, end{Date{*ts_iter}.increment_month(1)};
+        map.add_points_from_hidb_colored_by_lineage(aLineageColor, start, end);
+        map.title().add_line(start.monthtext_year());
+        map.draw(aFilenamePrefix + start.year4_month2() + ".pdf", aImageWidth);
+    }
+
+} // GeographicTimeSeriesMonthly::draw_colored_by_lineage
 
 // ----------------------------------------------------------------------
 

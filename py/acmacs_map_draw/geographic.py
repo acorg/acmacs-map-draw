@@ -17,7 +17,7 @@ from .seqdb_access import get_seqdb
 def geographic_map_default_setting():
     return {
         "coloring": "clade",
-        "coloring?": ["continent", "clade"],
+        "coloring?": ["continent", "clade", "lineage"],
         "point_size_in_pixels": 4.0,
         "point_density": 0.8,
         "outline_color": "grey63",
@@ -41,6 +41,9 @@ def geographic_map(output, virus_type, title, start_date, end_date, settings):
         elif settings["coloring"] == "clade":
             from .coloring import sCladeColor
             geographic_map.add_points_from_hidb_colored_by_clade(clade_color=sCladeColor, seqdb=get_seqdb(), start_date=start_date, end_date=end_date)
+        elif settings["coloring"] == "lineage":
+            from .coloring import sLineageColor
+            geographic_map.add_points_from_hidb_colored_by_lineage(lineage_color=sLineageColor, start_date=start_date, end_date=end_date)
         else:
             raise ValueError("Unsupported coloring: " + repr(settings["coloring"]))
         if title:
@@ -62,6 +65,9 @@ def geographic_time_series(output_prefix, virus_type, start_date, end_date, sett
     elif settings["coloring"] == "clade":
         from .coloring import sCladeColor
         ts.draw_colored_by_clade(filename_prefix=output_prefix, clade_color=sCladeColor, seqdb=get_seqdb(), image_width=settings.get("output_image_width", 800))
+    elif settings["coloring"] == "lineage":
+        from .coloring import sLineageColor
+        ts.draw_colored_by_lineage(filename_prefix=output_prefix, lineage_color=sLineageColor, image_width=settings.get("output_image_width", 800))
     else:
         raise ValueError("Unsupported coloring: " + repr(settings["coloring"]))
 

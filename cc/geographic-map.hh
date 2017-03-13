@@ -74,6 +74,7 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
 
     void add_points_from_hidb_colored_by_continent(const std::map<std::string, std::string>& aContinentColor, std::string aStartDate, std::string aEndDate);
     void add_points_from_hidb_colored_by_clade(const std::map<std::string, std::string>& aCladeColor, const seqdb::Seqdb& aSeqdb, std::string aStartDate, std::string aEndDate);
+    void add_points_from_hidb_colored_by_lineage(const std::map<std::string, std::string>& aLineageColor, std::string aStartDate, std::string aEndDate);
 
  private:
     const hidb::HiDb& mHiDb;
@@ -131,6 +132,7 @@ class GeographicTimeSeriesMonthly
     inline Title& title() { return mMap.title(); }
     void draw_colored_by_continent(std::string aFilenamePrefix, const std::map<std::string, std::string>& aContinentColor, double aImageWidth);
     void draw_colored_by_clade(std::string aFilenamePrefix, const std::map<std::string, std::string>& aCladeColor, const seqdb::Seqdb& aSeqdb, double aImageWidth);
+    void draw_colored_by_lineage(std::string aFilenamePrefix, const std::map<std::string, std::string>& aLineageColor, double aImageWidth);
 
  private:
     GeographicMapWithPointsFromHidb mMap;
