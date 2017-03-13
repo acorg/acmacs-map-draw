@@ -64,6 +64,97 @@ class GeographicMapDraw
 
 // ----------------------------------------------------------------------
 
+class GeographicMapColoring
+{
+ public:
+    virtual ~GeographicMapColoring();
+
+    virtual Color color(const hidb::AntigenData& aAntigen) const = 0;
+};
+
+// ----------------------------------------------------------------------
+
+class ColoringByContinent : public GeographicMapColoring
+{
+ public:
+    inline ColoringByContinent(const std::map<std::string, std::string>& aContinentColor, const LocDb& aLocDb)
+        : mColors{aContinentColor.begin(), aContinentColor.end()}, mLocDb(aLocDb) {}
+
+    virtual Color color(const hidb::AntigenData& aAntigen) const
+        {
+            try {
+                return mColors.at(mLocDb.continent(virus_name::location(aAntigen.data().name())));
+            }
+            catch (...) {
+                return "grey50";
+            }
+        }
+
+ private:
+    std::map<std::string, Color> mColors;
+    const LocDb& mLocDb;
+
+}; // class ColoringByContinent
+
+// ----------------------------------------------------------------------
+
+class ColoringByClade : public GeographicMapColoring
+{
+ public:
+    inline ColoringByClade(const std::map<std::string, std::string>& aCladeColor, const seqdb::Seqdb& aSeqdb)
+        : mColors{aCladeColor.begin(), aCladeColor.end()}, mSeqdb(aSeqdb) {}
+
+    virtual Color color(const hidb::AntigenData& aAntigen) const
+        {
+            Color result("grey50");
+            try {
+                const auto* entry_seq = mSeqdb.find_hi_name(aAntigen.full_name());
+                if (entry_seq) {
+                    for (const auto& clade: entry_seq->seq().clades()) {
+                        try {
+                            result = mColors.at(clade); // find first clade that has corresponding entry in mColors and use it
+                        }
+                        catch (...) {
+                        }
+                    }
+                }
+            }
+            catch (...) {
+            }
+            return result;
+        }
+
+ private:
+    std::map<std::string, Color> mColors;
+    const seqdb::Seqdb& mSeqdb;
+
+}; // class ColoringByClade
+
+// ----------------------------------------------------------------------
+
+class ColoringByLineage : public GeographicMapColoring
+{
+ public:
+    inline ColoringByLineage(const std::map<std::string, std::string>& aLineageColor)
+        : mColors{aLineageColor.begin(), aLineageColor.end()} {}
+
+    virtual Color color(const hidb::AntigenData& aAntigen) const
+        {
+            try {
+                return mColors.at(aAntigen.data().lineage());
+            }
+            catch (...) {
+                return "grey50";
+            }
+        }
+
+ private:
+    std::map<std::string, Color> mColors;
+
+}; // class ColoringByLineage
+
+// ----------------------------------------------------------------------
+
 class GeographicMapWithPointsFromHidb : public GeographicMapDraw
 {
  public:
@@ -72,9 +163,13 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
 
     virtual void prepare(Surface& aSurface);
 
-    void add_points_from_hidb_colored_by_continent(const std::map<std::string, std::string>& aContinentColor, std::string aStartDate, std::string aEndDate);
-    void add_points_from_hidb_colored_by_clade(const std::map<std::string, std::string>& aCladeColor, const seqdb::Seqdb& aSeqdb, std::string aStartDate, std::string aEndDate);
-    void add_points_from_hidb_colored_by_lineage(const std::map<std::string, std::string>& aLineageColor, std::string aStartDate, std::string aEndDate);
+    void add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, std::string aStartDate, std::string aEndDate);
+
+    inline void add_points_from_hidb_colored_by_continent(const std::map<std::string, std::string>& aContinentColor, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByContinent(aContinentColor, mLocDb), aStartDate, aEndDate); }
+    inline void add_points_from_hidb_colored_by_clade(const std::map<std::string, std::string>& aCladeColor, const seqdb::Seqdb& aSeqdb, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByClade(aCladeColor, aSeqdb), aStartDate, aEndDate); }
+    inline void add_points_from_hidb_colored_by_lineage(const std::map<std::string, std::string>& aLineageColor, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineage(aLineageColor), aStartDate, aEndDate); }
+
+    inline const LocDb& locdb() const { return mLocDb; }
 
  private:
     const hidb::HiDb& mHiDb;
@@ -117,28 +212,46 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
 
     Points mPoints;
 
-    void add_points_from_hidb(const GeographicMapColoring& aColoring, std::string aStartDate, std::string aEndDate);
-
 }; // class GeographicMapWithPointsFromHidb
 
 // ----------------------------------------------------------------------
 
-class GeographicTimeSeriesMonthly
+class GeographicTimeSeriesBase
 {
  public:
-    inline GeographicTimeSeriesMonthly(std::string aStart, std::string aEnd, const hidb::HiDb& aHiDb, const LocDb& aLocDb, double aPointSizeInPixels, double aPointDensity, std::string aOutlineColor, double aOutlineWidth)
-        : mMap(aHiDb, aLocDb, aPointSizeInPixels, aPointDensity, aOutlineColor, aOutlineWidth), mTS(aStart, aEnd) {}
+    inline GeographicTimeSeriesBase(const hidb::HiDb& aHiDb, const LocDb& aLocDb, double aPointSizeInPixels, double aPointDensity, std::string aOutlineColor, double aOutlineWidth)
+        : mMap(aHiDb, aLocDb, aPointSizeInPixels, aPointDensity, aOutlineColor, aOutlineWidth) {}
+    virtual ~GeographicTimeSeriesBase();
 
     inline Title& title() { return mMap.title(); }
-    void draw_colored_by_continent(std::string aFilenamePrefix, const std::map<std::string, std::string>& aContinentColor, double aImageWidth);
-    void draw_colored_by_clade(std::string aFilenamePrefix, const std::map<std::string, std::string>& aCladeColor, const seqdb::Seqdb& aSeqdb, double aImageWidth);
-    void draw_colored_by_lineage(std::string aFilenamePrefix, const std::map<std::string, std::string>& aLineageColor, double aImageWidth);
+    virtual void draw(std::string aFilenamePrefix, const GeographicMapColoring& aColoring, double aImageWidth) const = 0;
+    void draw(std::string aFilenamePrefix, TimeSeriesIterator& aBegin, const TimeSeriesIterator& aEnd, const GeographicMapColoring& aColoring, double aImageWidth) const;
+
+    inline const LocDb& locdb() const { return mMap.locdb(); }
 
  private:
     GeographicMapWithPointsFromHidb mMap;
-    MonthlyTimeSeries mTS;
 
-}; // class GeographicTimeSeriesMonthly
+}; // class GeographicTimeSeriesBase
+
+// ----------------------------------------------------------------------
+
+template <typename TimeSeries> class GeographicTimeSeries : public GeographicTimeSeriesBase
+{
+ public:
+    inline GeographicTimeSeries(std::string aStart, std::string aEnd, const hidb::HiDb& aHiDb, const LocDb& aLocDb, double aPointSizeInPixels, double aPointDensity, std::string aOutlineColor, double aOutlineWidth)
+        : GeographicTimeSeriesBase(aHiDb, aLocDb, aPointSizeInPixels, aPointDensity, aOutlineColor, aOutlineWidth), mTS(aStart, aEnd) {}
+
+    virtual inline void draw(std::string aFilenamePrefix, const GeographicMapColoring& aColoring, double aImageWidth) const { auto start = mTS.begin(), end = mTS.end(); GeographicTimeSeriesBase::draw(aFilenamePrefix, start, end, aColoring, aImageWidth); }
+
+ private:
+    TimeSeries mTS;
+
+}; // class GeographicTimeSeries
+
+using GeographicTimeSeriesMonthly = GeographicTimeSeries<MonthlyTimeSeries>;
+using GeographicTimeSeriesYearly = GeographicTimeSeries<YearlyTimeSeries>;
+using GeographicTimeSeriesWeekly = GeographicTimeSeries<WeeklyTimeSeries>;
 
 // ----------------------------------------------------------------------
 /// Local Variables:

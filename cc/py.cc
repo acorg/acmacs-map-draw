@@ -379,13 +379,16 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("add_points_from_hidb_colored_by_lineage", &GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by_lineage, py::arg("lineage_color"), py::arg("start_date"), py::arg("end_date"))
             ;
 
-    py::class_<GeographicTimeSeriesMonthly>(m, "GeographicTimeSeriesMonthly")
-            .def(py::init<std::string, std::string, const hidb::HiDb&, const LocDb&, double, double, std::string, double>(), py::arg("start_date"), py::arg("end_date"), py::arg("hidb"), py::arg("locdb"), py::arg("point_size_in_pixels") = 4.0, py::arg("point_density") = 0.8, py::arg("outline_color") = "grey63", py::arg("outline_width") = 0.5)
-            .def("title", &GeographicTimeSeriesMonthly::title, py::return_value_policy::reference)
-            .def("draw_colored_by_continent", &GeographicTimeSeriesMonthly::draw_colored_by_continent, py::arg("filename_prefix"), py::arg("continent_color"), py::arg("image_width"))
-            .def("draw_colored_by_clade", &GeographicTimeSeriesMonthly::draw_colored_by_clade, py::arg("filename_prefix"), py::arg("clade_color"), py::arg("seqdb"), py::arg("image_width"))
-            .def("draw_colored_by_lineage", &GeographicTimeSeriesMonthly::draw_colored_by_lineage, py::arg("filename_prefix"), py::arg("lineage_color"), py::arg("image_width"))
+    py::class_<GeographicTimeSeriesBase>(m, "GeographicTimeSeries")
+            .def("title", &GeographicTimeSeriesBase::title, py::return_value_policy::reference)
+            .def("draw_colored_by_continent", [](GeographicTimeSeriesBase& aTS, std::string aPrefix, const std::map<std::string, std::string>& aContinentColor, double aImageWidth) { aTS.draw(aPrefix, ColoringByContinent(aContinentColor, aTS.locdb()), aImageWidth); }, py::arg("filename_prefix"), py::arg("continent_color"), py::arg("image_width"))
+            .def("draw_colored_by_clade", [](GeographicTimeSeriesBase& aTS, std::string aPrefix, const std::map<std::string, std::string>& aCladeColor, const seqdb::Seqdb& aSeqdb, double aImageWidth) { aTS.draw(aPrefix, ColoringByClade(aCladeColor, aSeqdb), aImageWidth); }, py::arg("filename_prefix"), py::arg("clade_color"), py::arg("seqdb"), py::arg("image_width"))
+            .def("draw_colored_by_lineage", [](GeographicTimeSeriesBase& aTS, std::string aPrefix, const std::map<std::string, std::string>& aLineageColor, double aImageWidth) { aTS.draw(aPrefix, ColoringByLineage(aLineageColor), aImageWidth); }, py::arg("filename_prefix"), py::arg("lineage_color"), py::arg("image_width"))
             ;
+
+    m.def("geographic_time_series_monthly", [](std::string aStart, std::string aEnd, const hidb::HiDb& aHiDb, const LocDb& aLocDb, double aPointSize, double aPointDensity, std::string aOutlineColor, double aOutlineWidth) -> GeographicTimeSeriesBase* { return new GeographicTimeSeriesMonthly(aStart, aEnd, aHiDb, aLocDb, aPointSize, aPointDensity, aOutlineColor, aOutlineWidth); }, py::arg("start_date"), py::arg("end_date"), py::arg("hidb"), py::arg("locdb"), py::arg("point_size_in_pixels") = 4.0, py::arg("point_density") = 0.8, py::arg("outline_color") = "grey63", py::arg("outline_width") = 0.5);
+    m.def("geographic_time_series_yearly", [](std::string aStart, std::string aEnd, const hidb::HiDb& aHiDb, const LocDb& aLocDb, double aPointSize, double aPointDensity, std::string aOutlineColor, double aOutlineWidth) -> GeographicTimeSeriesBase* { return new GeographicTimeSeriesYearly(aStart, aEnd, aHiDb, aLocDb, aPointSize, aPointDensity, aOutlineColor, aOutlineWidth); }, py::arg("start_date"), py::arg("end_date"), py::arg("hidb"), py::arg("locdb"), py::arg("point_size_in_pixels") = 4.0, py::arg("point_density") = 0.8, py::arg("outline_color") = "grey63", py::arg("outline_width") = 0.5);
+    m.def("geographic_time_series_weekly", [](std::string aStart, std::string aEnd, const hidb::HiDb& aHiDb, const LocDb& aLocDb, double aPointSize, double aPointDensity, std::string aOutlineColor, double aOutlineWidth) -> GeographicTimeSeriesBase* { return new GeographicTimeSeriesWeekly(aStart, aEnd, aHiDb, aLocDb, aPointSize, aPointDensity, aOutlineColor, aOutlineWidth); }, py::arg("start_date"), py::arg("end_date"), py::arg("hidb"), py::arg("locdb"), py::arg("point_size_in_pixels") = 4.0, py::arg("point_density") = 0.8, py::arg("outline_color") = "grey63", py::arg("outline_width") = 0.5);
 
       // ----------------------------------------------------------------------
 

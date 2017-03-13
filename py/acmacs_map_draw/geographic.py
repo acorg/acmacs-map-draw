@@ -7,7 +7,6 @@ import logging; module_logger = logging.getLogger(__name__)
 
 from acmacs_base.timeit import timeit
 
-from acmacs_map_draw_backend import GeographicMapWithPointsFromHidb, GeographicTimeSeriesMonthly
 from .hidb_access import get_hidb
 from .locdb_access import get_locdb
 from .seqdb_access import get_seqdb
@@ -34,6 +33,7 @@ def geographic_map(output, virus_type, title, start_date, end_date, settings):
         for key in ["point_size_in_pixels", "point_density", "outline_color", "outline_width"]:
             if settings.get(key) is not None:
                 options[key] = settings[key]
+        from acmacs_map_draw_backend import GeographicMapWithPointsFromHidb
         geographic_map = GeographicMapWithPointsFromHidb(hidb=get_hidb(virus_type=virus_type), locdb=get_locdb(), **options)
         if not settings.get("coloring") or settings["coloring"] == "continent":
             from .coloring import sContinentColor
@@ -52,12 +52,22 @@ def geographic_map(output, virus_type, title, start_date, end_date, settings):
 
 # ----------------------------------------------------------------------
 
-def geographic_time_series(output_prefix, virus_type, start_date, end_date, settings):
+def geographic_time_series(output_prefix, virus_type, period, start_date, end_date, settings):
     options = {}
     for key in ["point_size_in_pixels", "point_density", "outline_color", "outline_width"]:
         if settings.get(key) is not None:
             options[key] = settings[key]
-    ts = GeographicTimeSeriesMonthly(start_date=start_date, end_date=end_date, hidb=get_hidb(virus_type=virus_type), locdb=get_locdb(), **options)
+    if period == "month":
+        from acmacs_map_draw_backend import geographic_time_series_monthly
+        ts = geographic_time_series_monthly(start_date=start_date, end_date=end_date, hidb=get_hidb(virus_type=virus_type), locdb=get_locdb(), **options)
+    elif period == "year":
+        from acmacs_map_draw_backend import geographic_time_series_yearly
+        ts = geographic_time_series_yearly(start_date=start_date, end_date=end_date, hidb=get_hidb(virus_type=virus_type), locdb=get_locdb(), **options)
+    elif period == "week":
+        from acmacs_map_draw_backend import geographic_time_series_weekly
+        ts = geographic_time_series_weekly(start_date=start_date, end_date=end_date, hidb=get_hidb(virus_type=virus_type), locdb=get_locdb(), **options)
+    else:
+        raise ValueError("Unsupported period: " + repr(period) + ", expected \"month\", \"year\", \"week\"")
     _update_title(ts.title(), settings)
     if not settings.get("coloring") or settings["coloring"] == "continent":
         from .coloring import sContinentColor

@@ -19,7 +19,9 @@ def main(args):
     # test_time_series()
     output_dir = Path("/tmp/gts")
     output_dir.mkdir(exist_ok=True)
-    geographic_time_series(output_prefix=str(output_dir.joinpath("B-geographic-")), virus_type="B", start_date="2016-08-01", end_date="2017-03-01", settings=sSettings)
+    # geographic_time_series(output_prefix=str(output_dir.joinpath("B-geographic-")), virus_type="B", period="month", start_date="2016-08-01", end_date="2017-03-01", settings=sSettings)
+    geographic_time_series(output_prefix=str(output_dir.joinpath("B-geographic-")), virus_type="B", period="year", start_date="2013-01-01", end_date="2018-01-01", settings=sSettings)
+    # geographic_time_series(output_prefix=str(output_dir.joinpath("B-geographic-")), virus_type="B", period="week", start_date="2017-01-01", end_date="2017-03-13", settings=sSettings)
 
 # ----------------------------------------------------------------------
 
