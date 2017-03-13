@@ -29,6 +29,11 @@ void test_time_series()
     for (auto it = mts1.begin(); it != mts1.end(); ++it)
         std::cout << "  " << *it << std::endl;
 
+    YearlyTimeSeries yts1{Date::years_ago(6), Date::today()};
+    std::cout << "YearlyTimeSeries1: " << yts1 << std::endl;
+    for (auto it = yts1.begin(); it != yts1.end(); ++it)
+        std::cout << "  " << *it << std::endl;
+
 } // test_time_series
 
 // ----------------------------------------------------------------------
