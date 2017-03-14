@@ -6,9 +6,7 @@ Drawing antigenic maps
 - select by lineage
 - comparing_with_previous: select antigens not found in another chart
 
-- geographic maps
-
-- time series
+- antigenic time series
 
 - match antigens and sera of two charts
 - procrustes
