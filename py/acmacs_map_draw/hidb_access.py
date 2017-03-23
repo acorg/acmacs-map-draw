@@ -16,10 +16,10 @@ sVirusTypeNormalizer = {
     "b": "B", "B": "B",
     }
 
-def get_hidb(virus_type=None, chart=None, hidb_dir :Path = Path(os.environ["ACMACSD_ROOT"], "data")):
+def get_hidb(virus_type=None, chart=None, hidb_dir :Path = None):
     global sHidbSet
     if sHidbSet is None:
-        sHidbSet = HiDbSet(str(Path(hidb_dir).expanduser().resolve()))
+        sHidbSet = HiDbSet(str(Path(hidb_dir or Path(os.environ["ACMACSD_ROOT"], "data")).expanduser().resolve()))
     if chart is not None:
         virus_type = chart.chart_info().virus_type()
     virus_type  = sVirusTypeNormalizer[virus_type]

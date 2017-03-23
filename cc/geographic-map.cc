@@ -103,11 +103,11 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const Geog
 {
     auto antigens = mHiDb.all_antigens();
     antigens.date_range(aStartDate, aEndDate);
-    std::cerr << "Antigens selected: " << antigens.size() << std::endl;
+      // std::cerr << "Antigens selected: " << antigens.size() << std::endl;
     for (auto& antigen: antigens) {
         mPoints.add(virus_name::location(antigen->data().name()), aColoring.color(*antigen));
     }
-    std::cerr << "Locations: " << mPoints.size() << std::endl;
+      // std::cerr << "Locations: " << mPoints.size() << std::endl;
 
 } // GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by
 

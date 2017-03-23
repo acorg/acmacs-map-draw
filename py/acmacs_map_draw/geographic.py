@@ -59,13 +59,13 @@ def geographic_time_series(output_prefix, virus_type, period, start_date, end_da
             options[key] = settings[key]
     if period == "month":
         from acmacs_map_draw_backend import geographic_time_series_monthly
-        ts = geographic_time_series_monthly(start_date=start_date, end_date=end_date, hidb=get_hidb(virus_type=virus_type), locdb=get_locdb(), **options)
+        ts = geographic_time_series_monthly(start_date=start_date, end_date=end_date, hidb=get_hidb(virus_type=virus_type, hidb_dir=settings.get("hidb_dir")), locdb=get_locdb(), **options)
     elif period == "year":
         from acmacs_map_draw_backend import geographic_time_series_yearly
-        ts = geographic_time_series_yearly(start_date=start_date, end_date=end_date, hidb=get_hidb(virus_type=virus_type), locdb=get_locdb(), **options)
+        ts = geographic_time_series_yearly(start_date=start_date, end_date=end_date, hidb=get_hidb(virus_type=virus_type, hidb_dir=settings.get("hidb_dir")), locdb=get_locdb(), **options)
     elif period == "week":
         from acmacs_map_draw_backend import geographic_time_series_weekly
-        ts = geographic_time_series_weekly(start_date=start_date, end_date=end_date, hidb=get_hidb(virus_type=virus_type), locdb=get_locdb(), **options)
+        ts = geographic_time_series_weekly(start_date=start_date, end_date=end_date, hidb=get_hidb(virus_type=virus_type, hidb_dir=settings.get("hidb_dir")), locdb=get_locdb(), **options)
     else:
         raise ValueError("Unsupported period: " + repr(period) + ", expected \"month\", \"year\", \"week\"")
     _update_title(ts.title(), settings)
