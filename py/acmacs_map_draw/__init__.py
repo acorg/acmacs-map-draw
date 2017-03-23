@@ -3,7 +3,8 @@
 # license.
 # ----------------------------------------------------------------------
 
-from acmacs_map_draw_backend import import_chart, export_chart_lispmds, GeographicMapDraw, GeographicMapWithPointsFromHidb
+from acmacs_map_draw_backend import GeographicMapDraw, GeographicMapWithPointsFromHidb
+from acmacs_chart_backend import import_chart, export_chart_lispmds
 from .hidb_access import get_hidb
 from .locdb_access import get_locdb
 from .seqdb_access import get_seqdb

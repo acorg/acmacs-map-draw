@@ -47,7 +47,6 @@ DIST = $(abspath dist)
 all: check-acmacsd-root $(BACKEND)
 
 install: check-acmacsd-root install-headers $(BACKEND)
-	ln -sf $(BACKEND) $(ACMACSD_ROOT)/lib
 	ln -sf $(BACKEND) $(ACMACSD_ROOT)/py
 	ln -sf $(abspath py)/* $(ACMACSD_ROOT)/py
 	ln -sf $(abspath bin)/acmacs-map-* $(ACMACSD_ROOT)/bin

@@ -6,7 +6,7 @@
 import os
 from pathlib import Path
 from acmacs_base.timeit import timeit
-from acmacs_map_draw_backend import HiDbSet
+from hidb_backend import HiDbSet
 
 # ----------------------------------------------------------------------
 

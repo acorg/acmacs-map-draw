@@ -47,7 +47,7 @@ def main(args):
                 return 1
         if args.settings and update_settings:
             write_json(path=settings_file, data=settings)
-        if args.draw_map:
+        if args.draw_map and args.open_image:
             open_image(output)
 
 # ----------------------------------------------------------------------
@@ -64,11 +64,11 @@ sSettings = {
         #      "outside_4fold": {"fill": "grey50", "outline": "black", "raise_": True},
         #      "mark_serum": {"fill": "red", "outline": "black", "raise_": True, "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12, "weight": "bold"}},
         #      },
-        {"N": "serum_circle", "serum": "A(H3N2)/TEXAS/50/2012 CDC 2014-084,2014-085", "?antigen": 1,
-             "circle": {"fill": "#E08080FF", "outline": "blue", "outline_width": 1, "angle_degrees": [0, 240], "radius_line_dash": "dash2"},
-             "mark_serum": {"fill": "lightblue", "outline": "black", "raise_": True, "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
-             "mark_antigen": {"fill": "lightblue", "outline": "black", "raise_": True, "label": {"show": False, "name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
-        },
+        # {"N": "serum_circle", "serum": "A(H3N2)/TEXAS/50/2012 CDC 2014-084,2014-085", "?antigen": 1,
+        #      "circle": {"fill": "#E08080FF", "outline": "blue", "outline_width": 1, "angle_degrees": [0, 240], "radius_line_dash": "dash2"},
+        #      "mark_serum": {"fill": "lightblue", "outline": "black", "raise_": True, "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
+        #      "mark_antigen": {"fill": "lightblue", "outline": "black", "raise_": True, "label": {"show": False, "name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
+        # },
         # {"N": "aa_substitutions", "positions": [158, 159], "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
         # {"N": "clades", "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
         # {"N": "continents", "outline": "black", "legend": {"show": False, "offset": [-1, -1], "size": 100}},
@@ -211,6 +211,7 @@ try:
     parser.add_argument('--flip-ns', action='store_true', dest='flip_ns', default=None, help='Add flip_ew mod.')
 
     parser.add_argument('-n', action='store_false', dest='draw_map', default=True, help='Do not actually draw a map.')
+    parser.add_argument('-m', action='store_false', dest='open_image', default=True, help='Do not open image.')
 
     parser.add_argument('chart', nargs=1, help='Chart file.')
     parser.add_argument('output', nargs='?', default=None, help='Output pdf file.')

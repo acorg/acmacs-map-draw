@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import logging; module_logger = logging.getLogger(__name__)
 from acmacs_base.timeit import timeit
-from acmacs_map_draw_backend import LocDb
+from locationdb_backend import LocDb
 
 # ----------------------------------------------------------------------
 

@@ -9,7 +9,6 @@ import logging; module_logger = logging.getLogger(__name__)
 from .hidb_access import get_hidb
 from .locdb_access import get_locdb
 from .vaccines import vaccines
-from acmacs_map_draw_backend import ChartDraw, PointStyle, find_vaccines_in_chart, LocDb, distinct_colors
 from . import coloring
 
 # ----------------------------------------------------------------------
@@ -19,16 +18,18 @@ class UnrecognizedMod (ValueError): pass
 # ----------------------------------------------------------------------
 
 def draw_chart(output_file, chart, settings, output_width, draw_map=True, verbose=False):
+    from acmacs_map_draw_backend import ChartDraw
     chart_draw = ChartDraw(chart)
     chart_draw.prepare()
 
     applicator = ModApplicator(chart_draw=chart_draw, chart=chart, projection_no=0, verbose=verbose)
     for mod in settings.get("mods", []):
         if isinstance(mod, str):
-            try:
-                getattr(applicator, mod)(N=mod)
-            except:
-                raise UnrecognizedMod(mod)
+            if mod and mod[0] != "?" and mod[-1] != "?":
+                try:
+                    getattr(applicator, mod)(N=mod)
+                except:
+                    raise UnrecognizedMod(mod)
         elif isinstance(mod, dict):
             if "N" in mod and mod["N"] and mod["N"][0] != "?":      # no "N" - commented out
                 try:
@@ -256,6 +257,7 @@ class ModApplicator:
         from . import seqdb_access
         aa_indices = seqdb_access.aa_at_positions(chart=self._chart, positions=positions, verbose=self._verbose)
         aa_order = sorted(aa_indices, key=lambda aa: - len(aa_indices[aa]))
+        from acmacs_map_draw_backend import distinct_colors
         dc = distinct_colors()
         aa_color = {aa: dc[no] for no, aa in enumerate(aa_order)}
         if "X" in aa_color:
@@ -285,6 +287,7 @@ class ModApplicator:
         # fill=None, outline=None, show=None, shape=None, size=None, outline_width=None, aspect=None, rotation=None
         hidb = get_hidb(chart=self._chart)
         for vaccine_entry in vaccines(chart=self._chart):
+            from hidb_backend import find_vaccines_in_chart
             # module_logger.debug('{}'.format(vaccine_entry))
             antigens = find_vaccines_in_chart(vaccine_entry["name"], self._chart, hidb)
             if self._verbose:
@@ -371,6 +374,7 @@ class ModApplicator:
         self.antigens(N="antigens", select=outside, report=False, **outside_4fold)
 
     def _make_point_style(self, *data):
+        from acmacs_map_draw_backend import PointStyle
         style = PointStyle()
         for source in data:
             for k, v in source.items():

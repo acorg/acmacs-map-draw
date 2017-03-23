@@ -1,0 +1,10 @@
+{ "_":"-*- js-indent-level: 2 -*-",
+  "mods": [
+    "egg",
+    "reassortant",
+    "all_grey",
+    {"N": "continents", "legend": {"offset": [-1, -1], "show": false, "size": 100}, "outline": "black"},
+    {"N": "vaccines", "size": 15},
+    {"?display_name": ["1", "2"], "N": "title", "background": "#F0F0FF", "border_color": "black", "border_width": 0.1, "text_size": 12}
+  ]
+}
