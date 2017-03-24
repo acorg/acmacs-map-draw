@@ -147,6 +147,9 @@ class Title : public MapElement
     inline void background(Color aBackgroud) { mBackgroud = aBackgroud; }
     inline void border_color(Color aBorderColor) { mBorderColor = aBorderColor; }
     inline void border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; }
+    inline void weight(std::string aWeight) { mTextStyle.weight(aWeight); }
+    inline void slant(std::string aSlant) { mTextStyle.slant(aSlant); }
+    inline void font_family(std::string aFamily) { mTextStyle.font_family(aFamily); }
 
  private:
     Location mOrigin;

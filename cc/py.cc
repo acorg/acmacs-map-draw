@@ -131,6 +131,9 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("background", [](Title& aTitle, std::string aBackground) { aTitle.background(aBackground); }, py::arg("background"))
             .def("border_color", [](Title& aTitle, std::string aBorderColor) { aTitle.border_color(aBorderColor); }, py::arg("border_color"))
             .def("border_width", &Title::border_width, py::arg("border_width"))
+            .def("weight", &Title::weight, py::arg("weight"))
+            .def("slant", &Title::slant, py::arg("slant"))
+            .def("font_family", &Title::font_family, py::arg("font_family"))
             ;
 
     py::class_<Label>(m, "Label")
