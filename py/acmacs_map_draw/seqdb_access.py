@@ -11,8 +11,8 @@ from seqdb_backend import Seqdb
 
 # ----------------------------------------------------------------------
 
-def match(chart, verbose=False):
-    seqdb = get_seqdb()
+def match(chart, seqdb_file=None, verbose=False):
+    seqdb = get_seqdb(seqdb_file=seqdb_file)
     with timeit("Matching seqdb"):
         per_antigen = seqdb.match_antigens(antigens=chart.antigens(), verbose=verbose)
         module_logger.info('{} antigens matched against seqdb'.format(sum(1 for e in per_antigen if e)))
@@ -20,22 +20,22 @@ def match(chart, verbose=False):
 
 # ----------------------------------------------------------------------
 
-def sequenced(chart, verbose=False):
-    r = [ag_no for ag_no, entry_seq in enumerate(match(chart, verbose=verbose)) if entry_seq]
+def sequenced(chart, seqdb_file=None, verbose=False):
+    r = [ag_no for ag_no, entry_seq in enumerate(match(chart, seqdb_file=seqdb_file, verbose=verbose)) if entry_seq]
     return r
 
 # ----------------------------------------------------------------------
 
-def not_sequenced(chart, verbose=False):
+def not_sequenced(chart, seqdb_file=None, verbose=False):
     """Returns list of antigen indices for antigens not found in seqdb"""
-    r = [ag_no for ag_no, entry_seq in enumerate(match(chart, verbose=verbose)) if not entry_seq]
+    r = [ag_no for ag_no, entry_seq in enumerate(match(chart, seqdb_file=seqdb_file, verbose=verbose)) if not entry_seq]
     module_logger.info('{} antigens NOT matched against seqdb'.format(len(r)))
     return r
 
 # ----------------------------------------------------------------------
 
-def aa_at_positions(chart, positions, verbose=False):
-    seqdb = get_seqdb()
+def aa_at_positions(chart, positions, seqdb_file=None, verbose=False):
+    seqdb = get_seqdb(seqdb_file=seqdb_file)
     with timeit("Matching seqdb"):
         aa_indices = seqdb.aa_at_positions_for_antigens(antigens=chart.antigens(), positions=positions, verbose=verbose)
         module_logger.info('{} antigens matched against seqdb'.format(sum(len(v) for v in aa_indices.values())))
@@ -43,9 +43,9 @@ def aa_at_positions(chart, positions, verbose=False):
 
 # ----------------------------------------------------------------------
 
-def antigen_clades(chart, verbose=False):
+def antigen_clades(chart, seqdb_file=None, verbose=False):
     clade_data = {}
-    for ag_no, antigen_seq in enumerate(match(chart, verbose=verbose)):
+    for ag_no, antigen_seq in enumerate(match(chart, seqdb_file=seqdb_file, verbose=verbose)):
         if antigen_seq:
             clades = antigen_seq.seq.clades()
             if clades:
@@ -57,9 +57,11 @@ def antigen_clades(chart, verbose=False):
 
 # ----------------------------------------------------------------------
 
-def get_seqdb(seqdb_file :Path = Path(os.environ["ACMACSD_ROOT"], "data", "seqdb.json.xz")):
+def get_seqdb(seqdb_file :Path = None):
     global sSeqdb
     if sSeqdb is None:
+        if seqdb_file is None:
+            seqdb_file = Path(os.environ["ACMACSD_ROOT"], "data", "seqdb.json.xz")
         filename = str(Path(seqdb_file).expanduser().resolve())
         with timeit("Loading seqdb from " + filename):
             sSeqdb = Seqdb()

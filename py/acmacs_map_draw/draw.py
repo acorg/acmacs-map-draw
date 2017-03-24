@@ -17,12 +17,12 @@ class UnrecognizedMod (ValueError): pass
 
 # ----------------------------------------------------------------------
 
-def draw_chart(output_file, chart, settings, output_width, draw_map=True, verbose=False):
+def draw_chart(output_file, chart, settings, output_width, draw_map=True, seqdb_file=None, verbose=False):
     from acmacs_map_draw_backend import ChartDraw
     chart_draw = ChartDraw(chart)
     chart_draw.prepare()
 
-    applicator = ModApplicator(chart_draw=chart_draw, chart=chart, projection_no=0, verbose=verbose)
+    applicator = ModApplicator(chart_draw=chart_draw, chart=chart, projection_no=0, seqdb_file=seqdb_file, verbose=verbose)
     for mod in settings.get("mods", []):
         if isinstance(mod, str):
             if mod and mod[0] != "?" and mod[-1] != "?":
@@ -120,10 +120,11 @@ class ModApplicator:
 
     # ----------------------------------------------------------------------
 
-    def __init__(self, chart_draw, chart, projection_no, verbose=False):
+    def __init__(self, chart_draw, chart, projection_no, seqdb_file, verbose=False):
         self._chart_draw = chart_draw
         self._chart = chart
         self._projection_no = projection_no
+        self._seqdb_file = seqdb_file
         self._verbose = verbose
 
     def flip_ns(self, **args):
@@ -228,7 +229,7 @@ class ModApplicator:
 
     def clades(self, legend=None, **args):
         from .seqdb_access import antigen_clades
-        clade_data = antigen_clades(self._chart, verbose=self._verbose)
+        clade_data = antigen_clades(self._chart, seqdb_file=self._seqdb_file, verbose=self._verbose)
         # pprint.pprint(clade_data)
         clades_used = {}                      # for legend
         for clade_style in self.sStyleByClade:
@@ -255,7 +256,7 @@ class ModApplicator:
 
     def aa_substitutions(self, positions, legend=None, **args):
         from . import seqdb_access
-        aa_indices = seqdb_access.aa_at_positions(chart=self._chart, positions=positions, verbose=self._verbose)
+        aa_indices = seqdb_access.aa_at_positions(chart=self._chart, positions=positions, seqdb_file=self._seqdb_file, verbose=self._verbose)
         aa_order = sorted(aa_indices, key=lambda aa: - len(aa_indices[aa]))
         from acmacs_map_draw_backend import distinct_colors
         dc = distinct_colors()
@@ -277,7 +278,7 @@ class ModApplicator:
         for group in groups:
             positions = [int(pos_aa[:-1]) for pos_aa in group["pos_aa"]]
             target_aas = "".join(pos_aa[-1] for pos_aa in group["pos_aa"])
-            aa_indices = seqdb_access.aa_at_positions(chart=self._chart, positions=positions, verbose=self._verbose)
+            aa_indices = seqdb_access.aa_at_positions(chart=self._chart, positions=positions, seqdb_file=self._seqdb_file, verbose=self._verbose)
             if target_aas in aa_indices:
                 self._chart_draw.modify_points_by_indices(aa_indices[target_aas], self._make_point_style({"outline": "black", "fill": group["color"]}), raise_=True)
             else:
