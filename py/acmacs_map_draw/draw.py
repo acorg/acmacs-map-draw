@@ -220,7 +220,7 @@ class ModApplicator:
 
     def continents(self, legend=None, **args):
         data = self._chart.antigens().continents(get_locdb())
-        module_logger.info('[Continents] {}'.format(" ".join(f"{continent}:{len(data[continent])}" for continent in sorted(data))))
+        module_logger.info('[Continents] {}'.format(" ".join("{}:{}".format(continent, len(data[continent])) for continent in sorted(data))))
         for continent, indices in data.items():
             self._chart_draw.modify_points_by_indices(indices, self._make_point_style(args, {"fill": coloring.sContinentColor[continent]}))
         if legend and legend.get("show", True):
