@@ -287,24 +287,39 @@ class ModApplicator:
     def vaccines(self, raise_=True, label=None, **args):
         # fill=None, outline=None, show=None, shape=None, size=None, outline_width=None, aspect=None, rotation=None
         hidb = get_hidb(chart=self._chart)
-        for vaccine_entry in vaccines(chart=self._chart):
-            from hidb_backend import find_vaccines_in_chart
-            # module_logger.debug('{}'.format(vaccine_entry))
-            antigens = find_vaccines_in_chart(vaccine_entry["name"], self._chart, hidb)
-            if self._verbose:
-                module_logger.debug("Vaccines {}\n{}".format(vaccine_entry, antigens.report(indent=4)))
-            for passage_type in ["egg", "reassortant", "cell"]:
-                vaccine_key = vaccine_entry["type"] + "-" + passage_type
-                vaccine_data = getattr(antigens, passage_type)(args.get(vaccine_key, {}).get("no", 0))
-                if vaccine_data:
-                    module_logger.info('Marking vaccine {} {}'.format(vaccine_data.antigen_index, vaccine_data.antigen.full_name()))
-                    if args.get(vaccine_key, {}).get("show", True):
-                        self._chart_draw.modify_point_by_index(vaccine_data.antigen_index, self._make_point_style({**self.sStyleByVaccineType[vaccine_entry["type"]][passage_type], **args}), raise_=raise_)
-                        if label:
-                            if label.get(vaccine_key):
-                                self.label(index=vaccine_data.antigen_index, **{**label.get("", {}), **label[vaccine_key]})
-                            elif label.get(""):
-                                self.label(index=vaccine_data.antigen_index, **label[""])
+        vacs = [vac for vaccine_entry in vaccines(chart=self._chart) for vac in self._collect_vaccines(vaccine_entry, hidb)]
+        if self._verbose:
+            module_logger.debug('Vaccines\n{}'.format(pprint.pformat(vacs)))
+
+        # for vaccine_entry in vaccines(chart=self._chart):
+        #     from hidb_backend import find_vaccines_in_chart
+        #     # module_logger.debug('{}'.format(vaccine_entry))
+        #     antigens = find_vaccines_in_chart(vaccine_entry["name"], self._chart, hidb)
+        #     if self._verbose:
+        #         module_logger.debug("Vaccines {}\n{}".format(vaccine_entry, antigens.report(indent=4)))
+        #     for passage_type in ["egg", "reassortant", "cell"]:
+        #         vaccine_key = vaccine_entry["type"] + "-" + passage_type
+        #         vaccine_data = getattr(antigens, passage_type)(args.get(vaccine_key, {}).get("no", 0))
+        #         if vaccine_data:
+        #             module_logger.info('Marking vaccine {} {}'.format(vaccine_data.antigen_index, vaccine_data.antigen.full_name()))
+        #             if args.get(vaccine_key, {}).get("show", True):
+        #                 self._chart_draw.modify_point_by_index(vaccine_data.antigen_index, self._make_point_style({**self.sStyleByVaccineType[vaccine_entry["type"]][passage_type], **args}), raise_=raise_)
+        #                 if label:
+        #                     if label.get(vaccine_key):
+        #                         self.label(index=vaccine_data.antigen_index, **{**label.get("", {}), **label[vaccine_key]})
+        #                     elif label.get(""):
+        #                         self.label(index=vaccine_data.antigen_index, **label[""])
+
+    def _collect_vaccines(self, vaccine_entry, hidb):
+        from hidb_backend import find_vaccines_in_chart
+        antigens = find_vaccines_in_chart(vaccine_entry["name"], self._chart, hidb)
+        # if self._verbose:
+        #     module_logger.debug("Vaccines {}\n{}".format(vaccine_entry, antigens.report(indent=4)))
+        for passage_type in ["egg", "reassortant", "cell"]:
+            num_entries = getattr(antigens, "number_of_" + passage_type + "s")()
+            if num_entries > 0:
+                passage_func = getattr(antigens, passage_type)
+                yield {"passage": passage_type, "type": vaccine_entry["type"], "vaccines": [passage_func(no) for no in range(num_entries)]}
 
     def label(self, index, name_type="full", **args):
         lbl = self._chart_draw.label(index)

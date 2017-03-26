@@ -72,7 +72,7 @@ sSettings = {
         # {"N": "aa_substitutions", "positions": [158, 159], "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
         # {"N": "clades", "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
         # {"N": "continents", "outline": "black", "legend": {"show": False, "offset": [-1, -1], "size": 100}},
-        # {"N": "vaccines", "size": 15}
+        {"N": "vaccines", "size": 15}
         # {"N": "vaccines", "size": 15, "label": {
         #     "": {"offset": [0, 1], "color": "black", "size": 12, "name_type": "abbreviated_with_passage_type"},
         #     "current-reassortant": {"offset": [1, 0]},
