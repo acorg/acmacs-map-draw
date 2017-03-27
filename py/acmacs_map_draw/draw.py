@@ -172,8 +172,8 @@ class ModApplicator:
     def point_scale(self, scale=1, outline_scale=1, **args):
         self._chart_draw.scale_points(scale=scale, outline_scale=outline_scale)
 
-    def antigens(self, N, select, report=True, report_names_threshold=10, **args):
-        indices = self._select_antigens(select=select, raise_if_not_found=True, raise_if_multiple=False)
+    def antigens(self, N, select, raise_if_not_found=True, raise_if_multiple=False, report=True, report_names_threshold=10, **args):
+        indices = self._select_antigens(select=select, raise_if_not_found=raise_if_not_found, raise_if_multiple=raise_if_multiple)
         antigens = self._chart.antigens()
         if report:
             if report_names_threshold is None or (indices and len(indices) <= report_names_threshold):
@@ -188,8 +188,8 @@ class ModApplicator:
             for index in indices:
                 self.label(index=index, **args["label"])
 
-    def sera(self, N, select, report=True, report_names_threshold=10, **args):
-        indices = self._select_sera(select=select, raise_if_not_found=True, raise_if_multiple=False)
+    def sera(self, N, select, raise_if_not_found=True, raise_if_multiple=False, report=True, report_names_threshold=10, **args):
+        indices = self._select_sera(select=select, raise_if_not_found=raise_if_not_found, raise_if_multiple=raise_if_multiple)
         sera = self._chart.sera()
         if report:
             if report_names_threshold is None or len(indices) <= report_names_threshold:
@@ -451,7 +451,7 @@ class ModApplicator:
                 from .seqdb_access import not_sequenced
                 indices = not_sequenced(chart=self._chart, verbose=self._verbose)
             else:
-                indices = antigens.find_by_name_matching(select)
+                indices = antigens.find_by_name_matching(name=select, verbose=self._verbose)
         elif isinstance(select, dict):
             if "date_range" in select:
                 indices = antigens.date_range_indices(first=select["date_range"][0], after_last=select["date_range"][1])
@@ -474,7 +474,15 @@ class ModApplicator:
             elif "continent" in select:
                 indices = antigens.continents(get_locdb())[select["continent"].upper()]
             elif "name" in select:
-                indices = antigens.find_by_name_matching(select["name"])
+                if select.get("match_virus_name"):
+                    from acmacs_chart_backend import virus_name_match_threshold
+                    score_threshold = virus_name_match_threshold(select["name"])
+                else:
+                    score_threshold = select.get("score_threshold", 0)
+                module_logger.debug('score_threshold {} match_virus_name {}'.format(score_threshold, select.get("match_virus_name")))
+                indices = antigens.find_by_name_matching(name=select["name"], score_threshold=score_threshold, verbose=self._verbose)
+                if len(indices) > 1 and select.get("mark_no") is not None:
+                    indices = [indices[select["mark_no"]]]
             elif "index" in select:
                 indices = select["index"]
                 if isinstance(indices, int):
@@ -502,10 +510,10 @@ class ModApplicator:
             if select == "all":
                 indices = list(range(self._chart.number_of_sera()))
             else:
-                indices = sera.find_by_name_matching(select)
+                indices = sera.find_by_name_matching(name=select, verbose=self._verbose)
         elif isinstance(select, dict):
             if "name" in select:
-                indices = sera.find_by_name_matching(select["name"])
+                indices = sera.find_by_name_matching(name=select["name"], score_threshold=select.get("score_threshold", 0), verbose=self._verbose)
             elif "index" in select:
                 indices = select["index"]
                 if isinstance(indices, int):
