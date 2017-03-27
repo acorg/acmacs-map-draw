@@ -72,13 +72,7 @@ sSettings = {
         # {"N": "aa_substitutions", "positions": [158, 159], "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
         # {"N": "clades", "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
         # {"N": "continents", "outline": "black", "legend": {"show": False, "offset": [-1, -1], "size": 100}},
-        {"N": "vaccines", "size": 15}
-        # {"N": "vaccines", "size": 15, "label": {
-        #     "": {"offset": [0, 1], "color": "black", "size": 12, "name_type": "abbreviated_with_passage_type"},
-        #     "current-reassortant": {"offset": [1, 0]},
-        #     "current-cell": {"offset": [-1, 1]},
-        #     }
-        # },
+        {"N": "vaccines", "size": 15},
         ],
     "mods?": [
         "flip_ns", "flip_ew", {"N": "flip", "value": [-1, 1]},
@@ -121,27 +115,21 @@ sSettings = {
              },
         {"N": "vaccines", "size": 15},
         {"N": "vaccines", "size": 15,
-         "current-egg": {"show": True, "no": 0},
-         "current-cell": {"show": True, "no": 0},
-         "current-reassortant": {"show": True, "no": 0},
-         "previous-egg": {"show": True, "no": 0},
-         "previous-cell": {"show": True, "no": 0},
-         "previous-reassortant": {"show": True, "no": 0},
-         "surrogate-egg": {"show": True, "no": 0},
-         "surrogate-cell": {"show": True, "no": 0},
-         "surrogate-reassortant": {"show": True, "no": 0},
-         "label": {
-             "": {"offset": [0, 1], "color": "black", "size": 12, "name_type": "abbreviated_with_passage_type", "?": "default values for all vaccines"},
-             "current-egg": {},
-             "current-cell": {},
-             "current-reassortant": {},
-             "previous-egg": {},
-             "previous-cell": {},
-             "previous-reassortant": {},
-             "surrogate-egg": {},
-             "surrogate-cell": {},
-             "surrogate-reassortant": {},
-         }},
+             "label": {"offset": [0, 1], "color": "black", "weight": "normal", "slant": "normal", "font_family": "helvetica neu", "size": 12, "name_type": "abbreviated_with_passage_type"},
+             "mods": [
+                 {"name": "TEXAS", "passage": "egg", "show": False},
+                 {"name": "/4801/", "passage": "egg", "label": {"offset": [-1, 0]}},
+                 {"type": "current", "passage": "egg", "size": 20},
+                 {"type": "surrogate", "passage": "egg", "label": {"font_family": "times new roman", "slant": "italic", "weight": "bold"}}
+                 ],
+             "mods?": [
+                 {"name": "TEXAS", "passage": "egg", "show": False},
+                 {"name": "/4801/", "passage": "cell", "label": {"offset": [-1, 0]}},
+                 {"name": "/4801/", "passage": "egg", "no": 1, "label": {"name_type": "full"}},
+                 {"type": "current", "passage": "egg", "size": 20},
+                 {"type": "surrogate", "passage": "egg", "label": {"font_family": "times new roman", "slant": "italic", "weight": "bold"}}
+                 ],
+        },
         {},
         {"N": "style", "index": 0, "fill": "red", "outline": "green", "show": True, "shape": "triangle", "size": 10, "outline_width": 1, "aspect": 1, "rotation": 0, "raise_": True, "lower": None},
         {"N": "style", "index": [1,2,3], "fill": "red", "outline": "green", "show": True, "shape": "triangle", "size": 10, "outline_width": 1, "aspect": 1, "rotation": 0, "raise_": True, "lower": None},

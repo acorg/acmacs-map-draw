@@ -284,42 +284,61 @@ class ModApplicator:
             else:
                 module_logger.warning('No {}: {}'.format(target_aas, sorted(aa_indices)))
 
-    def vaccines(self, raise_=True, label=None, **args):
+    def vaccines(self, raise_=True, mods=None, **args):
         # fill=None, outline=None, show=None, shape=None, size=None, outline_width=None, aspect=None, rotation=None
+
         hidb = get_hidb(chart=self._chart)
-        vacs = [vac for vaccine_entry in vaccines(chart=self._chart) for vac in self._collect_vaccines(vaccine_entry, hidb)]
-        if self._verbose:
-            module_logger.debug('Vaccines\n{}'.format(pprint.pformat(vacs)))
 
-        # for vaccine_entry in vaccines(chart=self._chart):
-        #     from hidb_backend import find_vaccines_in_chart
-        #     # module_logger.debug('{}'.format(vaccine_entry))
-        #     antigens = find_vaccines_in_chart(vaccine_entry["name"], self._chart, hidb)
-        #     if self._verbose:
-        #         module_logger.debug("Vaccines {}\n{}".format(vaccine_entry, antigens.report(indent=4)))
-        #     for passage_type in ["egg", "reassortant", "cell"]:
-        #         vaccine_key = vaccine_entry["type"] + "-" + passage_type
-        #         vaccine_data = getattr(antigens, passage_type)(args.get(vaccine_key, {}).get("no", 0))
-        #         if vaccine_data:
-        #             module_logger.info('Marking vaccine {} {}'.format(vaccine_data.antigen_index, vaccine_data.antigen.full_name()))
-        #             if args.get(vaccine_key, {}).get("show", True):
-        #                 self._chart_draw.modify_point_by_index(vaccine_data.antigen_index, self._make_point_style({**self.sStyleByVaccineType[vaccine_entry["type"]][passage_type], **args}), raise_=raise_)
-        #                 if label:
-        #                     if label.get(vaccine_key):
-        #                         self.label(index=vaccine_data.antigen_index, **{**label.get("", {}), **label[vaccine_key]})
-        #                     elif label.get(""):
-        #                         self.label(index=vaccine_data.antigen_index, **label[""])
+        def _collect(vaccine_entry):
+            from hidb_backend import find_vaccines_in_chart
+            antigens = find_vaccines_in_chart(vaccine_entry["name"], self._chart, hidb)
+            for passage_type in ["egg", "reassortant", "cell"]:
+                num_entries = getattr(antigens, "number_of_" + passage_type + "s")()
+                if num_entries > 0:
+                    passage_func = getattr(antigens, passage_type)
+                    def make_vaccine(no):
+                        vv = passage_func(no)
+                        return {"antigen_index": vv.antigen_index, "number_of_tables": vv.antigen_data.number_of_tables(), "name": vv.antigen.full_name(), "most_recent_table": vv.antigen_data.most_recent_table().table_id()}
+                    yield {"no": 0, "passage": passage_type, "type": vaccine_entry["type"], "name": vaccine_entry["name"], "vaccines": [make_vaccine(no) for no in range(num_entries)]}
 
-    def _collect_vaccines(self, vaccine_entry, hidb):
-        from hidb_backend import find_vaccines_in_chart
-        antigens = find_vaccines_in_chart(vaccine_entry["name"], self._chart, hidb)
-        # if self._verbose:
-        #     module_logger.debug("Vaccines {}\n{}".format(vaccine_entry, antigens.report(indent=4)))
-        for passage_type in ["egg", "reassortant", "cell"]:
-            num_entries = getattr(antigens, "number_of_" + passage_type + "s")()
-            if num_entries > 0:
-                passage_func = getattr(antigens, passage_type)
-                yield {"passage": passage_type, "type": vaccine_entry["type"], "vaccines": [passage_func(no) for no in range(num_entries)]}
+        def _add_plot_spec(vac):
+            return {**vac, **self.sStyleByVaccineType[vac["type"]][vac["passage"]], **args}
+
+        def _filter(vacs):
+            if mods:
+                for vac in vacs:
+                    vac_mod = copy.deepcopy(vac)
+                    for mod in mods:
+                        if (not mod.get("name") or mod["name"] in vac["name"]) and (not mod.get("passage") or mod["passage"] == vac["passage"]) and (not mod.get("type") or mod["type"] == vac["type"]):
+                            if mod.get("label"):
+                                vac_mod["label"] = {**vac_mod.get("label", {}), **mod["label"]}
+                            vac_mod.update({k: v for k,v in mod.items() if k not in ["label", "name", "passage", "type"]})
+                    if vac_mod.get("show", True):
+                        yield vac_mod
+            else:
+                for vac in vacs:
+                    yield vac
+
+        def _report(vacs):
+            if self._verbose:
+                for vac in vacs:
+                    longest_name = max(len(vv["name"]) for vv in vac["vaccines"])
+                    module_logger.debug('Vaccine {} {} ({})\n  {}'.format(vac["type"], vac["passage"], len(vac["vaccines"]), "\n  ".join("{:2d}  {:5d} {:{}s} tabs:{:3d} recent:{}".format(no, vv["antigen_index"], vv["name"], longest_name, vv["number_of_tables"], vv["most_recent_table"]) for no, vv in enumerate(vac["vaccines"]))))
+
+        def _plot(vac):
+            antigen_index = vac["vaccines"][vac["no"]]["antigen_index"]
+            self._chart_draw.modify_point_by_index(antigen_index, self._make_point_style(vac), raise_=raise_)
+            if vac.get("label"):
+                self.label(index=antigen_index, **vac["label"])
+
+        vacs = [vac for vaccine_entry in vaccines(chart=self._chart) for vac in _collect(vaccine_entry)]
+        _report(vacs)
+        vacs_with_plot_spec = [_add_plot_spec(vac) for vac in vacs]
+        # module_logger.debug("Plot spec\n" + pprint.pformat(vacs_with_plot_spec))
+        vacs_filtered = list(_filter(vacs_with_plot_spec))
+        # module_logger.debug("Filtered\n" + pprint.pformat(vacs_filtered))
+        for vac in vacs_filtered:
+            _plot(vac)
 
     def label(self, index, name_type="full", **args):
         lbl = self._chart_draw.label(index)
