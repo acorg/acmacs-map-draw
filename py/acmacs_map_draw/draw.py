@@ -205,6 +205,9 @@ class ModApplicator:
             for index in indices:
                 self.label(index=index + number_of_antigens, **args["label"])
 
+    def serology(self, N, name, mark_no=None, size=50, fill="orange", outline="black", raise_=True, report=True, report_names_threshold=10, **args):
+        self.antigens(N=N, select={"name": name, "match_virus_name": True, "mark_no": mark_no}, size=size, fill=fill, outline=outline, raise_=raise_, raise_if_not_found=False, report=report, report_names_threshold=report_names_threshold, **args)
+
     def style(self, index=None, indices=None, raise_=None, lower=None, **args):
         # fill=None, outline=None, show=None, shape=None, size=None, outline_width=None, aspect=None, rotation=None
         if index is None:
