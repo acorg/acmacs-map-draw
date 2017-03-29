@@ -533,6 +533,8 @@ class ModApplicator:
         elif isinstance(select, dict):
             if "name" in select:
                 indices = sera.find_by_name_matching(name=select["name"], score_threshold=select.get("score_threshold", 0), verbose=self._verbose)
+                if select.get("no") is not None:
+                    indices = [indices[select["no"]]]
             elif "index" in select:
                 indices = select["index"]
                 if isinstance(indices, int):
