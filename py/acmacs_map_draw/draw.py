@@ -230,7 +230,7 @@ class ModApplicator:
         if legend and legend.get("show", True):
             self._chart_draw.continent_map(legend.get("offset", [0, 0]), legend.get("size", 100))
 
-    def clades(self, legend=None, **args):
+    def clades(self, light=None, legend=None, **args):
         from .seqdb_access import antigen_clades
         clade_data = antigen_clades(self._chart, seqdb_file=self._seqdb_file, verbose=self._verbose)
         # pprint.pprint(clade_data)
@@ -242,7 +242,7 @@ class ModApplicator:
                 lower = clade_style_mod.get("lower", False)
                 raise_ = clade_style_mod.get("raise_", True) if not lower else False
                 if indices:
-                    style = {**clade_style, "fill": coloring.sCladeColor[clade_style["N"]], **clade_style_mod}
+                    style = {**clade_style, "fill": coloring.sCladeColor[clade_style["N"]], "light": light, **clade_style_mod}
                     self._chart_draw.modify_points_by_indices(indices, self._make_point_style(style), raise_=raise_, lower=lower)
                     clades_used[clade_style["N"]] = [style, len(indices)]
         module_logger.info('Clades\n{}'.format(pprint.pformat(clades_used)))
@@ -415,10 +415,14 @@ class ModApplicator:
         from acmacs_map_draw_backend import PointStyle
         style = PointStyle()
         for source in data:
+            light = source.get("light")
             for k, v in source.items():
                 setter = getattr(style, k, None)
                 if setter:
-                    setter(v)
+                    if light is not None and k in ["fill", "outline"]:
+                        setter(v, light)
+                    else:
+                        setter(v)
         return style
 
     def _make_legend(self, legend_data, legend_settings):

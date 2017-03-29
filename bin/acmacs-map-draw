@@ -70,7 +70,7 @@ sSettings = {
         #      "mark_antigen": {"fill": "lightblue", "outline": "black", "raise_": True, "label": {"show": False, "name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
         # },
         # {"N": "aa_substitutions", "positions": [158, 159], "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
-        # {"N": "clades", "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
+        # {"N": "clades", "light": None, "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
         # {"N": "continents", "outline": "black", "legend": {"show": False, "offset": [-1, -1], "size": 100}},
         {"N": "vaccines", "size": 15},
         ],
@@ -98,7 +98,7 @@ sSettings = {
                  "all"
                  ]},
         {"N": "continents", "exclude_reference": True, "outline": "black", "legend": {"show": False, "offset": [-1, -1], "size": 100}},
-        {"N": "clades",
+        {"N": "clades", "light": None,
          "3C2a": {"show": True}, "3C2a1": {"show": True}, "3C3": {"show": True}, "3C3a": {"show": True}, "3C3b": {"show": True}, "": {"show": True},
         "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
         {"N": "aa_substitutions", "positions": [159], "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
