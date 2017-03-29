@@ -352,11 +352,15 @@ class ModApplicator:
                 elif name_type == "abbreviated_with_passage_type":
                     args["display_name"] = self._chart.antigen(index).abbreviated_name_with_passage_type(get_locdb())
                 else:
+                    if name_type != "full":
+                        module_logger.warning('Unsupported name_type {!r}, "full" will be used'.format(name_type))
                     args["display_name"] = self._chart.antigen(index).full_name()
             else:
                 if name_type in ["abbreviated", "abbreviated_with_passage_type"]:
                     args["display_name"] = self._chart.serum(index - self._chart.number_of_antigens()).abbreviated_name(get_locdb())
                 else:
+                    if name_type != "full":
+                        module_logger.warning('Unsupported name_type {!r}, "full" will be used'.format(name_type))
                     args["display_name"] = self._chart.serum(index - self._chart.number_of_antigens()).full_name()
         for k, v in args.items():
             setter = getattr(lbl, k, None)
@@ -373,9 +377,15 @@ class ModApplicator:
 
     def serum_circle(self, serum, antigen=None, mark_serum=None, mark_antigen=None, circle={}, **args):
         serum_index = self._select_sera(select=serum, raise_if_not_found=True, raise_if_multiple=True)[0]
-        if mark_serum:
-            self.sera(N="sera", select=serum_index, **mark_serum)
         antigen_indices = self._homologous_antigen_indices(serum_no=serum_index, select=antigen, raise_if_not_found=True, raise_if_multiple=False)
+        if mark_serum:
+            if mark_serum.get("label", {}).get("name_type") == "abbreviated_hom_max":
+                display_name = "{} ({}; hom: {}; max: {})".format(self._chart.serum(serum_index).abbreviated_name(get_locdb()),
+                                                                      self._chart.antigen(antigen_indices[0]).passage_type(),
+                                                                      self._chart.titers().get(ag_no=antigen_indices[0], sr_no=serum_index),
+                                                                      self._chart.titers().max_for_serum(sr_no=serum_index))
+                mark_serum = {**mark_serum, **{"label": {**mark_serum["label"], "display_name": display_name}}}
+            self.sera(N="sera", select=serum_index, **mark_serum)
         if mark_antigen:
             self.antigens(N="antigens", select=antigen_indices, **mark_antigen)
         radii = [self._chart.serum_circle_radius(serum_no=serum_index, antigen_no=ag_no, projection_no=self._projection_no) for ag_no in antigen_indices]
@@ -433,6 +443,8 @@ class ModApplicator:
                 if k in legend_settings:
                     getattr(legend_box, k)(legend_settings[k])
             for legend_entry in legend_data:
+                if not isinstance(legend_entry.get("light"), float):
+                    legend_entry.pop("light", None)
                 legend_box.add_line(**legend_entry)
 
     def _homologous_antigen_indices(self, serum_no, select, raise_if_not_found, raise_if_multiple):
