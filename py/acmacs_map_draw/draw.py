@@ -376,38 +376,39 @@ class ModApplicator:
                 setter(v)
 
     def serum_circle(self, serum, antigen=None, mark_serum=None, mark_antigen=None, circle={}, **args):
-        serum_index = self._select_sera(select=serum, raise_if_not_found=True, raise_if_multiple=True)[0]
-        antigen_indices = self._homologous_antigen_indices(serum_no=serum_index, select=antigen, raise_if_not_found=True, raise_if_multiple=False)
-        if mark_serum:
-            if mark_serum.get("label", {}).get("name_type") == "abbreviated_hom_max":
-                display_name = "{} ({}; hom: {}; max: {})".format(self._chart.serum(serum_index).abbreviated_name(get_locdb()),
-                                                                      self._chart.antigen(antigen_indices[0]).passage_type(),
-                                                                      self._chart.titers().get(ag_no=antigen_indices[0], sr_no=serum_index),
-                                                                      self._chart.titers().max_for_serum(sr_no=serum_index))
-                mark_serum = {**mark_serum, **{"label": {**mark_serum["label"], "display_name": display_name}}}
-            self.sera(N="sera", select=serum_index, **mark_serum)
-        if mark_antigen:
-            self.antigens(N="antigens", select=antigen_indices, **mark_antigen)
-        radii = [self._chart.serum_circle_radius(serum_no=serum_index, antigen_no=ag_no, projection_no=self._projection_no, verbose=False) for ag_no in antigen_indices]
-        radius = min(r for r in radii if r > 0)
-        module_logger.info('serum_circle:\n  SR {} {}\n    {}\n  RADIUS: {}'.format(serum_index, self._chart.serum(serum_index).full_name(), "\n    ".join("AG {:4d} {} {}".format(ag_no, self._chart.antigen(ag_no).full_name(), radius) for ag_no, radius in zip(antigen_indices, radii)), radius))
-        serum_circle = self._chart_draw.serum_circle(serum_no=serum_index, radius=radius)
-        if circle.get("fill"):
-            serum_circle.fill(color=circle["fill"])
-        if circle.get("outline"):
-            serum_circle.outline(color=circle["outline"], line_width=circle.get("outline_width", 1.0))
-            serum_circle.radius_line(color=circle["outline"], line_width=circle.get("outline_width", 1.0))
-        if circle.get("radius_line"):
-            serum_circle.radius_line(color=circle["radius_line"], line_width=circle.get("radius_line", 1.0))
-        if circle.get("radius_line_dash") is not None:
-            if circle["radius_line_dash"] == "nodash" or not circle["radius_line_dash"]:
-                serum_circle.radius_line_no_dash()
-            elif circle["radius_line_dash"] == "dash1":
-                serum_circle.radius_line_dash1()
-            elif circle["radius_line_dash"] == "dash2":
-                serum_circle.radius_line_dash2()
-        if circle.get("angle_degrees"):
-            serum_circle.angles(circle["angle_degrees"][0] * math.pi / 180.0, circle["angle_degrees"][1] * math.pi / 180.0)
+        if serum != "":
+            serum_index = self._select_sera(select=serum, raise_if_not_found=True, raise_if_multiple=True)[0]
+            antigen_indices = self._homologous_antigen_indices(serum_no=serum_index, select=antigen, raise_if_not_found=True, raise_if_multiple=False)
+            if mark_serum:
+                if mark_serum.get("label", {}).get("name_type") == "abbreviated_hom_max":
+                    display_name = "{} ({}; hom: {}; max: {})".format(self._chart.serum(serum_index).abbreviated_name(get_locdb()),
+                                                                          self._chart.antigen(antigen_indices[0]).passage_type(),
+                                                                          self._chart.titers().get(ag_no=antigen_indices[0], sr_no=serum_index),
+                                                                          self._chart.titers().max_for_serum(sr_no=serum_index))
+                    mark_serum = {**mark_serum, **{"label": {**mark_serum["label"], "display_name": display_name}}}
+                self.sera(N="sera", select=serum_index, **mark_serum)
+            if mark_antigen:
+                self.antigens(N="antigens", select=antigen_indices, **mark_antigen)
+            radii = [self._chart.serum_circle_radius(serum_no=serum_index, antigen_no=ag_no, projection_no=self._projection_no, verbose=False) for ag_no in antigen_indices]
+            radius = min((r for r in radii if r > 0), default=0)
+            module_logger.info('serum_circle:\n  SR {} {}\n    {}\n  RADIUS: {}'.format(serum_index, self._chart.serum(serum_index).full_name(), "\n    ".join("AG {:4d} {} {}".format(ag_no, self._chart.antigen(ag_no).full_name(), radius) for ag_no, radius in zip(antigen_indices, radii)), radius))
+            serum_circle = self._chart_draw.serum_circle(serum_no=serum_index, radius=radius)
+            if circle.get("fill"):
+                serum_circle.fill(color=circle["fill"])
+            if circle.get("outline"):
+                serum_circle.outline(color=circle["outline"], line_width=circle.get("outline_width", 1.0))
+                serum_circle.radius_line(color=circle["outline"], line_width=circle.get("outline_width", 1.0))
+            if circle.get("radius_line"):
+                serum_circle.radius_line(color=circle["radius_line"], line_width=circle.get("radius_line", 1.0))
+            if circle.get("radius_line_dash") is not None:
+                if circle["radius_line_dash"] == "nodash" or not circle["radius_line_dash"]:
+                    serum_circle.radius_line_no_dash()
+                elif circle["radius_line_dash"] == "dash1":
+                    serum_circle.radius_line_dash1()
+                elif circle["radius_line_dash"] == "dash2":
+                    serum_circle.radius_line_dash2()
+            if circle.get("angle_degrees"):
+                serum_circle.angles(circle["angle_degrees"][0] * math.pi / 180.0, circle["angle_degrees"][1] * math.pi / 180.0)
 
     def serum_coverage(self, serum, antigen=None, within_4fold={"outline": "pink", "outline_width": 5, "raise_": True}, outside_4fold={}, mark_serum=None, report=False, **args):
         serum_index = self._select_sera(select=serum, raise_if_not_found=True, raise_if_multiple=True)[0]
