@@ -188,7 +188,7 @@ class ModApplicator:
             for index in indices:
                 self.label(index=index, **args["label"])
 
-    def sera(self, N, select, raise_if_not_found=True, raise_if_multiple=False, report=True, report_names_threshold=10, **args):
+    def sera(self, N, select, raise_if_not_found=True, raise_if_multiple=False, report=True, report_names_threshold=10, homologous_ag_no=None, **args):
         indices = self._select_sera(select=select, raise_if_not_found=raise_if_not_found, raise_if_multiple=raise_if_multiple)
         sera = self._chart.sera()
         if report:
@@ -203,7 +203,14 @@ class ModApplicator:
         self.style(index=[index + number_of_antigens for index in indices], **args)
         if "label" in args and args["label"].get("show", True):
             for index in indices:
-                self.label(index=index + number_of_antigens, **args["label"])
+                if args["label"].get("name_type") == "abbreviated_hom_max" and homologous_ag_no is not None:
+                    display_name = "{} ({}; hom: {}; max: {})".format(self._chart.serum(index).abbreviated_name(get_locdb()),
+                                                                          self._chart.antigen(homologous_ag_no).passage_type(),
+                                                                          self._chart.titers().get(ag_no=homologous_ag_no, sr_no=index),
+                                                                          self._chart.titers().max_for_serum(sr_no=index))
+                else:
+                    display_name = None
+                self.label(index=index + number_of_antigens, display_name=display_name, **args["label"])
 
     def serology(self, N, name, mark_no=None, size=50, fill="orange", outline="black", raise_=True, report=True, report_names_threshold=10, **args):
         self.antigens(N=N, select={"name": name, "match_virus_name": True, "mark_no": mark_no}, size=size, fill=fill, outline=outline, raise_=raise_, raise_if_not_found=False, report=report, report_names_threshold=report_names_threshold, **args)
@@ -380,13 +387,7 @@ class ModApplicator:
             serum_index = self._select_sera(select=serum, raise_if_not_found=True, raise_if_multiple=True)[0]
             antigen_indices = self._homologous_antigen_indices(serum_no=serum_index, select=antigen, raise_if_not_found=True, raise_if_multiple=False)
             if mark_serum:
-                if mark_serum.get("label", {}).get("name_type") == "abbreviated_hom_max":
-                    display_name = "{} ({}; hom: {}; max: {})".format(self._chart.serum(serum_index).abbreviated_name(get_locdb()),
-                                                                          self._chart.antigen(antigen_indices[0]).passage_type(),
-                                                                          self._chart.titers().get(ag_no=antigen_indices[0], sr_no=serum_index),
-                                                                          self._chart.titers().max_for_serum(sr_no=serum_index))
-                    mark_serum = {**mark_serum, **{"label": {**mark_serum["label"], "display_name": display_name}}}
-                self.sera(N="sera", select=serum_index, **mark_serum)
+                self.sera(N="sera", select=serum_index, homologous_ag_no=antigen_indices[0], **mark_serum)
             if mark_antigen:
                 self.antigens(N="antigens", select=antigen_indices, **mark_antigen)
             radii = [self._chart.serum_circle_radius(serum_no=serum_index, antigen_no=ag_no, projection_no=self._projection_no, verbose=False) for ag_no in antigen_indices]
@@ -410,17 +411,19 @@ class ModApplicator:
             if circle.get("angle_degrees"):
                 serum_circle.angles(circle["angle_degrees"][0] * math.pi / 180.0, circle["angle_degrees"][1] * math.pi / 180.0)
 
-    def serum_coverage(self, serum, antigen=None, within_4fold={"outline": "pink", "outline_width": 5, "raise_": True}, outside_4fold={}, mark_serum=None, report=False, **args):
+    def serum_coverage(self, serum, antigen=None, antigen_no=0, within_4fold={"outline": "pink", "outline_width": 5, "raise_": True}, outside_4fold={}, mark_serum=None, report=False, **args):
         serum_index = self._select_sera(select=serum, raise_if_not_found=True, raise_if_multiple=True)[0]
+        antigen_index = self._homologous_antigen_indices(serum_no=serum_index, select=antigen, raise_if_not_found=True, raise_if_multiple=False)[antigen_no]
         if mark_serum:
-            self.sera(N="sera", select=serum_index, **mark_serum)
-        antigen_index = self._homologous_antigen_indices(serum_no=serum_index, select=antigen, raise_if_not_found=True, raise_if_multiple=True)[0]
+            self.sera(N="sera", select=serum_index, homologous_ag_no=antigen_index, **mark_serum)
         within, outside = self._chart.serum_coverage(antigen_no=antigen_index, serum_no=serum_index)
         if report:
             module_logger.info('Antigens within 4fold: {}'.format(within))
             module_logger.info('Antigens outside 4fold: {}'.format(outside))
-        self.antigens(N="antigens", select=within, report=False, **within_4fold)
-        self.antigens(N="antigens", select=outside, report=False, **outside_4fold)
+        if within:
+            self.antigens(N="antigens", select=within, report=False, **within_4fold)
+        if outside:
+            self.antigens(N="antigens", select=outside, report=False, **outside_4fold)
 
     def _make_point_style(self, *data):
         from acmacs_map_draw_backend import PointStyle
