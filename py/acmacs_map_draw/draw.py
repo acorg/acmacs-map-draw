@@ -222,8 +222,8 @@ class ModApplicator:
             func = self._chart_draw.modify_point_by_index
         func(index, style=self._make_point_style(args), raise_=bool(raise_), lower=bool(lower))
 
-    def continents(self, legend=None, **args):
-        data = self._chart.antigens().continents(get_locdb())
+    def continents(self, legend=None, exclude_reference=True, **args):
+        data = self._chart.antigens().continents(locdb=get_locdb(), exclude_reference=exclude_reference)
         module_logger.info('[Continents] {}'.format(" ".join("{}:{}".format(continent, len(data[continent])) for continent in sorted(data))))
         for continent, indices in data.items():
             self._chart_draw.modify_points_by_indices(indices, self._make_point_style(args, {"fill": coloring.sContinentColor[continent]}))

@@ -97,7 +97,7 @@ sSettings = {
                  {"index": 0}, {"indices": [0, 1]},
                  "all"
                  ]},
-        {"N": "continents", "outline": "black", "legend": {"show": False, "offset": [-1, -1], "size": 100}},
+        {"N": "continents", "exclude_reference": True, "outline": "black", "legend": {"show": False, "offset": [-1, -1], "size": 100}},
         {"N": "clades",
          "3C2a": {"show": True}, "3C2a1": {"show": True}, "3C3": {"show": True}, "3C3a": {"show": True}, "3C3b": {"show": True}, "": {"show": True},
         "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
