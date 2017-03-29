@@ -74,6 +74,36 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
     py::module m("acmacs_map_draw_backend", "Acmacs map draw plugin");
 
       // ----------------------------------------------------------------------
+      // acmacs-base/time-series
+      // ----------------------------------------------------------------------
+
+    py::class_<Date>(m, "TimeSeriesIterator_Date")
+            .def("numeric_name", [](const Date& aDate) -> std::string { return aDate.year4_month2(); })
+            .def("text_name", [](const Date& aDate) -> std::string { return aDate.monthtext_year(); })
+            ;
+
+    // py::class_<TimeSeriesIterator>(m, "TimeSeriesIterator")
+    //         ;
+
+    // py::class_<MonthlyTimeSeries::Iterator, TimeSeriesIterator>(m, "MonthlyTimeSeries_Iterator")
+    //         ;
+
+    py::class_<MonthlyTimeSeries>(m, "MonthlyTimeSeries")
+            .def(py::init<std::string, std::string>(), py::arg("start"), py::arg("end"))
+            .def("__iter__", [](MonthlyTimeSeries& v) { return py::make_iterator(v.begin(), v.end()); }, py::keep_alive<0, 1>()) /* Keep MonthlyTimeSeries alive while iterator is used */
+            ;
+
+    py::class_<YearlyTimeSeries>(m, "YearlyTimeSeries")
+            .def(py::init<std::string, std::string>(), py::arg("start"), py::arg("end"))
+            .def("__iter__", [](YearlyTimeSeries& v) { return py::make_iterator(v.begin(), v.end()); }, py::keep_alive<0, 1>()) /* Keep YearlyTimeSeries alive while iterator is used */
+            ;
+
+    py::class_<WeeklyTimeSeries>(m, "WeeklyTimeSeries")
+            .def(py::init<std::string, std::string>(), py::arg("start"), py::arg("end"))
+            .def("__iter__", [](WeeklyTimeSeries& v) { return py::make_iterator(v.begin(), v.end()); }, py::keep_alive<0, 1>()) /* Keep WeeklyTimeSeries alive while iterator is used */
+            ;
+
+      // ----------------------------------------------------------------------
       // Draw
       // ----------------------------------------------------------------------
 

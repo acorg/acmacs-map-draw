@@ -62,6 +62,25 @@ def draw_chart(output_file, chart, settings, output_width, draw_map=True, seqdb_
 
 # ----------------------------------------------------------------------
 
+def antigenic_time_series(output_prefix, chart, period, start_date, end_date, output_width, settings, seqdb_file=None, verbose=False):
+    chart_draw = draw_chart(output_file=None, chart=chart, settings=settings, output_width=None, draw_map=False, seqdb_file=seqdb_file, verbose=verbose)
+    if period == "month":
+        from acmacs_map_draw_backend import MonthlyTimeSeries
+        ts = MonthlyTimeSeries(start=start_date, end=end_date)
+    elif period == "year":
+        from acmacs_map_draw_backend import YearlyTimeSeries
+        ts = YearlyTimeSeries(start=start_date, end=end_date)
+    elif period == "week":
+        from acmacs_map_draw_backend import WeeklyTimeSeries
+        ts = WeeklyTimeSeries(start=start_date, end=end_date)
+    else:
+        raise ValueError("Unsupported period: " + repr(period) + ", expected \"month\", \"year\", \"week\"")
+    for ts_entry in ts:
+        module_logger.warning('ts_entry {} {!r} {!r}'.format(ts_entry, ts_entry.numeric_name(), ts_entry.text_name()))
+
+# ----------------------------------------------------------------------
+
+
 class ModApplicator:
 
     # sStyleByContinent = {
