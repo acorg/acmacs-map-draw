@@ -441,7 +441,15 @@ class ModApplicator:
             self.antigens(N="antigens", select=outside, report=False, **outside_4fold)
 
     def compare_with_previous(self, new=None, old=None, ignore_reference=True, **args):
-        pass
+        if self._previous_chart is not None:
+            new_indices = set(self._chart.antigens_not_found_in(self._previous_chart))
+            # module_logger.debug('compare_with_previous new: {}'.format(new_indices))
+            all_indices = set(range(self._chart.number_of_antigens()))
+            test_indices = set(self._chart.antigens().test_indices()) if ignore_reference else all_indices
+            if new is not None:
+                self.antigens(N="antigens", select=list(new_indices | test_indices), report=False, **new)
+            if old is not None:
+                self.antigens(N="antigens", select=list(test_indices - new_indices), report=False, **old)
 
     def _make_point_style(self, *data):
         from acmacs_map_draw_backend import PointStyle
