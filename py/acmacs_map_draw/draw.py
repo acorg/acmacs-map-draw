@@ -17,7 +17,7 @@ class UnrecognizedMod (ValueError): pass
 
 # ----------------------------------------------------------------------
 
-def draw_chart(output_file, chart, settings, output_width, draw_map=True, seqdb_file=None, verbose=False):
+def draw_chart(output_file, chart, previous_chart, settings, output_width, draw_map=True, seqdb_file=None, verbose=False):
     from acmacs_map_draw_backend import ChartDraw
     chart_draw = ChartDraw(chart)
     chart_draw.prepare()
@@ -44,9 +44,9 @@ def draw_chart(output_file, chart, settings, output_width, draw_map=True, seqdb_
 
 # ----------------------------------------------------------------------
 
-def antigenic_time_series(output_prefix, chart, period, start_date, end_date, output_width, settings, seqdb_file=None, verbose=False):
+def antigenic_time_series(output_prefix, chart, previous_chart, period, start_date, end_date, output_width, settings, seqdb_file=None, verbose=False):
     from acmacs_map_draw_backend import PointStyle
-    chart_draw, antigens_shown_on_all = draw_chart(output_file=None, chart=chart, settings=settings, output_width=None, draw_map=False, seqdb_file=seqdb_file, verbose=verbose)
+    chart_draw, antigens_shown_on_all = draw_chart(output_file=None, chart=chart, previous_chart=previous_chart, settings=settings, output_width=None, draw_map=False, seqdb_file=seqdb_file, verbose=verbose)
     if period == "month":
         from acmacs_map_draw_backend import MonthlyTimeSeries
         ts = MonthlyTimeSeries(start=start_date, end=end_date)
@@ -69,7 +69,6 @@ def antigenic_time_series(output_prefix, chart, period, start_date, end_date, ou
         chart_draw.draw("{}-{}.pdf".format(output_prefix, ts_entry.numeric_name()), output_width)
 
 # ----------------------------------------------------------------------
-
 
 class ModApplicator:
 
