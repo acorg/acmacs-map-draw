@@ -56,6 +56,7 @@ class ChartDraw
                 modify_point_by_index(index, aStyle, aRaise, aLower);
         }
 
+    void hide_all_except(const std::vector<size_t>& aNotHide);
     void mark_egg_antigens();
     void mark_reassortant_antigens();
     void mark_all_grey(Color aColor);

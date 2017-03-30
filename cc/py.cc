@@ -82,12 +82,6 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("text_name", [](const Date& aDate) -> std::string { return aDate.monthtext_year(); })
             ;
 
-    // py::class_<TimeSeriesIterator>(m, "TimeSeriesIterator")
-    //         ;
-
-    // py::class_<MonthlyTimeSeries::Iterator, TimeSeriesIterator>(m, "MonthlyTimeSeries_Iterator")
-    //         ;
-
     py::class_<MonthlyTimeSeries>(m, "MonthlyTimeSeries")
             .def(py::init<std::string, std::string>(), py::arg("start"), py::arg("end"))
             .def("__iter__", [](MonthlyTimeSeries& v) { return py::make_iterator(v.begin(), v.end()); }, py::keep_alive<0, 1>()) /* Keep MonthlyTimeSeries alive while iterator is used */
@@ -158,12 +152,13 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             ;
 
     py::class_<Title>(m, "Title")
-            .def("add_line", [](Title& aTitle, std::string aLine) { aTitle.add_line(aLine); }, py::arg("text"))
-            .def("add_line", [](Title& aTitle, const std::vector<std::string>& aLines) { for (const auto& line: aLines) { aTitle.add_line(line); } }, py::arg("lines"))
+            .def("remove_all_lines", &Title::remove_all_lines)
+            .def("add_line", [](Title& aTitle, std::string aLine) -> Title& { return aTitle.add_line(aLine); }, py::arg("text"))
+            .def("add_line", [](Title& aTitle, const std::vector<std::string>& aLines) -> Title& { for (const auto& line: aLines) { aTitle.add_line(line); } return aTitle; }, py::arg("lines"))
             .def("offset", py::overload_cast<double, double>(&Title::offset), py::arg("x"), py::arg("y"))
             .def("text_size", &Title::text_size, py::arg("text_size"))
-            .def("background", [](Title& aTitle, std::string aBackground) { aTitle.background(aBackground); }, py::arg("background"))
-            .def("border_color", [](Title& aTitle, std::string aBorderColor) { aTitle.border_color(aBorderColor); }, py::arg("border_color"))
+            .def("background", [](Title& aTitle, std::string aBackground) -> Title& { return aTitle.background(aBackground); }, py::arg("background"))
+            .def("border_color", [](Title& aTitle, std::string aBorderColor) -> Title& { return aTitle.border_color(aBorderColor); }, py::arg("border_color"))
             .def("border_width", &Title::border_width, py::arg("border_width"))
             .def("weight", &Title::weight, py::arg("weight"))
             .def("slant", &Title::slant, py::arg("slant"))
@@ -197,6 +192,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("point_styles", &ChartDraw::point_styles)
             .def("point_styles_base", &ChartDraw::point_styles_base)
             .def("draw", py::overload_cast<std::string, double>(&ChartDraw::draw), py::arg("filename"), py::arg("size"))
+            .def("hide_all_except", &ChartDraw::hide_all_except, py::arg("not_hide"))
             .def("mark_egg_antigens", &ChartDraw::mark_egg_antigens)
             .def("mark_reassortant_antigens", &ChartDraw::mark_reassortant_antigens)
             .def("all_grey", &ChartDraw::mark_all_grey, py::arg("color") = Color("grey80"))

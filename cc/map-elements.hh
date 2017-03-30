@@ -140,16 +140,17 @@ class Title : public MapElement
 
     virtual void draw(Surface& aSurface) const;
     virtual inline void draw(Surface& aSurface, const ChartDraw&) const { draw(aSurface); }
-    inline void offset(const Location& aOrigin) { mOrigin = aOrigin; }
-    inline void offset(double x, double y) { mOrigin.set(x, y); }
-    inline void add_line(std::string aText) { mLines.emplace_back(aText); }
-    inline void text_size(double aTextSize) { mTextSize = aTextSize; }
-    inline void background(Color aBackgroud) { mBackgroud = aBackgroud; }
-    inline void border_color(Color aBorderColor) { mBorderColor = aBorderColor; }
-    inline void border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; }
-    inline void weight(std::string aWeight) { mTextStyle.weight(aWeight); }
-    inline void slant(std::string aSlant) { mTextStyle.slant(aSlant); }
-    inline void font_family(std::string aFamily) { mTextStyle.font_family(aFamily); }
+    inline Title& offset(const Location& aOrigin) { mOrigin = aOrigin; return *this; }
+    inline Title& offset(double x, double y) { mOrigin.set(x, y); return *this; }
+    inline Title& remove_all_lines() { mLines.clear(); return *this; }
+    inline Title& add_line(std::string aText) { mLines.emplace_back(aText); return *this; }
+    inline Title& text_size(double aTextSize) { mTextSize = aTextSize; return *this; }
+    inline Title& background(Color aBackgroud) { mBackgroud = aBackgroud; return *this; }
+    inline Title& border_color(Color aBorderColor) { mBorderColor = aBorderColor; return *this; }
+    inline Title& border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; return *this; }
+    inline Title& weight(std::string aWeight) { mTextStyle.weight(aWeight); return *this; }
+    inline Title& slant(std::string aSlant) { mTextStyle.slant(aSlant); return *this; }
+    inline Title& font_family(std::string aFamily) { mTextStyle.font_family(aFamily); return *this; }
 
  private:
     Location mOrigin;

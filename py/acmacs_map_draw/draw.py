@@ -40,30 +40,12 @@ def draw_chart(output_file, chart, settings, output_width, draw_map=True, seqdb_
             raise UnrecognizedMod(mod)
     if draw_map:
         chart_draw.draw(str(output_file), output_width)
-    return chart_draw
-
-    # if False:
-    #     # labels
-    #     locdb = get_locdb()
-
-    #     indices = chart.antigens().find_by_name_matching("SW/9715293")
-    #     for index in indices:
-    #         ag = chart.antigen(index)
-    #         module_logger.info('Label {:4d} {}'.format(index, f"{ag.name()} {ag.reassortant()} {ag.passage()} {ag.annotations() or ''} [{ag.date()}] {ag.lab_id()}"))
-    #         chart_draw.label(index).display_name(ag.abbreviated_name_with_passage_type(locdb)) # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
-    #     # chart_draw.label(1) #.color("red").size(10).offset(0.01, 2.01)
-
-    #     indices = chart.sera().find_by_name_matching("SW/9715293 2015-027")
-    #     for index in indices:
-    #         sr = chart.serum(index)
-    #         module_logger.info('Label {:4d} {}'.format(index, f"{sr.name()} {sr.reassortant()} {sr.annotations() or ''} [{sr.serum_id()}]"))
-    #         chart_draw.label(index + chart.number_of_antigens()).display_name(sr.abbreviated_name(locdb)).color("orange") # .offset(0, -1) #.color("red").size(10).offset(0.01, 2.01)
-
+    return chart_draw, applicator._antigens_shown_on_all
 
 # ----------------------------------------------------------------------
 
 def antigenic_time_series(output_prefix, chart, period, start_date, end_date, output_width, settings, seqdb_file=None, verbose=False):
-    chart_draw = draw_chart(output_file=None, chart=chart, settings=settings, output_width=None, draw_map=False, seqdb_file=seqdb_file, verbose=verbose)
+    chart_draw, antigens_shown_on_all = draw_chart(output_file=None, chart=chart, settings=settings, output_width=None, draw_map=False, seqdb_file=seqdb_file, verbose=verbose)
     if period == "month":
         from acmacs_map_draw_backend import MonthlyTimeSeries
         ts = MonthlyTimeSeries(start=start_date, end=end_date)
@@ -75,8 +57,14 @@ def antigenic_time_series(output_prefix, chart, period, start_date, end_date, ou
         ts = WeeklyTimeSeries(start=start_date, end=end_date)
     else:
         raise ValueError("Unsupported period: " + repr(period) + ", expected \"month\", \"year\", \"week\"")
+    number_of_antigens = chart.number_of_antigens()
+    shown_on_all = sorted(antigens_shown_on_all | set(chart.antigens().reference_indices()) | set(sr_no + number_of_antigens for sr_no in range(chart.number_of_sera())))
+    # module_logger.debug('Shown_on_all {}'.format(shown_on_all))
     for ts_entry in ts:
         module_logger.warning('ts_entry {} {!r} {!r}'.format(ts_entry, ts_entry.numeric_name(), ts_entry.text_name()))
+        chart_draw.hide_all_except(shown_on_all)
+        chart_draw.title().remove_all_lines().add_line(ts_entry.text_name());
+        chart_draw.draw("{}-{}.pdf".format(output_prefix, ts_entry.numeric_name()), output_width)
 
 # ----------------------------------------------------------------------
 
@@ -145,6 +133,7 @@ class ModApplicator:
         self._projection_no = projection_no
         self._seqdb_file = seqdb_file
         self._verbose = verbose
+        self._antigens_shown_on_all = set() # for time series
 
     def flip_ns(self, **args):
         self._chart_draw.flip_ns()
@@ -368,6 +357,8 @@ class ModApplicator:
         # module_logger.debug("Filtered\n" + pprint.pformat(vacs_filtered))
         for vac in vacs_filtered:
             _plot(vac)
+            self._antigens_shown_on_all.add(vac["vaccines"][vac["no"]]["antigen_index"])
+
 
     def label(self, index, name_type="full", **args):
         lbl = self._chart_draw.label(index)
@@ -393,9 +384,12 @@ class ModApplicator:
             if setter:
                 setter(v)
 
-    def title(self, display_name=None, **args):
+    def title(self, display_name=None, remove_all_lines=False, **args):
         ttl = self._chart_draw.title()
-        ttl.add_line(display_name or self._chart.make_name())
+        if remove_all_lines:
+            ttl.remove_all_lines()
+        if not remove_all_lines or display_name:
+            ttl.add_line(display_name or self._chart.make_name())
         for k, v in args.items():
             setter = getattr(ttl, k, None)
             if setter:

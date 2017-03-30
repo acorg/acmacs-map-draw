@@ -127,6 +127,19 @@ void ChartDraw::modify(IndexGenerator&& aGen, const PointStyle& aStyle, bool aRa
 
 // ----------------------------------------------------------------------
 
+void ChartDraw::hide_all_except(const std::vector<size_t>& aNotHide)
+{
+    PointStyleDraw style(PointStyle::Empty);
+    style.hide();
+    for (size_t index = 0; index < mPointStyles.size(); ++index) {
+        if (std::find(aNotHide.begin(), aNotHide.end(), index) == aNotHide.end())
+            mPointStyles[index] = style;
+    }
+
+} // ChartDraw::hide_all_except
+
+// ----------------------------------------------------------------------
+
 void ChartDraw::mark_egg_antigens()
 {
     modify(mChart.egg_antigen_indices(), PointStyleDraw(PointStyle::Empty).aspect(AspectEgg));
