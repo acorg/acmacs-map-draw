@@ -45,6 +45,7 @@ def draw_chart(output_file, chart, settings, output_width, draw_map=True, seqdb_
 # ----------------------------------------------------------------------
 
 def antigenic_time_series(output_prefix, chart, period, start_date, end_date, output_width, settings, seqdb_file=None, verbose=False):
+    from acmacs_map_draw_backend import PointStyle
     chart_draw, antigens_shown_on_all = draw_chart(output_file=None, chart=chart, settings=settings, output_width=None, draw_map=False, seqdb_file=seqdb_file, verbose=verbose)
     if period == "month":
         from acmacs_map_draw_backend import MonthlyTimeSeries
@@ -61,8 +62,9 @@ def antigenic_time_series(output_prefix, chart, period, start_date, end_date, ou
     shown_on_all = sorted(antigens_shown_on_all | set(chart.antigens().reference_indices()) | set(sr_no + number_of_antigens for sr_no in range(chart.number_of_sera())))
     # module_logger.debug('Shown_on_all {}'.format(shown_on_all))
     for ts_entry in ts:
-        module_logger.warning('ts_entry {} {!r} {!r}'.format(ts_entry, ts_entry.numeric_name(), ts_entry.text_name()))
+        module_logger.debug('TS {!r} {!r} {}..{}'.format(ts_entry.numeric_name(), ts_entry.text_name(), ts_entry.first_date(), ts_entry.after_last_date()))
         chart_draw.hide_all_except(shown_on_all)
+        chart_draw.modify_points_by_indices(indices=chart.antigens().date_range_indices(ts_entry.first_date(), ts_entry.after_last_date()), style=PointStyle().show(True))
         chart_draw.title().remove_all_lines().add_line(ts_entry.text_name());
         chart_draw.draw("{}-{}.pdf".format(output_prefix, ts_entry.numeric_name()), output_width)
 

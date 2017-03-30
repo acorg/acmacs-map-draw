@@ -69,6 +69,31 @@ static inline std::string get_point_style_shape(PointStyle& aStyle)
 
 // ----------------------------------------------------------------------
 
+template <typename Iter> class PyTimeSeriesIterator
+{
+ public:
+    inline PyTimeSeriesIterator(Iter&& begin, Iter&& end) : mStarted(false), mCurrent(begin), mEnd(end) {}
+    inline PyTimeSeriesIterator<Iter>& iter() { return *this; }
+    inline Iter& next()
+        {
+            if (mStarted && mCurrent != mEnd)
+                ++mCurrent;
+            else
+                mStarted = true;
+            if (mCurrent == mEnd)
+                throw py::stop_iteration();
+            return mCurrent;
+        }
+
+ private:
+    bool mStarted;
+    Iter mCurrent, mEnd;
+};
+
+template <typename Iter> inline auto make_py_ts_iter(Iter&& begin, Iter&& end) { return PyTimeSeriesIterator<Iter>(std::move(begin), std::move(end)); }
+
+// ----------------------------------------------------------------------
+
 PYBIND11_PLUGIN(acmacs_map_draw_backend)
 {
     py::module m("acmacs_map_draw_backend", "Acmacs map draw plugin");
@@ -77,24 +102,48 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
       // acmacs-base/time-series
       // ----------------------------------------------------------------------
 
-    py::class_<Date>(m, "TimeSeriesIterator_Date")
-            .def("numeric_name", [](const Date& aDate) -> std::string { return aDate.year4_month2(); })
-            .def("text_name", [](const Date& aDate) -> std::string { return aDate.monthtext_year(); })
+    py::class_<TimeSeriesIterator>(m, "TimeSeriesIterator")
+            .def("numeric_name", &TimeSeriesIterator::numeric_name)
+            .def("text_name", &TimeSeriesIterator::text_name)
+            .def("first_date", &TimeSeriesIterator::first_date)
+            .def("after_last_date", &TimeSeriesIterator::after_last_date)
+            ;
+
+    py::class_<MonthlyTimeSeries::Iterator, TimeSeriesIterator>(m, "MonthlyTimeSeries_Iterator");
+    py::class_<YearlyTimeSeries::Iterator, TimeSeriesIterator>(m, "YearlyTimeSeries_Iterator");
+    py::class_<WeeklyTimeSeries::Iterator, TimeSeriesIterator>(m, "WeeklyTimeSeries_Iterator");
+
+    py::class_<PyTimeSeriesIterator<MonthlyTimeSeries::Iterator>>(m, "PyTimeSeriesIterator_MonthlyTimeSeries")
+            .def("__iter__", &PyTimeSeriesIterator<MonthlyTimeSeries::Iterator>::iter)
+            .def("__next__", &PyTimeSeriesIterator<MonthlyTimeSeries::Iterator>::next)
+            ;
+
+    py::class_<PyTimeSeriesIterator<YearlyTimeSeries::Iterator>>(m, "PyTimeSeriesIterator_YearlyTimeSeries")
+            .def("__iter__", &PyTimeSeriesIterator<YearlyTimeSeries::Iterator>::iter)
+            .def("__next__", &PyTimeSeriesIterator<YearlyTimeSeries::Iterator>::next)
+            ;
+
+    py::class_<PyTimeSeriesIterator<WeeklyTimeSeries::Iterator>>(m, "PyTimeSeriesIterator_WeeklyTimeSeries")
+            .def("__iter__", &PyTimeSeriesIterator<WeeklyTimeSeries::Iterator>::iter)
+            .def("__next__", &PyTimeSeriesIterator<WeeklyTimeSeries::Iterator>::next)
             ;
 
     py::class_<MonthlyTimeSeries>(m, "MonthlyTimeSeries")
             .def(py::init<std::string, std::string>(), py::arg("start"), py::arg("end"))
-            .def("__iter__", [](MonthlyTimeSeries& v) { return py::make_iterator(v.begin(), v.end()); }, py::keep_alive<0, 1>()) /* Keep MonthlyTimeSeries alive while iterator is used */
+              // .def("__iter__", [](MonthlyTimeSeries& v) { return py::make_iterator(v.begin(), v.end()); }, py::keep_alive<0, 1>()) /* Keep MonthlyTimeSeries alive while iterator is used */
+            .def("__iter__", [](MonthlyTimeSeries& v) { return make_py_ts_iter(v.begin(), v.end()); }, py::keep_alive<0, 1>()) /* Keep MonthlyTimeSeries alive while iterator is used */
             ;
 
     py::class_<YearlyTimeSeries>(m, "YearlyTimeSeries")
             .def(py::init<std::string, std::string>(), py::arg("start"), py::arg("end"))
-            .def("__iter__", [](YearlyTimeSeries& v) { return py::make_iterator(v.begin(), v.end()); }, py::keep_alive<0, 1>()) /* Keep YearlyTimeSeries alive while iterator is used */
+              // .def("__iter__", [](YearlyTimeSeries& v) { return py::make_iterator(v.begin(), v.end()); }, py::keep_alive<0, 1>()) /* Keep YearlyTimeSeries alive while iterator is used */
+            .def("__iter__", [](YearlyTimeSeries& v) { return make_py_ts_iter(v.begin(), v.end()); }, py::keep_alive<0, 1>()) /* Keep YearlyTimeSeries alive while iterator is used */
             ;
 
     py::class_<WeeklyTimeSeries>(m, "WeeklyTimeSeries")
             .def(py::init<std::string, std::string>(), py::arg("start"), py::arg("end"))
-            .def("__iter__", [](WeeklyTimeSeries& v) { return py::make_iterator(v.begin(), v.end()); }, py::keep_alive<0, 1>()) /* Keep WeeklyTimeSeries alive while iterator is used */
+              // .def("__iter__", [](WeeklyTimeSeries& v) { return py::make_iterator(v.begin(), v.end()); }, py::keep_alive<0, 1>()) /* Keep WeeklyTimeSeries alive while iterator is used */
+            .def("__iter__", [](WeeklyTimeSeries& v) { return make_py_ts_iter(v.begin(), v.end()); }, py::keep_alive<0, 1>()) /* Keep WeeklyTimeSeries alive while iterator is used */
             ;
 
       // ----------------------------------------------------------------------
