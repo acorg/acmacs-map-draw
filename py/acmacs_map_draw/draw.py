@@ -17,12 +17,12 @@ class UnrecognizedMod (ValueError): pass
 
 # ----------------------------------------------------------------------
 
-def draw_chart(output_file, chart, previous_chart, settings, output_width, draw_map=True, seqdb_file=None, verbose=False):
+def draw_chart(output_file, chart, settings, output_width, previous_chart=None, draw_map=True, seqdb_file=None, verbose=False):
     from acmacs_map_draw_backend import ChartDraw
     chart_draw = ChartDraw(chart)
     chart_draw.prepare()
 
-    applicator = ModApplicator(chart_draw=chart_draw, chart=chart, projection_no=0, seqdb_file=seqdb_file, verbose=verbose)
+    applicator = ModApplicator(chart_draw=chart_draw, chart=chart, previous_chart=previous_chart, projection_no=0, seqdb_file=seqdb_file, verbose=verbose)
     for mod in settings.get("mods", []):
         if isinstance(mod, str):
             if mod and mod[0] != "?" and mod[-1] != "?":
@@ -44,7 +44,7 @@ def draw_chart(output_file, chart, previous_chart, settings, output_width, draw_
 
 # ----------------------------------------------------------------------
 
-def antigenic_time_series(output_prefix, chart, previous_chart, period, start_date, end_date, output_width, settings, seqdb_file=None, verbose=False):
+def antigenic_time_series(output_prefix, chart, period, start_date, end_date, output_width, settings, previous_chart=None, seqdb_file=None, verbose=False):
     from acmacs_map_draw_backend import PointStyle
     chart_draw, antigens_shown_on_all = draw_chart(output_file=None, chart=chart, previous_chart=previous_chart, settings=settings, output_width=None, draw_map=False, seqdb_file=seqdb_file, verbose=verbose)
     if period == "month":
@@ -128,9 +128,10 @@ class ModApplicator:
 
     # ----------------------------------------------------------------------
 
-    def __init__(self, chart_draw, chart, projection_no, seqdb_file, verbose=False):
+    def __init__(self, chart_draw, chart, previous_chart, projection_no, seqdb_file, verbose=False):
         self._chart_draw = chart_draw
         self._chart = chart
+        self._previous_chart = previous_chart
         self._projection_no = projection_no
         self._seqdb_file = seqdb_file
         self._verbose = verbose
@@ -438,6 +439,9 @@ class ModApplicator:
             self.antigens(N="antigens", select=within, report=False, **within_4fold)
         if outside:
             self.antigens(N="antigens", select=outside, report=False, **outside_4fold)
+
+    def compare_with_previous(self, new=None, old=None, ignore_reference=True, **args):
+        pass
 
     def _make_point_style(self, *data):
         from acmacs_map_draw_backend import PointStyle
