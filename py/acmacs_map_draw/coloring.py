@@ -14,6 +14,7 @@ sContinentColor = {
     "AUSTRALIA-OCEANIA": "hotpink",
     "SOUTH-AMERICA":     "turquoise",
     "ANTARCTICA":        "grey50",
+    "UNKNOWN":           "grey50",
     "":                  "grey50",
     }
 
