@@ -213,14 +213,12 @@ class ModApplicator:
         self.style(index=[index + number_of_antigens for index in indices], **args)
         if "label" in args and args["label"].get("show", True):
             for index in indices:
-                if args["label"].get("name_type") == "abbreviated_hom_max" and homologous_ag_no is not None:
-                    display_name = "{} ({}; hom: {}; max: {})".format(self._chart.serum(index).abbreviated_name(get_locdb()),
+                if args["label"].get("name_type") == "abbreviated_hom_max" and homologous_ag_no is not None and args["label"].get("display_name") is None:
+                    args["label"]["display_name"] = "{} ({}; hom: {}; max: {})".format(self._chart.serum(index).abbreviated_name(get_locdb()),
                                                                           self._chart.antigen(homologous_ag_no).passage_type(),
                                                                           self._chart.titers().get(ag_no=homologous_ag_no, sr_no=index),
                                                                           self._chart.titers().max_for_serum(sr_no=index))
-                else:
-                    display_name = None
-                self.label(index=index + number_of_antigens, display_name=display_name, **args["label"])
+                self.label(index=index + number_of_antigens, **args["label"])
 
     def serology(self, N, name, mark_no=None, size=50, fill="orange", outline="black", raise_=True, report=True, report_names_threshold=10, **args):
         self.antigens(N=N, select={"name": name, "match_virus_name": True, "mark_no": mark_no}, size=size, fill=fill, outline=outline, raise_=raise_, raise_if_not_found=False, report=report, report_names_threshold=report_names_threshold, **args)
