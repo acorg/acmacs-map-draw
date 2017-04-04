@@ -21,6 +21,7 @@ def draw_chart(output_file, chart, settings, output_width, previous_chart=None, 
     from acmacs_map_draw_backend import ChartDraw
     chart_draw = ChartDraw(chart)
     chart_draw.prepare()
+    # module_logger.debug('{} {} {}'.format(chart.chart_info().lab(), chart.chart_info().virus_type(), chart.chart_info().assay()))
 
     applicator = ModApplicator(chart_draw=chart_draw, chart=chart, previous_chart=previous_chart, projection_no=0, seqdb_file=seqdb_file, verbose=verbose)
     for mod in settings.get("mods", []):
