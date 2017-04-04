@@ -44,7 +44,7 @@ def draw_chart(output_file, chart, settings, output_width, previous_chart=None, 
 
 # ----------------------------------------------------------------------
 
-def antigenic_time_series(output_prefix, chart, period, start_date, end_date, output_width, settings, previous_chart=None, seqdb_file=None, verbose=False):
+def antigenic_time_series(output_prefix, chart, period, start_date, end_date, output_width, settings, title_prefix=None, previous_chart=None, seqdb_file=None, verbose=False):
     from acmacs_map_draw_backend import PointStyle
     chart_draw, antigens_shown_on_all = draw_chart(output_file=None, chart=chart, previous_chart=previous_chart, settings=settings, output_width=None, draw_map=False, seqdb_file=seqdb_file, verbose=verbose)
     if period == "month":
@@ -65,7 +65,7 @@ def antigenic_time_series(output_prefix, chart, period, start_date, end_date, ou
         module_logger.debug('TS {!r} {!r} {}..{}'.format(ts_entry.numeric_name(), ts_entry.text_name(), ts_entry.first_date(), ts_entry.after_last_date()))
         chart_draw.hide_all_except(shown_on_all)
         chart_draw.modify_points_by_indices(indices=chart.antigens().date_range_indices(ts_entry.first_date(), ts_entry.after_last_date()), style=PointStyle().show(True))
-        chart_draw.title().remove_all_lines().add_line(ts_entry.text_name());
+        chart_draw.title().remove_all_lines().add_line((title_prefix or "") + ts_entry.text_name());
         chart_draw.draw("{}-{}.pdf".format(output_prefix, ts_entry.numeric_name()), output_width)
 
 # ----------------------------------------------------------------------
