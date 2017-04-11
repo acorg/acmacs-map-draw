@@ -29,6 +29,7 @@ PYTHON_CONFIG = python$(PYTHON_VERSION)-config
 PYTHON_MODULE_SUFFIX = $(shell $(PYTHON_CONFIG) --extension-suffix)
 
 LIB_DIR = $(ACMACSD_ROOT)/lib
+ACMACS_MAP_DRAW_LIB = $(DIST)/libacmacsmapdraw.so
 
 # -fvisibility=hidden and -flto make resulting lib smaller (pybind11) but linking is much slower
 OPTIMIZATION = -O3 #-fvisibility=hidden -flto
@@ -44,9 +45,11 @@ PKG_INCLUDES = $$(pkg-config --cflags cairo) $$(pkg-config --cflags liblzma) $$(
 BUILD = build
 DIST = $(abspath dist)
 
-all: check-acmacsd-root $(BACKEND)
+all: check-acmacsd-root $(ACMACS_MAP_DRAW_LIB) $(BACKEND)
 
-install: check-acmacsd-root install-headers $(BACKEND)
+install: check-acmacsd-root install-headers $(ACMACS_MAP_DRAW_LIB) $(BACKEND)
+	ln -sf $(ACMACS_MAP_DRAW_LIB) $(ACMACSD_ROOT)/lib
+	if [ $$(uname) = "Darwin" ]; then /usr/bin/install_name_tool -id $(ACMACSD_ROOT)/lib/$(notdir $(ACMACS_MAP_DRAW_LIB)) $(ACMACSD_ROOT)/lib/$(notdir $(ACMACS_MAP_DRAW_LIB)); fi
 	ln -sf $(BACKEND) $(ACMACSD_ROOT)/py
 	ln -sf $(abspath py)/* $(ACMACSD_ROOT)/py
 	ln -sf $(abspath bin)/acmacs-map-* $(ACMACSD_ROOT)/bin
@@ -64,6 +67,9 @@ test: install
 -include $(BUILD)/*.d
 
 # ----------------------------------------------------------------------
+
+$(ACMACS_MAP_DRAW_LIB): $(patsubst %.cc,$(BUILD)/%.o,$(SOURCES)) | $(DIST)
+	g++ -shared $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(BACKEND): $(patsubst %.cc,$(BUILD)/%.o,$(PY_SOURCES)) | $(DIST)
 	g++ -shared $(LDFLAGS) -o $@ $^ $(LDLIBS)
