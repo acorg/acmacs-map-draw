@@ -114,6 +114,8 @@ class ChartDraw
     Labels mLabels;
     mutable Layout mTransformedLayout;
 
+    void calculate_viewport();
+
 }; // class ChartDraw
 
 // ----------------------------------------------------------------------

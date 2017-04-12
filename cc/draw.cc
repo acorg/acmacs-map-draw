@@ -82,11 +82,9 @@ size_t ChartDraw::number_of_sera() const
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::draw(Surface& aSurface)
+void ChartDraw::calculate_viewport()
 {
-    const Layout& layout = transformed_layout();
-
-    std::unique_ptr<BoundingBall> bb(layout.minimum_bounding_ball());
+    std::unique_ptr<BoundingBall> bb(transformed_layout().minimum_bounding_ball());
     Viewport viewport;
     viewport.set_from_center_size(bb->center(), bb->diameter());
     viewport.whole_width();
@@ -94,10 +92,19 @@ void ChartDraw::draw(Surface& aSurface)
     if (mViewport.empty())
         mViewport = viewport;
     std::cout << "INFO: [Used]:       " << mViewport << std::endl;
-    Surface& rescaled_surface = aSurface.subsurface({0, 0}, Scaled{aSurface.viewport().size.width}, mViewport, true);
 
+} // ChartDraw::calculate_viewport
+
+// ----------------------------------------------------------------------
+
+void ChartDraw::draw(Surface& aSurface)
+{
+    calculate_viewport();
+
+    Surface& rescaled_surface = aSurface.subsurface({0, 0}, Scaled{aSurface.viewport().size.width}, mViewport, true);
     mMapElements.draw(rescaled_surface, MapElements::BeforePoints, *this);
 
+    const Layout& layout = transformed_layout();
     for (size_t index: mDrawingOrder) {
         mPointStyles[index].draw(rescaled_surface, layout[index]);
     }
