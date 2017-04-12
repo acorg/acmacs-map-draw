@@ -33,8 +33,9 @@ class ChartDraw
     ChartDraw(Chart& aChart, size_t aProjectionNo);
 
     void prepare();
-    void draw(Surface& aSurface);
-    void draw(std::string aFilename, double aSize);
+    void draw(Surface& aSurface) const;
+    void draw(std::string aFilename, double aSize) const;
+    void calculate_viewport();
 
     inline const std::vector<PointStyleDraw>& point_styles() const { return mPointStyles; }
     inline std::vector<PointStyle> point_styles_base() const { std::vector<PointStyle> ps{mPointStyles.begin(), mPointStyles.end()}; return ps; }
@@ -76,6 +77,7 @@ class ChartDraw
     inline const Transformation& transformation() const { return mTransformation; }
 
     inline void viewport(double aX, double aY, double aSize) { mViewport.set(aX, aY, aSize); }
+    inline const Viewport& viewport() const { return mViewport; }
 
     DrawingOrder& drawing_order() { return mDrawingOrder; }
 
@@ -113,8 +115,6 @@ class ChartDraw
     MapElements mMapElements;
     Labels mLabels;
     mutable Layout mTransformedLayout;
-
-    void calculate_viewport();
 
 }; // class ChartDraw
 

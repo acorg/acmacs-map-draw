@@ -39,6 +39,7 @@ def draw_chart(output_file, chart, settings, output_width, previous_chart=None, 
                     raise UnrecognizedMod(mod, err)
         else:
             raise UnrecognizedMod(mod)
+    chart_draw.calculate_viewport()
     if draw_map:
         chart_draw.draw(str(output_file), output_width)
     return chart_draw, applicator._antigens_shown_on_all

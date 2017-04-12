@@ -97,9 +97,10 @@ void ChartDraw::calculate_viewport()
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::draw(Surface& aSurface)
+void ChartDraw::draw(Surface& aSurface) const
 {
-    calculate_viewport();
+    if (mViewport.empty())
+        throw std::runtime_error("Call calculate_viewport() before draw()");
 
     Surface& rescaled_surface = aSurface.subsurface({0, 0}, Scaled{aSurface.viewport().size.width}, mViewport, true);
     mMapElements.draw(rescaled_surface, MapElements::BeforePoints, *this);
@@ -116,7 +117,7 @@ void ChartDraw::draw(Surface& aSurface)
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::draw(std::string aFilename, double aSize)
+void ChartDraw::draw(std::string aFilename, double aSize) const
 {
     PdfCairo surface(aFilename, aSize, aSize);
     draw(surface);
