@@ -77,6 +77,7 @@ class ChartDraw
     inline const Transformation& transformation() const { return mTransformation; }
 
     inline void viewport(double aX, double aY, double aSize) { mViewport.set(aX, aY, aSize); }
+    inline void viewport(const Viewport& aViewport) { mViewport = aViewport; }
     inline const Viewport& viewport() const { return mViewport; }
 
     DrawingOrder& drawing_order() { return mDrawingOrder; }
