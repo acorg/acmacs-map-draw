@@ -62,6 +62,7 @@ class ChartDraw
     void mark_reassortant_antigens();
     void mark_all_grey(Color aColor);
     void scale_points(double aPointScale, double aOulineScale);
+    void modify_all_sera(const PointStyle& aStyle, bool aRaise = false, bool aLower = false);
 
     inline void rotate(double aAngle)
         {

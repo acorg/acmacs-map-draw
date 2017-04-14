@@ -164,6 +164,14 @@ void ChartDraw::mark_reassortant_antigens()
 
 // ----------------------------------------------------------------------
 
+void ChartDraw::modify_all_sera(const PointStyle& aStyle, bool aRaise, bool aLower)
+{
+    modify(mChart.serum_indices(), aStyle, aRaise, aLower);
+
+} // ChartDraw::modify_all_sera
+
+// ----------------------------------------------------------------------
+
 void ChartDraw::scale_points(double aPointScale, double aOulineScale)
 {
     // if (float_zero(aOulineScale))
