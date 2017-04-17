@@ -392,7 +392,7 @@ class ModApplicator:
         if remove_all_lines:
             ttl.remove_all_lines()
         if not remove_all_lines or display_name:
-            ttl.add_line(display_name or self._chart.make_name())
+            ttl.add_line(display_name or self._chart.make_name(self._projection_no))
         for k, v in args.items():
             setter = getattr(ttl, k, None)
             if setter:
