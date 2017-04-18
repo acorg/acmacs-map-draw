@@ -347,7 +347,7 @@ class ModApplicator:
             if vac.get("label"):
                 self.label(index=antigen_index, **vac["label"])
 
-        from acmacs_chart_backend import vaccines
+        from hidb_backend import vaccines
         vacs = [vac for vaccine_entry in vaccines(chart=self._chart) for vac in _collect(vaccine_entry)]
         _report(vacs)
         vacs_with_plot_spec = [_add_plot_spec(vac) for vac in vacs]
