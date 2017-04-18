@@ -304,22 +304,29 @@ class ModApplicator:
 
         hidb = get_hidb(chart=self._chart)
 
-        def _collect(vaccine_entry):
-            from hidb_backend import find_vaccines_in_chart
-            antigens = find_vaccines_in_chart(vaccine_entry.name, self._chart, hidb)
-            for passage_type in ["egg", "reassortant", "cell"]:
-                num_entries = getattr(antigens, "number_of_" + passage_type + "s")()
-                if num_entries > 0:
-                    passage_func = getattr(antigens, passage_type)
-                    def make_vaccine(no):
-                        vv = passage_func(no)
-                        return {"antigen_index": vv.antigen_index, "number_of_tables": vv.antigen_data.number_of_tables(), "name": vv.antigen.full_name(), "most_recent_table": vv.antigen_data.most_recent_table().table_id()}
-                    yield {"no": 0, "passage": passage_type, "type": vaccine_entry.type, "name": vaccine_entry.name, "vaccines": [make_vaccine(no) for no in range(num_entries)]}
+        from hidb_backend import vaccines
+        v_of_c = vaccines(chart=self._chart, hidb=hidb)
+        for mod in (mods or []):
+            if not mod.get("show", True):
+                v_of_c.remove(name=mod.get("name", ""), type=mod.get("type", ""), passage_type=mod.get("passage", ""))
+        module_logger.debug('\n{}'.format(v_of_c.report(4)))
 
-        def _add_plot_spec(vac):
-            return {**vac, **self.sStyleByVaccineType[vac["type"]][vac["passage"]], **args}
+        # ----------------------------------------------------------------------
 
-        def _filter(vacs):
+        def _collect_old():
+            from hidb_backend import vaccines, find_vaccines_in_chart
+            for vaccine_entry in vaccines(chart=self._chart):
+                antigens = find_vaccines_in_chart(vaccine_entry.name, self._chart, hidb)
+                for passage_type in ["egg", "reassortant", "cell"]:
+                    num_entries = getattr(antigens, "number_of_" + passage_type + "s")()
+                    if num_entries > 0:
+                        passage_func = getattr(antigens, passage_type)
+                        def make_vaccine(no):
+                            vv = passage_func(no)
+                            return {"antigen_index": vv.antigen_index, "number_of_tables": vv.antigen_data.number_of_tables(), "name": vv.antigen.full_name(), "most_recent_table": vv.antigen_data.most_recent_table().table_id()}
+                        yield {"no": 0, "passage": passage_type, "type": vaccine_entry.type, "name": vaccine_entry.name, "vaccines": [make_vaccine(no) for no in range(num_entries)]}
+
+        def _filter_old(vacs):
             if mods:
                 for vac in vacs:
                     vac_mod = copy.deepcopy(vac)
@@ -334,28 +341,30 @@ class ModApplicator:
                 for vac in vacs:
                     yield vac
 
-        def _report(vacs):
+        def _add_plot_spec_old(vac):
+            return {**vac, **self.sStyleByVaccineType[vac["type"]][vac["passage"]], **args}
+
+        def _report_old(vacs):
             if self._verbose:
                 for vac in vacs:
                     longest_name = max(len(vv["name"]) for vv in vac["vaccines"])
                     module_logger.debug('Vaccine {} {} ({})\n  {}'.format(vac["type"], vac["passage"], len(vac["vaccines"]), "\n  ".join("{:2d}  {:5d} {:{}s} tabs:{:3d} recent:{}".format(no, vv["antigen_index"], vv["name"], longest_name, vv["number_of_tables"], vv["most_recent_table"]) for no, vv in enumerate(vac["vaccines"]))))
 
-        def _plot(vac):
+        def _plot_old(vac):
             module_logger.info('Vaccine {} {} {} => {} {}'.format(vac["type"], vac["passage"], vac["name"], vac["vaccines"][vac["no"]]["antigen_index"], vac["vaccines"][vac["no"]]["name"]))
             antigen_index = vac["vaccines"][vac["no"]]["antigen_index"]
             self._chart_draw.modify(antigen_index, self._make_point_style(vac), raise_=raise_)
             if vac.get("label"):
                 self.label(index=antigen_index, **vac["label"])
 
-        from hidb_backend import vaccines
-        vacs = [vac for vaccine_entry in vaccines(chart=self._chart) for vac in _collect(vaccine_entry)]
-        _report(vacs)
-        vacs_with_plot_spec = [_add_plot_spec(vac) for vac in vacs]
+        vacs = list(_collect_old())
+        #_report_old(vacs)
+        vacs_with_plot_spec = [_add_plot_spec_old(vac) for vac in vacs]
         # module_logger.debug("Plot spec\n" + pprint.pformat(vacs_with_plot_spec))
-        vacs_filtered = list(_filter(vacs_with_plot_spec))
+        vacs_filtered = list(_filter_old(vacs_with_plot_spec))
         # module_logger.debug("Filtered\n" + pprint.pformat(vacs_filtered))
         for vac in vacs_filtered:
-            _plot(vac)
+            _plot_old(vac)
             self._antigens_shown_on_all.add(vac["vaccines"][vac["no"]]["antigen_index"])
 
 
