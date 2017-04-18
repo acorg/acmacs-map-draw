@@ -8,7 +8,6 @@ from pathlib import Path
 import logging; module_logger = logging.getLogger(__name__)
 from .hidb_access import get_hidb
 from .locdb_access import get_locdb
-from .vaccines import vaccines
 from . import coloring
 
 # ----------------------------------------------------------------------
@@ -307,7 +306,7 @@ class ModApplicator:
 
         def _collect(vaccine_entry):
             from hidb_backend import find_vaccines_in_chart
-            antigens = find_vaccines_in_chart(vaccine_entry["name"], self._chart, hidb)
+            antigens = find_vaccines_in_chart(vaccine_entry.name, self._chart, hidb)
             for passage_type in ["egg", "reassortant", "cell"]:
                 num_entries = getattr(antigens, "number_of_" + passage_type + "s")()
                 if num_entries > 0:
@@ -315,7 +314,7 @@ class ModApplicator:
                     def make_vaccine(no):
                         vv = passage_func(no)
                         return {"antigen_index": vv.antigen_index, "number_of_tables": vv.antigen_data.number_of_tables(), "name": vv.antigen.full_name(), "most_recent_table": vv.antigen_data.most_recent_table().table_id()}
-                    yield {"no": 0, "passage": passage_type, "type": vaccine_entry["type"], "name": vaccine_entry["name"], "vaccines": [make_vaccine(no) for no in range(num_entries)]}
+                    yield {"no": 0, "passage": passage_type, "type": vaccine_entry.type, "name": vaccine_entry.name, "vaccines": [make_vaccine(no) for no in range(num_entries)]}
 
         def _add_plot_spec(vac):
             return {**vac, **self.sStyleByVaccineType[vac["type"]][vac["passage"]], **args}
@@ -348,6 +347,7 @@ class ModApplicator:
             if vac.get("label"):
                 self.label(index=antigen_index, **vac["label"])
 
+        from acmacs_chart_backend import vaccines
         vacs = [vac for vaccine_entry in vaccines(chart=self._chart) for vac in _collect(vaccine_entry)]
         _report(vacs)
         vacs_with_plot_spec = [_add_plot_spec(vac) for vac in vacs]
