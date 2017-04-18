@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include "acmacs-base/range.hh"
 #include "acmacs-chart/layout.hh"
 #include "acmacs-draw/viewport.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
@@ -11,7 +12,6 @@
 
 class Chart;
 class Surface;
-class IndexGenerator;
 
 // ----------------------------------------------------------------------
 
@@ -40,9 +40,7 @@ class ChartDraw
     inline const std::vector<PointStyleDraw>& point_styles() const { return mPointStyles; }
     inline std::vector<PointStyle> point_styles_base() const { std::vector<PointStyle> ps{mPointStyles.begin(), mPointStyles.end()}; return ps; }
 
-    void modify(IndexGenerator&& aGen, const PointStyle& aStyle, bool aRaise = false, bool aLower = false);
-
-    inline void modify_point_by_index(size_t aIndex, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
+    inline void modify(size_t aIndex, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
         {
             mPointStyles[aIndex] = aStyle;
             if (aRaise)
@@ -51,10 +49,16 @@ class ChartDraw
                 drawing_order().lower(aIndex);
         }
 
-    inline void modify_points_by_indices(const std::vector<size_t>& aIndices, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
+    inline void modify(const std::vector<size_t>& aIndices, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
         {
             for (size_t index: aIndices)
-                modify_point_by_index(index, aStyle, aRaise, aLower);
+                modify(index, aStyle, aRaise, aLower);
+        }
+
+    inline void modify(IndexGenerator&& aGen, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
+        {
+            for (auto index: aGen)
+                modify(index, aStyle, aRaise, aLower);
         }
 
     void hide_all_except(const std::vector<size_t>& aNotHide);

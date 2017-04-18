@@ -66,7 +66,7 @@ def antigenic_time_series(output_prefix, chart, period, start_date, end_date, ou
     for ts_entry in ts:
         module_logger.debug('TS {!r} {!r} {}..{}'.format(ts_entry.numeric_name(), ts_entry.text_name(), ts_entry.first_date(), ts_entry.after_last_date()))
         chart_draw.hide_all_except(shown_on_all)
-        chart_draw.modify_points_by_indices(indices=chart.antigens().date_range_indices(ts_entry.first_date(), ts_entry.after_last_date()), style=PointStyle().show(True))
+        chart_draw.modify(indices=chart.antigens().date_range_indices(ts_entry.first_date(), ts_entry.after_last_date()), style=PointStyle().show(True))
         chart_draw.title().remove_all_lines().add_line((title_prefix or "") + ts_entry.text_name());
         chart_draw.draw("{}-{}.pdf".format(output_prefix, ts_entry.numeric_name()), output_width)
 
@@ -233,17 +233,13 @@ class ModApplicator:
             index = indices
         elif indices is not None:
             raise ValueError("Either index or indices must be provided")
-        if isinstance(index, list):
-            func = self._chart_draw.modify_points_by_indices
-        else:
-            func = self._chart_draw.modify_point_by_index
-        func(index, style=self._make_point_style(args), raise_=bool(raise_), lower=bool(lower))
+        self._chart_draw.modify(index, style=self._make_point_style(args), raise_=bool(raise_), lower=bool(lower))
 
     def continents(self, legend=None, exclude_reference=True, **args):
         data = self._chart.antigens().continents(locdb=get_locdb(), exclude_reference=exclude_reference)
         module_logger.info('[Continents] {}'.format(" ".join("{}:{}".format(continent, len(data[continent])) for continent in sorted(data))))
         for continent, indices in data.items():
-            self._chart_draw.modify_points_by_indices(indices, self._make_point_style(args, {"fill": coloring.sContinentColor[continent]}))
+            self._chart_draw.modify(indices, self._make_point_style(args, {"fill": coloring.sContinentColor[continent]}))
         if legend and legend.get("show", True):
             self._chart_draw.continent_map(legend.get("offset", [0, 0]), legend.get("size", 100))
 
@@ -260,7 +256,7 @@ class ModApplicator:
                 raise_ = clade_style_mod.get("raise_", True) if not lower else False
                 if indices:
                     style = {**clade_style, "fill": coloring.sCladeColor[clade_style["N"]], "light": light, **clade_style_mod}
-                    self._chart_draw.modify_points_by_indices(indices, self._make_point_style(style), raise_=raise_, lower=lower)
+                    self._chart_draw.modify(indices, self._make_point_style(style), raise_=raise_, lower=lower)
                     clades_used[clade_style["N"]] = [style, len(indices)]
         module_logger.info('Clades\n{}'.format(pprint.pformat(clades_used)))
         # module_logger.info('Clades {}'.format(sorted(clades_used)))
@@ -285,7 +281,7 @@ class ModApplicator:
             aa_color["X"] = "grey25"
         # print(aa_color)
         for aa in aa_order:
-            self._chart_draw.modify_points_by_indices(aa_indices[aa], self._make_point_style({"outline": "black", "fill": aa_color[aa]}), raise_=True)
+            self._chart_draw.modify(aa_indices[aa], self._make_point_style({"outline": "black", "fill": aa_color[aa]}), raise_=True)
         if legend and legend.get("show", True):
             self._make_legend(
                 legend_data=[{"label": "{} {:3d}".format(aa, len(aa_indices[aa])), "outline": "black", "fill": aa_color[aa]} for aa in aa_order],
@@ -300,7 +296,7 @@ class ModApplicator:
             target_aas = "".join(pos_aa[-1] for pos_aa in group["pos_aa"])
             aa_indices = seqdb_access.aa_at_positions(chart=self._chart, positions=positions, seqdb_file=self._seqdb_file, verbose=self._verbose)
             if target_aas in aa_indices:
-                self._chart_draw.modify_points_by_indices(aa_indices[target_aas], self._make_point_style({"outline": "black", "fill": group["color"]}), raise_=True)
+                self._chart_draw.modify(aa_indices[target_aas], self._make_point_style({"outline": "black", "fill": group["color"]}), raise_=True)
             else:
                 module_logger.warning('No {}: {}'.format(target_aas, sorted(aa_indices)))
 

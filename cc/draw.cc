@@ -1,7 +1,6 @@
 #include <memory>
 #include <algorithm>
 
-#include "acmacs-base/range.hh"
 #include "acmacs-base/float.hh"
 #include "acmacs-chart/chart.hh"
 #include "acmacs-draw/surface-cairo.hh"
@@ -123,15 +122,6 @@ void ChartDraw::draw(std::string aFilename, double aSize) const
     draw(surface);
 
 } // ChartDraw::draw
-
-// ----------------------------------------------------------------------
-
-void ChartDraw::modify(IndexGenerator&& aGen, const PointStyle& aStyle, bool aRaise, bool aLower)
-{
-    for (auto index: aGen)
-        modify_point_by_index(index, aStyle, aRaise, aLower);
-
-} // ChartDraw::modify
 
 // ----------------------------------------------------------------------
 
