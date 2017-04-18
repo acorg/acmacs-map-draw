@@ -344,7 +344,7 @@ class ModApplicator:
         def _plot(vac):
             module_logger.info('Vaccine {} {} {} => {} {}'.format(vac["type"], vac["passage"], vac["name"], vac["vaccines"][vac["no"]]["antigen_index"], vac["vaccines"][vac["no"]]["name"]))
             antigen_index = vac["vaccines"][vac["no"]]["antigen_index"]
-            self._chart_draw.modify_point_by_index(antigen_index, self._make_point_style(vac), raise_=raise_)
+            self._chart_draw.modify(antigen_index, self._make_point_style(vac), raise_=raise_)
             if vac.get("label"):
                 self.label(index=antigen_index, **vac["label"])
 

@@ -142,9 +142,11 @@ class Title : public MapElement
     virtual inline void draw(Surface& aSurface, const ChartDraw&) const { draw(aSurface); }
     inline Title& offset(const Location& aOrigin) { mOrigin = aOrigin; return *this; }
     inline Title& offset(double x, double y) { mOrigin.set(x, y); return *this; }
+    inline Title& padding(double x) { mPadding = x; return *this; }
     inline Title& remove_all_lines() { mLines.clear(); return *this; }
     inline Title& add_line(std::string aText) { mLines.emplace_back(aText); return *this; }
     inline Title& text_size(double aTextSize) { mTextSize = aTextSize; return *this; }
+    inline Title& text_color(Color aTextColor) { mTextColor = aTextColor; return *this; }
     inline Title& background(Color aBackgroud) { mBackgroud = aBackgroud; return *this; }
     inline Title& border_color(Color aBorderColor) { mBorderColor = aBorderColor; return *this; }
     inline Title& border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; return *this; }
@@ -154,6 +156,7 @@ class Title : public MapElement
 
  private:
     Location mOrigin;
+    Pixels mPadding;
     Color mBackgroud;
     Color mBorderColor;
     Pixels mBorderWidth;
