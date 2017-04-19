@@ -304,6 +304,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
     py::class_<Vaccines>(m, "Vaccines")
             .def(py::init<const Chart&, const hidb::HiDb&>(), py::arg("chart"), py::arg("hidb"))
             .def("report_all", &Vaccines::report_all, py::arg("indent") = 0)
+            .def("report", &Vaccines::report, py::arg("indent") = 0)
             ;
 
       // ----------------------------------------------------------------------

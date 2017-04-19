@@ -306,7 +306,8 @@ class ModApplicator:
 
         from acmacs_map_draw_backend import Vaccines
         vaccs = Vaccines(chart=self._chart, hidb=hidb)
-        module_logger.debug('ALL\n{}'.format(vaccs.report_all(2)))
+        # module_logger.debug('ALL\n{}'.format(vaccs.report_all(2)))
+        module_logger.debug('FILTERED\n{}'.format(vaccs.report(2)))
 
         # from hidb_backend import vaccines
         # v_of_c = vaccines(chart=self._chart, hidb=hidb)

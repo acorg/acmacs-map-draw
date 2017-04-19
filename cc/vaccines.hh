@@ -22,6 +22,7 @@ class Vaccines
     Vaccines(const Chart& aChart, const hidb::HiDb& aHiDb);
 
     inline std::string report_all(size_t aIndent) const { return mVaccinesOfChart.report(aIndent); }
+    std::string report(size_t aIndent) const;
 
  private:
     hidb::VaccinesOfChart mVaccinesOfChart;

@@ -19,6 +19,21 @@ Vaccines::Vaccines(const Chart& aChart, const hidb::HiDb& aHiDb)
 
 // ----------------------------------------------------------------------
 
+std::string Vaccines::report(size_t aIndent) const
+{
+    std::string result;
+    for (const auto& entry: mEntries) {
+        const auto& vacc = mVaccinesOfChart[entry.vaccines_of_chart_index];
+        const std::string s = vacc.report(entry.passage_type, aIndent, entry.antigen_no);
+        if (!s.empty())
+            result += std::string(aIndent, ' ') + vacc.type() + " " + vacc.name() + s.substr(aIndent - 1);
+    }
+    return result;
+
+} // Vaccines::report
+
+// ----------------------------------------------------------------------
+
 
 // ----------------------------------------------------------------------
 /// Local Variables:
