@@ -306,7 +306,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("outline_width", &VaccineMatcher::outline_width, py::arg("outline_width"))
             .def("aspect", &VaccineMatcher::aspect, py::arg("aspect"))
             .def("rotation", &VaccineMatcher::rotation, py::arg("rotation"))
-            .def("label", &VaccineMatcher::label, py::arg("chart_draw"))
+            .def("label", &VaccineMatcher::label, py::arg("chart_draw"), py::arg("locdb"))
             ;
 
     py::class_<VaccineMatcherLabel>(m, "VaccineMatcherLabel")
@@ -318,6 +318,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("font_family", &VaccineMatcherLabel::font_family, py::arg("font_family"))
             .def("offset", &VaccineMatcherLabel::offset, py::arg("x"), py::arg("y"))
             .def("offset", [](VaccineMatcherLabel& label, const std::vector<double>& offset) { label.offset(offset[0], offset[1]); }, py::arg("offset"))
+            .def("name_type", &VaccineMatcherLabel::name_type, py::arg("name_type"))
             ;
 
       // ----------------------------------------------------------------------

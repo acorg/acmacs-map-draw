@@ -39,6 +39,8 @@ class ChartDraw
 
     inline const std::vector<PointStyleDraw>& point_styles() const { return mPointStyles; }
     inline std::vector<PointStyle> point_styles_base() const { std::vector<PointStyle> ps{mPointStyles.begin(), mPointStyles.end()}; return ps; }
+    inline Chart& chart() { return mChart; }
+    inline const Chart& chart() const { return mChart; }
 
     inline void modify(size_t aIndex, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
         {

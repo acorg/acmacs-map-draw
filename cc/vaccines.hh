@@ -118,11 +118,14 @@ class VaccineMatcherLabel : public VaccineMatcherBase
     inline VaccineMatcherLabel& slant(std::string aSlant) { for_each_mf(&Label::slant, aSlant); return *this; }
     inline VaccineMatcherLabel& font_family(std::string aFamily) { for_each_mf(&Label::font_family, aFamily); return *this; }
     inline VaccineMatcherLabel& offset(double x, double y) { for_each_mf(&Label::offset, x, y); return *this; }
+    VaccineMatcherLabel& name_type(std::string aNameType);
 
  private:
     ChartDraw& mChartDraw;
+    const LocDb& mLocDb;
 
-    inline VaccineMatcherLabel(const VaccineMatcherBase& aNother, ChartDraw& aChartDraw) : VaccineMatcherBase(aNother), mChartDraw(aChartDraw) {}
+    inline VaccineMatcherLabel(const VaccineMatcherBase& aNother, ChartDraw& aChartDraw, const LocDb& aLocDb)
+        : VaccineMatcherBase(aNother), mChartDraw(aChartDraw), mLocDb(aLocDb) {}
 
     friend class VaccineMatcher;
 
@@ -144,7 +147,7 @@ class VaccineMatcher : public VaccineMatcherBase
     inline VaccineMatcher& aspect(double aAspect) { for_each_style_mf(std::mem_fn<PointStyle&(double)>(&PointStyle::aspect), aAspect); return *this; }
     inline VaccineMatcher& rotation(double aRotation) { for_each_style_mf(std::mem_fn<PointStyle&(double)>(&PointStyle::rotation), aRotation); return *this; }
 
-    inline VaccineMatcherLabel* label(ChartDraw& aChartDraw) { return new VaccineMatcherLabel(*this, aChartDraw); }
+    inline VaccineMatcherLabel* label(ChartDraw& aChartDraw, const LocDb& aLocDb) { return new VaccineMatcherLabel(*this, aChartDraw, aLocDb); }
 
  private:
     inline VaccineMatcher(Vaccines& aVaccines, std::string aName, std::string aType, std::string aPassageType)

@@ -63,6 +63,29 @@ void Vaccines::plot(ChartDraw& aChartDraw) const
 
 // ----------------------------------------------------------------------
 
+VaccineMatcherLabel& VaccineMatcherLabel::name_type(std::string aNameType)
+{
+    for_each_with_vacc([&](const hidb::Vaccines::Entry& ve) {
+            const auto& antigen = mChartDraw.chart().antigen(ve.antigen_index);
+            std::string name;
+            if (aNameType == "abbreviated")
+                name = antigen.abbreviated_name(mLocDb);
+            else if (aNameType == "abbreviated_with_passage_type")
+                name = antigen.abbreviated_name_with_passage_type(mLocDb);
+            else {
+                if (aNameType != "full") {
+                    std::cerr << "WARNING: unsupported name_type \"" << aNameType << "\" (\"full\" is used)" << std::endl;
+                }
+                name = antigen.full_name();
+            }
+            mChartDraw.add_label(ve.antigen_index).display_name(name);
+        });
+    return *this;
+
+} // VaccineMatcherLabel::name_type
+
+// ----------------------------------------------------------------------
+
 
 // ----------------------------------------------------------------------
 /// Local Variables:
