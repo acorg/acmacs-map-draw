@@ -306,6 +306,16 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("outline_width", &VaccineMatcher::outline_width, py::arg("outline_width"))
             .def("aspect", &VaccineMatcher::aspect, py::arg("aspect"))
             .def("rotation", &VaccineMatcher::rotation, py::arg("rotation"))
+            .def("label", &VaccineMatcher::label, py::arg("chart_draw"))
+            ;
+
+    py::class_<VaccineMatcherLabel>(m, "VaccineMatcherLabel")
+            .def("display_name", &VaccineMatcherLabel::display_name, py::arg("name"))
+            .def("color", py::overload_cast<std::string>(&VaccineMatcherLabel::color), py::arg("color"))
+            .def("size", &VaccineMatcherLabel::size, py::arg("size"))
+            .def("weight", &VaccineMatcherLabel::weight, py::arg("weight"))
+            .def("slant", &VaccineMatcherLabel::slant, py::arg("slant"))
+            .def("font_family", &VaccineMatcherLabel::font_family, py::arg("font_family"))
             ;
 
       // ----------------------------------------------------------------------

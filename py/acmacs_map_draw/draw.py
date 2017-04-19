@@ -309,24 +309,28 @@ class ModApplicator:
     def vaccines(self, raise_=True, mods=None, **args):
         # fill=None, outline=None, show=None, shape=None, size=None, outline_width=None, aspect=None, rotation=None
 
-        def matcher_apply(vaccs, name="", type="", passage_type="", passage=None, **args):
-            matcher = vaccs.match(name=name, type=type, passage_type=passage or passage_type)
+        def matcher_apply(matcher, prefix, **args):
             for k,v in args.items():
-                if k and k[0] != "?" and k[-1] != "?" and k not in ["N"]:
-                    f = getattr(matcher, k, None)
-                    if f is not None:
+                f = getattr(matcher, k, None)
+                if f is not None:
+                    if k == "label":
+                        matcher_apply(matcher.label(self._chart_draw), prefix=prefix + " " + k, **v)
+                    else:
                         f(v)
-                    elif not k or (k[0] != "?" and k[-1] != "?" and k not in ["N"]):
-                        module_logger.warning('Vaccines: unrecognized {!r}:{!r}'.format(k, v))
+                elif not k or (k[0] != "?" and k[-1] != "?" and k not in ["N"]):
+                    module_logger.warning('{}: unrecognized {!r}:{!r}'.format(prefix, k, v))
+
+        def make_matcher_apply(vaccs, prefix, name="", type="", passage_type="", passage=None, **args):
+            matcher_apply(vaccs.match(name=name, type=type, passage_type=passage or passage_type), prefix=prefix, **args)
 
         hidb = get_hidb(chart=self._chart)
         from acmacs_map_draw_backend import Vaccines
         vaccs = Vaccines(chart=self._chart, hidb=hidb)
         for style_vac in self.sStyleByVaccineType:
-            matcher_apply(vaccs, **style_vac)
-        matcher_apply(vaccs, **args)
+            make_matcher_apply(vaccs, prefix="Vaccines", **style_vac)
+        make_matcher_apply(vaccs, prefix="Vaccines", **args)
         for mod in (mods or []):
-            matcher_apply(vaccs, **mod)
+            make_matcher_apply(vaccs, prefix="Vaccine mod", **mod)
 
         # module_logger.debug('ALL\n{}'.format(vaccs.report_all(2)))
         module_logger.debug('FILTERED\n{}'.format(vaccs.report(2)))
