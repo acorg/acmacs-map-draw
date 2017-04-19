@@ -316,6 +316,8 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("weight", &VaccineMatcherLabel::weight, py::arg("weight"))
             .def("slant", &VaccineMatcherLabel::slant, py::arg("slant"))
             .def("font_family", &VaccineMatcherLabel::font_family, py::arg("font_family"))
+            .def("offset", &VaccineMatcherLabel::offset, py::arg("x"), py::arg("y"))
+            .def("offset", [](VaccineMatcherLabel& label, const std::vector<double>& offset) { label.offset(offset[0], offset[1]); }, py::arg("offset"))
             ;
 
       // ----------------------------------------------------------------------

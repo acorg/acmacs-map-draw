@@ -103,10 +103,10 @@ class VaccineMatcherBase
 class VaccineMatcherLabel : public VaccineMatcherBase
 {
  private:
-    template <typename MF, typename Arg> inline void for_each_mf(MF mf, Arg arg)
+    template <typename MF, typename ... Arg> inline void for_each_mf(MF mf, Arg ...arg)
         {
             auto mff = std::mem_fn(mf);
-            for_each_with_vacc([&](const hidb::Vaccines::Entry& ve) { mff(mChartDraw.add_label(ve.antigen_index), arg); });
+            for_each_with_vacc([&](const hidb::Vaccines::Entry& ve) { mff(mChartDraw.add_label(ve.antigen_index), arg ...); });
         }
 
  public:
@@ -117,7 +117,7 @@ class VaccineMatcherLabel : public VaccineMatcherBase
     inline VaccineMatcherLabel& weight(std::string aWeight) { for_each_mf(&Label::weight, aWeight); return *this; }
     inline VaccineMatcherLabel& slant(std::string aSlant) { for_each_mf(&Label::slant, aSlant); return *this; }
     inline VaccineMatcherLabel& font_family(std::string aFamily) { for_each_mf(&Label::font_family, aFamily); return *this; }
-      // inline VaccineMatcherLabel& offset(double x, double y) { for_each_mf(&Label::)mOffset.set(x, y); return *this; }
+    inline VaccineMatcherLabel& offset(double x, double y) { for_each_mf(&Label::offset, x, y); return *this; }
 
  private:
     ChartDraw& mChartDraw;

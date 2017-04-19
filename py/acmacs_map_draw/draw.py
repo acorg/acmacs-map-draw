@@ -309,14 +309,11 @@ class ModApplicator:
     def vaccines(self, raise_=True, mods=None, **args):
         # fill=None, outline=None, show=None, shape=None, size=None, outline_width=None, aspect=None, rotation=None
 
-        def matcher_apply(matcher, prefix, **args):
+        def matcher_apply(matcher, prefix, name="", type="", passage_type="", passage=None, label=None, **args):
             for k,v in args.items():
                 f = getattr(matcher, k, None)
                 if f is not None:
-                    if k != "label":
-                        f(v)
-                    # else:
-                    #     matcher_apply(matcher.label(self._chart_draw), prefix=prefix + " " + k, **v)
+                    f(v)
                 elif not k or (k[0] != "?" and k[-1] != "?" and k not in ["N"]):
                     module_logger.warning('{}: unrecognized {!r}:{!r}'.format(prefix, k, v))
 
