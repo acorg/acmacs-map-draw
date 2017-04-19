@@ -71,18 +71,22 @@ class VaccineMatcherBase
     template <typename F> inline void for_each_with_vacc(F f)
         {
             for_each([&](auto& entry) {
-                    const auto* vacc_entry = mVaccines.mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, entry.antigen_no);
-                    if (vacc_entry)
-                        f(*vacc_entry);
+                    if (entry.style.shown()) {
+                        const auto* vacc_entry = mVaccines.mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, entry.antigen_no);
+                        if (vacc_entry)
+                            f(*vacc_entry);
+                    }
                 });
         }
 
     // template <typename F> inline void for_each_with_entry_vacc(F f)
     //     {
     //         for_each([&](auto& entry) {
-    //                 const auto* vacc_entry = mVaccines.mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, entry.antigen_no);
-    //                 if (vacc_entry)
-    //                     f(entry, *vacc_entry);
+    //                 if (entry.style.shown()) {
+    //                     const auto* vacc_entry = mVaccines.mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, entry.antigen_no);
+    //                     if (vacc_entry)
+    //                         f(entry, *vacc_entry);
+    //                 }
     //             });
     //     }
 

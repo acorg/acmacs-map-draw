@@ -313,15 +313,18 @@ class ModApplicator:
             for k,v in args.items():
                 f = getattr(matcher, k, None)
                 if f is not None:
-                    if k == "label":
-                        matcher_apply(matcher.label(self._chart_draw), prefix=prefix + " " + k, **v)
-                    else:
+                    if k != "label":
                         f(v)
+                    # else:
+                    #     matcher_apply(matcher.label(self._chart_draw), prefix=prefix + " " + k, **v)
                 elif not k or (k[0] != "?" and k[-1] != "?" and k not in ["N"]):
                     module_logger.warning('{}: unrecognized {!r}:{!r}'.format(prefix, k, v))
 
-        def make_matcher_apply(vaccs, prefix, name="", type="", passage_type="", passage=None, **args):
-            matcher_apply(vaccs.match(name=name, type=type, passage_type=passage or passage_type), prefix=prefix, **args)
+        def make_matcher(vaccs, name="", type="", passage_type="", passage=None, **rest):
+            return vaccs.match(name=name, type=type, passage_type=passage or passage_type)
+
+        def make_matcher_apply(vaccs, prefix, **args):
+            matcher_apply(make_matcher(vaccs, **args), prefix=prefix, **args)
 
         hidb = get_hidb(chart=self._chart)
         from acmacs_map_draw_backend import Vaccines
@@ -331,6 +334,12 @@ class ModApplicator:
         make_matcher_apply(vaccs, prefix="Vaccines", **args)
         for mod in (mods or []):
             make_matcher_apply(vaccs, prefix="Vaccine mod", **mod)
+        # apply "label" afterwards (upon hiding some vaccines)
+        if args.get("label"):
+            matcher_apply(vaccs.match().label(self._chart_draw), prefix="Vaccine label", **args["label"])
+        for mod in (mods or []):
+            if mod.get("label"):
+                matcher_apply(make_matcher(vaccs, **mod).label(self._chart_draw), prefix="Vaccine mod label", **mod["label"])
 
         # module_logger.debug('ALL\n{}'.format(vaccs.report_all(2)))
         module_logger.debug('FILTERED\n{}'.format(vaccs.report(2)))
