@@ -11,11 +11,12 @@ class Vaccines
     class Entry
     {
      public:
-        inline Entry(size_t aVaccinesOfChartIndex, hidb::Vaccines::PassageType aPassageType) : vaccines_of_chart_index(aVaccinesOfChartIndex), passage_type(aPassageType), antigen_no(0) {}
+        inline Entry(size_t aVaccinesOfChartIndex, hidb::Vaccines::PassageType aPassageType) : vaccines_of_chart_index(aVaccinesOfChartIndex), passage_type(aPassageType), antigen_no(0), show(true) {}
 
         size_t vaccines_of_chart_index;
         hidb::Vaccines::PassageType passage_type;
         size_t antigen_no;
+        bool show;
 
     }; // class Entry
 
