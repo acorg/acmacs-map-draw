@@ -87,7 +87,7 @@ class ModApplicator:
     #     "":                  {"fill": "grey50"},
     #     }
 
-    sStyleByVaccineType = {
+    sStyleByVaccineType_old = {
         "previous": {
             "egg": {"fill": "blue", "outline": "black", "aspect": 0.75},
             "reassortant": {"fill": "blue", "outline": "black", "aspect": 0.75, "rotation": 0.5},
@@ -104,6 +104,13 @@ class ModApplicator:
             "cell": {"fill": "pink", "outline": "black"}
             },
         }
+
+    sStyleByVaccineType = [
+        {"type": "previous", "fill": "blue", "outline": "black"},
+        {"type": "current", "fill": "red", "outline": "black"},
+        {"type": "current", "passage": "reassortant", "fill": "green"},
+        {"type": "surrogate", "fill": "pink", "outline": "black"},
+        ]
 
     sStyleByClade = [                     # bottom raised entries above top entries
         {"N": "", "outline": "black"},                # sequenced but not in any clade
@@ -302,22 +309,24 @@ class ModApplicator:
     def vaccines(self, raise_=True, mods=None, **args):
         # fill=None, outline=None, show=None, shape=None, size=None, outline_width=None, aspect=None, rotation=None
 
-        def matcher_apply(vaccs, name="", type="", passage_type="", args={}):
-            matcher = vaccs.match(name=name, type=type, passage_type=passage_type)
+        def matcher_apply(vaccs, name="", type="", passage_type="", passage=None, **args):
+            matcher = vaccs.match(name=name, type=type, passage_type=passage or passage_type)
             for k,v in args.items():
-                if k and k[0] != "?" and k[-1] != "?" and k not in ["N", "name", "type", "passage"]:
+                if k and k[0] != "?" and k[-1] != "?" and k not in ["N"]:
                     f = getattr(matcher, k, None)
                     if f is not None:
                         f(v)
-                    else:
+                    elif not k or (k[0] != "?" and k[-1] != "?" and k not in ["N"]):
                         module_logger.warning('Vaccines: unrecognized {!r}:{!r}'.format(k, v))
 
         hidb = get_hidb(chart=self._chart)
         from acmacs_map_draw_backend import Vaccines
         vaccs = Vaccines(chart=self._chart, hidb=hidb)
-        matcher_apply(vaccs, args=args)
+        for style_vac in self.sStyleByVaccineType:
+            matcher_apply(vaccs, **style_vac)
+        matcher_apply(vaccs, **args)
         for mod in (mods or []):
-            matcher_apply(vaccs, name=mod.get("name", ""), type=mod.get("type", ""), passage_type=mod.get("passage", ""), args=mod)
+            matcher_apply(vaccs, **mod)
 
         # module_logger.debug('ALL\n{}'.format(vaccs.report_all(2)))
         module_logger.debug('FILTERED\n{}'.format(vaccs.report(2)))
@@ -355,7 +364,7 @@ class ModApplicator:
                         yield vac
 
             def _add_plot_spec_old(vac):
-                return {**vac, **self.sStyleByVaccineType[vac["type"]][vac["passage"]], **args}
+                return {**vac, **self.sStyleByVaccineType_old[vac["type"]][vac["passage"]], **args}
 
             def _report_old(vacs):
                 if self._verbose:

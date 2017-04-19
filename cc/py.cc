@@ -301,6 +301,11 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("show", &VaccineMatcher::show, py::arg("show"))
             .def("shape", &VaccineMatcher::shape, py::arg("shape"))
             .def("size", &VaccineMatcher::size, py::arg("size"))
+            .def("fill", py::overload_cast<std::string>(&VaccineMatcher::fill), py::arg("color"))
+            .def("outline", py::overload_cast<std::string>(&VaccineMatcher::outline), py::arg("color"))
+            .def("outline_width", &VaccineMatcher::outline_width, py::arg("outline_width"))
+            .def("aspect", &VaccineMatcher::aspect, py::arg("aspect"))
+            .def("rotation", &VaccineMatcher::rotation, py::arg("rotation"))
             ;
 
       // ----------------------------------------------------------------------

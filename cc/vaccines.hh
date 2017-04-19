@@ -54,13 +54,13 @@ class VaccineMatcher
     inline VaccineMatcher& show(bool aShow) { for_each([aShow](Vaccines::Entry& e) { if (aShow) e.style.show(); else e.style.hide(); }); return *this; }
     inline VaccineMatcher& shape(std::string aShape) { for_each([aShape](Vaccines::Entry& e) { e.style.shape(aShape); }); return *this; }
     inline VaccineMatcher& size(double aSize) { for_each([aSize](Vaccines::Entry& e) { e.style.size(Pixels{aSize}); }); return *this; }
-    // inline VaccineMatcher& fill(Color c) { mFill = c; return *this; }
-    // inline VaccineMatcher& outline(Color c) { mOutline = c; return *this; }
-    // inline VaccineMatcher& outline_width(Pixels aOutlineWidth) { mOutlineWidth = aOutlineWidth; return *this; }
-    // inline VaccineMatcher& aspect(Aspect aAspect) { mAspect = aAspect; return *this; }
-    // inline VaccineMatcher& aspect(double aAspect) { mAspect = aAspect; return *this; }
-    // inline VaccineMatcher& rotation(Rotation aRotation) { mRotation = aRotation; return *this; }
-    // inline VaccineMatcher& rotation(double aRotation) { mRotation = aRotation; return *this; }
+    inline VaccineMatcher& fill(Color aColor) { for_each([aColor](Vaccines::Entry& e) { e.style.fill(aColor); }); return *this; }
+    inline VaccineMatcher& fill(std::string aColor) { for_each([aColor](Vaccines::Entry& e) { e.style.fill(aColor); }); return *this; }
+    inline VaccineMatcher& outline(Color aColor) { for_each([aColor](Vaccines::Entry& e) { e.style.outline(aColor); }); return *this; }
+    inline VaccineMatcher& outline(std::string aColor) { for_each([aColor](Vaccines::Entry& e) { e.style.outline(aColor); }); return *this; }
+    inline VaccineMatcher& outline_width(double aOutline_width) { for_each([aOutline_width](Vaccines::Entry& e) { e.style.outline_width(Pixels{aOutline_width}); }); return *this; }
+    inline VaccineMatcher& aspect(double aAspect) { for_each([aAspect](Vaccines::Entry& e) { e.style.aspect(aAspect); }); return *this; }
+    inline VaccineMatcher& rotation(double aRotation) { for_each([aRotation](Vaccines::Entry& e) { e.style.rotation(aRotation); }); return *this; }
 
  private:
     Vaccines& mVaccines;
