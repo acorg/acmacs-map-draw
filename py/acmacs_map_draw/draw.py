@@ -307,7 +307,11 @@ class ModApplicator:
         from acmacs_map_draw_backend import Vaccines
         vaccs = Vaccines(chart=self._chart, hidb=hidb)
         for mod in (mods or []):
-            module_logger.debug('MOD {}'.format(mod))
+            matcher = vaccs.match(name=mod.get("name", ""), type=mod.get("type", ""), passage_type=mod.get("passage", ""))
+            if not mod.get("show", True):
+                matcher.show(False)
+            else:
+                module_logger.warning('MOD {}'.format(mod))
         # module_logger.debug('ALL\n{}'.format(vaccs.report_all(2)))
         module_logger.debug('FILTERED\n{}'.format(vaccs.report(2)))
 
