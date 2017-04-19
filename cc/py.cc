@@ -4,12 +4,12 @@
 #include "acmacs-chart/ace.hh"
 #include "acmacs-chart/lispmds.hh"
 #include "hidb/hidb.hh"
-#include "hidb/vaccines.hh"
 #include "seqdb/seqdb.hh"
 
 #include "draw.hh"
 #include "geographic-map.hh"
 #include "time-series.hh"
+#include "vaccines.hh"
 
 // ----------------------------------------------------------------------
 
@@ -296,6 +296,15 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
     m.def("geographic_time_series_monthly", [](std::string aStart, std::string aEnd, const hidb::HiDb& aHiDb, const LocDb& aLocDb, double aPointSize, double aPointDensity, std::string aOutlineColor, double aOutlineWidth) -> GeographicTimeSeriesBase* { return new GeographicTimeSeriesMonthly(aStart, aEnd, aHiDb, aLocDb, aPointSize, aPointDensity, aOutlineColor, aOutlineWidth); }, py::arg("start_date"), py::arg("end_date"), py::arg("hidb"), py::arg("locdb"), py::arg("point_size_in_pixels") = 4.0, py::arg("point_density") = 0.8, py::arg("outline_color") = "grey63", py::arg("outline_width") = 0.5);
     m.def("geographic_time_series_yearly", [](std::string aStart, std::string aEnd, const hidb::HiDb& aHiDb, const LocDb& aLocDb, double aPointSize, double aPointDensity, std::string aOutlineColor, double aOutlineWidth) -> GeographicTimeSeriesBase* { return new GeographicTimeSeriesYearly(aStart, aEnd, aHiDb, aLocDb, aPointSize, aPointDensity, aOutlineColor, aOutlineWidth); }, py::arg("start_date"), py::arg("end_date"), py::arg("hidb"), py::arg("locdb"), py::arg("point_size_in_pixels") = 4.0, py::arg("point_density") = 0.8, py::arg("outline_color") = "grey63", py::arg("outline_width") = 0.5);
     m.def("geographic_time_series_weekly", [](std::string aStart, std::string aEnd, const hidb::HiDb& aHiDb, const LocDb& aLocDb, double aPointSize, double aPointDensity, std::string aOutlineColor, double aOutlineWidth) -> GeographicTimeSeriesBase* { return new GeographicTimeSeriesWeekly(aStart, aEnd, aHiDb, aLocDb, aPointSize, aPointDensity, aOutlineColor, aOutlineWidth); }, py::arg("start_date"), py::arg("end_date"), py::arg("hidb"), py::arg("locdb"), py::arg("point_size_in_pixels") = 4.0, py::arg("point_density") = 0.8, py::arg("outline_color") = "grey63", py::arg("outline_width") = 0.5);
+
+      // ----------------------------------------------------------------------
+      // Vaccines
+      // ----------------------------------------------------------------------
+
+    py::class_<Vaccines>(m, "Vaccines")
+            .def(py::init<const Chart&, const hidb::HiDb&>(), py::arg("chart"), py::arg("hidb"))
+            .def("report_all", &Vaccines::report_all, py::arg("indent") = 0)
+            ;
 
       // ----------------------------------------------------------------------
 

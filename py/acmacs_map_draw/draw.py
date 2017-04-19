@@ -304,23 +304,27 @@ class ModApplicator:
 
         hidb = get_hidb(chart=self._chart)
 
-        from hidb_backend import vaccines
-        v_of_c = vaccines(chart=self._chart, hidb=hidb)
+        from acmacs_map_draw_backend import Vaccines
+        vaccs = Vaccines(chart=self._chart, hidb=hidb)
+        module_logger.debug('ALL\n{}'.format(vaccs.report_all(2)))
+
+        # from hidb_backend import vaccines
+        # v_of_c = vaccines(chart=self._chart, hidb=hidb)
+        # # for mod in (mods or []):
+        # #     if not mod.get("show", True):
+        # #         v_of_c.remove(name=mod.get("name", ""), type=mod.get("type", ""), passage_type=mod.get("passage", ""))
+        # vac_plot = [{"v": vac, "no": 0, **self.sStyleByVaccineType[vac.type()], **args} for vac in v_of_c]
         # for mod in (mods or []):
-        #     if not mod.get("show", True):
-        #         v_of_c.remove(name=mod.get("name", ""), type=mod.get("type", ""), passage_type=mod.get("passage", ""))
-        vac_plot = [{"v": vac, "no": 0, **self.sStyleByVaccineType[vac.type()], **args} for vac in v_of_c]
-        for mod in (mods or []):
-            for vp in vac_plot:
-                if vp["v"].match(name=mod.get("name", ""), type=mod.get("type", "")):
-                    if not mod.get("show", True):
-                        vp["v"].remove(passage_type=mod.get("passage", ""))
-        module_logger.debug('\n{}'.format(v_of_c.report(4)))
-        pprint.pprint(vac_plot)
+        #     for vp in vac_plot:
+        #         if vp["v"].match(name=mod.get("name", ""), type=mod.get("type", "")):
+        #             if not mod.get("show", True):
+        #                 vp["v"].remove(passage_type=mod.get("passage", ""))
+        # module_logger.debug('\n{}'.format(v_of_c.report(4)))
+        # pprint.pprint(vac_plot)
 
         # ----------------------------------------------------------------------
 
-        if True:
+        if False:
             def _collect_old():
                 from hidb_backend import vaccines, find_vaccines_in_chart
                 for vaccine_entry in vaccines(chart=self._chart):
@@ -374,7 +378,6 @@ class ModApplicator:
             for vac in vacs_filtered:
                 _plot_old(vac)
                 self._antigens_shown_on_all.add(vac["vaccines"][vac["no"]]["antigen_index"])
-
 
     def label(self, index, name_type="full", **args):
         lbl = self._chart_draw.label(index)

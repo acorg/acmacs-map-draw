@@ -7,7 +7,7 @@ MAKEFLAGS = -w
 
 # ----------------------------------------------------------------------
 
-SOURCES = draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc time-series.cc
+SOURCES = draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc time-series.cc vaccines.cc
 PY_SOURCES = py.cc $(SOURCES)
 BACKEND = $(DIST)/acmacs_map_draw_backend$(PYTHON_MODULE_SUFFIX)
 
