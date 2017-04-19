@@ -302,35 +302,26 @@ class ModApplicator:
     def vaccines(self, raise_=True, mods=None, **args):
         # fill=None, outline=None, show=None, shape=None, size=None, outline_width=None, aspect=None, rotation=None
 
-        hidb = get_hidb(chart=self._chart)
-
-        from acmacs_map_draw_backend import Vaccines
-        vaccs = Vaccines(chart=self._chart, hidb=hidb)
-        for mod in (mods or []):
-            matcher = vaccs.match(name=mod.get("name", ""), type=mod.get("type", ""), passage_type=mod.get("passage", ""))
-            for k,v in mod.items():
-                if k not in ["name", "type", "passage"]:
+        def matcher_apply(vaccs, name="", type="", passage_type="", args={}):
+            matcher = vaccs.match(name=name, type=type, passage_type=passage_type)
+            for k,v in args.items():
+                if k and k[0] != "?" and k[-1] != "?" and k not in ["N", "name", "type", "passage"]:
                     f = getattr(matcher, k, None)
                     if f is not None:
                         f(v)
                     else:
-                        module_logger.warning('MOD unrecognized {!r} in {}'.format(k, mod))
+                        module_logger.warning('Vaccines: unrecognized {!r}:{!r}'.format(k, v))
+
+        hidb = get_hidb(chart=self._chart)
+        from acmacs_map_draw_backend import Vaccines
+        vaccs = Vaccines(chart=self._chart, hidb=hidb)
+        matcher_apply(vaccs, args=args)
+        for mod in (mods or []):
+            matcher_apply(vaccs, name=mod.get("name", ""), type=mod.get("type", ""), passage_type=mod.get("passage", ""), args=mod)
+
         # module_logger.debug('ALL\n{}'.format(vaccs.report_all(2)))
         module_logger.debug('FILTERED\n{}'.format(vaccs.report(2)))
-
-        # from hidb_backend import vaccines
-        # v_of_c = vaccines(chart=self._chart, hidb=hidb)
-        # # for mod in (mods or []):
-        # #     if not mod.get("show", True):
-        # #         v_of_c.remove(name=mod.get("name", ""), type=mod.get("type", ""), passage_type=mod.get("passage", ""))
-        # vac_plot = [{"v": vac, "no": 0, **self.sStyleByVaccineType[vac.type()], **args} for vac in v_of_c]
-        # for mod in (mods or []):
-        #     for vp in vac_plot:
-        #         if vp["v"].match(name=mod.get("name", ""), type=mod.get("type", "")):
-        #             if not mod.get("show", True):
-        #                 vp["v"].remove(passage_type=mod.get("passage", ""))
-        # module_logger.debug('\n{}'.format(v_of_c.report(4)))
-        # pprint.pprint(vac_plot)
+        vaccs.plot(self._chart_draw)
 
         # ----------------------------------------------------------------------
 

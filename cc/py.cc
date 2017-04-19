@@ -13,19 +13,6 @@
 
 // ----------------------------------------------------------------------
 
-static inline PointStyle& point_style_shape(PointStyle& aStyle, std::string aShape)
-{
-    if (aShape == "circle")
-        return aStyle.shape(PointStyle::Shape::Circle);
-    if (aShape == "box")
-        return aStyle.shape(PointStyle::Shape::Box);
-    if (aShape == "triangle")
-        return aStyle.shape(PointStyle::Shape::Triangle);
-    throw std::runtime_error("Unrecognized point style shape: " + aShape);
-}
-
-// ----------------------------------------------------------------------
-
 static inline std::string get_point_style_shape(PointStyle& aStyle)
 {
     std::string shape;
@@ -168,7 +155,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
               // .def("modify", &point_style_modify_kw)
             .def("show", [](PointStyle& style, bool show) -> PointStyle& { return style.show(show ? PointStyle::Shown::Shown : PointStyle::Shown::Hidden); }, py::arg("show") = true)
             .def("hide", &PointStyle::hide)
-            .def("shape", &point_style_shape, py::arg("shape"))
+            .def("shape", py::overload_cast<std::string>(&PointStyle::shape), py::arg("shape"))
             .def("shape", &get_point_style_shape)
             .def("fill", [](PointStyle& style, std::string color) -> PointStyle& { return style.fill(color); }, py::arg("fill"))
             .def("fill", [](PointStyle& style, std::string color, double light) -> PointStyle& { Color c{color}; c.light(light); return style.fill(c); }, py::arg("fill"), py::arg("light"))
@@ -306,11 +293,14 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
             .def("report_all", &Vaccines::report_all, py::arg("indent") = 0)
             .def("report", &Vaccines::report, py::arg("indent") = 0)
             .def("match", &Vaccines::match, py::arg("name") = "", py::arg("type") = "", py::arg("passage_type") = "")
+            .def("plot", &Vaccines::plot, py::arg("chart_draw"))
             ;
 
     py::class_<VaccineMatcher>(m, "VaccineMatcher")
-            .def("show", &VaccineMatcher::show, py::arg("show"))
             .def("no", &VaccineMatcher::no, py::arg("no"))
+            .def("show", &VaccineMatcher::show, py::arg("show"))
+            .def("shape", &VaccineMatcher::shape, py::arg("shape"))
+            .def("size", &VaccineMatcher::size, py::arg("size"))
             ;
 
       // ----------------------------------------------------------------------
