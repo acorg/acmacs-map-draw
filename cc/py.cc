@@ -310,6 +310,7 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
 
     py::class_<VaccineMatcher>(m, "VaccineMatcher")
             .def("show", &VaccineMatcher::show, py::arg("show"))
+            .def("no", &VaccineMatcher::no, py::arg("no"))
             ;
 
       // ----------------------------------------------------------------------

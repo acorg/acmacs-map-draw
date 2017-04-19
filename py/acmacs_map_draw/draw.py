@@ -308,10 +308,13 @@ class ModApplicator:
         vaccs = Vaccines(chart=self._chart, hidb=hidb)
         for mod in (mods or []):
             matcher = vaccs.match(name=mod.get("name", ""), type=mod.get("type", ""), passage_type=mod.get("passage", ""))
-            if not mod.get("show", True):
-                matcher.show(False)
-            else:
-                module_logger.warning('MOD {}'.format(mod))
+            for k,v in mod.items():
+                if k not in ["name", "type", "passage"]:
+                    f = getattr(matcher, k, None)
+                    if f is not None:
+                        f(v)
+                    else:
+                        module_logger.warning('MOD unrecognized {!r} in {}'.format(k, mod))
         # module_logger.debug('ALL\n{}'.format(vaccs.report_all(2)))
         module_logger.debug('FILTERED\n{}'.format(vaccs.report(2)))
 

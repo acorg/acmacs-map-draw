@@ -47,6 +47,7 @@ class VaccineMatcher
 {
  public:
     inline void show(bool aShow) { for_each([aShow](Vaccines::Entry& e) { e.show = aShow; }); }
+    inline void no(size_t aNo) { for_each([this, aNo](Vaccines::Entry& e) { if (this->mVaccines.mVaccinesOfChart[e.vaccines_of_chart_index].number_of(e.passage_type) <= aNo) throw std::runtime_error("Invalid antigen no: " + std::to_string(aNo)); e.antigen_no = aNo; }); }
 
  private:
     Vaccines& mVaccines;
