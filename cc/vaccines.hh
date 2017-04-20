@@ -3,6 +3,7 @@
 #include "hidb/hidb.hh"
 #include "hidb/vaccines.hh"
 #include "acmacs-chart/point-style.hh"
+#include "acmacs-map-draw/draw.hh"
 
 // ----------------------------------------------------------------------
 
