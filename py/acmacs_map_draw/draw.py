@@ -304,8 +304,8 @@ class ModApplicator:
         for mod in (mods or []):
             make_matcher_apply(vaccs, prefix="Vaccine mod", **mod)
         # apply "label" afterwards (upon hiding some vaccines)
-        if args.get("label"):
-            matcher_apply(vaccs.match().label(self._chart_draw, get_locdb()), prefix="Vaccine label", **args["label"])
+        # if args.get("label"):
+        #     matcher_apply(vaccs.match().label(self._chart_draw, get_locdb()), prefix="Vaccine label", **args["label"])
         for mod in (mods or []):
             if mod.get("label"):
                 matcher_apply(make_matcher(vaccs, **mod).label(self._chart_draw, get_locdb()), prefix="Vaccine mod label", **mod["label"])
