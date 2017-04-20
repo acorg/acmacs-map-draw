@@ -72,7 +72,22 @@ sSettings = {
         # {"N": "aa_substitutions", "positions": [158, 159], "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
         # {"N": "clades", "light": None, "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
         # {"N": "continents", "outline": "black", "legend": {"show": False, "offset": [-1, -1], "size": 100}},
-        {"N": "vaccines", "size": 15},
+        {"N": "vaccines",
+             "mods": [
+                 {"size": 15, "label": {"offset": [0, 1], "color": "black", "weight": "normal", "slant": "normal", "font_family": "helvetica neu", "size": 12, "name_type": "abbreviated_with_passage_type"}},
+                 {"type": "previous", "fill": "blue", "outline": "black"},
+                 {"type": "current", "fill": "red", "outline": "black"},
+                 {"type": "current", "passage": "reassortant", "fill": "green"},
+                 {"type": "surrogate", "fill": "pink", "outline": "black"},
+                 ],
+             "mods?": [
+                 {"name": "TEXAS", "passage": "egg", "show": False},
+                 {"name": "/4801/", "passage": "cell", "label": {"offset": [-1, 0]}},
+                 {"name": "/4801/", "passage": "egg", "no": 1, "label": {"name_type": "full"}},
+                 {"type": "current", "passage": "egg", "size": 20},
+                 {"type": "surrogate", "passage": "egg", "label": {"font_family": "times new roman", "slant": "italic", "weight": "bold"}}
+                 ],
+             },
         ],
     "mods?": [
         "flip_ns", "flip_ew", {"N": "flip", "value": [-1, 1]},
@@ -113,14 +128,13 @@ sSettings = {
              "outside_4fold": {"fill": "grey50", "outline": "black", "raise_": True},
              "mark_serum": {"fill": "red", "outline": "black", "raise_": True, "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12, "weight": "bold"}},
              },
-        {"N": "vaccines", "size": 15},
-        {"N": "vaccines", "size": 15,
-             "label": {"offset": [0, 1], "color": "black", "weight": "normal", "slant": "normal", "font_family": "helvetica neu", "size": 12, "name_type": "abbreviated_with_passage_type"},
+        {"N": "vaccines",
              "mods": [
-                 {"name": "TEXAS", "passage": "egg", "show": False},
-                 {"name": "/4801/", "passage": "egg", "label": {"offset": [-1, 0]}},
-                 {"type": "current", "passage": "egg", "size": 20},
-                 {"type": "surrogate", "passage": "egg", "label": {"font_family": "times new roman", "slant": "italic", "weight": "bold"}}
+                 {"size": 15, "label": {"offset": [0, 1], "color": "black", "weight": "normal", "slant": "normal", "font_family": "helvetica neu", "size": 12, "name_type": "abbreviated_with_passage_type"}},
+                 {"type": "previous", "fill": "blue", "outline": "black"},
+                 {"type": "current", "fill": "red", "outline": "black"},
+                 {"type": "current", "passage": "reassortant", "fill": "green"},
+                 {"type": "surrogate", "fill": "pink", "outline": "black"},
                  ],
              "mods?": [
                  {"name": "TEXAS", "passage": "egg", "show": False},
@@ -129,7 +143,7 @@ sSettings = {
                  {"type": "current", "passage": "egg", "size": 20},
                  {"type": "surrogate", "passage": "egg", "label": {"font_family": "times new roman", "slant": "italic", "weight": "bold"}}
                  ],
-        },
+             },
         {},
         {"N": "style", "index": 0, "fill": "red", "outline": "green", "show": True, "shape": "triangle", "size": 10, "outline_width": 1, "aspect": 1, "rotation": 0, "raise_": True, "lower": None},
         {"N": "style", "index": [1,2,3], "fill": "red", "outline": "green", "show": True, "shape": "triangle", "size": 10, "outline_width": 1, "aspect": 1, "rotation": 0, "raise_": True, "lower": None},

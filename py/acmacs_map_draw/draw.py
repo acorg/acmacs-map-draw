@@ -87,31 +87,6 @@ class ModApplicator:
     #     "":                  {"fill": "grey50"},
     #     }
 
-    sStyleByVaccineType_old = {
-        "previous": {
-            "egg": {"fill": "blue", "outline": "black", "aspect": 0.75},
-            "reassortant": {"fill": "blue", "outline": "black", "aspect": 0.75, "rotation": 0.5},
-            "cell": {"fill": "blue", "outline": "black"}
-            },
-        "current": {
-            "egg": {"fill": "red", "outline": "black", "aspect": 0.75},
-            "reassortant": {"fill": "green", "outline": "black", "aspect": 0.75, "rotation": 0.5},
-            "cell": {"fill": "red", "outline": "black"}
-            },
-        "surrogate": {
-            "egg": {"fill": "pink", "outline": "black", "aspect": 0.75},
-            "reassortant": {"fill": "pink", "outline": "black", "aspect": 0.75, "rotation": 0.5},
-            "cell": {"fill": "pink", "outline": "black"}
-            },
-        }
-
-    sStyleByVaccineType = [
-        {"type": "previous", "fill": "blue", "outline": "black"},
-        {"type": "current", "fill": "red", "outline": "black"},
-        {"type": "current", "passage": "reassortant", "fill": "green"},
-        {"type": "surrogate", "fill": "pink", "outline": "black"},
-        ]
-
     sStyleByClade = [                     # bottom raised entries above top entries
         {"N": "", "outline": "black"},                # sequenced but not in any clade
         # {"N": "gly", "fill": "grey50", "outline": "black"},
@@ -326,9 +301,6 @@ class ModApplicator:
         hidb = get_hidb(chart=self._chart)
         from acmacs_map_draw_backend import Vaccines
         vaccs = Vaccines(chart=self._chart, hidb=hidb)
-        for style_vac in self.sStyleByVaccineType:
-            make_matcher_apply(vaccs, prefix="Vaccines", **style_vac)
-        make_matcher_apply(vaccs, prefix="Vaccines", **args)
         for mod in (mods or []):
             make_matcher_apply(vaccs, prefix="Vaccine mod", **mod)
         # apply "label" afterwards (upon hiding some vaccines)
@@ -372,6 +344,24 @@ class ModApplicator:
         #         else:
         #             for vac in vacs:
         #                 yield vac
+
+    # sStyleByVaccineType_old = {
+    #     "previous": {
+    #         "egg": {"fill": "blue", "outline": "black", "aspect": 0.75},
+    #         "reassortant": {"fill": "blue", "outline": "black", "aspect": 0.75, "rotation": 0.5},
+    #         "cell": {"fill": "blue", "outline": "black"}
+    #         },
+    #     "current": {
+    #         "egg": {"fill": "red", "outline": "black", "aspect": 0.75},
+    #         "reassortant": {"fill": "green", "outline": "black", "aspect": 0.75, "rotation": 0.5},
+    #         "cell": {"fill": "red", "outline": "black"}
+    #         },
+    #     "surrogate": {
+    #         "egg": {"fill": "pink", "outline": "black", "aspect": 0.75},
+    #         "reassortant": {"fill": "pink", "outline": "black", "aspect": 0.75, "rotation": 0.5},
+    #         "cell": {"fill": "pink", "outline": "black"}
+    #         },
+    #     }
 
         #     def _add_plot_spec_old(vac):
         #         return {**vac, **self.sStyleByVaccineType_old[vac["type"]][vac["passage"]], **args}
