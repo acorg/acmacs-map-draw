@@ -57,16 +57,22 @@ class ChartDraw
                 modify(index, aStyle, aRaise, aLower);
         }
 
-    template <typename MapIterator> inline void modify(MapIterator first, MapIterator last, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
-        {
-            for (; first != last; ++first)
-                modify(first->first, aStyle, aRaise, aLower);
-        }
+    // template <typename MapIterator> inline void modify(MapIterator first, MapIterator last, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
+    //     {
+    //         for (; first != last; ++first)
+    //             modify(first->first, aStyle, aRaise, aLower);
+    //     }
 
     inline void modify(IndexGenerator&& aGen, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
         {
             for (auto index: aGen)
                 modify(index, aStyle, aRaise, aLower);
+        }
+
+    template <typename MapIterator> inline void modify_sera(MapIterator first, MapIterator last, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
+        {
+            for (; first != last; ++first)
+                modify(first->first + number_of_antigens(), aStyle, aRaise, aLower);
         }
 
     void hide_all_except(const std::vector<size_t>& aNotHide);
