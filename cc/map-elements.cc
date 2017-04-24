@@ -51,6 +51,14 @@ MapElement& MapElements::add(std::string aKeyword)
 
 // ----------------------------------------------------------------------
 
+void MapElements::remove(std::string aKeyword)
+{
+    mElements.erase(std::remove_if(mElements.begin(), mElements.end(), [&aKeyword](const auto& e) { return e->keyword() == aKeyword; }), mElements.end());
+
+} // MapElements::remove
+
+// ----------------------------------------------------------------------
+
 void MapElements::draw(Surface& aSurface, Order aOrder, const ChartDraw& aChartDraw) const
 {
     for (const auto& element: mElements) {

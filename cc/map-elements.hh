@@ -25,6 +25,7 @@ class MapElements
     MapElements();
     MapElement& operator[](std::string aKeyword);
     MapElement& add(std::string aKeyword);
+    void remove(std::string aKeyword);
 
     void draw(Surface& aSurface, Order aOrder, const ChartDraw& aChartDraw) const;
 
@@ -180,15 +181,15 @@ class SerumCircle : public MapElement
 
     virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
 
-    inline void serum_no(size_t aSerumNo) { mSerumNo = aSerumNo; }
-    inline void radius(Scaled aRadius) { mRadius = aRadius; }
-    inline void fill(Color aFill) { mFillColor = aFill; }
-    inline void outline(Color aOutline, double aOutlineWidth) { mOutlineColor = aOutline; mOutlineWidth = aOutlineWidth; }
-    inline void radius_line(Color aRadius, double aRadiusWidth) { mRadiusColor = aRadius; mRadiusWidth = aRadiusWidth; }
-    inline void angles(double aStart, double aEnd) { mStart = aStart; mEnd = aEnd; }
-    inline void radius_line_no_dash() { mRadiusDash = Surface::Dash::NoDash; }
-    inline void radius_line_dash1() { mRadiusDash = Surface::Dash::Dash1; }
-    inline void radius_line_dash2() { mRadiusDash = Surface::Dash::Dash2; }
+    inline SerumCircle& serum_no(size_t aSerumNo) { mSerumNo = aSerumNo; return *this; }
+    inline SerumCircle& radius(Scaled aRadius) { mRadius = aRadius; return *this; }
+    inline SerumCircle& fill(Color aFill) { mFillColor = aFill; return *this; }
+    inline SerumCircle& outline(Color aOutline, double aOutlineWidth) { mOutlineColor = aOutline; mOutlineWidth = aOutlineWidth; return *this; }
+    inline SerumCircle& radius_line(Color aRadius, double aRadiusWidth) { mRadiusColor = aRadius; mRadiusWidth = aRadiusWidth; return *this; }
+    inline SerumCircle& angles(double aStart, double aEnd) { mStart = aStart; mEnd = aEnd; return *this; }
+    inline SerumCircle& radius_line_no_dash() { mRadiusDash = Surface::Dash::NoDash; return *this; }
+    inline SerumCircle& radius_line_dash1() { mRadiusDash = Surface::Dash::Dash1; return *this; }
+    inline SerumCircle& radius_line_dash2() { mRadiusDash = Surface::Dash::Dash2; return *this; }
 
  private:
     size_t mSerumNo;

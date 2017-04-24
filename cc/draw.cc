@@ -193,6 +193,14 @@ SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadius)
 } // ChartDraw::serum_circle
 
 // ----------------------------------------------------------------------
+
+void ChartDraw::remove_serum_circles()
+{
+    mMapElements.remove("serum-circle");
+
+} // ChartDraw::remove_serum_circles
+
+// ----------------------------------------------------------------------
 /// Local Variables:
 /// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
 /// End:
