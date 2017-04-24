@@ -51,17 +51,16 @@ class ChartDraw
                 drawing_order().lower(aIndex);
         }
 
-    inline void modify(const std::vector<size_t>& aIndices, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
+    inline void modify_serum(size_t aSerumNo, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
         {
-            for (size_t index: aIndices)
-                modify(index, aStyle, aRaise, aLower);
+            modify(aSerumNo + number_of_antigens(), aStyle, aRaise, aLower);
         }
 
-    // template <typename MapIterator> inline void modify(MapIterator first, MapIterator last, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
-    //     {
-    //         for (; first != last; ++first)
-    //             modify(first->first, aStyle, aRaise, aLower);
-    //     }
+    template <typename IndexIterator> inline void modify(IndexIterator first, IndexIterator last, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
+        {
+            for (; first != last; ++first)
+                modify(*first, aStyle, aRaise, aLower);
+        }
 
     inline void modify(IndexGenerator&& aGen, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
         {
@@ -69,10 +68,10 @@ class ChartDraw
                 modify(index, aStyle, aRaise, aLower);
         }
 
-    template <typename MapIterator> inline void modify_sera(MapIterator first, MapIterator last, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
+    template <typename IndexIterator> inline void modify_sera(IndexIterator first, IndexIterator last, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
         {
             for (; first != last; ++first)
-                modify(first->first + number_of_antigens(), aStyle, aRaise, aLower);
+                modify_serum(*first, aStyle, aRaise, aLower);
         }
 
     void hide_all_except(const std::vector<size_t>& aNotHide);
