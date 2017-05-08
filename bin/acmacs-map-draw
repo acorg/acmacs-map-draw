@@ -199,7 +199,6 @@ def save(filename, chart, chart_draw):
 
 # ----------------------------------------------------------------------
 
-
 try:
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
