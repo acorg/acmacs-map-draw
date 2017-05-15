@@ -549,6 +549,8 @@ class ModApplicator:
                     module_logger.warning('No antigens from {},\n   there are antigens from: {}'.format(select["country"].upper(), " ".join("{}={}".format(c, len(countries[c])) for c in sorted(countries))))
             elif "continent" in select:
                 indices = antigens.continents(get_locdb())[select["continent"].upper()]
+            elif "lab_id" in select:
+                indices = antigens.find_by_lab_id(select["lab_id"])
             elif "name" in select:
                 if select.get("match_virus_name"):
                     from acmacs_chart_backend import virus_name_match_threshold
