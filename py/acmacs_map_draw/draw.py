@@ -551,6 +551,8 @@ class ModApplicator:
                 indices = antigens.continents(get_locdb())[select["continent"].upper()]
             elif "lab_id" in select:
                 indices = antigens.find_by_lab_id(select["lab_id"])
+            elif "lab_ids" in select:
+                indices = antigens.find_by_lab_ids(select["lab_ids"])
             elif "name" in select:
                 if select.get("match_virus_name"):
                     from acmacs_chart_backend import virus_name_match_threshold
