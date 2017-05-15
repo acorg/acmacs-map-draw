@@ -281,6 +281,9 @@ class ModApplicator:
             else:
                 module_logger.warning('No {}: {}'.format(target_aas, sorted(aa_indices)))
 
+    def legend(self, legend_data, settings, **args):
+        self._make_legend(legend_data=legend_data, legend_settings=settings)
+
     def vaccines(self, raise_=True, mods=None, **args):
         # fill=None, outline=None, show=None, shape=None, size=None, outline_width=None, aspect=None, rotation=None
 

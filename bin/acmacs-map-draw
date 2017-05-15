@@ -144,6 +144,14 @@ sSettings = {
                  {"type": "surrogate", "passage": "egg", "label": {"font_family": "times new roman", "slant": "italic", "weight": "bold"}}
                  ],
              },
+        {"N": "legend",
+         "legend_data": [
+             {"label": "163-del", "outline": "black", "fill": "#03569b"},
+             {"label": "163N", "outline": "black", "fill": "#ffc808"},
+             {"label": "163S", "outline": "black", "fill": "#a2b324"},
+             {"label": "163I", "outline": "black", "fill": "#e72f27"}
+         ],
+         "settings": {"offset": [-10, -10], "show": true, "size": 50, "label_size": 8, "point_size": 5}},
         {},
         {"N": "style", "index": 0, "fill": "red", "outline": "green", "show": True, "shape": "triangle", "size": 10, "outline_width": 1, "aspect": 1, "rotation": 0, "raise_": True, "lower": None},
         {"N": "style", "index": [1,2,3], "fill": "red", "outline": "green", "show": True, "shape": "triangle", "size": 10, "outline_width": 1, "aspect": 1, "rotation": 0, "raise_": True, "lower": None},
