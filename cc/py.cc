@@ -81,9 +81,9 @@ template <typename Iter> inline auto make_py_ts_iter(Iter&& begin, Iter&& end) {
 
 // ----------------------------------------------------------------------
 
-PYBIND11_PLUGIN(acmacs_map_draw_backend)
+PYBIND11_MODULE(acmacs_map_draw_backend, m)
 {
-    py::module m("acmacs_map_draw_backend", "Acmacs map draw plugin");
+    m.doc() = "Acmacs map draw plugin";
 
       // ----------------------------------------------------------------------
       // acmacs-base/time-series
@@ -326,8 +326,6 @@ PYBIND11_PLUGIN(acmacs_map_draw_backend)
       // ----------------------------------------------------------------------
 
     m.def("test_time_series", &test_time_series);
-
-    return m.ptr();
 }
 
 // ----------------------------------------------------------------------
