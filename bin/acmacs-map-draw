@@ -183,6 +183,8 @@ def mod_settings(settings, args):
         settings["mods"][0:0] = ["flip_ns"]
     if args.color_by_clade:
         settings["mods"][-1:-1] = [{"N": "clades", "": {"show": False}, "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 10, "point_size": 6}}]
+    if args.color_by_aa_at:
+        settings["mods"][-1:-1] = [{"N": "aa_substitutions", "positions": [args.color_by_aa_at], "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 10, "point_size": 6}}]
     return update_settings
 
 # ----------------------------------------------------------------------
@@ -222,6 +224,7 @@ try:
     parser.add_argument('--flip-ns', action='store_true', dest='flip_ns', default=None, help='Add flip_ew mod.')
 
     parser.add_argument('--clade', action='store_true', dest='color_by_clade', default=False)
+    parser.add_argument('--aa-at', action='store', type=int, dest='color_by_aa_at', default=None)
 
     parser.add_argument('-n', action='store_false', dest='draw_map', default=True, help='Do not actually draw a map.')
     parser.add_argument('-m', action='store_false', dest='open_image', default=True, help='Do not open image.')
