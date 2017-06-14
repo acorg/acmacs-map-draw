@@ -255,6 +255,7 @@ class ModApplicator:
         from . import seqdb_access
         aa_indices = seqdb_access.aa_at_positions(chart=self._chart, positions=positions, seqdb_file=self._seqdb_file, verbose=self._verbose)
         aa_order = sorted(aa_indices, key=lambda aa: - len(aa_indices[aa]))
+        module_logger.info("\n" + "\n".join("{}: {}".format(aa, len(aa_indices[aa])) for aa in aa_order))
         from acmacs_map_draw_backend import distinct_colors
         dc = distinct_colors()
         aa_color = {aa: dc[no] for no, aa in enumerate(aa_order)}
