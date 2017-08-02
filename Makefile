@@ -60,10 +60,10 @@ test: install
 # ----------------------------------------------------------------------
 
 $(ACMACS_MAP_DRAW_LIB): $(patsubst %.cc,$(BUILD)/%.o,$(SOURCES)) | $(DIST)
-	$(GXX) -shared $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(CXX) -shared $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(BACKEND): $(patsubst %.cc,$(BUILD)/%.o,$(PY_SOURCES)) | $(DIST)
-	$(GXX) -shared $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(CXX) -shared $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean:
 	rm -rf $(DIST) $(BUILD)/*.o $(BUILD)/*.d
@@ -75,7 +75,7 @@ distclean: clean
 
 $(BUILD)/%.o: cc/%.cc | $(BUILD) install-headers
 	@echo $<
-	@$(GXX) $(CXXFLAGS) -c -o $@ $<
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 # ----------------------------------------------------------------------
 
