@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "acmacs-base/range.hh"
+#include "acmacs-base/log.hh"
 #include "acmacs-chart/layout.hh"
 #include "acmacs-draw/viewport.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
@@ -83,13 +84,15 @@ class ChartDraw
 
     inline void rotate(double aAngle)
         {
-            std::cout << "INFO: rotate " << aAngle << " radians = " << (180.0 * aAngle / M_PI) << " degrees" << std::endl;
+            // std::cout << "INFO: rotate " << aAngle << " radians = " << (180.0 * aAngle / M_PI) << " degrees" << std::endl;
+            log("rotate ", aAngle, " radians = ", 180.0 * aAngle / M_PI, " degrees");
             mTransformation.rotate(aAngle);
         }
 
     inline void flip(double aX, double aY)
         {
-            std::cout << "INFO: flip " << aX << " " << aY << std::endl;
+            // std::cout << "INFO: flip " << aX << " " << aY << std::endl;
+            log("flip ", aX, " ", aY);
             mTransformation.flip(aX, aY); // reflect about a line specified with vector [aX, aY]
         }
     inline const Transformation& transformation() const { return mTransformation; }

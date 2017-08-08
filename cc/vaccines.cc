@@ -76,7 +76,7 @@ VaccineMatcherLabel& VaccineMatcherLabel::name_type(std::string aNameType)
                 name = antigen.abbreviated_location_with_passage_type(mLocDb);
             else {
                 if (aNameType != "full") {
-                    std::cerr << "WARNING: unsupported name_type \"" << aNameType << "\" (\"full\" is used)" << std::endl;
+                    log_warning("unsupported name_type \"", aNameType, "\" (\"full\" is used)");
                 }
                 name = antigen.full_name();
             }

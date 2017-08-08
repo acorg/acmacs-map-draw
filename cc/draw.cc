@@ -87,10 +87,10 @@ void ChartDraw::calculate_viewport()
     Viewport viewport;
     viewport.set_from_center_size(bb->center(), bb->diameter());
     viewport.whole_width();
-    std::cout << "INFO: [Calculated]: " << viewport << std::endl;
+    log("[Calculated]: ", viewport);
     if (mViewport.empty())
         mViewport = viewport;
-    std::cout << "INFO: [Used]:       " << mViewport << std::endl;
+    log("[Used]:       ", mViewport);
 
 } // ChartDraw::calculate_viewport
 
