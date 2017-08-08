@@ -29,7 +29,7 @@ CXXFLAGS = -g -MMD $(OPTIMIZATION) $(PROFILE) -fPIC -std=$(STD) $(WEVERYTHING) $
 LDFLAGS = $(OPTIMIZATION) $(PROFILE)
 LDLIBS = -L$(LIB_DIR) -lacmacsbase -lacmacschart -lacmacsdraw -llocationdb -lhidb -lseqdb -lboost_date_time -lboost_filesystem -lboost_system $$(pkg-config --libs cairo) $$(pkg-config --libs liblzma) $$($(PYTHON_CONFIG) --ldflags | sed -E 's/-Wl,-stack_size,[0-9]+//')
 
-PKG_INCLUDES = $$(pkg-config --cflags cairo) $$(pkg-config --cflags liblzma) $$($(PYTHON_CONFIG) --includes)
+PKG_INCLUDES = $(shell pkg-config --cflags cairo) $(shell pkg-config --cflags liblzma) $(shell $(PYTHON_CONFIG) --includes)
 
 # ----------------------------------------------------------------------
 
@@ -52,6 +52,9 @@ install-headers: check-acmacsd-root
 
 test: install
 	test/test
+
+rtags:
+	make -nkB | /usr/local/bin/rc --compile - || true
 
 # ----------------------------------------------------------------------
 
