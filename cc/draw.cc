@@ -104,8 +104,8 @@ void ChartDraw::draw(Surface& aSurface) const
     Surface& rescaled_surface = aSurface.subsurface({0, 0}, Scaled{aSurface.viewport().size.width}, mViewport, true);
     mMapElements.draw(rescaled_surface, MapElements::BeforePoints, *this);
 
-    const Layout& layout = transformed_layout();
-    for (size_t index: mDrawingOrder) {
+    const auto& layout = transformed_layout();
+    for (auto index: mDrawingOrder) {
         mPointStyles[index].draw(rescaled_surface, layout[index]);
     }
     mLabels.draw(rescaled_surface, layout, mPointStyles);

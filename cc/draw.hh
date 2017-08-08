@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "acmacs-base/range.hh"
 #include "acmacs-base/log.hh"
@@ -116,13 +117,13 @@ class ChartDraw
     SerumCircle& serum_circle(size_t aSerumNo, Scaled aRadius);
     void remove_serum_circles();
 
-    inline const Layout& transformed_layout() const
+    inline const LayoutBase& transformed_layout() const
         {
-            if (mTransformedLayout.empty()) {
-                mTransformedLayout = mChart.projection(mProjectionNo).layout();
-                mTransformedLayout.transform(mTransformation);
+            if (!mTransformedLayout || mTransformedLayout->empty()) {
+                mTransformedLayout = std::unique_ptr<LayoutBase>(mChart.projection(mProjectionNo).layout().clone());
+                mTransformedLayout->transform(mTransformation);
             }
-            return mTransformedLayout;
+            return *mTransformedLayout;
         }
 
     size_t number_of_antigens() const;
@@ -137,7 +138,7 @@ class ChartDraw
     DrawingOrder mDrawingOrder;
     MapElements mMapElements;
     Labels mLabels;
-    mutable Layout mTransformedLayout;
+    mutable std::unique_ptr<LayoutBase> mTransformedLayout;
 
 }; // class ChartDraw
 

@@ -12,7 +12,7 @@ Label::Label(size_t aIndex)
 
 // ----------------------------------------------------------------------
 
-void Label::draw(Surface& aSurface, const Layout& aLayout, const std::vector<PointStyleDraw>& aPointStyles) const
+void Label::draw(Surface& aSurface, const LayoutBase& aLayout, const std::vector<PointStyleDraw>& aPointStyles) const
 {
     const auto& style = aPointStyles[mIndex];
     if (style.shown()) {
@@ -70,7 +70,7 @@ Label& Labels::add(size_t aIndex, const Chart& aChart)
 
 // ----------------------------------------------------------------------
 
-void Labels::draw(Surface& aSurface, const Layout& aLayout, const std::vector<PointStyleDraw>& aPointStyles) const
+void Labels::draw(Surface& aSurface, const LayoutBase& aLayout, const std::vector<PointStyleDraw>& aPointStyles) const
 {
     for (const Label& label: mLabels) {
         label.draw(aSurface, aLayout, aPointStyles);
