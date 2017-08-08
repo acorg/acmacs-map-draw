@@ -1,5 +1,5 @@
 #include "acmacs-draw/surface.hh"
-#include "acmacs-chart/chart.hh"
+#include "acmacs-chart/chart-base.hh"
 #include "acmacs-map-draw/labels.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 
@@ -53,16 +53,16 @@ Labels::Labels()
 
 // ----------------------------------------------------------------------
 
-Label& Labels::add(size_t aIndex, const Chart& aChart)
+Label& Labels::add(size_t aIndex, const ChartBase& aChart)
 {
     auto found = std::find_if(mLabels.begin(), mLabels.end(), [&aIndex](const auto& label) { return label.index() == aIndex; });
     if (found == mLabels.end()) {
         mLabels.emplace_back(aIndex);
         found = mLabels.end() - 1;
         if (aIndex < aChart.number_of_antigens())
-            found->display_name(aChart.antigens()[aIndex].full_name());
+            found->display_name(aChart.antigen(aIndex).full_name());
         else
-            found->display_name(aChart.sera()[aIndex - aChart.number_of_antigens()].full_name());
+            found->display_name(aChart.serum(aIndex - aChart.number_of_antigens()).full_name());
     }
     return *found;
 

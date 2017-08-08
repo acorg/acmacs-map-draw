@@ -12,7 +12,7 @@
 #include "acmacs-map-draw/map-elements.hh"
 #include "acmacs-map-draw/labels.hh"
 
-class Chart;
+class ChartBase;
 class Surface;
 
 // ----------------------------------------------------------------------
@@ -20,7 +20,7 @@ class Surface;
 class DrawingOrder : public std::vector<size_t>
 {
  public:
-    DrawingOrder(Chart& aChart);
+    DrawingOrder(ChartBase& aChart);
 
     void raise(size_t aPointNo);
     void lower(size_t aPointNo);
@@ -32,17 +32,19 @@ class DrawingOrder : public std::vector<size_t>
 class ChartDraw
 {
  public:
-    ChartDraw(Chart& aChart, size_t aProjectionNo);
+    ChartDraw(ChartBase& aChart, size_t aProjectionNo);
 
     void prepare();
     void draw(Surface& aSurface) const;
+#ifdef ACMACS_TARGET_OS
     void draw(std::string aFilename, double aSize) const;
+#endif
     void calculate_viewport();
 
     inline const std::vector<PointStyleDraw>& point_styles() const { return mPointStyles; }
     inline std::vector<PointStyle> point_styles_base() const { std::vector<PointStyle> ps{mPointStyles.begin(), mPointStyles.end()}; return ps; }
-    inline Chart& chart() { return mChart; }
-    inline const Chart& chart() const { return mChart; }
+    inline auto& chart() { return mChart; }
+    inline const auto& chart() const { return mChart; }
 
     inline void modify(size_t aIndex, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
         {
@@ -130,7 +132,7 @@ class ChartDraw
     size_t number_of_sera() const;
 
  private:
-    Chart& mChart;
+    ChartBase& mChart;
     size_t mProjectionNo;
     Viewport mViewport;
     Transformation mTransformation;

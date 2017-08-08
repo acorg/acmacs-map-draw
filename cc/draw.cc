@@ -2,14 +2,14 @@
 #include <algorithm>
 
 #include "acmacs-base/float.hh"
-#include "acmacs-chart/chart.hh"
+#include "acmacs-chart/chart-base.hh"
 #include "acmacs-draw/surface-cairo.hh"
 
 #include "draw.hh"
 
 // ----------------------------------------------------------------------
 
-DrawingOrder::DrawingOrder(Chart& aChart)
+DrawingOrder::DrawingOrder(ChartBase& aChart)
     : std::vector<size_t>(Range<size_t>::begin(aChart.number_of_points()), Range<size_t>::end())
 {
 
@@ -37,7 +37,7 @@ void DrawingOrder::lower(size_t aPointNo)
 
 // ----------------------------------------------------------------------
 
-ChartDraw::ChartDraw(Chart& aChart, size_t aProjectionNo)
+ChartDraw::ChartDraw(ChartBase& aChart, size_t aProjectionNo)
     : mChart(aChart),
       mProjectionNo(aProjectionNo),
       mTransformation(mChart.projection(mProjectionNo).transformation()),
@@ -116,12 +116,14 @@ void ChartDraw::draw(Surface& aSurface) const
 
 // ----------------------------------------------------------------------
 
+#ifdef ACMACS_TARGET_OS
 void ChartDraw::draw(std::string aFilename, double aSize) const
 {
     PdfCairo surface(aFilename, aSize, aSize);
     draw(surface);
 
 } // ChartDraw::draw
+#endif
 
 // ----------------------------------------------------------------------
 

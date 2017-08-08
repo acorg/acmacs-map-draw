@@ -8,7 +8,7 @@
 #include "acmacs-draw/size.hh"
 #include "acmacs-draw/text-style.hh"
 
-class Chart;
+class ChartBase;
 class Surface;
 class ChartDraw;
 class Layout;
@@ -51,7 +51,7 @@ class Labels
  public:
     Labels();
 
-    Label& add(size_t aIndex, const Chart& aChart);
+    Label& add(size_t aIndex, const ChartBase& aChart);
     void draw(Surface& aSurface, const LayoutBase& aLayout, const std::vector<PointStyleDraw>& aPointStyles) const;
 
  private:
