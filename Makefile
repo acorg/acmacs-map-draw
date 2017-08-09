@@ -53,8 +53,7 @@ install-headers: check-acmacsd-root
 test: install
 	test/test
 
-rtags:
-	make -nkB | /usr/local/bin/rc --compile - || true
+include $(ACMACSD_ROOT)/share/Makefile.rtags
 
 # ----------------------------------------------------------------------
 
