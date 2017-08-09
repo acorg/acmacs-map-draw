@@ -3,7 +3,6 @@
 
 #include "acmacs-base/throw.hh"
 #include "acmacs-base/float.hh"
-#include "acmacs-chart/chart-base.hh"
 #include "acmacs-map-draw/draw.hh"
 
 #ifdef ACMACS_TARGET_OS
