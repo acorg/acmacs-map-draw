@@ -1,6 +1,7 @@
 #include <memory>
 #include <algorithm>
 
+#include "acmacs-base/throw.hh"
 #include "acmacs-base/float.hh"
 #include "acmacs-chart/chart-base.hh"
 #include "acmacs-map-draw/draw.hh"
@@ -105,7 +106,7 @@ void ChartDraw::calculate_viewport()
 void ChartDraw::draw(Surface& aSurface) const
 {
     if (mViewport.empty())
-        throw std::runtime_error("Call calculate_viewport() before draw()");
+        THROW_OR_CERR(std::runtime_error("Call calculate_viewport() before draw()"));
 
     Surface& rescaled_surface = aSurface.subsurface({0, 0}, Scaled{aSurface.viewport().size.width}, mViewport, true);
     mMapElements.draw(rescaled_surface, MapElements::BeforePoints, *this);
@@ -193,7 +194,7 @@ void ChartDraw::mark_all_grey(Color aColor)
 
 SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadius)
 {
-    auto& serum_circle = dynamic_cast<SerumCircle&>(mMapElements.add("serum-circle"));
+    auto& serum_circle = DYNAMIC_CAST(SerumCircle&, (mMapElements.add("serum-circle")));
     serum_circle.serum_no(aSerumNo);
     serum_circle.radius(aRadius);
     return serum_circle;

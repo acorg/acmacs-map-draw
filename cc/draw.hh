@@ -4,8 +4,8 @@
 #include <vector>
 #include <memory>
 
+#include "acmacs-base/throw.hh"
 #include "acmacs-base/range.hh"
-#include "acmacs-base/log.hh"
 #include "acmacs-chart/layout-base.hh"
 #include "acmacs-draw/viewport.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
@@ -106,14 +106,14 @@ class ChartDraw
 
     DrawingOrder& drawing_order() { return mDrawingOrder; }
 
-    inline void background_color(Color aBackgroud) { dynamic_cast<BackgroundBorderGrid&>(mMapElements["background-border-grid"]).background_color(aBackgroud); }
-    inline void grid(Color aGridColor, double aGridLineWidth) { dynamic_cast<BackgroundBorderGrid&>(mMapElements["background-border-grid"]).grid(aGridColor, aGridLineWidth); }
-    inline void border(Color aBorderColor, double aBorderWidth) { dynamic_cast<BackgroundBorderGrid&>(mMapElements["background-border-grid"]).border(aBorderColor, aBorderWidth); }
-    inline void continent_map(const Location& aOffset, Pixels aWidth) { dynamic_cast<ContinentMap&>(mMapElements["continent-map"]).offset_width(aOffset, aWidth); }
-    inline LegendPointLabel& legend(const Location& aOffset) { auto& legend = dynamic_cast<LegendPointLabel&>(mMapElements["legend-point-label"]); legend.offset(aOffset); return legend; }
-    inline LegendPointLabel& legend() { return dynamic_cast<LegendPointLabel&>(mMapElements["legend-point-label"]); }
-    inline Title& title(const Location& aOffset) { auto& title = dynamic_cast<Title&>(mMapElements["title"]); title.offset(aOffset); return title; }
-    inline Title& title() { return dynamic_cast<Title&>(mMapElements["title"]); }
+    inline void background_color(Color aBackgroud) { DYNAMIC_CAST(BackgroundBorderGrid&, (mMapElements["background-border-grid"])).background_color(aBackgroud); }
+    inline void grid(Color aGridColor, double aGridLineWidth) { DYNAMIC_CAST(BackgroundBorderGrid&, (mMapElements["background-border-grid"])).grid(aGridColor, aGridLineWidth); }
+    inline void border(Color aBorderColor, double aBorderWidth) { DYNAMIC_CAST(BackgroundBorderGrid&, (mMapElements["background-border-grid"])).border(aBorderColor, aBorderWidth); }
+    inline void continent_map(const Location& aOffset, Pixels aWidth) { DYNAMIC_CAST(ContinentMap&, (mMapElements["continent-map"])).offset_width(aOffset, aWidth); }
+    inline LegendPointLabel& legend(const Location& aOffset) { auto& legend = DYNAMIC_CAST(LegendPointLabel&, (mMapElements["legend-point-label"])); legend.offset(aOffset); return legend; }
+    inline LegendPointLabel& legend() { return DYNAMIC_CAST(LegendPointLabel&, (mMapElements["legend-point-label"])); }
+    inline Title& title(const Location& aOffset) { auto& title = DYNAMIC_CAST(Title&, (mMapElements["title"])); title.offset(aOffset); return title; }
+    inline Title& title() { return DYNAMIC_CAST(Title&, (mMapElements["title"])); }
     inline Labels& labels() { return mLabels; }
     inline Label& add_label(size_t aIndex) { return mLabels.add(aIndex, mChart); }
     SerumCircle& serum_circle(size_t aSerumNo, Scaled aRadius);
