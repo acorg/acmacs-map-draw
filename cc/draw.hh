@@ -6,7 +6,7 @@
 
 #include "acmacs-base/range.hh"
 #include "acmacs-base/log.hh"
-#include "acmacs-chart/layout.hh"
+#include "acmacs-chart/layout-base.hh"
 #include "acmacs-draw/viewport.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 #include "acmacs-map-draw/map-elements.hh"

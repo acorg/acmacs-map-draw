@@ -3,9 +3,15 @@
 
 #include "acmacs-base/float.hh"
 #include "acmacs-chart/chart-base.hh"
-#include "acmacs-draw/surface-cairo.hh"
+#include "acmacs-map-draw/draw.hh"
 
-#include "draw.hh"
+#ifdef ACMACS_TARGET_OS
+#include "acmacs-draw/surface-cairo.hh"
+#endif
+
+#ifdef ACMACS_TARGET_BROWSER
+#include "acmacs-draw/surface.hh"
+#endif
 
 // ----------------------------------------------------------------------
 
