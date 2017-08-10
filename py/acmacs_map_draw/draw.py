@@ -37,6 +37,8 @@ def draw_chart(output_file, chart, settings, output_width, previous_chart=None, 
                     getattr(applicator, mod["N"])(**mod)
                 except Exception as err:
                     raise UnrecognizedMod(mod, err)
+            else:
+                module_logger.warning('Mod is disabled: {}'.format(mod.get("N", "no N")))
         else:
             raise UnrecognizedMod(mod)
     chart_draw.calculate_viewport()
