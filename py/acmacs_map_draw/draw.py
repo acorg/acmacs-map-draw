@@ -24,6 +24,7 @@ def draw_chart(output_file, chart, settings, output_width, previous_chart=None, 
 
     applicator = ModApplicator(chart_draw=chart_draw, chart=chart, previous_chart=previous_chart, projection_no=0, seqdb_file=seqdb_file, verbose=verbose)
     for mod in settings.get("mods", []):
+        module_logger.info('mod:\n{}'.format(pprint.pformat(mod, width=200)))
         if isinstance(mod, str):
             if mod and mod[0] != "?" and mod[-1] != "?":
                 try:
@@ -430,6 +431,7 @@ class ModApplicator:
 
     def serum_circle(self, serum, antigen=None, mark_serum=None, mark_antigen=None, circle={}, **args):
         if serum != "":
+            module_logger.info('serum_circle sr:{} ag:{}'.format(serum, antigen))
             serum_index = self._select_sera(select=serum, raise_if_not_found=True, raise_if_multiple=True)[0]
             antigen_indices = self._homologous_antigen_indices(serum_no=serum_index, select=antigen, raise_if_not_found=True, raise_if_multiple=False)
             if mark_serum:
