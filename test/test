@@ -24,7 +24,9 @@ trap failed ERR
 
 export LD_LIBRARY_PATH="$HOME"/AD/lib
 cd "$TESTDIR"
+
 ../bin/acmacs-map-draw -m -s 2004nd-003.json 2004nd-003.ace "$TDIR/2004nd-003.pdf"
+# open "$TDIR/2004nd-003.pdf" && sleep 3
 
 # ======================================================================
 # Local Variables:

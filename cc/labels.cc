@@ -17,11 +17,13 @@ void Label::draw(Surface& aSurface, const LayoutBase& aLayout, const std::vector
     const auto& style = aPointStyles[mIndex];
     if (style.shown()) {
         Coordinates text_origin = aLayout[mIndex];
-        const double scaled_point_size = aSurface.convert(style.size()).value();
-        const Size text_size = aSurface.text_size(mDisplayName, mTextSize, mTextStyle);
-        text_origin[0] += text_offset(mOffset.x, scaled_point_size, text_size.width, false);
-        text_origin[1] += text_offset(mOffset.y, scaled_point_size, text_size.height, true);
-        aSurface.text(text_origin, mDisplayName, mTextColor, mTextSize, mTextStyle);
+        if (!text_origin.empty()) { // point is not disconnected
+            const double scaled_point_size = aSurface.convert(style.size()).value();
+            const Size text_size = aSurface.text_size(mDisplayName, mTextSize, mTextStyle);
+            text_origin[0] += text_offset(mOffset.x, scaled_point_size, text_size.width, false);
+            text_origin[1] += text_offset(mOffset.y, scaled_point_size, text_size.height, true);
+            aSurface.text(text_origin, mDisplayName, mTextColor, mTextSize, mTextStyle);
+        }
     }
 
 } // Label::draw
