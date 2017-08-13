@@ -32,7 +32,7 @@ cd "$TESTDIR"
 
 OUPUT="$TDIR/2004nd-003.$(date +%Y%m%d-%H%M).pdf"
 ../bin/acmacs-map-draw -m -s 2004nd-003.json 2004nd-003.ace "$OUPUT"
-if [ "$1" == "-v" ]; then
+if [[ "$(uname)" == "Darwin" && "$1" == "-v" ]]; then
     open "$OUPUT" && sleep 3
 fi
 
