@@ -222,7 +222,7 @@ void Arrow::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
     const bool x_eq = float_equal(mEnd.x, mBegin.x);
     const double sign2 = x_eq ? (mBegin.y < mEnd.y ? 1.0 : -1.0) : (mEnd.x < mBegin.x ? 1.0 : -1.0);
     const double angle = x_eq ? -M_PI_2 : std::atan((mEnd.y - mBegin.y) / (mEnd.x - mBegin.x));
-    const auto end = aSurface.arrow_head(mEnd, angle, sign2, mArrowHeadColor, mArrowWidth);
+    const auto end = aSurface.arrow_head(mEnd, angle, sign2, mArrowHeadColor, mArrowWidth, mArrowHeadFilled);
     aSurface.line(mBegin, end, mLineColor, mLineWidth);
 
 } // Arrow::draw
