@@ -14,6 +14,7 @@ BACKEND = $(DIST)/acmacs_map_draw_backend$(PYTHON_MODULE_SUFFIX)
 # ----------------------------------------------------------------------
 
 include $(ACMACSD_ROOT)/share/Makefile.g++
+include $(ACMACSD_ROOT)/share/Makefile.dist-build.vars
 
 PYTHON_VERSION = $(shell python3 -c 'import sys; print("{0.major}.{0.minor}".format(sys.version_info))')
 PYTHON_CONFIG = python$(PYTHON_VERSION)-config
@@ -33,8 +34,8 @@ PKG_INCLUDES = $(shell pkg-config --cflags cairo) $(shell pkg-config --cflags li
 
 # ----------------------------------------------------------------------
 
-BUILD = build
-DIST = $(abspath dist)
+# BUILD = build
+# DIST = $(abspath dist)
 
 all: check-acmacsd-root $(ACMACS_MAP_DRAW_LIB) $(BACKEND)
 
@@ -51,7 +52,7 @@ install-headers: check-acmacsd-root
 	ln -sf $(abspath cc)/*.hh $(ACMACSD_ROOT)/include/acmacs-map-draw
 
 test: install
-	test/test
+	test/test -v
 
 include $(ACMACSD_ROOT)/share/Makefile.rtags
 
@@ -67,12 +68,6 @@ $(ACMACS_MAP_DRAW_LIB): $(patsubst %.cc,$(BUILD)/%.o,$(SOURCES)) | $(DIST)
 $(BACKEND): $(patsubst %.cc,$(BUILD)/%.o,$(PY_SOURCES)) | $(DIST)
 	$(CXX) -shared $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-clean:
-	rm -rf $(DIST) $(BUILD)/*.o $(BUILD)/*.d
-
-distclean: clean
-	rm -rf $(BUILD)
-
 # ----------------------------------------------------------------------
 
 $(BUILD)/%.o: cc/%.cc | $(BUILD) install-headers
@@ -85,12 +80,11 @@ check-acmacsd-root:
 ifndef ACMACSD_ROOT
 	$(error ACMACSD_ROOT is not set)
 endif
+	$(info check-acmacsd-root BUILD $(BUILD))
+	$(info check-acmacsd-root DIST $(DIST))
+	$(info check-acmacsd-root $(BACKEND))
 
-$(DIST):
-	mkdir -p $(DIST)
-
-$(BUILD):
-	mkdir -p $(BUILD)
+include $(ACMACSD_ROOT)/share/Makefile.dist-build.rules
 
 .PHONY: check-acmacsd-root
 
