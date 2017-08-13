@@ -63,15 +63,17 @@ include $(ACMACSD_ROOT)/share/Makefile.rtags
 # ----------------------------------------------------------------------
 
 $(ACMACS_MAP_DRAW_LIB): $(patsubst %.cc,$(BUILD)/%.o,$(SOURCES)) | $(DIST)
-	$(CXX) -shared $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	@echo "SHARED     " $@ # '<--' $^
+	@$(CXX) -shared $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(BACKEND): $(patsubst %.cc,$(BUILD)/%.o,$(PY_SOURCES)) | $(DIST)
-	$(CXX) -shared $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	@echo "SHARED     " $@ # '<--' $^
+	@$(CXX) -shared $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 # ----------------------------------------------------------------------
 
 $(BUILD)/%.o: cc/%.cc | $(BUILD) install-headers
-	@echo $<
+	@echo "C++        " $<
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 # ----------------------------------------------------------------------
