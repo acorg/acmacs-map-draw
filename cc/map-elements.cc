@@ -42,6 +42,9 @@ MapElement& MapElements::add(std::string aKeyword)
     else if (aKeyword == "serum-circle") {
         mElements.emplace_back(new SerumCircle{});
     }
+    else if (aKeyword == "arrow") {
+        mElements.emplace_back(new Arrow{});
+    }
     else {
         throw std::runtime_error("Don't know how to make map element " + aKeyword);
     }
@@ -211,6 +214,21 @@ void SerumCircle::draw(Surface& aSurface, const ChartDraw& aChartDraw) const
     }
 
 } // SerumCircle::draw
+
+// ----------------------------------------------------------------------
+
+void Arrow::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
+{
+    const bool x_eq = float_equal(mEnd.x, mBegin.x);
+    const double sign2 = x_eq ? (mBegin.y < mEnd.y ? 1.0 : -1.0) : (mEnd.x < mBegin.x ? 1.0 : -1.0);
+    const double angle = x_eq ? -M_PI_2 : std::atan((mEnd.y - mBegin.y) / (mEnd.x - mBegin.x));
+    const auto end = aSurface.arrow_head(mEnd, angle, sign2, mArrowHeadColor, mArrowWidth);
+    aSurface.line(mBegin, end, mLineColor, mLineWidth);
+
+} // Arrow::draw
+
+// ----------------------------------------------------------------------
+
 
 // ----------------------------------------------------------------------
 /// Local Variables:

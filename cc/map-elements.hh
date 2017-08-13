@@ -206,6 +206,35 @@ class SerumCircle : public MapElement
 }; // class SerumCircle
 
 // ----------------------------------------------------------------------
+
+class Arrow : public MapElement
+{
+ public:
+    inline Arrow()
+        : MapElement{"arrow", MapElements::AfterPoints}, mLineColor{"pink"}, mArrowHeadColor{"pink"},
+          mArrowHeadFilled{true}, mLineWidth{1}, mArrowWidth{5} {}
+
+    virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
+
+    inline Arrow& from_to(const Location& aBegin, const Location& aEnd) { mBegin = aBegin; mEnd = aEnd; return *this; }
+    inline Arrow& color(Color aLineColor, Color aArrowHeadColor) { mLineColor = aLineColor; mArrowHeadColor = aArrowHeadColor; return *this; }
+    inline Arrow& color(Color aColor) { mLineColor = aColor; mArrowHeadColor = aColor; return *this; }
+    inline Arrow& arrow_head_filled(bool aFilled) { mArrowHeadFilled = aFilled; return *this; }
+    inline Arrow& line_width(double aLineWidth) { mLineWidth = aLineWidth; return *this; }
+    inline Arrow& arrow_width(double aArrowWidth) { mArrowWidth = aArrowWidth; return *this; }
+
+ private:
+    Location mBegin;
+    Location mEnd;
+    Color mLineColor;
+    Color mArrowHeadColor;
+    bool mArrowHeadFilled;
+    Pixels mLineWidth;
+    Pixels mArrowWidth;
+
+}; // class Arrow
+
+// ----------------------------------------------------------------------
 /// Local Variables:
 /// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
 /// End:

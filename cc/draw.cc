@@ -202,6 +202,16 @@ SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadius)
 
 // ----------------------------------------------------------------------
 
+Arrow& ChartDraw::arrow(const Location& aBegin, const Location& aEnd)
+{
+    auto& arrow = DYNAMIC_CAST(Arrow&, (mMapElements.add("arrow")));
+    arrow.from_to(aBegin, aEnd);
+    return arrow;
+
+} // ChartDraw::arrow
+
+// ----------------------------------------------------------------------
+
 void ChartDraw::remove_serum_circles()
 {
     mMapElements.remove("serum-circle");

@@ -475,6 +475,14 @@ class ModApplicator:
         if outside:
             self.antigens(N="antigens", select=outside, report=False, **outside_4fold)
 
+    def arrow(self, begin, end, line_color="pink", arrow_head_color="pink", line_width=10, arrow_width=20, **args):
+        # module_logger.info('Arrow {} {}'.format(begin, end))
+        arr = self._chart_draw.arrow(begin[0], begin[1], end[0], end[1])
+        arr.color(line_color=line_color, arrow_head_color=arrow_head_color)
+        arr.arrow_head_filled(True)
+        arr.line_width(line_width)
+        arr.arrow_width(arrow_width)
+
     def compare_with_previous(self, new=None, old=None, ignore_reference=True, **args):
         if self._previous_chart is not None:
             new_indices = set(self._chart.antigens_not_found_in(self._previous_chart))

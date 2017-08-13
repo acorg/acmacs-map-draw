@@ -117,6 +117,7 @@ class ChartDraw
     inline Labels& labels() { return mLabels; }
     inline Label& add_label(size_t aIndex) { return mLabels.add(aIndex, mChart); }
     SerumCircle& serum_circle(size_t aSerumNo, Scaled aRadius);
+    Arrow& arrow(const Location& aBegin, const Location& aEnd);
     void remove_serum_circles();
 
     inline const LayoutBase& transformed_layout() const
