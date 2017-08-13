@@ -80,9 +80,6 @@ check-acmacsd-root:
 ifndef ACMACSD_ROOT
 	$(error ACMACSD_ROOT is not set)
 endif
-	$(info check-acmacsd-root BUILD $(BUILD))
-	$(info check-acmacsd-root DIST $(DIST))
-	$(info check-acmacsd-root $(BACKEND))
 
 include $(ACMACSD_ROOT)/share/Makefile.dist-build.rules
 
