@@ -3,10 +3,19 @@
 #include <string>
 #include <vector>
 
-#include "acmacs-base/color.hh"
 #include "acmacs-base/size-scale.hh"
 #include "acmacs-draw/size.hh"
 #include "acmacs-draw/text-style.hh"
+
+#ifdef ACMACS_TARGET_OS
+#include "acmacs-base/color.hh"
+#endif
+
+#ifdef ACMACS_TARGET_BROWSER
+#include "client/color.hh"
+#endif
+
+// ----------------------------------------------------------------------
 
 class ChartBase;
 class Surface;
