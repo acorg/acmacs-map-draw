@@ -1,5 +1,5 @@
 #include "acmacs-draw/surface.hh"
-#include "point-style-draw.hh"
+#include "acmacs-map-draw/point-style-draw.hh"
 
 // ----------------------------------------------------------------------
 
@@ -8,7 +8,7 @@ void PointStyleDraw::draw(Surface& aSurface, const Coordinates& aCoord) const
     if (shown_raw() == Shown::Shown && !aCoord.empty()) {
         switch (shape()) {
           case Shape::NoChange:
-              throw std::runtime_error("Invalid point shape NoChange");
+              THROW_OR_CERR(std::runtime_error("Invalid point shape NoChange"));
           case Shape::Circle:
               aSurface.circle_filled(aCoord, size(), aspect(), rotation(), outline_raw(), outline_width(), fill_raw());
               break;
@@ -21,7 +21,7 @@ void PointStyleDraw::draw(Surface& aSurface, const Coordinates& aCoord) const
         }
     }
     else if (shown_raw() == Shown::NoChange)
-        throw std::runtime_error("Invalid shown value NoChange");
+        THROW_OR_CERR(std::runtime_error("Invalid shown value NoChange"));
 
 } // PointStyleDraw::draw
 

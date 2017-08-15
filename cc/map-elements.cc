@@ -1,7 +1,6 @@
 #include "acmacs-draw/continent-map.hh"
-#include "acmacs-chart/chart.hh"
-#include "map-elements.hh"
-#include "draw.hh"
+#include "acmacs-map-draw/map-elements.hh"
+#include "acmacs-map-draw/draw.hh"
 
 // ----------------------------------------------------------------------
 
@@ -46,7 +45,7 @@ MapElement& MapElements::add(std::string aKeyword)
         mElements.emplace_back(new Arrow{});
     }
     else {
-        throw std::runtime_error("Don't know how to make map element " + aKeyword);
+        THROW_OR_CERR_NO_RETURN(std::runtime_error("Don't know how to make map element " + aKeyword));
     }
     return *mElements.back();
 
