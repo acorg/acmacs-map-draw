@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include "acmacs-base/throw.hh"
+#include "acmacs-base/log.hh"
 #include "acmacs-base/float.hh"
 #include "acmacs-map-draw/draw.hh"
 
@@ -103,8 +104,9 @@ void ChartDraw::calculate_viewport()
 
 void ChartDraw::draw(Surface& aSurface) const
 {
-    if (mViewport.empty())
+    if (mViewport.empty()) {
         THROW_OR_CERR(std::runtime_error("Call calculate_viewport() before draw()"));
+    }
 
     Surface& rescaled_surface = aSurface.subsurface({0, 0}, Scaled{aSurface.viewport().size.width}, mViewport, true);
     mMapElements.draw(rescaled_surface, MapElements::BeforePoints, *this);
