@@ -39,7 +39,7 @@ std::string Vaccines::report(size_t aIndent) const
             const auto& vacc = mVaccinesOfChart[entry.vaccines_of_chart_index];
             const std::string s = vacc.report(entry.passage_type, aIndent, entry.antigen_no);
             if (!s.empty())
-                result += std::string(aIndent, ' ') + vacc.type() + " " + vacc.name() + s.substr(aIndent - 1);
+                result += std::string(aIndent, ' ') + vacc.type() + " " + vacc.name() + s.substr(aIndent - 1) + " " + entry.style.fill();
         }
     }
     return result;
