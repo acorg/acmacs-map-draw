@@ -99,7 +99,7 @@ sSettings = {
              "?label": {"name_type": "abbreviated_with_passage_type", "offset": [0, 1], "?display_name": "XX", "color": "black", "size": 12, "?weight": "bold", "?slant": "italic", "?font_family": "serif"},
              "?select_variants": [
                  {"name": "NEBRASKA/4/"},
-                 {"index": 0}, {"indices": [0, 1]},
+                 {"index": 0}, {"indices": [0, 1]}, {"lab": "CDC", "index": 0, "?": "only for CDC, also use \"raise_if_not_found\": false"},
                  "reference", "test", "all", "sequenced", "not_sequenced",
                  {"date_range": ["2010-01-01", ""]}, {"older_than_days": 365}, {"younger_than_days": 365},
                  {"passage_type": "egg"}, {"passage_type": "cell"}, {"passage_type": "reassortant"},
@@ -109,7 +109,7 @@ sSettings = {
              "?label": {"name_type": "abbreviated_with_passage_type", "offset": [0, 1], "?display_name": "XX", "color": "black", "size": 12, "?weight": "bold", "?slant": "italic", "?font_family": "serif"},
              "?select_variants": [
                  {"name": "NEBRASKA/4/"},
-                 {"index": 0}, {"indices": [0, 1]},
+                 {"index": 0}, {"indices": [0, 1]}, {"lab": "CDC", "index": 0, "?": "only for CDC, also use \"raise_if_not_found\": false"},
                  "all"
                  ]},
         {"N": "continents", "exclude_reference": True, "outline": "black", "legend": {"show": False, "offset": [-1, -1], "size": 100}},

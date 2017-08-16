@@ -170,41 +170,51 @@ class ModApplicator:
 
     def antigens(self, N, select, raise_if_not_found=True, raise_if_multiple=False, report=True, report_names_threshold=10, **args):
         indices = self._select_antigens(select=select, raise_if_not_found=raise_if_not_found, raise_if_multiple=raise_if_multiple)
-        antigens = self._chart.antigens()
-        if report:
-            if report_names_threshold is None or (indices and len(indices) <= report_names_threshold):
-                names = ["{:4d} {} [{}]".format(index, antigens[index].full_name(), antigens[index].date()) for index in indices]
-                module_logger.info('Antigens {}: select:{!r} {}\n    {}'.format(len(indices), select, args, "\n    ".join(names)))
-            elif indices and len(indices) < 20:
-                module_logger.info('Antigens {}:{}: select:{!r} {}'.format(len(indices), indices, select, args))
-            else:
-                module_logger.info('Antigens {}: select:{!r} {}'.format(len(indices), select, args))
-        self.style(index=indices, **args)
-        if "label" in args and args["label"].get("show", True):
-            for index in indices:
-                self.label(index=index, **args["label"])
+        if indices:
+            if any(index >= self._chart.number_of_antigens() for index in indices):
+                raise RuntimeError("Antigen index in {!r} is out of range {}:{} for {}".format(indices, 0, self._chart.number_of_antigens() - 1, self._chart.chart_info().make_name()))
+            antigens = self._chart.antigens()
+            if report:
+                if report_names_threshold is None or (indices and len(indices) <= report_names_threshold):
+                    names = ["{:4d} {} [{}]".format(index, antigens[index].full_name(), antigens[index].date()) for index in indices]
+                    module_logger.info('Antigens {}: select:{!r} {}\n    {}'.format(len(indices), select, args, "\n    ".join(names)))
+                elif indices and len(indices) < 20:
+                    module_logger.info('Antigens {}:{}: select:{!r} {}'.format(len(indices), indices, select, args))
+                else:
+                    module_logger.info('Antigens {}: select:{!r} {}'.format(len(indices), select, args))
+            self.style(index=indices, **args)
+            if "label" in args and args["label"].get("show", True):
+                for index in indices:
+                    self.label(index=index, **args["label"])
+        else:
+            module_logger.warning('No antigens selected by {} in {}'.format(select, self._chart.chart_info().make_name()))
 
     def sera(self, N, select, raise_if_not_found=True, raise_if_multiple=False, report=True, report_names_threshold=10, homologous_ag_no=None, **args):
         indices = self._select_sera(select=select, raise_if_not_found=raise_if_not_found, raise_if_multiple=raise_if_multiple)
-        sera = self._chart.sera()
-        if report:
-            if report_names_threshold is None or len(indices) <= report_names_threshold:
-                names = ["{:3d} {}".format(index, sera[index].full_name()) for index in indices]
-                module_logger.info('Sera {}: select:{!r} {}\n    {}'.format(len(indices), select, args, "\n    ".join(names)))
-            elif len(indices) < 20:
-                module_logger.info('Sera {}:{}: select:{!r} {}'.format(len(indices), indices, select, args))
-            else:
-                module_logger.info('Sera {}: select:{!r} {}'.format(len(indices), select, args))
-        number_of_antigens = self._chart.number_of_antigens()
-        self.style(index=[index + number_of_antigens for index in indices], **args)
-        if "label" in args and args["label"].get("show", True):
-            for index in indices:
-                if args["label"].get("name_type") == "abbreviated_hom_max" and homologous_ag_no is not None and args["label"].get("display_name") is None:
-                    args["label"]["display_name"] = "{} ({}; hom: {}; max: {})".format(self._chart.serum(index).abbreviated_name(get_locdb()),
-                                                                          self._chart.antigen(homologous_ag_no).passage_type(),
-                                                                          self._chart.titers().get(ag_no=homologous_ag_no, sr_no=index),
-                                                                          self._chart.titers().max_for_serum(sr_no=index))
-                self.label(index=index + number_of_antigens, **args["label"])
+        if indices:
+            if any(index >= self._chart.number_of_sera() for index in indices):
+                raise RuntimeError("Serum index in {!r} is out of range {}:{} for {}".format(indices, 0, self._chart.number_of_sera() - 1, self._chart.chart_info().make_name()))
+            sera = self._chart.sera()
+            if report:
+                if report_names_threshold is None or len(indices) <= report_names_threshold:
+                    names = ["{:3d} {}".format(index, sera[index].full_name()) for index in indices]
+                    module_logger.info('Sera {}: select:{!r} {}\n    {}'.format(len(indices), select, args, "\n    ".join(names)))
+                elif len(indices) < 20:
+                    module_logger.info('Sera {}:{}: select:{!r} {}'.format(len(indices), indices, select, args))
+                else:
+                    module_logger.info('Sera {}: select:{!r} {}'.format(len(indices), select, args))
+            number_of_antigens = self._chart.number_of_antigens()
+            self.style(index=[index + number_of_antigens for index in indices], **args)
+            if "label" in args and args["label"].get("show", True):
+                for index in indices:
+                    if args["label"].get("name_type") == "abbreviated_hom_max" and homologous_ag_no is not None and args["label"].get("display_name") is None:
+                        args["label"]["display_name"] = "{} ({}; hom: {}; max: {})".format(self._chart.serum(index).abbreviated_name(get_locdb()),
+                                                                              self._chart.antigen(homologous_ag_no).passage_type(),
+                                                                              self._chart.titers().get(ag_no=homologous_ag_no, sr_no=index),
+                                                                              self._chart.titers().max_for_serum(sr_no=index))
+                    self.label(index=index + number_of_antigens, **args["label"])
+        else:
+            module_logger.warning('No sera selected by {} in {}'.format(select, self._chart.chart_info().make_name()))
 
     def serology(self, N, name, mark_no=None, size=50, fill="orange", outline="black", raise_=True, report=True, report_names_threshold=10, **args):
         self.antigens(N=N, select={"name": name, "match_virus_name": True, "mark_no": mark_no}, size=size, fill=fill, outline=outline, raise_=raise_, raise_if_not_found=False, report=report, report_names_threshold=report_names_threshold, **args)
@@ -545,7 +555,9 @@ class ModApplicator:
             else:
                 indices = antigens.find_by_name_matching(name=select, verbose=self._verbose)
         elif isinstance(select, dict):
-            if "date_range" in select:
+            if select.get("lab") and self._chart.chart_info().lab() != select["lab"]:
+                indices = []    # wrong lab
+            elif "date_range" in select:
                 indices = antigens.date_range_indices(first=select["date_range"][0], after_last=select["date_range"][1])
             elif "older_than_days" in select:
                 indices = antigens.date_range_indices(after_last=(datetime.date.today() - datetime.timedelta(days=select["older_than_days"])).strftime("%Y-%m-%d"))
@@ -608,7 +620,9 @@ class ModApplicator:
             else:
                 indices = sera.find_by_name_matching(name=select, verbose=self._verbose)
         elif isinstance(select, dict):
-            if "name" in select:
+            if select.get("lab") and self._chart.chart_info().lab() != select["lab"]:
+                indices = []    # wrong lab
+            elif "name" in select:
                 indices = sera.find_by_name_matching(name=select["name"], score_threshold=select.get("score_threshold", 0), verbose=self._verbose)
                 if select.get("no") is not None:
                     indices = [indices[select["no"]]]
