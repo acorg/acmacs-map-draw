@@ -128,7 +128,7 @@ sSettings = {
              "outside_4fold": {"fill": "grey50", "outline": "black", "raise_": True},
              "mark_serum": {"fill": "red", "outline": "black", "raise_": True, "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12, "weight": "bold"}},
              },
-        {"N": "vaccines",
+        {"N": "vaccines", "report_all": False,
              "mods": [
                  {"size": 15, "label": {"offset": [0, 1], "color": "black", "weight": "normal", "slant": "normal", "font_family": "helvetica neu", "size": 12, "name_type": "abbreviated_with_passage_type"}},
                  {"type": "previous", "fill": "blue", "outline": "black"},

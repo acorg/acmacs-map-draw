@@ -298,7 +298,8 @@ class ModApplicator:
     def legend(self, legend_data, settings, **args):
         self._make_legend(legend_data=legend_data, legend_settings=settings)
 
-    def vaccines(self, raise_=True, mods=None, **args):
+    def vaccines(self, raise_=True, mods=None, report_all=False, **args):
+        """List of vaccines is in hidb/cc/vaccines.cc"""
         # fill=None, outline=None, show=None, shape=None, size=None, outline_width=None, aspect=None, rotation=None
 
         def matcher_apply(matcher, prefix, name="", type="", passage_type="", passage=None, label=None, **args):
@@ -327,7 +328,8 @@ class ModApplicator:
             if mod.get("label"):
                 matcher_apply(make_matcher(vaccs, **mod).label(self._chart_draw, get_locdb()), prefix="Vaccine mod label", **mod["label"])
 
-        # module_logger.debug('ALL\n{}'.format(vaccs.report_all(2)))
+        if report_all:
+            module_logger.debug('ALL\n{}'.format(vaccs.report_all(2)))
         module_logger.debug('FILTERED\n{}'.format(vaccs.report(2)))
         vaccs.plot(self._chart_draw)
 
