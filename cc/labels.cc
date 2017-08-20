@@ -72,6 +72,16 @@ Label& Labels::add(size_t aIndex, const ChartBase& aChart)
 
 // ----------------------------------------------------------------------
 
+void Labels::remove(size_t aIndex)
+{
+    const auto found = std::find_if(mLabels.begin(), mLabels.end(), [&aIndex](const auto& label) { return label.index() == aIndex; });
+    if (found != mLabels.end())
+        mLabels.erase(found);
+
+} // Labels::remove
+
+// ----------------------------------------------------------------------
+
 void Labels::draw(Surface& aSurface, const LayoutBase& aLayout, const std::vector<PointStyleDraw>& aPointStyles) const
 {
     for (const Label& label: mLabels) {

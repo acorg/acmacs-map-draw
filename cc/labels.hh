@@ -54,6 +54,7 @@ class Labels
     Labels();
 
     Label& add(size_t aIndex, const ChartBase& aChart);
+    void remove(size_t aIndex);
     void draw(Surface& aSurface, const LayoutBase& aLayout, const std::vector<PointStyleDraw>& aPointStyles) const;
 
  private:

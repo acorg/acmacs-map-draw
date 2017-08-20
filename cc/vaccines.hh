@@ -69,10 +69,10 @@ class VaccineMatcherBase
             for_each([&](auto& entry) { mf(entry.style, arg); });
         }
 
-    template <typename F> inline void for_each_with_vacc(F f)
+    template <typename F> inline void for_each_with_vacc(F f, bool only_shown = true)
         {
             for_each([&](auto& entry) {
-                    if (entry.style.shown()) {
+                    if (!only_shown || entry.style.shown()) {
                         const auto* vacc_entry = mVaccines.mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, entry.antigen_no);
                         if (vacc_entry)
                             f(*vacc_entry);
@@ -121,6 +121,8 @@ class VaccineMatcherLabel : public VaccineMatcherBase
     inline VaccineMatcherLabel& offset(double x, double y) { for_each_mf(&Label::offset, x, y); return *this; }
     VaccineMatcherLabel& name_type(std::string aNameType);
 
+    inline VaccineMatcherLabel& hide() { for_each_with_vacc([this](const auto& vacc_entry) { mChartDraw.remove_label(vacc_entry.antigen_index); }, false); return *this; }
+
  private:
     ChartDraw& mChartDraw;
     const LocDb& mLocDb;
@@ -149,6 +151,7 @@ class VaccineMatcher : public VaccineMatcherBase
     inline VaccineMatcher& rotation(double aRotation) { for_each_style_mf(std::mem_fn<PointStyle&(double)>(&PointStyle::rotation), aRotation); return *this; }
 
     inline VaccineMatcherLabel* label(ChartDraw& aChartDraw, const LocDb& aLocDb) { return new VaccineMatcherLabel(*this, aChartDraw, aLocDb); }
+    inline void hide_label(ChartDraw& aChartDraw, const LocDb& aLocDb) { VaccineMatcherLabel(*this, aChartDraw, aLocDb).hide(); }
 
  private:
     inline VaccineMatcher(Vaccines& aVaccines, std::string aName, std::string aType, std::string aPassageType)

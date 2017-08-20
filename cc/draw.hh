@@ -116,6 +116,7 @@ class ChartDraw
     inline Title& title() { return DYNAMIC_CAST(Title&, (mMapElements["title"])); }
     inline Labels& labels() { return mLabels; }
     inline Label& add_label(size_t aIndex) { return mLabels.add(aIndex, mChart); }
+    inline void remove_label(size_t aIndex) { return mLabels.remove(aIndex); }
     SerumCircle& serum_circle(size_t aSerumNo, Scaled aRadius);
     Arrow& arrow(const Location& aBegin, const Location& aEnd);
     void remove_serum_circles();
