@@ -176,7 +176,8 @@ class ModApplicator:
             antigens = self._chart.antigens()
             if report:
                 if report_names_threshold is None or (indices and len(indices) <= report_names_threshold):
-                    names = ["{:4d} {} [{}]".format(index, antigens[index].full_name(), antigens[index].date()) for index in indices]
+                    layout = self._chart.projection(self._projection_no).layout()
+                    names = ["{:4d} {} [{}] {}".format(index, antigens[index].full_name(), antigens[index].date(), layout[index]) for index in indices]
                     module_logger.info('Antigens {}: select:{!r} {}\n    {}'.format(len(indices), select, args, "\n    ".join(names)))
                 elif indices and len(indices) < 20:
                     module_logger.info('Antigens {}:{}: select:{!r} {}'.format(len(indices), indices, select, args))
