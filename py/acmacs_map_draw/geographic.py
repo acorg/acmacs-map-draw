@@ -78,6 +78,9 @@ def geographic_time_series(output_prefix, virus_type, period, start_date, end_da
     elif settings["coloring"] == "lineage":
         from .coloring import sLineageColor
         ts.draw_colored_by_lineage(filename_prefix=output_prefix, lineage_color=sLineageColor, image_width=settings.get("output_image_width", 800))
+    elif settings["coloring"] == "lineage-with-mods":
+        from .coloring import sLineageColor
+        ts.draw_colored_by_lineage(filename_prefix=output_prefix, lineage_color=sLineageColor, image_width=settings.get("output_image_width", 800))
     else:
         raise ValueError("Unsupported coloring: " + repr(settings["coloring"]))
 
