@@ -155,6 +155,34 @@ class ColoringByLineage : public GeographicMapColoring
 
 // ----------------------------------------------------------------------
 
+class ColorOverride : public GeographicMapColoring
+{
+ public:
+    inline ColorOverride(const std::map<std::string, std::string>& aNameColor)
+        {
+            for (auto [name, color]: aNameColor) {
+                if (!name.empty() && name[0] != '?' && !color.empty() && color[0] != '?')
+                    mColors.emplace(name, color);
+            }
+        }
+
+    virtual Color color(const hidb::AntigenData& aAntigen) const
+        {
+            try {
+                return mColors.at(aAntigen.name());
+            }
+            catch (...) {
+                return ColorNoChange;
+            }
+        }
+
+ private:
+    std::map<std::string, Color> mColors;
+
+}; // class ColorOverride
+
+// ----------------------------------------------------------------------
+
 class GeographicMapWithPointsFromHidb : public GeographicMapDraw
 {
  public:
@@ -163,11 +191,11 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
 
     virtual void prepare(Surface& aSurface);
 
-    void add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, std::string aStartDate, std::string aEndDate);
+    void add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, std::string aStartDate, std::string aEndDate);
 
-    inline void add_points_from_hidb_colored_by_continent(const std::map<std::string, std::string>& aContinentColor, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByContinent(aContinentColor, mLocDb), aStartDate, aEndDate); }
-    inline void add_points_from_hidb_colored_by_clade(const std::map<std::string, std::string>& aCladeColor, const seqdb::Seqdb& aSeqdb, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByClade(aCladeColor, aSeqdb), aStartDate, aEndDate); }
-    inline void add_points_from_hidb_colored_by_lineage(const std::map<std::string, std::string>& aLineageColor, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineage(aLineageColor), aStartDate, aEndDate); }
+    inline void add_points_from_hidb_colored_by_continent(const std::map<std::string, std::string>& aContinentColor, const std::map<std::string, std::string>& aColorOverride, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByContinent(aContinentColor, mLocDb), ColorOverride(aColorOverride), aStartDate, aEndDate); }
+    inline void add_points_from_hidb_colored_by_clade(const std::map<std::string, std::string>& aCladeColor, const std::map<std::string, std::string>& aColorOverride, const seqdb::Seqdb& aSeqdb, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByClade(aCladeColor, aSeqdb), ColorOverride(aColorOverride), aStartDate, aEndDate); }
+    inline void add_points_from_hidb_colored_by_lineage(const std::map<std::string, std::string>& aLineageColor, const std::map<std::string, std::string>& aColorOverride, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineage(aLineageColor), ColorOverride(aColorOverride), aStartDate, aEndDate); }
 
     inline const LocDb& locdb() const { return mLocDb; }
 
@@ -224,8 +252,8 @@ class GeographicTimeSeriesBase
     virtual ~GeographicTimeSeriesBase();
 
     inline Title& title() { return mMap.title(); }
-    virtual void draw(std::string aFilenamePrefix, const GeographicMapColoring& aColoring, double aImageWidth) const = 0;
-    void draw(std::string aFilenamePrefix, TimeSeriesIterator& aBegin, const TimeSeriesIterator& aEnd, const GeographicMapColoring& aColoring, double aImageWidth) const;
+    virtual void draw(std::string aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const = 0;
+    void draw(std::string aFilenamePrefix, TimeSeriesIterator& aBegin, const TimeSeriesIterator& aEnd, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const;
 
     inline const LocDb& locdb() const { return mMap.locdb(); }
 
@@ -242,7 +270,7 @@ template <typename TimeSeries> class GeographicTimeSeries : public GeographicTim
     inline GeographicTimeSeries(std::string aStart, std::string aEnd, const hidb::HiDb& aHiDb, const LocDb& aLocDb, double aPointSizeInPixels, double aPointDensity, std::string aOutlineColor, double aOutlineWidth)
         : GeographicTimeSeriesBase(aHiDb, aLocDb, aPointSizeInPixels, aPointDensity, aOutlineColor, aOutlineWidth), mTS(aStart, aEnd) {}
 
-    virtual inline void draw(std::string aFilenamePrefix, const GeographicMapColoring& aColoring, double aImageWidth) const { auto start = mTS.begin(), end = mTS.end(); GeographicTimeSeriesBase::draw(aFilenamePrefix, start, end, aColoring, aImageWidth); }
+    virtual inline void draw(std::string aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const { auto start = mTS.begin(), end = mTS.end(); GeographicTimeSeriesBase::draw(aFilenamePrefix, start, end, aColoring, aColorOverride, aImageWidth); }
 
  private:
     TimeSeries mTS;

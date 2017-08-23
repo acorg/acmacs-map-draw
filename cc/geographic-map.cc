@@ -99,13 +99,18 @@ void GeographicMapWithPointsFromHidb::prepare(Surface& aSurface)
 
 // ----------------------------------------------------------------------
 
-void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, std::string aStartDate, std::string aEndDate)
+void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, std::string aStartDate, std::string aEndDate)
 {
     auto antigens = mHiDb.all_antigens();
     antigens.date_range(aStartDate, aEndDate);
       // std::cerr << "Antigens selected: " << antigens.size() << std::endl;
     for (auto& antigen: antigens) {
-        mPoints.add(virus_name::location(antigen->data().name()), aColoring.color(*antigen));
+        auto color = aColorOverride.color(*antigen);
+        if (color.empty())
+            color = aColoring.color(*antigen);
+        // else
+        //     std::cout << "Color override " << antigen->name() << ' '  << color << '\n';
+        mPoints.add(virus_name::location(antigen->data().name()), color);
     }
       // std::cerr << "Locations: " << mPoints.size() << std::endl;
 
@@ -119,11 +124,11 @@ GeographicTimeSeriesBase::~GeographicTimeSeriesBase()
 
 // ----------------------------------------------------------------------
 
-void GeographicTimeSeriesBase::draw(std::string aFilenamePrefix, TimeSeriesIterator& aBegin, const TimeSeriesIterator& aEnd, const GeographicMapColoring& aColoring, double aImageWidth) const
+void GeographicTimeSeriesBase::draw(std::string aFilenamePrefix, TimeSeriesIterator& aBegin, const TimeSeriesIterator& aEnd, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const
 {
     for (; aBegin != aEnd; ++aBegin) {
         GeographicMapWithPointsFromHidb map = mMap;
-        map.add_points_from_hidb_colored_by(aColoring, *aBegin, aBegin.next());
+        map.add_points_from_hidb_colored_by(aColoring, aColorOverride, *aBegin, aBegin.next());
         map.title().add_line(aBegin.text_name());
         map.draw(aFilenamePrefix + aBegin.numeric_name() + ".pdf", aImageWidth);
     }
