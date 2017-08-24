@@ -110,7 +110,10 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const Geog
             color = aColoring.color(*antigen);
         // else
         //     std::cout << "Color override " << antigen->name() << ' '  << color << '\n';
-        mPoints.add(virus_name::location(antigen->data().name()), color);
+        auto location = virus_name::location(antigen->name());
+        if (location == "GEORGIA" && antigen->most_recent_table().table_id().find(":cdc:") != std::string::npos)
+            location = "GEORGIA STATE"; // somehow disambiguate
+        mPoints.add(location, color);
     }
       // std::cerr << "Locations: " << mPoints.size() << std::endl;
 
