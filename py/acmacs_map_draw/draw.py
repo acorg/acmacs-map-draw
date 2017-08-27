@@ -44,13 +44,15 @@ def draw_chart(output_file, chart, settings, output_width, previous_chart=None, 
     chart_draw.calculate_viewport()
     if draw_map:
         chart_draw.draw(str(output_file), output_width)
-    return chart_draw, applicator._antigens_shown_on_all
+    # if applicator._vaccine_report:
+    #     module_logger.info("Applicator._vaccine_report\n{}".format(applicator._vaccine_report))
+    return {"chart_draw": chart_draw, "antigens_shown_on_all": applicator._antigens_shown_on_all, "vaccine_report": applicator._vaccine_report}
 
 # ----------------------------------------------------------------------
 
 def antigenic_time_series(output_prefix, chart, period, start_date, end_date, output_width, settings, title_prefix=None, previous_chart=None, seqdb_file=None, verbose=False):
     from acmacs_map_draw_backend import PointStyle
-    chart_draw, antigens_shown_on_all = draw_chart(output_file=None, chart=chart, previous_chart=previous_chart, settings=settings, output_width=None, draw_map=False, seqdb_file=seqdb_file, verbose=verbose)
+    draw_result = draw_chart(output_file=None, chart=chart, previous_chart=previous_chart, settings=settings, output_width=None, draw_map=False, seqdb_file=seqdb_file, verbose=verbose)
     if period == "month":
         from acmacs_map_draw_backend import MonthlyTimeSeries
         ts = MonthlyTimeSeries(start=start_date, end=end_date)
@@ -63,14 +65,14 @@ def antigenic_time_series(output_prefix, chart, period, start_date, end_date, ou
     else:
         raise ValueError("Unsupported period: " + repr(period) + ", expected \"month\", \"year\", \"week\"")
     number_of_antigens = chart.number_of_antigens()
-    shown_on_all = sorted(antigens_shown_on_all | set(chart.antigens().reference_indices()) | set(sr_no + number_of_antigens for sr_no in range(chart.number_of_sera())))
+    shown_on_all = sorted(draw_result["antigens_shown_on_all"] | set(chart.antigens().reference_indices()) | set(sr_no + number_of_antigens for sr_no in range(chart.number_of_sera())))
     # module_logger.debug('Shown_on_all {}'.format(shown_on_all))
     for ts_entry in ts:
         module_logger.debug('TS {!r} {!r} {}..{}'.format(ts_entry.numeric_name(), ts_entry.text_name(), ts_entry.first_date(), ts_entry.after_last_date()))
-        chart_draw.hide_all_except(shown_on_all)
-        chart_draw.modify(indices=chart.antigens().date_range_indices(ts_entry.first_date(), ts_entry.after_last_date()), style=PointStyle().show(True))
-        chart_draw.title().remove_all_lines().add_line((title_prefix or "") + ts_entry.text_name());
-        chart_draw.draw("{}-{}.pdf".format(output_prefix, ts_entry.numeric_name()), output_width)
+        draw_result["chart_draw"].hide_all_except(shown_on_all)
+        draw_result["chart_draw"].modify(indices=chart.antigens().date_range_indices(ts_entry.first_date(), ts_entry.after_last_date()), style=PointStyle().show(True))
+        draw_result["chart_draw"].title().remove_all_lines().add_line((title_prefix or "") + ts_entry.text_name());
+        draw_result["chart_draw"].draw("{}-{}.pdf".format(output_prefix, ts_entry.numeric_name()), output_width)
 
 # ----------------------------------------------------------------------
 
@@ -122,6 +124,7 @@ class ModApplicator:
         self._seqdb_file = seqdb_file
         self._verbose = verbose
         self._antigens_shown_on_all = set() # for time series
+        self._vaccine_report = ""
 
     def flip_ns(self, **args):
         self._chart_draw.flip_ns()
@@ -330,8 +333,9 @@ class ModApplicator:
                 matcher_apply(make_matcher(vaccs, **mod).label(self._chart_draw, get_locdb()), prefix="Vaccine mod label", **mod["label"])
 
         if report_all:
-            module_logger.debug('ALL\n{}'.format(vaccs.report_all(2)))
-        module_logger.debug('FILTERED\n{}'.format(vaccs.report(2)))
+            module_logger.debug('ALL\n{}'.format(vaccs.report_all(indent=2)))
+        self._vaccine_report += vaccs.report(indent=0)
+        module_logger.debug('FILTERED\n{}'.format(vaccs.report(indent=2)), stack_info=True)
         vaccs.plot(self._chart_draw)
 
         # ----------------------------------------------------------------------
