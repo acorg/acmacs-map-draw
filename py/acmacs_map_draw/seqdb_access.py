@@ -57,11 +57,14 @@ def antigen_clades(chart, seqdb_file=None, verbose=False):
 
 # ----------------------------------------------------------------------
 
-def get_seqdb(seqdb_file :Path = None):
+def get_seqdb(seqdb_file :Path = None, seqdb_dir=None):
     global sSeqdb
     if sSeqdb is None:
         if seqdb_file is None:
-            seqdb_file = Path(os.environ["ACMACSD_ROOT"], "data", "seqdb.json.xz")
+            if seqdb_dir is None:
+                seqdb_file = Path(os.environ["ACMACSD_ROOT"], "data", "seqdb.json.xz")
+            else:
+                seqdb_file = Path(seqdb_dir, "seqdb.json.xz")
         filename = str(Path(seqdb_file).expanduser().resolve())
         with timeit("Loading seqdb from " + filename):
             sSeqdb = Seqdb()

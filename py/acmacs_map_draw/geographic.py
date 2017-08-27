@@ -73,7 +73,7 @@ def geographic_time_series(output_prefix, virus_type, period, start_date, end_da
         ts.draw_colored_by_continent(filename_prefix=output_prefix, continent_color=sContinentColor, color_override=settings.get("color_override", {}), image_width=settings.get("output_image_width", 800))
     elif settings["coloring"] == "clade":
         from .coloring import sCladeColor
-        ts.draw_colored_by_clade(filename_prefix=output_prefix, clade_color=sCladeColor, seqdb=get_seqdb(), color_override=settings.get("color_override", {}), image_width=settings.get("output_image_width", 800))
+        ts.draw_colored_by_clade(filename_prefix=output_prefix, clade_color=sCladeColor, seqdb=get_seqdb(seqdb_dir=settings.get("seqdb_dir")), color_override=settings.get("color_override", {}), image_width=settings.get("output_image_width", 800))
     elif settings["coloring"] == "lineage":
         from .coloring import sLineageColor
         ts.draw_colored_by_lineage(filename_prefix=output_prefix, lineage_color=sLineageColor, color_override=settings.get("color_override", {}), image_width=settings.get("output_image_width", 800))
