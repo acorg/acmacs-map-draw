@@ -17,7 +17,7 @@
 // ----------------------------------------------------------------------
 
 DrawingOrder::DrawingOrder(ChartBase& aChart)
-    : std::vector<size_t>(Range<size_t>::begin(aChart.number_of_points()), Range<size_t>::end())
+    : std::vector<size_t>(incrementer<size_t>::begin(0), incrementer<size_t>::end(aChart.number_of_points()))
 {
 } // DrawingOrder::DrawingOrder
 
