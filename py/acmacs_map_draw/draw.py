@@ -515,6 +515,9 @@ class ModApplicator:
             if old is not None:
                 self.antigens(N="antigens", select=list(test_indices - new_indices), report=False, **old)
 
+    def use_chart_plot_spec(self, **args):
+        pass
+
     def _make_point_style(self, *data):
         from acmacs_map_draw_backend import PointStyle
         style = PointStyle()

@@ -94,6 +94,7 @@ sSettings = {
         {"N": "rotate_degrees", "angle": 30}, {"N": "rotate_radians", "angle": -1},
         {"N": "viewport", "value": [-6, -6, 10]},
         "egg", "reassortant", "all_grey",
+        "use_chart_plot_spec",
         {},
         {"N": "antigens", "select": "?", "fill": "blue4", "outline": "red", "raise_": True, "report": True, "report_names_threshold": 10,
              "?label": {"name_type": "abbreviated_with_passage_type", "offset": [0, 1], "?display_name": "XX", "color": "black", "size": 12, "?weight": "bold", "?slant": "italic", "?font_family": "serif"},
