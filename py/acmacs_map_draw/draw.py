@@ -516,7 +516,19 @@ class ModApplicator:
                 self.antigens(N="antigens", select=list(test_indices - new_indices), report=False, **old)
 
     def use_chart_plot_spec(self, **args):
-        pass
+        plot_spec = self._chart.plot_spec()
+        for p_no in range(self._chart.number_of_antigens() + self._chart.number_of_sera()):
+            p_style = plot_spec.style_for(p_no)
+            # print(p_no, p_style.fill_color(), p_style.outline_color())
+            self._chart_draw.modify(p_no, style=self._make_point_style({
+                "fill": p_style.fill_color(),
+                "outline": p_style.outline_color(),
+                "shown": p_style.shown(),
+                "outline_width": p_style.outline_width(),
+                "size": p_style.size(),
+                "rotation": p_style.rotation(),
+                "aspect": p_style.aspect(),
+                }))
 
     def _make_point_style(self, *data):
         from acmacs_map_draw_backend import PointStyle
