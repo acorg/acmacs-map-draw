@@ -320,23 +320,27 @@ class ModApplicator:
         def make_matcher_apply(vaccs, prefix, **args):
             matcher_apply(make_matcher(vaccs, **args), prefix=prefix, **args)
 
-        hidb = get_hidb(chart=self._chart)
-        from acmacs_map_draw_backend import Vaccines
-        vaccs = Vaccines(chart=self._chart, hidb=hidb)
-        for mod in (mods or []):
-            make_matcher_apply(vaccs, prefix="Vaccine mod", **mod)
-        # apply "label" afterwards (upon hiding some vaccines)
-        # if args.get("label"):
-        #     matcher_apply(vaccs.match().label(self._chart_draw, get_locdb()), prefix="Vaccine label", **args["label"])
-        for mod in (mods or []):
-            if mod.get("label"):
-                matcher_apply(make_matcher(vaccs, **mod).label(self._chart_draw, get_locdb()), prefix="Vaccine mod label", **mod["label"])
+        virus_type = self._chart.chart_info().virus_type()
+        if virus_type:
+            hidb = get_hidb(chart=self._chart, virus_type=virus_type)
+            from acmacs_map_draw_backend import Vaccines
+            vaccs = Vaccines(chart=self._chart, hidb=hidb)
+            for mod in (mods or []):
+                make_matcher_apply(vaccs, prefix="Vaccine mod", **mod)
+            # apply "label" afterwards (upon hiding some vaccines)
+            # if args.get("label"):
+            #     matcher_apply(vaccs.match().label(self._chart_draw, get_locdb()), prefix="Vaccine label", **args["label"])
+            for mod in (mods or []):
+                if mod.get("label"):
+                    matcher_apply(make_matcher(vaccs, **mod).label(self._chart_draw, get_locdb()), prefix="Vaccine mod label", **mod["label"])
 
-        if report_all:
-            module_logger.debug('ALL\n{}'.format(vaccs.report_all(indent=2)))
-        self._vaccine_report += vaccs.report(indent=0)
-        module_logger.debug('FILTERED\n{}'.format(vaccs.report(indent=2)), stack_info=True)
-        vaccs.plot(self._chart_draw)
+            if report_all:
+                module_logger.debug('ALL\n{}'.format(vaccs.report_all(indent=2)))
+            self._vaccine_report += vaccs.report(indent=0)
+            module_logger.debug('FILTERED\n{}'.format(vaccs.report(indent=2)), stack_info=True)
+            vaccs.plot(self._chart_draw)
+        else:
+            module_logger.warning("Chart does not provide virus_type, cannot mark vaccines")
 
         # ----------------------------------------------------------------------
 
