@@ -213,6 +213,17 @@ Arrow& ChartDraw::arrow(const Location& aBegin, const Location& aEnd)
 
 // ----------------------------------------------------------------------
 
+Point& ChartDraw::point(const Location& aCenter, Pixels aSize)
+{
+    auto& point = DYNAMIC_CAST(Point&, (mMapElements.add("point")));
+    point.center(aCenter);
+    point.size(aSize);
+    return point;
+
+} // ChartDraw::point
+
+// ----------------------------------------------------------------------
+
 void ChartDraw::remove_serum_circles()
 {
     mMapElements.remove("serum-circle");

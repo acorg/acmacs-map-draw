@@ -44,6 +44,9 @@ MapElement& MapElements::add(std::string aKeyword)
     else if (aKeyword == "arrow") {
         mElements.emplace_back(new Arrow{});
     }
+    else if (aKeyword == "point") {
+        mElements.emplace_back(new Point{});
+    }
     else {
         THROW_OR_CERR_NO_RETURN(std::runtime_error("Don't know how to make map element " + aKeyword));
     }
@@ -225,6 +228,14 @@ void Arrow::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
     aSurface.line(mBegin, end, mLineColor, mLineWidth);
 
 } // Arrow::draw
+
+// ----------------------------------------------------------------------
+
+void Point::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
+{
+    aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, mFillColor);
+
+} // Point::draw
 
 // ----------------------------------------------------------------------
 

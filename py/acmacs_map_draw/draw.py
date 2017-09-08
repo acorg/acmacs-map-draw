@@ -504,6 +504,11 @@ class ModApplicator:
         arr.line_width(line_width)
         arr.arrow_width(arrow_width)
 
+    def point(self, center, size, fill_color="pink", outline_color="pink", outline_width=1, **args):
+        pt = self._chart_draw.point(center[0], center[1], size)
+        pt.color(fill_color=fill_color, outline_color=outline_color)
+        pt.outline_width(outline_width)
+
     def compare_with_previous(self, new=None, old=None, ignore_reference=True, **args):
         if self._previous_chart is not None:
             new_indices = set(self._chart.antigens_not_found_in(self._previous_chart))

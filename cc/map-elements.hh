@@ -235,6 +235,33 @@ class Arrow : public MapElement
 }; // class Arrow
 
 // ----------------------------------------------------------------------
+
+class Point : public MapElement
+{
+ public:
+    inline Point()
+        : MapElement{"point", MapElements::AfterPoints}, mSize{10}, mFillColor{"pink"}, mOutlineColor{"pink"},
+          mOutlineWidth{1}, mAspect{AspectNormal}, mRotation{NoRotation} {}
+
+    virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
+
+    inline Point& center(const Location& aCenter) { mCenter = aCenter; return *this; }
+    inline Point& size(Pixels aSize) { mSize = aSize; return *this; }
+    inline Point& color(Color aFillColor, Color aOutlineColor) { mFillColor = aFillColor; mOutlineColor = aOutlineColor; return *this; }
+    inline Point& outline_width(double aOutlineWidth) { mOutlineWidth = aOutlineWidth; return *this; }
+
+ private:
+    Location mCenter;
+    Pixels mSize;
+    Color mFillColor;
+    Color mOutlineColor;
+    Pixels mOutlineWidth;
+    Aspect mAspect;
+    Rotation mRotation;
+
+}; // class Point
+
+// ----------------------------------------------------------------------
 /// Local Variables:
 /// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
 /// End:

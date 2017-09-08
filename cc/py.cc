@@ -232,6 +232,13 @@ PYBIND11_MODULE(acmacs_map_draw_backend, m)
             .def("arrow_width", &Arrow::arrow_width, py::arg("width"))
             ;
 
+    py::class_<Point>(m, "Point")
+            .def("center", [](Point& aPoint, double x, double y) { aPoint.center({x, y}); }, py::arg("x"), py::arg("y"))
+            .def("size", [](Point& aPoint, double size) { aPoint.size(Pixels{size}); }, py::arg("size"))
+            .def("color", [](Point& aPoint, std::string fill_color, std::string outline_color) { aPoint.color(fill_color, outline_color); }, py::arg("fill_color"), py::arg("outline_color"))
+            .def("outline_width", &Point::outline_width, py::arg("outline_width"))
+            ;
+
     py::class_<ChartDraw>(m, "ChartDraw")
             .def(py::init<Chart&, size_t>(), py::arg("chart"), py::arg("projection_no") = 0)
             .def("prepare", &ChartDraw::prepare)
@@ -267,6 +274,7 @@ PYBIND11_MODULE(acmacs_map_draw_backend, m)
             .def("label", py::overload_cast<size_t>(&ChartDraw::add_label), py::arg("index"), py::return_value_policy::reference)
             .def("serum_circle", [](ChartDraw& cd, size_t aSerumNo, double aRadius) -> SerumCircle& { return cd.serum_circle(aSerumNo, Scaled(aRadius)); }, py::arg("serum_no"), py::arg("radius"), py::return_value_policy::reference)
             .def("arrow", [](ChartDraw& cd, double x1, double y1, double x2, double y2) -> Arrow& { return cd.arrow({x1, y1}, {x2, y2}); }, py::arg("x1"), py::arg("y1"), py::arg("x2"), py::arg("y2"), py::return_value_policy::reference)
+            .def("point", [](ChartDraw& cd, double x, double y, double size) -> Point& { return cd.point({x, y}, Pixels{size}); }, py::arg("x"), py::arg("y"), py::arg("size"), py::return_value_policy::reference)
             ;
 
       // ----------------------------------------------------------------------

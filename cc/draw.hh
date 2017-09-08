@@ -119,6 +119,7 @@ class ChartDraw
     inline void remove_label(size_t aIndex) { return mLabels.remove(aIndex); }
     SerumCircle& serum_circle(size_t aSerumNo, Scaled aRadius);
     Arrow& arrow(const Location& aBegin, const Location& aEnd);
+    Point& point(const Location& aCenter, Pixels aSize);
     void remove_serum_circles();
 
     inline const LayoutBase& transformed_layout() const
