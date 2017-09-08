@@ -10,7 +10,8 @@ from pathlib import Path
 sys.path[:0] = [str(Path(os.environ["ACMACSD_ROOT"]).resolve().joinpath("py"))]
 import logging; module_logger = logging.getLogger(__name__)
 
-from acmacs_map_draw import geographic_map, open_image, temp_output
+from acmacs_base.files import open_image, temp_output
+from acmacs_map_draw import geographic_map
 
 # ----------------------------------------------------------------------
 

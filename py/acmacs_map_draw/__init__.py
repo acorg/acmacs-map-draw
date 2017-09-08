@@ -10,7 +10,6 @@ from .locdb_access import get_locdb
 from .seqdb_access import get_seqdb
 from .draw import draw_chart, antigenic_time_series, UnrecognizedMod
 from .geographic import geographic_map, geographic_time_series, geographic_map_default_setting
-from .utilities import open_image, temp_output
 
 # ----------------------------------------------------------------------
 ### Local Variables:
