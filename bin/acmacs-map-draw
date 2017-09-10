@@ -37,9 +37,9 @@ def main(args):
     with temp_output(args.output, make_temp_output=args.draw_map) as output:
         with timeit("Drawing chart to " + str(output)):
             try:
-                chart_draw, *rest = acmacs_map_draw.draw_chart(output_file=output, chart=chart, settings=settings, output_width=args.output_width, draw_map=args.draw_map, verbose=args.verbose)
+                draw_data = acmacs_map_draw.draw_chart(output_file=output, chart=chart, settings=settings, output_width=args.output_width, draw_map=args.draw_map, verbose=args.verbose)
                 if args.save:
-                    save(args.save, chart, chart_draw)
+                    save(filename=args.save, chart=chart, chart_draw=draw_data["chart_draw"])
             except acmacs_map_draw.UnrecognizedMod as err:
                 if args.verbose:
                     raise
