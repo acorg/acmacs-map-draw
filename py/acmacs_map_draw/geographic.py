@@ -17,7 +17,9 @@ from .seqdb_access import get_seqdb
 def geographic_map_default_setting():
     return {
         "coloring": "clade",
-        "coloring?": ["continent", "clade", "lineage"],
+        "coloring?": ["continent", "clade", "lineage", "lineage-deletion-mutants"],
+        "color_override?": {"B": {"?": "B/Vic deletion mutants", "?B/DOMINICAN REPUBLIC/9932/2016": "#00FFFF"}},
+        "deletion_mutant_color": "cyan",
         "point_size_in_pixels": 4.0,
         "point_density": 0.8,
         "outline_color": "grey63",
@@ -77,6 +79,9 @@ def geographic_time_series(output_prefix, virus_type, period, start_date, end_da
     elif settings["coloring"] == "lineage":
         from .coloring import sLineageColor
         ts.draw_colored_by_lineage(filename_prefix=output_prefix, lineage_color=sLineageColor, color_override=settings.get("color_override", {}), image_width=settings.get("output_image_width", 800))
+    elif settings["coloring"] == "lineage-deletion-mutants":
+        from .coloring import sLineageColor
+        ts.draw_colored_by_lineage_and_deletion_mutants(filename_prefix=output_prefix, lineage_color=sLineageColor, deletion_mutant_color=settings.get("deletion_mutant_color", "cyan"), color_override=settings.get("color_override", {}), seqdb=get_seqdb(seqdb_dir=settings.get("seqdb_dir")), image_width=settings.get("output_image_width", 800))
     else:
         raise ValueError("Unsupported coloring: " + repr(settings["coloring"]))
 

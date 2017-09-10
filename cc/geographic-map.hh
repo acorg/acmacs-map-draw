@@ -155,6 +155,35 @@ class ColoringByLineage : public GeographicMapColoring
 
 // ----------------------------------------------------------------------
 
+class ColoringByLineageAndDeletionMutants : public GeographicMapColoring
+{
+ public:
+    inline ColoringByLineageAndDeletionMutants(const std::map<std::string, std::string>& aLineageColor, std::string aDeletionMutantColor, const seqdb::Seqdb& aSeqdb)
+        : mColors(aLineageColor.begin(), aLineageColor.end()), mDeletionMutantColor{aDeletionMutantColor}, mSeqdb(aSeqdb) {}
+
+    virtual Color color(const hidb::AntigenData& aAntigen) const
+        {
+            try {
+                const auto* entry_seq = mSeqdb.find_hi_name(aAntigen.full_name());
+                if (entry_seq && entry_seq->seq().has_clade("DEL2017"))
+                    return mDeletionMutantColor;
+                else
+                    return mColors.at(aAntigen.data().lineage());
+            }
+            catch (...) {
+                return "grey50";
+            }
+        }
+
+ private:
+    std::map<std::string, Color> mColors;
+    std::string mDeletionMutantColor;
+    const seqdb::Seqdb& mSeqdb;
+
+}; // class ColoringByLineage
+
+// ----------------------------------------------------------------------
+
 class ColorOverride : public GeographicMapColoring
 {
  public:
