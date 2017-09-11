@@ -337,7 +337,7 @@ class ModApplicator:
             if report_all:
                 module_logger.debug('ALL\n{}'.format(vaccs.report_all(indent=2)))
             self._vaccine_report += vaccs.report(indent=0)
-            module_logger.debug('FILTERED\n{}'.format(vaccs.report(indent=2)), stack_info=True)
+            module_logger.debug('FILTERED\n{}'.format(vaccs.report(indent=2)), stack_info=False)
             vaccs.plot(self._chart_draw)
         else:
             module_logger.warning("Chart does not provide virus_type, cannot mark vaccines")
