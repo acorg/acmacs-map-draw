@@ -29,9 +29,6 @@ PKG_INCLUDES = $(shell pkg-config --cflags cairo) $(shell pkg-config --cflags li
 
 # ----------------------------------------------------------------------
 
-# BUILD = build
-# DIST = $(abspath dist)
-
 all: check-acmacsd-root $(ACMACS_MAP_DRAW_LIB) $(BACKEND)
 
 install: check-acmacsd-root install-headers $(ACMACS_MAP_DRAW_LIB) $(BACKEND)
@@ -40,9 +37,6 @@ install: check-acmacsd-root install-headers $(ACMACS_MAP_DRAW_LIB) $(BACKEND)
 	ln -sf $(abspath py)/* $(AD_PY)
 	ln -sf $(abspath bin)/acmacs-map-* $(AD_BIN)
 	ln -sf $(abspath bin)/geographic-* $(AD_BIN)
-
-install-headers: check-acmacsd-root
-	$(call install_headers,/acmacs-map-draw)
 
 test: install
 	test/test -v
