@@ -27,13 +27,17 @@ trap failed ERR
 
 # ======================================================================
 
-export LD_LIBRARY_PATH="$HOME"/AD/lib
-cd "$TESTDIR"
+if [ -f "${ACMACSD_ROOT}/data/hidb4.h3.json.xz" ]; then
+    export LD_LIBRARY_PATH="$HOME"/AD/lib
+    cd "$TESTDIR"
 
-OUPUT="$TDIR/2004nd-003.$(date +%Y%m%d-%H%M).pdf"
-../bin/acmacs-map-draw -m -s 2004nd-003.json 2004nd-003.ace "$OUPUT"
-if [[ "$(uname)" == "Darwin" && "$1" == "-v" ]]; then
-    open "$OUPUT" && sleep 3
+    OUPUT="$TDIR/2004nd-003.$(date +%Y%m%d-%H%M).pdf"
+    ../bin/acmacs-map-draw -m -s 2004nd-003.json 2004nd-003.ace "$OUPUT"
+    if [[ "$(uname)" == "Darwin" && "$1" == "-v" ]]; then
+        open "$OUPUT" && sleep 3
+    fi
+else
+    echo "WARNING: cannot run test: no ${ACMACSD_ROOT}/data/hidb4.h3.json.xz" >&2
 fi
 
 # ======================================================================
