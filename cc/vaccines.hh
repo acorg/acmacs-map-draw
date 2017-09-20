@@ -35,6 +35,7 @@ class Vaccines
 
     inline std::string report_all(size_t aIndent) const { return mVaccinesOfChart.report(aIndent); }
     std::string report(size_t aIndent) const;
+    std::vector<size_t> indices() const;
     VaccineMatcher* match(std::string aName, std::string aType, std::string aPassageType);
     void plot(ChartDraw& aChartDraw) const;
 

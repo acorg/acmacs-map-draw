@@ -53,6 +53,7 @@ def draw_chart(output_file, chart, settings, output_width, previous_chart=None, 
 def antigenic_time_series(output_prefix, chart, period, start_date, end_date, output_width, settings, title_prefix=None, previous_chart=None, seqdb_file=None, verbose=False):
     from acmacs_map_draw_backend import PointStyle
     draw_result = draw_chart(output_file=None, chart=chart, previous_chart=previous_chart, settings=settings, output_width=None, draw_map=False, seqdb_file=seqdb_file, verbose=verbose)
+    module_logger.info("antigens_shown_on_all: {}".format(draw_result["antigens_shown_on_all"]))
     if period == "month":
         from acmacs_map_draw_backend import MonthlyTimeSeries
         ts = MonthlyTimeSeries(start=start_date, end=end_date)
@@ -171,7 +172,7 @@ class ModApplicator:
     def point_scale(self, scale=1, outline_scale=1, **args):
         self._chart_draw.scale_points(scale=scale, outline_scale=outline_scale)
 
-    def antigens(self, N, select, raise_if_not_found=True, raise_if_multiple=False, report=True, report_names_threshold=10, **args):
+    def antigens(self, N, select, raise_if_not_found=True, raise_if_multiple=False, report=True, report_names_threshold=10, shown_on_all=False, **args):
         indices = self._select_antigens(select=select, raise_if_not_found=raise_if_not_found, raise_if_multiple=raise_if_multiple)
         if indices:
             if any(index >= self._chart.number_of_antigens() for index in indices):
@@ -190,6 +191,8 @@ class ModApplicator:
             if "label" in args and args["label"].get("show", True):
                 for index in indices:
                     self.label(index=index, **args["label"])
+            if shown_on_all:
+                self._antigens_shown_on_all |= set(indices)
         else:
             module_logger.warning('No antigens selected by {} in {}'.format(select, self._chart.chart_info().make_name()))
 
@@ -336,8 +339,10 @@ class ModApplicator:
 
             if report_all:
                 module_logger.debug('ALL\n{}'.format(vaccs.report_all(indent=2)))
+            self._antigens_shown_on_all |= set(vaccs.indices())
             self._vaccine_report += vaccs.report(indent=0)
-            module_logger.debug('FILTERED\n{}'.format(vaccs.report(indent=2)), stack_info=False)
+            module_logger.info('Vaccines filtered\n{}'.format(vaccs.report(indent=2)), stack_info=False)
+            module_logger.info("shown_on_all {}".format(self._antigens_shown_on_all))
             vaccs.plot(self._chart_draw)
         else:
             module_logger.warning("Chart does not provide virus_type, cannot mark vaccines")
@@ -620,6 +625,8 @@ class ModApplicator:
                     score_threshold = select.get("score_threshold", 0)
                 module_logger.debug('score_threshold {} match_virus_name {}'.format(score_threshold, select.get("match_virus_name")))
                 indices = antigens.find_by_name_matching(name=select["name"], score_threshold=score_threshold, verbose=self._verbose)
+                if select.get("precise"):
+                    indices = self._filter_out_inprecise(name=select["name"], indices=indices, ag_sr=antigens)
                 if len(indices) > 1 and select.get("mark_no") is not None:
                     indices = [indices[select["mark_no"]]]
             elif "index" in select:
@@ -641,6 +648,9 @@ class ModApplicator:
 
     def _valid_antigen_index(self, index):
         return isinstance(index, int) and index >= 0 and index < self._chart.number_of_antigens()
+
+    def _filter_out_inprecise(self, name, indices, ag_sr):
+        return [index for index in indices if name in ag_sr[index].full_name()]
 
     def _select_sera(self, select, raise_if_not_found, raise_if_multiple):
         indices = None

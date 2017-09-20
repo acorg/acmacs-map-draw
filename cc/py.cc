@@ -314,6 +314,7 @@ PYBIND11_MODULE(acmacs_map_draw_backend, m)
             .def("report", &Vaccines::report, py::arg("indent") = 0)
             .def("match", &Vaccines::match, py::arg("name") = "", py::arg("type") = "", py::arg("passage_type") = "")
             .def("plot", &Vaccines::plot, py::arg("chart_draw"))
+            .def("indices", &Vaccines::indices)
             ;
 
     py::class_<VaccineMatcher>(m, "VaccineMatcher")
