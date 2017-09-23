@@ -213,6 +213,8 @@ def disable_mods(settings, mods):
 def save(filename, chart, chart_draw):
     if filename[-5:] == ".save" or filename[-8:] == ".save.xz":
         acmacs_map_draw.export_chart_lispmds(filename, chart, chart_draw.point_styles_base(), chart_draw.transformation())
+    # elif filename[-4:] == ".ace":
+    #     acmacs_map_draw.export_chart(filename, chart) # , chart_draw.point_styles_base(), chart_draw.transformation())
     else:
         raise RuntimeError("Cannot save into {}: unsupported format".format(filename))
 

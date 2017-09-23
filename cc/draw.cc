@@ -114,6 +114,8 @@ void ChartDraw::draw(Surface& aSurface) const
     const auto& layout = transformed_layout();
     for (auto index: mDrawingOrder) {
         mPointStyles[index].draw(rescaled_surface, layout[index]);
+        // if (index < number_of_antigens())
+        //     std::cout << "AG: " << index << ' ' << layout[index] << ' ' << mPointStyles[index].fill_raw() << " \"" << mChart.antigen(index).full_name() << "\"\n";
     }
     mLabels.draw(rescaled_surface, layout, mPointStyles);
 
