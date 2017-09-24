@@ -51,6 +51,9 @@ class Vaccines
 
 class VaccineMatcherBase
 {
+ public:
+    inline std::string report(size_t aIndent) const { return mVaccines.report(aIndent); }
+
  protected:
     inline VaccineMatcherBase(Vaccines& aVaccines, std::string aName, std::string aType, std::string aPassageType)
         : mVaccines(aVaccines), mName(aName), mType(aType), mPassageType(aPassageType) {}
