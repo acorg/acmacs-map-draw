@@ -141,6 +141,7 @@ class Title : public MapElement
 
     virtual void draw(Surface& aSurface) const;
     virtual inline void draw(Surface& aSurface, const ChartDraw&) const { draw(aSurface); }
+    inline Title& show(bool aShow) { mShow = aShow; return *this; }
     inline Title& offset(const Location& aOrigin) { mOrigin = aOrigin; return *this; }
     inline Title& offset(double x, double y) { mOrigin.set(x, y); return *this; }
     inline Title& padding(double x) { mPadding = x; return *this; }
@@ -156,6 +157,7 @@ class Title : public MapElement
     inline Title& font_family(std::string aFamily) { mTextStyle.font_family(aFamily); return *this; }
 
  private:
+    bool mShow;
     Location mOrigin;
     Pixels mPadding;
     Color mBackgroud;

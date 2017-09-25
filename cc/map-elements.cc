@@ -174,7 +174,7 @@ Title::Title()
 void Title::draw(Surface& aSurface) const
 {
     const double padding = aSurface.convert(mPadding).value();
-    if (mLines.size() > 1 || (!mLines.empty() && !mLines.front().empty())) {
+    if (mShow && (mLines.size() > 1 || (!mLines.empty() && !mLines.front().empty()))) {
         double width = 0, height = 0;
         for (const auto& line: mLines) {
             const Size line_size = aSurface.text_size(line, mTextSize, mTextStyle);
