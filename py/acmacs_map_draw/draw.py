@@ -188,9 +188,13 @@ class ModApplicator:
                 else:
                     module_logger.info('Antigens {}: select:{!r} {}'.format(len(indices), select, args))
             self.style(index=indices, **args)
-            if "label" in args and args["label"].get("show", True):
-                for index in indices:
-                    self.label(index=index, **args["label"])
+            if "label" in args:
+                if args["label"].get("show", True):
+                    for index in indices:
+                        self.label(index=index, **args["label"])
+                else:
+                    for index in indices:
+                        self._chart_draw.remove_label(index)
             if shown_on_all:
                 self._antigens_shown_on_all |= set(indices)
         else:
