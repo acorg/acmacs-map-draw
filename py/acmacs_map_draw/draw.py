@@ -216,14 +216,18 @@ class ModApplicator:
                     module_logger.info('Sera {}: select:{!r} {}'.format(len(indices), select, args))
             number_of_antigens = self._chart.number_of_antigens()
             self.style(index=[index + number_of_antigens for index in indices], **args)
-            if "label" in args and args["label"].get("show", True):
-                for index in indices:
-                    if args["label"].get("name_type") == "abbreviated_hom_max" and homologous_ag_no is not None and args["label"].get("display_name") is None:
-                        args["label"]["display_name"] = "{} ({}; hom: {}; max: {})".format(self._chart.serum(index).abbreviated_name(get_locdb()),
-                                                                              self._chart.antigen(homologous_ag_no).passage_type(),
-                                                                              self._chart.titers().get(ag_no=homologous_ag_no, sr_no=index),
-                                                                              self._chart.titers().max_for_serum(sr_no=index))
-                    self.label(index=index + number_of_antigens, **args["label"])
+            if "label" in args:
+                if args["label"].get("show", True):
+                    for index in indices:
+                        if args["label"].get("name_type") == "abbreviated_hom_max" and homologous_ag_no is not None and args["label"].get("display_name") is None:
+                            args["label"]["display_name"] = "{} ({}; hom: {}; max: {})".format(self._chart.serum(index).abbreviated_name(get_locdb()),
+                                                                                  self._chart.antigen(homologous_ag_no).passage_type(),
+                                                                                  self._chart.titers().get(ag_no=homologous_ag_no, sr_no=index),
+                                                                                  self._chart.titers().max_for_serum(sr_no=index))
+                        self.label(index=index + number_of_antigens, **args["label"])
+                else:
+                    for index in indices:
+                        self._chart_draw.remove_label(index=index + number_of_antigens)
         else:
             module_logger.warning('No sera selected by {} in {}'.format(select, self._chart.chart_info().make_name()))
 
@@ -306,7 +310,7 @@ class ModApplicator:
             else:
                 module_logger.warning('No {}: {}'.format(target_aas, sorted(aa_indices)))
 
-    def legend(self, legend_data, settings, **args):
+    def legend(self, settings=None, legend_data=None, **args):
         self._make_legend(legend_data=legend_data, legend_settings=settings)
 
     def vaccines(self, raise_=True, mods=None, report_all=False, **args):
@@ -560,15 +564,19 @@ class ModApplicator:
 
     def _make_legend(self, legend_data, legend_settings):
         # pprint.pprint(legend_data)
-        if legend_settings and legend_settings.get("show", True) and legend_data:
-            legend_box = self._chart_draw.legend(legend_settings.get("offset", [-10, -10]))
-            for k in ["label_size", "background", "border_color", "border_width", "label_size", "point_size"]:
-                if k in legend_settings:
-                    getattr(legend_box, k)(legend_settings[k])
-            for legend_entry in legend_data:
-                if not isinstance(legend_entry.get("light"), float):
-                    legend_entry.pop("light", None)
-                legend_box.add_line(**legend_entry)
+        if legend_settings:
+            if legend_settings.get("show", True):
+                if legend_data:
+                    legend_box = self._chart_draw.legend(legend_settings.get("offset", [-10, -10]))
+                    for k in ["label_size", "background", "border_color", "border_width", "label_size", "point_size"]:
+                        if k in legend_settings:
+                            getattr(legend_box, k)(legend_settings[k])
+                    for legend_entry in legend_data:
+                        if not isinstance(legend_entry.get("light"), float):
+                            legend_entry.pop("light", None)
+                        legend_box.add_line(**legend_entry)
+            else:
+                self._chart_draw.remove_legend()
 
     def _homologous_antigen_indices(self, serum_no, select, raise_if_not_found, raise_if_multiple):
         if select is None:

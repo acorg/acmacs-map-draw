@@ -112,6 +112,7 @@ class ChartDraw
     inline void continent_map(const Location& aOffset, Pixels aWidth) { DYNAMIC_CAST(ContinentMap&, (mMapElements["continent-map"])).offset_width(aOffset, aWidth); }
     inline LegendPointLabel& legend(const Location& aOffset) { auto& legend = DYNAMIC_CAST(LegendPointLabel&, (mMapElements["legend-point-label"])); legend.offset(aOffset); return legend; }
     inline LegendPointLabel& legend() { return DYNAMIC_CAST(LegendPointLabel&, (mMapElements["legend-point-label"])); }
+    inline void remove_legend() { mMapElements.remove("legend-point-label"); }
     inline Title& title(const Location& aOffset) { auto& title = DYNAMIC_CAST(Title&, (mMapElements["title"])); title.offset(aOffset); return title; }
     inline Title& title() { return DYNAMIC_CAST(Title&, (mMapElements["title"])); }
     inline Labels& labels() { return mLabels; }
