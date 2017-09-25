@@ -32,6 +32,8 @@ class DrawingOrder : public std::vector<size_t>
 class ChartDraw
 {
  public:
+    enum RaiseLower { NoOrderChange, Raise, Lower };
+
     ChartDraw(ChartBase& aChart, size_t aProjectionNo);
 
     void prepare();
@@ -46,36 +48,42 @@ class ChartDraw
     inline auto& chart() { return mChart; }
     inline const auto& chart() const { return mChart; }
 
-    inline void modify(size_t aIndex, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
+    inline void modify(size_t aIndex, const PointStyle& aStyle, RaiseLower aRaiseLower = NoOrderChange)
         {
             mPointStyles[aIndex] = aStyle;
-            if (aRaise)
-                drawing_order().raise(aIndex);
-            else if (aLower)
-                drawing_order().lower(aIndex);
+            switch (aRaiseLower) {
+              case Raise:
+                  drawing_order().raise(aIndex);
+                  break;
+              case Lower:
+                  drawing_order().lower(aIndex);
+                  break;
+              case NoOrderChange:
+                  break;
+            }
         }
 
-    inline void modify_serum(size_t aSerumNo, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
+    inline void modify_serum(size_t aSerumNo, const PointStyle& aStyle, RaiseLower aRaiseLower = NoOrderChange)
         {
-            modify(aSerumNo + number_of_antigens(), aStyle, aRaise, aLower);
+            modify(aSerumNo + number_of_antigens(), aStyle, aRaiseLower);
         }
 
-    template <typename IndexIterator> inline void modify(IndexIterator first, IndexIterator last, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
+    template <typename IndexIterator> inline void modify(IndexIterator first, IndexIterator last, const PointStyle& aStyle, RaiseLower aRaiseLower = NoOrderChange)
         {
             for (; first != last; ++first)
-                modify(*first, aStyle, aRaise, aLower);
+                modify(*first, aStyle, aRaiseLower);
         }
 
-    inline void modify(IndexGenerator&& aGen, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
+    inline void modify(IndexGenerator&& aGen, const PointStyle& aStyle, RaiseLower aRaiseLower = NoOrderChange)
         {
             for (auto index: aGen)
-                modify(index, aStyle, aRaise, aLower);
+                modify(index, aStyle, aRaiseLower);
         }
 
-    template <typename IndexIterator> inline void modify_sera(IndexIterator first, IndexIterator last, const PointStyle& aStyle, bool aRaise = false, bool aLower = false)
+    template <typename IndexIterator> inline void modify_sera(IndexIterator first, IndexIterator last, const PointStyle& aStyle, RaiseLower aRaiseLower = NoOrderChange)
         {
             for (; first != last; ++first)
-                modify_serum(*first, aStyle, aRaise, aLower);
+                modify_serum(*first, aStyle, aRaiseLower);
         }
 
     void hide_all_except(const std::vector<size_t>& aNotHide);
@@ -83,7 +91,7 @@ class ChartDraw
     void mark_reassortant_antigens();
     void mark_all_grey(Color aColor);
     void scale_points(double aPointScale, double aOulineScale);
-    void modify_all_sera(const PointStyle& aStyle, bool aRaise = false, bool aLower = false);
+    void modify_all_sera(const PointStyle& aStyle, RaiseLower aRaiseLower = NoOrderChange);
 
     inline void rotate(double aAngle)
         {
