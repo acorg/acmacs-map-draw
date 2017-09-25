@@ -6,8 +6,10 @@ MAKEFLAGS = -w
 
 # ----------------------------------------------------------------------
 
-SOURCES = draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc time-series.cc vaccines.cc
-PY_SOURCES = py.cc $(SOURCES)
+TARGETS = $(ACMACS_MAP_DRAW_LIB) $(BACKEND) $(DIST)/acmacs-map-list-in-region
+
+LIB_SOURCES = draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc time-series.cc vaccines.cc
+PY_SOURCES = py.cc $(LIB_SOURCES)
 BACKEND = $(DIST)/acmacs_map_draw_backend$(PYTHON_MODULE_SUFFIX)
 
 # ----------------------------------------------------------------------
@@ -29,14 +31,16 @@ PKG_INCLUDES = $(shell pkg-config --cflags cairo) $(shell pkg-config --cflags li
 
 # ----------------------------------------------------------------------
 
-all: check-acmacsd-root $(ACMACS_MAP_DRAW_LIB) $(BACKEND)
 
-install: check-acmacsd-root install-headers $(ACMACS_MAP_DRAW_LIB) $(BACKEND)
+all: check-acmacsd-root $(TARGETS)
+
+install: check-acmacsd-root install-headers $(TARGETS)
 	$(call install_lib,$(ACMACS_MAP_DRAW_LIB))
 	ln -sf $(BACKEND) $(AD_PY)
 	ln -sf $(abspath py)/* $(AD_PY)
 	ln -sf $(abspath bin)/acmacs-map-* $(AD_BIN)
 	ln -sf $(abspath bin)/geographic-* $(AD_BIN)
+	ln -sf $(abspath $(DIST))/acmacs-map-* $(AD_BIN)
 
 test: install
 	test/test -v
@@ -49,13 +53,17 @@ include $(ACMACSD_ROOT)/share/makefiles/Makefile.rtags
 
 # ----------------------------------------------------------------------
 
-$(ACMACS_MAP_DRAW_LIB): $(patsubst %.cc,$(BUILD)/%.o,$(SOURCES)) | $(DIST)
+$(ACMACS_MAP_DRAW_LIB): $(patsubst %.cc,$(BUILD)/%.o,$(LIB_SOURCES)) | $(DIST)
 	@echo "SHARED     " $@ # '<--' $^
 	@$(CXX) -shared $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(BACKEND): $(patsubst %.cc,$(BUILD)/%.o,$(PY_SOURCES)) | $(DIST)
 	@echo "SHARED     " $@ # '<--' $^
 	@$(CXX) -shared $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+$(DIST)/%: $(BUILD)/%.o | $(DIST)
+	@echo "LINK       " $@
+	@$(CXX) $(LDFLAGS) -o $@ $^ $(ACMACS_MAP_DRAW_LIB) $(LDLIBS)
 
 # ======================================================================
 ### Local Variables:
