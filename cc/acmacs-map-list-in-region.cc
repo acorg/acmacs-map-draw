@@ -4,6 +4,7 @@ using namespace std::string_literals;
 
 #include "acmacs-base/filesystem.hh"
 #include "acmacs-base/timeit.hh"
+#include "acmacs-base/enumerate.hh"
 #include "acmacs-chart/ace.hh"
 #include "seqdb/seqdb.hh"
 #include "acmacs-map-draw/draw.hh"
@@ -56,14 +57,13 @@ int main(int argc, char* const argv[])
         ChartDraw chart_draw(*chart, projection_no);
         chart_draw.prepare();
 
-        size_t ag_no = 0;
-        for (const auto& entry_seq: seqdb_entries) {
-            const auto& clades = entry_seq.seq().clades();
-            if (!clades.empty()) {
-                if (const auto clr = CladeColor.find(clades.front()); clr != CladeColor.end())
-                    chart_draw.modify(ag_no, PointStyle{}.fill(clr->second), ChartDraw::Raise);
+        for (auto [ag_no, entry_seq]: enumerate(seqdb_entries)) {
+            if (entry_seq) {
+                if (const auto& clades = entry_seq.seq().clades(); !clades.empty()) {
+                    if (const auto clr = CladeColor.find(clades.front()); clr != CladeColor.end())
+                        chart_draw.modify(ag_no, PointStyle{}.fill(clr->second), ChartDraw::Raise);
+                }
             }
-            ++ag_no;
         }
 
         chart_draw.calculate_viewport();

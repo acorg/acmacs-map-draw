@@ -48,22 +48,23 @@ class ChartDraw
     inline auto& chart() { return mChart; }
     inline const auto& chart() const { return mChart; }
 
-    inline void modify(size_t aIndex, const PointStyle& aStyle, RaiseLower aRaiseLower = NoOrderChange)
+    template <typename index_type> inline void modify(index_type aIndex, const PointStyle& aStyle, RaiseLower aRaiseLower = NoOrderChange)
         {
-            mPointStyles[aIndex] = aStyle;
+            const auto index = static_cast<size_t>(aIndex);
+            mPointStyles[index] = aStyle;
             switch (aRaiseLower) {
               case Raise:
-                  drawing_order().raise(aIndex);
+                  drawing_order().raise(index);
                   break;
               case Lower:
-                  drawing_order().lower(aIndex);
+                  drawing_order().lower(index);
                   break;
               case NoOrderChange:
                   break;
             }
         }
 
-    inline void modify_serum(size_t aSerumNo, const PointStyle& aStyle, RaiseLower aRaiseLower = NoOrderChange)
+    template <typename index_type> inline void modify_serum(index_type aSerumNo, const PointStyle& aStyle, RaiseLower aRaiseLower = NoOrderChange)
         {
             modify(aSerumNo + number_of_antigens(), aStyle, aRaiseLower);
         }
