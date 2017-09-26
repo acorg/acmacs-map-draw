@@ -44,11 +44,7 @@ int main(int argc, char* const argv[])
         auto settings = default_settings();
         std::cout << settings.to_json_pp() << '\n';
 
-        Timeit ti_seqdb{"loading seqdb from "s + static_cast<std::string>(seqdb_file) + ": "};
-        seqdb::Seqdb seqdb;
-        seqdb.load(seqdb_file);
-        seqdb.build_hi_name_index();
-        ti_seqdb.report();
+        const auto& seqdb = seqdb::get(seqdb_file, true);
 
         Timeit ti_chart{"loading chart from "s + argv[1] + ": "};
         std::unique_ptr<Chart> chart{import_chart(argv[1])};
