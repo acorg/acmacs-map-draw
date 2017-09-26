@@ -9,6 +9,8 @@ using namespace std::string_literals;
 #include "seqdb/seqdb.hh"
 #include "acmacs-map-draw/draw.hh"
 
+#include "settings.hh"
+
 // ----------------------------------------------------------------------
 
 int main(int argc, char* const argv[])
@@ -38,6 +40,9 @@ int main(int argc, char* const argv[])
             {"1A", "cornflowerblue"},
             {"1B", "red"},
         };
+
+        auto settings = default_settings();
+        std::cout << settings.to_json_pp() << '\n';
 
         Timeit ti_seqdb{"loading seqdb from "s + static_cast<std::string>(seqdb_file) + ": "};
         seqdb::Seqdb seqdb;

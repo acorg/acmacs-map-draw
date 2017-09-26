@@ -8,7 +8,7 @@ MAKEFLAGS = -w
 
 TARGETS = $(ACMACS_MAP_DRAW_LIB) $(BACKEND) $(DIST)/acmacs-map-list-in-region
 
-LIB_SOURCES = draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc time-series.cc vaccines.cc
+LIB_SOURCES = draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc time-series.cc vaccines.cc settings.cc
 PY_SOURCES = py.cc $(LIB_SOURCES)
 BACKEND = $(DIST)/acmacs_map_draw_backend$(PYTHON_MODULE_SUFFIX)
 
