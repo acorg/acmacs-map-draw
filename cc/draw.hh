@@ -6,13 +6,18 @@
 
 #include "acmacs-base/throw.hh"
 #include "acmacs-base/range.hh"
+#ifdef ACMACS_TARGET_OS
+#include "acmacs-chart/chart.hh"
+using Chart_Type = Chart;
+#else
 #include "acmacs-chart/chart-base.hh"
+using Chart_Type = ChartBase;
+#endif
 #include "acmacs-draw/viewport.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 #include "acmacs-map-draw/map-elements.hh"
 #include "acmacs-map-draw/labels.hh"
 
-class ChartBase;
 class Surface;
 
 // ----------------------------------------------------------------------
@@ -20,7 +25,7 @@ class Surface;
 class DrawingOrder : public std::vector<size_t>
 {
  public:
-    DrawingOrder(ChartBase& aChart);
+    DrawingOrder(Chart_Type& aChart);
 
     void raise(size_t aPointNo);
     void lower(size_t aPointNo);
@@ -34,7 +39,7 @@ class ChartDraw
  public:
     enum RaiseLower { NoOrderChange, Raise, Lower };
 
-    ChartDraw(ChartBase& aChart, size_t aProjectionNo);
+    ChartDraw(Chart_Type& aChart, size_t aProjectionNo);
 
     void prepare();
     void draw(Surface& aSurface) const;
@@ -145,7 +150,7 @@ class ChartDraw
     size_t number_of_sera() const;
 
  private:
-    ChartBase& mChart;
+    Chart_Type& mChart;
     size_t mProjectionNo;
     Viewport mViewport;
     Transformation mTransformation;

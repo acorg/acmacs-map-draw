@@ -16,7 +16,7 @@
 
 // ----------------------------------------------------------------------
 
-DrawingOrder::DrawingOrder(ChartBase& aChart)
+DrawingOrder::DrawingOrder(Chart_Type& aChart)
     : std::vector<size_t>(incrementer<size_t>::begin(0), incrementer<size_t>::end(aChart.number_of_points()))
 {
 } // DrawingOrder::DrawingOrder
@@ -43,7 +43,7 @@ void DrawingOrder::lower(size_t aPointNo)
 
 // ----------------------------------------------------------------------
 
-ChartDraw::ChartDraw(ChartBase& aChart, size_t aProjectionNo)
+ChartDraw::ChartDraw(Chart_Type& aChart, size_t aProjectionNo)
     : mChart(aChart),
       mProjectionNo(aProjectionNo),
       mTransformation(mChart.projection(mProjectionNo).transformation()),
