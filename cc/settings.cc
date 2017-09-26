@@ -4,7 +4,7 @@
 
 static const char* const DEFAULT_SETTINGS_JSON = R"(
 {
-  "clades": {
+  "clade_fill": {
     "?": "H3",
     "3C3": "cornflowerblue",
     "3C2a": "red",

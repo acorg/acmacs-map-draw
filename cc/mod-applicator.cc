@@ -14,7 +14,7 @@ class Mod
  public:
     virtual inline ~Mod() {}
 
-    virtual void apply(ChartDraw& aChartDraw) = 0;
+    virtual void apply(ChartDraw& aChartDraw, const rjson::object& aModData) = 0;
 
 }; // class Mod
 
@@ -22,11 +22,11 @@ std::unique_ptr<Mod> factory(const rjson::value& aMod);
 
 // ----------------------------------------------------------------------
 
-void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::object& aModDescription, bool aIgnoreUnrecognized)
+void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::object& aModData, bool aIgnoreUnrecognized)
 {
     for (const auto& mod_desc: aMods) {
         if (auto mod = factory(mod_desc))
-            mod->apply(aChartDraw);
+            mod->apply(aChartDraw, aModData);
         else if (aIgnoreUnrecognized)
             std::cerr << "WARNING: unrecognized mod: " << mod_desc << '\n';
         else
@@ -42,7 +42,7 @@ class AllGrey : public Mod
  public:
     inline AllGrey() = default;
 
-    void apply(ChartDraw& aChartDraw) override
+    void apply(ChartDraw& aChartDraw, const rjson::object& /*aModData*/) override
         {
             for (auto [ag_no, antigen]: enumerate(aChartDraw.chart().antigens())) {
                 aChartDraw.modify(ag_no, PointStyleEmpty().fill(antigen.reference() ? TRANSPARENT : GREY).outline(GREY));
@@ -61,46 +61,30 @@ class Clades : public Mod
  public:
     inline Clades(const rjson::object& aArgs) : mArgs{aArgs} {}
 
-    void apply(ChartDraw& aChartDraw) override
+    void apply(ChartDraw& aChartDraw, const rjson::object& aModData) override
         {
-            const std::map<std::string, const char*> CladeColor = {
-                {"", "grey50"},
-                  // H3
-                {"3C3", "cornflowerblue"},
-                {"3C2a", "red"},
-                {"3C2a1", "darkred"},
-                {"3C3a", "green"},
-                {"3C3b", "blue"},
-                  // H1pdm
-                {"6B1", "blue"},
-                {"6B2", "red"},
-                  // B/Yam
-                {"Y2", "cornflowerblue"},
-                {"Y3", "red"},
-                  // B/Vic
-                {"1", "blue"},
-                {"1A", "cornflowerblue"},
-                {"1B", "red"},
-            };
-
             const auto& seqdb = seqdb::get(mArgs.get_field("seqdb_file", "/Users/eu/AD/data/seqdb.json.xz"s), true);
             std::vector<seqdb::SeqdbEntrySeq> seqdb_entries;
             seqdb.match(aChartDraw.chart().antigens(), seqdb_entries, true);
 
+            const bool report = mArgs.get_field("report", false);
+            const auto num_digits = static_cast<int>(std::log10(aChartDraw.chart().number_of_antigens())) + 1;
+
+            const auto& clade_fill = aModData["clade_fill"];
             for (auto [ag_no, entry_seq]: enumerate(seqdb_entries)) {
                 if (entry_seq) {
-                    if (const auto& clades = entry_seq.seq().clades(); !clades.empty()) {
-                        if (const auto clr = CladeColor.find(clades.front()); clr != CladeColor.end())
-                            aChartDraw.modify(ag_no, PointStyleEmpty().fill(clr->second).outline(BLACK), ChartDraw::Raise);
+                    for (const auto& clade: entry_seq.seq().clades()) {
+                        try {
+                            const std::string fill = clade_fill.get_field<std::string>(clade);
+                            aChartDraw.modify(ag_no, PointStyleEmpty().fill(fill).outline(BLACK), ChartDraw::Raise);
+                            if (report)
+                                std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << ag_no << ' ' << aChartDraw.chart().antigen(static_cast<size_t>(ag_no)).full_name() << ' ' << clade << ' ' << fill << '\n';
+                        }
+                        catch (rjson::object::field_not_found&) {
+                        }
                     }
                 }
             }
-              // for (auto [ag_no, antigen]: enumerate(aChartDraw.chart().antigens())) {
-              //     aChartDraw.modify(ag_no, PointStyleEmpty().fill(antigen.reference() ? TRANSPARENT : GREY).outline(GREY));
-              // }
-              // for (auto [sr_no, serum]: enumerate(aChartDraw.chart().sera())) {
-              //     aChartDraw.modify_serum(sr_no, PointStyleEmpty().fill(TRANSPARENT).outline(GREY));
-              // }
         }
 
  private:

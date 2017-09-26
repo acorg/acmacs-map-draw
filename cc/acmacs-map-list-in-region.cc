@@ -22,7 +22,6 @@ int main(int argc, char* const argv[])
         size_t projection_no = 0;
 
         auto settings = default_settings();
-        std::cout << settings.to_json_pp() << '\n';
 
         Timeit ti_chart{"loading chart from "s + argv[1] + ": "};
         std::unique_ptr<Chart> chart{import_chart(argv[1])};
@@ -32,7 +31,7 @@ int main(int argc, char* const argv[])
         chart_draw.prepare();
 
         auto mods = rjson::parse_string(R"(["all_grey", {"N": "clades", "seqdb_file": "/Users/eu/AD/data/seqdb.json.xz", "report": true}])");
-        apply_mods(chart_draw, mods);
+        apply_mods(chart_draw, mods, settings);
 
         chart_draw.calculate_viewport();
         chart_draw.draw("/r/aaa.pdf", 800);
