@@ -23,7 +23,9 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
     "?": "B/Vic",
     "1": "blue",
     "1A": "cornflowerblue",
-    "1B": "red"
+    "1B": "red",
+    "DEL2017": "#000080",
+    "TRIPLEDEL2017": "#46f0f0"
   }
 }
 )";
