@@ -66,7 +66,7 @@ class ChartDraw
 
     template <typename index_type> inline void modify_serum(index_type aSerumNo, const PointStyle& aStyle, RaiseLower aRaiseLower = NoOrderChange)
         {
-            modify(aSerumNo + number_of_antigens(), aStyle, aRaiseLower);
+            modify(static_cast<size_t>(aSerumNo) + number_of_antigens(), aStyle, aRaiseLower);
         }
 
     template <typename IndexIterator> inline void modify(IndexIterator first, IndexIterator last, const PointStyle& aStyle, RaiseLower aRaiseLower = NoOrderChange)

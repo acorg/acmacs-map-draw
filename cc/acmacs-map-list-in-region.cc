@@ -62,11 +62,20 @@ int main(int argc, char* const argv[])
         ChartDraw chart_draw(*chart, projection_no);
         chart_draw.prepare();
 
+          // all grey
+        for (auto [ag_no, antigen]: enumerate(chart->antigens())) {
+            chart_draw.modify(ag_no, PointStyleEmpty().fill(antigen.reference() ? TRANSPARENT : GREY).outline(GREY));
+        }
+        for (auto [sr_no, serum]: enumerate(chart->sera())) {
+            chart_draw.modify_serum(sr_no, PointStyleEmpty().fill(TRANSPARENT).outline(GREY));
+              // chart_draw.modify_serum(sr_no, PointStyleEmpty().outline("grey"));
+        }
+
         for (auto [ag_no, entry_seq]: enumerate(seqdb_entries)) {
             if (entry_seq) {
                 if (const auto& clades = entry_seq.seq().clades(); !clades.empty()) {
                     if (const auto clr = CladeColor.find(clades.front()); clr != CladeColor.end())
-                        chart_draw.modify(ag_no, PointStyle{}.fill(clr->second), ChartDraw::Raise);
+                        chart_draw.modify(ag_no, PointStyleEmpty().fill(clr->second).outline(BLACK), ChartDraw::Raise);
                 }
             }
         }
