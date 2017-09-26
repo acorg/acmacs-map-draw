@@ -113,6 +113,8 @@ class ModApplicator:
         {"N": "1",  "outline": "black"},
         {"N": "1A", "outline": "black"},
         {"N": "1B", "outline": "black"},
+        {"N": "DEL2017", "outline": "black"},
+        {"N": "TRIPLEDEL2017", "outline": "black"},
         ]
 
     # ----------------------------------------------------------------------
