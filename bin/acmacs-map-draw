@@ -90,7 +90,7 @@ sSettings = {
              },
         ],
     "mods?": [
-        "flip_ns", "flip_ew", {"N": "flip", "value": [-1, 1]},
+        "flip_ns", "flip_ew", {"N": "flip", "value": [0, 1]},
         {"N": "rotate_degrees", "angle": 30}, {"N": "rotate_radians", "angle": -1},
         {"N": "viewport", "value": [-6, -6, 10]},
         "egg", "reassortant", "all_grey",
