@@ -9,13 +9,14 @@
 
 class Chart;
 class LocDb;
+namespace seqdb { class Seqdb; }
 
 // ----------------------------------------------------------------------
 
 class SelectAntigensSera
 {
  public:
-    SelectAntigensSera(std::string aLocDbFilename);
+    SelectAntigensSera(std::string aLocDbFilename, std::string aHidbDir, std::string aSeqdbFilename);
     virtual ~SelectAntigensSera();
 
     virtual std::vector<size_t> select(const Chart& aChart, const rjson::value& aSelector);
@@ -23,9 +24,12 @@ class SelectAntigensSera
 
  protected:
     const LocDb& get_location_database() const;
+    const seqdb::Seqdb& get_seqdb() const;
 
  private:
     std::string mLocDbFilename;
+    std::string mHidbDir;
+    std::string mSeqdbFilename;
 
 }; // class SelectAntigensSera
 

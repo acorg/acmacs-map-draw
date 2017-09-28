@@ -3,6 +3,7 @@
 
 #include "acmacs-chart/chart.hh"
 #include "locationdb/locdb.hh"
+#include "seqdb/seqdb.hh"
 
 #include "select.hh"
 
@@ -10,11 +11,15 @@ using namespace std::string_literals;
 
 // ----------------------------------------------------------------------
 
-SelectAntigensSera::SelectAntigensSera(std::string aLocDbFilename)
-    : mLocDbFilename{aLocDbFilename}
+SelectAntigensSera::SelectAntigensSera(std::string aLocDbFilename, std::string aHidbDir, std::string aSeqdbFilename)
+    : mLocDbFilename{aLocDbFilename}, mHidbDir{aHidbDir}, mSeqdbFilename{aSeqdbFilename}
 {
     if (mLocDbFilename.empty())
         mLocDbFilename = std::getenv("HOME") + "/AD/data/locationdb.json.xz"s;
+    if (mHidbDir.empty())
+        mHidbDir = std::getenv("HOME") + "/AD/data"s;
+    if (mSeqdbFilename.empty())
+        mSeqdbFilename = std::getenv("HOME") + "/AD/data/seqdb.json.xz"s;
 }
 
 // ----------------------------------------------------------------------
@@ -27,9 +32,17 @@ SelectAntigensSera::~SelectAntigensSera()
 
 const LocDb& SelectAntigensSera::get_location_database() const
 {
-    return ::get_location_database(mLocDbFilename, true);
+    return ::get_location_database(mLocDbFilename);
 
 } // SelectAntigensSera::get_location_database
+
+// ----------------------------------------------------------------------
+
+const seqdb::Seqdb& SelectAntigensSera::get_seqdb() const
+{
+    return seqdb::get(mSeqdbFilename);
+
+} // SelectAntigensSera::get_seqdb
 
 // ----------------------------------------------------------------------
 
@@ -149,6 +162,11 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
             const std::string continent = string::upper(value);
             antigens.filter_continent(indices, continent, get_location_database());
         }
+        // else if (key == "sequenced") {
+        //     get_seqdb();
+        //     std::vector<seqdb::SeqdbEntrySeq> seqdb_entries;
+        //     seqdb.match(aChartDraw.chart().antigens(), seqdb_entries, true);
+        // }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }

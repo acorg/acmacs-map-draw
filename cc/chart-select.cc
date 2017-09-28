@@ -4,7 +4,6 @@
 #include "acmacs-base/argc-argv.hh"
 // #include "acmacs-base/string.hh"
 #include "acmacs-chart/ace.hh"
-//#include "seqdb/seqdb.hh"
 
 #include "select.hh"
 
@@ -23,18 +22,17 @@ int main(int argc, char* const argv[])
 
         if (!args["-s"]) {
             const auto num_digits = static_cast<int>(std::log10(chart->number_of_antigens())) + 1;
-            const auto indices = SelectAntigens(args.get("--seqdb", std::string{})).select(*chart, selector);
+            const auto indices = SelectAntigens(args.get("--locdb", ""s), args.get("--hidb-dir", ""s), args.get("--seqdb", ""s)).select(*chart, selector);
             for (auto index: indices)
                 std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->antigen(index).full_name() << '\n';
         }
         else {
             const auto num_digits = static_cast<int>(std::log10(chart->number_of_sera())) + 1;
-            const auto indices = SelectSera(args.get("--seqdb", std::string{})).select(*chart, selector);
+            const auto indices = SelectSera(args.get("--locdb", ""s), args.get("--hidb-dir", ""s), args.get("--seqdb", ""s)).select(*chart, selector);
             for (auto index: indices)
                 std::cout << "SR " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->serum(index).full_name() << '\n';
         }
 
-          // const auto& seqdb = seqdb::get(args.get("--seqdb", "/Users/eu/AD/data/seqdb.json.xz"));
         return 0;
     }
     catch (std::exception& err) {
