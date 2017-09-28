@@ -39,6 +39,7 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 // "egg", "cell", "reassortant", {"passage": "egg"}, {"passage": "cell"}, {"passage": "reassortant"}
 //  {"date_range": ["2016-01-01", "2016-09-01"]}, {"date_range": ["", "2016-09-01"]}, {"date_range": ["2016-01-01", ""]}, {"older_than_days": 365}, {"younger_than_days": 365}
 //  {"index": 11}, {"indices": [55, 66]}
+//  {"country": "sweden"}, {"continent": "europe"}
 //
 // ----------------------------------------------------------------------
 
@@ -72,8 +73,8 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 //     + date_range
 //     + older_than_days
 //     + younger_than_days
-//     country
-//     continent
+//     + country
+//     + continent
 //     layout rectangle area, circle area
 //     vaccine passage: type: (current, previous, surrogate) name:
 //     sequenced
@@ -91,6 +92,8 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 //     name
 //     index
 //     indices []
+//     country
+//     continent
 //   size, shape, fill, outline, outline_width, aspect, rotation, raise_ (order: raise, lower, no-change), report, report_names_threshold
 //   label: name_type, offset, display_name, color, size, weight, slant, font_family
 //   serum_circle

@@ -1,14 +1,35 @@
 #include <chrono>
+#include <cstdlib>
 
 #include "acmacs-chart/chart.hh"
+#include "locationdb/locdb.hh"
 
 #include "select.hh"
+
+using namespace std::string_literals;
+
+// ----------------------------------------------------------------------
+
+SelectAntigensSera::SelectAntigensSera(std::string aLocDbFilename)
+    : mLocDbFilename{aLocDbFilename}
+{
+    if (mLocDbFilename.empty())
+        mLocDbFilename = std::getenv("HOME") + "/AD/data/locationdb.json.xz"s;
+}
 
 // ----------------------------------------------------------------------
 
 SelectAntigensSera::~SelectAntigensSera()
 {
 } // SelectAntigensSera::~SelectAntigensSera
+
+// ----------------------------------------------------------------------
+
+const LocDb& SelectAntigensSera::get_location_database() const
+{
+    return ::get_location_database(mLocDbFilename, true);
+
+} // SelectAntigensSera::get_location_database
 
 // ----------------------------------------------------------------------
 
@@ -119,6 +140,14 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
             std::vector<size_t> to_keep(to_keep_v.size());
             std::transform(to_keep_v.begin(), to_keep_v.end(), to_keep.begin(), [](const auto& v) -> size_t { return v; });
             indices.erase(std::remove_if(indices.begin(), indices.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indices.end());
+        }
+        else if (key == "country") {
+            const std::string country = string::upper(value);
+            antigens.filter_country(indices, country, get_location_database());
+        }
+        else if (key == "continent") {
+            const std::string continent = string::upper(value);
+            antigens.filter_continent(indices, continent, get_location_database());
         }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
