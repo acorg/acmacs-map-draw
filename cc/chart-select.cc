@@ -21,8 +21,18 @@ int main(int argc, char* const argv[])
         const auto selector = rjson::parse_string(args[1]);
         std::unique_ptr<Chart> chart{import_chart(args[0])};
 
-        const auto indices = args["-s"] ? SelectSera{}.select(*chart, selector) : SelectAntigens{}.select(*chart, selector);
-        std::cout << indices << '\n';
+        if (!args["-s"]) {
+            const auto num_digits = static_cast<int>(std::log10(chart->number_of_antigens())) + 1;
+            const auto indices = SelectAntigens{}.select(*chart, selector);
+            for (auto index: indices)
+                std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->antigen(index).full_name() << '\n';
+        }
+        else {
+            const auto num_digits = static_cast<int>(std::log10(chart->number_of_sera())) + 1;
+            const auto indices = SelectSera{}.select(*chart, selector);
+            for (auto index: indices)
+                std::cout << "SR " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->serum(index).full_name() << '\n';
+        }
 
           // const auto& seqdb = seqdb::get(args.get("--seqdb", "/Users/eu/AD/data/seqdb.json.xz"));
         return 0;

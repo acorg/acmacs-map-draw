@@ -50,14 +50,32 @@ std::vector<size_t> SelectAntigensSera::select(const Chart& aChart, const rjson:
 std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::object& aSelector)
 {
     std::cout << "DEBUG: antigens command: " << aSelector << '\n';
+    const auto& antigens = aChart.antigens();
+    auto indices = antigens.all_indices();
     for (const auto& [key, value]: aSelector) {
-        if (key == "xall") {
+        if (key == "all") {
+              // do nothing
+        }
+        else if (key == "reference") {
+            antigens.filter_reference(indices);
+        }
+        else if (key == "test") {
+            antigens.filter_test(indices);
+        }
+        else if (key == "egg") {
+            antigens.filter_egg(indices);
+        }
+        else if (key == "cell") {
+            antigens.filter_cell(indices);
+        }
+        else if (key == "reassortant") {
+            antigens.filter_reassortant(indices);
         }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }
     }
-    return {};
+    return indices;
 
 } // SelectAntigens::command
 
