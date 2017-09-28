@@ -1,3 +1,5 @@
+#include <chrono>
+
 #include "acmacs-chart/chart.hh"
 
 #include "select.hh"
@@ -50,7 +52,8 @@ std::vector<size_t> SelectAntigensSera::select(const Chart& aChart, const rjson:
 
 std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::object& aSelector)
 {
-    std::cout << "DEBUG: antigens command: " << aSelector << '\n';
+    using namespace std::chrono_literals;
+      // std::cout << "DEBUG: antigens command: " << aSelector << '\n';
     const auto& antigens = aChart.antigens();
     auto indices = antigens.all_indices();
     for (const auto& [key, value]: aSelector) {
@@ -76,10 +79,20 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
             const rjson::array& dr = value;
             antigens.filter_date_range(indices, dr[0], dr[1]);
         }
-        // else if (key == "older_than_days") {
-        // }
-        // else if (key == "younger_than_days") {
-        // }
+        else if (key == "older_than_days") {
+            const int days = value;
+            const auto then = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() - 24h * days);
+            char buffer[20];
+            std::strftime(buffer, sizeof buffer, "%Y-%m-%d", std::localtime(&then));
+            antigens.filter_date_range(indices, "", buffer);
+        }
+        else if (key == "younger_than_days") {
+            const int days = value;
+            const auto then = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() - 24h * days);
+            char buffer[20];
+            std::strftime(buffer, sizeof buffer, "%Y-%m-%d", std::localtime(&then));
+            antigens.filter_date_range(indices, buffer, "");
+        }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }
