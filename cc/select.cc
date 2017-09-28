@@ -39,7 +39,8 @@ std::vector<size_t> SelectAntigensSera::select(const Chart& aChart, const rjson:
     try {
         return std::visit(SelectorVisitor{aChart, *this}, aSelector);
     }
-    catch (SelectorVisitor::unexpected_value&) {
+    catch (std::exception&) {
+          // catch (SelectorVisitor::unexpected_value&) {
         throw std::runtime_error{"Unsupported selector value: " + aSelector.to_json()};
     }
 
@@ -71,6 +72,14 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
         else if (key == "reassortant") {
             antigens.filter_reassortant(indices);
         }
+        else if (key == "date_range") {
+            const rjson::array& dr = value;
+            antigens.filter_date_range(indices, dr[0], dr[1]);
+        }
+        // else if (key == "older_than_days") {
+        // }
+        // else if (key == "younger_than_days") {
+        // }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }
