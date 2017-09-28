@@ -75,6 +75,17 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
         else if (key == "reassortant") {
             antigens.filter_reassortant(indices);
         }
+        else if (key == "passage") {
+            const std::string passage = value;
+            if (passage == "egg")
+                antigens.filter_egg(indices);
+            else if (passage == "cell")
+                antigens.filter_cell(indices);
+            else if (passage == "reassortant")
+                antigens.filter_reassortant(indices);
+            else
+                throw std::exception{};
+        }
         else if (key == "date_range") {
             const rjson::array& dr = value;
             antigens.filter_date_range(indices, dr[0], dr[1]);
@@ -92,6 +103,16 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
             char buffer[20];
             std::strftime(buffer, sizeof buffer, "%Y-%m-%d", std::localtime(&then));
             antigens.filter_date_range(indices, buffer, "");
+        }
+        else if (key == "index") {
+            const size_t index = value;
+            if (std::find(indices.begin(), indices.end(), index) == indices.end()) {
+                indices.clear();
+            }
+            else {
+                indices.clear();
+                indices.push_back(index);
+            }
         }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';

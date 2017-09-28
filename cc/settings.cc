@@ -32,6 +32,16 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 
 // ----------------------------------------------------------------------
 
+// Select antigens
+// "all"
+// "reference"
+// "test"
+// "egg", "cell", "reassortant", {"passage": "egg"}, {"passage": "cell"}, {"passage": "reassortant"}
+//  {"date_range": ["2016-01-01", "2016-09-01"]}, {"date_range": ["", "2016-09-01"]}, {"date_range": ["2016-01-01", ""]}, {"older_than_days": 365}, {"younger_than_days": 365}
+//  {"index": 11}
+//
+// ----------------------------------------------------------------------
+
 // flip
 //   value: [0, 1]
 //   ew
@@ -49,19 +59,19 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 //
 // antigens
 //   select
-//     all
-//     reference
-//     test
-//     passage:
-//       egg
-//       cell
-//       reassortant
+//     + all
+//     + reference
+//     + test
+//     + passage:
+//     +   egg
+//     +   cell
+//     +   reassortant
 //     name
-//     index
+//     + index
 //     indices []
-//     date_range
-//     older_than_days
-//     younger_than_days
+//     + date_range
+//     + older_than_days
+//     + younger_than_days
 //     country
 //     continent
 //     layout rectangle area, circle area
