@@ -16,7 +16,10 @@ class SelectAntigensSera
  public:
     virtual ~SelectAntigensSera();
 
-    virtual std::vector<size_t> select(const Chart& aChart, const rjson::value& aSelector) = 0;
+    virtual std::vector<size_t> select(const Chart& aChart, const rjson::value& aSelector);
+    virtual std::vector<size_t> command(const Chart& aChart, const rjson::object& aSelector) = 0;
+
+ protected:
 
 }; // class SelectAntigensSera
 
@@ -25,7 +28,7 @@ class SelectAntigensSera
 class SelectAntigens : public SelectAntigensSera
 {
  public:
-    std::vector<size_t> select(const Chart& aChart, const rjson::value& aSelector) override;
+    std::vector<size_t> command(const Chart& aChart, const rjson::object& aSelector) override;
 
 };  // class SelectAntigens
 
@@ -34,7 +37,7 @@ class SelectAntigens : public SelectAntigensSera
 class SelectSera : public SelectAntigensSera
 {
  public:
-    std::vector<size_t> select(const Chart& aChart, const rjson::value& aSelector) override;
+    std::vector<size_t> command(const Chart& aChart, const rjson::object& aSelector) override;
 
 };  // class SelectSera
 
