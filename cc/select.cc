@@ -114,6 +114,12 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
                 indices.push_back(index);
             }
         }
+        else if (key == "indices") {
+            const rjson::array& to_keep_v = value;
+            std::vector<size_t> to_keep(to_keep_v.size());
+            std::transform(to_keep_v.begin(), to_keep_v.end(), to_keep.begin(), [](const auto& v) -> size_t { return v; });
+            indices.erase(std::remove_if(indices.begin(), indices.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indices.end());
+        }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }

@@ -38,7 +38,7 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 // "test"
 // "egg", "cell", "reassortant", {"passage": "egg"}, {"passage": "cell"}, {"passage": "reassortant"}
 //  {"date_range": ["2016-01-01", "2016-09-01"]}, {"date_range": ["", "2016-09-01"]}, {"date_range": ["2016-01-01", ""]}, {"older_than_days": 365}, {"younger_than_days": 365}
-//  {"index": 11}
+//  {"index": 11}, {"indices": [55, 66]}
 //
 // ----------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 //     +   reassortant
 //     name
 //     + index
-//     indices []
+//     + indices []
 //     + date_range
 //     + older_than_days
 //     + younger_than_days
