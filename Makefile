@@ -6,9 +6,13 @@ MAKEFLAGS = -w
 
 # ----------------------------------------------------------------------
 
-TARGETS = $(ACMACS_MAP_DRAW_LIB) $(BACKEND) $(DIST)/acmacs-map-list-in-region
+TARGETS = \
+    $(ACMACS_MAP_DRAW_LIB) \
+    $(BACKEND) \
+    $(DIST)/chart-select \
+    $(DIST)/acmacs-map-list-in-region
 
-LIB_SOURCES = draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc time-series.cc vaccines.cc settings.cc mod-applicator.cc
+LIB_SOURCES = draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc time-series.cc vaccines.cc settings.cc select.cc mod-applicator.cc
 PY_SOURCES = py.cc $(LIB_SOURCES)
 BACKEND = $(DIST)/acmacs_map_draw_backend$(PYTHON_MODULE_SUFFIX)
 
@@ -41,6 +45,7 @@ install: check-acmacsd-root install-headers $(TARGETS)
 	ln -sf $(abspath bin)/acmacs-map-* $(AD_BIN)
 	ln -sf $(abspath bin)/geographic-* $(AD_BIN)
 	ln -sf $(abspath $(DIST))/acmacs-map-* $(AD_BIN)
+	ln -sf $(abspath $(DIST))/chart-* $(AD_BIN)
 
 test: install
 	test/test -v
