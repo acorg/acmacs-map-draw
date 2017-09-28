@@ -187,6 +187,8 @@ def mod_settings(settings, args):
         settings["mods"][0:0] = ["flip_ns"]
     if args.color_by_clade:
         settings["mods"][-1:-1] = [{"N": "clades", "": {"show": False}, "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 10, "point_size": 6}}]
+    if args.use_chart_plot_spec:
+        settings["mods"][-1:-1] = ["use_chart_plot_spec"]
     if args.color_by_aa_at:
         aa_at = ast.literal_eval(args.color_by_aa_at)
         if isinstance(aa_at, int):
@@ -236,6 +238,7 @@ try:
 
     parser.add_argument('--clade', action='store_true', dest='color_by_clade', default=False)
     parser.add_argument('--aa-at', action='store', dest='color_by_aa_at', default=None)
+    parser.add_argument('--chart-plot-spec', action='store_true', dest='use_chart_plot_spec', default=False)
 
     parser.add_argument('-n', action='store_false', dest='draw_map', default=True, help='Do not actually draw a map.')
     parser.add_argument('-m', action='store_false', dest='open_image', default=True, help='Do not open image.')
