@@ -59,15 +59,16 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 //     name
 //     index
 //     indices []
-//     sequenced
-//     not_sequenced
-//     clade
 //     date_range
 //     older_than_days
 //     younger_than_days
 //     country
 //     continent
+//     layout rectangle area, circle area
 //     vaccine passage: type: (current, previous, surrogate) name:
+//     sequenced
+//     not_sequenced
+//     clade
 //   show
 //   size, shape, fill, outline, outline_width, aspect, rotation, raise_ (order: raise, lower, no-change), report, report_names_threshold
 //   label: name_type, offset, display_name, color, size, weight, slant, font_family
