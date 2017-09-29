@@ -41,6 +41,7 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 //  {"index": 11}, {"indices": [55, 66]}
 //  {"country": "sweden"}, {"continent": "europe"}
 //  "sequenced", "not_sequenced", {"clade": "3C3a"}
+//  {"name": "SWITZERLAND/9715293/2013"}, {"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"}
 //
 // ----------------------------------------------------------------------
 
@@ -68,7 +69,7 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 //     +   egg
 //     +   cell
 //     +   reassortant
-//     name
+//     + name
 //     + index
 //     + indices []
 //     + date_range
