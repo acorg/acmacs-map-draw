@@ -63,7 +63,7 @@ class Clades : public Mod
 
     void apply(ChartDraw& aChartDraw, const rjson::object& aModData) override
         {
-            const auto& seqdb = seqdb::get(mArgs.get_field("seqdb_file", "/Users/eu/AD/data/seqdb.json.xz"s), true);
+            const auto& seqdb = seqdb::get(mArgs.get_field("seqdb_file", "/Users/eu/AD/data/seqdb.json.xz"s), report_time::Yes);
             std::vector<seqdb::SeqdbEntrySeq> seqdb_entries;
             seqdb.match(aChartDraw.chart().antigens(), seqdb_entries, true);
 

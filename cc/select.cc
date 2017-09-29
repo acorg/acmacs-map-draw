@@ -10,8 +10,8 @@ using namespace std::string_literals;
 
 // ----------------------------------------------------------------------
 
-SelectAntigensSera::SelectAntigensSera(std::string aLocDbFilename, std::string aHidbDir, std::string aSeqdbFilename)
-    : mLocDbFilename{aLocDbFilename}, mHidbDir{aHidbDir}, mSeqdbFilename{aSeqdbFilename}
+SelectAntigensSera::SelectAntigensSera(std::string aLocDbFilename, std::string aHidbDir, std::string aSeqdbFilename, bool aVerbose)
+    : mLocDbFilename{aLocDbFilename}, mHidbDir{aHidbDir}, mSeqdbFilename{aSeqdbFilename}, mVerbose{aVerbose}
 {
     if (mLocDbFilename.empty())
         mLocDbFilename = std::getenv("HOME") + "/AD/data/locationdb.json.xz"s;
@@ -31,7 +31,7 @@ SelectAntigensSera::~SelectAntigensSera()
 
 const LocDb& SelectAntigensSera::get_location_database() const
 {
-    return ::get_location_database(mLocDbFilename);
+    return ::get_location_database(mLocDbFilename, mVerbose ? report_time::Yes : report_time::No);
 
 } // SelectAntigensSera::get_location_database
 
@@ -39,7 +39,7 @@ const LocDb& SelectAntigensSera::get_location_database() const
 
 const seqdb::Seqdb& SelectAntigensSera::get_seqdb() const
 {
-    return seqdb::get(mSeqdbFilename);
+    return seqdb::get(mSeqdbFilename, mVerbose ? report_time::Yes : report_time::No);
 
 } // SelectAntigensSera::get_seqdb
 
@@ -185,7 +185,7 @@ const std::vector<seqdb::SeqdbEntrySeq>& SelectAntigens::seqdb_entries(const Cha
 {
     if (!mSeqdbEntries || mChartForSeqdbEntries != &aChart) {
         mSeqdbEntries = std::make_unique<std::vector<seqdb::SeqdbEntrySeq>>();
-        get_seqdb().match(aChart.antigens(), *mSeqdbEntries, true);
+        get_seqdb().match(aChart.antigens(), *mSeqdbEntries, false);
     }
     return *mSeqdbEntries;
 

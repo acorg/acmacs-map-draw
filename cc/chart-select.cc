@@ -11,12 +11,14 @@ using namespace std::string_literals;
 
 // ----------------------------------------------------------------------
 
+constexpr const char* sUsage = " [--seqdb <seqdb.json.xz>] [--locdb <locationdb.json.xz>] [--hidb-dir <~/AD/data>] [-s (sera)] <chart.ace> <command-in-json-format>";
+
 int main(int argc, char* const argv[])
 {
     try {
-        argc_argv args(argc, argv, {"--seqdb", "--hidb-dir"});
+        argc_argv args(argc, argv, {"--seqdb", "--hidb-dir", "--locdb"});
         if (args["-h"] || args["--help"] || args.number_of_arguments() != 2)
-            throw std::runtime_error("Usage: "s + args.program() + " [--seqdb <seqdb.json.xz>] [--locdb <locationdb.json.xz>] [--hidb-dir <~/AD/data>] [-s (sera)] <chart.ace> <command-in-json-format>");
+            throw std::runtime_error("Usage: "s + args.program() + sUsage);
         const auto selector = rjson::parse_string(args[1]);
         std::unique_ptr<Chart> chart{import_chart(args[0])};
 

@@ -10,6 +10,7 @@ TARGETS = \
     $(ACMACS_MAP_DRAW_LIB) \
     $(BACKEND) \
     $(DIST)/chart-select \
+    $(DIST)/chart-info \
     $(DIST)/acmacs-map-list-in-region
 
 LIB_SOURCES = draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc time-series.cc vaccines.cc settings.cc select.cc mod-applicator.cc

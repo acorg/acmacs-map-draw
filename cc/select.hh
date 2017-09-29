@@ -18,7 +18,7 @@ class LocDb;
 class SelectAntigensSera
 {
  public:
-    SelectAntigensSera(std::string aLocDbFilename, std::string aHidbDir, std::string aSeqdbFilename);
+    SelectAntigensSera(std::string aLocDbFilename, std::string aHidbDir, std::string aSeqdbFilename, bool aVerbose = false);
     virtual ~SelectAntigensSera();
 
     virtual std::vector<size_t> select(const Chart& aChart, const rjson::value& aSelector);
@@ -32,6 +32,7 @@ class SelectAntigensSera
     std::string mLocDbFilename;
     std::string mHidbDir;
     std::string mSeqdbFilename;
+    bool mVerbose;
 
 }; // class SelectAntigensSera
 
