@@ -3,6 +3,7 @@
 
 #include "acmacs-chart/chart.hh"
 #include "locationdb/locdb.hh"
+#include "hidb/hidb.hh"
 
 #include "select.hh"
 
@@ -42,6 +43,14 @@ const seqdb::Seqdb& SelectAntigensSera::get_seqdb() const
     return seqdb::get(mSeqdbFilename, mVerbose ? report_time::Yes : report_time::No);
 
 } // SelectAntigensSera::get_seqdb
+
+// ----------------------------------------------------------------------
+
+const hidb::HiDb& SelectAntigensSera::get_hidb(std::string aVirusType) const
+{
+    return hidb::get(mHidbDir, aVirusType, mVerbose ? report_time::Yes : report_time::No);
+
+} // SelectAntigensSera::get_hidb
 
 // ----------------------------------------------------------------------
 
@@ -174,6 +183,15 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
         else if (key == "full_name") {
             filter_full_name(aChart, indices, string::upper(value));
         }
+        else if (key == "vaccine") {
+            std::string vaccine_type;
+            try {
+                vaccine_type = static_cast<std::string>(value);
+            }
+            catch (std::bad_variant_access&) {
+            }
+            filter_vaccine(aChart, indices, value);
+        }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }
@@ -238,6 +256,21 @@ void SelectAntigens::filter_clade(const Chart& aChart, std::vector<size_t>& indi
     indices.erase(std::remove_if(indices.begin(), indices.end(), not_in_clade), indices.end());
 
 } // SelectAntigens::filter_clade
+
+// ----------------------------------------------------------------------
+
+void SelectAntigens::filter_vaccine(const Chart& aChart, std::vector<size_t>& indices, std::string aVaccineType)
+{
+    const auto virus_type = aChart.chart_info().virus_type();
+    if (!virus_type.empty()) {
+        const auto& hidb = get_hidb(virus_type);
+    }
+    else {
+        indices.clear();
+        std::cerr << "WARNING: unknown virus_type for chart: " << aChart.make_name() << '\n';
+    }
+
+} // SelectAntigens::filter_vaccine
 
 // ----------------------------------------------------------------------
 

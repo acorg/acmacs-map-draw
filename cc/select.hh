@@ -13,6 +13,7 @@
 
 class Chart;
 class LocDb;
+namespace hidb { class HiDb; }
 
 // ----------------------------------------------------------------------
 
@@ -30,6 +31,7 @@ class SelectAntigensSera
  protected:
     const LocDb& get_location_database() const;
     const seqdb::Seqdb& get_seqdb() const;
+    const hidb::HiDb& get_hidb(std::string aVirusType) const;
 
     template <typename AgSr> inline void filter_name_in(const AgSr& aAgSr, std::vector<size_t>& indices, std::string aName)
         {
@@ -67,6 +69,7 @@ class SelectAntigens : public SelectAntigensSera
     void filter_clade(const Chart& aChart, std::vector<size_t>& indices, std::string aClade);
     inline void filter_name(const Chart& aChart, std::vector<size_t>& indices, std::string aName) override { filter_name_in(aChart.antigens(), indices, aName); }
     inline void filter_full_name(const Chart& aChart, std::vector<size_t>& indices, std::string aFullName) override { filter_full_name_in(aChart.antigens(), indices, aFullName); }
+    void filter_vaccine(const Chart& aChart, std::vector<size_t>& indices, std::string aVaccineType);
 
  private:
     std::unique_ptr<std::vector<seqdb::SeqdbEntrySeq>> mSeqdbEntries;
