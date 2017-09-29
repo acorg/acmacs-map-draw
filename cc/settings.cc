@@ -43,7 +43,7 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 //  "sequenced", "not_sequenced", {"clade": "3C3a"}
 //  {"name": "SWITZERLAND/9715293/2013"}, {"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"}
 //  {"full_name": "A(H1N1)/MICHIGAN/2/2009 MDCK1 (2009-05-03)"}
-//  - "vaccine", {"vaccine": "previous", "passage": "egg", "name": "SWITZERLAND"}
+//  "vaccine", {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}}
 //
 // ----------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 //     + country
 //     + continent
 //     layout rectangle area, circle area
-//     vaccine passage: type: (current, previous, surrogate) name:
+//     + vaccine passage: type: (current, previous, surrogate) name:
 //     + sequenced
 //     + not_sequenced
 //     + clade

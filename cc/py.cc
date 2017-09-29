@@ -9,7 +9,7 @@
 #include "draw.hh"
 #include "geographic-map.hh"
 #include "time-series.hh"
-#include "vaccines.hh"
+#include "vaccine-matcher.hh"
 
 // ----------------------------------------------------------------------
 
@@ -315,9 +315,11 @@ PYBIND11_MODULE(acmacs_map_draw_backend, m)
             .def(py::init<const Chart&, const hidb::HiDb&>(), py::arg("chart"), py::arg("hidb"))
             .def("report_all", &Vaccines::report_all, py::arg("indent") = 0)
             .def("report", &Vaccines::report, py::arg("indent") = 0)
-            .def("match", &Vaccines::match, py::arg("name") = "", py::arg("type") = "", py::arg("passage_type") = "")
+            .def("match", [](Vaccines& vaccines, std::string name, std::string type, std::string passage) {
+                              return new VaccineMatcher(vaccines, VaccineMatchData{}.name(name).type(type).passage(passage));
+                          }, py::arg("name") = "", py::arg("type") = "", py::arg("passage_type") = "")
             .def("plot", &Vaccines::plot, py::arg("chart_draw"))
-            .def("indices", &Vaccines::indices)
+            .def("indices", py::overload_cast<>(&Vaccines::indices, py::const_))
             ;
 
     py::class_<VaccineMatcher>(m, "VaccineMatcher")

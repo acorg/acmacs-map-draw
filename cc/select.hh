@@ -14,6 +14,7 @@
 class Chart;
 class LocDb;
 namespace hidb { class HiDb; }
+class VaccineMatchData;
 
 // ----------------------------------------------------------------------
 
@@ -47,6 +48,8 @@ class SelectAntigensSera
             indices.erase(std::remove_if(indices.begin(), indices.end(), [&](auto index) { return aAgSr[index].full_name() != aFullName; }), indices.end());
         }
 
+    inline bool verbose() const { return mVerbose; }
+
  private:
     std::string mLocDbFilename;
     std::string mHidbDir;
@@ -69,7 +72,7 @@ class SelectAntigens : public SelectAntigensSera
     void filter_clade(const Chart& aChart, std::vector<size_t>& indices, std::string aClade);
     inline void filter_name(const Chart& aChart, std::vector<size_t>& indices, std::string aName) override { filter_name_in(aChart.antigens(), indices, aName); }
     inline void filter_full_name(const Chart& aChart, std::vector<size_t>& indices, std::string aFullName) override { filter_full_name_in(aChart.antigens(), indices, aFullName); }
-    void filter_vaccine(const Chart& aChart, std::vector<size_t>& indices, std::string aVaccineType);
+    void filter_vaccine(const Chart& aChart, std::vector<size_t>& indices, const VaccineMatchData& aMatchData);
 
  private:
     std::unique_ptr<std::vector<seqdb::SeqdbEntrySeq>> mSeqdbEntries;

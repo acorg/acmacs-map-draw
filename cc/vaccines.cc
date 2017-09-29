@@ -1,5 +1,5 @@
 #include "acmacs-chart/chart.hh"
-#include "draw.hh"
+//#include "draw.hh"
 #include "vaccines.hh"
 
 // ----------------------------------------------------------------------
@@ -16,8 +16,8 @@ static inline PointStyle& point_style_for(PointStyle&& aStyle, hidb::Vaccines::P
 }
 
 Vaccines::Vaccines(const Chart& aChart, const hidb::HiDb& aHiDb)
+    : mVaccinesOfChart{hidb::vaccines(aChart, aHiDb)}
 {
-    hidb::vaccines(mVaccinesOfChart, aChart, aHiDb);
     for (size_t vaccines_of_chart_index = 0; vaccines_of_chart_index < mVaccinesOfChart.size(); ++vaccines_of_chart_index) {
         auto update = [&](hidb::Vaccines::PassageType pt) {
             if (!mVaccinesOfChart[vaccines_of_chart_index].empty(pt)) {
@@ -63,6 +63,21 @@ std::vector<size_t> Vaccines::indices() const
 
 // ----------------------------------------------------------------------
 
+std::vector<size_t> Vaccines::indices(const VaccineMatchData& aMatchData) const
+{
+    std::vector<size_t> ind;
+    for (const auto& entry: mEntries) {
+        if (entry.match(mVaccinesOfChart, aMatchData)) {
+            if (const auto* vacc = mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, entry.antigen_no); vacc)
+                ind.push_back(vacc->antigen_index);
+        }
+    }
+    return ind;
+
+} // Vaccines::indices
+
+// ----------------------------------------------------------------------
+
 void Vaccines::plot(ChartDraw& aChartDraw) const
 {
     for (const auto& entry: mEntries) {
@@ -73,35 +88,6 @@ void Vaccines::plot(ChartDraw& aChartDraw) const
     }
 
 } // Vaccines::plot
-
-// ----------------------------------------------------------------------
-
-VaccineMatcherLabel& VaccineMatcherLabel::name_type(std::string aNameType)
-{
-    for_each_with_vacc([&](const hidb::Vaccines::Entry& ve) {
-        const auto& antigen = static_cast<const Antigen&>(mChartDraw.chart().antigen(ve.antigen_index)); // dynamic_cast throws here (clang 4.1)
-        std::string name;
-        if (aNameType == "abbreviated")
-            name = antigen.abbreviated_name(mLocDb);
-        else if (aNameType == "abbreviated_with_passage_type")
-            name = antigen.abbreviated_name_with_passage_type(mLocDb);
-        else if (aNameType == "abbreviated_location_with_passage_type")
-            name = antigen.abbreviated_location_with_passage_type(mLocDb);
-        else {
-            if (aNameType != "full") {
-                log_warning("unsupported name_type \"", aNameType, "\" (\"full\" is used)");
-            }
-            name = antigen.full_name();
-        }
-          // std::cerr << "DEBUG: name " << aNameType << ": \"" << name << '"' << std::endl;
-        mChartDraw.add_label(ve.antigen_index).display_name(name);
-    });
-    return *this;
-
-} // VaccineMatcherLabel::name_type
-
-// ----------------------------------------------------------------------
-
 
 // ----------------------------------------------------------------------
 /// Local Variables:

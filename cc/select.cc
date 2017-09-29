@@ -5,6 +5,7 @@
 #include "locationdb/locdb.hh"
 #include "hidb/hidb.hh"
 
+#include "vaccines.hh"
 #include "select.hh"
 
 using namespace std::string_literals;
@@ -83,9 +84,9 @@ std::vector<size_t> SelectAntigensSera::select(const Chart& aChart, const rjson:
     try {
         return std::visit(SelectorVisitor{aChart, *this}, aSelector);
     }
-    catch (std::exception&) {
+    catch (std::exception& err) {
           // catch (SelectorVisitor::unexpected_value&) {
-        throw std::runtime_error{"Unsupported selector value: " + aSelector.to_json()};
+        throw std::runtime_error{"Unsupported selector value: " + aSelector.to_json() + ": " + err.what()};
     }
 
 } // SelectAntigensSera::select
@@ -183,14 +184,14 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
         else if (key == "full_name") {
             filter_full_name(aChart, indices, string::upper(value));
         }
-        else if (key == "vaccine") {
-            std::string vaccine_type;
+        else if (key == "vaccine" || key == "vaccines") {
             try {
-                vaccine_type = static_cast<std::string>(value);
+                const rjson::object& vaccine_data = value;
+                filter_vaccine(aChart, indices, VaccineMatchData{}.type(vaccine_data.get_field("type", ""s)).passage(vaccine_data.get_field("passage", ""s)).no(vaccine_data.get_field("no", 0U)).name(vaccine_data.get_field("name", ""s)));
             }
             catch (std::bad_variant_access&) {
+                filter_vaccine(aChart, indices, {});
             }
-            filter_vaccine(aChart, indices, value);
         }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
@@ -259,11 +260,18 @@ void SelectAntigens::filter_clade(const Chart& aChart, std::vector<size_t>& indi
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_vaccine(const Chart& aChart, std::vector<size_t>& indices, std::string aVaccineType)
+void SelectAntigens::filter_vaccine(const Chart& aChart, std::vector<size_t>& indices, const VaccineMatchData& aMatchData)
 {
     const auto virus_type = aChart.chart_info().virus_type();
     if (!virus_type.empty()) {
-        const auto& hidb = get_hidb(virus_type);
+        Vaccines vaccines(aChart, get_hidb(virus_type));
+        if (verbose())
+            std::cerr << vaccines.report(2) << '\n';
+        auto vaccine_indices = vaccines.indices(aMatchData);
+        std::sort(vaccine_indices.begin(), vaccine_indices.end());
+        std::vector<size_t> result(vaccine_indices.size());
+        const auto end = std::set_intersection(indices.begin(), indices.end(), vaccine_indices.begin(), vaccine_indices.end(), result.begin());
+        indices.erase(std::copy(result.begin(), end, indices.begin()), indices.end());
     }
     else {
         indices.clear();
