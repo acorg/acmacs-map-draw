@@ -154,12 +154,10 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
             indices.erase(std::remove_if(indices.begin(), indices.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indices.end());
         }
         else if (key == "country") {
-            const std::string country = string::upper(value);
-            antigens.filter_country(indices, country, get_location_database());
+            antigens.filter_country(indices, string::upper(value), get_location_database());
         }
         else if (key == "continent") {
-            const std::string continent = string::upper(value);
-            antigens.filter_continent(indices, continent, get_location_database());
+            antigens.filter_continent(indices, string::upper(value), get_location_database());
         }
         else if (key == "sequenced") {
             filter_sequenced(aChart, indices);
@@ -168,8 +166,10 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
             filter_not_sequenced(aChart, indices);
         }
         else if (key == "clade") {
-            const std::string clade = value;
-            filter_clade(aChart, indices, value);
+            filter_clade(aChart, indices, value); //string::upper(value));
+        }
+        else if (key == "name") {
+            filter_name(aChart, indices, string::upper(value));
         }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';

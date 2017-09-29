@@ -23,10 +23,19 @@ class SelectAntigensSera
 
     virtual std::vector<size_t> select(const Chart& aChart, const rjson::value& aSelector);
     virtual std::vector<size_t> command(const Chart& aChart, const rjson::object& aSelector) = 0;
+    virtual void filter_name(const Chart& aChart, std::vector<size_t>& indices, std::string aName) = 0;
 
  protected:
     const LocDb& get_location_database() const;
     const seqdb::Seqdb& get_seqdb() const;
+
+    template <typename AgSr> inline void filter_name_in(const AgSr& aAgSr, std::vector<size_t>& indices, std::string aName)
+        {
+            std::vector<size_t> result(indices.size());
+            const auto by_name = aAgSr.find_by_name(aName);
+            const auto end = std::set_intersection(indices.begin(), indices.end(), by_name.begin(), by_name.end(), result.begin());
+            indices.erase(std::copy(result.begin(), end, indices.begin()), indices.end());
+        }
 
  private:
     std::string mLocDbFilename;
@@ -48,6 +57,7 @@ class SelectAntigens : public SelectAntigensSera
     void filter_not_sequenced(const Chart& aChart, std::vector<size_t>& indices);
     std::map<std::string, size_t> clades(const Chart& aChart);
     void filter_clade(const Chart& aChart, std::vector<size_t>& indices, std::string aClade);
+    inline void filter_name(const Chart& aChart, std::vector<size_t>& indices, std::string aName) override { filter_name_in(aChart.antigens(), indices, aName); }
 
  private:
     std::unique_ptr<std::vector<seqdb::SeqdbEntrySeq>> mSeqdbEntries;
@@ -65,6 +75,7 @@ class SelectSera : public SelectAntigensSera
     using SelectAntigensSera::SelectAntigensSera;
 
     std::vector<size_t> command(const Chart& aChart, const rjson::object& aSelector) override;
+    inline void filter_name(const Chart& aChart, std::vector<size_t>& indices, std::string aName) override { filter_name_in(aChart.sera(), indices, aName); }
 
 };  // class SelectSera
 
