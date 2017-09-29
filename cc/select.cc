@@ -167,6 +167,10 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
         else if (key == "not_sequenced") {
             filter_not_sequenced(aChart, indices);
         }
+        else if (key == "clade") {
+            const auto r = clades(aChart);
+            std::cerr << "Clades: " << r << '\n';
+        }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }
@@ -206,6 +210,21 @@ void SelectAntigens::filter_not_sequenced(const Chart& aChart, std::vector<size_
     indices.erase(std::remove_if(indices.begin(), indices.end(), sequenced), indices.end());
 
 } // SelectAntigens::filter_not_sequenced
+
+// ----------------------------------------------------------------------
+
+std::map<std::string, size_t> SelectAntigens::clades(const Chart& aChart)
+{
+    std::map<std::string, size_t> result;
+    for (const auto& entry: seqdb_entries(aChart)) {
+        if (entry) {
+            for (const auto& clade: entry.seq().clades())
+                ++result[clade];
+        }
+    }
+    return result;
+
+} // SelectAntigens::clades
 
 // ----------------------------------------------------------------------
 

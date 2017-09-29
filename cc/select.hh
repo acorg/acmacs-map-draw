@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <memory>
 
 #include "acmacs-base/rjson.hh"
@@ -44,6 +45,7 @@ class SelectAntigens : public SelectAntigensSera
     std::vector<size_t> command(const Chart& aChart, const rjson::object& aSelector) override;
     void filter_sequenced(const Chart& aChart, std::vector<size_t>& indices);
     void filter_not_sequenced(const Chart& aChart, std::vector<size_t>& indices);
+    std::map<std::string, size_t> clades(const Chart& aChart);
 
  private:
     std::unique_ptr<std::vector<seqdb::SeqdbEntrySeq>> mSeqdbEntries;
