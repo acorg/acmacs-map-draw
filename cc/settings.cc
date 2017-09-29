@@ -70,6 +70,7 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 //     +   cell
 //     +   reassortant
 //     + name
+//     full_name
 //     + index
 //     + indices []
 //     + date_range
@@ -92,6 +93,7 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 //   select
 //     all
 //     name
+//     full_name
 //     index
 //     indices []
 //     country
