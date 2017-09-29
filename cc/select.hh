@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "acmacs-base/rjson.hh"
+#include "acmacs-base/timeit.hh"
 #include "seqdb/seqdb.hh"
 
 // ----------------------------------------------------------------------
@@ -31,6 +32,7 @@ class SelectAntigensSera
 
     template <typename AgSr> inline void filter_name_in(const AgSr& aAgSr, std::vector<size_t>& indices, std::string aName)
         {
+              // Timeit ti("filter_name_in " + aName + ": ", std::cerr, mVerbose ? report_time::Yes : report_time::No);
             std::vector<size_t> result(indices.size());
             const auto by_name = aAgSr.find_by_name(aName);
             const auto end = std::set_intersection(indices.begin(), indices.end(), by_name.begin(), by_name.end(), result.begin());
