@@ -46,6 +46,7 @@ class SelectAntigens : public SelectAntigensSera
     void filter_sequenced(const Chart& aChart, std::vector<size_t>& indices);
     void filter_not_sequenced(const Chart& aChart, std::vector<size_t>& indices);
     std::map<std::string, size_t> clades(const Chart& aChart);
+    void filter_clade(const Chart& aChart, std::vector<size_t>& indices, std::string aClade);
 
  private:
     std::unique_ptr<std::vector<seqdb::SeqdbEntrySeq>> mSeqdbEntries;

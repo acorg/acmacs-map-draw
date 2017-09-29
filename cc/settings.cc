@@ -40,7 +40,7 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 //  {"date_range": ["2016-01-01", "2016-09-01"]}, {"date_range": ["", "2016-09-01"]}, {"date_range": ["2016-01-01", ""]}, {"older_than_days": 365}, {"younger_than_days": 365}
 //  {"index": 11}, {"indices": [55, 66]}
 //  {"country": "sweden"}, {"continent": "europe"}
-//  "sequenced", "not_sequenced"
+//  "sequenced", "not_sequenced", {"clade": "3C3a"}
 //
 // ----------------------------------------------------------------------
 
@@ -80,7 +80,7 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 //     vaccine passage: type: (current, previous, surrogate) name:
 //     + sequenced
 //     + not_sequenced
-//     clade
+//     + clade
 //   show
 //   size, shape, fill, outline, outline_width, aspect, rotation, raise_ (order: raise, lower, no-change), report, report_names_threshold
 //   label: name_type, offset, display_name, color, size, weight, slant, font_family
