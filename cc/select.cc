@@ -171,6 +171,9 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
         else if (key == "name") {
             filter_name(aChart, indices, string::upper(value));
         }
+        else if (key == "full_name") {
+            filter_full_name(aChart, indices, string::upper(value));
+        }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }

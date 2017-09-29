@@ -25,6 +25,7 @@ class SelectAntigensSera
     virtual std::vector<size_t> select(const Chart& aChart, const rjson::value& aSelector);
     virtual std::vector<size_t> command(const Chart& aChart, const rjson::object& aSelector) = 0;
     virtual void filter_name(const Chart& aChart, std::vector<size_t>& indices, std::string aName) = 0;
+    virtual void filter_full_name(const Chart& aChart, std::vector<size_t>& indices, std::string aFullName) = 0;
 
  protected:
     const LocDb& get_location_database() const;
@@ -37,6 +38,11 @@ class SelectAntigensSera
             const auto by_name = aAgSr.find_by_name(aName);
             const auto end = std::set_intersection(indices.begin(), indices.end(), by_name.begin(), by_name.end(), result.begin());
             indices.erase(std::copy(result.begin(), end, indices.begin()), indices.end());
+        }
+
+    template <typename AgSr> inline void filter_full_name_in(const AgSr& aAgSr, std::vector<size_t>& indices, std::string aFullName)
+        {
+            indices.erase(std::remove_if(indices.begin(), indices.end(), [&](auto index) { return aAgSr[index].full_name() != aFullName; }), indices.end());
         }
 
  private:
@@ -60,6 +66,7 @@ class SelectAntigens : public SelectAntigensSera
     std::map<std::string, size_t> clades(const Chart& aChart);
     void filter_clade(const Chart& aChart, std::vector<size_t>& indices, std::string aClade);
     inline void filter_name(const Chart& aChart, std::vector<size_t>& indices, std::string aName) override { filter_name_in(aChart.antigens(), indices, aName); }
+    inline void filter_full_name(const Chart& aChart, std::vector<size_t>& indices, std::string aFullName) override { filter_full_name_in(aChart.antigens(), indices, aFullName); }
 
  private:
     std::unique_ptr<std::vector<seqdb::SeqdbEntrySeq>> mSeqdbEntries;
@@ -78,6 +85,7 @@ class SelectSera : public SelectAntigensSera
 
     std::vector<size_t> command(const Chart& aChart, const rjson::object& aSelector) override;
     inline void filter_name(const Chart& aChart, std::vector<size_t>& indices, std::string aName) override { filter_name_in(aChart.sera(), indices, aName); }
+    inline void filter_full_name(const Chart& aChart, std::vector<size_t>& indices, std::string aFullName) override { filter_full_name_in(aChart.antigens(), indices, aFullName); }
 
 };  // class SelectSera
 
