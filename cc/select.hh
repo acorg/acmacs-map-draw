@@ -2,14 +2,15 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "acmacs-base/rjson.hh"
+#include "seqdb/seqdb.hh"
 
 // ----------------------------------------------------------------------
 
 class Chart;
 class LocDb;
-namespace seqdb { class Seqdb; }
 
 // ----------------------------------------------------------------------
 
@@ -41,6 +42,14 @@ class SelectAntigens : public SelectAntigensSera
     using SelectAntigensSera::SelectAntigensSera;
 
     std::vector<size_t> command(const Chart& aChart, const rjson::object& aSelector) override;
+    void filter_sequenced(const Chart& aChart, std::vector<size_t>& indices);
+    void filter_not_sequenced(const Chart& aChart, std::vector<size_t>& indices);
+
+ private:
+    std::unique_ptr<std::vector<seqdb::SeqdbEntrySeq>> mSeqdbEntries;
+    const Chart* mChartForSeqdbEntries = nullptr;
+
+    const std::vector<seqdb::SeqdbEntrySeq>& seqdb_entries(const Chart& aChart);
 
 };  // class SelectAntigens
 

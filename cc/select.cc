@@ -3,7 +3,6 @@
 
 #include "acmacs-chart/chart.hh"
 #include "locationdb/locdb.hh"
-#include "seqdb/seqdb.hh"
 
 #include "select.hh"
 
@@ -162,11 +161,12 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
             const std::string continent = string::upper(value);
             antigens.filter_continent(indices, continent, get_location_database());
         }
-        // else if (key == "sequenced") {
-        //     get_seqdb();
-        //     std::vector<seqdb::SeqdbEntrySeq> seqdb_entries;
-        //     seqdb.match(aChartDraw.chart().antigens(), seqdb_entries, true);
-        // }
+        else if (key == "sequenced") {
+            filter_sequenced(aChart, indices);
+        }
+        else if (key == "not_sequenced") {
+            filter_not_sequenced(aChart, indices);
+        }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }
@@ -174,6 +174,38 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
     return indices;
 
 } // SelectAntigens::command
+
+// ----------------------------------------------------------------------
+
+const std::vector<seqdb::SeqdbEntrySeq>& SelectAntigens::seqdb_entries(const Chart& aChart)
+{
+    if (!mSeqdbEntries || mChartForSeqdbEntries != &aChart) {
+        mSeqdbEntries = std::make_unique<std::vector<seqdb::SeqdbEntrySeq>>();
+        get_seqdb().match(aChart.antigens(), *mSeqdbEntries, true);
+    }
+    return *mSeqdbEntries;
+
+} // SelectAntigens::seqdb_entries
+
+// ----------------------------------------------------------------------
+
+void SelectAntigens::filter_sequenced(const Chart& aChart, std::vector<size_t>& indices)
+{
+    const auto& entries = seqdb_entries(aChart);
+    auto not_sequenced = [&entries](auto index) -> bool { return !entries[index]; };
+    indices.erase(std::remove_if(indices.begin(), indices.end(), not_sequenced), indices.end());
+
+} // SelectAntigens::filter_sequenced
+
+// ----------------------------------------------------------------------
+
+void SelectAntigens::filter_not_sequenced(const Chart& aChart, std::vector<size_t>& indices)
+{
+    const auto& entries = seqdb_entries(aChart);
+    auto sequenced = [&entries](auto index) -> bool { return entries[index]; };
+    indices.erase(std::remove_if(indices.begin(), indices.end(), sequenced), indices.end());
+
+} // SelectAntigens::filter_not_sequenced
 
 // ----------------------------------------------------------------------
 
