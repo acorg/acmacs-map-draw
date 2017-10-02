@@ -24,7 +24,17 @@ int main(int argc, char* const argv[])
 {
     try {
           //for (auto a=0; a < argc; ++a) { std::cerr << a << " \"" << argv[a] << "\"\n"; }
-        argc_argv_simple args(argc, argv, {"--seqdb", "--hidb-dir", "--locdb"});
+        argc_argv args(argc, argv, {
+                {"-s", false},
+                {"--sera", false},
+                {"--seqdb", ""},
+                {"--hidb-dir", ""},
+                {"--locdb", ""},
+                {"-v", false},
+                {"--verbose", false},
+                {"-h", false},
+                {"--help", false},
+            });
         if (args["-h"] || args["--help"] || args.number_of_arguments() != 2) {
             const auto settings = default_settings();
             const auto antigen_samples = "\nAntigen select samples:\n" + settings.get_field_value("?antigen_select_samples").to_json_pp();
@@ -38,13 +48,13 @@ int main(int argc, char* const argv[])
 
         if (!args["-s"] && !args["--sera"]) {
             const auto num_digits = static_cast<int>(std::log10(chart->number_of_antigens())) + 1;
-            const auto indices = SelectAntigens(args.get("--locdb", ""s), args.get("--hidb-dir", ""s), args.get("--seqdb", ""s), verbose).select(*chart, selector);
+            const auto indices = SelectAntigens(args["--locdb"], args["--hidb-dir"], args["--seqdb"], verbose).select(*chart, selector);
             for (auto index: indices)
                 std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->antigen(index).full_name() << '\n';
         }
         else {
             const auto num_digits = static_cast<int>(std::log10(chart->number_of_sera())) + 1;
-            const auto indices = SelectSera(args.get("--locdb", ""s), args.get("--hidb-dir", ""s), args.get("--seqdb", ""s), verbose).select(*chart, selector);
+            const auto indices = SelectSera(args["--locdb"], args["--hidb-dir"], args["--seqdb"], verbose).select(*chart, selector);
             for (auto index: indices)
                 std::cout << "SR " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->serum(index).full_name() << '\n';
         }
