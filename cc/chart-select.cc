@@ -23,7 +23,6 @@ constexpr const char* sUsage = R"( [options] <chart.ace> <command-in-json-format
 int main(int argc, char* const argv[])
 {
     try {
-          //for (auto a=0; a < argc; ++a) { std::cerr << a << " \"" << argv[a] << "\"\n"; }
         argc_argv args(argc, argv, {
                 {"-s", false},
                 {"--sera", false},

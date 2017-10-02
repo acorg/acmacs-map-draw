@@ -21,7 +21,16 @@ constexpr const char* sUsage = R"( [options] <chart.ace>
 int main(int argc, char* const argv[])
 {
     try {
-        argc_argv_simple args(argc, argv, {"--seqdb", "--hidb-dir", "--locdb"});
+        argc_argv args(argc, argv, {
+                {"--clades", false},
+                {"--seqdb", ""},
+                {"--hidb-dir", ""},
+                {"--locdb", ""},
+                {"-v", false},
+                {"--verbose", false},
+                {"-h", false},
+                {"--help", false},
+            });
         if (args["-h"] || args["--help"] || args.number_of_arguments() != 1)
             throw std::runtime_error("\nUsage: "s + args.program() + sUsage);
         const bool verbose = args["-v"] || args["--verbose"];
@@ -34,7 +43,7 @@ int main(int argc, char* const argv[])
         if (chart->number_of_projections())
             std::cout << "  S : " << chart->projection(0).stress() << '\n';
         if (args["--clades"]) {
-            SelectAntigens selector(args.get("--locdb", ""s), args.get("--hidb-dir", ""s), args.get("--seqdb", ""s), verbose);
+            SelectAntigens selector(args["--locdb"], args["--hidb-dir"], args["--seqdb"], verbose);
             std::cout << "  Clades:\n" << std::setfill(' ');
             for (auto [clade,number]: selector.clades(*chart)) {
                 std::cout << "    " << std::setw(6) << std::left << clade
