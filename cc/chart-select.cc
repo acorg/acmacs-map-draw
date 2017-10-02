@@ -24,7 +24,7 @@ int main(int argc, char* const argv[])
 {
     try {
           //for (auto a=0; a < argc; ++a) { std::cerr << a << " \"" << argv[a] << "\"\n"; }
-        argc_argv args(argc, argv, {"--seqdb", "--hidb-dir", "--locdb"});
+        argc_argv_simple args(argc, argv, {"--seqdb", "--hidb-dir", "--locdb"});
         if (args["-h"] || args["--help"] || args.number_of_arguments() != 2) {
             const auto settings = default_settings();
             const auto antigen_samples = "\nAntigen select samples:\n" + settings.get_field_value("?antigen_select_samples").to_json_pp();

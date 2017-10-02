@@ -71,28 +71,6 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 // legend data:[{"label": {<label-data>} "display_name": "163-del", "outline": "black", "fill": "#03569b"}] "offset": [-10, -10], "show": True, "size": 50, "label_size": 8, "point_size": 5
 //
 // antigens
-//   select
-//     + all
-//     + reference
-//     + test
-//     + passage:
-//     +   egg
-//     +   cell
-//     +   reassortant
-//     + name
-//     + full_name
-//     + index
-//     + indices []
-//     + date_range
-//     + older_than_days
-//     + younger_than_days
-//     + country
-//     + continent
-//     + layout rectangle area, circle area
-//     + vaccine passage: type: (current, previous, surrogate) name:
-//     + sequenced
-//     + not_sequenced
-//     + clade
 //   show
 //   size, shape, fill, outline, outline_width, aspect, rotation, raise_ (order: raise, lower, no-change), report, report_names_threshold
 //   label: name_type, offset, display_name, color, size, weight, slant, font_family
@@ -100,16 +78,6 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 // {"N": "aa_substitution_groups", "groups": [{"pos_aa": ["121K", "144K"], "color": "cornflowerblue"}]},
 //
 // sera
-//   select
-//     all
-//     name
-//     full_name
-//     serum_id
-//     index
-//     indices []
-//     country
-//     continent
-//     layout rectangle area, circle area
 //   size, shape, fill, outline, outline_width, aspect, rotation, raise_ (order: raise, lower, no-change), report, report_names_threshold
 //   label: name_type, offset, display_name, color, size, weight, slant, font_family
 //   serum_circle

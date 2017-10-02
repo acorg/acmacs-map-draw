@@ -21,7 +21,7 @@ constexpr const char* sUsage = R"( [options] <chart.ace>
 int main(int argc, char* const argv[])
 {
     try {
-        argc_argv args(argc, argv, {"--seqdb", "--hidb-dir", "--locdb"});
+        argc_argv_simple args(argc, argv, {"--seqdb", "--hidb-dir", "--locdb"});
         if (args["-h"] || args["--help"] || args.number_of_arguments() != 1)
             throw std::runtime_error("\nUsage: "s + args.program() + sUsage);
         const bool verbose = args["-v"] || args["--verbose"];
