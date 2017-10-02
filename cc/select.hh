@@ -28,6 +28,7 @@ class SelectAntigensSera
     virtual std::vector<size_t> command(const Chart& aChart, const rjson::object& aSelector) = 0;
     virtual void filter_name(const Chart& aChart, std::vector<size_t>& indices, std::string aName) = 0;
     virtual void filter_full_name(const Chart& aChart, std::vector<size_t>& indices, std::string aFullName) = 0;
+    virtual void filter_rectangle(const Chart& aChart, std::vector<size_t>& indices, const ProjectionBase& aProjection, const std::pair<double,double>& aC1, const std::pair<double,double>& aC2) = 0;
 
  protected:
     const LocDb& get_location_database() const;
@@ -46,6 +47,10 @@ class SelectAntigensSera
     template <typename AgSr> inline void filter_full_name_in(const AgSr& aAgSr, std::vector<size_t>& indices, std::string aFullName)
         {
             indices.erase(std::remove_if(indices.begin(), indices.end(), [&](auto index) { return aAgSr[index].full_name() != aFullName; }), indices.end());
+        }
+
+    template <typename AgSr> inline void filter_rectangle_in(const AgSr& aAgSr, std::vector<size_t>& indices, size_t aIndexBase, const ProjectionBase& aProjection, const std::pair<double,double>& aC1, const std::pair<double,double>& aC2)
+        {
         }
 
     inline bool verbose() const { return mVerbose; }
@@ -73,6 +78,7 @@ class SelectAntigens : public SelectAntigensSera
     inline void filter_name(const Chart& aChart, std::vector<size_t>& indices, std::string aName) override { filter_name_in(aChart.antigens(), indices, aName); }
     inline void filter_full_name(const Chart& aChart, std::vector<size_t>& indices, std::string aFullName) override { filter_full_name_in(aChart.antigens(), indices, aFullName); }
     void filter_vaccine(const Chart& aChart, std::vector<size_t>& indices, const VaccineMatchData& aMatchData);
+    inline void filter_rectangle(const Chart& aChart, std::vector<size_t>& indices, const ProjectionBase& aProjection, const std::pair<double,double>& aC1, const std::pair<double,double>& aC2) override { filter_rectangle_in(aChart.antigens(), indices, 0, aProjection, aC1, aC2); }
 
  private:
     std::unique_ptr<std::vector<seqdb::SeqdbEntrySeq>> mSeqdbEntries;
@@ -92,6 +98,7 @@ class SelectSera : public SelectAntigensSera
     std::vector<size_t> command(const Chart& aChart, const rjson::object& aSelector) override;
     inline void filter_name(const Chart& aChart, std::vector<size_t>& indices, std::string aName) override { filter_name_in(aChart.sera(), indices, aName); }
     inline void filter_full_name(const Chart& aChart, std::vector<size_t>& indices, std::string aFullName) override { filter_full_name_in(aChart.antigens(), indices, aFullName); }
+    inline void filter_rectangle(const Chart& aChart, std::vector<size_t>& indices, const ProjectionBase& aProjection, const std::pair<double,double>& aC1, const std::pair<double,double>& aC2) override { filter_rectangle_in(aChart.sera(), indices, aChart.number_of_antigens(), aProjection, aC1, aC2); }
 
 };  // class SelectSera
 
