@@ -10,13 +10,7 @@ using namespace std::string_literals;
 
 // ----------------------------------------------------------------------
 
-constexpr const char* sUsage = R"( [options] <chart.ace>
-  --clades
-  --seqdb <seqdb.json.xz>
-  --locdb <locationdb.json.xz>
-  --hidb-dir <~/AD/data>
-  -v|--verbose
-)";
+constexpr const char* sUsage = " [options] <chart.ace>\n";
 
 int main(int argc, char* const argv[])
 {
@@ -32,7 +26,7 @@ int main(int argc, char* const argv[])
                 {"--help", false},
             });
         if (args["-h"] || args["--help"] || args.number_of_arguments() != 1)
-            throw std::runtime_error("\nUsage: "s + args.program() + sUsage);
+            throw std::runtime_error("\nUsage: "s + args.program() + sUsage + args.usage_options());
         const bool verbose = args["-v"] || args["--verbose"];
         std::unique_ptr<Chart> chart{import_chart(args[0], verbose ? report_time::Yes : report_time::No)};
 

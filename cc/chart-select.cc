@@ -12,13 +12,7 @@ using namespace std::string_literals;
 
 // ----------------------------------------------------------------------
 
-constexpr const char* sUsage = R"( [options] <chart.ace> <command-in-json-format>
-  -s|--sera
-  --seqdb <seqdb.json.xz>
-  --locdb <locationdb.json.xz>
-  --hidb-dir <~/AD/data>
-  -v|--verbose
-)";
+constexpr const char* sUsage = " [options] <chart.ace> <command-in-json-format>\n";
 
 int main(int argc, char* const argv[])
 {
@@ -38,7 +32,7 @@ int main(int argc, char* const argv[])
             const auto settings = default_settings();
             const auto antigen_samples = "\nAntigen select samples:\n" + settings.get_field_value("?antigen_select_samples").to_json_pp();
             const auto serum_samples = "\n\nSerum select samples:\n" + settings.get_field_value("?serum_select_samples").to_json_pp();
-            throw std::runtime_error("Usage: "s + args.program() + sUsage + antigen_samples + serum_samples);
+            throw std::runtime_error("Usage: "s + args.program() + sUsage + args.usage_options() + antigen_samples + serum_samples);
         }
         const bool verbose = args["-v"] || args["--verbose"];
         const auto selector = rjson::parse_string(args[1]);
