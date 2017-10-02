@@ -199,6 +199,12 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
             const size_t projection_no = 0;
             filter_rectangle(aChart, indices, aChart.projection(projection_no), {c1[0], c1[1], c2[0], c2[1]});
         }
+        else if (key == "in_circle") {
+            const auto& center = value.get_field<rjson::array>("center");
+            const auto radius = value.get_field_number("radius");
+            const size_t projection_no = 0;
+            filter_circle(aChart, indices, aChart.projection(projection_no), {center[0], center[1], radius});
+        }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }

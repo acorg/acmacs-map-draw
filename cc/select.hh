@@ -30,6 +30,7 @@ class SelectAntigensSera
     virtual void filter_name(const Chart& aChart, std::vector<size_t>& indices, std::string aName) = 0;
     virtual void filter_full_name(const Chart& aChart, std::vector<size_t>& indices, std::string aFullName) = 0;
     virtual void filter_rectangle(const Chart& aChart, std::vector<size_t>& indices, const ProjectionBase& aProjection, const Rectangle& aRectangle) = 0;
+    virtual void filter_circle(const Chart& aChart, std::vector<size_t>& indices, const ProjectionBase& aProjection, const Circle& aCircle) = 0;
 
  protected:
     const LocDb& get_location_database() const;
@@ -55,6 +56,13 @@ class SelectAntigensSera
             const auto rect_transformed = aRectangle.transform(aTransformation.inverse());
             auto not_in_rectangle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return !rect_transformed.within(p[0], p[1]); };
             indices.erase(std::remove_if(indices.begin(), indices.end(), not_in_rectangle), indices.end());
+        }
+
+    inline void filter_circle_in(std::vector<size_t>& indices, size_t aIndexBase, const LayoutBase& aLayout, const Transformation& aTransformation, const Circle& aCircle)
+        {
+            const auto circle_transformed = aCircle.transform(aTransformation.inverse());
+            auto not_in_circle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return !circle_transformed.within(p[0], p[1]); };
+            indices.erase(std::remove_if(indices.begin(), indices.end(), not_in_circle), indices.end());
         }
 
     inline bool verbose() const { return mVerbose; }
@@ -83,6 +91,7 @@ class SelectAntigens : public SelectAntigensSera
     inline void filter_full_name(const Chart& aChart, std::vector<size_t>& indices, std::string aFullName) override { filter_full_name_in(aChart.antigens(), indices, aFullName); }
     void filter_vaccine(const Chart& aChart, std::vector<size_t>& indices, const VaccineMatchData& aMatchData);
     inline void filter_rectangle(const Chart& /*aChart*/, std::vector<size_t>& indices, const ProjectionBase& aProjection, const Rectangle& aRectangle) override { filter_rectangle_in(indices, 0, aProjection.layout(), aProjection.transformation(), aRectangle); }
+    virtual void filter_circle(const Chart& /*aChart*/, std::vector<size_t>& indices, const ProjectionBase& aProjection, const Circle& aCircle) override { filter_circle_in(indices, 0, aProjection.layout(), aProjection.transformation(), aCircle); }
 
  private:
     std::unique_ptr<std::vector<seqdb::SeqdbEntrySeq>> mSeqdbEntries;
@@ -103,6 +112,7 @@ class SelectSera : public SelectAntigensSera
     inline void filter_name(const Chart& aChart, std::vector<size_t>& indices, std::string aName) override { filter_name_in(aChart.sera(), indices, aName); }
     inline void filter_full_name(const Chart& aChart, std::vector<size_t>& indices, std::string aFullName) override { filter_full_name_in(aChart.antigens(), indices, aFullName); }
     inline void filter_rectangle(const Chart& aChart, std::vector<size_t>& indices, const ProjectionBase& aProjection, const Rectangle& aRectangle) override { filter_rectangle_in(indices, aChart.number_of_antigens(), aProjection.layout(), aProjection.transformation(), aRectangle); }
+    virtual void filter_circle(const Chart& aChart, std::vector<size_t>& indices, const ProjectionBase& aProjection, const Circle& aCircle) override { filter_circle_in(indices, aChart.number_of_antigens(), aProjection.layout(), aProjection.transformation(), aCircle); }
 
 };  // class SelectSera
 

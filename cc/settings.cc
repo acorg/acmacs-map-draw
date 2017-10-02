@@ -44,7 +44,7 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 //  {"name": "SWITZERLAND/9715293/2013"}, {"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"}
 //  {"full_name": "A(H1N1)/MICHIGAN/2/2009 MDCK1 (2009-05-03)"}
 //  "vaccine", {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}}
-//  - {"in_rectangle": {"c1": [x1, y1], "c2": [x2, y2]}}, {"in_circle": {"center": [x, y], "radius": 5.0}}
+//  {"in_rectangle": {"c1": [x1, y1], "c2": [x2, y2]}}, {"in_circle": {"center": [x, y], "radius": 5.0}}
 //
 // ----------------------------------------------------------------------
 
