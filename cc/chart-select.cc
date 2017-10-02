@@ -22,11 +22,13 @@ constexpr const char* sUsage = R"( [options] <chart.ace> <command-in-json-format
 int main(int argc, char* const argv[])
 {
     try {
+          //for (auto a=0; a < argc; ++a) { std::cerr << a << " \"" << argv[a] << "\"\n"; }
         argc_argv args(argc, argv, {"--seqdb", "--hidb-dir", "--locdb"});
         if (args["-h"] || args["--help"] || args.number_of_arguments() != 2)
             throw std::runtime_error("Usage: "s + args.program() + sUsage);
         const bool verbose = args["-v"] || args["--verbose"];
         const auto selector = rjson::parse_string(args[1]);
+          // const auto selector = rjson::parse_string("{\"in_rectangle\":{\"c1\":[0,0],\"c2\":[1,1]}}");
         std::unique_ptr<Chart> chart{import_chart(args[0], verbose ? report_time::Yes : report_time::No)};
 
         if (!args["-s"] && !args["--sera"]) {

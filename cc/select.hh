@@ -54,14 +54,14 @@ class SelectAntigensSera
     inline void filter_rectangle_in(std::vector<size_t>& indices, size_t aIndexBase, const LayoutBase& aLayout, const Transformation& aTransformation, const Rectangle& aRectangle)
         {
             const auto rect_transformed = aRectangle.transform(aTransformation.inverse());
-            auto not_in_rectangle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return !rect_transformed.within(p[0], p[1]); };
+            auto not_in_rectangle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return p.size() == 2 ? !rect_transformed.within(p[0], p[1]) : true; };
             indices.erase(std::remove_if(indices.begin(), indices.end(), not_in_rectangle), indices.end());
         }
 
     inline void filter_circle_in(std::vector<size_t>& indices, size_t aIndexBase, const LayoutBase& aLayout, const Transformation& aTransformation, const Circle& aCircle)
         {
             const auto circle_transformed = aCircle.transform(aTransformation.inverse());
-            auto not_in_circle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return !circle_transformed.within(p[0], p[1]); };
+            auto not_in_circle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return p.size() == 2 ? !circle_transformed.within(p[0], p[1]) : true; };
             indices.erase(std::remove_if(indices.begin(), indices.end(), not_in_circle), indices.end());
         }
 
