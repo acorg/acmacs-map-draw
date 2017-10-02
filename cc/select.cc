@@ -310,9 +310,6 @@ std::vector<size_t> SelectSera::command(const Chart& aChart, const rjson::object
         }
         else if (key == "serum_id") {
             sera.filter_serum_id(indices, string::upper(value));
-            // const std::string serum_id = value;
-            // auto not_serum_id = [&](auto index) -> bool { return sera[index].serum_id() != serum_id; };
-            // indices.erase(std::remove_if(indices.begin(), indices.end(), not_serum_id), indices.end());
         }
         else if (key == "index") {
             const size_t index = value;
