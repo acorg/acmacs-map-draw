@@ -7,6 +7,7 @@
 
 #include "acmacs-base/rjson.hh"
 #include "acmacs-base/timeit.hh"
+#include "acmacs-draw/size.hh"
 #include "seqdb/seqdb.hh"
 
 // ----------------------------------------------------------------------
@@ -28,7 +29,7 @@ class SelectAntigensSera
     virtual std::vector<size_t> command(const Chart& aChart, const rjson::object& aSelector) = 0;
     virtual void filter_name(const Chart& aChart, std::vector<size_t>& indices, std::string aName) = 0;
     virtual void filter_full_name(const Chart& aChart, std::vector<size_t>& indices, std::string aFullName) = 0;
-    virtual void filter_rectangle(const Chart& aChart, std::vector<size_t>& indices, const ProjectionBase& aProjection, const std::pair<double,double>& aC1, const std::pair<double,double>& aC2) = 0;
+    virtual void filter_rectangle(const Chart& aChart, std::vector<size_t>& indices, const ProjectionBase& aProjection, const Rectangle& aRectangle) = 0;
 
  protected:
     const LocDb& get_location_database() const;
@@ -49,8 +50,11 @@ class SelectAntigensSera
             indices.erase(std::remove_if(indices.begin(), indices.end(), [&](auto index) { return aAgSr[index].full_name() != aFullName; }), indices.end());
         }
 
-    template <typename AgSr> inline void filter_rectangle_in(const AgSr& aAgSr, std::vector<size_t>& indices, size_t aIndexBase, const ProjectionBase& aProjection, const std::pair<double,double>& aC1, const std::pair<double,double>& aC2)
+    inline void filter_rectangle_in(std::vector<size_t>& indices, size_t aIndexBase, const LayoutBase& aLayout, const Transformation& aTransformation, const Rectangle& aRectangle)
         {
+            const auto rect_transformed = aRectangle.transform(aTransformation.inverse());
+            auto not_in_rectangle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return !rect_transformed.within(p[0], p[1]); };
+            indices.erase(std::remove_if(indices.begin(), indices.end(), not_in_rectangle), indices.end());
         }
 
     inline bool verbose() const { return mVerbose; }
@@ -78,7 +82,7 @@ class SelectAntigens : public SelectAntigensSera
     inline void filter_name(const Chart& aChart, std::vector<size_t>& indices, std::string aName) override { filter_name_in(aChart.antigens(), indices, aName); }
     inline void filter_full_name(const Chart& aChart, std::vector<size_t>& indices, std::string aFullName) override { filter_full_name_in(aChart.antigens(), indices, aFullName); }
     void filter_vaccine(const Chart& aChart, std::vector<size_t>& indices, const VaccineMatchData& aMatchData);
-    inline void filter_rectangle(const Chart& aChart, std::vector<size_t>& indices, const ProjectionBase& aProjection, const std::pair<double,double>& aC1, const std::pair<double,double>& aC2) override { filter_rectangle_in(aChart.antigens(), indices, 0, aProjection, aC1, aC2); }
+    inline void filter_rectangle(const Chart& /*aChart*/, std::vector<size_t>& indices, const ProjectionBase& aProjection, const Rectangle& aRectangle) override { filter_rectangle_in(indices, 0, aProjection.layout(), aProjection.transformation(), aRectangle); }
 
  private:
     std::unique_ptr<std::vector<seqdb::SeqdbEntrySeq>> mSeqdbEntries;
@@ -98,7 +102,7 @@ class SelectSera : public SelectAntigensSera
     std::vector<size_t> command(const Chart& aChart, const rjson::object& aSelector) override;
     inline void filter_name(const Chart& aChart, std::vector<size_t>& indices, std::string aName) override { filter_name_in(aChart.sera(), indices, aName); }
     inline void filter_full_name(const Chart& aChart, std::vector<size_t>& indices, std::string aFullName) override { filter_full_name_in(aChart.antigens(), indices, aFullName); }
-    inline void filter_rectangle(const Chart& aChart, std::vector<size_t>& indices, const ProjectionBase& aProjection, const std::pair<double,double>& aC1, const std::pair<double,double>& aC2) override { filter_rectangle_in(aChart.sera(), indices, aChart.number_of_antigens(), aProjection, aC1, aC2); }
+    inline void filter_rectangle(const Chart& aChart, std::vector<size_t>& indices, const ProjectionBase& aProjection, const Rectangle& aRectangle) override { filter_rectangle_in(indices, aChart.number_of_antigens(), aProjection.layout(), aProjection.transformation(), aRectangle); }
 
 };  // class SelectSera
 
