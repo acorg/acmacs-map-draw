@@ -4,6 +4,29 @@
 
 static const char* const DEFAULT_SETTINGS_JSON = R"(
 {
+  "?antigen_select_samples": [
+    "all",
+    "reference",
+    "test",
+    "egg", "cell", "reassortant", {"passage": "egg"}, {"passage": "cell"}, {"passage": "reassortant"},
+    {"date_range": ["2016-01-01", "2016-09-01"]}, {"date_range": ["", "2016-09-01"]}, {"date_range": ["2016-01-01", ""]}, {"older_than_days": 365}, {"younger_than_days": 365},
+    {"index": 11}, {"indices": [55, 66]},
+    {"country": "sweden"}, {"continent": "europe"},
+    "sequenced", "not_sequenced", {"clade": "3C3a"},
+    {"name": "SWITZERLAND/9715293/2013"}, {"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"},
+    {"full_name": "A(H1N1)/MICHIGAN/2/2009 MDCK1"},
+    "vaccine", {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}},
+    {"in_rectangle": {"c1": [0.0, 0.0], "c2": [1.0, 1.0]}}, {"in_circle": {"center": [2.0, 2.0], "radius": 5.0}}
+  ],
+  "?serum_select_samples": [
+    "all",
+    {"serum_id": "CDC 2016-003"},
+    {"index": 11}, {"indices": [55, 66]},
+    {"country": "sweden"}, {"continent": "europe"},
+    {"name": "SWITZERLAND/9715293/2013"},
+    {"full_name": "A(H1N1)/MICHIGAN/2/2009 CDC 2015-121"},
+    {"in_rectangle": {"c1": [0.0, 0.0], "c2": [1.0, 1.0]}}, {"in_circle": {"center": [2.0, 2.0], "radius": 5.0}}
+  ],
   "clade_fill": {
     "?": "H3",
     "3C3": "cornflowerblue",
@@ -30,22 +53,6 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 }
 )";
 
-// ----------------------------------------------------------------------
-
-// Select antigens
-// "all"
-// "reference"
-// "test"
-// "egg", "cell", "reassortant", {"passage": "egg"}, {"passage": "cell"}, {"passage": "reassortant"}
-//  {"date_range": ["2016-01-01", "2016-09-01"]}, {"date_range": ["", "2016-09-01"]}, {"date_range": ["2016-01-01", ""]}, {"older_than_days": 365}, {"younger_than_days": 365}
-//  {"index": 11}, {"indices": [55, 66]}
-//  {"country": "sweden"}, {"continent": "europe"}
-//  "sequenced", "not_sequenced", {"clade": "3C3a"}
-//  {"name": "SWITZERLAND/9715293/2013"}, {"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"}
-//  {"full_name": "A(H1N1)/MICHIGAN/2/2009 MDCK1 (2009-05-03)"}
-//  "vaccine", {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}}
-//  {"in_rectangle": {"c1": [x1, y1], "c2": [x2, y2]}}, {"in_circle": {"center": [x, y], "radius": 5.0}}
-//
 // ----------------------------------------------------------------------
 
 // flip
@@ -81,7 +88,7 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 //     + younger_than_days
 //     + country
 //     + continent
-//     layout rectangle area, circle area
+//     + layout rectangle area, circle area
 //     + vaccine passage: type: (current, previous, surrogate) name:
 //     + sequenced
 //     + not_sequenced
@@ -97,10 +104,12 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 //     all
 //     name
 //     full_name
+//     serum_id
 //     index
 //     indices []
 //     country
 //     continent
+//     layout rectangle area, circle area
 //   size, shape, fill, outline, outline_width, aspect, rotation, raise_ (order: raise, lower, no-change), report, report_names_threshold
 //   label: name_type, offset, display_name, color, size, weight, slant, font_family
 //   serum_circle
@@ -124,7 +133,13 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 
 rjson::value default_settings()
 {
-    return rjson::parse_string(DEFAULT_SETTINGS_JSON);
+    try {
+        return rjson::parse_string(DEFAULT_SETTINGS_JSON, rjson::remove_comments::No);
+    }
+    catch (std::exception& err) {
+        std::cerr << "ERROR: parsing DEFAULT_SETTINGS_JSON: " << err.what() << '\n';
+        throw;
+    }
 }
 
 // ----------------------------------------------------------------------

@@ -5,6 +5,7 @@
 // #include "acmacs-base/string.hh"
 #include "acmacs-chart/ace.hh"
 
+#include "settings.hh"
 #include "select.hh"
 
 using namespace std::string_literals;
@@ -24,8 +25,12 @@ int main(int argc, char* const argv[])
     try {
           //for (auto a=0; a < argc; ++a) { std::cerr << a << " \"" << argv[a] << "\"\n"; }
         argc_argv args(argc, argv, {"--seqdb", "--hidb-dir", "--locdb"});
-        if (args["-h"] || args["--help"] || args.number_of_arguments() != 2)
-            throw std::runtime_error("Usage: "s + args.program() + sUsage);
+        if (args["-h"] || args["--help"] || args.number_of_arguments() != 2) {
+            const auto settings = default_settings();
+            const auto antigen_samples = "\nAntigen select samples:\n" + settings.get_field_value("?antigen_select_samples").to_json_pp();
+            const auto serum_samples = "\n\nSerum select samples:\n" + settings.get_field_value("?serum_select_samples").to_json_pp();
+            throw std::runtime_error("Usage: "s + args.program() + sUsage + antigen_samples + serum_samples);
+        }
         const bool verbose = args["-v"] || args["--verbose"];
         const auto selector = rjson::parse_string(args[1]);
           // const auto selector = rjson::parse_string("{\"in_rectangle\":{\"c1\":[0,0],\"c2\":[1,1]}}");

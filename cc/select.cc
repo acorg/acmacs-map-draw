@@ -100,7 +100,10 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
     const auto& antigens = aChart.antigens();
     auto indices = antigens.all_indices();
     for (const auto& [key, value]: aSelector) {
-        if (key == "all") {
+        if (!key.empty() && (key.front() == '?' || key.back() == '?')) {
+              // comment
+        }
+        else if (key == "all") {
               // do nothing
         }
         else if (key == "reference") {
