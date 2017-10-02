@@ -299,8 +299,66 @@ void SelectAntigens::filter_vaccine(const Chart& aChart, std::vector<size_t>& in
 
 std::vector<size_t> SelectSera::command(const Chart& aChart, const rjson::object& aSelector)
 {
-    std::cout << "DEBUG: sera command: " << aSelector << '\n';
-    return {};
+    const auto& sera = aChart.sera();
+    auto indices = sera.all_indices();
+    for (const auto& [key, value]: aSelector) {
+        if (!key.empty() && (key.front() == '?' || key.back() == '?')) {
+              // comment
+        }
+        else if (key == "all") {
+              // do nothing
+        }
+        else if (key == "serum_id") {
+            sera.filter_serum_id(indices, string::upper(value));
+            // const std::string serum_id = value;
+            // auto not_serum_id = [&](auto index) -> bool { return sera[index].serum_id() != serum_id; };
+            // indices.erase(std::remove_if(indices.begin(), indices.end(), not_serum_id), indices.end());
+        }
+        else if (key == "index") {
+            const size_t index = value;
+            if (std::find(indices.begin(), indices.end(), index) == indices.end()) {
+                indices.clear();
+            }
+            else {
+                indices.clear();
+                indices.push_back(index);
+            }
+        }
+        else if (key == "indices") {
+            const rjson::array& to_keep_v = value;
+            std::vector<size_t> to_keep(to_keep_v.size());
+            std::transform(to_keep_v.begin(), to_keep_v.end(), to_keep.begin(), [](const auto& v) -> size_t { return v; });
+            indices.erase(std::remove_if(indices.begin(), indices.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indices.end());
+        }
+        else if (key == "country") {
+            sera.filter_country(indices, string::upper(value), get_location_database());
+        }
+        else if (key == "continent") {
+            sera.filter_continent(indices, string::upper(value), get_location_database());
+        }
+        else if (key == "name") {
+            filter_name(aChart, indices, string::upper(value));
+        }
+        else if (key == "full_name") {
+            filter_full_name(aChart, indices, string::upper(value));
+        }
+        else if (key == "in_rectangle") {
+            const auto& c1 = value.get_field<rjson::array>("c1");
+            const auto& c2 = value.get_field<rjson::array>("c2");
+            const size_t projection_no = 0;
+            filter_rectangle(aChart, indices, aChart.projection(projection_no), {c1[0], c1[1], c2[0], c2[1]});
+        }
+        else if (key == "in_circle") {
+            const auto& center = value.get_field<rjson::array>("center");
+            const auto radius = value.get_field_number("radius");
+            const size_t projection_no = 0;
+            filter_circle(aChart, indices, aChart.projection(projection_no), {center[0], center[1], radius});
+        }
+        else {
+            std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
+        }
+    }
+    return indices;
 
 } // SelectSera::command
 
