@@ -18,7 +18,7 @@ def get_locdb(locdb_file :Path = Path(os.environ["ACMACSD_ROOT"], "data", "locat
     if sLocDb is None:
         with timeit("Loading locationdb from " + str(locdb_file)):
             sLocDb = LocDb()
-            sLocDb.import_from(str(locdb_file))
+            sLocDb.import_from(filename=str(locdb_file), timer=True)
     return sLocDb
 
 # ----------------------------------------------------------------------

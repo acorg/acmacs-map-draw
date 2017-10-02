@@ -60,7 +60,9 @@ def geographic_time_series(output_prefix, virus_type, period, start_date, end_da
     options = {key: settings[key] for key in ["point_size_in_pixels", "point_density", "outline_color", "outline_width"] if settings.get(key) is not None}
     if period == "month":
         from acmacs_map_draw_backend import geographic_time_series_monthly
-        ts = geographic_time_series_monthly(start_date=start_date, end_date=end_date, hidb=get_hidb(virus_type=virus_type, hidb_dir=settings.get("hidb_dir")), locdb=get_locdb(), **options)
+        hidb = get_hidb(virus_type=virus_type, hidb_dir=settings.get("hidb_dir"))
+        module_logger.info("hidb {}".format(hidb.all_antigens()))
+        ts = geographic_time_series_monthly(start_date=start_date, end_date=end_date, hidb=hidb, locdb=get_locdb(), **options)
     elif period == "year":
         from acmacs_map_draw_backend import geographic_time_series_yearly
         ts = geographic_time_series_yearly(start_date=start_date, end_date=end_date, hidb=get_hidb(virus_type=virus_type, hidb_dir=settings.get("hidb_dir")), locdb=get_locdb(), **options)

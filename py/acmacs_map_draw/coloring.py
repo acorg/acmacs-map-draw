@@ -44,9 +44,16 @@ sCladeColor = {
 
 # ----------------------------------------------------------------------
 
+# sLineageColor = {
+#     "YAMAGATA": "#FF0000", #"red",
+#     "VICTORIA": "#0000FF", #"blue",
+#     }
+
+# suggested by David P 2017-10-02
 sLineageColor = {
-    "YAMAGATA": "#FF0000", #"red",
-    "VICTORIA": "#0000FF", #"blue",
+    "YAMAGATA": "#E31A1C", #"red",
+    "VICTORIA": "#1F78B4", #"blue",
+    "VICTORIA_DEL": "#A6CEE3", # #6A3D9A
     }
 
 # ----------------------------------------------------------------------
