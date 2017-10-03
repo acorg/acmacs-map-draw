@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import logging; module_logger = logging.getLogger(__name__)
 from acmacs_base.timeit import timeit
-from hidb_backend import HiDbSet
+import hidb_backend
 
 # ----------------------------------------------------------------------
 
@@ -18,20 +18,14 @@ sVirusTypeNormalizer = {
     }
 
 def get_hidb(virus_type=None, chart=None, hidb_dir :Path = None):
-    global sHidbSet
-    if sHidbSet is None:
-        sHidbSet = HiDbSet(str(Path(hidb_dir or Path(os.environ["ACMACSD_ROOT"], "data")).expanduser().resolve()))
+    if hidb_dir:
+        hidb_backend.hidb_setup(hidb_dir)
     if chart is not None:
         virus_type = chart.chart_info().virus_type()
     virus_type  = sVirusTypeNormalizer[virus_type]
     module_logger.info("get_hidb {}".format(virus_type))
-    with timeit("Getting hidb for " + virus_type):
-        hidb = sHidbSet.get(virus_type, False)
+    hidb = hidb_backend.get_hidb(virus_type, True)
     return hidb
-
-# ----------------------------------------------------------------------
-
-sHidbSet = None
 
 # ----------------------------------------------------------------------
 ### Local Variables:

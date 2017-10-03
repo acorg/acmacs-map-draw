@@ -7,19 +7,16 @@ import os
 from pathlib import Path
 import logging; module_logger = logging.getLogger(__name__)
 from acmacs_base.timeit import timeit
-from locationdb_backend import LocDb
+import locationdb_backend
 
 # ----------------------------------------------------------------------
 
 sLocDb = None
 
-def get_locdb(locdb_file :Path = Path(os.environ["ACMACSD_ROOT"], "data", "locationdb.json.xz")):
-    global sLocDb
-    if sLocDb is None:
-        with timeit("Loading locationdb from " + str(locdb_file)):
-            sLocDb = LocDb()
-            sLocDb.import_from(filename=str(locdb_file), timer=True)
-    return sLocDb
+def get_locdb(locdb_file :Path = None):
+    if locdb_file:
+        locationdb_backend.locdb_setup(str(locdb_file))
+    return locationdb_backend.get_locdb(timer=True)
 
 # ----------------------------------------------------------------------
 ### Local Variables:
