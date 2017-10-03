@@ -83,10 +83,9 @@ class VaccineMatcherLabel : public VaccineMatcherBase
 
  private:
     ChartDraw& mChartDraw;
-    const LocDb& mLocDb;
 
-    inline VaccineMatcherLabel(const VaccineMatcherBase& aNother, ChartDraw& aChartDraw, const LocDb& aLocDb)
-        : VaccineMatcherBase(aNother), mChartDraw(aChartDraw), mLocDb(aLocDb) {}
+    inline VaccineMatcherLabel(const VaccineMatcherBase& aNother, ChartDraw& aChartDraw)
+        : VaccineMatcherBase(aNother), mChartDraw(aChartDraw) {}
 
     friend class VaccineMatcher;
 
@@ -111,8 +110,8 @@ class VaccineMatcher : public VaccineMatcherBase
     inline VaccineMatcher& aspect(double aAspect) { for_each_style_mf(std::mem_fn<PointStyle&(double)>(&PointStyle::aspect), aAspect); return *this; }
     inline VaccineMatcher& rotation(double aRotation) { for_each_style_mf(std::mem_fn<PointStyle&(double)>(&PointStyle::rotation), aRotation); return *this; }
 
-    inline VaccineMatcherLabel* label(ChartDraw& aChartDraw, const LocDb& aLocDb) { return new VaccineMatcherLabel(*this, aChartDraw, aLocDb); }
-    inline void hide_label(ChartDraw& aChartDraw, const LocDb& aLocDb) { VaccineMatcherLabel(*this, aChartDraw, aLocDb).hide(); }
+    inline VaccineMatcherLabel* label(ChartDraw& aChartDraw) { return new VaccineMatcherLabel(*this, aChartDraw); }
+    inline void hide_label(ChartDraw& aChartDraw) { VaccineMatcherLabel(*this, aChartDraw).hide(); }
 
 }; // class VaccineMatcher
 

@@ -130,10 +130,10 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
             indices.erase(std::remove_if(indices.begin(), indices.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indices.end());
         }
         else if (key == "country") {
-            antigens.filter_country(indices, string::upper(value), get_locdb(timer()));
+            antigens.filter_country(indices, string::upper(value));
         }
         else if (key == "continent") {
-            antigens.filter_continent(indices, string::upper(value), get_locdb(timer()));
+            antigens.filter_continent(indices, string::upper(value));
         }
         else if (key == "sequenced") {
             filter_sequenced(aChart, indices);
@@ -242,7 +242,7 @@ void SelectAntigens::filter_vaccine(const Chart& aChart, std::vector<size_t>& in
 {
     const auto virus_type = aChart.chart_info().virus_type();
     if (!virus_type.empty()) {
-        Vaccines vaccines(aChart, hidb::get(virus_type, timer()));
+        Vaccines vaccines(aChart);
         if (verbose())
             std::cerr << vaccines.report(2) << '\n';
         auto vaccine_indices = vaccines.indices(aMatchData);
@@ -291,10 +291,10 @@ std::vector<size_t> SelectSera::command(const Chart& aChart, const rjson::object
             indices.erase(std::remove_if(indices.begin(), indices.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indices.end());
         }
         else if (key == "country") {
-            sera.filter_country(indices, string::upper(value), get_locdb(timer()));
+            sera.filter_country(indices, string::upper(value));
         }
         else if (key == "continent") {
-            sera.filter_continent(indices, string::upper(value), get_locdb(timer()));
+            sera.filter_continent(indices, string::upper(value));
         }
         else if (key == "name") {
             filter_name(aChart, indices, string::upper(value));

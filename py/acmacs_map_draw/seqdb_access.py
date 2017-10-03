@@ -7,7 +7,7 @@ import os, pprint
 from pathlib import Path
 import logging; module_logger = logging.getLogger(__name__)
 from acmacs_base.timeit import timeit
-from seqdb_backend import Seqdb
+import seqdb_backend
 
 # ----------------------------------------------------------------------
 
@@ -58,24 +58,11 @@ def antigen_clades(chart, seqdb_file=None, verbose=False):
 # ----------------------------------------------------------------------
 
 def get_seqdb(seqdb_file :Path = None, seqdb_dir=None):
-    global sSeqdb
-    if sSeqdb is None:
-        if seqdb_file is None:
-            if seqdb_dir is None:
-                seqdb_file = Path(os.environ["ACMACSD_ROOT"], "data", "seqdb.json.xz")
-            else:
-                seqdb_file = Path(seqdb_dir, "seqdb.json.xz")
-        filename = str(Path(seqdb_file).expanduser().resolve())
-        with timeit("Loading seqdb from " + filename):
-            sSeqdb = Seqdb()
-            sSeqdb.load(filename)
-        with timeit("Building hi name index"):
-            sSeqdb.build_hi_name_index()
-    return sSeqdb
-
-# ----------------------------------------------------------------------
-
-sSeqdb = None
+    if seqdb_file:
+        seqdb_backend.seqdb_setup(str(seqdb_file))
+    elif seqdb_dir:
+        seqdb_backend.setup_dbs(str(seqdb_dir))
+    return seqdb_backend.get_seqdb(timer=True)
 
 # ----------------------------------------------------------------------
 ### Local Variables:

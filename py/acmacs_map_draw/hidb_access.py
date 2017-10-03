@@ -19,7 +19,7 @@ sVirusTypeNormalizer = {
 
 def get_hidb(virus_type=None, chart=None, hidb_dir :Path = None):
     if hidb_dir:
-        hidb_backend.hidb_setup(hidb_dir)
+        hidb_backend.hidb_setup(str(hidb_dir))
     if chart is not None:
         virus_type = chart.chart_info().virus_type()
     virus_type  = sVirusTypeNormalizer[virus_type]

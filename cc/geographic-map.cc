@@ -75,7 +75,7 @@ void GeographicMapWithPointsFromHidb::prepare(Surface& aSurface)
     const double point_scaled = aSurface.convert(mPointSize).value();
     for (const auto& location_color: mPoints) {
         try {
-            const auto location = mLocDb.find(location_color.first);
+            const auto location = get_locdb().find(location_color.first);
             const double center_lat = location.latitude(), center_long = location.longitude();
             auto iter = location_color.second.iterator();
             add_point(center_lat, center_long, *iter, mPointSize);
@@ -102,7 +102,7 @@ void GeographicMapWithPointsFromHidb::prepare(Surface& aSurface)
 void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, std::string aStartDate, std::string aEndDate)
 {
     std::cerr << "add_points_from_hidb_colored_by" << '\n';
-    auto antigens = mHiDb.all_antigens();
+    auto antigens = hidb::get(mVirusType).all_antigens();
     antigens.date_range(aStartDate, aEndDate);
     std::cerr << aStartDate << ".." << aEndDate << "  " << antigens.size() << std::endl;
     for (auto& antigen: antigens) {

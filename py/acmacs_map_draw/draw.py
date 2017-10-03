@@ -6,8 +6,6 @@
 import os, copy, math, operator, datetime, pprint
 from pathlib import Path
 import logging; module_logger = logging.getLogger(__name__)
-from .hidb_access import get_hidb
-from .locdb_access import get_locdb
 from . import coloring
 
 # ----------------------------------------------------------------------
@@ -222,7 +220,7 @@ class ModApplicator:
                 if args["label"].get("show", True):
                     for index in indices:
                         if args["label"].get("name_type") == "abbreviated_hom_max" and homologous_ag_no is not None and args["label"].get("display_name") is None:
-                            args["label"]["display_name"] = "{} ({}; hom: {}; max: {})".format(self._chart.serum(index).abbreviated_name(get_locdb()),
+                            args["label"]["display_name"] = "{} ({}; hom: {}; max: {})".format(self._chart.serum(index).abbreviated_name(),
                                                                                   self._chart.antigen(homologous_ag_no).passage_type(),
                                                                                   self._chart.titers().get(ag_no=homologous_ag_no, sr_no=index),
                                                                                   self._chart.titers().max_for_serum(sr_no=index))
@@ -247,7 +245,7 @@ class ModApplicator:
         self._chart_draw.modify(index, style=self._make_point_style(args), raise_=bool(raise_), lower=bool(lower))
 
     def continents(self, legend=None, exclude_reference=True, **args):
-        data = self._chart.antigens().continents(locdb=get_locdb(), exclude_reference=exclude_reference)
+        data = self._chart.antigens().continents(exclude_reference=exclude_reference)
         module_logger.info('[Continents] {}'.format(" ".join("{}:{}".format(continent, len(data[continent])) for continent in sorted(data))))
         for continent, indices in data.items():
             self._chart_draw.modify(indices, self._make_point_style(args, {"fill": coloring.sContinentColor[continent]}))
@@ -335,17 +333,16 @@ class ModApplicator:
 
         virus_type = self._chart.chart_info().virus_type()
         if virus_type:
-            hidb = get_hidb(chart=self._chart, virus_type=virus_type)
             from acmacs_map_draw_backend import Vaccines
-            vaccs = Vaccines(chart=self._chart, hidb=hidb)
+            vaccs = Vaccines(chart=self._chart)
             for mod in (mods or []):
                 make_matcher_apply(vaccs, prefix="Vaccine mod", **mod)
             # apply "label" afterwards (upon hiding some vaccines)
             # if args.get("label"):
-            #     matcher_apply(vaccs.match().label(self._chart_draw, get_locdb()), prefix="Vaccine label", **args["label"])
+            #     matcher_apply(vaccs.match().label(self._chart_draw), prefix="Vaccine label", **args["label"])
             for mod in (mods or []):
                 if mod.get("label"):
-                    matcher_apply(make_matcher(vaccs, **mod).label(self._chart_draw, get_locdb()), prefix="Vaccine mod label", **mod["label"])
+                    matcher_apply(make_matcher(vaccs, **mod).label(self._chart_draw), prefix="Vaccine mod label", **mod["label"])
 
             if report_all:
                 module_logger.debug('ALL\n{}'.format(vaccs.report_all(indent=2)))
@@ -437,16 +434,16 @@ class ModApplicator:
         if "display_name" not in args:
             if index < self._chart.number_of_antigens():
                 if name_type == "abbreviated":
-                    args["display_name"] = self._chart.antigen(index).abbreviated_name(get_locdb())
+                    args["display_name"] = self._chart.antigen(index).abbreviated_name()
                 elif name_type == "abbreviated_with_passage_type":
-                    args["display_name"] = self._chart.antigen(index).abbreviated_name_with_passage_type(get_locdb())
+                    args["display_name"] = self._chart.antigen(index).abbreviated_name_with_passage_type()
                 else:
                     if name_type != "full":
                         module_logger.warning('Unsupported name_type {!r}, "full" will be used'.format(name_type))
                     args["display_name"] = self._chart.antigen(index).full_name()
             else:
                 if name_type in ["abbreviated", "abbreviated_with_passage_type"]:
-                    args["display_name"] = self._chart.serum(index - self._chart.number_of_antigens()).abbreviated_name(get_locdb())
+                    args["display_name"] = self._chart.serum(index - self._chart.number_of_antigens()).abbreviated_name()
                 else:
                     if name_type != "full":
                         module_logger.warning('Unsupported name_type {!r}, "full" will be used'.format(name_type))
@@ -582,6 +579,7 @@ class ModApplicator:
 
     def _homologous_antigen_indices(self, serum_no, select, raise_if_not_found, raise_if_multiple):
         if select is None:
+            from .hidb_access import get_hidb
             get_hidb(chart=self._chart).find_homologous_antigens_for_sera_of_chart(chart=self._chart)
             select = self._chart.serum(serum_no).homologous()
         return self._select_antigens(select=select, raise_if_not_found=raise_if_not_found, raise_if_multiple=raise_if_multiple)
@@ -621,12 +619,12 @@ class ModApplicator:
                 elif select["passage_type"] == "reassortant":
                     indices = antigens.reassortant_indices()
             elif "country" in select:
-                indices = antigens.country(select["country"].upper(), get_locdb())
+                indices = antigens.country(select["country"].upper())
                 if not indices:
-                    countries = antigens.countries(get_locdb())
+                    countries = antigens.countries()
                     module_logger.warning('No antigens from {},\n   there are antigens from: {}'.format(select["country"].upper(), " ".join("{}={}".format(c, len(countries[c])) for c in sorted(countries))))
             elif "continent" in select:
-                indices = antigens.continents(get_locdb())[select["continent"].upper()]
+                indices = antigens.continents()[select["continent"].upper()]
             elif "lab_id" in select:
                 indices = antigens.find_by_lab_id(select["lab_id"])
             elif "lab_ids" in select:

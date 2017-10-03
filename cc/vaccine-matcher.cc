@@ -9,11 +9,11 @@ VaccineMatcherLabel& VaccineMatcherLabel::name_type(std::string aNameType)
         const auto& antigen = static_cast<const Antigen&>(mChartDraw.chart().antigen(ve.antigen_index)); // dynamic_cast throws here (clang 4.1)
         std::string name;
         if (aNameType == "abbreviated")
-            name = antigen.abbreviated_name(mLocDb);
+            name = antigen.abbreviated_name();
         else if (aNameType == "abbreviated_with_passage_type")
-            name = antigen.abbreviated_name_with_passage_type(mLocDb);
+            name = antigen.abbreviated_name_with_passage_type();
         else if (aNameType == "abbreviated_location_with_passage_type")
-            name = antigen.abbreviated_location_with_passage_type(mLocDb);
+            name = antigen.abbreviated_location_with_passage_type();
         else {
             if (aNameType != "full") {
                 log_warning("unsupported name_type \"", aNameType, "\" (\"full\" is used)");

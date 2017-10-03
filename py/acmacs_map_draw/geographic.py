@@ -8,10 +8,6 @@ import logging; module_logger = logging.getLogger(__name__)
 
 from acmacs_base.timeit import timeit
 
-from .hidb_access import get_hidb
-from .locdb_access import get_locdb
-from .seqdb_access import get_seqdb
-
 # ----------------------------------------------------------------------
 
 def geographic_map_default_setting():
@@ -37,13 +33,13 @@ def geographic_map(output, virus_type, title, start_date, end_date, settings):
             if settings.get(key) is not None:
                 options[key] = settings[key]
         from acmacs_map_draw_backend import GeographicMapWithPointsFromHidb
-        geographic_map = GeographicMapWithPointsFromHidb(hidb=get_hidb(virus_type=virus_type), locdb=get_locdb(), **options)
+        geographic_map = GeographicMapWithPointsFromHidb(virus_type=virus_type, **options)
         if not settings.get("coloring") or settings["coloring"] == "continent":
             from .coloring import sContinentColor
             geographic_map.add_points_from_hidb_colored_by_continent(continent_color=sContinentColor, color_override={}, start_date=start_date, end_date=end_date)
         elif settings["coloring"] == "clade":
             from .coloring import sCladeColor
-            geographic_map.add_points_from_hidb_colored_by_clade(clade_color=sCladeColor, color_override={}, seqdb=get_seqdb(), start_date=start_date, end_date=end_date)
+            geographic_map.add_points_from_hidb_colored_by_clade(clade_color=sCladeColor, color_override={}, start_date=start_date, end_date=end_date)
         elif settings["coloring"] == "lineage":
             from .coloring import sLineageColor
             geographic_map.add_points_from_hidb_colored_by_lineage(lineage_color=sLineageColor, color_override={}, start_date=start_date, end_date=end_date)
@@ -60,15 +56,13 @@ def geographic_time_series(output_prefix, virus_type, period, start_date, end_da
     options = {key: settings[key] for key in ["point_size_in_pixels", "point_density", "outline_color", "outline_width"] if settings.get(key) is not None}
     if period == "month":
         from acmacs_map_draw_backend import geographic_time_series_monthly
-        hidb = get_hidb(virus_type=virus_type, hidb_dir=settings.get("hidb_dir"))
-        module_logger.info("hidb {}".format(hidb.all_antigens()))
-        ts = geographic_time_series_monthly(start_date=start_date, end_date=end_date, hidb=hidb, locdb=get_locdb(), **options)
+        ts = geographic_time_series_monthly(virus_type=virus_type, start_date=start_date, end_date=end_date, **options)
     elif period == "year":
         from acmacs_map_draw_backend import geographic_time_series_yearly
-        ts = geographic_time_series_yearly(start_date=start_date, end_date=end_date, hidb=get_hidb(virus_type=virus_type, hidb_dir=settings.get("hidb_dir")), locdb=get_locdb(), **options)
+        ts = geographic_time_series_yearly(virus_type=virus_type, start_date=start_date, end_date=end_date, **options)
     elif period == "week":
         from acmacs_map_draw_backend import geographic_time_series_weekly
-        ts = geographic_time_series_weekly(start_date=start_date, end_date=end_date, hidb=get_hidb(virus_type=virus_type, hidb_dir=settings.get("hidb_dir")), locdb=get_locdb(), **options)
+        ts = geographic_time_series_weekly(virus_type=virus_type, start_date=start_date, end_date=end_date, **options)
     else:
         raise ValueError("Unsupported period: " + repr(period) + ", expected \"month\", \"year\", \"week\"")
     _update_title(ts.title(), settings)
@@ -77,13 +71,13 @@ def geographic_time_series(output_prefix, virus_type, period, start_date, end_da
         ts.draw_colored_by_continent(filename_prefix=output_prefix, continent_color=sContinentColor, color_override=settings.get("color_override", {}), image_width=settings.get("output_image_width", 800))
     elif settings["coloring"] == "clade":
         from .coloring import sCladeColor
-        ts.draw_colored_by_clade(filename_prefix=output_prefix, clade_color=sCladeColor, seqdb=get_seqdb(seqdb_dir=settings.get("seqdb_dir")), color_override=settings.get("color_override", {}), image_width=settings.get("output_image_width", 800))
+        ts.draw_colored_by_clade(filename_prefix=output_prefix, clade_color=sCladeColor, color_override=settings.get("color_override", {}), image_width=settings.get("output_image_width", 800))
     elif settings["coloring"] == "lineage":
         from .coloring import sLineageColor
         ts.draw_colored_by_lineage(filename_prefix=output_prefix, lineage_color=sLineageColor, color_override=settings.get("color_override", {}), image_width=settings.get("output_image_width", 800))
     elif settings["coloring"] == "lineage-deletion-mutants":
         from .coloring import sLineageColor
-        ts.draw_colored_by_lineage_and_deletion_mutants(filename_prefix=output_prefix, lineage_color=sLineageColor, deletion_mutant_color=settings.get("deletion_mutant_color", "cyan"), color_override=settings.get("color_override", {}), seqdb=get_seqdb(seqdb_dir=settings.get("seqdb_dir")), image_width=settings.get("output_image_width", 800))
+        ts.draw_colored_by_lineage_and_deletion_mutants(filename_prefix=output_prefix, lineage_color=sLineageColor, deletion_mutant_color=settings.get("deletion_mutant_color", "cyan"), color_override=settings.get("color_override", {}), image_width=settings.get("output_image_width", 800))
     else:
         raise ValueError("Unsupported coloring: " + repr(settings["coloring"]))
 
