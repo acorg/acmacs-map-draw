@@ -12,26 +12,9 @@ using namespace std::string_literals;
 
 // ----------------------------------------------------------------------
 
-SelectAntigensSera::SelectAntigensSera(std::string aSeqdbFilename, bool aVerbose)
-    : mSeqdbFilename{aSeqdbFilename}, mVerbose{aVerbose}, mReportTime{aVerbose ? report_time::Yes : report_time::No}
-{
-    if (mSeqdbFilename.empty())
-        mSeqdbFilename = std::getenv("HOME") + "/AD/data/seqdb.json.xz"s;
-}
-
-// ----------------------------------------------------------------------
-
 SelectAntigensSera::~SelectAntigensSera()
 {
 } // SelectAntigensSera::~SelectAntigensSera
-
-// ----------------------------------------------------------------------
-
-const seqdb::Seqdb& SelectAntigensSera::get_seqdb() const
-{
-    return seqdb::get(mSeqdbFilename, mVerbose ? report_time::Yes : report_time::No);
-
-} // SelectAntigensSera::get_seqdb
 
 // ----------------------------------------------------------------------
 
@@ -202,7 +185,7 @@ const std::vector<seqdb::SeqdbEntrySeq>& SelectAntigens::seqdb_entries(const Cha
 {
     if (!mSeqdbEntries || mChartForSeqdbEntries != &aChart) {
         mSeqdbEntries = std::make_unique<std::vector<seqdb::SeqdbEntrySeq>>();
-        get_seqdb().match(aChart.antigens(), *mSeqdbEntries, false);
+        seqdb::get(timer()).match(aChart.antigens(), *mSeqdbEntries, false);
     }
     return *mSeqdbEntries;
 

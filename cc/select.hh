@@ -22,7 +22,7 @@ class VaccineMatchData;
 class SelectAntigensSera
 {
  public:
-    SelectAntigensSera(std::string aSeqdbFilename, bool aVerbose = false);
+    inline SelectAntigensSera(bool aVerbose = false) : mVerbose{aVerbose}, mReportTime{aVerbose ? report_time::Yes : report_time::No} {}
     virtual ~SelectAntigensSera();
 
     virtual std::vector<size_t> select(const Chart& aChart, const rjson::value& aSelector);
@@ -33,8 +33,6 @@ class SelectAntigensSera
     virtual void filter_circle(const Chart& aChart, std::vector<size_t>& indices, const ProjectionBase& aProjection, const Circle& aCircle) = 0;
 
  protected:
-    const seqdb::Seqdb& get_seqdb() const;
-
     template <typename AgSr> inline void filter_name_in(const AgSr& aAgSr, std::vector<size_t>& indices, std::string aName)
         {
               // Timeit ti("filter_name_in " + aName + ": ", std::cerr, mVerbose ? report_time::Yes : report_time::No);
@@ -67,7 +65,6 @@ class SelectAntigensSera
     inline auto timer() { return mReportTime; }
 
  private:
-    std::string mSeqdbFilename;
     bool mVerbose;
     report_time mReportTime;
 

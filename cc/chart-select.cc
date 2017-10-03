@@ -41,13 +41,13 @@ int main(int argc, char* const argv[])
 
         if (!args["-s"] && !args["--sera"]) {
             const auto num_digits = static_cast<int>(std::log10(chart->number_of_antigens())) + 1;
-            const auto indices = SelectAntigens("", verbose).select(*chart, selector);
+            const auto indices = SelectAntigens(verbose).select(*chart, selector);
             for (auto index: indices)
                 std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->antigen(index).full_name() << '\n';
         }
         else {
             const auto num_digits = static_cast<int>(std::log10(chart->number_of_sera())) + 1;
-            const auto indices = SelectSera("", verbose).select(*chart, selector);
+            const auto indices = SelectSera(verbose).select(*chart, selector);
             for (auto index: indices)
                 std::cout << "SR " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->serum(index).full_name() << '\n';
         }

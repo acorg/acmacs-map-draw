@@ -37,7 +37,7 @@ int main(int argc, char* const argv[])
         if (chart->number_of_projections())
             std::cout << "  S : " << chart->projection(0).stress() << '\n';
         if (args["--clades"]) {
-            SelectAntigens selector("", verbose);
+            SelectAntigens selector(verbose);
             std::cout << "  Clades:\n" << std::setfill(' ');
             for (auto [clade,number]: selector.clades(*chart)) {
                 std::cout << "    " << std::setw(6) << std::left << clade
