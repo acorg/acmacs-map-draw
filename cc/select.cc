@@ -12,11 +12,9 @@ using namespace std::string_literals;
 
 // ----------------------------------------------------------------------
 
-SelectAntigensSera::SelectAntigensSera(std::string aHidbDir, std::string aSeqdbFilename, bool aVerbose)
-    : mHidbDir{aHidbDir}, mSeqdbFilename{aSeqdbFilename}, mVerbose{aVerbose}, mReportTime{aVerbose ? report_time::Yes : report_time::No}
+SelectAntigensSera::SelectAntigensSera(std::string aSeqdbFilename, bool aVerbose)
+    : mSeqdbFilename{aSeqdbFilename}, mVerbose{aVerbose}, mReportTime{aVerbose ? report_time::Yes : report_time::No}
 {
-    if (mHidbDir.empty())
-        mHidbDir = std::getenv("HOME") + "/AD/data"s;
     if (mSeqdbFilename.empty())
         mSeqdbFilename = std::getenv("HOME") + "/AD/data/seqdb.json.xz"s;
 }
@@ -34,14 +32,6 @@ const seqdb::Seqdb& SelectAntigensSera::get_seqdb() const
     return seqdb::get(mSeqdbFilename, mVerbose ? report_time::Yes : report_time::No);
 
 } // SelectAntigensSera::get_seqdb
-
-// ----------------------------------------------------------------------
-
-const hidb::HiDb& SelectAntigensSera::get_hidb(std::string aVirusType) const
-{
-    return hidb::get(mHidbDir, aVirusType, mVerbose ? report_time::Yes : report_time::No);
-
-} // SelectAntigensSera::get_hidb
 
 // ----------------------------------------------------------------------
 
@@ -269,7 +259,7 @@ void SelectAntigens::filter_vaccine(const Chart& aChart, std::vector<size_t>& in
 {
     const auto virus_type = aChart.chart_info().virus_type();
     if (!virus_type.empty()) {
-        Vaccines vaccines(aChart, get_hidb(virus_type));
+        Vaccines vaccines(aChart, hidb::get(virus_type, timer()));
         if (verbose())
             std::cerr << vaccines.report(2) << '\n';
         auto vaccine_indices = vaccines.indices(aMatchData);

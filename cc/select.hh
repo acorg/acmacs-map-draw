@@ -22,7 +22,7 @@ class VaccineMatchData;
 class SelectAntigensSera
 {
  public:
-    SelectAntigensSera(std::string aHidbDir, std::string aSeqdbFilename, bool aVerbose = false);
+    SelectAntigensSera(std::string aSeqdbFilename, bool aVerbose = false);
     virtual ~SelectAntigensSera();
 
     virtual std::vector<size_t> select(const Chart& aChart, const rjson::value& aSelector);
@@ -34,7 +34,6 @@ class SelectAntigensSera
 
  protected:
     const seqdb::Seqdb& get_seqdb() const;
-    const hidb::HiDb& get_hidb(std::string aVirusType) const;
 
     template <typename AgSr> inline void filter_name_in(const AgSr& aAgSr, std::vector<size_t>& indices, std::string aName)
         {
@@ -68,7 +67,6 @@ class SelectAntigensSera
     inline auto timer() { return mReportTime; }
 
  private:
-    std::string mHidbDir;
     std::string mSeqdbFilename;
     bool mVerbose;
     report_time mReportTime;
