@@ -12,11 +12,9 @@ using namespace std::string_literals;
 
 // ----------------------------------------------------------------------
 
-SelectAntigensSera::SelectAntigensSera(std::string aLocDbFilename, std::string aHidbDir, std::string aSeqdbFilename, bool aVerbose)
-    : mLocDbFilename{aLocDbFilename}, mHidbDir{aHidbDir}, mSeqdbFilename{aSeqdbFilename}, mVerbose{aVerbose}
+SelectAntigensSera::SelectAntigensSera(std::string aHidbDir, std::string aSeqdbFilename, bool aVerbose)
+    : mHidbDir{aHidbDir}, mSeqdbFilename{aSeqdbFilename}, mVerbose{aVerbose}, mReportTime{aVerbose ? report_time::Yes : report_time::No}
 {
-    if (mLocDbFilename.empty())
-        mLocDbFilename = std::getenv("HOME") + "/AD/data/locationdb.json.xz"s;
     if (mHidbDir.empty())
         mHidbDir = std::getenv("HOME") + "/AD/data"s;
     if (mSeqdbFilename.empty())
@@ -28,14 +26,6 @@ SelectAntigensSera::SelectAntigensSera(std::string aLocDbFilename, std::string a
 SelectAntigensSera::~SelectAntigensSera()
 {
 } // SelectAntigensSera::~SelectAntigensSera
-
-// ----------------------------------------------------------------------
-
-const LocDb& SelectAntigensSera::get_location_database() const
-{
-    return ::get_location_database(mLocDbFilename, mVerbose ? report_time::Yes : report_time::No);
-
-} // SelectAntigensSera::get_location_database
 
 // ----------------------------------------------------------------------
 
@@ -167,10 +157,10 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
             indices.erase(std::remove_if(indices.begin(), indices.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indices.end());
         }
         else if (key == "country") {
-            antigens.filter_country(indices, string::upper(value), get_location_database());
+            antigens.filter_country(indices, string::upper(value), get_locdb(timer()));
         }
         else if (key == "continent") {
-            antigens.filter_continent(indices, string::upper(value), get_location_database());
+            antigens.filter_continent(indices, string::upper(value), get_locdb(timer()));
         }
         else if (key == "sequenced") {
             filter_sequenced(aChart, indices);
@@ -328,10 +318,10 @@ std::vector<size_t> SelectSera::command(const Chart& aChart, const rjson::object
             indices.erase(std::remove_if(indices.begin(), indices.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indices.end());
         }
         else if (key == "country") {
-            sera.filter_country(indices, string::upper(value), get_location_database());
+            sera.filter_country(indices, string::upper(value), get_locdb(timer()));
         }
         else if (key == "continent") {
-            sera.filter_continent(indices, string::upper(value), get_location_database());
+            sera.filter_continent(indices, string::upper(value), get_locdb(timer()));
         }
         else if (key == "name") {
             filter_name(aChart, indices, string::upper(value));

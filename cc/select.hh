@@ -22,7 +22,7 @@ class VaccineMatchData;
 class SelectAntigensSera
 {
  public:
-    SelectAntigensSera(std::string aLocDbFilename, std::string aHidbDir, std::string aSeqdbFilename, bool aVerbose = false);
+    SelectAntigensSera(std::string aHidbDir, std::string aSeqdbFilename, bool aVerbose = false);
     virtual ~SelectAntigensSera();
 
     virtual std::vector<size_t> select(const Chart& aChart, const rjson::value& aSelector);
@@ -33,7 +33,6 @@ class SelectAntigensSera
     virtual void filter_circle(const Chart& aChart, std::vector<size_t>& indices, const ProjectionBase& aProjection, const Circle& aCircle) = 0;
 
  protected:
-    const LocDb& get_location_database() const;
     const seqdb::Seqdb& get_seqdb() const;
     const hidb::HiDb& get_hidb(std::string aVirusType) const;
 
@@ -66,12 +65,13 @@ class SelectAntigensSera
         }
 
     inline bool verbose() const { return mVerbose; }
+    inline auto timer() { return mReportTime; }
 
  private:
-    std::string mLocDbFilename;
     std::string mHidbDir;
     std::string mSeqdbFilename;
     bool mVerbose;
+    report_time mReportTime;
 
 }; // class SelectAntigensSera
 

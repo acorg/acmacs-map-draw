@@ -13,7 +13,7 @@ TARGETS = \
     $(DIST)/chart-info \
     $(DIST)/map-draw
 
-LIB_SOURCES = draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc time-series.cc vaccines.cc vaccine-matcher.cc settings.cc select.cc mod-applicator.cc
+LIB_SOURCES = draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc time-series.cc vaccines.cc vaccine-matcher.cc settings.cc select.cc mod-applicator.cc setup-dbs.cc
 PY_SOURCES = py.cc $(LIB_SOURCES)
 BACKEND = $(DIST)/acmacs_map_draw_backend$(PYTHON_MODULE_SUFFIX)
 

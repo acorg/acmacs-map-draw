@@ -5,6 +5,7 @@
 // #include "acmacs-base/string.hh"
 #include "acmacs-chart/ace.hh"
 
+#include "setup-dbs.hh"
 #include "settings.hh"
 #include "select.hh"
 
@@ -20,9 +21,7 @@ int main(int argc, char* const argv[])
         argc_argv args(argc, argv, {
                 {"-s", false},
                 {"--sera", false},
-                {"--seqdb", ""},
-                {"--hidb-dir", ""},
-                {"--locdb", ""},
+                {"--db-dir", ""},
                 {"-v", false},
                 {"--verbose", false},
                 {"-h", false},
@@ -35,19 +34,20 @@ int main(int argc, char* const argv[])
             throw std::runtime_error("Usage: "s + args.program() + sUsage + args.usage_options() + antigen_samples + serum_samples);
         }
         const bool verbose = args["-v"] || args["--verbose"];
+        setup_dbs(args["--db-dir"]);
         const auto selector = rjson::parse_string(args[1]);
           // const auto selector = rjson::parse_string("{\"in_rectangle\":{\"c1\":[0,0],\"c2\":[1,1]}}");
         std::unique_ptr<Chart> chart{import_chart(args[0], verbose ? report_time::Yes : report_time::No)};
 
         if (!args["-s"] && !args["--sera"]) {
             const auto num_digits = static_cast<int>(std::log10(chart->number_of_antigens())) + 1;
-            const auto indices = SelectAntigens(args["--locdb"], args["--hidb-dir"], args["--seqdb"], verbose).select(*chart, selector);
+            const auto indices = SelectAntigens("", "", verbose).select(*chart, selector);
             for (auto index: indices)
                 std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->antigen(index).full_name() << '\n';
         }
         else {
             const auto num_digits = static_cast<int>(std::log10(chart->number_of_sera())) + 1;
-            const auto indices = SelectSera(args["--locdb"], args["--hidb-dir"], args["--seqdb"], verbose).select(*chart, selector);
+            const auto indices = SelectSera("", "", verbose).select(*chart, selector);
             for (auto index: indices)
                 std::cout << "SR " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->serum(index).full_name() << '\n';
         }
