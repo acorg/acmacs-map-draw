@@ -49,11 +49,32 @@ sCladeColor = {
 #     "VICTORIA": "#0000FF", #"blue",
 #     }
 
-# suggested by David P 2017-10-02
+# # suggested by David P 2017-10-02
+# sLineageColor = {
+#     "YAMAGATA": "#E31A1C", #"red",
+#     "VICTORIA": "#1F78B4", #"blue",
+#     "VICTORIA_DEL": "#A6CEE3",
+#     }
+
+# # suggested by David P 2017-10-03
+# sLineageColor = {
+#     "YAMAGATA": "#1b9e77", #"red",
+#     "VICTORIA": "#e6ab02", #"blue",
+#     "VICTORIA_DEL": "#d95f02",
+#     }
+
+# # suggested by David P 2017-10-04
+# sLineageColor = {
+#     "YAMAGATA": "#d10000", #"red",
+#     "VICTORIA": "#23a8d1", #"blue",
+#     "VICTORIA_DEL": "#2700b7",
+#     }
+
+# suggested by David P 2017-10-04
 sLineageColor = {
-    "YAMAGATA": "#E31A1C", #"red",
-    "VICTORIA": "#1F78B4", #"blue",
-    "VICTORIA_DEL": "#A6CEE3", # #6A3D9A
+    "YAMAGATA": "#d10000", #"red",
+    "VICTORIA": "#2700b7", #"blue",
+    "VICTORIA_DEL": "#23a8d1",
     }
 
 # ----------------------------------------------------------------------
