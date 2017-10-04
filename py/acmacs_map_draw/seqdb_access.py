@@ -12,7 +12,7 @@ import seqdb_backend
 # ----------------------------------------------------------------------
 
 def match(chart, seqdb_file=None, verbose=False):
-    seqdb = get_seqdb(seqdb_file=seqdb_file)
+    seqdb = seqdb_backend.get_seqdb(timer=True)
     with timeit("Matching seqdb"):
         per_antigen = seqdb.match_antigens(antigens=chart.antigens(), verbose=verbose)
         module_logger.info('{} antigens matched against seqdb'.format(sum(1 for e in per_antigen if e)))
@@ -35,7 +35,7 @@ def not_sequenced(chart, seqdb_file=None, verbose=False):
 # ----------------------------------------------------------------------
 
 def aa_at_positions(chart, positions, seqdb_file=None, verbose=False):
-    seqdb = get_seqdb(seqdb_file=seqdb_file)
+    seqdb = seqdb_backend.get_seqdb(timer=True)
     with timeit("Matching seqdb"):
         aa_indices = seqdb.aa_at_positions_for_antigens(antigens=chart.antigens(), positions=positions, verbose=verbose)
         module_logger.info('{} antigens matched against seqdb'.format(sum(len(v) for v in aa_indices.values())))
@@ -54,15 +54,6 @@ def antigen_clades(chart, seqdb_file=None, verbose=False):
             else:
                 clade_data.setdefault("", []).append(ag_no)   # no clades but sequenced (for B/Vic)
     return clade_data
-
-# ----------------------------------------------------------------------
-
-def get_seqdb(seqdb_file :Path = None, seqdb_dir=None):
-    if seqdb_file:
-        seqdb_backend.seqdb_setup(str(seqdb_file))
-    elif seqdb_dir:
-        seqdb_backend.setup_dbs(str(seqdb_dir))
-    return seqdb_backend.get_seqdb(timer=True)
 
 # ----------------------------------------------------------------------
 ### Local Variables:

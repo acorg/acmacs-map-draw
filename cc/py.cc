@@ -10,6 +10,7 @@
 #include "geographic-map.hh"
 #include "time-series.hh"
 #include "vaccine-matcher.hh"
+#include "setup-dbs.hh"
 
 // ----------------------------------------------------------------------
 
@@ -84,6 +85,8 @@ template <typename Iter> inline auto make_py_ts_iter(Iter&& begin, Iter&& end) {
 PYBIND11_MODULE(acmacs_map_draw_backend, m)
 {
     m.doc() = "Acmacs map draw plugin";
+
+    m.def("setup_dbs", &setup_dbs, py::arg("dbs_dir"));
 
       // ----------------------------------------------------------------------
       // acmacs-base/time-series
