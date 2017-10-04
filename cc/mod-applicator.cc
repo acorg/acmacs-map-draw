@@ -6,27 +6,40 @@ using namespace std::string_literals;
 #include "acmacs-map-draw/draw.hh"
 
 #include "mod-applicator.hh"
+#include "select.hh"
 
 // ----------------------------------------------------------------------
 
 class Mod
 {
  public:
+    inline Mod(const rjson::object& aArgs) : mArgs{aArgs} {}
     virtual inline ~Mod() {}
 
     virtual void apply(ChartDraw& aChartDraw, const rjson::object& aModData) = 0;
 
+ protected:
+    const rjson::object& args() const { return mArgs; }
+
+ private:
+    const rjson::object& mArgs;
+
 }; // class Mod
 
-std::unique_ptr<Mod> factory(const rjson::value& aMod);
+using Mods = std::vector<std::unique_ptr<Mod>>;
+
+Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods);
 
 // ----------------------------------------------------------------------
 
 void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::object& aModData, bool aIgnoreUnrecognized)
 {
     for (const auto& mod_desc: aMods) {
-        if (auto mod = factory(mod_desc))
-            mod->apply(aChartDraw, aModData);
+        if (const auto mods = factory(mod_desc, aModData.get_field("mods", rjson::object{})); !mods.empty()) {
+            for (const auto& mod: mods) {
+                mod->apply(aChartDraw, aModData);
+            }
+        }
         else if (aIgnoreUnrecognized)
             std::cerr << "WARNING: unrecognized mod: " << mod_desc << '\n';
         else
@@ -37,29 +50,51 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::o
 
 // ----------------------------------------------------------------------
 
-class AllGrey : public Mod
+// class AllGrey : public Mod
+// {
+//  public:
+//     inline AllGrey() = default;
+
+//     void apply(ChartDraw& aChartDraw, const rjson::object& /*aModData*/) override
+//         {
+//             for (auto [ag_no, antigen]: enumerate(aChartDraw.chart().antigens())) {
+//                 aChartDraw.modify(ag_no, PointStyleEmpty().fill(antigen.reference() ? TRANSPARENT : GREY).outline(GREY));
+//             }
+//             for (auto [sr_no, serum]: enumerate(aChartDraw.chart().sera())) {
+//                 aChartDraw.modify_serum(sr_no, PointStyleEmpty().fill(TRANSPARENT).outline(GREY));
+//             }
+//         }
+
+// }; // class AllGrey
+
+// ----------------------------------------------------------------------
+
+class ModAntigens : public Mod
 {
  public:
-    inline AllGrey() = default;
+    using Mod::Mod;
 
     void apply(ChartDraw& aChartDraw, const rjson::object& /*aModData*/) override
         {
-            for (auto [ag_no, antigen]: enumerate(aChartDraw.chart().antigens())) {
-                aChartDraw.modify(ag_no, PointStyleEmpty().fill(antigen.reference() ? TRANSPARENT : GREY).outline(GREY));
+            // std::cerr << "ModAntigens::apply " << &args() << '\n';
+            // std::cerr << "ModAntigens::apply " << args().to_json() << '\n';
+            const auto verbose = args().get_field("verbose", rjson::boolean{false});
+            if (const auto* select_data = args()["select"]; select_data) {
+                SelectAntigens select(verbose);
+                const auto indices = select.command(aChartDraw.chart(), *select_data);
             }
-            for (auto [sr_no, serum]: enumerate(aChartDraw.chart().sera())) {
-                aChartDraw.modify_serum(sr_no, PointStyleEmpty().fill(TRANSPARENT).outline(GREY));
-            }
+            else
+                throw unrecognized_mod{"no \"select\" in \"antigens\" mod: " /* + args().to_json() */};
         }
 
-}; // class AllGrey
+}; // class ModAntigens
 
 // ----------------------------------------------------------------------
 
 class Clades : public Mod
 {
  public:
-    inline Clades(const rjson::object& aArgs) : mArgs{aArgs} {}
+    using Mod::Mod;
 
     void apply(ChartDraw& aChartDraw, const rjson::object& aModData) override
         {
@@ -67,34 +102,32 @@ class Clades : public Mod
             std::vector<seqdb::SeqdbEntrySeq> seqdb_entries;
             seqdb.match(aChartDraw.chart().antigens(), seqdb_entries, true);
 
-            const bool report = mArgs.get_field("report", false);
+            const bool report = args().get_field("report", false);
             const auto num_digits = static_cast<int>(std::log10(aChartDraw.chart().number_of_antigens())) + 1;
 
-            const auto& clade_fill = aModData["clade_fill"];
-            for (auto [ag_no, entry_seq]: enumerate(seqdb_entries)) {
-                if (entry_seq) {
-                    for (const auto& clade: entry_seq.seq().clades()) {
-                        try {
-                            const std::string fill = clade_fill.get_field<std::string>(clade);
-                            aChartDraw.modify(ag_no, PointStyleEmpty().fill(fill).outline(BLACK), ChartDraw::Raise);
-                            if (report)
-                                std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << ag_no << ' ' << aChartDraw.chart().antigen(static_cast<size_t>(ag_no)).full_name() << ' ' << clade << ' ' << fill << '\n';
-                        }
-                        catch (rjson::object::field_not_found&) {
+            if (const auto* clade_fill = aModData["clade_fill"]; clade_fill) {
+                for (auto [ag_no, entry_seq]: enumerate(seqdb_entries)) {
+                    if (entry_seq) {
+                        for (const auto& clade: entry_seq.seq().clades()) {
+                            try {
+                                const std::string fill = clade_fill->get_field<std::string>(clade);
+                                aChartDraw.modify(ag_no, PointStyleEmpty().fill(fill).outline(BLACK), ChartDraw::Raise);
+                                if (report)
+                                    std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << ag_no << ' ' << aChartDraw.chart().antigen(static_cast<size_t>(ag_no)).full_name() << ' ' << clade << ' ' << fill << '\n';
+                            }
+                            catch (rjson::object::field_not_found&) {
+                            }
                         }
                     }
                 }
             }
         }
 
- private:
-    const rjson::object& mArgs;
-
-}; // class AllGrey
+}; // class Clades
 
 // ----------------------------------------------------------------------
 
-std::unique_ptr<Mod> factory(const rjson::value& aMod)
+Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
 {
 #pragma GCC diagnostic push
 #ifdef __clang__
@@ -117,11 +150,25 @@ std::unique_ptr<Mod> factory(const rjson::value& aMod)
         name = *ptr_str;
     }
 
-    if (name == "all_grey" || name == "all-grey")
-        return std::make_unique<AllGrey>();
-    else if (name == "clades")
-        return std::make_unique<Clades>(*args);
-    return nullptr;
+    Mods result;
+
+    // if (name == "all_grey" || name == "all-grey")
+    //     return std::make_unique<AllGrey>();
+    // else
+    if (name == "antigens") {
+        std::cerr << "antigens: " << args->to_json() << '\n';
+        result.emplace_back(new ModAntigens(*args));
+    }
+    if (name == "clades") {
+        result.emplace_back(new Clades(*args));
+    }
+    else if (const auto* referenced_mod = aSettingsMods[name]; referenced_mod) {
+        for (const auto& submod_desc: static_cast<const rjson::array&>(*referenced_mod)) {
+            for (auto&& submod: factory(submod_desc, aSettingsMods))
+                result.push_back(std::move(submod));
+        }
+    }
+    return result;
 
 } // factory
 

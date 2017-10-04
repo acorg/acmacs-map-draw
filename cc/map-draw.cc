@@ -42,7 +42,9 @@ int main(int argc, char* const argv[])
         ChartDraw chart_draw(*chart, args["--projection"]);
         chart_draw.prepare();
 
-        auto mods = rjson::parse_string(R"(["all_grey", {"N": "clades", "seqdb_file": "/Users/eu/AD/data/seqdb.json.xz", "report": false}])");
+          // auto mods = rjson::parse_string(R"(["all_grey", {"N": "clades", "seqdb_file": "/Users/eu/AD/data/seqdb.json.xz", "report": false}])");
+          // auto mods = rjson::parse_string(R"([{"N": "clades", "seqdb_file": "/Users/eu/AD/data/seqdb.json.xz", "report": false}])");
+        auto mods = rjson::parse_string(R"(["all_red"])");
         apply_mods(chart_draw, mods, settings);
 
         chart_draw.calculate_viewport();

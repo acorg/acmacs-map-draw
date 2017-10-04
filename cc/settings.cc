@@ -4,6 +4,12 @@
 
 static const char* const DEFAULT_SETTINGS_JSON = R"(
 {
+  "mods": {
+    "all_red": [
+      {"N": "antigens", "select": "test", "outline": "black", "fill": "red"},
+      {"N": "antigens", "select": "reference", "outline": "red", "fill": "transparent"}
+    ]
+  },
   "?antigen_select_samples": [
     "all",
     "reference",
