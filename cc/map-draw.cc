@@ -4,6 +4,7 @@ using namespace std::string_literals;
 
 #include "acmacs-base/argc-argv.hh"
 #include "acmacs-base/read-file.hh"
+#include "acmacs-base/quicklook.hh"
 // #include "acmacs-base/enumerate.hh"
 #include "acmacs-chart/ace.hh"
 #include "acmacs-map-draw/draw.hh"
@@ -45,7 +46,9 @@ int main(int argc, char* const argv[])
         apply_mods(chart_draw, mods, settings);
 
         chart_draw.calculate_viewport();
-        chart_draw.draw(acmacs_base::TempFile(".pdf"), 800, report_time::Yes);
+        const auto temp_file = acmacs_base::TempFile(".pdf");
+        chart_draw.draw(temp_file, 800, report_time::Yes);
+        acmacs::quicklook(temp_file, 2);
         return 0;
     }
     catch (std::exception& err) {
