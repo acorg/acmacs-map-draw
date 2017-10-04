@@ -128,7 +128,7 @@ void ChartDraw::draw(Surface& aSurface) const
 #ifdef ACMACS_TARGET_OS
 void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) const
 {
-    Timeit ti("drawing map to " + aFilename, std::cerr, aTimer);
+    Timeit ti("drawing map to " + aFilename + ": ", std::cerr, aTimer);
     PdfCairo surface(aFilename, aSize, aSize);
     draw(surface);
 
