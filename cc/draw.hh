@@ -7,6 +7,7 @@
 #include "acmacs-base/throw.hh"
 #include "acmacs-base/range.hh"
 #ifdef ACMACS_TARGET_OS
+#include "acmacs-base/timeit.hh"
 #include "acmacs-chart/chart.hh"
 using Chart_Type = Chart;
 #else
@@ -44,7 +45,7 @@ class ChartDraw
     void prepare();
     void draw(Surface& aSurface) const;
 #ifdef ACMACS_TARGET_OS
-    void draw(std::string aFilename, double aSize) const;
+    void draw(std::string aFilename, double aSize, report_time aTimer = report_time::No) const;
 #endif
     void calculate_viewport();
 
