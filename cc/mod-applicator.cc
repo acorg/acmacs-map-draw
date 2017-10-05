@@ -7,6 +7,7 @@ using namespace std::string_literals;
 
 #include "mod-applicator.hh"
 #include "select.hh"
+#include "point-style-draw.hh"
 
 // ----------------------------------------------------------------------
 
@@ -14,19 +15,33 @@ class Mod
 {
  public:
     inline Mod(const rjson::object& aArgs) : mArgs{aArgs} {}
-    virtual inline ~Mod() {}
+    virtual inline ~Mod() { /* std::cerr << "~Mod " << args().to_json() << '\n'; */ }
 
     virtual void apply(ChartDraw& aChartDraw, const rjson::object& aModData) = 0;
 
  protected:
     const rjson::object& args() const { return mArgs; }
 
+    inline PointStyle style() const { return point_style_from_json(args()); }
+    inline PointDrawingOrder drawing_order() const { return drawing_order_from_json(args()); }
+
  private:
     const rjson::object& mArgs;
+
+    friend inline std::ostream& operator << (std::ostream& out, const Mod& aMod) { return out << aMod.args().to_json(); }
 
 }; // class Mod
 
 using Mods = std::vector<std::unique_ptr<Mod>>;
+
+inline std::ostream& operator << (std::ostream& out, const Mods& aMods)
+{
+    out << "[\n";
+    for (const auto& mod: aMods)
+        out << "  " << *mod << '\n';
+    out << ']';
+    return out;
+}
 
 Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods);
 
@@ -35,7 +50,7 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods);
 void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::object& aModData, bool aIgnoreUnrecognized)
 {
     for (const auto& mod_desc: aMods) {
-        if (const auto mods = factory(mod_desc, aModData.get_field("mods", rjson::object{})); !mods.empty()) {
+        if (const auto mods = factory(mod_desc, aModData.get_ref("mods", rjson::object{})); !mods.empty()) {
             for (const auto& mod: mods) {
                 mod->apply(aChartDraw, aModData);
             }
@@ -76,12 +91,12 @@ class ModAntigens : public Mod
 
     void apply(ChartDraw& aChartDraw, const rjson::object& /*aModData*/) override
         {
-            // std::cerr << "ModAntigens::apply " << &args() << '\n';
-            // std::cerr << "ModAntigens::apply " << args().to_json() << '\n';
+            std::cerr << "apply " << args().to_json() << '\n';
             const auto verbose = args().get_field("verbose", rjson::boolean{false});
-            if (const auto* select_data = args()["select"]; select_data) {
-                SelectAntigens select(verbose);
-                const auto indices = select.command(aChartDraw.chart(), *select_data);
+              // const auto report = args().get_field("report", rjson::boolean{false});
+            if (const auto& select_data = args()["select"]; !select_data.is_null()) {
+                const auto indices = SelectAntigens(verbose).select(aChartDraw.chart(), select_data);
+                aChartDraw.modify(indices.begin(), indices.end(), style(), drawing_order());
             }
             else
                 throw unrecognized_mod{"no \"select\" in \"antigens\" mod: " /* + args().to_json() */};
@@ -105,13 +120,13 @@ class Clades : public Mod
             const bool report = args().get_field("report", false);
             const auto num_digits = static_cast<int>(std::log10(aChartDraw.chart().number_of_antigens())) + 1;
 
-            if (const auto* clade_fill = aModData["clade_fill"]; clade_fill) {
+            if (const auto& clade_fill = aModData["clade_fill"]; !clade_fill.is_null()) {
                 for (auto [ag_no, entry_seq]: enumerate(seqdb_entries)) {
                     if (entry_seq) {
                         for (const auto& clade: entry_seq.seq().clades()) {
                             try {
-                                const std::string fill = clade_fill->get_field<std::string>(clade);
-                                aChartDraw.modify(ag_no, PointStyleEmpty().fill(fill).outline(BLACK), ChartDraw::Raise);
+                                const std::string fill = clade_fill.get_field<std::string>(clade);
+                                aChartDraw.modify(ag_no, PointStyleEmpty().fill(fill).outline(BLACK), PointDrawingOrder::Raise);
                                 if (report)
                                     std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << ag_no << ' ' << aChartDraw.chart().antigen(static_cast<size_t>(ag_no)).full_name() << ' ' << clade << ' ' << fill << '\n';
                             }
@@ -156,14 +171,13 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     //     return std::make_unique<AllGrey>();
     // else
     if (name == "antigens") {
-        std::cerr << "antigens: " << args->to_json() << '\n';
         result.emplace_back(new ModAntigens(*args));
     }
     if (name == "clades") {
         result.emplace_back(new Clades(*args));
     }
-    else if (const auto* referenced_mod = aSettingsMods[name]; referenced_mod) {
-        for (const auto& submod_desc: static_cast<const rjson::array&>(*referenced_mod)) {
+    else if (const auto& referenced_mod = aSettingsMods[name]; !referenced_mod.is_null()) {
+        for (const auto& submod_desc: static_cast<const rjson::array&>(referenced_mod)) {
             for (auto&& submod: factory(submod_desc, aSettingsMods))
                 result.push_back(std::move(submod));
         }
