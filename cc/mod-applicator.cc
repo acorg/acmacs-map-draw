@@ -15,7 +15,7 @@ class Mod
 {
  public:
     inline Mod(const rjson::object& aArgs) : mArgs{aArgs} {}
-    virtual inline ~Mod() { /* std::cerr << "~Mod " << args().to_json() << '\n'; */ }
+    virtual inline ~Mod() { /* std::cerr << "~Mod " << args() << '\n'; */ }
 
     virtual void apply(ChartDraw& aChartDraw, const rjson::object& aModData) = 0;
 
@@ -28,7 +28,7 @@ class Mod
  private:
     const rjson::object& mArgs;
 
-    friend inline std::ostream& operator << (std::ostream& out, const Mod& aMod) { return out << aMod.args().to_json(); }
+    friend inline std::ostream& operator << (std::ostream& out, const Mod& aMod) { return out << aMod.args(); }
 
 }; // class Mod
 
@@ -91,7 +91,7 @@ class ModAntigens : public Mod
 
     void apply(ChartDraw& aChartDraw, const rjson::object& /*aModData*/) override
         {
-            std::cerr << "apply " << args().to_json() << '\n';
+            std::cerr << "apply " << args() << '\n';
             const auto verbose = args().get_field("verbose", rjson::boolean{false});
               // const auto report = args().get_field("report", rjson::boolean{false});
             if (const auto& select_data = args()["select"]; !select_data.is_null()) {
