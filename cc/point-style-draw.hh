@@ -5,6 +5,7 @@
 // ----------------------------------------------------------------------
 
 class Surface;
+namespace rjson { class object; }
 
 // ----------------------------------------------------------------------
 
@@ -18,6 +19,16 @@ class PointStyleDraw : public PointStyle
     void draw(Surface& aSurface, const Coordinates& aCoord) const;
 
 }; // class PointStyleDraw
+
+// ----------------------------------------------------------------------
+
+PointStyle point_style_from_json(const rjson::object& aSource);
+
+// ----------------------------------------------------------------------
+
+enum class PointDrawingOrder { NoChange, Raise, Lower };
+
+PointDrawingOrder drawing_order_from_json(const rjson::object& aSource);
 
 // ----------------------------------------------------------------------
 /// Local Variables:

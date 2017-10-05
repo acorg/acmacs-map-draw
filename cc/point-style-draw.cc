@@ -1,3 +1,4 @@
+#include "acmacs-base/rjson.hh"
 #include "acmacs-draw/surface.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 
@@ -24,6 +25,59 @@ void PointStyleDraw::draw(Surface& aSurface, const Coordinates& aCoord) const
         THROW_OR_CERR(std::runtime_error("Invalid shown value NoChange"));
 
 } // PointStyleDraw::draw
+
+// ----------------------------------------------------------------------
+
+PointStyle point_style_from_json(const rjson::object& aSource)
+{
+    auto style{PointStyleEmpty()};
+    for (auto [key, value]: aSource) {
+        if (key == "fill")
+            style.fill(value);
+        else if (key == "outline")
+            style.outline(value);
+        else if (key == "show")
+            style.show(static_cast<rjson::boolean>(value) ? PointStyle::Shown::Shown : PointStyle::Shown::Hidden);
+        else if (key == "hide")
+            style.show(static_cast<rjson::boolean>(value) ? PointStyle::Shown::Hidden : PointStyle::Shown::Shown);
+        else if (key == "shape")
+            style.shape(value);
+        else if (key == "size")
+            style.size(Pixels{value});
+        else if (key == "outline_width")
+            style.outline_width(Pixels{value});
+        else if (key == "aspect")
+            style.aspect(value);
+        else if (key == "rotation")
+            style.rotation(value);
+    }
+    return style;
+
+} // point_style_from_json
+
+// ----------------------------------------------------------------------
+
+PointDrawingOrder drawing_order_from_json(const rjson::object& aSource)
+{
+    PointDrawingOrder result{PointDrawingOrder::NoChange};
+    if (const auto& f1 = aSource["raise_"]; !f1.is_null()) {
+        if (static_cast<bool>(f1))
+            result = PointDrawingOrder::Raise;
+    }
+    else if (const auto& f2 = aSource["lower"]; !f2.is_null()) {
+        if (static_cast<bool>(f2))
+            result = PointDrawingOrder::Lower;
+    }
+    else if (const auto& f3 = aSource["order"]; !f3.is_null()) {
+        const std::string order = f3;
+        if (order == "raise")
+            result = PointDrawingOrder::Raise;
+        else if (order == "lower")
+            result = PointDrawingOrder::Lower;
+    }
+    return result;
+
+} // drawing_order_from_json
 
 // ----------------------------------------------------------------------
 /// Local Variables:
