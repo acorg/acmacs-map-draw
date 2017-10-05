@@ -120,22 +120,23 @@ class Clades : public Mod
             const bool report = args().get_field("report", false);
             const auto num_digits = static_cast<int>(std::log10(aChartDraw.chart().number_of_antigens())) + 1;
 
-            if (const auto& clade_fill = aModData["clade_fill"]; !clade_fill.is_null()) {
+              //if (const auto& clade_fill = aModData["clade_fill"]; !clade_fill.is_null()) {
+            const std::string fill = aModData.get("clade_fill", "pink");
                 for (auto [ag_no, entry_seq]: enumerate(seqdb_entries)) {
                     if (entry_seq) {
                         for (const auto& clade: entry_seq.seq().clades()) {
                             try {
-                                const std::string fill = clade_fill.get_field<std::string>(clade);
+                                  // const std::string fill = clade_fill.get_field<std::string>(clade);
                                 aChartDraw.modify(ag_no, PointStyleEmpty().fill(fill).outline(BLACK), PointDrawingOrder::Raise);
                                 if (report)
                                     std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << ag_no << ' ' << aChartDraw.chart().antigen(static_cast<size_t>(ag_no)).full_name() << ' ' << clade << ' ' << fill << '\n';
                             }
-                            catch (rjson::object::field_not_found&) {
+                            catch (rjson::field_not_found&) {
                             }
                         }
                     }
                 }
-            }
+                  //}
         }
 
 }; // class Clades
@@ -158,7 +159,7 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
             name = ptr_obj->get_field<std::string>("N");
             args = ptr_obj;
         }
-        catch (rjson::object::field_not_found&) {
+        catch (rjson::field_not_found&) {
         }
     }
     else if (auto ptr_str = std::get_if<rjson::string>(&aMod)) {

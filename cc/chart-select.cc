@@ -29,8 +29,8 @@ int main(int argc, char* const argv[])
             });
         if (args["-h"] || args["--help"] || args.number_of_arguments() != 2) {
             const auto settings = default_settings();
-            const auto antigen_samples = "\nAntigen select samples:\n" + settings.get_field_value("?antigen_select_samples").to_json_pp();
-            const auto serum_samples = "\n\nSerum select samples:\n" + settings.get_field_value("?serum_select_samples").to_json_pp();
+            const auto antigen_samples = "\nAntigen select samples:\n" + settings["?antigen_select_samples"].to_json_pp();
+            const auto serum_samples = "\n\nSerum select samples:\n" + settings["?serum_select_samples"].to_json_pp();
             throw std::runtime_error("Usage: "s + args.program() + sUsage + args.usage_options() + antigen_samples + serum_samples);
         }
         const bool verbose = args["-v"] || args["--verbose"];

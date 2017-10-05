@@ -152,22 +152,25 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
         }
         else if (key == "vaccine" || key == "vaccines") {
             try {
-                const rjson::object& vaccine_data = value;
-                filter_vaccine(aChart, indices, VaccineMatchData{}.type(vaccine_data.get_field("type", ""s)).passage(vaccine_data.get_field("passage", ""s)).no(vaccine_data.get_field("no", 0U)).name(vaccine_data.get_field("name", ""s)));
+                filter_vaccine(aChart, indices, VaccineMatchData{}.type(value.get("type", ""s)).passage(value.get("passage", ""s)).no(value.get("no", 0U)).name(value.get("name", ""s)));
             }
             catch (std::bad_variant_access&) {
                 filter_vaccine(aChart, indices, {});
             }
         }
         else if (key == "in_rectangle") {
-            const auto& c1 = value.get_field<rjson::array>("c1");
-            const auto& c2 = value.get_field<rjson::array>("c2");
+            // const auto& c1 = value.get_field<rjson::array>("c1");
+            // const auto& c2 = value.get_field<rjson::array>("c2");
+            const auto& c1 = value["c1"];
+            const auto& c2 = value["c2"];
             const size_t projection_no = 0;
             filter_rectangle(aChart, indices, aChart.projection(projection_no), {c1[0], c1[1], c2[0], c2[1]});
         }
         else if (key == "in_circle") {
-            const auto& center = value.get_field<rjson::array>("center");
-            const auto radius = value.get_field_number("radius");
+            // const auto& center = value.get_field<rjson::array>("center");
+            // const auto radius = value.get_field_number("radius");
+            const auto& center = value["center"];
+            const double radius = value["radius"];
             const size_t projection_no = 0;
             filter_circle(aChart, indices, aChart.projection(projection_no), {center[0], center[1], radius});
         }
@@ -303,14 +306,16 @@ std::vector<size_t> SelectSera::command(const Chart& aChart, const rjson::object
             filter_full_name(aChart, indices, string::upper(value));
         }
         else if (key == "in_rectangle") {
-            const auto& c1 = value.get_field<rjson::array>("c1");
-            const auto& c2 = value.get_field<rjson::array>("c2");
+            const auto& c1 = value["c1"];
+            const auto& c2 = value["c2"];
             const size_t projection_no = 0;
             filter_rectangle(aChart, indices, aChart.projection(projection_no), {c1[0], c1[1], c2[0], c2[1]});
         }
         else if (key == "in_circle") {
-            const auto& center = value.get_field<rjson::array>("center");
-            const auto radius = value.get_field_number("radius");
+            // const auto& center = value.get_field<rjson::array>("center");
+            // const auto radius = value.get_field_number("radius");
+            const auto& center = value["center"];
+            const double radius = value["radius"];
             const size_t projection_no = 0;
             filter_circle(aChart, indices, aChart.projection(projection_no), {center[0], center[1], radius});
         }
