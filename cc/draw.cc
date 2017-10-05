@@ -64,8 +64,8 @@ ChartDraw::ChartDraw(Chart_Type& aChart, size_t aProjectionNo)
 
 void ChartDraw::prepare()
 {
-    modify(mChart.reference_antigen_indices(), PointStyleDraw(PointStyle::Empty).fill("transparent").size(Pixels{8}), Lower);
-    modify(mChart.serum_indices(), PointStyleDraw(PointStyle::Empty).shape(PointStyle::Shape::Box).fill("transparent").size(Pixels{8}), Lower);
+    modify(mChart.reference_antigen_indices(), PointStyleDraw(PointStyle::Empty).fill("transparent").size(Pixels{8}), PointDrawingOrder::Lower);
+    modify(mChart.serum_indices(), PointStyleDraw(PointStyle::Empty).shape(PointStyle::Shape::Box).fill("transparent").size(Pixels{8}), PointDrawingOrder::Lower);
 
 } // ChartDraw::prepare
 
@@ -166,9 +166,9 @@ void ChartDraw::mark_reassortant_antigens()
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::modify_all_sera(const PointStyle& aStyle, RaiseLower aRaiseLower)
+void ChartDraw::modify_all_sera(const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder)
 {
-    modify(mChart.serum_indices(), aStyle, aRaiseLower);
+    modify(mChart.serum_indices(), aStyle, aPointDrawingOrder);
 
 } // ChartDraw::modify_all_sera
 
