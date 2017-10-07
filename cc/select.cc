@@ -152,7 +152,12 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
         }
         else if (key == "vaccine" || key == "vaccines") {
             try {
-                filter_vaccine(aChart, indices, VaccineMatchData{}.type(value.get("type", ""s)).passage(value.get("passage", ""s)).no(value.get("no", 0U)).name(value.get("name", ""s)));
+                filter_vaccine(aChart, indices,
+                               VaccineMatchData{}
+                               .type(value.get_or_default("type", ""s))
+                               .passage(value.get_or_default("passage", ""s))
+                               .no(value.get_or_default("no", 0U))
+                               .name(value.get_or_default("name", ""s)));
             }
             catch (std::bad_variant_access&) {
                 filter_vaccine(aChart, indices, {});

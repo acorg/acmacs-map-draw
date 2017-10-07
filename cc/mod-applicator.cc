@@ -17,7 +17,7 @@ class Mod
     inline Mod(const rjson::object& aArgs) : mArgs{aArgs} {}
     virtual inline ~Mod() { /* std::cerr << "~Mod " << args() << '\n'; */ }
 
-    virtual void apply(ChartDraw& aChartDraw, const rjson::object& aModData) = 0;
+    virtual void apply(ChartDraw& aChartDraw, const rjson::value& aModData) = 0;
 
  protected:
     const rjson::object& args() const { return mArgs; }
@@ -89,7 +89,7 @@ class ModAntigens : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::object& /*aModData*/) override
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
         {
             std::cerr << "apply " << args() << '\n';
             const auto verbose = args().get_field("verbose", rjson::boolean{false});
@@ -111,7 +111,7 @@ class Clades : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::object& aModData) override
+    void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override
         {
             const auto& seqdb = seqdb::get(report_time::Yes);
             std::vector<seqdb::SeqdbEntrySeq> seqdb_entries;
@@ -120,23 +120,22 @@ class Clades : public Mod
             const bool report = args().get_field("report", false);
             const auto num_digits = static_cast<int>(std::log10(aChartDraw.chart().number_of_antigens())) + 1;
 
-              //if (const auto& clade_fill = aModData["clade_fill"]; !clade_fill.is_null()) {
-            const std::string fill = aModData.get("clade_fill", "pink");
-                for (auto [ag_no, entry_seq]: enumerate(seqdb_entries)) {
-                    if (entry_seq) {
-                        for (const auto& clade: entry_seq.seq().clades()) {
-                            try {
-                                  // const std::string fill = clade_fill.get_field<std::string>(clade);
-                                aChartDraw.modify(ag_no, PointStyleEmpty().fill(fill).outline(BLACK), PointDrawingOrder::Raise);
-                                if (report)
-                                    std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << ag_no << ' ' << aChartDraw.chart().antigen(static_cast<size_t>(ag_no)).full_name() << ' ' << clade << ' ' << fill << '\n';
-                            }
-                            catch (rjson::field_not_found&) {
-                            }
+            const std::string fill = aModData.get_or_default("clade_fill", "pink");
+            for (auto [ag_no, entry_seq]: enumerate(seqdb_entries)) {
+                if (entry_seq) {
+                    for (const auto& clade: entry_seq.seq().clades()) {
+                        try {
+                              // const std::string fill = clade_fill.get_field<std::string>(clade);
+                            aChartDraw.modify(ag_no, PointStyleEmpty().fill(fill).outline(BLACK), PointDrawingOrder::Raise);
+                            if (report)
+                                std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << ag_no << ' ' << aChartDraw.chart().antigen(static_cast<size_t>(ag_no)).full_name() << ' ' << clade << ' ' << fill << '\n';
+                        }
+                        catch (rjson::field_not_found&) {
                         }
                     }
                 }
-                  //}
+            }
+              //}
         }
 
 }; // class Clades
