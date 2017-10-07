@@ -37,9 +37,9 @@ PointStyle point_style_from_json(const rjson::object& aSource)
         else if (key == "outline")
             style.outline(value);
         else if (key == "show")
-            style.show(static_cast<rjson::boolean>(value) ? PointStyle::Shown::Shown : PointStyle::Shown::Hidden);
+            style.show(static_cast<const rjson::boolean&>(value) ? PointStyle::Shown::Shown : PointStyle::Shown::Hidden);
         else if (key == "hide")
-            style.show(static_cast<rjson::boolean>(value) ? PointStyle::Shown::Hidden : PointStyle::Shown::Shown);
+            style.show(static_cast<const rjson::boolean&>(value) ? PointStyle::Shown::Hidden : PointStyle::Shown::Shown);
         else if (key == "shape")
             style.shape(value);
         else if (key == "size")
