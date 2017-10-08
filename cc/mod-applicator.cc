@@ -172,11 +172,14 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     if (name == "clades") {
         result.emplace_back(new Clades(*args));
     }
-    else if (const auto& referenced_mod = aSettingsMods[name]; !referenced_mod.is_null()) {
+    else if (const auto& referenced_mod = aSettingsMods.get_or_empty_object(name); !referenced_mod.empty()) {
         for (const auto& submod_desc: static_cast<const rjson::array&>(referenced_mod)) {
             for (auto&& submod: factory(submod_desc, aSettingsMods))
                 result.push_back(std::move(submod));
         }
+    }
+    else {
+        throw unrecognized_mod{"unrecognized mod: "s + aMod.to_json()};
     }
     return result;
 

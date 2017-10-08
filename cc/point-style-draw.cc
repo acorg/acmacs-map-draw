@@ -60,16 +60,14 @@ PointStyle point_style_from_json(const rjson::object& aSource)
 PointDrawingOrder drawing_order_from_json(const rjson::object& aSource)
 {
     PointDrawingOrder result{PointDrawingOrder::NoChange};
-    if (const auto& f1 = aSource["raise_"]; !f1.is_null()) {
-        if (static_cast<bool>(f1))
-            result = PointDrawingOrder::Raise;
+    if (aSource.get_or_default("raise_", false)) {
+        result = PointDrawingOrder::Raise;
     }
-    else if (const auto& f2 = aSource["lower"]; !f2.is_null()) {
-        if (static_cast<bool>(f2))
-            result = PointDrawingOrder::Lower;
+    else if (aSource.get_or_default("lower", false)) {
+        result = PointDrawingOrder::Lower;
     }
-    else if (const auto& f3 = aSource["order"]; !f3.is_null()) {
-        const std::string order = f3;
+    else {
+        const std::string order = aSource.get_or_default("order", "");
         if (order == "raise")
             result = PointDrawingOrder::Raise;
         else if (order == "lower")
