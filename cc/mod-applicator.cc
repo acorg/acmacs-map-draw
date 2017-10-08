@@ -50,7 +50,7 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods);
 void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::object& aModData, bool aIgnoreUnrecognized)
 {
     for (const auto& mod_desc: aMods) {
-        if (const auto mods = factory(mod_desc, aModData.get_ref("mods", rjson::object{})); !mods.empty()) {
+        if (const auto mods = factory(mod_desc, aModData.get_or_default("mods", rjson::object{})); !mods.empty()) {
             for (const auto& mod: mods) {
                 mod->apply(aChartDraw, aModData);
             }
@@ -92,14 +92,14 @@ class ModAntigens : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
         {
             std::cerr << "apply " << args() << '\n';
-            const auto verbose = args().get_field("verbose", rjson::boolean{false});
-              // const auto report = args().get_field("report", rjson::boolean{false});
-            if (const auto& select_data = args()["select"]; !select_data.is_null()) {
-                const auto indices = SelectAntigens(verbose).select(aChartDraw.chart(), select_data);
+            const auto verbose = args().get_or_default("verbose", false);
+            try {
+                const auto indices = SelectAntigens(verbose).select(aChartDraw.chart(), args()["select"]);
                 aChartDraw.modify(indices.begin(), indices.end(), style(), drawing_order());
             }
-            else
-                throw unrecognized_mod{"no \"select\" in \"antigens\" mod: " /* + args().to_json() */};
+            catch (rjson::field_not_found&) {
+                throw unrecognized_mod{"no \"select\" in \"antigens\" mod: " + args().to_json() };
+            }
         }
 
 }; // class ModAntigens
@@ -117,7 +117,7 @@ class Clades : public Mod
             std::vector<seqdb::SeqdbEntrySeq> seqdb_entries;
             seqdb.match(aChartDraw.chart().antigens(), seqdb_entries, true);
 
-            const bool report = args().get_field("report", false);
+            const bool report = args().get_or_default("report", false);
             const auto num_digits = static_cast<int>(std::log10(aChartDraw.chart().number_of_antigens())) + 1;
 
             const std::string fill = aModData.get_or_default("clade_fill", "pink");
@@ -154,12 +154,8 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     std::string name;
     const rjson::object* args = &empty_args;
     if (auto ptr_obj = std::get_if<rjson::object>(&aMod)) {
-        try {
-            name = ptr_obj->get_field<std::string>("N");
-            args = ptr_obj;
-        }
-        catch (rjson::field_not_found&) {
-        }
+        name = ptr_obj->get_or_default("N", "");
+        args = ptr_obj;
     }
     else if (auto ptr_str = std::get_if<rjson::string>(&aMod)) {
         name = *ptr_str;
