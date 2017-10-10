@@ -24,6 +24,7 @@ int main(int argc, char* const argv[])
                 {"--help", false},
                 {"-s", ""},
                 {"--settings", ""},
+                {"--init-settings", ""},
                 {"--projection", 0L},
                 {"--seqdb", ""},
                 {"--hidb-dir", ""},
@@ -50,6 +51,10 @@ int main(int argc, char* const argv[])
         chart_draw.calculate_viewport();
         const auto temp_file = acmacs_base::TempFile(".pdf");
         chart_draw.draw(temp_file, 800, report_time::Yes);
+
+        if (const std::string save_settings = args["--init-settings"]; !save_settings.empty())
+            acmacs_base::write_file(save_settings, settings.to_json_pp());
+
         acmacs::quicklook(temp_file, 2);
         return 0;
     }
