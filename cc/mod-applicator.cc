@@ -169,7 +169,7 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     if (name == "antigens") {
         result.emplace_back(new ModAntigens(*args));
     }
-    if (name == "clades") {
+    else if (name == "clades") {
         result.emplace_back(new Clades(*args));
     }
     else if (const auto& referenced_mod = aSettingsMods.get_or_empty_object(name); !referenced_mod.empty()) {
