@@ -24,12 +24,14 @@ rjson::value settings_default()
 // ----------------------------------------------------------------------
 
 static const char* const SETTINGS_BUILTIN_MODS = R"(
+{
   "mods": {
     "all_grey": [
       {"N": "antigens", "select": "test", "outline": "black", "fill": "red"},
       {"N": "antigens", "select": "reference", "outline": "red", "fill": "transparent"}
     ]
-  },
+  }
+}
 )";
 
 rjson::value settings_builtin_mods()

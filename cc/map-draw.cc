@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 using namespace std::string_literals;
 
@@ -63,15 +64,37 @@ int draw(const argc_argv& args)
     ChartDraw chart_draw(*chart, args["--projection"]);
     chart_draw.prepare();
 
-    if (args["--init-settings"])
-        std::cerr << settings << '\n';
+    if (args["--init-settings"]) {
+        auto write_settings = [&settings](std::ostream& out) { out << settings.to_json_pp() << '\n'; };
+        if (args["--init-settings"] == "-") {
+            write_settings(std::cout);
+        }
+        else {
+            std::ofstream out(args["--init-settings"]);
+            write_settings(out);
+        }
+    }
 
     settings.update(settings_builtin_mods());
 
+    auto load_settings = [&settings](std::string aFilename) { settings.update(rjson::parse_file(aFilename)); };
+    if (args["-s"])
+        load_settings(args["-s"]);
+    if (args["--settings"])
+        load_settings(args["--settings"]);
+    std::cout << settings.to_json_pp() << '\n';
+
+    try {
+        apply_mods(chart_draw, settings["apply"], settings);
+    }
+    catch (rjson::field_not_found& err) {
+        throw std::runtime_error{std::string{"No \""} + err.what() + "\" in the settings:\n\n" + settings.to_json_pp(2, rjson::json_pp_emacs_indent::no) + "\n\n"};
+    }
+
       // auto mods = rjson::parse_string(R"(["all_grey", {"N": "clades", "seqdb_file": "/Users/eu/AD/data/seqdb.json.xz", "report": false}])");
       // auto mods = rjson::parse_string(R"([{"N": "clades", "seqdb_file": "/Users/eu/AD/data/seqdb.json.xz", "report": false}])");
-    auto mods = rjson::parse_string(R"(["all_red"])");
-    apply_mods(chart_draw, mods, settings);
+    // auto mods = rjson::parse_string(R"(["all_red"])");
+    // apply_mods(chart_draw, mods, settings);
 
     chart_draw.calculate_viewport();
     const auto temp_file = acmacs_base::TempFile(".pdf");
