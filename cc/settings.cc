@@ -77,6 +77,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
  "report": false}
 
 "all_grey"
+"vaccines"
 
 // flip
 //   value: [0, 1]
@@ -86,6 +87,8 @@ static const char* const SETTINGS_HELP_MODS = R"(
 // rotate_radians angle:
 // viewport value:
 // use_chart_plot_spec
+// --> export ace with new plot spec
+// --> export lispmds with new plot spec
 // point_scale
 // {"N": "background", "color": "white"},
 // {"N": "grid", "color": "grey80", "line_width": 1},
@@ -95,7 +98,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
 //
 // antigens
 //   show
-//   size, shape, fill, outline, outline_width, aspect, rotation, raise_ (order: raise, lower, no-change), report, report_names_threshold
+//   report, report_names_threshold
 //   label: name_type, offset, display_name, color, size, weight, slant, font_family
 // {"N": "aa_substitutions", "positions": [159], "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
 // {"N": "aa_substitution_groups", "groups": [{"pos_aa": ["121K", "144K"], "color": "cornflowerblue"}]},
