@@ -59,7 +59,7 @@ class Vaccines
 
     }; // class Entry
 
-    Vaccines(const Chart& aChart);
+    Vaccines(const Chart& aChart, bool aVerbose = false);
 
     inline std::string report_all(size_t aIndent) const { return mVaccinesOfChart.report(aIndent); }
     std::string report(size_t aIndent) const;

@@ -82,7 +82,7 @@ int draw(const argc_argv& args)
         load_settings(args["-s"]);
     if (args["--settings"])
         load_settings(args["--settings"]);
-    std::cout << settings.to_json_pp() << '\n';
+    // std::cout << settings.to_json_pp() << '\n';
 
     try {
         apply_mods(chart_draw, settings["apply"], settings);

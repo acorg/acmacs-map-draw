@@ -5,7 +5,9 @@
 static const char* const SETTINGS_DEFAULT = R"(
 {
   "apply": [
-    "all_grey"
+    "all_grey",
+    "egg",
+    "vaccines"
   ]
 }
 )";
@@ -30,6 +32,13 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": "test", "outline": "grey80", "fill": "grey80"},
       {"N": "antigens", "select": "reference", "outline": "grey80", "fill": "transparent"},
       {"N": "sera", "select": "all", "outline": "grey80", "fill": "transparent"}
+    ],
+    "egg": [
+      {"N": "antigens", "select": {"passage": "egg"}, "aspect": 0.75},
+      {"N": "antigens", "select": {"passage": "reassortant"}, "aspect": 0.75, "rotation": 0.5}
+    ],
+    "vaccines": [
+      {"N": "antigens", "select": "vaccine", "report": true, "outline": "black", "fill": "blue", "size": 15, "order": "raise"}
     ]
   }
 }
@@ -53,14 +62,58 @@ static const char* const SETTINGS_HELP_MODS = R"(
  "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
  "size": 1.0, "outline_width": 1.0,
  "show": true, "shape": "circle|box|triangle",
- "report": false},
+ "order": "raise|lower",
+ "report": false}
 
 {"N": "sera", "select": {<select>},
  "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
  "size": 1.0, "outline_width": 1.0,
  "show": true, "shape": "circle|box|triangle",
- "report": false},
+ "order": "raise|lower",
+ "report": false}
 
+"all_grey"
+
+// flip
+//   value: [0, 1]
+//   ew
+//   ns
+// rotate_degrees angle:
+// rotate_radians angle:
+// viewport value:
+// use_chart_plot_spec
+// point_scale
+// {"N": "background", "color": "white"},
+// {"N": "grid", "color": "grey80", "line_width": 1},
+// {"N": "border", "color": "black", "line_width": 1},
+// title size: background: border_color: border_width: display_name: []
+// legend data:[{"label": {<label-data>} "display_name": "163-del", "outline": "black", "fill": "#03569b"}] "offset": [-10, -10], "show": True, "size": 50, "label_size": 8, "point_size": 5
+//
+// antigens
+//   show
+//   size, shape, fill, outline, outline_width, aspect, rotation, raise_ (order: raise, lower, no-change), report, report_names_threshold
+//   label: name_type, offset, display_name, color, size, weight, slant, font_family
+// {"N": "aa_substitutions", "positions": [159], "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
+// {"N": "aa_substitution_groups", "groups": [{"pos_aa": ["121K", "144K"], "color": "cornflowerblue"}]},
+//
+// sera
+//   size, shape, fill, outline, outline_width, aspect, rotation, raise_ (order: raise, lower, no-change), report, report_names_threshold
+//   label: name_type, offset, display_name, color, size, weight, slant, font_family
+//   serum_circle
+//   serum_coverage
+//
+//  arrow
+//  line
+//  rectangle corner1: corner2:
+//  circle  center: radius: aspect: rotation:
+//
+// Application
+//  lab
+//  labs
+//  lineage
+//
+// Derived:
+//  continents
 
 )";
 

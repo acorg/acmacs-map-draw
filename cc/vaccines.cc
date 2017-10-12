@@ -15,8 +15,8 @@ static inline PointStyle& point_style_for(PointStyle&& aStyle, hidb::Vaccines::P
     return aStyle;
 }
 
-Vaccines::Vaccines(const Chart& aChart)
-    : mVaccinesOfChart{hidb::vaccines(aChart)}
+Vaccines::Vaccines(const Chart& aChart, bool aVerbose)
+    : mVaccinesOfChart{hidb::vaccines(aChart, aVerbose)}
 {
     for (size_t vaccines_of_chart_index = 0; vaccines_of_chart_index < mVaccinesOfChart.size(); ++vaccines_of_chart_index) {
         auto update = [&](hidb::Vaccines::PassageType pt) {

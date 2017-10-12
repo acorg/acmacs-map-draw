@@ -253,7 +253,7 @@ void SelectAntigens::filter_vaccine(const Chart& aChart, std::vector<size_t>& in
 {
     const auto virus_type = aChart.chart_info().virus_type();
     if (!virus_type.empty()) {
-        Vaccines vaccines(aChart);
+        Vaccines vaccines(aChart, verbose());
         if (verbose())
             std::cerr << vaccines.report(2) << '\n';
         auto vaccine_indices = vaccines.indices(aMatchData);
