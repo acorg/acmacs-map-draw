@@ -2,62 +2,140 @@
 
 // ----------------------------------------------------------------------
 
-static const char* const DEFAULT_SETTINGS_JSON = R"(
+static const char* const SETTINGS_DEFAULT = R"(
 {
+  "apply": [
+    "all_grey"
+  ]
+}
+)";
+
+rjson::value settings_default()
+{
+    try {
+        return rjson::parse_string(SETTINGS_DEFAULT, rjson::remove_comments::No);
+    }
+    catch (std::exception& err) {
+        std::cerr << "ERROR: parsing SETTINGS_DEFAULT: " << err.what() << '\n';
+        throw;
+    }
+}
+
+// ----------------------------------------------------------------------
+
+static const char* const SETTINGS_BUILTIN_MODS = R"(
   "mods": {
-    "all_red": [
+    "all_grey": [
       {"N": "antigens", "select": "test", "outline": "black", "fill": "red"},
       {"N": "antigens", "select": "reference", "outline": "red", "fill": "transparent"}
     ]
   },
-  "?antigen_select_samples": [
-    "all",
-    "reference",
-    "test",
-    "egg", "cell", "reassortant", {"passage": "egg"}, {"passage": "cell"}, {"passage": "reassortant"},
-    {"date_range": ["2016-01-01", "2016-09-01"]}, {"date_range": ["", "2016-09-01"]}, {"date_range": ["2016-01-01", ""]}, {"older_than_days": 365}, {"younger_than_days": 365},
-    {"index": 11}, {"indices": [55, 66]},
-    {"country": "sweden"}, {"continent": "europe"},
-    "sequenced", "not_sequenced", {"clade": "3C3a"},
-    {"name": "SWITZERLAND/9715293/2013"}, {"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"},
-    {"full_name": "A(H1N1)/MICHIGAN/2/2009 MDCK1"},
-    "vaccine", {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}},
-    {"in_rectangle": {"c1": [0.0, 0.0], "c2": [1.0, 1.0]}}, {"in_circle": {"center": [2.0, 2.0], "radius": 5.0}}
-  ],
-  "?serum_select_samples": [
-    "all",
-    {"serum_id": "CDC 2016-003"},
-    {"index": 11}, {"indices": [55, 66]},
-    {"country": "sweden"}, {"continent": "europe"},
-    {"name": "SWITZERLAND/9715293/2013"},
-    {"full_name": "A(H1N1)/MICHIGAN/2/2009 CDC 2015-121"},
-    {"in_rectangle": {"c1": [0.0, 0.0], "c2": [1.0, 1.0]}}, {"in_circle": {"center": [2.0, 2.0], "radius": 5.0}}
-  ],
-  "clade_fill": {
-    "?": "H3",
-    "3C3": "cornflowerblue",
-    "3C2a": "red",
-    "3C2a1": "darkred",
-    "3C3a": "green",
-    "3C3b": "blue",
-
-    "?": "H1pdm",
-    "6B1": "blue",
-    "6B2": "red",
-
-    "?": "B/Yam",
-    "Y2": "cornflowerblue",
-    "Y3": "red",
-
-    "?": "B/Vic",
-    "1": "blue",
-    "1A": "cornflowerblue",
-    "1B": "red",
-    "DEL2017": "#000080",
-    "TRIPLEDEL2017": "#46f0f0"
-  }
-}
 )";
+
+rjson::value settings_builtin_mods()
+{
+    try {
+        return rjson::parse_string(SETTINGS_BUILTIN_MODS, rjson::remove_comments::No);
+    }
+    catch (std::exception& err) {
+        std::cerr << "ERROR: parsing SETTINGS_BUILTIN_MODS: " << err.what() << '\n';
+        throw;
+    }
+}
+
+// ----------------------------------------------------------------------
+
+static const char* const SETTINGS_HELP_MODS = R"(
+{"N": "antigens", "select": {<select>},
+ "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
+ "size": 1.0, "outline_width": 1.0,
+ "show": true, "shape": "circle|box|triangle"},
+
+{"N": "sera", "select": {<select>},
+ "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
+ "size": 1.0, "outline_width": 1.0,
+ "show": true, "shape": "circle|box|triangle"},
+
+
+)";
+
+const char* settings_help_mods()
+{
+    return SETTINGS_HELP_MODS;
+}
+
+// ----------------------------------------------------------------------
+
+static const char* const SETTINGS_HELP_SELECT = R"(
+Antigens:
+---------
+"all",
+"reference",
+"test",
+"egg", "cell", "reassortant",
+  {"passage": "egg"}, {"passage": "cell"}, {"passage": "reassortant"},
+{"date_range": ["2016-01-01", "2016-09-01"]},
+  {"date_range": ["", "2016-09-01"]}, {"date_range": ["2016-01-01", ""]},
+  {"older_than_days": 365}, {"younger_than_days": 365},
+{"index": 11}, {"indices": [55, 66]},
+{"country": "sweden"}, {"continent": "europe"},
+"sequenced", "not_sequenced", {"clade": "3C3a"},
+{"name": "SWITZERLAND/9715293/2013"}, {"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"},
+{"full_name": "A(H1N1)/MICHIGAN/2/2009 MDCK1"},
+"vaccine", {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}},
+{"in_rectangle": {"c1": [0.0, 0.0], "c2": [1.0, 1.0]}}, {"in_circle": {"center": [2.0, 2.0], "radius": 5.0}}
+
+Sera:
+-----
+"all",
+{"serum_id": "CDC 2016-003"},
+{"index": 11}, {"indices": [55, 66]},
+{"country": "sweden"}, {"continent": "europe"},
+{"name": "SWITZERLAND/9715293/2013"},
+{"full_name": "A(H1N1)/MICHIGAN/2/2009 CDC 2015-121"},
+
+
+)";
+
+const char* settings_help_select()
+{
+    return SETTINGS_HELP_SELECT;
+}
+
+// ----------------------------------------------------------------------
+
+// static const char* const DEFAULT_SETTINGS_JSON =
+// {
+//   "mods": {
+//     "all_red": [
+//       {"N": "antigens", "select": "test", "outline": "black", "fill": "red"},
+//       {"N": "antigens", "select": "reference", "outline": "red", "fill": "transparent"}
+//     ]
+//   },
+//   "clade_fill": {
+//     "?": "H3",
+//     "3C3": "cornflowerblue",
+//     "3C2a": "red",
+//     "3C2a1": "darkred",
+//     "3C3a": "green",
+//     "3C3b": "blue",
+
+//     "?": "H1pdm",
+//     "6B1": "blue",
+//     "6B2": "red",
+
+//     "?": "B/Yam",
+//     "Y2": "cornflowerblue",
+//     "Y3": "red",
+
+//     "?": "B/Vic",
+//     "1": "blue",
+//     "1A": "cornflowerblue",
+//     "1B": "red",
+//     "DEL2017": "#000080",
+//     "TRIPLEDEL2017": "#46f0f0"
+//   }
+// }
 
 // ----------------------------------------------------------------------
 
@@ -105,16 +183,6 @@ static const char* const DEFAULT_SETTINGS_JSON = R"(
 
 // ----------------------------------------------------------------------
 
-rjson::value default_settings()
-{
-    try {
-        return rjson::parse_string(DEFAULT_SETTINGS_JSON, rjson::remove_comments::No);
-    }
-    catch (std::exception& err) {
-        std::cerr << "ERROR: parsing DEFAULT_SETTINGS_JSON: " << err.what() << '\n';
-        throw;
-    }
-}
 
 // ----------------------------------------------------------------------
 /// Local Variables:

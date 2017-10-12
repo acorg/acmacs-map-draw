@@ -14,14 +14,17 @@ using namespace std::string_literals;
 
 // ----------------------------------------------------------------------
 
-constexpr const char* sUsage = " [options] <chart.ace> [<map.pdf>]\n";
+static int draw(const argc_argv& args);
 
 int main(int argc, char* const argv[])
 {
+    int exit_code = 1;
     try {
         argc_argv args(argc, argv, {
                 {"-h", false},
                 {"--help", false},
+                {"--help-mods", false},
+                {"--help-select", false},
                 {"-s", ""},
                 {"--settings", ""},
                 {"--init-settings", ""},
@@ -31,38 +34,59 @@ int main(int argc, char* const argv[])
                 {"--locdb", ""},
                 {"-v", false},
                 {"--verbose", false},
-            });
-        if (args["-h"] || args["--help"] || args.number_of_arguments() < 1 || args.number_of_arguments() > 2) {
-            throw std::runtime_error("Usage: "s + args.program() + sUsage + args.usage_options());
-        }
-        const bool verbose = args["-v"] || args["--verbose"];
-
-        auto settings = default_settings();
-        std::unique_ptr<Chart> chart{import_chart(args[0], verbose ? report_time::Yes : report_time::No)};
-
-        ChartDraw chart_draw(*chart, args["--projection"]);
-        chart_draw.prepare();
-
-          // auto mods = rjson::parse_string(R"(["all_grey", {"N": "clades", "seqdb_file": "/Users/eu/AD/data/seqdb.json.xz", "report": false}])");
-          // auto mods = rjson::parse_string(R"([{"N": "clades", "seqdb_file": "/Users/eu/AD/data/seqdb.json.xz", "report": false}])");
-        auto mods = rjson::parse_string(R"(["all_red"])");
-        apply_mods(chart_draw, mods, settings);
-
-        chart_draw.calculate_viewport();
-        const auto temp_file = acmacs_base::TempFile(".pdf");
-        chart_draw.draw(temp_file, 800, report_time::Yes);
-
-        if (const std::string save_settings = args["--init-settings"]; !save_settings.empty())
-            acmacs_base::write_file(save_settings, settings.to_json_pp());
-
-        acmacs::quicklook(temp_file, 2);
-        return 0;
+        });
+        if (args["--help-mods"])
+            std::cerr << settings_help_mods();
+        else if (args["--help-select"])
+            std::cerr << settings_help_select();
+        else if (args["-h"] || args["--help"] || args.number_of_arguments() < 1 || args.number_of_arguments() > 2)
+            std::cerr << "Usage: " << args.program() << " [options] <chart.ace> [<map.pdf>]\n" << args.usage_options() << '\n';
+        else
+            exit_code = draw(args);
     }
     catch (std::exception& err) {
         std::cerr << "ERROR: " << err.what() << '\n';
-        return 1;
+        exit_code = 2;
     }
+    return exit_code;
 }
+
+// ----------------------------------------------------------------------
+
+int draw(const argc_argv& args)
+{
+    const bool verbose = args["-v"] || args["--verbose"];
+
+    auto settings = settings_default();
+    std::unique_ptr<Chart> chart{import_chart(args[0], verbose ? report_time::Yes : report_time::No)};
+
+    ChartDraw chart_draw(*chart, args["--projection"]);
+    chart_draw.prepare();
+
+    if (args["--init-settings"])
+        std::cerr << settings << '\n';
+
+    settings.update(settings_builtin_mods());
+
+      // auto mods = rjson::parse_string(R"(["all_grey", {"N": "clades", "seqdb_file": "/Users/eu/AD/data/seqdb.json.xz", "report": false}])");
+      // auto mods = rjson::parse_string(R"([{"N": "clades", "seqdb_file": "/Users/eu/AD/data/seqdb.json.xz", "report": false}])");
+    auto mods = rjson::parse_string(R"(["all_red"])");
+    apply_mods(chart_draw, mods, settings);
+
+    chart_draw.calculate_viewport();
+    const auto temp_file = acmacs_base::TempFile(".pdf");
+    chart_draw.draw(temp_file, 800, report_time::Yes);
+
+    if (const std::string save_settings = args["--init-settings"]; !save_settings.empty())
+        acmacs_base::write_file(save_settings, settings.to_json_pp());
+
+    acmacs::quicklook(temp_file, 2);
+    return 0;
+
+} // draw
+
+// ----------------------------------------------------------------------
+
 
 // ----------------------------------------------------------------------
 /// Local Variables:
