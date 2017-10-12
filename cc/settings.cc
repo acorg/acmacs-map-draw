@@ -38,7 +38,11 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": {"passage": "reassortant"}, "aspect": 0.75, "rotation": 0.5}
     ],
     "vaccines": [
-      {"N": "antigens", "select": "vaccine", "report": true, "outline": "black", "fill": "blue", "size": 15, "order": "raise"}
+      {"N": "antigens", "select": {"vaccine": {"type": "previous"}}, "report": true, "outline": "black", "fill": "blue", "size": 15, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "cell"}}, "report": true, "outline": "black", "fill": "red", "size": 15, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "egg"}}, "report": true, "outline": "black", "fill": "red", "size": 15, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "reassortant"}}, "report": true, "outline": "black", "fill": "green", "size": 15, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "surrogate"}}, "report": true, "outline": "black", "fill": "pink", "size": 15, "order": "raise"}
     ]
   }
 }
