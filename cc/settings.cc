@@ -52,12 +52,14 @@ static const char* const SETTINGS_HELP_MODS = R"(
 {"N": "antigens", "select": {<select>},
  "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
  "size": 1.0, "outline_width": 1.0,
- "show": true, "shape": "circle|box|triangle"},
+ "show": true, "shape": "circle|box|triangle",
+ "report": false},
 
 {"N": "sera", "select": {<select>},
  "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
  "size": 1.0, "outline_width": 1.0,
- "show": true, "shape": "circle|box|triangle"},
+ "show": true, "shape": "circle|box|triangle",
+ "report": false},
 
 
 )";

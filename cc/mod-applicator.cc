@@ -92,8 +92,8 @@ class ModAntigens : public Mod
 
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
         {
-            std::cerr << "apply " << args() << '\n';
-            const auto verbose = args().get_or_default("verbose", false);
+            // std::cerr << "apply " << args() << '\n';
+            const auto verbose = args().get_or_default("verbose", false) || args().get_or_default("report", false);
             try {
                 const auto indices = SelectAntigens(verbose).select(aChartDraw.chart(), args()["select"]);
                 aChartDraw.modify(indices.begin(), indices.end(), style(), drawing_order());
@@ -104,6 +104,28 @@ class ModAntigens : public Mod
         }
 
 }; // class ModAntigens
+
+// ----------------------------------------------------------------------
+
+class ModSera : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            // std::cerr << "apply " << args() << '\n';
+            const auto verbose = args().get_or_default("verbose", false) || args().get_or_default("report", false);
+            try {
+                const auto indices = SelectSera(verbose).select(aChartDraw.chart(), args()["select"]);
+                aChartDraw.modify_sera(indices.begin(), indices.end(), style(), drawing_order());
+            }
+            catch (rjson::field_not_found&) {
+                throw unrecognized_mod{"no \"select\" in \"sera\" mod: " + args().to_json() };
+            }
+        }
+
+}; // class ModSera
 
 // ----------------------------------------------------------------------
 
@@ -175,6 +197,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
 
     if (name == "antigens") {
         result.emplace_back(new ModAntigens(*args));
+    }
+    else if (name == "sera") {
+        result.emplace_back(new ModSera(*args));
     }
     else if (name == "clades") {
         result.emplace_back(new Clades(*args));

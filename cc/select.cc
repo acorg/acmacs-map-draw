@@ -183,6 +183,9 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }
     }
+    if (verbose())
+        std::cerr << "Antigens selected: " << indices.size() << '\n';
+
     return indices;
 
 } // SelectAntigens::command
@@ -328,6 +331,8 @@ std::vector<size_t> SelectSera::command(const Chart& aChart, const rjson::object
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }
     }
+    if (verbose())
+        std::cerr << "Sera selected: " << indices.size() << '\n';
     return indices;
 
 } // SelectSera::command
