@@ -164,24 +164,34 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
 
     Mods result;
 
-    // if (name == "all_grey" || name == "all-grey")
-    //     return std::make_unique<AllGrey>();
-    // else
+    auto get_referenced_mod = [&aSettingsMods](std::string aName) -> const rjson::array& {
+        try {
+            return aSettingsMods.get_or_empty_array(aName);
+        }
+        catch (std::bad_variant_access&) {
+            throw unrecognized_mod{"[\"mods\"][\"" + aName + "\"] is not an array:\n\n" + aSettingsMods.to_json_pp(2, rjson::json_pp_emacs_indent::no) + "\n\n"};
+        }
+    };
+
     if (name == "antigens") {
         result.emplace_back(new ModAntigens(*args));
     }
     else if (name == "clades") {
         result.emplace_back(new Clades(*args));
     }
-    else if (const auto& referenced_mod = aSettingsMods.get_or_empty_object(name); !referenced_mod.empty()) {
-        for (const auto& submod_desc: static_cast<const rjson::array&>(referenced_mod)) {
+    else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
+        for (const auto& submod_desc: referenced_mod) {
             for (auto&& submod: factory(submod_desc, aSettingsMods))
                 result.push_back(std::move(submod));
         }
     }
+    else if (name.empty()) {
+        std::cerr << "WARNING: mod ignored (no \"N\"): " << *args << '\n';
+    }
     else {
         throw unrecognized_mod{"unrecognized mod: "s + aMod.to_json()};
     }
+
     return result;
 
 } // factory

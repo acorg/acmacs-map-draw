@@ -27,8 +27,9 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
 {
   "mods": {
     "all_grey": [
-      {"N": "antigens", "select": "test", "outline": "black", "fill": "red"},
-      {"N": "antigens", "select": "reference", "outline": "red", "fill": "transparent"}
+      {"N": "antigens", "select": "test", "outline": "grey80", "fill": "grey80"},
+      {"N": "antigens", "select": "reference", "outline": "grey80", "fill": "transparent"},
+      {"N": "sera", "select": "all", "outline": "grey80", "fill": "transparent"}
     ]
   }
 }
