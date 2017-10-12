@@ -49,8 +49,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods);
 
 void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::object& aModData, bool aIgnoreUnrecognized)
 {
+    const auto& mods_data_mod = aModData.get_or_empty_object("mods");
     for (const auto& mod_desc: aMods) {
-        if (const auto mods = factory(mod_desc, aModData.get_or_default("mods", rjson::object{})); !mods.empty()) {
+        if (const auto mods = factory(mod_desc, mods_data_mod); !mods.empty()) {
             for (const auto& mod: mods) {
                 mod->apply(aChartDraw, aModData);
             }
