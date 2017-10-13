@@ -40,7 +40,7 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
     "vaccines": [
       {"N": "antigens", "select": {"vaccine": {"type": "previous"}}, "report": true, "outline": "black", "fill": "blue", "size": 15, "order": "raise"},
       {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "cell"}}, "label": {}, "report": true, "outline": "black", "fill": "red", "size": 15, "order": "raise"},
-      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "egg"}}, "label": {"display_name": "VWVIiV", "color": "red", "size": 30, "offset": [0, -1], "weight": "bold", "font_family":"monospace"}, "report": true, "outline": "black", "fill": "red", "size": 15, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "egg"}}, "label": {"name_type": "abbreviated_with_passage_type", "color": "red", "size": 30}, "report": true, "outline": "black", "fill": "red", "size": 15, "order": "raise"},
       {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "reassortant"}}, "label": {}, "report": true, "outline": "black", "fill": "green", "size": 15, "order": "raise"},
       {"N": "antigens", "select": {"vaccine": {"type": "surrogate"}}, "report": true, "outline": "black", "fill": "pink", "size": 15, "order": "raise"}
     ]
@@ -67,9 +67,11 @@ static const char* const SETTINGS_HELP_MODS = R"(
  "size": 1.0, "outline_width": 1.0,
  "show": true, "shape": "circle|box|triangle",
  "order": "raise|lower",
- "label": {"show": true, "display_name": "NAME", "color": "black",
-           "size": 12.0, "offset": [0, 1], "weight": "bold",
-           "slant": "italic", "font_family": "monospace"},
+ "label": {"show": true,
+           "display_name": "NAME",
+           "name_type": "full|abbreviated|abbreviated_with_passage_type",
+           "color": "black", "size": 12.0, "offset": [0, 1],
+           "weight": "bold", "slant": "italic", "font_family": "monospace"},
  "report": false}
 
 {"N": "sera", "select": {<select>},
@@ -77,6 +79,11 @@ static const char* const SETTINGS_HELP_MODS = R"(
  "size": 1.0, "outline_width": 1.0,
  "show": true, "shape": "circle|box|triangle",
  "order": "raise|lower",
+ "label": {"show": true,
+           "display_name": "NAME",
+           "name_type": "full|abbreviated|abbreviated_with_passage_type",
+           "color": "black", "size": 12.0, "offset": [0, 1],
+           "weight": "bold", "slant": "italic", "font_family": "monospace"},
  "report": false}
 
 "all_grey"
@@ -104,13 +111,11 @@ static const char* const SETTINGS_HELP_MODS = R"(
 // antigens
 //   show
 //   report, report_names_threshold
-//   label: name_type, offset, display_name, color, size, weight, slant, font_family
 // {"N": "aa_substitutions", "positions": [159], "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
 // {"N": "aa_substitution_groups", "groups": [{"pos_aa": ["121K", "144K"], "color": "cornflowerblue"}]},
 //
 // sera
 //   size, shape, fill, outline, outline_width, aspect, rotation, raise_ (order: raise, lower, no-change), report, report_names_threshold
-//   label: name_type, offset, display_name, color, size, weight, slant, font_family
 //   serum_circle
 //   serum_coverage
 //

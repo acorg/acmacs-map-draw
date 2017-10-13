@@ -49,7 +49,6 @@ void Mod::add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices,
     if (aLabelData.get_or_default("show", true)) {
         for (auto index: aIndices) {
             auto& label = aChartDraw.add_label(index + aBaseIndex);
-            try { label.display_name(aLabelData["display_name"]); } catch (rjson::field_not_found&) {}
             try { label.color(static_cast<std::string>(aLabelData["color"])); } catch (rjson::field_not_found&) {}
             try { label.size(aLabelData["size"]); } catch (rjson::field_not_found&) {}
             try { label.weight(aLabelData["weight"]); } catch (rjson::field_not_found&) {}
@@ -62,7 +61,44 @@ void Mod::add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices,
             }
             catch (std::exception&) {
             }
+
+            try {
+                label.display_name(aLabelData["display_name"]);
+            }
+            catch (rjson::field_not_found&) {
+                try {
+                    const std::string name_type = aLabelData["name_type"];
+                    if (aBaseIndex == 0) { // antigen
+                        if (name_type == "abbreviated")
+                            label.display_name(aChartDraw.chart().antigen(index).abbreviated_name());
+                        else if (name_type == "abbreviated_with_passage_type")
+                            label.display_name(aChartDraw.chart().antigen(index).abbreviated_name_with_passage_type());
+                        else {
+                            if (name_type != "full")
+                                std::cerr << "WARNING: unrecognized \"name_type\" for label for antigen " << index << '\n';
+                            label.display_name(aChartDraw.chart().antigen(index).full_name());
+                        }
+                    }
+                    else {      // serum
+                        if (name_type == "abbreviated")
+                            label.display_name(aChartDraw.chart().serum(index).abbreviated_name());
+                        else if (name_type == "abbreviated_with_passage_type")
+                            label.display_name(aChartDraw.chart().serum(index).abbreviated_name_with_passage_type());
+                        else {
+                            if (name_type != "full")
+                                std::cerr << "WARNING: unrecognized \"name_type\" for label for serum " << index << '\n';
+                            label.display_name(aChartDraw.chart().serum(index).full_name());
+                        }
+                    }
+                }
+                catch (rjson::field_not_found&) {
+                }
+            }
         }
+    }
+    else {
+        for (auto index: aIndices)
+            aChartDraw.remove_label(index);
     }
 
 } // Mod::add_labels
