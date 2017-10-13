@@ -7,6 +7,7 @@ static const char* const SETTINGS_DEFAULT = R"(
   "apply": [
     "all_grey",
     "egg",
+    "clades",
     "vaccines"
   ]
 }
@@ -33,16 +34,35 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": "reference", "outline": "grey80", "fill": "transparent"},
       {"N": "sera", "select": "all", "outline": "grey80", "fill": "transparent"}
     ],
+    "clades": [
+      {"N": "antigens", "select": {"clade": "3C3"}, "outline": "black", "fill": "cornflowerblue", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "3C3a"}, "outline": "black", "fill": "green", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "3C3b"}, "outline": "black", "fill": "blue", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "3C2a"}, "outline": "black", "fill": "red", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "3C2a1"}, "outline": "black", "fill": "darkred", "order": "raise", "report": true},
+
+      {"N": "antigens", "select": {"clade": "6B1"}, "outline": "black", "fill": "blue", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "6B2"}, "outline": "black", "fill": "red", "order": "raise", "report": true},
+
+      {"N": "antigens", "select": {"clade": "1"}, "outline": "black", "fill": "blue", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "1A"}, "outline": "black", "fill": "cornflowerblue", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "1B"}, "outline": "black", "fill": "red", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "DEL2017"}, "outline": "black", "fill": "#DE8244", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017"}, "outline": "black", "fill": "#BF3EFF", "order": "raise", "report": true},
+
+      {"N": "antigens", "select": {"clade": "Y2"}, "outline": "black", "fill": "cornflowerblue", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "Y3"}, "outline": "black", "fill": "red", "order": "raise", "report": true}
+    ],
     "egg": [
       {"N": "antigens", "select": {"passage": "egg"}, "aspect": 0.75},
       {"N": "antigens", "select": {"passage": "reassortant"}, "aspect": 0.75, "rotation": 0.5}
     ],
     "vaccines": [
-      {"N": "antigens", "select": {"vaccine": {"type": "previous"}}, "report": true, "outline": "black", "fill": "blue", "size": 15, "order": "raise"},
-      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "cell"}}, "label": {}, "report": true, "outline": "black", "fill": "red", "size": 15, "order": "raise"},
-      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "egg"}}, "label": {"name_type": "abbreviated_with_passage_type", "color": "red", "size": 30}, "report": true, "outline": "black", "fill": "red", "size": 15, "order": "raise"},
-      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "reassortant"}}, "label": {}, "report": true, "outline": "black", "fill": "green", "size": 15, "order": "raise"},
-      {"N": "antigens", "select": {"vaccine": {"type": "surrogate"}}, "report": true, "outline": "black", "fill": "pink", "size": 15, "order": "raise"}
+      {"N": "antigens", "select": {"vaccine": {"type": "previous"}}, "report": false, "outline": "black", "fill": "blue", "size": 15, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "cell"}}, "report": false, "outline": "black", "fill": "red", "size": 15, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "egg"}}, "report": false, "outline": "black", "fill": "red", "size": 15, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "reassortant"}}, "report": false, "outline": "black", "fill": "green", "size": 15, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "surrogate"}}, "report": false, "outline": "black", "fill": "pink", "size": 15, "order": "raise"}
     ]
   }
 }
@@ -87,7 +107,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
  "report": false}
 
 "all_grey"
-"vaccines"
+"clades"
 
 // flip
 //   value: [0, 1]
@@ -115,7 +135,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
 // {"N": "aa_substitution_groups", "groups": [{"pos_aa": ["121K", "144K"], "color": "cornflowerblue"}]},
 //
 // sera
-//   size, shape, fill, outline, outline_width, aspect, rotation, raise_ (order: raise, lower, no-change), report, report_names_threshold
+     report, report_names_threshold
 //   serum_circle
 //   serum_coverage
 //

@@ -184,7 +184,7 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
         }
     }
     if (verbose())
-        std::cerr << "Antigens selected: " << indices.size() << '\n';
+        std::cerr << "Antigens selected: " << std::setfill(' ') << std::setw(4) << indices.size() << ' ' << aSelector << '\n';
 
     return indices;
 
