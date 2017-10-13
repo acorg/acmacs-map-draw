@@ -44,14 +44,14 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": {"clade": "6B1"}, "outline": "black", "fill": "blue", "order": "raise", "report": true},
       {"N": "antigens", "select": {"clade": "6B2"}, "outline": "black", "fill": "red", "order": "raise", "report": true},
 
-      {"N": "antigens", "select": {"clade": "1"}, "outline": "black", "fill": "blue", "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "1A"}, "outline": "black", "fill": "cornflowerblue", "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "1B"}, "outline": "black", "fill": "red", "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "DEL2017"}, "outline": "black", "fill": "#DE8244", "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017"}, "outline": "black", "fill": "#BF3EFF", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "1", "subtype": "BVIC"}, "outline": "black", "fill": "blue", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "1A", "subtype": "BVIC"}, "outline": "black", "fill": "cornflowerblue", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "1B", "subtype": "BVIC"}, "outline": "black", "fill": "red", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "DEL2017", "subtype": "BVIC"}, "outline": "black", "fill": "#DE8244", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "subtype": "BVIC"}, "outline": "black", "fill": "#BF3EFF", "order": "raise", "report": true},
 
-      {"N": "antigens", "select": {"clade": "Y2"}, "outline": "black", "fill": "cornflowerblue", "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "Y3"}, "outline": "black", "fill": "red", "order": "raise", "report": true}
+      {"N": "antigens", "select": {"clade": "Y2", "subtype": "BYAM"}, "outline": "black", "fill": "cornflowerblue", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "Y3", "subtype": "BYAM"}, "outline": "black", "fill": "red", "order": "raise", "report": true}
     ],
     "egg": [
       {"N": "antigens", "select": {"passage": "egg"}, "aspect": 0.75},
@@ -179,7 +179,8 @@ Antigens:
 {"full_name": "A(H1N1)/MICHIGAN/2/2009 MDCK1"},
 "vaccine", {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}},
 {"in_rectangle": {"c1": [0.0, 0.0], "c2": [1.0, 1.0]}}, {"in_circle": {"center": [2.0, 2.0], "radius": 5.0}}
-
+{"lab": "CDC"} - returns empty index list for other labs
+{"subtype": "H1 A(H1N1) H3 A(H3N2) B BV BVIC BY BYAM"}
 Sera:
 -----
 "all",

@@ -58,7 +58,6 @@ std::vector<size_t> SelectAntigensSera::select(const Chart& aChart, const rjson:
 
 std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::object& aSelector)
 {
-    using namespace std::chrono_literals;
       // std::cout << "DEBUG: antigens command: " << aSelector << '\n';
     const auto& antigens = aChart.antigens();
     auto indices = antigens.all_indices();
@@ -100,6 +99,7 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
             antigens.filter_date_range(indices, dr[0], dr[1]);
         }
         else if (key == "older_than_days") {
+            using namespace std::chrono_literals;
             const int days = value;
             const auto then = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() - 24h * days);
             char buffer[20];
@@ -107,6 +107,7 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
             antigens.filter_date_range(indices, "", buffer);
         }
         else if (key == "younger_than_days") {
+            using namespace std::chrono_literals;
             const int days = value;
             const auto then = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() - 24h * days);
             char buffer[20];
@@ -178,6 +179,26 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
             const double radius = value["radius"];
             const size_t projection_no = 0;
             filter_circle(aChart, indices, aChart.projection(projection_no), {center[0], center[1], radius});
+        }
+        else if (key == "lab") {
+            if (aChart.chart_info().lab() != string::upper(value))
+                indices.clear();
+        }
+        else if (key == "subtype") {
+            const std::string virus_type = aChart.chart_info().virus_type();
+            const std::string val_u = string::upper(value);
+            if (val_u != virus_type) {
+                bool clear_indices = true;
+                if (virus_type == "B") {
+                    const std::string lineage = aChart.lineage();
+                    clear_indices = !(((val_u == "BVIC" || val_u == "BV") && lineage == "VICTORIA") || ((val_u == "BYAM" || val_u == "BY") && lineage == "YAMAGATA"));
+                }
+                else {
+                    clear_indices = !((val_u == "H1" && virus_type == "A(H1N1)") || (val_u == "H3" && virus_type == "A(H3N2)"));
+                }
+                if (clear_indices)
+                    indices.clear();
+            }
         }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
