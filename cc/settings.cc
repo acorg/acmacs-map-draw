@@ -39,9 +39,9 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
     ],
     "vaccines": [
       {"N": "antigens", "select": {"vaccine": {"type": "previous"}}, "report": true, "outline": "black", "fill": "blue", "size": 15, "order": "raise"},
-      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "cell"}}, "report": true, "outline": "black", "fill": "red", "size": 15, "order": "raise"},
-      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "egg"}}, "report": true, "outline": "black", "fill": "red", "size": 15, "order": "raise"},
-      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "reassortant"}}, "report": true, "outline": "black", "fill": "green", "size": 15, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "cell"}}, "label": {}, "report": true, "outline": "black", "fill": "red", "size": 15, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "egg"}}, "label": {"display_name": "VWVIiV", "color": "red", "size": 30, "offset": [0, -1], "weight": "bold", "font_family":"monospace"}, "report": true, "outline": "black", "fill": "red", "size": 15, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "reassortant"}}, "label": {}, "report": true, "outline": "black", "fill": "green", "size": 15, "order": "raise"},
       {"N": "antigens", "select": {"vaccine": {"type": "surrogate"}}, "report": true, "outline": "black", "fill": "pink", "size": 15, "order": "raise"}
     ]
   }
@@ -67,6 +67,9 @@ static const char* const SETTINGS_HELP_MODS = R"(
  "size": 1.0, "outline_width": 1.0,
  "show": true, "shape": "circle|box|triangle",
  "order": "raise|lower",
+ "label": {"show": true, "display_name": "NAME", "color": "black",
+           "size": 12.0, "offset": [0, 1], "weight": "bold",
+           "slant": "italic", "font_family": "monospace"},
  "report": false}
 
 {"N": "sera", "select": {<select>},
@@ -87,14 +90,16 @@ static const char* const SETTINGS_HELP_MODS = R"(
 // rotate_radians angle:
 // viewport value:
 // use_chart_plot_spec
-// --> export ace with new plot spec
-// --> export lispmds with new plot spec
 // point_scale
 // {"N": "background", "color": "white"},
 // {"N": "grid", "color": "grey80", "line_width": 1},
 // {"N": "border", "color": "black", "line_width": 1},
 // title size: background: border_color: border_width: display_name: []
 // legend data:[{"label": {<label-data>} "display_name": "163-del", "outline": "black", "fill": "#03569b"}] "offset": [-10, -10], "show": True, "size": 50, "label_size": 8, "point_size": 5
+// move_antigens
+// move_sera
+// --> export ace with new plot spec
+// --> export lispmds with new plot spec
 //
 // antigens
 //   show

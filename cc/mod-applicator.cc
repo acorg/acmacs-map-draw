@@ -24,6 +24,7 @@ class Mod
 
     inline PointStyle style() const { return point_style_from_json(args()); }
     inline PointDrawingOrder drawing_order() const { return drawing_order_from_json(args()); }
+    void add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, size_t aBaseIndex, const rjson::value& aLabelData);
 
  private:
     const rjson::object& mArgs;
@@ -42,6 +43,29 @@ inline std::ostream& operator << (std::ostream& out, const Mods& aMods)
     out << ']';
     return out;
 }
+
+void Mod::add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, size_t aBaseIndex, const rjson::value& aLabelData)
+{
+    if (aLabelData.get_or_default("show", true)) {
+        for (auto index: aIndices) {
+            auto& label = aChartDraw.add_label(index + aBaseIndex);
+            try { label.display_name(aLabelData["display_name"]); } catch (rjson::field_not_found&) {}
+            try { label.color(static_cast<std::string>(aLabelData["color"])); } catch (rjson::field_not_found&) {}
+            try { label.size(aLabelData["size"]); } catch (rjson::field_not_found&) {}
+            try { label.weight(aLabelData["weight"]); } catch (rjson::field_not_found&) {}
+            try { label.slant(aLabelData["slant"]); } catch (rjson::field_not_found&) {}
+            try { label.font_family(aLabelData["font_family"]); } catch (rjson::field_not_found&) {}
+
+            try {
+                const rjson::array& offset = aLabelData["offset"];
+                label.offset(offset[0], offset[1]);
+            }
+            catch (std::exception&) {
+            }
+        }
+    }
+
+} // Mod::add_labels
 
 Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods);
 
@@ -97,6 +121,7 @@ class ModAntigens : public Mod
             try {
                 const auto indices = SelectAntigens(verbose).select(aChartDraw.chart(), args()["select"]);
                 aChartDraw.modify(indices.begin(), indices.end(), style(), drawing_order());
+                try { add_labels(aChartDraw, indices, 0, args()["label"]); } catch (rjson::field_not_found&) {}
             }
             catch (rjson::field_not_found&) {
                 throw unrecognized_mod{"no \"select\" in \"antigens\" mod: " + args().to_json() };
@@ -119,6 +144,7 @@ class ModSera : public Mod
             try {
                 const auto indices = SelectSera(verbose).select(aChartDraw.chart(), args()["select"]);
                 aChartDraw.modify_sera(indices.begin(), indices.end(), style(), drawing_order());
+                try { add_labels(aChartDraw, indices, aChartDraw.number_of_antigens(), args()["label"]); } catch (rjson::field_not_found&) {}
             }
             catch (rjson::field_not_found&) {
                 throw unrecognized_mod{"no \"select\" in \"sera\" mod: " + args().to_json() };
