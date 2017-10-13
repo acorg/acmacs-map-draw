@@ -147,25 +147,6 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::o
 
 // ----------------------------------------------------------------------
 
-// class AllGrey : public Mod
-// {
-//  public:
-//     inline AllGrey() = default;
-
-//     void apply(ChartDraw& aChartDraw, const rjson::object& /*aModData*/) override
-//         {
-//             for (auto [ag_no, antigen]: enumerate(aChartDraw.chart().antigens())) {
-//                 aChartDraw.modify(ag_no, PointStyleEmpty().fill(antigen.reference() ? TRANSPARENT : GREY).outline(GREY));
-//             }
-//             for (auto [sr_no, serum]: enumerate(aChartDraw.chart().sera())) {
-//                 aChartDraw.modify_serum(sr_no, PointStyleEmpty().fill(TRANSPARENT).outline(GREY));
-//             }
-//         }
-
-// }; // class AllGrey
-
-// ----------------------------------------------------------------------
-
 class ModAntigens : public Mod
 {
  public:
@@ -215,42 +196,6 @@ class ModSera : public Mod
 
 // ----------------------------------------------------------------------
 
-// class Clades : public Mod
-// {
-//  public:
-//     using Mod::Mod;
-
-//     void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override
-//         {
-//             const auto& seqdb = seqdb::get(report_time::Yes);
-//             std::vector<seqdb::SeqdbEntrySeq> seqdb_entries;
-//             seqdb.match(aChartDraw.chart().antigens(), seqdb_entries, true);
-
-//             const bool report = args().get_or_default("report", false);
-//             const auto num_digits = static_cast<int>(std::log10(aChartDraw.chart().number_of_antigens())) + 1;
-
-//             const std::string fill = aModData.get_or_default("clade_fill", "pink");
-//             for (auto [ag_no, entry_seq]: enumerate(seqdb_entries)) {
-//                 if (entry_seq) {
-//                     for (const auto& clade: entry_seq.seq().clades()) {
-//                         try {
-//                               // const std::string fill = clade_fill.get_field<std::string>(clade);
-//                             aChartDraw.modify(ag_no, PointStyleEmpty().fill(fill).outline(BLACK), PointDrawingOrder::Raise);
-//                             if (report)
-//                                 std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << ag_no << ' ' << aChartDraw.chart().antigen(static_cast<size_t>(ag_no)).full_name() << ' ' << clade << ' ' << fill << '\n';
-//                         }
-//                         catch (rjson::field_not_found&) {
-//                         }
-//                     }
-//                 }
-//             }
-//               //}
-//         }
-
-// }; // class Clades
-
-// ----------------------------------------------------------------------
-
 Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
 {
 #pragma GCC diagnostic push
@@ -287,9 +232,6 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     else if (name == "sera") {
         result.emplace_back(new ModSera(*args));
     }
-    // else if (name == "clades") {
-    //     result.emplace_back(new Clades(*args));
-    // }
     else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
         for (const auto& submod_desc: referenced_mod) {
             for (auto&& submod: factory(submod_desc, aSettingsMods))
