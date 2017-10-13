@@ -35,14 +35,14 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "sera", "select": "all", "outline": "grey80", "fill": "transparent"}
     ],
     "clades": [
-      {"N": "antigens", "select": {"clade": "3C3"}, "outline": "black", "fill": "cornflowerblue", "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "3C3a"}, "outline": "black", "fill": "green", "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "3C3b"}, "outline": "black", "fill": "blue", "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "3C2a"}, "outline": "black", "fill": "red", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "3C3"},   "outline": "black", "fill": "cornflowerblue", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "3C3a"},  "outline": "black", "fill": "green", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "3C3b"},  "outline": "black", "fill": "blue", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "3C2a"},  "outline": "black", "fill": "red", "order": "raise", "report": true},
       {"N": "antigens", "select": {"clade": "3C2a1"}, "outline": "black", "fill": "darkred", "order": "raise", "report": true},
 
-      {"N": "antigens", "select": {"clade": "6B1"}, "outline": "black", "fill": "blue", "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "6B2"}, "outline": "black", "fill": "red", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "6B1"},   "outline": "black", "fill": "blue", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "6B2"},   "outline": "black", "fill": "red", "order": "raise", "report": true},
 
       {"N": "antigens", "select": {"clade": "1", "subtype": "BVIC"}, "outline": "black", "fill": "blue", "order": "raise", "report": true},
       {"N": "antigens", "select": {"clade": "1A", "subtype": "BVIC"}, "outline": "black", "fill": "cornflowerblue", "order": "raise", "report": true},
@@ -50,8 +50,8 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": {"clade": "DEL2017", "subtype": "BVIC"}, "outline": "black", "fill": "#DE8244", "order": "raise", "report": true},
       {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "subtype": "BVIC"}, "outline": "black", "fill": "#BF3EFF", "order": "raise", "report": true},
 
-      {"N": "antigens", "select": {"clade": "Y2", "subtype": "BYAM"}, "outline": "black", "fill": "cornflowerblue", "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "Y3", "subtype": "BYAM"}, "outline": "black", "fill": "red", "order": "raise", "report": true}
+      {"N": "antigens", "select": {"clade": "Y2", "subtype": "BYAM"}, "outline": "black", "fill": "cornflowerblue", "legend": {"label": "Y2", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "Y3", "subtype": "BYAM"}, "outline": "black", "fill": "red", "legend": {"label": "Y3", "count": true}, "order": "raise", "report": true}
     ],
     "egg": [
       {"N": "antigens", "select": {"passage": "egg"}, "aspect": 0.75},
@@ -92,6 +92,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
            "name_type": "full|abbreviated|abbreviated_with_passage_type",
            "color": "black", "size": 12.0, "offset": [0, 1],
            "weight": "bold", "slant": "italic", "font_family": "monospace"},
+ "legend": {"show": true, "label": "<TEXT>", "count": true},
  "report": false}
 
 {"N": "sera", "select": {<select>},

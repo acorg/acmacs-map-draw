@@ -25,6 +25,7 @@ class Mod
     inline PointStyle style() const { return point_style_from_json(args()); }
     inline PointDrawingOrder drawing_order() const { return drawing_order_from_json(args()); }
     void add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, size_t aBaseIndex, const rjson::value& aLabelData);
+    void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, const rjson::value& aLegendData);
 
  private:
     const rjson::object& mArgs;
@@ -32,6 +33,8 @@ class Mod
     friend inline std::ostream& operator << (std::ostream& out, const Mod& aMod) { return out << aMod.args(); }
 
 }; // class Mod
+
+// ----------------------------------------------------------------------
 
 using Mods = std::vector<std::unique_ptr<Mod>>;
 
@@ -43,6 +46,8 @@ inline std::ostream& operator << (std::ostream& out, const Mods& aMods)
     out << ']';
     return out;
 }
+
+// ----------------------------------------------------------------------
 
 void Mod::add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, size_t aBaseIndex, const rjson::value& aLabelData)
 {
@@ -103,6 +108,22 @@ void Mod::add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices,
 
 } // Mod::add_labels
 
+// ----------------------------------------------------------------------
+
+void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, const rjson::value& aLegendData)
+{
+    if (aLegendData.get_or_default("show", true) && !aIndices.empty()) {
+        auto& legend = aChartDraw.legend();
+        std::string label = aLegendData.get_or_default("label", "use \"label\" in \"legend\"");
+        if (aLegendData.get_or_default("count", false))
+            label += " (" + std::to_string(aIndices.size()) + ")";
+        legend.add_line(aStyle.outline(), aStyle.fill(), label);
+    }
+
+} // Mod::add_legend
+
+// ----------------------------------------------------------------------
+
 Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods);
 
 // ----------------------------------------------------------------------
@@ -156,8 +177,10 @@ class ModAntigens : public Mod
             const auto verbose = args().get_or_default("verbose", false) || args().get_or_default("report", false);
             try {
                 const auto indices = SelectAntigens(verbose).select(aChartDraw.chart(), args()["select"]);
-                aChartDraw.modify(indices.begin(), indices.end(), style(), drawing_order());
+                const auto styl = style();
+                aChartDraw.modify(indices.begin(), indices.end(), styl, drawing_order());
                 try { add_labels(aChartDraw, indices, 0, args()["label"]); } catch (rjson::field_not_found&) {}
+                try { add_legend(aChartDraw, indices, styl, args()["legend"]); } catch (rjson::field_not_found&) {}
             }
             catch (rjson::field_not_found&) {
                 throw unrecognized_mod{"no \"select\" in \"antigens\" mod: " + args().to_json() };
@@ -179,7 +202,8 @@ class ModSera : public Mod
             const auto verbose = args().get_or_default("verbose", false) || args().get_or_default("report", false);
             try {
                 const auto indices = SelectSera(verbose).select(aChartDraw.chart(), args()["select"]);
-                aChartDraw.modify_sera(indices.begin(), indices.end(), style(), drawing_order());
+                const auto styl = style();
+                aChartDraw.modify_sera(indices.begin(), indices.end(), styl, drawing_order());
                 try { add_labels(aChartDraw, indices, aChartDraw.number_of_antigens(), args()["label"]); } catch (rjson::field_not_found&) {}
             }
             catch (rjson::field_not_found&) {
