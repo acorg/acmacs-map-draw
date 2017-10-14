@@ -147,8 +147,8 @@ static const char* const SETTINGS_HELP_MODS = R"(
 
 "all_grey"
 "clades"
-buggy: "clades_last_6_months"
-buggy: "clades_last_12_months"
+"clades_last_6_months"
+"clades_last_12_months"
 
 // flip
 //   value: [0, 1]
@@ -207,14 +207,22 @@ Antigens:
 "egg", "cell", "reassortant",
   {"passage": "egg"}, {"passage": "cell"}, {"passage": "reassortant"},
 {"date_range": ["2016-01-01", "2016-09-01"]},
-  {"date_range": ["", "2016-09-01"]}, {"date_range": ["2016-01-01", ""]},
-  {"older_than_days": 365}, {"younger_than_days": 365},
-{"index": 11}, {"indices": [55, 66]},
-{"country": "sweden"}, {"continent": "europe"},
-"sequenced", "not_sequenced", {"clade": "3C3a"},
-{"name": "SWITZERLAND/9715293/2013"}, {"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"},
-{"full_name": "A(H1N1)/MICHIGAN/2/2009 MDCK1"},
-"vaccine", {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}},
+  {"date_range": ["", "2016-09-01"]},
+  {"date_range": ["2016-01-01", ""]},
+  {"older_than_days": 365},
+  {"younger_than_days": 365},
+{"index": 11},
+  {"indices": [55, 66]},
+{"country": "sweden"},
+  {"continent": "europe"},
+"sequenced",
+  "not_sequenced",
+  {"clade": "3C3a"},
+{"name": "SWITZERLAND/9715293/2013"},
+  {"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"},
+  {"full_name": "A(H1N1)/MICHIGAN/2/2009 MDCK1"},
+"vaccine",
+  {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}},
 {"in_rectangle": {"c1": [0.0, 0.0], "c2": [1.0, 1.0]}}, {"in_circle": {"center": [2.0, 2.0], "radius": 5.0}}
 {"lab": "CDC"} - returns empty index list for other labs
 {"subtype": "H1 A(H1N1) H3 A(H3N2) B BV BVIC BY BYAM"}
