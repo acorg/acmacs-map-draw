@@ -167,14 +167,14 @@ static const char* const SETTINGS_HELP_MODS = R"(
 {"N": "rotate", "degrees": 30, "radians": 1} positive -> counter-clockwise
 {"N": "flip", "direction": "ew|ns"}
 {"N": "viewport", "rel": [-1, 1, -5], "?abs": [-5, -5, 10]}
+{"N": "background", "color": "white"}
+{"N": "border", "color": "black", "line_width": 1}
+{"N": "grid", "color": "grey80", "line_width": 1}
 
 --------------------------------------------------
 
 use_chart_plot_spec
 point_scale
-{"N": "background", "color": "white"},
-{"N": "grid", "color": "grey80", "line_width": 1},
-{"N": "border", "color": "black", "line_width": 1},
 title size: background: border_color: border_width: display_name: []
 {"N": "legend", "offset": [-10, -10], "show": true, "size": 50, "label_size": 8, "point_size": 5,
  "data": [{"label": {<label-data>} "display_name": "163-del", "outline": "black", "fill": "#03569b"}]}

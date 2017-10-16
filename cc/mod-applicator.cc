@@ -399,6 +399,63 @@ class ModViewport : public Mod
 
 // ----------------------------------------------------------------------
 
+class ModBackground : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            try {
+                aChartDraw.background_color(static_cast<std::string>(args()["color"]));
+            }
+            catch (rjson::field_not_found&) {
+                throw unrecognized_mod{"mod: " + args().to_json()};
+            }
+        }
+
+}; // class ModBackground
+
+// ----------------------------------------------------------------------
+
+class ModBorder : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            try {
+                aChartDraw.border(args().get_or_default("color", "black"), args().get_or_default("line_width", 1.0));
+            }
+            catch (rjson::field_not_found&) {
+                throw unrecognized_mod{"mod: " + args().to_json()};
+            }
+        }
+
+}; // class ModBorder
+
+// ----------------------------------------------------------------------
+
+class ModGrid : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            try {
+                aChartDraw.grid(args().get_or_default("color", "grey80"), args().get_or_default("line_width", 1.0));
+            }
+            catch (rjson::field_not_found&) {
+                throw unrecognized_mod{"mod: " + args().to_json()};
+            }
+        }
+
+}; // class ModGrid
+
+// ----------------------------------------------------------------------
+
 Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
 {
 #pragma GCC diagnostic push
@@ -450,6 +507,15 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     }
     else if (name == "viewport") {
         result.emplace_back(new ModViewport(*args));
+    }
+    else if (name == "background") {
+        result.emplace_back(new ModBackground(*args));
+    }
+    else if (name == "border") {
+        result.emplace_back(new ModBorder(*args));
+    }
+    else if (name == "grid") {
+        result.emplace_back(new ModGrid(*args));
     }
     else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
         for (const auto& submod_desc: referenced_mod) {
