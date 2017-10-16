@@ -9,10 +9,9 @@ static const char* const SETTINGS_DEFAULT = R"(
     "?all_grey",
     "use_chart_plot_spec",
     "egg",
-    "clades",
+    "?clades",
     {"?N": "amino-acids", "pos": [159], "colors": ["#FF0000", "cornflowerblue", "#FF8000", "cyan", "yellow"], "legend": {"count": true}, "outline": "black", "order": "raise", "report": true},
     {"?N": "amino-acids", "groups": [{"pos_aa": ["121K", "144K"], "fill": "cornflowerblue"}], "legend": {"count": true}, "outline": "black", "order": "raise", "report": true},
-    {"N": "legend", "offset": [-10, 10], "show": true, "size": 50, "label_size": 14, "point_size": 10, "?data": [{"label": {}, "display_name": "163-del", "outline": "black", "fill": "#03569b"}]},
     "vaccines"
   ]
 }
@@ -167,11 +166,15 @@ static const char* const SETTINGS_HELP_MODS = R"(
 "clades_last_6_months"
 "clades_last_12_months"
 
+{"N": "legend", "offset": [-10, 10], "show": true, "size": 50,
+ "label_size": 14, "point_size": 10,
+ "data": [{"display_name": "163-del", "outline": "black", "fill": "red"}]}
+
 {"N": "title", "show": true, "offset": [10, 10], "padding": 10, "size": 1,
  "background": "grey97", "border_color": "black", "border_width": 0.1,
  "text_color": "black", "text_size": 12, "interline": 2,
  "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif",
- "?display_name": ["Line 1", "Line 2", "Another line"]},
+ "?display_name": ["Line 1", "Line 2", "Another line"]}
 
 {"N": "rotate", "degrees": 30, "radians": 1} positive -> counter-clockwise
 {"N": "flip", "direction": "ew|ns"}

@@ -537,6 +537,10 @@ class ModLegend : public Mod
             try {
                 if (args().get_or_default("show", true)) {
                     auto& legend = aChartDraw.legend();
+                    if (auto [data_present, data] = args().get_array_if("data"); data_present) {
+                        for (const rjson::object& line_data: data)
+                            legend.add_line(line_data.get_or_default("outline", "black"), line_data.get_or_default("fill", "pink"), line_data.get_or_default("display_name", "* no display_name *"));
+                    }
                     if (auto [offset_present, offset] = args().get_array_if("offset"); offset_present)
                         legend.offset({offset[0], offset[1]});
                     if (auto [label_size_present, label_size] = args().get_value_if("label_size"); label_size_present)
