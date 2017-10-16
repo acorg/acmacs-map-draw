@@ -294,23 +294,38 @@ class ModAminoAcids : public Mod
             if (index < mColors.size())
                 return mColors[index];
             else
-                throw unrecognized_mod{"too few distinct colors in mod: " + args().to_json() };
+                throw unrecognized_mod{"too few distinct colors in mod: " + args().to_json()};
         }
 
-    // def aa_substitution_groups(self, groups, legend=None, **args):
-    //     """groups: [{"pos_aa": ["121K", "144K"], "color": "#03569b"}]
-    //     """
-    //     from . import seqdb_access
-    //     for group in groups:
-    //         positions = [int(pos_aa[:-1]) for pos_aa in group["pos_aa"]]
-    //         target_aas = "".join(pos_aa[-1] for pos_aa in group["pos_aa"])
-    //         aa_indices = seqdb_access.aa_at_positions(chart=self._chart, positions=positions, seqdb_file=self._seqdb_file, verbose=self._verbose)
-    //         if target_aas in aa_indices:
-    //             self._chart_draw.modify(aa_indices[target_aas], self._make_point_style({"outline": "black", "fill": group["color"]}), raise_=True)
-    //         else:
-    //             module_logger.warning('No {}: {}'.format(target_aas, sorted(aa_indices)))
-
 }; // class ModAminoAcids
+
+// ----------------------------------------------------------------------
+
+class ModRotate : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            try {
+                if (auto [present, degrees_v] = args().get_value_if("degrees"); present) {
+                    const double pi_180 = std::acos(-1) / 180.0;
+                    aChartDraw.rotate(static_cast<double>(degrees_v) * pi_180);
+                }
+                else if (auto [present, radians_v] = args().get_value_if("radians"); present) {
+                    aChartDraw.rotate(radians_v);
+                }
+                else {
+                    throw rjson::field_not_found{};
+                }
+            }
+            catch (rjson::field_not_found&) {
+                throw unrecognized_mod{"mod: " + args().to_json()};
+            }
+        }
+
+}; // class ModRotate
 
 // ----------------------------------------------------------------------
 
@@ -356,6 +371,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     }
     else if (name == "amino-acids") {
         result.emplace_back(new ModAminoAcids(*args));
+    }
+    else if (name == "rotate") {
+        result.emplace_back(new ModRotate(*args));
     }
     else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
         for (const auto& submod_desc: referenced_mod) {

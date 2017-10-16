@@ -164,14 +164,15 @@ static const char* const SETTINGS_HELP_MODS = R"(
 "clades_last_6_months"
 "clades_last_12_months"
 
+{"N": "rotate", "degrees": 30, "radians": 1} positive -> counter-clockwise
+
+--------------------------------------------------
+
 flip
   value: [0, 1]
   ew
   ns
-rotate_degrees angle:
-rotate_radians angle:
-viewport value:
-viewport_relative value:
+viewport abs: rel:
 use_chart_plot_spec
 point_scale
 {"N": "background", "color": "white"},
@@ -194,10 +195,10 @@ sera
   serum_circle
   serum_coverage
 
- arrow
- line
- rectangle corner1: corner2:
- circle  center: radius: aspect: rotation:
+arrow
+line
+rectangle corner1: corner2:
+circle  center: radius: aspect: rotation:
 
 Derived:
  continents
