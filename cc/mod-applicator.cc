@@ -527,6 +527,37 @@ class ModTitle : public Mod
 
 // ----------------------------------------------------------------------
 
+class ModUseChartPlotSpec : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            try {
+                const auto& plot_spec = aChartDraw.chart().plot_spec();
+                for (size_t point_no = 0; point_no < aChartDraw.number_of_points(); ++point_no) {
+                    const auto& source = plot_spec.style_for(point_no);
+                    auto style{PointStyleEmpty()};
+                    style.fill(source.fill_color())
+                            .outline(source.outline_color())
+                            .outline_width(Pixels{source.outline_width()})
+                            .shape(source.shape_as_string())
+                            .size(Pixels{source.size() * 5})
+                            .rotation(source.rotation())
+                            .aspect(source.aspect());
+                    aChartDraw.modify(point_no, style);
+                }
+            }
+            catch (rjson::field_not_found&) {
+                throw unrecognized_mod{"mod: " + args().to_json()};
+            }
+        }
+
+}; // class ModUseChartPlotSpec
+
+// ----------------------------------------------------------------------
+
 Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
 {
 #pragma GCC diagnostic push
@@ -579,6 +610,12 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     else if (name == "viewport") {
         result.emplace_back(new ModViewport(*args));
     }
+    else if (name == "use_chart_plot_spec") {
+        result.emplace_back(new ModUseChartPlotSpec(*args));
+    }
+    else if (name == "title") {
+        result.emplace_back(new ModTitle(*args));
+    }
     else if (name == "background") {
         result.emplace_back(new ModBackground(*args));
     }
@@ -590,9 +627,6 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     }
     else if (name == "point_scale") {
         result.emplace_back(new ModPointScale(*args));
-    }
-    else if (name == "title") {
-        result.emplace_back(new ModTitle(*args));
     }
     else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
         for (const auto& submod_desc: referenced_mod) {

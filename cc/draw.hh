@@ -148,6 +148,7 @@ class ChartDraw
 
     size_t number_of_antigens() const;
     size_t number_of_sera() const;
+    inline size_t number_of_points() const { return number_of_antigens() + number_of_sera(); }
 
  private:
     Chart_Type& mChart;
