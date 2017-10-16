@@ -2,6 +2,7 @@
 using namespace std::string_literals;
 
 #include "acmacs-base/enumerate.hh"
+#include "acmacs-base/rjson.hh" // include rjson.hh before including string.hh (included via seqdb.hh)
 #include "seqdb/seqdb.hh"
 #include "acmacs-map-draw/draw.hh"
 
@@ -216,20 +217,11 @@ class ModAminoAcids : public Mod
             const auto verbose = args().get_or_default("verbose", false) || args().get_or_default("report", false);
             try {
                 if (auto [pos_present, pos] = args().get_array_if("pos"); pos_present) {
-                    const auto& seqdb = seqdb::get(do_report_time(verbose));
-                    const auto aa_indices = seqdb.aa_at_positions_for_antigens(aChartDraw.chart().antigens(), {std::begin(pos), std::end(pos)}, verbose);
-                    std::vector<std::string> aa_sorted(aa_indices.size()); // most frequent aa first
-                    std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
-                    std::sort(std::begin(aa_sorted), std::end(aa_sorted), [&aa_indices](const auto& n1, const auto& n2) -> bool { return aa_indices.find(n1)->second.size() > aa_indices.find(n2)->second.size(); });
-                    for (auto [index, aa]: acmacs::enumerate(aa_sorted)) {
-                        const auto& indices_for_aa = aa_indices.find(aa)->second;
-                        auto styl = style();
-                        styl.fill(fill_color(index, aa));
-                        aChartDraw.modify(std::begin(indices_for_aa), std::end(indices_for_aa), styl, drawing_order());
-                        try { add_legend(aChartDraw, indices_for_aa, styl, aa, args()["legend"]); } catch (rjson::field_not_found&) {}
-                    }
+                    aa_pos(aChartDraw, pos, verbose);
                 }
                 else if (auto [groups_present, groups] = args().get_array_if("groups"); groups_present) {
+                    for (const auto& group: groups)
+                        aa_group(aChartDraw, group, verbose);
                 }
                 else {
                     std::cerr << "No pos no groups" << '\n';
@@ -238,6 +230,51 @@ class ModAminoAcids : public Mod
             }
             catch (std::bad_variant_access&) {
                 throw unrecognized_mod{"expected either \"pos\":[] or \"groups\":[] mod: " + args().to_json() };
+            }
+        }
+
+
+ private:
+    std::vector<Color> mColors;
+    long mIndexDiff = 0;
+
+    void aa_pos(ChartDraw& aChartDraw, const rjson::array& aPos, bool aVerbose)
+        {
+            const auto& seqdb = seqdb::get(do_report_time(aVerbose));
+            const auto aa_indices = seqdb.aa_at_positions_for_antigens(aChartDraw.chart().antigens(), {std::begin(aPos), std::end(aPos)}, aVerbose);
+            std::vector<std::string> aa_sorted(aa_indices.size()); // most frequent aa first
+            std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
+            std::sort(std::begin(aa_sorted), std::end(aa_sorted), [&aa_indices](const auto& n1, const auto& n2) -> bool { return aa_indices.find(n1)->second.size() > aa_indices.find(n2)->second.size(); });
+            for (auto [index, aa]: acmacs::enumerate(aa_sorted)) {
+                const auto& indices_for_aa = aa_indices.find(aa)->second;
+                auto styl = style();
+                styl.fill(fill_color(index, aa));
+                aChartDraw.modify(std::begin(indices_for_aa), std::end(indices_for_aa), styl, drawing_order());
+                try { add_legend(aChartDraw, indices_for_aa, styl, aa, args()["legend"]); } catch (rjson::field_not_found&) {}
+                if (aVerbose)
+                    std::cerr << "INFO: amino-acids at " << aPos << ": " << aa << ' ' << indices_for_aa.size() << '\n';
+            }
+        }
+
+    void aa_group(ChartDraw& aChartDraw, const rjson::object& aGroup, bool aVerbose)
+        {
+            const rjson::array& pos_aa = aGroup["pos_aa"];
+            std::vector<size_t> positions(pos_aa.size());
+            std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(positions), [](const auto& src) { return std::stoul(src); });
+            std::string target_aas(pos_aa.size(), ' ');
+            std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(target_aas), [](const auto& src) { return static_cast<std::string>(src).back(); });
+            const auto& seqdb = seqdb::get(do_report_time(aVerbose));
+            const auto aa_indices = seqdb.aa_at_positions_for_antigens(aChartDraw.chart().antigens(), positions, aVerbose);
+            if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
+                auto styl = style();
+                styl = point_style_from_json(aGroup);
+                aChartDraw.modify(std::begin(aap->second), std::end(aap->second), styl, drawing_order());
+                try { add_legend(aChartDraw, aap->second, styl, string::join(" ", std::begin(pos_aa), std::end(pos_aa)), args()["legend"]); } catch (rjson::field_not_found&) {}
+                if (aVerbose)
+                    std::cerr << "INFO: amino-acids group " << pos_aa << ": " << ' ' << aap->second.size() << '\n';
+            }
+            else {
+                std::cerr << "WARNING: no \"" << target_aas << "\" in " << aa_indices << '\n';
             }
         }
 
@@ -253,17 +290,12 @@ class ModAminoAcids : public Mod
                 else
                     mColors = Color::distinct();
             }
-            aIndex += mIndexDiff;
-            if (aIndex < mColors.size())
-                return mColors[static_cast<size_t>(aIndex)];
+            const auto index = static_cast<size_t>(aIndex + mIndexDiff);
+            if (index < mColors.size())
+                return mColors[index];
             else
                 throw unrecognized_mod{"too few distinct colors in mod: " + args().to_json() };
         }
-
- private:
-    std::vector<Color> mColors;
-    long mIndexDiff = 0;
-
 
     // def aa_substitution_groups(self, groups, legend=None, **args):
     //     """groups: [{"pos_aa": ["121K", "144K"], "color": "#03569b"}]
@@ -295,6 +327,10 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     const rjson::object* args = &empty_args;
     if (auto ptr_obj = std::get_if<rjson::object>(&aMod)) {
         name = ptr_obj->get_or_default("N", "");
+        if (name.empty()) {
+            if (auto [present, val] = ptr_obj->get_value_if("?N"); present)
+                name = "?";     // no "N" but "?N" present, avoid warning about commented out mode
+        }
         args = ptr_obj;
     }
     else if (auto ptr_str = std::get_if<rjson::string>(&aMod)) {

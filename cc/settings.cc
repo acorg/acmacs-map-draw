@@ -7,8 +7,9 @@ static const char* const SETTINGS_DEFAULT = R"(
   "apply": [
     "all_grey",
     "egg",
-    "?clades",
-    {"N": "amino-acids", "pos": [159], "colors": ["#FF0000", "cornflowerblue", "#FF8000", "cyan", "yellow"], "legend": {"count": true}, "outline": "black", "order": "raise"},
+    "clades",
+    {"?N": "amino-acids", "pos": [159], "colors": ["#FF0000", "cornflowerblue", "#FF8000", "cyan", "yellow"], "legend": {"count": true}, "outline": "black", "order": "raise", "report": true},
+    {"?N": "amino-acids", "groups": [{"pos_aa": ["121K", "144K"], "fill": "cornflowerblue"}], "legend": {"count": true}, "outline": "black", "order": "raise", "report": true},
     "vaccines"
   ]
 }
@@ -152,7 +153,10 @@ static const char* const SETTINGS_HELP_MODS = R"(
   "legend": {},
   "report": false},
 {"N": "amino-acids",
-  "groups": [{"pos": ["121K", "144K"], "color": "cornflowerblue"}],
+  "groups": [{"pos": ["121K", "144K"], "fill": "cornflowerblue" "?outline": "black"}],
+  "outline": "black", "outline_width": 1.0,
+  "aspect": 1.0, "rotation": 0.0, "size": 1.0, "order": "raise|lower",
+  "legend": {},
   "report": false},
 
 "all_grey"
@@ -160,44 +164,43 @@ static const char* const SETTINGS_HELP_MODS = R"(
 "clades_last_6_months"
 "clades_last_12_months"
 
-// flip
-//   value: [0, 1]
-//   ew
-//   ns
-// rotate_degrees angle:
-// rotate_radians angle:
-// viewport value:
-// use_chart_plot_spec
-// point_scale
-// {"N": "background", "color": "white"},
-// {"N": "grid", "color": "grey80", "line_width": 1},
-// {"N": "border", "color": "black", "line_width": 1},
-// title size: background: border_color: border_width: display_name: []
-// {"N": "legend", "offset": [-10, -10], "show": true, "size": 50, "label_size": 8, "point_size": 5,
-//  "data": [{"label": {<label-data>} "display_name": "163-del", "outline": "black", "fill": "#03569b"}]}
-// move_antigens
-// move_sera
-// --> export ace with new plot spec
-// --> export lispmds with new plot spec
-//
-// antigens
-//   show
-//   report, report_names_threshold
-// {"N": "aa_substitutions", "positions": [159], "legend": {"show": True, "offset": [-10, -10], "point_count": True, "background": "grey99", "border_color": "black", "border_width": 0.1, "label_size": 12, "point_size": 8}},
-// {"N": "aa_substitution_groups", "groups": [{"pos_aa": ["121K", "144K"], "color": "cornflowerblue"}]},
-//
-// sera
-     report, report_names_threshold
-//   serum_circle
-//   serum_coverage
-//
-//  arrow
-//  line
-//  rectangle corner1: corner2:
-//  circle  center: radius: aspect: rotation:
-//
-// Derived:
-//  continents
+flip
+  value: [0, 1]
+  ew
+  ns
+rotate_degrees angle:
+rotate_radians angle:
+viewport value:
+viewport_relative value:
+use_chart_plot_spec
+point_scale
+{"N": "background", "color": "white"},
+{"N": "grid", "color": "grey80", "line_width": 1},
+{"N": "border", "color": "black", "line_width": 1},
+title size: background: border_color: border_width: display_name: []
+{"N": "legend", "offset": [-10, -10], "show": true, "size": 50, "label_size": 8, "point_size": 5,
+ "data": [{"label": {<label-data>} "display_name": "163-del", "outline": "black", "fill": "#03569b"}]}
+move_antigens
+move_sera
+--> export ace with new plot spec
+--> export lispmds with new plot spec
+
+antigens
+  show
+  report, report_names_threshold
+
+sera
+  report, report_names_threshold
+  serum_circle
+  serum_coverage
+
+ arrow
+ line
+ rectangle corner1: corner2:
+ circle  center: radius: aspect: rotation:
+
+Derived:
+ continents
 
 )";
 
