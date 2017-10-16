@@ -527,6 +527,42 @@ class ModTitle : public Mod
 
 // ----------------------------------------------------------------------
 
+class ModLegend : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            try {
+                if (args().get_or_default("show", true)) {
+                    auto& legend = aChartDraw.legend();
+                    if (auto [offset_present, offset] = args().get_array_if("offset"); offset_present)
+                        legend.offset({offset[0], offset[1]});
+                    if (auto [label_size_present, label_size] = args().get_value_if("label_size"); label_size_present)
+                        legend.label_size(label_size);
+                    if (auto [point_size_present, point_size] = args().get_value_if("point_size"); point_size_present)
+                        legend.point_size(point_size);
+                    if (auto [background_present, background] = args().get_value_if("background"); background_present)
+                        legend.background(static_cast<std::string>(background));
+                    if (auto [border_color_present, border_color] = args().get_value_if("border_color"); border_color_present)
+                        legend.border_color(static_cast<std::string>(border_color));
+                    if (auto [border_width_present, border_width] = args().get_value_if("border_width"); border_width_present)
+                        legend.border_width(border_width);
+                }
+                else {
+                    aChartDraw.remove_legend();
+                }
+            }
+            catch (rjson::field_not_found&) {
+                throw unrecognized_mod{"mod: " + args().to_json()};
+            }
+        }
+
+}; // class ModLegend
+
+// ----------------------------------------------------------------------
+
 class ModUseChartPlotSpec : public Mod
 {
  public:
@@ -615,6 +651,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     }
     else if (name == "title") {
         result.emplace_back(new ModTitle(*args));
+    }
+    else if (name == "legend") {
+        result.emplace_back(new ModLegend(*args));
     }
     else if (name == "background") {
         result.emplace_back(new ModBackground(*args));

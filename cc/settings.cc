@@ -9,9 +9,10 @@ static const char* const SETTINGS_DEFAULT = R"(
     "?all_grey",
     "use_chart_plot_spec",
     "egg",
-    "?clades",
+    "clades",
     {"?N": "amino-acids", "pos": [159], "colors": ["#FF0000", "cornflowerblue", "#FF8000", "cyan", "yellow"], "legend": {"count": true}, "outline": "black", "order": "raise", "report": true},
     {"?N": "amino-acids", "groups": [{"pos_aa": ["121K", "144K"], "fill": "cornflowerblue"}], "legend": {"count": true}, "outline": "black", "order": "raise", "report": true},
+    {"N": "legend", "offset": [-10, 10], "show": true, "size": 50, "label_size": 14, "point_size": 10, "?data": [{"label": {}, "display_name": "163-del", "outline": "black", "fill": "#03569b"}]},
     "vaccines"
   ]
 }
@@ -182,8 +183,6 @@ static const char* const SETTINGS_HELP_MODS = R"(
 
 --------------------------------------------------
 
-{"N": "legend", "offset": [-10, -10], "show": true, "size": 50, "label_size": 8, "point_size": 5,
- "data": [{"label": {<label-data>} "display_name": "163-del", "outline": "black", "fill": "#03569b"}]}
 move_antigens
 move_sera
 --> export ace with new plot spec
