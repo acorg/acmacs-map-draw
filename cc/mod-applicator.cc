@@ -456,6 +456,25 @@ class ModGrid : public Mod
 
 // ----------------------------------------------------------------------
 
+class ModPointScale : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            try {
+                aChartDraw.scale_points(args().get_or_default("scale", 1.0), args().get_or_default("outline_scale", 1.0));
+            }
+            catch (rjson::field_not_found&) {
+                throw unrecognized_mod{"mod: " + args().to_json()};
+            }
+        }
+
+}; // class ModPointScale
+
+// ----------------------------------------------------------------------
+
 Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
 {
 #pragma GCC diagnostic push
@@ -516,6 +535,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     }
     else if (name == "grid") {
         result.emplace_back(new ModGrid(*args));
+    }
+    else if (name == "point_scale") {
+        result.emplace_back(new ModPointScale(*args));
     }
     else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
         for (const auto& submod_desc: referenced_mod) {
