@@ -166,10 +166,10 @@ static const char* const SETTINGS_HELP_MODS = R"(
 
 {"N": "rotate", "degrees": 30, "radians": 1} positive -> counter-clockwise
 {"N": "flip", "direction": "ew|ns"}
+{"N": "viewport", "rel": [-1, 1, -5], "?abs": [-5, -5, 10]}
 
 --------------------------------------------------
 
-viewport abs: rel:
 use_chart_plot_spec
 point_scale
 {"N": "background", "color": "white"},

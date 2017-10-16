@@ -87,16 +87,18 @@ size_t ChartDraw::number_of_sera() const
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::calculate_viewport()
+void ChartDraw::calculate_viewport(bool verbose)
 {
     std::unique_ptr<BoundingBall> bb(transformed_layout().minimum_bounding_ball());
     Viewport viewport;
     viewport.set_from_center_size(bb->center(), bb->diameter());
     viewport.whole_width();
-    log("[Calculated]: ", viewport);
+    if (verbose)
+        log("[Calculated]: ", viewport);
     if (mViewport.empty())
         mViewport = viewport;
-    log("[Used]:       ", mViewport);
+    if (verbose)
+        log("[Used]:       ", mViewport);
 
 } // ChartDraw::calculate_viewport
 

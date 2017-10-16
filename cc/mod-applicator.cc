@@ -147,6 +147,10 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::o
                 mod->apply(aChartDraw, aModData);
             }
         }
+        catch (std::bad_variant_access&) {
+            std::cerr << "ERROR: std::bad_variant_access: in handling mod: " << mod_desc << '\n';
+            throw unrecognized_mod{mod_desc};
+        }
         catch (unrecognized_mod&) {
             if (aIgnoreUnrecognized)
                 std::cerr << "WARNING: unrecognized mod: " << mod_desc << '\n';
@@ -359,6 +363,42 @@ class ModFlip : public Mod
 
 // ----------------------------------------------------------------------
 
+class ModViewport : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            try {
+                if (auto [present_abs, abs] = args().get_array_if("abs"); present_abs) {
+                    if (abs.size() != 3)
+                        throw unrecognized_mod{"\"abs\" must be array of 3 floats. mod: " + args().to_json()};
+                    aChartDraw.viewport(abs[0], abs[1], abs[2]);
+                }
+                else if (auto [present_rel, rel] = args().get_array_if("rel"); present_rel) {
+                    if (rel.size() != 3)
+                        throw unrecognized_mod{"\"rel\" must be array of 3 floats. mod: " + args().to_json()};
+                    aChartDraw.calculate_viewport(false);
+                    const auto& orig_viewport = aChartDraw.viewport();
+                    const auto new_size = static_cast<double>(rel[2]) + orig_viewport.size.width;
+                    if (new_size < 1)
+                        throw unrecognized_mod{"invalid size difference in \"rel\". mod: " + args().to_json()};
+                    aChartDraw.viewport(orig_viewport.left() + static_cast<double>(rel[0]), orig_viewport.top() + static_cast<double>(rel[1]), new_size);
+                }
+                else {
+                    throw rjson::field_not_found{};
+                }
+            }
+            catch (rjson::field_not_found&) {
+                throw unrecognized_mod{"mod: " + args().to_json()};
+            }
+        }
+
+}; // class ModViewport
+
+// ----------------------------------------------------------------------
+
 Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
 {
 #pragma GCC diagnostic push
@@ -407,6 +447,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     }
     else if (name == "flip") {
         result.emplace_back(new ModFlip(*args));
+    }
+    else if (name == "viewport") {
+        result.emplace_back(new ModViewport(*args));
     }
     else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
         for (const auto& submod_desc: referenced_mod) {
