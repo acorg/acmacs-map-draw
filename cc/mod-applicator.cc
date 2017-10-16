@@ -475,6 +475,58 @@ class ModPointScale : public Mod
 
 // ----------------------------------------------------------------------
 
+class ModTitle : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            try {
+                auto& title = aChartDraw.title();
+                if (args().get_or_default("show", true)) {
+                    title.show(true);
+                    if (auto [display_name_present, display_name] = args().get_array_if("display_name"); display_name_present) {
+                        for (std::string line: display_name)
+                            title.add_line(line);
+                    }
+                    else {
+                        title.add_line(aChartDraw.chart().make_name(aChartDraw.projection_no()));
+                    }
+                    if (auto [offset_present, offset] = args().get_array_if("offset"); offset_present)
+                        title.offset(offset[0], offset[1]);
+                    if (auto [padding_present, padding] = args().get_value_if("padding"); padding_present)
+                        title.padding(padding);
+                    if (auto [text_size_present, text_size] = args().get_value_if("text_size"); text_size_present)
+                        title.text_size(text_size);
+                    if (auto [text_color_present, text_color] = args().get_value_if("text_color"); text_color_present)
+                        title.text_color(static_cast<std::string>(text_color));
+                    if (auto [background_present, background] = args().get_value_if("background"); background_present)
+                        title.background(static_cast<std::string>(background));
+                    if (auto [border_color_present, border_color] = args().get_value_if("border_color"); border_color_present)
+                        title.border_color(static_cast<std::string>(border_color));
+                    if (auto [border_width_present, border_width] = args().get_value_if("border_width"); border_width_present)
+                        title.border_width(border_width);
+                    if (auto [font_weight_present, font_weight] = args().get_value_if("font_weight"); font_weight_present)
+                        title.weight(static_cast<std::string>(font_weight));
+                    if (auto [font_slant_present, font_slant] = args().get_value_if("font_slant"); font_slant_present)
+                        title.slant(static_cast<std::string>(font_slant));
+                    if (auto [font_family_present, font_family] = args().get_value_if("font_family"); font_family_present)
+                        title.font_family(static_cast<std::string>(font_family));
+                }
+                else {
+                    title.show(false);
+                }
+            }
+            catch (rjson::field_not_found&) {
+                throw unrecognized_mod{"mod: " + args().to_json()};
+            }
+        }
+
+}; // class ModTitle
+
+// ----------------------------------------------------------------------
+
 Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
 {
 #pragma GCC diagnostic push
@@ -538,6 +590,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     }
     else if (name == "point_scale") {
         result.emplace_back(new ModPointScale(*args));
+    }
+    else if (name == "title") {
+        result.emplace_back(new ModTitle(*args));
     }
     else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
         for (const auto& submod_desc: referenced_mod) {

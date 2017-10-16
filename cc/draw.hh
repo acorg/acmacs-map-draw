@@ -51,6 +51,7 @@ class ChartDraw
     inline std::vector<PointStyle> point_styles_base() const { std::vector<PointStyle> ps{mPointStyles.begin(), mPointStyles.end()}; return ps; }
     inline auto& chart() { return mChart; }
     inline const auto& chart() const { return mChart; }
+    inline auto projection_no() const { return mProjectionNo; }
 
     template <typename index_type> inline void modify(index_type aIndex, const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {

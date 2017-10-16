@@ -164,6 +164,12 @@ static const char* const SETTINGS_HELP_MODS = R"(
 "clades_last_6_months"
 "clades_last_12_months"
 
+{"N": "title", "show": true, "offset": [10, 10], "padding": 10, "size": 1,
+ "background": "grey97", "border_color": "black", "border_width": 0.1,
+ "text_color": "black", "text_size": 12, "interline": 2,
+ "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif",
+ "?display_name": ["Line 1", "Line 2", "Another line"]},
+
 {"N": "rotate", "degrees": 30, "radians": 1} positive -> counter-clockwise
 {"N": "flip", "direction": "ew|ns"}
 {"N": "viewport", "rel": [-1, 1, -5], "?abs": [-5, -5, 10]}
@@ -175,7 +181,6 @@ static const char* const SETTINGS_HELP_MODS = R"(
 --------------------------------------------------
 
 use_chart_plot_spec
-title size: background: border_color: border_width: display_name: []
 {"N": "legend", "offset": [-10, -10], "show": true, "size": 50, "label_size": 8, "point_size": 5,
  "data": [{"label": {<label-data>} "display_name": "163-del", "outline": "black", "fill": "#03569b"}]}
 move_antigens
