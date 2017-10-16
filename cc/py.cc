@@ -148,7 +148,7 @@ PYBIND11_MODULE(acmacs_map_draw_backend, m)
             .def("light", &Color::light)
             ;
 
-    m.def("distinct_colors", &Color::distinct_colors);
+    m.def("distinct_colors", &Color::distinct_s);
 
     py::class_<PointStyle> point_style(m, "PointStyle");
     py::enum_<enum PointStyle::Empty>(point_style, "PointStyle_Empty").value("Empty", PointStyle::Empty).export_values();

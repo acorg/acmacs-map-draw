@@ -26,6 +26,7 @@ class Mod
     inline PointDrawingOrder drawing_order() const { return drawing_order_from_json(args()); }
     void add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, size_t aBaseIndex, const rjson::value& aLabelData);
     void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, const rjson::value& aLegendData);
+    void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData);
 
  private:
     const rjson::object& mArgs;
@@ -112,12 +113,20 @@ void Mod::add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices,
 
 void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, const rjson::value& aLegendData)
 {
+    const std::string label = aLegendData.get_or_default("label", "use \"label\" in \"legend\"");
+    add_legend(aChartDraw, aIndices, aStyle, label, aLegendData);
+
+} // Mod::add_legend
+
+// ----------------------------------------------------------------------
+
+void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData)
+{
     if (aLegendData.get_or_default("show", true) && !aIndices.empty()) {
         auto& legend = aChartDraw.legend();
-        std::string label = aLegendData.get_or_default("label", "use \"label\" in \"legend\"");
         if (aLegendData.get_or_default("count", false))
-            label += " (" + std::to_string(aIndices.size()) + ")";
-        legend.add_line(aStyle.outline(), aStyle.fill(), label);
+            aLabel += " (" + std::to_string(aIndices.size()) + ")";
+        legend.add_line(aStyle.outline(), aStyle.fill(), aLabel);
     }
 
 } // Mod::add_legend
@@ -132,15 +141,17 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::o
 {
     const auto& mods_data_mod = aModData.get_or_empty_object("mods");
     for (const auto& mod_desc: aMods) {
-        if (const auto mods = factory(mod_desc, mods_data_mod); !mods.empty()) {
-            for (const auto& mod: mods) {
+        try {
+            for (const auto& mod: factory(mod_desc, mods_data_mod)) {
                 mod->apply(aChartDraw, aModData);
             }
         }
-        else if (aIgnoreUnrecognized)
-            std::cerr << "WARNING: unrecognized mod: " << mod_desc << '\n';
-        else
-            throw unrecognized_mod{"unrecognized mod: "s + mod_desc.to_json()};
+        catch (unrecognized_mod&) {
+            if (aIgnoreUnrecognized)
+                std::cerr << "WARNING: unrecognized mod: " << mod_desc << '\n';
+            else
+                throw;
+        }
     }
 
 } // apply_mods
@@ -179,7 +190,6 @@ class ModSera : public Mod
 
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
         {
-            // std::cerr << "apply " << args() << '\n';
             const auto verbose = args().get_or_default("verbose", false) || args().get_or_default("report", false);
             try {
                 const auto indices = SelectSera(verbose).select(aChartDraw.chart(), args()["select"]);
@@ -193,6 +203,82 @@ class ModSera : public Mod
         }
 
 }; // class ModSera
+
+// ----------------------------------------------------------------------
+
+class ModAminoAcids : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            const auto verbose = args().get_or_default("verbose", false) || args().get_or_default("report", false);
+            try {
+                if (auto [pos_present, pos] = args().get_array_if("pos"); pos_present) {
+                    const auto& seqdb = seqdb::get(do_report_time(verbose));
+                    const auto aa_indices = seqdb.aa_at_positions_for_antigens(aChartDraw.chart().antigens(), {std::begin(pos), std::end(pos)}, verbose);
+                    std::vector<std::string> aa_sorted(aa_indices.size()); // most frequent aa first
+                    std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
+                    std::sort(std::begin(aa_sorted), std::end(aa_sorted), [&aa_indices](const auto& n1, const auto& n2) -> bool { return aa_indices.find(n1)->second.size() > aa_indices.find(n2)->second.size(); });
+                    for (auto [index, aa]: acmacs::enumerate(aa_sorted)) {
+                        const auto& indices_for_aa = aa_indices.find(aa)->second;
+                        auto styl = style();
+                        styl.fill(fill_color(index, aa));
+                        aChartDraw.modify(std::begin(indices_for_aa), std::end(indices_for_aa), styl, drawing_order());
+                        try { add_legend(aChartDraw, indices_for_aa, styl, aa, args()["legend"]); } catch (rjson::field_not_found&) {}
+                    }
+                }
+                else if (auto [groups_present, groups] = args().get_array_if("groups"); groups_present) {
+                }
+                else {
+                    std::cerr << "No pos no groups" << '\n';
+                    throw std::bad_variant_access{};
+                }
+            }
+            catch (std::bad_variant_access&) {
+                throw unrecognized_mod{"expected either \"pos\":[] or \"groups\":[] mod: " + args().to_json() };
+            }
+        }
+
+    Color fill_color(long aIndex, std::string aAA)
+        {
+            if (aAA == "X") {
+                --mIndexDiff;
+                return args().get_or_default("X_color", "grey25");
+            }
+            if (mColors.empty()) {
+                if (auto [colors_present, colors] = args().get_array_if("colors"); colors_present)
+                    mColors.assign(std::begin(colors), std::end(colors));
+                else
+                    mColors = Color::distinct();
+            }
+            aIndex += mIndexDiff;
+            if (aIndex < mColors.size())
+                return mColors[static_cast<size_t>(aIndex)];
+            else
+                throw unrecognized_mod{"too few distinct colors in mod: " + args().to_json() };
+        }
+
+ private:
+    std::vector<Color> mColors;
+    long mIndexDiff = 0;
+
+
+    // def aa_substitution_groups(self, groups, legend=None, **args):
+    //     """groups: [{"pos_aa": ["121K", "144K"], "color": "#03569b"}]
+    //     """
+    //     from . import seqdb_access
+    //     for group in groups:
+    //         positions = [int(pos_aa[:-1]) for pos_aa in group["pos_aa"]]
+    //         target_aas = "".join(pos_aa[-1] for pos_aa in group["pos_aa"])
+    //         aa_indices = seqdb_access.aa_at_positions(chart=self._chart, positions=positions, seqdb_file=self._seqdb_file, verbose=self._verbose)
+    //         if target_aas in aa_indices:
+    //             self._chart_draw.modify(aa_indices[target_aas], self._make_point_style({"outline": "black", "fill": group["color"]}), raise_=True)
+    //         else:
+    //             module_logger.warning('No {}: {}'.format(target_aas, sorted(aa_indices)))
+
+}; // class ModAminoAcids
 
 // ----------------------------------------------------------------------
 
@@ -232,6 +318,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     else if (name == "sera") {
         result.emplace_back(new ModSera(*args));
     }
+    else if (name == "amino-acids") {
+        result.emplace_back(new ModAminoAcids(*args));
+    }
     else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
         for (const auto& submod_desc: referenced_mod) {
             for (auto&& submod: factory(submod_desc, aSettingsMods))
@@ -240,6 +329,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     }
     else if (name.empty()) {
         std::cerr << "WARNING: mod ignored (no \"N\"): " << *args << '\n';
+    }
+    else if (name.front() == '?' || name.back() == '?') {
+          // commented out
     }
     else {
         throw unrecognized_mod{"unrecognized mod: "s + aMod.to_json()};

@@ -7,7 +7,8 @@ static const char* const SETTINGS_DEFAULT = R"(
   "apply": [
     "all_grey",
     "egg",
-    "clades",
+    "?clades",
+    {"N": "amino-acids", "pos": [159], "colors": ["#FF0000", "cornflowerblue", "#FF8000", "cyan", "yellow"], "legend": {"count": true}, "outline": "black", "order": "raise"},
     "vaccines"
   ]
 }
@@ -144,6 +145,15 @@ static const char* const SETTINGS_HELP_MODS = R"(
            "color": "black", "size": 12.0, "offset": [0, 1],
            "weight": "bold", "slant": "italic", "font_family": "monospace"},
  "report": false}
+
+{"N": "amino-acids", "pos": [159], "?colors": ["#FF0000", "#0000FF"],
+  "?X_color": "grey25", "outline": "black", "outline_width": 1.0,
+  "aspect": 1.0, "rotation": 0.0, "size": 1.0, "order": "raise|lower",
+  "legend": {},
+  "report": false},
+{"N": "amino-acids",
+  "groups": [{"pos": ["121K", "144K"], "color": "cornflowerblue"}],
+  "report": false},
 
 "all_grey"
 "clades"
