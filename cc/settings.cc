@@ -165,13 +165,10 @@ static const char* const SETTINGS_HELP_MODS = R"(
 "clades_last_12_months"
 
 {"N": "rotate", "degrees": 30, "radians": 1} positive -> counter-clockwise
+{"N": "flip", "direction": "ew|ns"}
 
 --------------------------------------------------
 
-flip
-  value: [0, 1]
-  ew
-  ns
 viewport abs: rel:
 use_chart_plot_spec
 point_scale

@@ -329,6 +329,36 @@ class ModRotate : public Mod
 
 // ----------------------------------------------------------------------
 
+class ModFlip : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            try {
+                if (auto [present, direction_v] = args().get_value_if("direction"); present) {
+                    const std::string direction = direction_v;
+                    if (direction == "ew")
+                        aChartDraw.flip(0, 1);
+                    else if (direction == "ns")
+                        aChartDraw.flip(1, 0);
+                    else
+                        throw rjson::field_not_found{};
+                }
+                else {
+                    throw rjson::field_not_found{};
+                }
+            }
+            catch (rjson::field_not_found&) {
+                throw unrecognized_mod{"mod: " + args().to_json()};
+            }
+        }
+
+}; // class ModFlip
+
+// ----------------------------------------------------------------------
+
 Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
 {
 #pragma GCC diagnostic push
@@ -374,6 +404,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     }
     else if (name == "rotate") {
         result.emplace_back(new ModRotate(*args));
+    }
+    else if (name == "flip") {
+        result.emplace_back(new ModFlip(*args));
     }
     else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
         for (const auto& submod_desc: referenced_mod) {
