@@ -150,6 +150,9 @@ class ChartDraw
     size_t number_of_sera() const;
     inline size_t number_of_points() const { return number_of_antigens() + number_of_sera(); }
 
+    void export_ace(std::string aFilename);
+    void export_lispmds(std::string aFilename);
+
  private:
     Chart_Type& mChart;
     size_t mProjectionNo;

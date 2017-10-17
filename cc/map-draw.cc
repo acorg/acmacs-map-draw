@@ -29,6 +29,7 @@ int main(int argc, char* const argv[])
                 {"-s", ""},
                 {"--settings", ""},
                 {"--init-settings", ""},
+                {"--save", ""},
                 {"--projection", 0L},
                 {"--seqdb", ""},
                 {"--hidb-dir", ""},
@@ -102,6 +103,15 @@ int draw(const argc_argv& args)
 
     if (const std::string save_settings = args["--init-settings"]; !save_settings.empty())
         acmacs_base::write_file(save_settings, settings.to_json_pp());
+
+    if (const std::string save = args["--save"]; !save.empty()) {
+        if (save.size() > 4 && save.substr(save.size() - 4) == ".ace")
+            chart_draw.export_ace(save);
+        else if ((save.size() > 5 && save.substr(save.size() - 5) == ".save") || (save.size() > 8 && save.substr(save.size() - 8) == ".save.xz"))
+            chart_draw.export_lispmds(save);
+        else
+            throw std::runtime_error("cannot detect export file format for " + save);
+    }
 
     acmacs::quicklook(temp_file, 2);
     return 0;

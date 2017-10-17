@@ -161,6 +161,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
   "legend": {},
   "report": false},
 
+"use_chart_plot_spec"
 "all_grey"
 "clades"
 "clades_last_6_months"

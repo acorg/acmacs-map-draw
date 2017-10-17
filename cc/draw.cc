@@ -4,6 +4,7 @@
 #include "acmacs-base/throw.hh"
 #include "acmacs-base/log.hh"
 #include "acmacs-base/float.hh"
+#include "acmacs-chart/lispmds.hh"
 #include "acmacs-map-draw/draw.hh"
 
 #ifdef ACMACS_TARGET_OS
@@ -94,11 +95,13 @@ void ChartDraw::calculate_viewport(bool verbose)
     viewport.set_from_center_size(bb->center(), bb->diameter());
     viewport.whole_width();
     if (verbose)
-        log("[Calculated]: ", viewport);
+        log("[Calculated]:     ", viewport);
     if (mViewport.empty())
         mViewport = viewport;
-    if (verbose)
-        log("[Used]:       ", mViewport);
+    if (verbose) {
+        log("[Used]:           ", mViewport);
+        log("[Transformation]: ", transformation());
+    }
 
 } // ChartDraw::calculate_viewport
 
@@ -234,6 +237,21 @@ void ChartDraw::remove_serum_circles()
     mMapElements.remove("serum-circle");
 
 } // ChartDraw::remove_serum_circles
+
+// ----------------------------------------------------------------------
+
+void ChartDraw::export_ace(std::string aFilename)
+{
+
+} // ChartDraw::export_ace
+
+// ----------------------------------------------------------------------
+
+void ChartDraw::export_lispmds(std::string aFilename)
+{
+    export_chart_lispmds(aFilename, chart(), point_styles_base(), transformation());
+
+} // ChartDraw::export_lispmds
 
 // ----------------------------------------------------------------------
 /// Local Variables:
