@@ -69,14 +69,14 @@ class VaccineMatcherLabel : public VaccineMatcherBase
         }
 
  public:
-    inline VaccineMatcherLabel& display_name(std::string aDisplayName) { for_each_mf(&Label::display_name, aDisplayName); return *this; }
-    inline VaccineMatcherLabel& color(Color aColor) { for_each_mf(&Label::color, aColor); return *this; }
-    inline VaccineMatcherLabel& color(std::string aColor) { for_each_mf(&Label::color, aColor); return *this; }
-    inline VaccineMatcherLabel& size(double aSize) { for_each_mf(&Label::size, aSize); return *this; }
-    inline VaccineMatcherLabel& weight(std::string aWeight) { for_each_mf(&Label::weight, aWeight); return *this; }
-    inline VaccineMatcherLabel& slant(std::string aSlant) { for_each_mf(&Label::slant, aSlant); return *this; }
-    inline VaccineMatcherLabel& font_family(std::string aFamily) { for_each_mf(&Label::font_family, aFamily); return *this; }
-    inline VaccineMatcherLabel& offset(double x, double y) { for_each_mf(&Label::offset, x, y); return *this; }
+    inline VaccineMatcherLabel& display_name(std::string aDisplayName) { for_each_mf(&map_elements::Label::display_name, aDisplayName); return *this; }
+    inline VaccineMatcherLabel& color(Color aColor) { for_each_mf(&map_elements::Label::color, aColor); return *this; }
+    inline VaccineMatcherLabel& color(std::string aColor) { for_each_mf(&map_elements::Label::color, aColor); return *this; }
+    inline VaccineMatcherLabel& size(double aSize) { for_each_mf(&map_elements::Label::size, aSize); return *this; }
+    inline VaccineMatcherLabel& weight(std::string aWeight) { for_each_mf(&map_elements::Label::weight, aWeight); return *this; }
+    inline VaccineMatcherLabel& slant(std::string aSlant) { for_each_mf(&map_elements::Label::slant, aSlant); return *this; }
+    inline VaccineMatcherLabel& font_family(std::string aFamily) { for_each_mf(&map_elements::Label::font_family, aFamily); return *this; }
+    inline VaccineMatcherLabel& offset(double x, double y) { for_each_mf(&map_elements::Label::offset, x, y); return *this; }
     VaccineMatcherLabel& name_type(std::string aNameType);
 
     inline VaccineMatcherLabel& hide() { for_each_with_vacc([this](const auto& vacc_entry) { mChartDraw.remove_label(vacc_entry.antigen_index); }, false); return *this; }

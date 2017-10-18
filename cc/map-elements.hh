@@ -11,277 +11,305 @@
 
 // ----------------------------------------------------------------------
 
-class MapElement;
 class Surface;
 class ChartDraw;
 
 // ----------------------------------------------------------------------
 
-class MapElements
+namespace map_elements
 {
- public:
-    enum Order { BeforePoints, AfterPoints };
+    class Element;
 
-    MapElements();
-    MapElement& operator[](std::string aKeyword);
-    MapElement& add(std::string aKeyword);
-    void remove(std::string aKeyword);
-
-    void draw(Surface& aSurface, Order aOrder, const ChartDraw& aChartDraw) const;
-
- private:
-    std::vector<std::shared_ptr<MapElement>> mElements;
-
-}; // class MapElements
-
-// ----------------------------------------------------------------------
-
-class MapElement
-{
- public:
-    inline MapElement(std::string aKeyword, MapElements::Order aOrder) : mKeyword(aKeyword), mOrder(aOrder) {}
-    inline MapElement(const MapElement&) = default;
-    virtual ~MapElement();
-
-    inline std::string keyword() const { return mKeyword; }
-    inline MapElements::Order order() const { return mOrder; }
-    virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const = 0;
-
- protected:
-    virtual Location subsurface_origin(Surface& aSurface, const Location& aPixelOrigin, const Size& aScaledSubsurfaceSize) const;
-
-    inline void keyword(std::string aKeyword) { mKeyword = aKeyword; }
-
- private:
-    std::string mKeyword;
-    MapElements::Order mOrder;
-};
-
-// ----------------------------------------------------------------------
-
-class BackgroundBorderGrid : public MapElement
-{
- public:
-    inline BackgroundBorderGrid()
-        : MapElement("background-border-grid", MapElements::BeforePoints),
-          mBackgroud("white"), mGridColor("grey80"), mGridLineWidth(1), mBorderColor("black"), mBorderWidth(1) {}
-
-    void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
-
-    inline void background_color(Color aBackgroud) { mBackgroud = aBackgroud; }
-    inline void grid(Color aGridColor, double aGridLineWidth) { mGridColor = aGridColor; mGridLineWidth = aGridLineWidth; }
-    inline void border(Color aBorderColor, double aBorderWidth) { mBorderColor = aBorderColor; mBorderWidth = aBorderWidth; }
-
- private:
-    Color mBackgroud;
-    Color mGridColor;
-    Pixels mGridLineWidth;
-    Color mBorderColor;
-    Pixels mBorderWidth;
-
-}; // class BackgroundBorderGrid
-
-// ----------------------------------------------------------------------
-
-class ContinentMap : public MapElement
-{
- public:
-    inline ContinentMap() : MapElement("continent-map", MapElements::AfterPoints), mOrigin{0, 0}, mWidthInParent(100) {}
-
-    void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
-    inline void offset_width(const Location& aOrigin, Pixels aWidthInParent) { mOrigin = aOrigin; mWidthInParent = aWidthInParent; }
-
- private:
-    Location mOrigin;
-    Pixels mWidthInParent;
-
-}; // class ContinentMap
-
-// ----------------------------------------------------------------------
-
-class LegendPointLabel : public MapElement
-{
- public:
-    struct Line
+    class Elements
     {
-        inline Line(Color aOutline, Color aFill, std::string aLabel) : outline(aOutline), fill(aFill), label(aLabel) {}
-        Color outline, fill;
-        std::string label;
+     public:
+        enum Order { BeforePoints, AfterPoints };
+
+        Elements();
+        Element& operator[](std::string aKeyword);
+        Element& add(std::string aKeyword);
+        void remove(std::string aKeyword);
+
+        void draw(Surface& aSurface, Order aOrder, const ChartDraw& aChartDraw) const;
+
+     private:
+        std::vector<std::shared_ptr<Element>> mElements;
+
+    }; // class Elements
+
+// ----------------------------------------------------------------------
+
+    class Element
+    {
+     public:
+        inline Element(std::string aKeyword, Elements::Order aOrder) : mKeyword(aKeyword), mOrder(aOrder) {}
+        inline Element(const Element&) = default;
+        virtual ~Element();
+
+        inline std::string keyword() const { return mKeyword; }
+        inline Elements::Order order() const { return mOrder; }
+        virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const = 0;
+
+     protected:
+        virtual Location subsurface_origin(Surface& aSurface, const Location& aPixelOrigin, const Size& aScaledSubsurfaceSize) const;
+
+        inline void keyword(std::string aKeyword) { mKeyword = aKeyword; }
+
+     private:
+        std::string mKeyword;
+        Elements::Order mOrder;
     };
 
-    LegendPointLabel();
+// ----------------------------------------------------------------------
 
-    void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
+    class BackgroundBorderGrid : public Element
+    {
+     public:
+        inline BackgroundBorderGrid()
+            : Element("background-border-grid", Elements::BeforePoints),
+              mBackgroud("white"), mGridColor("grey80"), mGridLineWidth(1), mBorderColor("black"), mBorderWidth(1) {}
 
-    inline void offset(const Location& aOrigin) { mOrigin = aOrigin; }
-    inline void add_line(Color outline, Color fill, std::string label) { mLines.emplace_back(outline, fill, label); }
-    inline void label_size(double aLabelSize) { mLabelSize = aLabelSize; }
-    inline void point_size(double aPointSize) { mPointSize = aPointSize; }
-    inline void background(Color aBackgroud) { mBackgroud = aBackgroud; }
-    inline void border_color(Color aBorderColor) { mBorderColor = aBorderColor; }
-    inline void border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; }
+        void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
 
- private:
-    Location mOrigin;
-    Color mBackgroud;
-    Color mBorderColor;
-    Pixels mBorderWidth;
-    Pixels mPointSize;
-    Color mLabelColor;
-    Pixels mLabelSize;
-    TextStyle mLabelStyle;
-    double mInterline;
-    std::vector<Line> mLines;
+        inline void background_color(Color aBackgroud) { mBackgroud = aBackgroud; }
+        inline void grid(Color aGridColor, double aGridLineWidth) { mGridColor = aGridColor; mGridLineWidth = aGridLineWidth; }
+        inline void border(Color aBorderColor, double aBorderWidth) { mBorderColor = aBorderColor; mBorderWidth = aBorderWidth; }
 
-}; // class ContinentMap
+     private:
+        Color mBackgroud;
+        Color mGridColor;
+        Pixels mGridLineWidth;
+        Color mBorderColor;
+        Pixels mBorderWidth;
+
+    }; // class BackgroundBorderGrid
 
 // ----------------------------------------------------------------------
 
-class Title : public MapElement
-{
- public:
-    Title();
+    class ContinentMap : public Element
+    {
+     public:
+        inline ContinentMap() : Element("continent-map", Elements::AfterPoints), mOrigin{0, 0}, mWidthInParent(100) {}
 
-    virtual void draw(Surface& aSurface) const;
-    inline void draw(Surface& aSurface, const ChartDraw&) const override { draw(aSurface); }
+        void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
+        inline void offset_width(const Location& aOrigin, Pixels aWidthInParent) { mOrigin = aOrigin; mWidthInParent = aWidthInParent; }
 
-    inline Title& show(bool aShow) { mShow = aShow; return *this; }
-    inline Title& offset(const Location& aOrigin) { mOrigin = aOrigin; return *this; }
-    inline Title& offset(double x, double y) { mOrigin.set(x, y); return *this; }
-    inline Title& padding(double x) { mPadding = x; return *this; }
-    inline Title& remove_all_lines() { mLines.clear(); return *this; }
-    inline Title& add_line(std::string aText) { mLines.emplace_back(aText); return *this; }
-    inline Title& text_size(double aTextSize) { mTextSize = aTextSize; return *this; }
-    inline Title& text_color(Color aTextColor) { mTextColor = aTextColor; return *this; }
-    inline Title& background(Color aBackgroud) { mBackgroud = aBackgroud; return *this; }
-    inline Title& border_color(Color aBorderColor) { mBorderColor = aBorderColor; return *this; }
-    inline Title& border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; return *this; }
-    inline Title& weight(std::string aWeight) { mTextStyle.weight(aWeight); return *this; }
-    inline Title& slant(std::string aSlant) { mTextStyle.slant(aSlant); return *this; }
-    inline Title& font_family(std::string aFamily) { mTextStyle.font_family(aFamily); return *this; }
+     private:
+        Location mOrigin;
+        Pixels mWidthInParent;
 
- private:
-    bool mShow;
-    Location mOrigin;
-    Pixels mPadding;
-    Color mBackgroud;
-    Color mBorderColor;
-    Pixels mBorderWidth;
-    Color mTextColor;
-    Pixels mTextSize;
-    TextStyle mTextStyle;
-    double mInterline;
-    std::vector<std::string> mLines;
-
-}; // class ContinentMap
+    }; // class ContinentMap
 
 // ----------------------------------------------------------------------
 
-class SerumCircle : public MapElement
-{
- public:
-    inline SerumCircle()
-        : MapElement("serum-circle", MapElements::AfterPoints), mSerumNo(static_cast<size_t>(-1)),
-          mFillColor("transparent"), mOutlineColor("pink"), mOutlineWidth(1),
-          mRadiusColor("pink"), mRadiusWidth(1), mRadiusDash(Surface::Dash::Dash1), mStart(0), mEnd(0) {}
+    class LegendPointLabel : public Element
+    {
+     public:
+        struct Line
+        {
+            inline Line(Color aOutline, Color aFill, std::string aLabel) : outline(aOutline), fill(aFill), label(aLabel) {}
+            Color outline, fill;
+            std::string label;
+        };
 
-    void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
+        LegendPointLabel();
 
-    inline SerumCircle& serum_no(size_t aSerumNo) { mSerumNo = aSerumNo; return *this; }
-    inline SerumCircle& radius(Scaled aRadius) { mRadius = aRadius; return *this; }
-    inline SerumCircle& fill(Color aFill) { mFillColor = aFill; return *this; }
-    inline SerumCircle& outline(Color aOutline, double aOutlineWidth) { mOutlineColor = aOutline; mOutlineWidth = aOutlineWidth; return *this; }
-    inline SerumCircle& radius_line(Color aRadius, double aRadiusWidth) { mRadiusColor = aRadius; mRadiusWidth = aRadiusWidth; return *this; }
-    inline SerumCircle& angles(double aStart, double aEnd) { mStart = aStart; mEnd = aEnd; return *this; }
-    inline SerumCircle& radius_line_no_dash() { mRadiusDash = Surface::Dash::NoDash; return *this; }
-    inline SerumCircle& radius_line_dash1() { mRadiusDash = Surface::Dash::Dash1; return *this; }
-    inline SerumCircle& radius_line_dash2() { mRadiusDash = Surface::Dash::Dash2; return *this; }
+        void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
 
- private:
-    size_t mSerumNo;
-    Scaled mRadius;
-    Color mFillColor;
-    Color mOutlineColor;
-    Pixels mOutlineWidth;
-    Color mRadiusColor;
-    Pixels mRadiusWidth;
-    Surface::Dash mRadiusDash;
-    Rotation mStart;
-    Rotation mEnd;
+        inline void offset(const Location& aOrigin) { mOrigin = aOrigin; }
+        inline void add_line(Color outline, Color fill, std::string label) { mLines.emplace_back(outline, fill, label); }
+        inline void label_size(double aLabelSize) { mLabelSize = aLabelSize; }
+        inline void point_size(double aPointSize) { mPointSize = aPointSize; }
+        inline void background(Color aBackgroud) { mBackgroud = aBackgroud; }
+        inline void border_color(Color aBorderColor) { mBorderColor = aBorderColor; }
+        inline void border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; }
 
-}; // class SerumCircle
+     private:
+        Location mOrigin;
+        Color mBackgroud;
+        Color mBorderColor;
+        Pixels mBorderWidth;
+        Pixels mPointSize;
+        Color mLabelColor;
+        Pixels mLabelSize;
+        TextStyle mLabelStyle;
+        double mInterline;
+        std::vector<Line> mLines;
 
-// ----------------------------------------------------------------------
-
-class Line : public MapElement
-{
- public:
-    inline Line()
-        : MapElement{"line", MapElements::AfterPoints}, mLineColor{"pink"}, mLineWidth{1} {}
-
-    void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
-
-    inline Line& from_to(const Location& aBegin, const Location& aEnd) { mBegin = aBegin; mEnd = aEnd; return *this; }
-    inline Line& color(Color aColor) { mLineColor = aColor; return *this; }
-    inline Line& line_width(double aLineWidth) { mLineWidth = aLineWidth; return *this; }
-
- protected:
-    Location mBegin;
-    Location mEnd;
-    Color mLineColor;
-    Pixels mLineWidth;
-
-}; // class Line
+    }; // class ContinentMap
 
 // ----------------------------------------------------------------------
 
-class Arrow : public Line
-{
- public:
-    inline Arrow() : Line(), mArrowHeadColor{"pink"}, mArrowHeadFilled{true}, mArrowWidth{5} { keyword("arrow"); }
+    class Title : public Element
+    {
+     public:
+        Title();
 
-    void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
+        virtual void draw(Surface& aSurface) const;
+        inline void draw(Surface& aSurface, const ChartDraw&) const override { draw(aSurface); }
 
-    inline Arrow& from_to(const Location& aBegin, const Location& aEnd) { Line::from_to(aBegin, aEnd); return *this; }
-    inline Arrow& color(Color aLineColor, Color aArrowHeadColor) { Line::color(aLineColor); mArrowHeadColor = aArrowHeadColor; return *this; }
-    inline Arrow& color(Color aColor) { return color(aColor, aColor); }
-    inline Arrow& arrow_head_filled(bool aFilled) { mArrowHeadFilled = aFilled; return *this; }
-    inline Arrow& line_width(double aLineWidth) { Line::line_width(aLineWidth); return *this; }
-    inline Arrow& arrow_width(double aArrowWidth) { mArrowWidth = aArrowWidth; return *this; }
+        inline Title& show(bool aShow) { mShow = aShow; return *this; }
+        inline Title& offset(const Location& aOrigin) { mOrigin = aOrigin; return *this; }
+        inline Title& offset(double x, double y) { mOrigin.set(x, y); return *this; }
+        inline Title& padding(double x) { mPadding = x; return *this; }
+        inline Title& remove_all_lines() { mLines.clear(); return *this; }
+        inline Title& add_line(std::string aText) { mLines.emplace_back(aText); return *this; }
+        inline Title& text_size(double aTextSize) { mTextSize = aTextSize; return *this; }
+        inline Title& text_color(Color aTextColor) { mTextColor = aTextColor; return *this; }
+        inline Title& background(Color aBackgroud) { mBackgroud = aBackgroud; return *this; }
+        inline Title& border_color(Color aBorderColor) { mBorderColor = aBorderColor; return *this; }
+        inline Title& border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; return *this; }
+        inline Title& weight(std::string aWeight) { mTextStyle.weight(aWeight); return *this; }
+        inline Title& slant(std::string aSlant) { mTextStyle.slant(aSlant); return *this; }
+        inline Title& font_family(std::string aFamily) { mTextStyle.font_family(aFamily); return *this; }
 
- private:
-    Color mArrowHeadColor;
-    bool mArrowHeadFilled;
-    Pixels mArrowWidth;
+     private:
+        bool mShow;
+        Location mOrigin;
+        Pixels mPadding;
+        Color mBackgroud;
+        Color mBorderColor;
+        Pixels mBorderWidth;
+        Color mTextColor;
+        Pixels mTextSize;
+        TextStyle mTextStyle;
+        double mInterline;
+        std::vector<std::string> mLines;
 
-}; // class Arrow
+    }; // class ContinentMap
 
 // ----------------------------------------------------------------------
 
-class Point : public MapElement
-{
- public:
-    inline Point()
-        : MapElement{"point", MapElements::AfterPoints}, mSize{10}, mFillColor{"pink"}, mOutlineColor{"pink"},
-          mOutlineWidth{1}, mAspect{AspectNormal}, mRotation{NoRotation} {}
+    class SerumCircle : public Element
+    {
+     public:
+        inline SerumCircle()
+            : Element("serum-circle", Elements::AfterPoints), mSerumNo(static_cast<size_t>(-1)),
+              mFillColor("transparent"), mOutlineColor("pink"), mOutlineWidth(1),
+              mRadiusColor("pink"), mRadiusWidth(1), mRadiusDash(Surface::Dash::Dash1), mStart(0), mEnd(0) {}
 
-    void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
+        void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
 
-    inline Point& center(const Location& aCenter) { mCenter = aCenter; return *this; }
-    inline Point& size(Pixels aSize) { mSize = aSize; return *this; }
-    inline Point& color(Color aFillColor, Color aOutlineColor) { mFillColor = aFillColor; mOutlineColor = aOutlineColor; return *this; }
-    inline Point& outline_width(double aOutlineWidth) { mOutlineWidth = aOutlineWidth; return *this; }
+        inline SerumCircle& serum_no(size_t aSerumNo) { mSerumNo = aSerumNo; return *this; }
+        inline SerumCircle& radius(Scaled aRadius) { mRadius = aRadius; return *this; }
+        inline SerumCircle& fill(Color aFill) { mFillColor = aFill; return *this; }
+        inline SerumCircle& outline(Color aOutline, double aOutlineWidth) { mOutlineColor = aOutline; mOutlineWidth = aOutlineWidth; return *this; }
+        inline SerumCircle& radius_line(Color aRadius, double aRadiusWidth) { mRadiusColor = aRadius; mRadiusWidth = aRadiusWidth; return *this; }
+        inline SerumCircle& angles(double aStart, double aEnd) { mStart = aStart; mEnd = aEnd; return *this; }
+        inline SerumCircle& radius_line_no_dash() { mRadiusDash = Surface::Dash::NoDash; return *this; }
+        inline SerumCircle& radius_line_dash1() { mRadiusDash = Surface::Dash::Dash1; return *this; }
+        inline SerumCircle& radius_line_dash2() { mRadiusDash = Surface::Dash::Dash2; return *this; }
 
- private:
-    Location mCenter;
-    Pixels mSize;
-    Color mFillColor;
-    Color mOutlineColor;
-    Pixels mOutlineWidth;
-    Aspect mAspect;
-    Rotation mRotation;
+     private:
+        size_t mSerumNo;
+        Scaled mRadius;
+        Color mFillColor;
+        Color mOutlineColor;
+        Pixels mOutlineWidth;
+        Color mRadiusColor;
+        Pixels mRadiusWidth;
+        Surface::Dash mRadiusDash;
+        Rotation mStart;
+        Rotation mEnd;
 
-}; // class Point
+    }; // class SerumCircle
+
+// ----------------------------------------------------------------------
+
+    class Line : public Element
+    {
+     public:
+        inline Line()
+            : Element{"line", Elements::AfterPoints}, mLineColor{"pink"}, mLineWidth{1} {}
+
+        void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
+
+        inline Line& from_to(const Location& aBegin, const Location& aEnd) { mBegin = aBegin; mEnd = aEnd; return *this; }
+        inline Line& color(Color aColor) { mLineColor = aColor; return *this; }
+        inline Line& line_width(double aLineWidth) { mLineWidth = aLineWidth; return *this; }
+
+     protected:
+        Location mBegin;
+        Location mEnd;
+        Color mLineColor;
+        Pixels mLineWidth;
+
+    }; // class Line
+
+// ----------------------------------------------------------------------
+
+    class Arrow : public Line
+    {
+     public:
+        inline Arrow() : Line(), mArrowHeadColor{"pink"}, mArrowHeadFilled{true}, mArrowWidth{5} { keyword("arrow"); }
+
+        void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
+
+        inline Arrow& from_to(const Location& aBegin, const Location& aEnd) { Line::from_to(aBegin, aEnd); return *this; }
+        inline Arrow& color(Color aLineColor, Color aArrowHeadColor) { Line::color(aLineColor); mArrowHeadColor = aArrowHeadColor; return *this; }
+        inline Arrow& color(Color aColor) { return color(aColor, aColor); }
+        inline Arrow& arrow_head_filled(bool aFilled) { mArrowHeadFilled = aFilled; return *this; }
+        inline Arrow& line_width(double aLineWidth) { Line::line_width(aLineWidth); return *this; }
+        inline Arrow& arrow_width(double aArrowWidth) { mArrowWidth = aArrowWidth; return *this; }
+
+     private:
+        Color mArrowHeadColor;
+        bool mArrowHeadFilled;
+        Pixels mArrowWidth;
+
+    }; // class Arrow
+
+// ----------------------------------------------------------------------
+
+    class Rectangle : public Element
+    {
+     public:
+        inline Rectangle()
+            : Element{"rectangle", Elements::AfterPoints}, mColor{0x8000FFFF}, mFilled{true}, mLineWidth{1} {}
+
+        void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
+
+        inline Rectangle& corners(const Location& aCorner1, const Location& aCorner2) { mCorner1 = aCorner1; mCorner2 = aCorner2; return *this; }
+        inline Rectangle& color(Color aColor) { mColor = aColor; return *this; }
+        inline Rectangle& filled(bool aFilled) { mFilled = aFilled; return *this; }
+        inline Rectangle& line_width(double aLineWidth) { mLineWidth = aLineWidth; return *this; }
+
+     protected:
+        Location mCorner1, mCorner2;
+        Color mColor;
+        bool mFilled;
+        Pixels mLineWidth;
+
+    }; // class Rectangle
+
+// ----------------------------------------------------------------------
+
+    class Point : public Element
+    {
+     public:
+        inline Point()
+            : Element{"point", Elements::AfterPoints}, mSize{10}, mFillColor{"pink"}, mOutlineColor{"pink"},
+              mOutlineWidth{1}, mAspect{AspectNormal}, mRotation{NoRotation} {}
+
+        void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
+
+        inline Point& center(const Location& aCenter) { mCenter = aCenter; return *this; }
+        inline Point& size(Pixels aSize) { mSize = aSize; return *this; }
+        inline Point& color(Color aFillColor, Color aOutlineColor) { mFillColor = aFillColor; mOutlineColor = aOutlineColor; return *this; }
+        inline Point& outline_width(double aOutlineWidth) { mOutlineWidth = aOutlineWidth; return *this; }
+
+     private:
+        Location mCenter;
+        Pixels mSize;
+        Color mFillColor;
+        Color mOutlineColor;
+        Pixels mOutlineWidth;
+        Aspect mAspect;
+        Rotation mRotation;
+
+    }; // class Point
+
+} // namespace map_elements
 
 // ----------------------------------------------------------------------
 /// Local Variables:

@@ -116,7 +116,7 @@ void ChartDraw::draw(Surface& aSurface) const
     }
 
     Surface& rescaled_surface = aSurface.subsurface({0, 0}, Scaled{aSurface.viewport().size.width}, mViewport, true);
-    mMapElements.draw(rescaled_surface, MapElements::BeforePoints, *this);
+    mMapElements.draw(rescaled_surface, map_elements::Elements::BeforePoints, *this);
 
     const auto& layout = transformed_layout();
     for (auto index: mDrawingOrder) {
@@ -126,7 +126,7 @@ void ChartDraw::draw(Surface& aSurface) const
     }
     mLabels.draw(rescaled_surface, layout, mPointStyles);
 
-    mMapElements.draw(rescaled_surface, MapElements::AfterPoints, *this);
+    mMapElements.draw(rescaled_surface, map_elements::Elements::AfterPoints, *this);
 
 } // ChartDraw::draw
 
@@ -202,9 +202,9 @@ void ChartDraw::mark_all_grey(Color aColor)
 
 // ----------------------------------------------------------------------
 
-SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadius)
+map_elements::SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadius)
 {
-    auto& serum_circle = DYNAMIC_CAST(SerumCircle&, (mMapElements.add("serum-circle")));
+    auto& serum_circle = DYNAMIC_CAST(map_elements::SerumCircle&, (mMapElements.add("serum-circle")));
     serum_circle.serum_no(aSerumNo);
     serum_circle.radius(aRadius);
     return serum_circle;
@@ -213,9 +213,9 @@ SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadius)
 
 // ----------------------------------------------------------------------
 
-Line& ChartDraw::line(const Location& aBegin, const Location& aEnd)
+map_elements::Line& ChartDraw::line(const Location& aBegin, const Location& aEnd)
 {
-    auto& line = DYNAMIC_CAST(Line&, (mMapElements.add("line")));
+    auto& line = DYNAMIC_CAST(map_elements::Line&, (mMapElements.add("line")));
     line.from_to(aBegin, aEnd);
     return line;
 
@@ -223,9 +223,9 @@ Line& ChartDraw::line(const Location& aBegin, const Location& aEnd)
 
 // ----------------------------------------------------------------------
 
-Arrow& ChartDraw::arrow(const Location& aBegin, const Location& aEnd)
+map_elements::Arrow& ChartDraw::arrow(const Location& aBegin, const Location& aEnd)
 {
-    auto& arrow = DYNAMIC_CAST(Arrow&, (mMapElements.add("arrow")));
+    auto& arrow = DYNAMIC_CAST(map_elements::Arrow&, (mMapElements.add("arrow")));
     arrow.from_to(aBegin, aEnd);
     return arrow;
 
@@ -233,14 +233,24 @@ Arrow& ChartDraw::arrow(const Location& aBegin, const Location& aEnd)
 
 // ----------------------------------------------------------------------
 
-Point& ChartDraw::point(const Location& aCenter, Pixels aSize)
+map_elements::Point& ChartDraw::point(const Location& aCenter, Pixels aSize)
 {
-    auto& point = DYNAMIC_CAST(Point&, (mMapElements.add("point")));
+    auto& point = DYNAMIC_CAST(map_elements::Point&, (mMapElements.add("point")));
     point.center(aCenter);
     point.size(aSize);
     return point;
 
 } // ChartDraw::point
+
+// ----------------------------------------------------------------------
+
+map_elements::Rectangle& ChartDraw::rectangle(const Location& aCorner1, const Location& aCorner2)
+{
+    auto& rectangle = DYNAMIC_CAST(map_elements::Rectangle&, (mMapElements.add("rectangle")));
+    rectangle.corners(aCorner1, aCorner2);
+    return rectangle;
+
+} // ChartDraw::rectangle
 
 // ----------------------------------------------------------------------
 

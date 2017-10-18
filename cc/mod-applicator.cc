@@ -673,6 +673,25 @@ class ModArrow : public ModLine
 
 // ----------------------------------------------------------------------
 
+class ModRectangle : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            const rjson::array& c1 = args()["corner1"];
+            const rjson::array& c2 = args()["corner2"];
+            auto& rectangle = aChartDraw.rectangle({c1[0], c1[1]}, {c2[0], c2[1]});
+            rectangle.filled(args().get_or_default("filled", false));
+            rectangle.color(args().get_or_default("color", "#80FF00FF"));
+            rectangle.line_width(args().get_or_default("line_width", 1));
+        }
+
+}; // class ModRectangle
+
+// ----------------------------------------------------------------------
+
 Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
 {
 #pragma GCC diagnostic push
@@ -751,6 +770,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     }
     else if (name == "arrow") {
         result.emplace_back(new ModArrow(*args));
+    }
+    else if (name == "rectangle") {
+        result.emplace_back(new ModRectangle(*args));
     }
     else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
         for (const auto& submod_desc: referenced_mod) {

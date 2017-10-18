@@ -3,6 +3,8 @@
 #include "acmacs-map-draw/labels.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 
+using namespace map_elements;
+
 // ----------------------------------------------------------------------
 
 Label::Label(size_t aIndex)

@@ -50,13 +50,13 @@ class GeographicMapDraw
     virtual void draw(std::string aFilename, double aImageWidth);
 
     void add_point(double aLat, double aLong, Color aFill, Pixels aSize);
-    inline Title& title() { return mTitle; }
+    inline map_elements::Title& title() { return mTitle; }
 
  private:
     Color mOutline;
     Pixels mOutlineWidth;
     GeographicMapPoints mPoints;
-    Title mTitle;
+    map_elements::Title mTitle;
 
     virtual void draw(Surface& aOutlineSurface, Surface& aPointSurface) const;
 
@@ -274,7 +274,7 @@ class GeographicTimeSeriesBase
         : mMap(aVirusType, aPointSizeInPixels, aPointDensity, aOutlineColor, aOutlineWidth) {}
     virtual ~GeographicTimeSeriesBase();
 
-    inline Title& title() { return mMap.title(); }
+    inline map_elements::Title& title() { return mMap.title(); }
     virtual void draw(std::string aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const = 0;
     void draw(std::string aFilenamePrefix, TimeSeriesIterator& aBegin, const TimeSeriesIterator& aEnd, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const;
 

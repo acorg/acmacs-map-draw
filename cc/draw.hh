@@ -122,22 +122,23 @@ class ChartDraw
 
     DrawingOrder& drawing_order() { return mDrawingOrder; }
 
-    inline void background_color(Color aBackgroud) { DYNAMIC_CAST(BackgroundBorderGrid&, (mMapElements["background-border-grid"])).background_color(aBackgroud); }
-    inline void grid(Color aGridColor, double aGridLineWidth) { DYNAMIC_CAST(BackgroundBorderGrid&, (mMapElements["background-border-grid"])).grid(aGridColor, aGridLineWidth); }
-    inline void border(Color aBorderColor, double aBorderWidth) { DYNAMIC_CAST(BackgroundBorderGrid&, (mMapElements["background-border-grid"])).border(aBorderColor, aBorderWidth); }
-    inline void continent_map(const Location& aOffset, Pixels aWidth) { DYNAMIC_CAST(ContinentMap&, (mMapElements["continent-map"])).offset_width(aOffset, aWidth); }
-    inline LegendPointLabel& legend(const Location& aOffset) { auto& legend = DYNAMIC_CAST(LegendPointLabel&, (mMapElements["legend-point-label"])); legend.offset(aOffset); return legend; }
-    inline LegendPointLabel& legend() { return DYNAMIC_CAST(LegendPointLabel&, (mMapElements["legend-point-label"])); }
+    inline void background_color(Color aBackgroud) { DYNAMIC_CAST(map_elements::BackgroundBorderGrid&, (mMapElements["background-border-grid"])).background_color(aBackgroud); }
+    inline void grid(Color aGridColor, double aGridLineWidth) { DYNAMIC_CAST(map_elements::BackgroundBorderGrid&, (mMapElements["background-border-grid"])).grid(aGridColor, aGridLineWidth); }
+    inline void border(Color aBorderColor, double aBorderWidth) { DYNAMIC_CAST(map_elements::BackgroundBorderGrid&, (mMapElements["background-border-grid"])).border(aBorderColor, aBorderWidth); }
+    inline void continent_map(const Location& aOffset, Pixels aWidth) { DYNAMIC_CAST(map_elements::ContinentMap&, (mMapElements["continent-map"])).offset_width(aOffset, aWidth); }
+    inline map_elements::LegendPointLabel& legend(const Location& aOffset) { auto& legend = DYNAMIC_CAST(map_elements::LegendPointLabel&, (mMapElements["legend-point-label"])); legend.offset(aOffset); return legend; }
+    inline map_elements::LegendPointLabel& legend() { return DYNAMIC_CAST(map_elements::LegendPointLabel&, (mMapElements["legend-point-label"])); }
     inline void remove_legend() { mMapElements.remove("legend-point-label"); }
-    inline Title& title(const Location& aOffset) { auto& title = DYNAMIC_CAST(Title&, (mMapElements["title"])); title.offset(aOffset); return title; }
-    inline Title& title() { return DYNAMIC_CAST(Title&, (mMapElements["title"])); }
-    inline Labels& labels() { return mLabels; }
-    inline Label& add_label(size_t aIndex) { return mLabels.add(aIndex, mChart); }
+    inline map_elements::Title& title(const Location& aOffset) { auto& title = DYNAMIC_CAST(map_elements::Title&, (mMapElements["title"])); title.offset(aOffset); return title; }
+    inline map_elements::Title& title() { return DYNAMIC_CAST(map_elements::Title&, (mMapElements["title"])); }
+    inline map_elements::Labels& labels() { return mLabels; }
+    inline map_elements::Label& add_label(size_t aIndex) { return mLabels.add(aIndex, mChart); }
     inline void remove_label(size_t aIndex) { return mLabels.remove(aIndex); }
-    SerumCircle& serum_circle(size_t aSerumNo, Scaled aRadius);
-    Line& line(const Location& aBegin, const Location& aEnd);
-    Arrow& arrow(const Location& aBegin, const Location& aEnd);
-    Point& point(const Location& aCenter, Pixels aSize);
+    map_elements::SerumCircle& serum_circle(size_t aSerumNo, Scaled aRadius);
+    map_elements::Line& line(const Location& aBegin, const Location& aEnd);
+    map_elements::Arrow& arrow(const Location& aBegin, const Location& aEnd);
+    map_elements::Point& point(const Location& aCenter, Pixels aSize);
+    map_elements::Rectangle& rectangle(const Location& aCorner1, const Location& aCorner2);
     void remove_serum_circles();
 
     inline const LayoutBase& transformed_layout() const
@@ -163,8 +164,8 @@ class ChartDraw
     Transformation mTransformation;
     std::vector<PointStyleDraw> mPointStyles;
     DrawingOrder mDrawingOrder;
-    MapElements mMapElements;
-    Labels mLabels;
+    map_elements::Elements mMapElements;
+    map_elements::Labels mLabels;
     mutable std::unique_ptr<LayoutBase> mTransformedLayout;
 
 }; // class ChartDraw

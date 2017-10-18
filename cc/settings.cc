@@ -11,15 +11,6 @@ static const char* const SETTINGS_DEFAULT = R"(
     "egg",
     "?clades",
 
-    {"?N": "arrow", "to": [-3, 0], "from": [0, 0], "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
-    {"?N": "arrow", "from": [-3, 2], "to": [0, 2], "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
-    {"?N": "arrow", "from": [-3, 2], "to": [0, 4], "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
-    {"?N": "arrow", "from": [0, 0], "to": [5, 5], "width": 1, "color": "green", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
-    {"?N": "arrow", "from": [5, 3], "to": [-1, 3], "width": 1, "color": "green", "head_filled": false, "head_color": "magenta", "arrow_width": 10, "report": true},
-    {"?N": "arrow", "from": [5, 2], "to": [5, -2], "width": 1, "color": "green", "head_filled": false, "head_color": "magenta", "arrow_width": 10, "report": true},
-    {"?N": "arrow", "from": [-3, 2], "to": [5, 2], "width": 1, "color": "green", "head_filled": false, "head_color": "magenta", "arrow_width": 10, "report": true},
-    {"N": "arrow", "to_antigen": {"reference": true}, "from": [0, 0], "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
-
     "?vaccines"
   ]
 }
@@ -193,6 +184,8 @@ static const char* const SETTINGS_HELP_MODS = R"(
 
 {"N": "arrow", "to_antigen": {<antigen-select>}, "from": [0, 0], "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
 
+{"N": "rectangle", "corner1": [-2, -1.5], "corner2": [0.5, 3], "filled": true, "color": "#80FF0000"}
+
 {"N": "rotate", "degrees": 30, "radians": 1} positive -> counter-clockwise
 {"N": "flip", "direction": "ew|ns"}
 {"N": "viewport", "rel": [-1, 1, -5], "?abs": [-5, -5, 10]}
@@ -216,7 +209,7 @@ sera
   serum_circle
   serum_coverage
 
-rectangle corner1: corner2:
+path path:[], line_width: color: close: false filled: false
 circle  center: radius: aspect: rotation:
 
 Derived:

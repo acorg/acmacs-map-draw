@@ -4,15 +4,15 @@
 
 // ----------------------------------------------------------------------
 
-MapElements::MapElements()
+map_elements::Elements::Elements()
 {
     operator[]("background-border-grid");
 
-} // MapElements::MapElements
+} // map_elements::Elements::Elements
 
 // ----------------------------------------------------------------------
 
-MapElement& MapElements::operator[](std::string aKeyword)
+map_elements::Element& map_elements::Elements::operator[](std::string aKeyword)
 {
     for (const auto& element: mElements) {
         if (element->keyword() == aKeyword)
@@ -20,11 +20,11 @@ MapElement& MapElements::operator[](std::string aKeyword)
     }
     return add(aKeyword);
 
-} // MapElements::operator[]
+} // map_elements::Elements::operator[]
 
 // ----------------------------------------------------------------------
 
-MapElement& MapElements::add(std::string aKeyword)
+map_elements::Element& map_elements::Elements::add(std::string aKeyword)
 {
     if (aKeyword == "background-border-grid") {
         mElements.emplace_back(new BackgroundBorderGrid{});
@@ -50,42 +50,45 @@ MapElement& MapElements::add(std::string aKeyword)
     else if (aKeyword == "point") {
         mElements.emplace_back(new Point{});
     }
+    else if (aKeyword == "rectangle") {
+        mElements.emplace_back(new Rectangle{});
+    }
     else {
         THROW_OR_CERR_NO_RETURN(std::runtime_error("Don't know how to make map element " + aKeyword));
     }
     return *mElements.back();
 
-} // MapElements::add
+} // map_elements::Elements::add
 
 // ----------------------------------------------------------------------
 
-void MapElements::remove(std::string aKeyword)
+void map_elements::Elements::remove(std::string aKeyword)
 {
     mElements.erase(std::remove_if(mElements.begin(), mElements.end(), [&aKeyword](const auto& e) { return e->keyword() == aKeyword; }), mElements.end());
 
-} // MapElements::remove
+} // map_elements::Elements::remove
 
 // ----------------------------------------------------------------------
 
-void MapElements::draw(Surface& aSurface, Order aOrder, const ChartDraw& aChartDraw) const
+void map_elements::Elements::draw(Surface& aSurface, Order aOrder, const ChartDraw& aChartDraw) const
 {
     for (const auto& element: mElements) {
         if (element->order() == aOrder)
             element->draw(aSurface, aChartDraw);
     }
 
-} // MapElements::draw
+} // map_elements::Elements::draw
 
 // ----------------------------------------------------------------------
 
-MapElement::~MapElement()
+map_elements::Element::~Element()
 {
 
-} // MapElement::~MapElement
+} // Element::~Element
 
 // ----------------------------------------------------------------------
 
-Location MapElement::subsurface_origin(Surface& aSurface, const Location& aPixelOrigin, const Size& aScaledSubsurfaceSize) const
+Location map_elements::Element::subsurface_origin(Surface& aSurface, const Location& aPixelOrigin, const Size& aScaledSubsurfaceSize) const
 {
     Location subsurface_origin{aSurface.convert(Pixels{aPixelOrigin.x}).value(), aSurface.convert(Pixels{aPixelOrigin.y}).value()};
     const Size& surface_size = aSurface.viewport().size;
@@ -95,21 +98,21 @@ Location MapElement::subsurface_origin(Surface& aSurface, const Location& aPixel
         subsurface_origin.y += surface_size.height - aScaledSubsurfaceSize.height;
     return subsurface_origin;
 
-} // MapElement::subsurface_origin
+} // map_elements::Element::subsurface_origin
 
 // ----------------------------------------------------------------------
 
-void BackgroundBorderGrid::draw(Surface& aSurface, const ChartDraw&) const
+void map_elements::BackgroundBorderGrid::draw(Surface& aSurface, const ChartDraw&) const
 {
     aSurface.background(mBackgroud);
     aSurface.grid(Scaled{1}, mGridColor, mGridLineWidth);
     aSurface.border(mBorderColor, mBorderWidth);
 
-} // BackgroundBorderGrid::draw
+} // map_elements::BackgroundBorderGrid::draw
 
 // ----------------------------------------------------------------------
 
-void ContinentMap::draw(Surface& aSurface, const ChartDraw&) const
+void map_elements::ContinentMap::draw(Surface& aSurface, const ChartDraw&) const
 {
     Location origin = mOrigin;
     if (origin.x < 0)
@@ -119,20 +122,20 @@ void ContinentMap::draw(Surface& aSurface, const ChartDraw&) const
     Surface& continent_surface = aSurface.subsurface(origin, mWidthInParent, continent_map_size(), true);
     continent_map_draw(continent_surface);
 
-} // ContinentMap::draw
+} // map_elements::ContinentMap::draw
 
 // ----------------------------------------------------------------------
 
-LegendPointLabel::LegendPointLabel()
-    : MapElement("legend-point-label", MapElements::AfterPoints), mOrigin{-10, -10},
+map_elements::LegendPointLabel::LegendPointLabel()
+    : Element("legend-point-label", Elements::AfterPoints), mOrigin{-10, -10},
       mBackgroud("white"), mBorderColor("black"), mBorderWidth(0.3), mPointSize(8),
       mLabelColor("black"), mLabelSize(12), mInterline(2.0)
 {
-} // LegendPointLabel::LegendPointLabel
+} // map_elements::LegendPointLabel::LegendPointLabel
 
 // ----------------------------------------------------------------------
 
-void LegendPointLabel::draw(Surface& aSurface, const ChartDraw&) const
+void map_elements::LegendPointLabel::draw(Surface& aSurface, const ChartDraw&) const
 {
     double width = 0, height = 0;
     for (const auto& line: mLines) {
@@ -161,20 +164,20 @@ void LegendPointLabel::draw(Surface& aSurface, const ChartDraw&) const
         y += height * mInterline;
     }
 
-} // LegendPointLabel::draw
+} // map_elements::LegendPointLabel::draw
 
 // ----------------------------------------------------------------------
 
-Title::Title()
-    : MapElement("title", MapElements::AfterPoints), mOrigin{10, 10}, mPadding{10},
+map_elements::Title::Title()
+    : Element("title", Elements::AfterPoints), mOrigin{10, 10}, mPadding{10},
       mBackgroud("grey97"), mBorderColor("black"), mBorderWidth(0.1),
       mTextColor("black"), mTextSize(12), mInterline(2.0)
 {
-} // Title::Title
+} // map_elements::Title::Title
 
 // ----------------------------------------------------------------------
 
-void Title::draw(Surface& aSurface) const
+void map_elements::Title::draw(Surface& aSurface) const
 {
     const double padding = aSurface.convert(mPadding).value();
     if (mShow && (mLines.size() > 1 || (!mLines.empty() && !mLines.front().empty()))) {
@@ -202,11 +205,11 @@ void Title::draw(Surface& aSurface) const
         }
     }
 
-} // Title::draw
+} // map_elements::Title::draw
 
 // ----------------------------------------------------------------------
 
-void SerumCircle::draw(Surface& aSurface, const ChartDraw& aChartDraw) const
+void map_elements::SerumCircle::draw(Surface& aSurface, const ChartDraw& aChartDraw) const
 {
     if (mSerumNo != static_cast<size_t>(-1)) {
         const Coordinates& coord = aChartDraw.transformed_layout()[mSerumNo + aChartDraw.number_of_antigens()];
@@ -218,19 +221,31 @@ void SerumCircle::draw(Surface& aSurface, const ChartDraw& aChartDraw) const
         }
     }
 
-} // SerumCircle::draw
+} // map_elements::SerumCircle::draw
 
 // ----------------------------------------------------------------------
 
-void Line::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
+void map_elements::Line::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     aSurface.line(mBegin, mEnd, mLineColor, mLineWidth);
 
-} // Line::draw
+} // map_elements::Line::draw
 
 // ----------------------------------------------------------------------
 
-void Arrow::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
+void map_elements::Rectangle::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
+{
+    const std::vector<Location> path{mCorner1, {mCorner1.x, mCorner2.y}, mCorner2, {mCorner2.x, mCorner1.y}};
+    if (mFilled)
+        aSurface.path_fill(path.begin(), path.end(), mColor);
+    else
+        aSurface.path_outline(path.begin(), path.end(), mColor, mLineWidth, true);
+
+} // map_elements::Rectangle::draw
+
+// ----------------------------------------------------------------------
+
+void map_elements::Arrow::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     const bool x_eq = float_equal(mEnd.x, mBegin.x);
     const double sign2 = x_eq ? (mBegin.y < mEnd.y ? 1.0 : -1.0) : (mEnd.x < mBegin.x ? 1.0 : -1.0);
@@ -239,15 +254,15 @@ void Arrow::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
     std::cerr << "DEBUG: Arrow " << mBegin << ' ' << mEnd << ' ' << end << " angle:" << angle << " sign2:" << sign2 << ' ' << mArrowHeadColor << '\n';
     aSurface.line(mBegin, end, mLineColor, mLineWidth);
 
-} // Arrow::draw
+} // map_elements::Arrow::draw
 
 // ----------------------------------------------------------------------
 
-void Point::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
+void map_elements::Point::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, mFillColor);
 
-} // Point::draw
+} // map_elements::Point::draw
 
 // ----------------------------------------------------------------------
 
