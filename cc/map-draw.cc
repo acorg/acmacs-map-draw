@@ -30,6 +30,7 @@ int main(int argc, char* const argv[])
                 {"--settings", ""},
                 {"--init-settings", ""},
                 {"--save", ""},
+                {"--open", false},
                 {"--projection", 0L},
                 {"--seqdb", ""},
                 {"--hidb-dir", ""},
@@ -98,8 +99,10 @@ int draw(const argc_argv& args)
     // apply_mods(chart_draw, mods, settings);
 
     chart_draw.calculate_viewport();
-    const auto temp_file = acmacs_base::TempFile(".pdf");
-    chart_draw.draw(temp_file, 800, report_time::Yes);
+
+    acmacs_base::TempFile temp_file(".pdf");
+    const std::string output = args.number_of_arguments() > 1 ? std::string{args[1]} : static_cast<std::string>(temp_file);
+    chart_draw.draw(output, 800, report_time::Yes);
 
     if (const std::string save_settings = args["--init-settings"]; !save_settings.empty())
         acmacs_base::write_file(save_settings, settings.to_json_pp());
@@ -113,7 +116,8 @@ int draw(const argc_argv& args)
             throw std::runtime_error("cannot detect export file format for " + save);
     }
 
-    acmacs::quicklook(temp_file, 2);
+    if (args["--open"])
+        acmacs::quicklook(output, 2);
     return 0;
 
 } // draw

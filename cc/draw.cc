@@ -5,6 +5,7 @@
 #include "acmacs-base/log.hh"
 #include "acmacs-base/float.hh"
 #include "acmacs-chart/lispmds.hh"
+#include "acmacs-chart/ace.hh"
 #include "acmacs-map-draw/draw.hh"
 
 #ifdef ACMACS_TARGET_OS
@@ -242,6 +243,7 @@ void ChartDraw::remove_serum_circles()
 
 void ChartDraw::export_ace(std::string aFilename)
 {
+    export_chart(aFilename, mChart, point_styles_base(), transformation(), report_time::Yes);
 
 } // ChartDraw::export_ace
 
