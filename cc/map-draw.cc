@@ -87,6 +87,7 @@ int draw(const argc_argv& args)
     // std::cout << settings.to_json_pp() << '\n';
 
     try {
+        Timeit ti("applying mods: ");
         apply_mods(chart_draw, settings["apply"], settings);
     }
     catch (rjson::field_not_found& err) {

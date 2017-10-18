@@ -80,7 +80,7 @@ class ChartDraw
                 modify(*first, aStyle, aPointDrawingOrder);
         }
 
-    inline void modify(IndexGenerator&& aGen, const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    inline void modify(acmacs::IndexGenerator&& aGen, const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
             for (auto index: aGen)
                 modify(index, aStyle, aPointDrawingOrder);

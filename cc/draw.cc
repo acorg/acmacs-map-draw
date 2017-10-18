@@ -4,6 +4,7 @@
 #include "acmacs-base/throw.hh"
 #include "acmacs-base/log.hh"
 #include "acmacs-base/float.hh"
+#include "acmacs-base/enumerate.hh"
 #include "acmacs-chart/lispmds.hh"
 #include "acmacs-chart/ace.hh"
 #include "acmacs-map-draw/draw.hh"
@@ -19,7 +20,7 @@
 // ----------------------------------------------------------------------
 
 DrawingOrder::DrawingOrder(Chart_Type& aChart)
-    : std::vector<size_t>(incrementer<size_t>::begin(0), incrementer<size_t>::end(aChart.number_of_points()))
+    : std::vector<size_t>(acmacs::incrementer<size_t>::begin(0), acmacs::incrementer<size_t>::end(aChart.number_of_points()))
 {
 } // DrawingOrder::DrawingOrder
 
@@ -134,7 +135,7 @@ void ChartDraw::draw(Surface& aSurface) const
 #ifdef ACMACS_TARGET_OS
 void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) const
 {
-    Timeit ti("drawing map to " + aFilename + ": ", std::cerr, aTimer);
+    Timeit ti("drawing map to " + aFilename + ": ", aTimer);
     PdfCairo surface(aFilename, aSize, aSize);
     draw(surface);
 
@@ -243,7 +244,35 @@ void ChartDraw::remove_serum_circles()
 
 void ChartDraw::export_ace(std::string aFilename)
 {
-    export_chart(aFilename, mChart, point_styles_base(), transformation(), report_time::Yes);
+    if (mChart.number_of_projections()) {
+        mChart.projection(0).transformation(transformation());
+    }
+    auto& plot_spec = mChart.plot_spec();
+    plot_spec.reset(mChart);
+    for (auto [index, new_style]: acmacs::enumerate(point_styles_base())) {
+        ChartPlotSpecStyle style(new_style.fill(), new_style.outline(), ChartPlotSpecStyle::Circle, new_style.size().value() / 5);
+        switch (new_style.shape()) {
+          case PointStyle::Shape::NoChange:
+              break;
+          case PointStyle::Shape::Circle:
+              style.set_shape(ChartPlotSpecStyle::Circle);
+              break;
+          case PointStyle::Shape::Box:
+              style.set_shape(ChartPlotSpecStyle::Box);
+              break;
+          case PointStyle::Shape::Triangle:
+              style.set_shape(ChartPlotSpecStyle::Triangle);
+              break;
+        }
+        style.shown(new_style.shown());
+        style.outline_width(new_style.outline_width().value());
+        style.rotation(new_style.rotation().value());
+        style.aspect(new_style.aspect().value());
+          // style.label() =
+        plot_spec.set(static_cast<size_t>(index), style);
+    }
+      // drawing order
+    export_chart(aFilename, mChart, report_time::Yes);
 
 } // ChartDraw::export_ace
 
