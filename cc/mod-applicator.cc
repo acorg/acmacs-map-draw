@@ -142,6 +142,7 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::o
 {
     const auto& mods_data_mod = aModData.get_or_empty_object("mods");
     for (const auto& mod_desc: aMods) {
+        Timeit ti{"Applying " + mod_desc.to_json() + ": "};
         try {
             for (const auto& mod: factory(mod_desc, mods_data_mod)) {
                 mod->apply(aChartDraw, aModData);
@@ -599,6 +600,79 @@ class ModUseChartPlotSpec : public Mod
 
 // ----------------------------------------------------------------------
 
+class ModLine : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            const auto begins = begins_ends(aChartDraw, "from");
+            const auto ends = begins_ends(aChartDraw, "to");
+            for(const auto& begin: begins) {
+                for(const auto& end: ends) {
+                    auto& line = aChartDraw.line(begin, end);
+                    line.color(args().get_or_default("color", "black"));
+                    line.line_width(args().get_or_default("width", 1.0));
+                }
+            }
+        }
+
+ protected:
+    std::vector<Location> begins_ends(ChartDraw& aChartDraw, std::string aPrefix) const
+        {
+            std::vector<Location> result;
+            const auto verbose = args().get_or_default("report", false);
+            if (auto [from_present, from] = args().get_array_if(aPrefix); from_present) {
+                result.emplace_back(from[0], from[1]);
+            }
+            else if (auto [from_antigen_present, from_antigen] = args().get_object_if(aPrefix + "_antigen"); from_antigen_present) {
+                for (auto index: SelectAntigens(verbose).select(aChartDraw.chart(), from_antigen)) {
+                    const auto& coord = aChartDraw.layout()[index];
+                    result.emplace_back(coord[0], coord[1]);
+                }
+            }
+            else if (auto [from_serum_present, from_serum] = args().get_object_if(aPrefix + "_serum"); from_serum_present) {
+                for (auto index: SelectSera(verbose).select(aChartDraw.chart(), from_serum)) {
+                    const auto& coord = aChartDraw.layout()[index + aChartDraw.number_of_antigens()];
+                    result.emplace_back(coord[0], coord[1]);
+                }
+            }
+            else
+                throw unrecognized_mod{"neither \"" + aPrefix + "\" nor \"" + aPrefix + "_antigen\" nor \"" + aPrefix + "_serum\" provided in mod: " + args().to_json()};
+            return result;
+        }
+
+}; // class ModLine
+
+// ----------------------------------------------------------------------
+
+class ModArrow : public ModLine
+{
+ public:
+    using ModLine::ModLine;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            const auto begins = begins_ends(aChartDraw, "from");
+            const auto ends = begins_ends(aChartDraw, "to");
+            for(const auto& begin: begins) {
+                for(const auto& end: ends) {
+                    auto& arrow = aChartDraw.arrow(begin, end);
+                    const std::string color = args().get_or_default("color", "black");
+                    const std::string head_color = args().get_or_default("head_color", color);
+                    arrow.color(color, head_color);
+                    arrow.line_width(args().get_or_default("width", 1.0));
+                    arrow.arrow_head_filled(args().get_or_default("head_filled", true));
+                    arrow.arrow_width(args().get_or_default("arrow_width", 5.0));
+                }
+            }
+        }
+
+}; // class ModArrow
+
+// ----------------------------------------------------------------------
+
 Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
 {
 #pragma GCC diagnostic push
@@ -671,6 +745,12 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     }
     else if (name == "point_scale") {
         result.emplace_back(new ModPointScale(*args));
+    }
+    else if (name == "line") {
+        result.emplace_back(new ModLine(*args));
+    }
+    else if (name == "arrow") {
+        result.emplace_back(new ModArrow(*args));
     }
     else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
         for (const auto& submod_desc: referenced_mod) {

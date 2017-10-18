@@ -50,6 +50,8 @@ class MapElement
  protected:
     virtual Location subsurface_origin(Surface& aSurface, const Location& aPixelOrigin, const Size& aScaledSubsurfaceSize) const;
 
+    inline void keyword(std::string aKeyword) { mKeyword = aKeyword; }
+
  private:
     std::string mKeyword;
     MapElements::Order mOrder;
@@ -64,7 +66,7 @@ class BackgroundBorderGrid : public MapElement
         : MapElement("background-border-grid", MapElements::BeforePoints),
           mBackgroud("white"), mGridColor("grey80"), mGridLineWidth(1), mBorderColor("black"), mBorderWidth(1) {}
 
-    virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
+    void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
 
     inline void background_color(Color aBackgroud) { mBackgroud = aBackgroud; }
     inline void grid(Color aGridColor, double aGridLineWidth) { mGridColor = aGridColor; mGridLineWidth = aGridLineWidth; }
@@ -86,7 +88,7 @@ class ContinentMap : public MapElement
  public:
     inline ContinentMap() : MapElement("continent-map", MapElements::AfterPoints), mOrigin{0, 0}, mWidthInParent(100) {}
 
-    virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
+    void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
     inline void offset_width(const Location& aOrigin, Pixels aWidthInParent) { mOrigin = aOrigin; mWidthInParent = aWidthInParent; }
 
  private:
@@ -109,7 +111,8 @@ class LegendPointLabel : public MapElement
 
     LegendPointLabel();
 
-    virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
+    void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
+
     inline void offset(const Location& aOrigin) { mOrigin = aOrigin; }
     inline void add_line(Color outline, Color fill, std::string label) { mLines.emplace_back(outline, fill, label); }
     inline void label_size(double aLabelSize) { mLabelSize = aLabelSize; }
@@ -140,7 +143,8 @@ class Title : public MapElement
     Title();
 
     virtual void draw(Surface& aSurface) const;
-    virtual inline void draw(Surface& aSurface, const ChartDraw&) const { draw(aSurface); }
+    inline void draw(Surface& aSurface, const ChartDraw&) const override { draw(aSurface); }
+
     inline Title& show(bool aShow) { mShow = aShow; return *this; }
     inline Title& offset(const Location& aOrigin) { mOrigin = aOrigin; return *this; }
     inline Title& offset(double x, double y) { mOrigin.set(x, y); return *this; }
@@ -181,7 +185,7 @@ class SerumCircle : public MapElement
           mFillColor("transparent"), mOutlineColor("pink"), mOutlineWidth(1),
           mRadiusColor("pink"), mRadiusWidth(1), mRadiusDash(Surface::Dash::Dash1), mStart(0), mEnd(0) {}
 
-    virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
+    void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
 
     inline SerumCircle& serum_no(size_t aSerumNo) { mSerumNo = aSerumNo; return *this; }
     inline SerumCircle& radius(Scaled aRadius) { mRadius = aRadius; return *this; }
@@ -209,29 +213,45 @@ class SerumCircle : public MapElement
 
 // ----------------------------------------------------------------------
 
-class Arrow : public MapElement
+class Line : public MapElement
 {
  public:
-    inline Arrow()
-        : MapElement{"arrow", MapElements::AfterPoints}, mLineColor{"pink"}, mArrowHeadColor{"pink"},
-          mArrowHeadFilled{true}, mLineWidth{1}, mArrowWidth{5} {}
+    inline Line()
+        : MapElement{"line", MapElements::AfterPoints}, mLineColor{"pink"}, mLineWidth{1} {}
 
-    virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
+    void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
 
-    inline Arrow& from_to(const Location& aBegin, const Location& aEnd) { mBegin = aBegin; mEnd = aEnd; return *this; }
-    inline Arrow& color(Color aLineColor, Color aArrowHeadColor) { mLineColor = aLineColor; mArrowHeadColor = aArrowHeadColor; return *this; }
-    inline Arrow& color(Color aColor) { mLineColor = aColor; mArrowHeadColor = aColor; return *this; }
-    inline Arrow& arrow_head_filled(bool aFilled) { mArrowHeadFilled = aFilled; return *this; }
-    inline Arrow& line_width(double aLineWidth) { mLineWidth = aLineWidth; return *this; }
-    inline Arrow& arrow_width(double aArrowWidth) { mArrowWidth = aArrowWidth; return *this; }
+    inline Line& from_to(const Location& aBegin, const Location& aEnd) { mBegin = aBegin; mEnd = aEnd; return *this; }
+    inline Line& color(Color aColor) { mLineColor = aColor; return *this; }
+    inline Line& line_width(double aLineWidth) { mLineWidth = aLineWidth; return *this; }
 
- private:
+ protected:
     Location mBegin;
     Location mEnd;
     Color mLineColor;
+    Pixels mLineWidth;
+
+}; // class Line
+
+// ----------------------------------------------------------------------
+
+class Arrow : public Line
+{
+ public:
+    inline Arrow() : Line(), mArrowHeadColor{"pink"}, mArrowHeadFilled{true}, mArrowWidth{5} { keyword("arrow"); }
+
+    void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
+
+    inline Arrow& from_to(const Location& aBegin, const Location& aEnd) { Line::from_to(aBegin, aEnd); return *this; }
+    inline Arrow& color(Color aLineColor, Color aArrowHeadColor) { Line::color(aLineColor); mArrowHeadColor = aArrowHeadColor; return *this; }
+    inline Arrow& color(Color aColor) { return color(aColor, aColor); }
+    inline Arrow& arrow_head_filled(bool aFilled) { mArrowHeadFilled = aFilled; return *this; }
+    inline Arrow& line_width(double aLineWidth) { Line::line_width(aLineWidth); return *this; }
+    inline Arrow& arrow_width(double aArrowWidth) { mArrowWidth = aArrowWidth; return *this; }
+
+ private:
     Color mArrowHeadColor;
     bool mArrowHeadFilled;
-    Pixels mLineWidth;
     Pixels mArrowWidth;
 
 }; // class Arrow
@@ -245,7 +265,7 @@ class Point : public MapElement
         : MapElement{"point", MapElements::AfterPoints}, mSize{10}, mFillColor{"pink"}, mOutlineColor{"pink"},
           mOutlineWidth{1}, mAspect{AspectNormal}, mRotation{NoRotation} {}
 
-    virtual void draw(Surface& aSurface, const ChartDraw& aChartDraw) const;
+    void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
 
     inline Point& center(const Location& aCenter) { mCenter = aCenter; return *this; }
     inline Point& size(Pixels aSize) { mSize = aSize; return *this; }

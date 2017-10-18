@@ -213,6 +213,16 @@ SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadius)
 
 // ----------------------------------------------------------------------
 
+Line& ChartDraw::line(const Location& aBegin, const Location& aEnd)
+{
+    auto& line = DYNAMIC_CAST(Line&, (mMapElements.add("line")));
+    line.from_to(aBegin, aEnd);
+    return line;
+
+} // ChartDraw::line
+
+// ----------------------------------------------------------------------
+
 Arrow& ChartDraw::arrow(const Location& aBegin, const Location& aEnd)
 {
     auto& arrow = DYNAMIC_CAST(Arrow&, (mMapElements.add("arrow")));

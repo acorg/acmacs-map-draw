@@ -10,9 +10,17 @@ static const char* const SETTINGS_DEFAULT = R"(
     "use_chart_plot_spec",
     "egg",
     "?clades",
-    {"?N": "amino-acids", "pos": [159], "colors": ["#FF0000", "cornflowerblue", "#FF8000", "cyan", "yellow"], "legend": {"count": true}, "outline": "black", "order": "raise", "report": true},
-    {"?N": "amino-acids", "groups": [{"pos_aa": ["121K", "144K"], "fill": "cornflowerblue"}], "legend": {"count": true}, "outline": "black", "order": "raise", "report": true},
-    "vaccines"
+
+    {"?N": "arrow", "to": [-3, 0], "from": [0, 0], "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
+    {"?N": "arrow", "from": [-3, 2], "to": [0, 2], "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
+    {"?N": "arrow", "from": [-3, 2], "to": [0, 4], "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
+    {"?N": "arrow", "from": [0, 0], "to": [5, 5], "width": 1, "color": "green", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
+    {"?N": "arrow", "from": [5, 3], "to": [-1, 3], "width": 1, "color": "green", "head_filled": false, "head_color": "magenta", "arrow_width": 10, "report": true},
+    {"?N": "arrow", "from": [5, 2], "to": [5, -2], "width": 1, "color": "green", "head_filled": false, "head_color": "magenta", "arrow_width": 10, "report": true},
+    {"?N": "arrow", "from": [-3, 2], "to": [5, 2], "width": 1, "color": "green", "head_filled": false, "head_color": "magenta", "arrow_width": 10, "report": true},
+    {"N": "arrow", "to_antigen": {"reference": true}, "from": [0, 0], "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
+
+    "?vaccines"
   ]
 }
 )";
@@ -177,6 +185,14 @@ static const char* const SETTINGS_HELP_MODS = R"(
  "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif",
  "?display_name": ["Line 1", "Line 2", "Another line"]}
 
+{"N": "line", "from": [0, 0], "to": [1, 1], "width": 1, "color": "red"}
+{"N": "line", "from_antigen": {<antigen-select>}, "to": [0, 0], "width": 1, "color": "red", "report": true},
+{"N": "line", "from_antigen": {"reference": true}, "to_antigen": {"test": true}, "width": 1, "color": "green", "report": true}
+{"N": "line", "from_antigen": {"reference": true}, "to_serum": {"all": true}, "width": 1, "color": "green", "report": true},
+{"N": "line", "from_serum": {"reference": true}, "to_antigen": {"all": true}, "width": 1, "color": "green", "report":
+
+{"N": "arrow", "to_antigen": {<antigen-select>}, "from": [0, 0], "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
+
 {"N": "rotate", "degrees": 30, "radians": 1} positive -> counter-clockwise
 {"N": "flip", "direction": "ew|ns"}
 {"N": "viewport", "rel": [-1, 1, -5], "?abs": [-5, -5, 10]}
@@ -184,6 +200,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
 {"N": "border", "color": "black", "line_width": 1}
 {"N": "grid", "color": "grey80", "line_width": 1}
 {"N": "point_scale", "scale": 1, "outline_scale": 1}
+
 
 --------------------------------------------------
 
@@ -199,8 +216,6 @@ sera
   serum_circle
   serum_coverage
 
-arrow
-line
 rectangle corner1: corner2:
 circle  center: radius: aspect: rotation:
 

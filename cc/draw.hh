@@ -53,6 +53,7 @@ class ChartDraw
     inline auto& chart() { return mChart; }
     inline const auto& chart() const { return mChart; }
     inline auto projection_no() const { return mProjectionNo; }
+    inline const auto& layout() const { return chart().projection(projection_no()).layout(); }
 
     template <typename index_type> inline void modify(index_type aIndex, const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
@@ -134,6 +135,7 @@ class ChartDraw
     inline Label& add_label(size_t aIndex) { return mLabels.add(aIndex, mChart); }
     inline void remove_label(size_t aIndex) { return mLabels.remove(aIndex); }
     SerumCircle& serum_circle(size_t aSerumNo, Scaled aRadius);
+    Line& line(const Location& aBegin, const Location& aEnd);
     Arrow& arrow(const Location& aBegin, const Location& aEnd);
     Point& point(const Location& aCenter, Pixels aSize);
     void remove_serum_circles();
