@@ -588,6 +588,7 @@ class ModUseChartPlotSpec : public Mod
                             .aspect(source.aspect());
                     aChartDraw.modify(point_no, style);
                 }
+                aChartDraw.drawing_order() = plot_spec.drawing_order();
             }
             catch (rjson::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};

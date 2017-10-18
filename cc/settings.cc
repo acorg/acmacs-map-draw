@@ -189,8 +189,6 @@ static const char* const SETTINGS_HELP_MODS = R"(
 
 move_antigens
 move_sera
---> export ace with new plot spec
---> export lispmds with new plot spec
 
 antigens
   show

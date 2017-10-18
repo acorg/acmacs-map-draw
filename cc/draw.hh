@@ -27,6 +27,7 @@ class DrawingOrder : public std::vector<size_t>
 {
  public:
     DrawingOrder(Chart_Type& aChart);
+    inline DrawingOrder& operator=(const std::vector<size_t>& aSource) { std::vector<size_t>::operator=(aSource); return *this; }
 
     void raise(size_t aPointNo);
     void lower(size_t aPointNo);

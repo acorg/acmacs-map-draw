@@ -271,7 +271,7 @@ void ChartDraw::export_ace(std::string aFilename)
           // style.label() =
         plot_spec.set(static_cast<size_t>(index), style);
     }
-      // drawing order
+    plot_spec.drawing_order() = drawing_order();
     export_chart(aFilename, mChart, report_time::Yes);
 
 } // ChartDraw::export_ace
