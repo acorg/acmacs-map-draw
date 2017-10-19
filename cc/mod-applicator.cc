@@ -26,6 +26,7 @@ class Mod
     inline PointStyle style() const { return point_style_from_json(args()); }
     inline PointDrawingOrder drawing_order() const { return drawing_order_from_json(args()); }
     void add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, size_t aBaseIndex, const rjson::value& aLabelData);
+    void add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, const rjson::value& aLabelData);
     void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, const rjson::value& aLegendData);
     void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData);
 
@@ -51,57 +52,64 @@ inline std::ostream& operator << (std::ostream& out, const Mods& aMods)
 
 // ----------------------------------------------------------------------
 
-void Mod::add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, size_t aBaseIndex, const rjson::value& aLabelData)
+void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, const rjson::value& aLabelData)
 {
-    if (aLabelData.get_or_default("show", true)) {
-        for (auto index: aIndices) {
-            auto& label = aChartDraw.add_label(index + aBaseIndex);
-            try { label.color(static_cast<std::string>(aLabelData["color"])); } catch (rjson::field_not_found&) {}
-            try { label.size(aLabelData["size"]); } catch (rjson::field_not_found&) {}
-            try { label.weight(aLabelData["weight"]); } catch (rjson::field_not_found&) {}
-            try { label.slant(aLabelData["slant"]); } catch (rjson::field_not_found&) {}
-            try { label.font_family(aLabelData["font_family"]); } catch (rjson::field_not_found&) {}
+    auto& label = aChartDraw.add_label(aIndex + aBaseIndex);
+    try { label.color(static_cast<std::string>(aLabelData["color"])); } catch (rjson::field_not_found&) {}
+    try { label.size(aLabelData["size"]); } catch (rjson::field_not_found&) {}
+    try { label.weight(aLabelData["weight"]); } catch (rjson::field_not_found&) {}
+    try { label.slant(aLabelData["slant"]); } catch (rjson::field_not_found&) {}
+    try { label.font_family(aLabelData["font_family"]); } catch (rjson::field_not_found&) {}
 
-            try {
-                const rjson::array& offset = aLabelData["offset"];
-                label.offset(offset[0], offset[1]);
-            }
-            catch (std::exception&) {
-            }
+    try {
+        const rjson::array& offset = aLabelData["offset"];
+        label.offset(offset[0], offset[1]);
+    }
+    catch (std::exception&) {
+    }
 
-            try {
-                label.display_name(aLabelData["display_name"]);
-            }
-            catch (rjson::field_not_found&) {
-                try {
-                    const std::string name_type = aLabelData["name_type"];
-                    if (aBaseIndex == 0) { // antigen
-                        if (name_type == "abbreviated")
-                            label.display_name(aChartDraw.chart().antigen(index).abbreviated_name());
-                        else if (name_type == "abbreviated_with_passage_type")
-                            label.display_name(aChartDraw.chart().antigen(index).abbreviated_name_with_passage_type());
-                        else {
-                            if (name_type != "full")
-                                std::cerr << "WARNING: unrecognized \"name_type\" for label for antigen " << index << '\n';
-                            label.display_name(aChartDraw.chart().antigen(index).full_name());
-                        }
-                    }
-                    else {      // serum
-                        if (name_type == "abbreviated")
-                            label.display_name(aChartDraw.chart().serum(index).abbreviated_name());
-                        else if (name_type == "abbreviated_with_passage_type")
-                            label.display_name(aChartDraw.chart().serum(index).abbreviated_name_with_passage_type());
-                        else {
-                            if (name_type != "full")
-                                std::cerr << "WARNING: unrecognized \"name_type\" for label for serum " << index << '\n';
-                            label.display_name(aChartDraw.chart().serum(index).full_name());
-                        }
-                    }
+    try {
+        label.display_name(aLabelData["display_name"]);
+    }
+    catch (rjson::field_not_found&) {
+        try {
+            const std::string name_type = aLabelData["name_type"];
+            if (aBaseIndex == 0) { // antigen
+                if (name_type == "abbreviated")
+                    label.display_name(aChartDraw.chart().antigen(aIndex).abbreviated_name());
+                else if (name_type == "abbreviated_with_passage_type")
+                    label.display_name(aChartDraw.chart().antigen(aIndex).abbreviated_name_with_passage_type());
+                else {
+                    if (name_type != "full")
+                        std::cerr << "WARNING: unrecognized \"name_type\" for label for antigen " << aIndex << '\n';
+                    label.display_name(aChartDraw.chart().antigen(aIndex).full_name());
                 }
-                catch (rjson::field_not_found&) {
+            }
+            else {      // serum
+                if (name_type == "abbreviated")
+                    label.display_name(aChartDraw.chart().serum(aIndex).abbreviated_name());
+                else if (name_type == "abbreviated_with_passage_type")
+                    label.display_name(aChartDraw.chart().serum(aIndex).abbreviated_name_with_passage_type());
+                else {
+                    if (name_type != "full")
+                        std::cerr << "WARNING: unrecognized \"name_type\" for label for serum " << aIndex << '\n';
+                    label.display_name(aChartDraw.chart().serum(aIndex).full_name());
                 }
             }
         }
+        catch (rjson::field_not_found&) {
+        }
+    }
+
+} // Mod::add_label
+
+// ----------------------------------------------------------------------
+
+void Mod::add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, size_t aBaseIndex, const rjson::value& aLabelData)
+{
+    if (aLabelData.get_or_default("show", true)) {
+        for (auto index: aIndices)
+            add_label(aChartDraw, index, aBaseIndex, aLabelData);
     }
     else {
         for (auto index: aIndices)
@@ -298,7 +306,7 @@ class ModAminoAcids : public Mod
 
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
         {
-            const auto verbose = args().get_or_default("verbose", false) || args().get_or_default("report", false);
+            const auto verbose = args().get_or_default("report", false);
             try {
                 if (auto [pos_present, pos] = args().get_array_if("pos"); pos_present) {
                     aa_pos(aChartDraw, pos, verbose);
@@ -790,6 +798,63 @@ class ModCircle : public Mod
 
 // ----------------------------------------------------------------------
 
+class ModSerumCircle : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            const auto verbose = args().get_or_default("report", false);
+            const size_t serum_index = select_serum(aChartDraw, verbose);
+            if (auto [present, mark_serum] = args().get_object_if("mark_serum"); present) {
+                aChartDraw.modify_serum(serum_index, point_style_from_json(mark_serum), drawing_order_from_json(mark_serum));
+                try { add_label(aChartDraw, serum_index, aChartDraw.number_of_antigens(), mark_serum["label"]); } catch (rjson::field_not_found&) {}
+            }
+            const size_t antigen_index = select_antigen(aChartDraw, serum_index, verbose);
+            if (auto [present, mark_antigen] = args().get_object_if("mark_antigen"); present) {
+                aChartDraw.modify(antigen_index, point_style_from_json(mark_antigen), drawing_order_from_json(mark_antigen));
+                try { add_label(aChartDraw, antigen_index, 0, mark_antigen["label"]); } catch (rjson::field_not_found&) {}
+            }
+        }
+
+ protected:
+    size_t select_serum(ChartDraw& aChartDraw, bool aVerbose) const
+        {
+            const auto sera = SelectSera(aVerbose).select(aChartDraw.chart(), args()["serum"]);
+            if (sera.size() != 1)
+                throw unrecognized_mod{"\"serum\" does not select single serum, mod: " + args().to_json()};
+            return sera[0];
+        }
+
+    size_t select_antigen(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const
+        {
+            if (auto [antigen_present, antigen_select] = args().get_object_if("antigen"); antigen_present) {
+                const auto antigens = SelectAntigens(aVerbose).select(aChartDraw.chart(), args()["antigen"]);
+                if (antigens.size() != 1)
+                    throw unrecognized_mod{"\"antigen\" does not select single antigen, mod: " + args().to_json()};
+                return antigens[0];
+            }
+            else {
+                return select_homologous_antigen(aChartDraw, aSerumIndex, aVerbose);
+            }
+        }
+
+    size_t select_homologous_antigen(ChartDraw& aChartDraw, size_t aSerumIndex, bool /*aVerbose*/) const
+        {
+            hidb::get(aChartDraw.chart().chart_info().virus_type()).find_homologous_antigens_for_sera_of_chart(aChartDraw.chart());
+            const auto& antigens = aChartDraw.chart().serum(aSerumIndex).homologous();
+            if (antigens.size() != 1) {
+                std::cerr << "ERROR: multiple or no homologous antigens for serum: " << antigens << '\n';
+                throw unrecognized_mod{"multiple or no homologous antigens for serum, mod: " + args().to_json()};
+            }
+            return antigens[0];
+        }
+
+}; // class ModSerumCircle
+
+// ----------------------------------------------------------------------
+
 Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
 {
 #pragma GCC diagnostic push
@@ -880,6 +945,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     }
     else if (name == "circle") {
         result.emplace_back(new ModCircle(*args));
+    }
+    else if (name == "serum_circle") {
+        result.emplace_back(new ModSerumCircle(*args));
     }
     else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
         for (const auto& submod_desc: referenced_mod) {
