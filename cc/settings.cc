@@ -185,6 +185,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
 {"N": "arrow", "to_antigen": {<antigen-select>}, "from": [0, 0], "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
 
 {"N": "rectangle", "corner1": [-2, -1.5], "corner2": [0.5, 3], "filled": true, "color": "#80FF0000"}
+{"N": "circle", "center": [0, 0], "size": 2, "aspect": 1.0, "rotation": 0, "fill": "#80FFA500", "outline": "#80FF0000", "outline_width": 10}
 
 {"N": "rotate", "degrees": 30, "radians": 1} positive -> counter-clockwise
 {"N": "flip", "direction": "ew|ns"}
@@ -210,7 +211,6 @@ sera
   serum_coverage
 
 path path:[], line_width: color: close: false filled: false
-circle  center: radius: aspect: rotation:
 
 Derived:
  continents

@@ -284,6 +284,34 @@ namespace map_elements
 
 // ----------------------------------------------------------------------
 
+    class Circle : public Element
+    {
+     public:
+        inline Circle()
+            : Element{"circle", Elements::AfterPoints}, mFillColor{"transparent"}, mOutlineColor{"pink"}, mOutlineWidth{1}, mAspect{AspectNormal}, mRotation{NoRotation} {}
+
+        void draw(Surface& aSurface, const ChartDraw& aChartDraw) const override;
+
+        inline Circle& center(const Location& aCenter) { mCenter = aCenter; return *this; }
+        inline Circle& size(Scaled aSize) { mSize = aSize; return *this; }
+        inline Circle& color(Color aFillColor, Color aOutlineColor) { mFillColor = aFillColor; mOutlineColor = aOutlineColor; return *this; }
+        inline Circle& outline_width(double aOutlineWidth) { mOutlineWidth = aOutlineWidth; return *this; }
+        inline Circle& aspect(Aspect aAspect) { mAspect = aAspect; return *this; }
+        inline Circle& rotation(Rotation aRotation) { mRotation = aRotation; return *this; }
+
+     protected:
+        Location mCenter;
+        Scaled mSize;
+        Color mFillColor;
+        Color mOutlineColor;
+        Pixels mOutlineWidth;
+        Aspect mAspect;
+        Rotation mRotation;
+
+    }; // class Circle
+
+// ----------------------------------------------------------------------
+
     class Point : public Element
     {
      public:

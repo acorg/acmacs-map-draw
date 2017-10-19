@@ -53,6 +53,9 @@ map_elements::Element& map_elements::Elements::add(std::string aKeyword)
     else if (aKeyword == "rectangle") {
         mElements.emplace_back(new Rectangle{});
     }
+    else if (aKeyword == "circle") {
+        mElements.emplace_back(new Circle{});
+    }
     else {
         THROW_OR_CERR_NO_RETURN(std::runtime_error("Don't know how to make map element " + aKeyword));
     }
@@ -263,6 +266,14 @@ void map_elements::Point::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*
     aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, mFillColor);
 
 } // map_elements::Point::draw
+
+// ----------------------------------------------------------------------
+
+void map_elements::Circle::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
+{
+    aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, mFillColor);
+
+} // map_elements::Circle::draw
 
 // ----------------------------------------------------------------------
 

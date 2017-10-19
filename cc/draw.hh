@@ -139,6 +139,7 @@ class ChartDraw
     map_elements::Arrow& arrow(const Location& aBegin, const Location& aEnd);
     map_elements::Point& point(const Location& aCenter, Pixels aSize);
     map_elements::Rectangle& rectangle(const Location& aCorner1, const Location& aCorner2);
+    map_elements::Circle& circle(const Location& aCenter, Scaled aSize);
     void remove_serum_circles();
 
     inline const LayoutBase& transformed_layout() const

@@ -256,6 +256,17 @@ map_elements::Rectangle& ChartDraw::rectangle(const Location& aCorner1, const Lo
 
 // ----------------------------------------------------------------------
 
+map_elements::Circle& ChartDraw::circle(const Location& aCenter, Scaled aSize)
+{
+    auto& point = DYNAMIC_CAST(map_elements::Circle&, (mMapElements.add("circle")));
+    point.center(aCenter);
+    point.size(aSize);
+    return point;
+
+} // ChartDraw::circle
+
+// ----------------------------------------------------------------------
+
 void ChartDraw::remove_serum_circles()
 {
     mMapElements.remove("serum-circle");

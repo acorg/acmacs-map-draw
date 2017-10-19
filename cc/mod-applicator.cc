@@ -692,6 +692,25 @@ class ModRectangle : public Mod
 
 // ----------------------------------------------------------------------
 
+class ModCircle : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            const rjson::array& center = args()["center"];
+            auto& circle = aChartDraw.circle({center[0], center[1]}, Scaled{args().get_or_default("size", 1.0)});
+            circle.color(args().get_or_default("fill", "transparent"), args().get_or_default("outline", "#80FF00FF"));
+            circle.outline_width(args().get_or_default("outline_width", 1.0));
+            circle.aspect(Aspect{args().get_or_default("aspect", 1.0)});
+            circle.rotation(Rotation{args().get_or_default("rotation", 0.0)});
+        }
+
+}; // class ModCircle
+
+// ----------------------------------------------------------------------
+
 Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
 {
 #pragma GCC diagnostic push
@@ -773,6 +792,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     }
     else if (name == "rectangle") {
         result.emplace_back(new ModRectangle(*args));
+    }
+    else if (name == "circle") {
+        result.emplace_back(new ModCircle(*args));
     }
     else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
         for (const auto& submod_desc: referenced_mod) {
