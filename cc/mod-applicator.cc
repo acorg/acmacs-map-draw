@@ -212,6 +212,85 @@ class ModSera : public Mod
 
 // ----------------------------------------------------------------------
 
+class ModMoveBase : public Mod
+{
+ public:
+    using Mod::Mod;
+
+ protected:
+    Coordinates get_move_to(ChartDraw& aChartDraw, bool aVerbose) const
+        {
+            Coordinates move_to;
+            if (auto [to_present, to] = args().get_array_if("to"); to_present) {
+                move_to = Coordinates{to[0], to[1]};
+            }
+            else if (auto [to_antigen_present, to_antigen] = args().get_object_if("to_antigen"); to_antigen_present) {
+                const auto antigens = SelectAntigens(aVerbose).select(aChartDraw.chart(), to_antigen);
+                if (antigens.size() != 1)
+                    throw unrecognized_mod{"\"to_antigen\" does not select single antigen, mod: " + args().to_json()};
+                move_to = aChartDraw.layout()[antigens[0]];
+            }
+            else if (auto [to_serum_present, to_serum] = args().get_object_if("to_serum"); to_serum_present) {
+                const auto sera = SelectSera(aVerbose).select(aChartDraw.chart(), to_serum);
+                if (sera.size() != 1)
+                    throw unrecognized_mod{"\"to_serum\" does not select single serum, mod: " + args().to_json()};
+                move_to = aChartDraw.layout()[sera[0] + aChartDraw.number_of_antigens()];
+            }
+            else
+                throw unrecognized_mod{"neither \"to\" nor \"to_antigen\" nor \"to__serum\" provided in mod: " + args().to_json()};
+            return move_to;
+        }
+
+}; // class ModMoveBase
+
+// ----------------------------------------------------------------------
+
+class ModMoveAntigens : public ModMoveBase
+{
+ public:
+    using ModMoveBase::ModMoveBase;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            const auto verbose = args().get_or_default("report", false);
+            try {
+                const auto move_to = get_move_to(aChartDraw, verbose);
+                for (auto index: SelectAntigens(verbose).select(aChartDraw.chart(), args()["select"])) {
+                    aChartDraw.layout().set(index, move_to);
+                }
+            }
+            catch (rjson::field_not_found&) {
+                throw unrecognized_mod{"no \"select\" in \"move_antigens\" mod: " + args().to_json() };
+            }
+        }
+
+}; // class ModMoveAntigens
+
+// ----------------------------------------------------------------------
+
+class ModMoveSera : public ModMoveBase
+{
+ public:
+    using ModMoveBase::ModMoveBase;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            const auto verbose = args().get_or_default("report", false);
+            try {
+                const auto move_to = get_move_to(aChartDraw, verbose);
+                for (auto index: SelectSera(verbose).select(aChartDraw.chart(), args()["select"])) {
+                    aChartDraw.layout().set(index + aChartDraw.number_of_antigens(), move_to);
+                }
+            }
+            catch (rjson::field_not_found&) {
+                throw unrecognized_mod{"no \"select\" in \"move_sera\" mod: " + args().to_json() };
+            }
+        }
+
+}; // class ModMoveSera
+
+// ----------------------------------------------------------------------
+
 class ModAminoAcids : public Mod
 {
  public:
@@ -750,6 +829,12 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     }
     else if (name == "sera") {
         result.emplace_back(new ModSera(*args));
+    }
+    else if (name == "move_antigens") {
+        result.emplace_back(new ModMoveAntigens(*args));
+    }
+    else if (name == "move_sera") {
+        result.emplace_back(new ModMoveSera(*args));
     }
     else if (name == "amino-acids") {
         result.emplace_back(new ModAminoAcids(*args));

@@ -6,8 +6,8 @@ static const char* const SETTINGS_DEFAULT = R"(
 {
   "apply": [
     {"N": "title"},
-    "all_grey",
-    "?use_chart_plot_spec",
+    "?all_grey",
+    "use_chart_plot_spec",
     "egg",
     "?clades",
     "?vaccines"
@@ -207,11 +207,10 @@ static const char* const SETTINGS_HELP_MODS = R"(
 {"N": "grid", "color": "grey80", "line_width": 1}
 {"N": "point_scale", "scale": 1, "outline_scale": 1}
 
+{"N": "move_antigens", "select": {"reference": true}, "?to": [5, 5], "?to_antigen": {"index": 10}, "to_serum": {"index": 10}, "report": true}
+{"N": "move_sera", "select": {"all": true}, "?to": [5, 5], "?to_antigen": {"index": 10}, "to_serum": {"index": 1}, "report": true}
 
 --------------------------------------------------
-
-move_antigens
-move_sera
 
 antigens
   show
@@ -223,9 +222,6 @@ sera
   serum_coverage
 
 path path:[], line_width: color: close: false filled: false
-
-Derived:
- "continents"
 
 )";
 

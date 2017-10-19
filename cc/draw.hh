@@ -54,6 +54,7 @@ class ChartDraw
     inline const auto& chart() const { return mChart; }
     inline auto projection_no() const { return mProjectionNo; }
     inline const auto& layout() const { return chart().projection(projection_no()).layout(); }
+    inline auto& layout() { return chart().projection(projection_no()).layout(); }
 
     template <typename index_type> inline void modify(index_type aIndex, const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
