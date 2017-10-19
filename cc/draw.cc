@@ -119,6 +119,8 @@ void ChartDraw::draw(Surface& aSurface) const
     mMapElements.draw(rescaled_surface, map_elements::Elements::BeforePoints, *this);
 
     const auto& layout = transformed_layout();
+    if (mDrawingOrder.empty())
+        acmacs::fill_with_indexes(const_cast<ChartDraw*>(this)->mDrawingOrder, number_of_points());
     for (auto index: mDrawingOrder) {
         mPointStyles[index].draw(rescaled_surface, layout[index]);
         // if (index < number_of_antigens())
