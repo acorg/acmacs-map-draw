@@ -811,11 +811,15 @@ class ModSerumCircle : public Mod
                 aChartDraw.modify_serum(serum_index, point_style_from_json(mark_serum), drawing_order_from_json(mark_serum));
                 try { add_label(aChartDraw, serum_index, aChartDraw.number_of_antigens(), mark_serum["label"]); } catch (rjson::field_not_found&) {}
             }
-            const size_t antigen_index = select_antigen(aChartDraw, serum_index, verbose);
+            const auto antigen_indices = select_antigens(aChartDraw, serum_index, verbose);
             if (auto [present, mark_antigen] = args().get_object_if("mark_antigen"); present) {
-                aChartDraw.modify(antigen_index, point_style_from_json(mark_antigen), drawing_order_from_json(mark_antigen));
-                try { add_label(aChartDraw, antigen_index, 0, mark_antigen["label"]); } catch (rjson::field_not_found&) {}
+                aChartDraw.modify(std::begin(antigen_indices), std::end(antigen_indices), point_style_from_json(mark_antigen), drawing_order_from_json(mark_antigen));
+                try { add_labels(aChartDraw, antigen_indices, 0, mark_antigen["label"]); } catch (rjson::field_not_found&) {}
             }
+            std::cerr << "DEBUG: antigen_indices: " << antigen_indices << '\n';
+            std::vector<double> radii;
+            std::transform(std::begin(antigen_indices), std::end(antigen_indices), std::back_inserter(radii), [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius(serum_index, antigen_index, aChartDraw.projection_no(), verbose); });
+            std::cerr << "DEBUG: radii: " << radii << '\n';
         }
 
  protected:
@@ -827,28 +831,26 @@ class ModSerumCircle : public Mod
             return sera[0];
         }
 
-    size_t select_antigen(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const
+    std::vector<size_t> select_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const
         {
             if (auto [antigen_present, antigen_select] = args().get_object_if("antigen"); antigen_present) {
                 const auto antigens = SelectAntigens(aVerbose).select(aChartDraw.chart(), args()["antigen"]);
-                if (antigens.size() != 1)
-                    throw unrecognized_mod{"\"antigen\" does not select single antigen, mod: " + args().to_json()};
-                return antigens[0];
+                if (antigens.empty())
+                    throw unrecognized_mod{"\"antigen\" does not select an antigen, mod: " + args().to_json()};
+                return antigens;
             }
             else {
-                return select_homologous_antigen(aChartDraw, aSerumIndex, aVerbose);
+                return select_homologous_antigens(aChartDraw, aSerumIndex, aVerbose);
             }
         }
 
-    size_t select_homologous_antigen(ChartDraw& aChartDraw, size_t aSerumIndex, bool /*aVerbose*/) const
+    std::vector<size_t> select_homologous_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool /*aVerbose*/) const
         {
             hidb::get(aChartDraw.chart().chart_info().virus_type()).find_homologous_antigens_for_sera_of_chart(aChartDraw.chart());
             const auto& antigens = aChartDraw.chart().serum(aSerumIndex).homologous();
-            if (antigens.size() != 1) {
-                std::cerr << "ERROR: multiple or no homologous antigens for serum: " << antigens << '\n';
-                throw unrecognized_mod{"multiple or no homologous antigens for serum, mod: " + args().to_json()};
-            }
-            return antigens[0];
+            if (antigens.empty())
+                throw unrecognized_mod{"no homologous antigens for serum, mod: " + args().to_json()};
+            return antigens;
         }
 
 }; // class ModSerumCircle

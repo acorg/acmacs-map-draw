@@ -10,7 +10,7 @@ static const char* const SETTINGS_DEFAULT = R"(
     "?use_chart_plot_spec",
     "egg",
     "?clades",
-    {"N": "serum_circle", "serum": {"index": 1}, "?antigen": {"index": 0}, "report": true,
+    {"N": "serum_circle", "serum": {"index": 0}, "?antigen": {"index": 0}, "report": true,
       "circle": {"fill": "#C08080FF", "outline": "blue", "outline_width": 2, "angle_degrees": [0, 30], "radius_line_dash": "dash2"},
       "mark_serum": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
       "mark_antigen": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}}},
