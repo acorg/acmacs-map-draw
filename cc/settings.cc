@@ -6,11 +6,10 @@ static const char* const SETTINGS_DEFAULT = R"(
 {
   "apply": [
     {"N": "title"},
-    "?all_grey",
-    "use_chart_plot_spec",
+    "all_grey",
+    "?use_chart_plot_spec",
     "egg",
     "?clades",
-
     "?vaccines"
   ]
 }
@@ -98,6 +97,18 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": {"passage": "egg"}, "aspect": 0.75},
       {"N": "antigens", "select": {"passage": "reassortant"}, "aspect": 0.75, "rotation": 0.5}
     ],
+    "continents": [
+      {"N": "antigens", "select": {"continent": "europe"}, "fill": "green", "outline": "black", "report": true},
+      {"N": "antigens", "select": {"continent": "central-america"}, "fill": "#AAF9FF", "outline": "black", "report": true},
+      {"N": "antigens", "select": {"continent": "middle-east"}, "fill": "#8000FF", "outline": "black", "report": true},
+      {"N": "antigens", "select": {"continent": "north-america"}, "fill": "blue4", "outline": "black", "report": true},
+      {"N": "antigens", "select": {"continent": "africa"}, "fill": "darkorange1", "outline": "black", "report": true},
+      {"N": "antigens", "select": {"continent": "asia"}, "fill": "red", "outline": "black", "report": true},
+      {"N": "antigens", "select": {"continent": "russia"}, "fill": "maroon", "outline": "black", "report": true},
+      {"N": "antigens", "select": {"continent": "australia-oceania"}, "fill": "hotpink", "outline": "black", "report": true},
+      {"N": "antigens", "select": {"continent": "south-america"}, "fill": "turquoise", "outline": "black", "report": true},
+      {"N": "antigens", "select": {"continent": "antarctica"}, "fill": "grey50", "outline": "black", "report": true}
+    ],
     "vaccines": [
       {"N": "antigens", "select": {"vaccine": {"type": "previous"}}, "report": false, "outline": "black", "fill": "blue", "size": 15, "order": "raise"},
       {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "cell"}}, "report": false, "outline": "black", "fill": "red", "size": 15, "order": "raise"},
@@ -165,6 +176,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
 "clades"
 "clades_last_6_months"
 "clades_last_12_months"
+"continents"
 
 {"N": "legend", "offset": [-10, 10], "show": true, "size": 50,
  "label_size": 14, "point_size": 10,
@@ -213,7 +225,7 @@ sera
 path path:[], line_width: color: close: false filled: false
 
 Derived:
- continents
+ "continents"
 
 )";
 
