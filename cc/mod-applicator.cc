@@ -816,10 +816,7 @@ class ModSerumCircle : public Mod
                 aChartDraw.modify(std::begin(antigen_indices), std::end(antigen_indices), point_style_from_json(mark_antigen), drawing_order_from_json(mark_antigen));
                 try { add_labels(aChartDraw, antigen_indices, 0, mark_antigen["label"]); } catch (rjson::field_not_found&) {}
             }
-            std::cerr << "DEBUG: antigen_indices: " << antigen_indices << '\n';
-            std::vector<double> radii;
-            std::transform(std::begin(antigen_indices), std::end(antigen_indices), std::back_inserter(radii), [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius(serum_index, antigen_index, aChartDraw.projection_no(), verbose); });
-            std::cerr << "DEBUG: radii: " << radii << '\n';
+            const auto radius = calculate_radius(aChartDraw, serum_index, antigen_indices, verbose);
         }
 
  protected:
@@ -851,6 +848,23 @@ class ModSerumCircle : public Mod
             if (antigens.empty())
                 throw unrecognized_mod{"no homologous antigens for serum, mod: " + args().to_json()};
             return antigens;
+        }
+
+    double calculate_radius(ChartDraw& aChartDraw, size_t aSerumIndex, const std::vector<size_t>& aAntigenIndices, bool aVerbose) const
+        {
+            std::vector<double> radii;
+            std::transform(std::begin(aAntigenIndices), std::end(aAntigenIndices), std::back_inserter(radii), [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius(antigen_index, aSerumIndex, aChartDraw.projection_no(), false); });
+            double radius = 0;
+            for (auto rad: radii) {
+                if (rad > 0 && rad < radius)
+                    radius = rad;
+            }
+            if (aVerbose) {
+                std::cerr << "INFO: serum_circle\n  SR " << aSerumIndex << ' ' << aChartDraw.chart().serum(aSerumIndex).full_name() << '\n';
+                for (auto [no, antigen_index]: acmacs::enumerate(aAntigenIndices))
+                    std::cerr << "    Radius: " << radii[static_cast<size_t>(no)] << "  AG " << antigen_index << ' ' << aChartDraw.chart().antigen(antigen_index).full_name() << '\n';
+            }
+            return radius;
         }
 
 }; // class ModSerumCircle
