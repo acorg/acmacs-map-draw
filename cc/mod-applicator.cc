@@ -916,6 +916,39 @@ class ModSerumCircle : public ModSerumHomologous
 
 // ----------------------------------------------------------------------
 
+class ModSerumCoverage : public ModSerumHomologous
+{
+ public:
+    using ModSerumHomologous::ModSerumHomologous;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+        {
+            const auto verbose = args().get_or_default("report", false);
+            const size_t serum_index = select_mark_serum(aChartDraw, verbose);
+            const auto antigen_indices = select_antigens(aChartDraw, serum_index, verbose);
+
+            std::vector<size_t> within, outside;
+            aChartDraw.chart().serum_coverage(antigen_indices[0], serum_index, within, outside);
+            if (verbose) {
+                std::cerr << "INFO: serum coverage\n  SR " << serum_index << ' ' << aChartDraw.chart().serum(serum_index).full_name()
+                          << "\n  AG " << antigen_indices[0] << ' ' << aChartDraw.chart().antigen(antigen_indices[0]).full_name()
+                          << "\n  within 4fold:  " << within.size()
+                          << "\n  outside 4fold: " << outside.size() << '\n';
+            }
+            if (!within.empty()) {
+                const auto& within_4fold = args().get_or_empty_object("within_4fold");
+                aChartDraw.modify(std::begin(within), std::end(within), point_style_from_json(within_4fold), drawing_order_from_json(within_4fold));
+            }
+            if (!outside.empty()) {
+                const auto& outside_4fold = args().get_or_empty_object("outside_4fold");
+                aChartDraw.modify(std::begin(outside), std::end(outside), point_style_from_json(outside_4fold), drawing_order_from_json(outside_4fold));
+            }
+        }
+
+}; // class ModSerumCoverage
+
+// ----------------------------------------------------------------------
+
 Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
 {
 #pragma GCC diagnostic push
@@ -1009,6 +1042,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     }
     else if (name == "serum_circle") {
         result.emplace_back(new ModSerumCircle(*args));
+    }
+    else if (name == "serum_coverage") {
+        result.emplace_back(new ModSerumCoverage(*args));
     }
     else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
         for (const auto& submod_desc: referenced_mod) {

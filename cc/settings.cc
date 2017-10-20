@@ -215,6 +215,11 @@ static const char* const SETTINGS_HELP_MODS = R"(
  "mark_serum": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
  "mark_antigen": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}}}
 
+{"N": "serum_coverage", "serum": {"index": 0}, "?antigen": {"index": 1}, "report": true,
+ "mark_serum": {"fill": "red", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12, "weight": "bold"}},
+ "within_4fold": {"outline": "pink", "outline_width": 3, "order": "raise"},
+ "outside_4fold": {"fill": "grey50", "outline": "black", "order": "raise"}}
+
 --------------------------------------------------
 
 antigens
@@ -223,7 +228,6 @@ antigens
 
 sera
   report, report_names_threshold
-  serum_coverage
 
 path path:[], line_width: color: close: false filled: false
 
