@@ -816,10 +816,33 @@ class ModSerumCircle : public Mod
                 aChartDraw.modify(std::begin(antigen_indices), std::end(antigen_indices), point_style_from_json(mark_antigen), drawing_order_from_json(mark_antigen));
                 try { add_labels(aChartDraw, antigen_indices, 0, mark_antigen["label"]); } catch (rjson::field_not_found&) {}
             }
-            const auto radius = calculate_radius(aChartDraw, serum_index, antigen_indices, verbose);
+            make_serum_circle(aChartDraw, serum_index, Scaled{calculate_radius(aChartDraw, serum_index, antigen_indices, verbose)});
         }
 
  protected:
+    void make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, Scaled aRadius) const
+        {
+            auto& circle = aChartDraw.serum_circle(aSerumIndex, aRadius);
+            if (auto [present, circle_data] = args().get_object_if("circle"); present) {
+                circle.fill(circle_data.get_or_default("fill", "transparent"));
+                const auto outline = circle_data.get_or_default("outline", "pink");
+                const auto outline_width = circle_data.get_or_default("outline_width", 1.0);
+                circle.outline(outline, outline_width);
+                if (auto [angles_present, angles] = circle_data.get_array_if("angle_degrees"); angles_present) {
+                    const double pi_180 = std::acos(-1) / 180.0;
+                    circle.angles(static_cast<double>(angles[0]) * pi_180, static_cast<double>(angles[1]) * pi_180);
+                }
+                const auto line_dash = circle_data.get_or_default("radius_line_dash", "");
+                if (line_dash == "dash1")
+                    circle.radius_line_dash1();
+                else if (line_dash == "dash2")
+                    circle.radius_line_dash2();
+                else
+                    circle.radius_line_no_dash();
+                circle.radius_line(circle_data.get_or_default("radius_line_color", outline), circle_data.get_or_default("radius_line_width", outline_width));
+            }
+        }
+
     size_t select_serum(ChartDraw& aChartDraw, bool aVerbose) const
         {
             const auto sera = SelectSera(aVerbose).select(aChartDraw.chart(), args()["serum"]);
@@ -856,13 +879,13 @@ class ModSerumCircle : public Mod
             std::transform(std::begin(aAntigenIndices), std::end(aAntigenIndices), std::back_inserter(radii), [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius(antigen_index, aSerumIndex, aChartDraw.projection_no(), false); });
             double radius = 0;
             for (auto rad: radii) {
-                if (rad > 0 && rad < radius)
+                if (rad > 0 && (radius <= 0 || rad < radius))
                     radius = rad;
             }
             if (aVerbose) {
-                std::cerr << "INFO: serum_circle\n  SR " << aSerumIndex << ' ' << aChartDraw.chart().serum(aSerumIndex).full_name() << '\n';
+                std::cerr << "INFO: serum_circle radius: " << radius << "\n  SR " << aSerumIndex << ' ' << aChartDraw.chart().serum(aSerumIndex).full_name() << '\n';
                 for (auto [no, antigen_index]: acmacs::enumerate(aAntigenIndices))
-                    std::cerr << "    Radius: " << radii[static_cast<size_t>(no)] << "  AG " << antigen_index << ' ' << aChartDraw.chart().antigen(antigen_index).full_name() << '\n';
+                    std::cerr << "    radius: " << radii[static_cast<size_t>(no)] << "  AG " << antigen_index << ' ' << aChartDraw.chart().antigen(antigen_index).full_name() << '\n';
             }
             return radius;
         }

@@ -10,10 +10,6 @@ static const char* const SETTINGS_DEFAULT = R"(
     "?use_chart_plot_spec",
     "egg",
     "?clades",
-    {"N": "serum_circle", "serum": {"index": 0}, "?antigen": {"index": 0}, "report": true,
-      "circle": {"fill": "#C08080FF", "outline": "blue", "outline_width": 2, "angle_degrees": [0, 30], "radius_line_dash": "dash2"},
-      "mark_serum": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
-      "mark_antigen": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}}},
     "?vaccines"
   ]
 }
@@ -214,6 +210,11 @@ static const char* const SETTINGS_HELP_MODS = R"(
 {"N": "move_antigens", "select": {"reference": true}, "?to": [5, 5], "?to_antigen": {"index": 10}, "to_serum": {"index": 10}, "report": true}
 {"N": "move_sera", "select": {"all": true}, "?to": [5, 5], "?to_antigen": {"index": 10}, "to_serum": {"index": 1}, "report": true}
 
+{"N": "serum_circle", "serum": {"index": 0}, "?antigen": {"index": 0}, "report": true,
+ "circle": {"fill": "#C08080FF", "outline": "blue", "outline_width": 2, "angle_degrees": [0, 30], "radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1},
+ "mark_serum": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
+ "mark_antigen": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}}}
+
 --------------------------------------------------
 
 antigens
@@ -222,7 +223,6 @@ antigens
 
 sera
   report, report_names_threshold
-  serum_circle
   serum_coverage
 
 path path:[], line_width: color: close: false filled: false
