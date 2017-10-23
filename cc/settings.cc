@@ -7,10 +7,11 @@ static const char* const SETTINGS_DEFAULT = R"(
   "apply": [
     {"N": "title"},
     "all_grey",
-    "?use_chart_plot_spec",
     "egg",
+
+    "?use_chart_plot_spec",
     "?clades",
-    "?vaccines"
+    "vaccines"
   ]
 }
 )";
@@ -110,11 +111,11 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": {"continent": "antarctica"}, "fill": "grey50", "outline": "black", "report": true}
     ],
     "vaccines": [
-      {"N": "antigens", "select": {"vaccine": {"type": "previous"}}, "report": false, "outline": "black", "fill": "blue", "size": 15, "order": "raise"},
-      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "cell"}}, "report": false, "outline": "black", "fill": "red", "size": 15, "order": "raise"},
-      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "egg"}}, "report": false, "outline": "black", "fill": "red", "size": 15, "order": "raise"},
-      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "reassortant"}}, "report": false, "outline": "black", "fill": "green", "size": 15, "order": "raise"},
-      {"N": "antigens", "select": {"vaccine": {"type": "surrogate"}}, "report": false, "outline": "black", "fill": "pink", "size": 15, "order": "raise"}
+      {"N": "antigens", "select": {"vaccine": {"type": "previous"}}, "report": false, "outline": "black", "fill": "blue", "size": 15, "show": true, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "cell"}}, "report": false, "outline": "black", "fill": "red", "size": 15, "show": true, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "egg"}}, "report": false, "outline": "black", "fill": "red", "size": 15, "show": true, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "reassortant"}}, "report": false, "outline": "black", "fill": "green", "size": 15, "show": true, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "surrogate"}}, "report": false, "outline": "black", "fill": "pink", "size": 15, "show": true, "order": "raise"}
     ]
   }
 }
@@ -222,8 +223,21 @@ static const char* const SETTINGS_HELP_MODS = R"(
 
 --------------------------------------------------
 
+SSM time series:
+    {"N": "title", "background": "transparent", "border_width": 0, "text_size": 24, "font_weight": "bold", "display_name": ["CDC H3 HI March 2017"]},
+    "continents",
+    {"N": "antigens", "select": "reference", "outline": "grey80", "fill": "transparent"},
+    {"N": "antigens", "select": "test", "show": false},
+    {"N": "antigens", "select": {"test": true, "date_range": ["2017-03-01", "2017-04-01"]}, "size": 8, "order": "raise", "show": true},
+    {"N": "vaccines", "size": 25, "report": false},
+    {"N": "point_scale", "scale": 2.5, "outline_scale": 1},
+    {"N": "viewport", "rel": [6.5, 7.5, -11]},
+
+--------------------------------------------------
+
+TODO:
+
 antigens
-  show
   report, report_names_threshold
 
 sera
