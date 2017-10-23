@@ -337,7 +337,7 @@ class ModAminoAcids : public Mod
 
  private:
     std::vector<Color> mColors;
-    long mIndexDiff = 0;
+    size_t mIndexDiff = 0;
 
     void aa_pos(ChartDraw& aChartDraw, const rjson::array& aPos, bool aVerbose)
         {
@@ -379,10 +379,10 @@ class ModAminoAcids : public Mod
             }
         }
 
-    Color fill_color(long aIndex, std::string aAA)
+    Color fill_color(size_t aIndex, std::string aAA)
         {
             if (aAA == "X") {
-                --mIndexDiff;
+                ++mIndexDiff;
                 return args().get_or_default("X_color", "grey25");
             }
             if (mColors.empty()) {
@@ -391,7 +391,7 @@ class ModAminoAcids : public Mod
                 else
                     mColors = Color::distinct();
             }
-            const auto index = static_cast<size_t>(aIndex + mIndexDiff);
+            const auto index = aIndex - mIndexDiff;
             if (index < mColors.size())
                 return mColors[index];
             else
@@ -916,7 +916,7 @@ class ModSerumCircle : public ModSerumHomologous
             if (aVerbose) {
                 std::cerr << "INFO: serum_circle radius: " << radius << "\n  SR " << aSerumIndex << ' ' << aChartDraw.chart().serum(aSerumIndex).full_name() << '\n';
                 for (auto [no, antigen_index]: acmacs::enumerate(aAntigenIndices))
-                    std::cerr << "    radius: " << radii[static_cast<size_t>(no)] << "  AG " << antigen_index << ' ' << aChartDraw.chart().antigen(antigen_index).full_name() << '\n';
+                    std::cerr << "    radius: " << radii[no] << "  AG " << antigen_index << ' ' << aChartDraw.chart().antigen(antigen_index).full_name() << '\n';
             }
             return radius;
         }

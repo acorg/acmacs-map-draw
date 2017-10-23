@@ -302,7 +302,7 @@ void ChartDraw::export_ace(std::string aFilename)
         style.rotation(new_style.rotation().value());
         style.aspect(new_style.aspect().value());
           // style.label() =
-        plot_spec.set(static_cast<size_t>(index), style);
+        plot_spec.set(index, style);
     }
     plot_spec.drawing_order() = drawing_order();
     export_chart(aFilename, mChart, report_time::Yes);
