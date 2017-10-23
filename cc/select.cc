@@ -10,6 +10,10 @@
 
 using namespace std::string_literals;
 
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wexit-time-destructors"
+#endif
+
 // ----------------------------------------------------------------------
 
 SelectAntigensSera::~SelectAntigensSera()
@@ -274,10 +278,23 @@ void SelectAntigens::filter_vaccine(const Chart& aChart, std::vector<size_t>& in
 {
     const auto virus_type = aChart.chart_info().virus_type();
     if (!virus_type.empty()) {
-        Vaccines vaccines(aChart, verbose());
-        if (verbose())
-            std::cerr << vaccines.report(2) << '\n';
-        auto vaccine_indices = vaccines.indices(aMatchData);
+
+        static std::map<const Chart*, Vaccines> cache_vaccines;
+        auto vaccines_of_chart = cache_vaccines.find(&aChart);
+        if (vaccines_of_chart == cache_vaccines.end()) {
+            Timeit ti_vaccines("Vaccines of chart ");
+            vaccines_of_chart = cache_vaccines.emplace(&aChart, Vaccines{aChart, verbose()}).first;
+            if (verbose())
+                std::cerr << vaccines_of_chart->second.report(2) << '\n';
+        }
+        auto vaccine_indices = vaccines_of_chart->second.indices(aMatchData);
+
+        // Timeit ti_filter_vaccines("filter_vaccine ");
+        // Vaccines vaccines(aChart, verbose());
+        // if (verbose())
+        //     std::cerr << vaccines.report(2) << '\n';
+        // auto vaccine_indices = vaccines.indices(aMatchData);
+
         std::sort(vaccine_indices.begin(), vaccine_indices.end());
         std::vector<size_t> result(vaccine_indices.size());
         const auto end = std::set_intersection(indices.begin(), indices.end(), vaccine_indices.begin(), vaccine_indices.end(), result.begin());
