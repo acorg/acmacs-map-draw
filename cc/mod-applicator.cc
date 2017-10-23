@@ -31,7 +31,7 @@ class Mod
     void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData);
 
  private:
-    const rjson::object& mArgs;
+    const rjson::object mArgs;  // not reference! "N" is probably wrong due to updating args in factory!
 
     friend inline std::ostream& operator << (std::ostream& out, const Mod& aMod) { return out << aMod.args(); }
 
@@ -142,7 +142,15 @@ void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices,
 
 // ----------------------------------------------------------------------
 
-Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods);
+// #pragma GCC diagnostic push
+// #ifdef __clang__
+// #pragma GCC diagnostic ignored "-Wexit-time-destructors"
+// #pragma GCC diagnostic ignored "-Wglobal-constructors"
+// #endif
+// static const rjson::object factory_empty_args;
+// #pragma GCC diagnostic pop
+
+static Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const rjson::object& aUpdate);
 
 // ----------------------------------------------------------------------
 
@@ -152,7 +160,7 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::o
     for (const auto& mod_desc: aMods) {
         Timeit ti{"Applying " + mod_desc.to_json() + ": "};
         try {
-            for (const auto& mod: factory(mod_desc, mods_data_mod)) {
+            for (const auto& mod: factory(mod_desc, mods_data_mod, {})) {
                 mod->apply(aChartDraw, aModData);
             }
         }
@@ -179,11 +187,12 @@ class ModAntigens : public Mod
 
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
         {
-            // std::cerr << "apply " << args() << '\n';
-            const auto verbose = args().get_or_default("verbose", false) || args().get_or_default("report", false);
+            const auto verbose = args().get_or_default("report", false);
             try {
                 const auto indices = SelectAntigens(verbose).select(aChartDraw.chart(), args()["select"]);
                 const auto styl = style();
+                // if (verbose)
+                //     std::cerr << "DEBUG ModAntigens " << indices << ' ' << args() << ' ' << styl << '\n';
                 aChartDraw.modify(indices.begin(), indices.end(), styl, drawing_order());
                 try { add_labels(aChartDraw, indices, 0, args()["label"]); } catch (rjson::field_not_found&) {}
                 try { add_legend(aChartDraw, indices, styl, args()["legend"]); } catch (rjson::field_not_found&) {}
@@ -204,7 +213,7 @@ class ModSera : public Mod
 
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
         {
-            const auto verbose = args().get_or_default("verbose", false) || args().get_or_default("report", false);
+            const auto verbose = args().get_or_default("report", false);
             try {
                 const auto indices = SelectSera(verbose).select(aChartDraw.chart(), args()["select"]);
                 const auto styl = style();
@@ -949,28 +958,22 @@ class ModSerumCoverage : public ModSerumHomologous
 
 // ----------------------------------------------------------------------
 
-Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
+Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const rjson::object& aUpdate)
 {
-#pragma GCC diagnostic push
-#ifdef __clang__
-#pragma GCC diagnostic ignored "-Wexit-time-destructors"
-#endif
-    static const rjson::object empty_args;
-#pragma GCC diagnostic pop
-
     std::string name;
-    const rjson::object* args = &empty_args;
+    rjson::object args;
     if (auto ptr_obj = std::get_if<rjson::object>(&aMod)) {
         name = ptr_obj->get_or_default("N", "");
         if (name.empty()) {
             if (auto [present, val] = ptr_obj->get_value_if("?N"); present)
                 name = "?";     // no "N" but "?N" present, avoid warning about commented out mode
         }
-        args = ptr_obj;
+        args.update(*ptr_obj);
     }
     else if (auto ptr_str = std::get_if<rjson::string>(&aMod)) {
         name = *ptr_str;
     }
+    args.update(aUpdate);
 
     Mods result;
 
@@ -984,76 +987,77 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods)
     };
 
     if (name == "antigens") {
-        result.emplace_back(new ModAntigens(*args));
+        result.emplace_back(new ModAntigens(args));
     }
     else if (name == "sera") {
-        result.emplace_back(new ModSera(*args));
+        result.emplace_back(new ModSera(args));
     }
     else if (name == "move_antigens") {
-        result.emplace_back(new ModMoveAntigens(*args));
+        result.emplace_back(new ModMoveAntigens(args));
     }
     else if (name == "move_sera") {
-        result.emplace_back(new ModMoveSera(*args));
+        result.emplace_back(new ModMoveSera(args));
     }
     else if (name == "amino-acids") {
-        result.emplace_back(new ModAminoAcids(*args));
+        result.emplace_back(new ModAminoAcids(args));
     }
     else if (name == "rotate") {
-        result.emplace_back(new ModRotate(*args));
+        result.emplace_back(new ModRotate(args));
     }
     else if (name == "flip") {
-        result.emplace_back(new ModFlip(*args));
+        result.emplace_back(new ModFlip(args));
     }
     else if (name == "viewport") {
-        result.emplace_back(new ModViewport(*args));
+        result.emplace_back(new ModViewport(args));
     }
     else if (name == "use_chart_plot_spec") {
-        result.emplace_back(new ModUseChartPlotSpec(*args));
+        result.emplace_back(new ModUseChartPlotSpec(args));
     }
     else if (name == "title") {
-        result.emplace_back(new ModTitle(*args));
+        result.emplace_back(new ModTitle(args));
     }
     else if (name == "legend") {
-        result.emplace_back(new ModLegend(*args));
+        result.emplace_back(new ModLegend(args));
     }
     else if (name == "background") {
-        result.emplace_back(new ModBackground(*args));
+        result.emplace_back(new ModBackground(args));
     }
     else if (name == "border") {
-        result.emplace_back(new ModBorder(*args));
+        result.emplace_back(new ModBorder(args));
     }
     else if (name == "grid") {
-        result.emplace_back(new ModGrid(*args));
+        result.emplace_back(new ModGrid(args));
     }
     else if (name == "point_scale") {
-        result.emplace_back(new ModPointScale(*args));
+        result.emplace_back(new ModPointScale(args));
     }
     else if (name == "line") {
-        result.emplace_back(new ModLine(*args));
+        result.emplace_back(new ModLine(args));
     }
     else if (name == "arrow") {
-        result.emplace_back(new ModArrow(*args));
+        result.emplace_back(new ModArrow(args));
     }
     else if (name == "rectangle") {
-        result.emplace_back(new ModRectangle(*args));
+        result.emplace_back(new ModRectangle(args));
     }
     else if (name == "circle") {
-        result.emplace_back(new ModCircle(*args));
+        result.emplace_back(new ModCircle(args));
     }
     else if (name == "serum_circle") {
-        result.emplace_back(new ModSerumCircle(*args));
+        result.emplace_back(new ModSerumCircle(args));
     }
     else if (name == "serum_coverage") {
-        result.emplace_back(new ModSerumCoverage(*args));
+        result.emplace_back(new ModSerumCoverage(args));
     }
     else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
         for (const auto& submod_desc: referenced_mod) {
-            for (auto&& submod: factory(submod_desc, aSettingsMods))
+            for (auto&& submod: factory(submod_desc, aSettingsMods, args)) {
                 result.push_back(std::move(submod));
+            }
         }
     }
     else if (name.empty()) {
-        std::cerr << "WARNING: mod ignored (no \"N\"): " << *args << '\n';
+        std::cerr << "WARNING: mod ignored (no \"N\"): " << args << '\n';
     }
     else if (name.front() == '?' || name.back() == '?') {
           // commented out
