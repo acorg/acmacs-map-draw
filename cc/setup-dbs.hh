@@ -4,7 +4,7 @@
 
 // ----------------------------------------------------------------------
 
-void setup_dbs(std::string aDbsDir);
+void setup_dbs(std::string aDbsDir, bool aVerbose);
 
 // ----------------------------------------------------------------------
 /// Local Variables:

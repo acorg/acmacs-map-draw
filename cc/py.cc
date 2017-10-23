@@ -86,7 +86,7 @@ PYBIND11_MODULE(acmacs_map_draw_backend, m)
 {
     m.doc() = "Acmacs map draw plugin";
 
-    m.def("setup_dbs", &setup_dbs, py::arg("dbs_dir"));
+    m.def("setup_dbs", &setup_dbs, py::arg("dbs_dir"), py::arg("verbose") = false);
 
       // ----------------------------------------------------------------------
       // acmacs-base/time-series

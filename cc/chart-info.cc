@@ -27,7 +27,7 @@ int main(int argc, char* const argv[])
         if (args["-h"] || args["--help"] || args.number_of_arguments() != 1)
             throw std::runtime_error("\nUsage: "s + args.program() + sUsage + args.usage_options());
         const bool verbose = args["-v"] || args["--verbose"];
-        setup_dbs(args["--db-dir"]);
+        setup_dbs(args["--db-dir"], verbose);
         std::unique_ptr<Chart> chart{import_chart(args[0], verbose ? report_time::Yes : report_time::No)};
 
         std::cout << chart->make_name() << '\n'

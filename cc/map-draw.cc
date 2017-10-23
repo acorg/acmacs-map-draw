@@ -12,6 +12,7 @@ using namespace std::string_literals;
 
 #include "settings.hh"
 #include "mod-applicator.hh"
+#include "setup-dbs.hh"
 
 // ----------------------------------------------------------------------
 
@@ -32,9 +33,7 @@ int main(int argc, char* const argv[])
                 {"--save", ""},
                 {"--open", false},
                 {"--projection", 0L},
-                {"--seqdb", ""},
-                {"--hidb-dir", ""},
-                {"--locdb", ""},
+                {"--db-dir", ""},
                 {"-v", false},
                 {"--verbose", false},
         });
@@ -59,6 +58,9 @@ int main(int argc, char* const argv[])
 int draw(const argc_argv& args)
 {
     const bool verbose = args["-v"] || args["--verbose"];
+
+    if (args["--db-dir"])
+        setup_dbs(args["--db-dir"], verbose);
 
     auto settings = settings_default();
     std::unique_ptr<Chart> chart{import_chart(args[0], verbose ? report_time::Yes : report_time::No)};
