@@ -27,8 +27,8 @@ int main(int argc, char* const argv[])
                 {"--help", false},
                 {"--help-mods", false},
                 {"--help-select", false},
-                {"-s", ""},
-                {"--settings", ""},
+                {"-s", argc_argv::strings{}},
+                {"--settings", argc_argv::strings{}},
                 {"--init-settings", ""},
                 {"--save", ""},
                 {"--open", false},
@@ -81,7 +81,13 @@ int draw(const argc_argv& args)
 
     settings.update(settings_builtin_mods());
 
-    auto load_settings = [&settings](std::string aFilename) { settings.update(rjson::parse_file(aFilename)); };
+    auto load_settings = [&](argc_argv::strings aFilenames) {
+        for (auto fn: aFilenames) {
+            if (verbose)
+                std::cerr << "DEBUG: reading settings from " << fn << '\n';
+            settings.update(rjson::parse_file(fn));
+        }
+    };
     if (args["-s"])
         load_settings(args["-s"]);
     if (args["--settings"])
