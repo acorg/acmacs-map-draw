@@ -60,6 +60,7 @@ class ChartDraw
         {
             const auto index = static_cast<size_t>(aIndex);
             mPointStyles[index] = aStyle;
+              // std::cerr << "DEBUG: modified " << index << ' ' << mPointStyles[index] << '\n';
             switch (aPointDrawingOrder) {
               case PointDrawingOrder::Raise:
                   drawing_order().raise(index);
