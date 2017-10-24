@@ -965,7 +965,7 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const
     if (auto ptr_obj = std::get_if<rjson::object>(&aMod)) {
         name = ptr_obj->get_or_default("N", "");
         if (name.empty()) {
-            if (auto [present, val] = ptr_obj->get_value_if("?N"); present)
+            if (ptr_obj->exists("?N"))
                 name = "?";     // no "N" but "?N" present, avoid warning about commented out mode
         }
         args.update(*ptr_obj);
