@@ -31,6 +31,7 @@ int main(int argc, char* const argv[])
                 {"--settings", argc_argv::strings{}},
                 {"--init-settings", ""},
                 {"--save", ""},
+                {"--previous", ""},
                 {"--open", false},
                 {"--projection", 0L},
                 {"--db-dir", ""},
@@ -64,8 +65,14 @@ int draw(const argc_argv& args)
 
     auto settings = settings_default();
     std::unique_ptr<Chart> chart{import_chart(args[0], verbose ? report_time::Yes : report_time::No)};
+    std::unique_ptr<Chart> previous_chart;
+    if (args["--previous"])
+        previous_chart = std::unique_ptr<Chart>(import_chart(args["--previous"], verbose ? report_time::Yes : report_time::No));
 
     ChartDraw chart_draw(*chart, args["--projection"]);
+    if (previous_chart)
+        chart_draw.previous_chart(*previous_chart);
+
     chart_draw.prepare();
 
     if (args["--init-settings"]) {

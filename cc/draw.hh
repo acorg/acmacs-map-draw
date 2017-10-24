@@ -56,6 +56,10 @@ class ChartDraw
     inline const auto& layout() const { return chart().projection(projection_no()).layout(); }
     inline auto& layout() { return chart().projection(projection_no()).layout(); }
 
+      // for "found_in_previous" and "not_found_in_previous" select keys
+    inline void previous_chart(Chart_Type& aPreviousChart) { mPreviousChart = &aPreviousChart; }
+    inline const auto& previous_chart() const { return mPreviousChart; }
+
     template <typename index_type> inline void modify(index_type aIndex, const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
             const auto index = static_cast<size_t>(aIndex);
@@ -162,6 +166,7 @@ class ChartDraw
 
  private:
     Chart_Type& mChart;
+    Chart_Type* mPreviousChart = nullptr;
     size_t mProjectionNo;
     Viewport mViewport;
     Transformation mTransformation;

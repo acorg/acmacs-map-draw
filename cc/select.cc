@@ -25,31 +25,32 @@ SelectAntigensSera::~SelectAntigensSera()
 class SelectorVisitor : public rjson::value_visitor_base<std::vector<size_t>>
 {
  public:
-    inline SelectorVisitor(const Chart& aChart, SelectAntigensSera& aSelect) : mChart{aChart}, mSelect{aSelect} {}
+    inline SelectorVisitor(const Chart& aChart, const Chart* aPreviousChart, SelectAntigensSera& aSelect) : mChart{aChart}, mPreviousChart{aPreviousChart}, mSelect{aSelect} {}
     using rjson::value_visitor_base<std::vector<size_t>>::operator();
 
     inline std::vector<size_t> operator()(const rjson::string& aValue) override
         {
-            return mSelect.command(mChart, {{aValue, rjson::boolean{true}}});
+            return mSelect.command(mChart, mPreviousChart, {{aValue, rjson::boolean{true}}});
         }
 
     inline std::vector<size_t> operator()(const rjson::object& aValue) override
         {
-            return mSelect.command(mChart, aValue);
+            return mSelect.command(mChart, mPreviousChart, aValue);
         }
 
  private:
     const Chart& mChart;
+    const Chart* mPreviousChart;
     SelectAntigensSera& mSelect;
 
 }; // class SelectorVisitor
 
 // ----------------------------------------------------------------------
 
-std::vector<size_t> SelectAntigensSera::select(const Chart& aChart, const rjson::value& aSelector)
+std::vector<size_t> SelectAntigensSera::select(const Chart& aChart, const Chart* aPreviousChart, const rjson::value& aSelector)
 {
     try {
-        return std::visit(SelectorVisitor{aChart, *this}, aSelector);
+        return std::visit(SelectorVisitor{aChart, aPreviousChart, *this}, aSelector);
     }
     catch (std::exception& err) {
           // catch (SelectorVisitor::unexpected_value&) {
@@ -60,7 +61,7 @@ std::vector<size_t> SelectAntigensSera::select(const Chart& aChart, const rjson:
 
 // ----------------------------------------------------------------------
 
-std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::object& aSelector)
+std::vector<size_t> SelectAntigens::command(const Chart& aChart, const Chart* aPreviousChart, const rjson::object& aSelector)
 {
       // std::cout << "DEBUG: antigens command: " << aSelector << '\n';
     const auto& antigens = aChart.antigens();
@@ -204,6 +205,15 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const rjson::ob
                     indices.clear();
             }
         }
+        // else if (key == "found_in_previous") {
+        //     if (!aPreviousChart)
+        //         throw std::runtime_error{"\"found_in_previous\" selector used but no previous chart provided"};
+        // }
+        else if (key == "not_found_in_previous") {
+            if (!aPreviousChart)
+                throw std::runtime_error{"\"not_found_in_previous\" selector used but no previous chart provided"};
+            auto not_found = aChart.antigens_not_found_in(*aPreviousChart);
+        }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }
@@ -309,7 +319,7 @@ void SelectAntigens::filter_vaccine(const Chart& aChart, std::vector<size_t>& in
 
 // ----------------------------------------------------------------------
 
-std::vector<size_t> SelectSera::command(const Chart& aChart, const rjson::object& aSelector)
+std::vector<size_t> SelectSera::command(const Chart& aChart, const Chart* /*aPreviousChart*/, const rjson::object& aSelector)
 {
     const auto& sera = aChart.sera();
     auto indices = sera.all_indices();
