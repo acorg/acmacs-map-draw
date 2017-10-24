@@ -92,7 +92,7 @@ int draw(const argc_argv& args)
         load_settings(args["-s"]);
     if (args["--settings"])
         load_settings(args["--settings"]);
-    // std::cout << settings.to_json_pp() << '\n';
+      // std::cerr << "DEBUG: loaded settings\n" << settings.to_json_pp() << '\n';
 
     try {
         Timeit ti("applying mods: ");

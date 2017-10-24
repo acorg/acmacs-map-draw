@@ -979,7 +979,10 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const
 
     auto get_referenced_mod = [&aSettingsMods](std::string aName) -> const rjson::array& {
         try {
-            return aSettingsMods.get_or_empty_array(aName);
+            return aSettingsMods[aName];
+        }
+        catch (rjson::field_not_found&) {
+            throw unrecognized_mod{"mod not found: " + aName};
         }
         catch (std::bad_variant_access&) {
             throw unrecognized_mod{"[\"mods\"][\"" + aName + "\"] is not an array:\n\n" + aSettingsMods.to_json_pp(2, rjson::json_pp_emacs_indent::no) + "\n\n"};
@@ -1049,13 +1052,6 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const
     else if (name == "serum_coverage") {
         result.emplace_back(new ModSerumCoverage(args));
     }
-    else if (const auto& referenced_mod = get_referenced_mod(name); !referenced_mod.empty()) {
-        for (const auto& submod_desc: referenced_mod) {
-            for (auto&& submod: factory(submod_desc, aSettingsMods, args)) {
-                result.push_back(std::move(submod));
-            }
-        }
-    }
     else if (name.empty()) {
         std::cerr << "WARNING: mod ignored (no \"N\"): " << args << '\n';
     }
@@ -1063,7 +1059,11 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const
           // commented out
     }
     else {
-        throw unrecognized_mod{"unrecognized mod: "s + aMod.to_json()};
+        for (const auto& submod_desc: get_referenced_mod(name)) {
+            for (auto&& submod: factory(submod_desc, aSettingsMods, args)) {
+                result.push_back(std::move(submod));
+            }
+        }
     }
 
     return result;
