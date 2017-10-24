@@ -189,7 +189,7 @@ class ModAntigens : public Mod
         {
             const auto verbose = args().get_or_default("report", false);
             try {
-                const auto indices = SelectAntigens(verbose).select(aChartDraw.chart(), args()["select"]);
+                const auto indices = SelectAntigens(verbose).select(aChartDraw.chart(), aChartDraw.previous_chart(), args()["select"]);
                 const auto styl = style();
                 // if (verbose)
                 //     std::cerr << "DEBUG ModAntigens " << indices << ' ' << args() << ' ' << styl << '\n';

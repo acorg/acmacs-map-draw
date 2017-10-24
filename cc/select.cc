@@ -205,14 +205,15 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const Chart* aP
                     indices.clear();
             }
         }
-        // else if (key == "found_in_previous") {
-        //     if (!aPreviousChart)
-        //         throw std::runtime_error{"\"found_in_previous\" selector used but no previous chart provided"};
-        // }
+        else if (key == "found_in_previous") {
+            if (!aPreviousChart)
+                throw std::runtime_error{"\"found_in_previous\" selector used but no previous chart provided"};
+            antigens.filter_found_in(indices, aPreviousChart->antigens());
+        }
         else if (key == "not_found_in_previous") {
             if (!aPreviousChart)
                 throw std::runtime_error{"\"not_found_in_previous\" selector used but no previous chart provided"};
-            auto not_found = aChart.antigens_not_found_in(*aPreviousChart);
+            antigens.filter_not_found_in(indices, aPreviousChart->antigens());
         }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
