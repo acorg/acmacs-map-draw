@@ -140,31 +140,33 @@ map_elements::LegendPointLabel::LegendPointLabel()
 
 void map_elements::LegendPointLabel::draw(Surface& aSurface, const ChartDraw&) const
 {
-    double width = 0, height = 0;
-    for (const auto& line: mLines) {
-        const Size line_size = aSurface.text_size(line.label, mLabelSize, mLabelStyle);
-        if (line_size.width > width)
-            width = line_size.width;
-        if (line_size.height > height)
-            height = line_size.height;
-    }
-    const Size padding = aSurface.text_size("O", mLabelSize, mLabelStyle);
-    const double scaled_point_size = aSurface.convert(mPointSize).value();
+    if (!mLines.empty()) {
+        double width = 0, height = 0;
+        for (const auto& line: mLines) {
+            const Size line_size = aSurface.text_size(line.label, mLabelSize, mLabelStyle);
+            if (line_size.width > width)
+                width = line_size.width;
+            if (line_size.height > height)
+                height = line_size.height;
+        }
+        const Size padding = aSurface.text_size("O", mLabelSize, mLabelStyle);
+        const double scaled_point_size = aSurface.convert(mPointSize).value();
 
-    const Size legend_surface_size{width + padding.width * 3 + scaled_point_size,
-                                   height * (mLines.size() - 1) * mInterline + height + padding.height * 2};
-    const Location legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
+        const Size legend_surface_size{width + padding.width * 3 + scaled_point_size,
+                                       height * (mLines.size() - 1) * mInterline + height + padding.height * 2};
+        const Location legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
 
-    Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
-    legend_surface.background(mBackgroud);
-    legend_surface.border(mBorderColor, mBorderWidth);
-    const double point_x = padding.width + scaled_point_size / 2;
-    const double text_x = padding.width * 2 + scaled_point_size;
-    double y = padding.height + height;
-    for (const auto& line: mLines) {
-        legend_surface.circle_filled({point_x, y - height / 2}, mPointSize, AspectNormal, NoRotation, line.outline, Pixels{1}, line.fill);
-        legend_surface.text({text_x, y}, line.label, mLabelColor, mLabelSize, mLabelStyle);
-        y += height * mInterline;
+        Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
+        legend_surface.background(mBackgroud);
+        legend_surface.border(mBorderColor, mBorderWidth);
+        const double point_x = padding.width + scaled_point_size / 2;
+        const double text_x = padding.width * 2 + scaled_point_size;
+        double y = padding.height + height;
+        for (const auto& line: mLines) {
+            legend_surface.circle_filled({point_x, y - height / 2}, mPointSize, AspectNormal, NoRotation, line.outline, Pixels{1}, line.fill);
+            legend_surface.text({text_x, y}, line.label, mLabelColor, mLabelSize, mLabelStyle);
+            y += height * mInterline;
+        }
     }
 
 } // map_elements::LegendPointLabel::draw
