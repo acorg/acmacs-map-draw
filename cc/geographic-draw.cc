@@ -85,7 +85,7 @@ int draw(const argc_argv& args)
         for (auto fn: aFilenames) {
             if (verbose)
                 std::cerr << "DEBUG: reading settings from " << fn << '\n';
-            settings.update(rjson::parse_file(fn, rjson::remove_comments::No));
+            settings.update(rjson::parse_file(fn, rjson::remove_comments::Yes));
         }
     };
     if (args["-s"])
@@ -99,6 +99,7 @@ int draw(const argc_argv& args)
 
     if (args["--time-series"] == "") {
           // Single map
+        std::cerr << "INFO: single map\n";
         GeographicMapWithPointsFromHidb geographic_map(args[0], settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]);
         geographic_map.add_points_from_hidb_colored_by(*coloring, ColorOverride{}, make_list(settings["priority"]), start_date, end_date);
         if (static_cast<std::string>(settings["title_text"]) != "") {
@@ -124,8 +125,21 @@ int draw(const argc_argv& args)
         if (args["--open"])
             acmacs::quicklook(output, 2);
     }
-    else
-        throw std::runtime_error("Unsupported time series argument: " + static_cast<std::string>(args["--time-series"]) + " (monthly or yearly or weekly expected)");
+    else {
+        std::cerr << "INFO: time series " << static_cast<std::string>(args["--time-series"]) << '\n';
+        if (args.number_of_arguments() < 2)
+            throw std::runtime_error("Please provide output filename prefix for time series");
+        std::unique_ptr<GeographicTimeSeriesBase> time_series;
+        if (args["--time-series"] == "monthly")
+            time_series.reset(new GeographicTimeSeriesMonthly(args[0], start_date, end_date, settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]));
+        else if (args["--time-series"] == "yearly")
+            time_series.reset(new GeographicTimeSeriesYearly(args[0], start_date, end_date, settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]));
+        else if (args["--time-series"] == "weekly")
+            time_series.reset(new GeographicTimeSeriesWeekly(args[0], start_date, end_date, settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]));
+        else
+            throw std::runtime_error("Unsupported time series argument: " + static_cast<std::string>(args["--time-series"]) + " (monthly or yearly or weekly expected)");
+        time_series->draw(std::string{args[1]}, *coloring, ColorOverride{}, settings["output_image_width"]);
+    }
 
     return 0;
 
@@ -137,7 +151,10 @@ static inline GeographicMapColoring::TagToColor make_map(const rjson::object& aS
 {
     GeographicMapColoring::TagToColor result;
     auto rjson_to_coloring_data = [](const auto& entry) -> GeographicMapColoring::TagToColor::value_type {
-        return {entry.first, {entry.second["fill"], entry.second["outline"], entry.second["outline_width"]}};
+        if (!entry.first.empty() && (entry.first.front() == '?' || entry.first.back() == '?'))
+            return {entry.first, {"pink"}}; // comment field
+        else
+            return {entry.first, {entry.second["fill"], entry.second["outline"], entry.second["outline_width"]}};
     };
     std::transform(std::begin(aSource), std::end(aSource), std::inserter(result, result.end()), rjson_to_coloring_data);
     return result;
@@ -157,6 +174,7 @@ GeographicMapColoring* make_coloring(const rjson::value& aSettings)
         coloring = new ColoringByLineageAndDeletionMutants(make_map(aSettings["lineage_color"]));
     else
         throw std::runtime_error("Unsupported coloring: " + coloring_name);
+    std::cerr << "INFO: coloring: " << coloring_name << '\n';
     return coloring;
 
 } // make_coloring

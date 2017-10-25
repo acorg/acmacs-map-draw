@@ -14,7 +14,7 @@ static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-
   "continent_outline_width": 0.5,
   "output_image_width": 800,
 
-  "title_text": "Geographic map",
+  "title_text": "",
   "title": {"offset": [0, 0], "text_size": 20, "background": "transparent", "border_color": "black", "border_width": 0, "text_color": "black", "padding": 10.0},
 
   "continent_color": {

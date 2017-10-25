@@ -329,7 +329,7 @@ template <typename TimeSeries> class GeographicTimeSeries : public GeographicTim
     inline GeographicTimeSeries(std::string aVirusType, std::string aStart, std::string aEnd, double aPointSizeInPixels, double aPointDensity, std::string aOutlineColor, double aOutlineWidth)
         : GeographicTimeSeriesBase(aVirusType, aPointSizeInPixels, aPointDensity, aOutlineColor, aOutlineWidth), mTS(aStart, aEnd) {}
 
-    virtual inline void draw(std::string aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const { auto start = mTS.begin(), end = mTS.end(); GeographicTimeSeriesBase::draw(aFilenamePrefix, start, end, aColoring, aColorOverride, aImageWidth); }
+    inline void draw(std::string aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const override { auto start = mTS.begin(), end = mTS.end(); GeographicTimeSeriesBase::draw(aFilenamePrefix, start, end, aColoring, aColorOverride, aImageWidth); }
 
  private:
     TimeSeries mTS;
