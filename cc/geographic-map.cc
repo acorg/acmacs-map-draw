@@ -101,18 +101,22 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const Geog
       // std::cerr << "add_points_from_hidb_colored_by" << '\n';
     auto antigens = hidb::get(mVirusType).all_antigens();
     antigens.date_range(aStartDate, aEndDate);
-    std::cerr << aStartDate << ".." << aEndDate << "  " << antigens.size() << std::endl;
+    std::cerr << "INFO: dates: " << aStartDate << ".." << aEndDate << "  antigens: " << antigens.size() << std::endl;
     for (auto& antigen: antigens) {
         auto color = aColorOverride.color(*antigen);
         if (color.empty())
             color = aColoring.color(*antigen);
-        // else
-        //     std::cout << "Color override " << antigen->name() << ' '  << color << '\n';
-        auto location = virus_name::location(antigen->name());
-        // if (location == "GEORGIA") std::cerr << antigen->name() << ' ' << antigen->most_recent_table().table_id() << '\n';
-        if (location == "GEORGIA" && antigen->most_recent_table().table_id().find(":cdc:") != std::string::npos)
-            location = "GEORGIA STATE"; // somehow disambiguate
-        mPoints.add(location, color);
+          // else
+          //     std::cout << "Color override " << antigen->name() << ' '  << color << '\n';
+        try {
+            auto location = virus_name::location(antigen->name());
+              // if (location == "GEORGIA") std::cerr << antigen->name() << ' ' << antigen->most_recent_table().table_id() << '\n';
+            if (location == "GEORGIA" && antigen->most_recent_table().table_id().find(":cdc:") != std::string::npos)
+                location = "GEORGIA STATE"; // somehow disambiguate
+            mPoints.add(location, color);
+        }
+        catch (virus_name::Unrecognized&) {
+        }
     }
       // std::transform(mPoints.begin(), mPoints.end(), std::ostream_iterator<std::string>(std::cerr, "\n"), [](const auto& e) -> std::string { return e.first; });
 

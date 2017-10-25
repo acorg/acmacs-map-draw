@@ -60,8 +60,7 @@ int draw(const argc_argv& args)
 {
     const bool verbose = args["-v"] || args["--verbose"];
 
-    if (args["--db-dir"])
-        setup_dbs(args["--db-dir"], verbose);
+    setup_dbs(args["--db-dir"], verbose);
 
     auto settings = settings_default();
     std::unique_ptr<Chart> chart{import_chart(args[0], verbose ? report_time::Yes : report_time::No)};

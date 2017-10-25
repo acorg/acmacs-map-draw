@@ -63,8 +63,7 @@ int draw(const argc_argv& args)
 {
     const bool verbose = args["-v"] || args["--verbose"];
 
-    if (args["--db-dir"])
-        setup_dbs(args["--db-dir"], verbose);
+    setup_dbs(args["--db-dir"], verbose);
 
     auto settings = geographic_settings_default();
 
