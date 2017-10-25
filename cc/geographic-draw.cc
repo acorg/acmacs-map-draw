@@ -101,6 +101,8 @@ int draw(const argc_argv& args)
         geographic_map.add_points_from_hidb_colored_by_clade(make_map(settings["clade_color"]), /* color_override */{}, start_date, end_date);
     else if (coloring == "lineage")
         geographic_map.add_points_from_hidb_colored_by_lineage(make_map(settings["lineage_color"]), /* color_override */{}, start_date, end_date);
+    else if (coloring == "lineage-deletion-mutants")
+        geographic_map.add_points_from_hidb_colored_by_lineage_and_deletion_mutants(make_map(settings["lineage_color"]), /* color_override */{}, start_date, end_date);
     else
         throw std::runtime_error("Unsupported coloring: " + coloring);
 

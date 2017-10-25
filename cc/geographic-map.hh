@@ -156,15 +156,19 @@ class ColoringByLineage : public GeographicMapColoring
 class ColoringByLineageAndDeletionMutants : public GeographicMapColoring
 {
  public:
-    inline ColoringByLineageAndDeletionMutants(const std::map<std::string, std::string>& aLineageColor, std::string aDeletionMutantColor)
+    inline ColoringByLineageAndDeletionMutants(const std::map<std::string, std::string>& aLineageColor, std::string aDeletionMutantColor = std::string{})
         : mColors(aLineageColor.begin(), aLineageColor.end()), mDeletionMutantColor{aDeletionMutantColor} {}
 
     virtual Color color(const hidb::AntigenData& aAntigen) const
         {
             try {
                 const auto* entry_seq = seqdb::get().find_hi_name(aAntigen.full_name());
-                if (entry_seq && entry_seq->seq().has_clade("DEL2017"))
-                    return mDeletionMutantColor;
+                if (entry_seq && entry_seq->seq().has_clade("DEL2017")) {
+                    if (mDeletionMutantColor.empty())
+                        return mColors.at("VICTORIA_DEL");
+                    else
+                        return mDeletionMutantColor;
+                }
                 else
                     return mColors.at(aAntigen.data().lineage());
             }
@@ -222,6 +226,7 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
     inline void add_points_from_hidb_colored_by_continent(const std::map<std::string, std::string>& aContinentColor, const std::map<std::string, std::string>& aColorOverride, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByContinent(aContinentColor), ColorOverride(aColorOverride), aStartDate, aEndDate); }
     inline void add_points_from_hidb_colored_by_clade(const std::map<std::string, std::string>& aCladeColor, const std::map<std::string, std::string>& aColorOverride, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByClade(aCladeColor), ColorOverride(aColorOverride), aStartDate, aEndDate); }
     inline void add_points_from_hidb_colored_by_lineage(const std::map<std::string, std::string>& aLineageColor, const std::map<std::string, std::string>& aColorOverride, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineage(aLineageColor), ColorOverride(aColorOverride), aStartDate, aEndDate); }
+    inline void add_points_from_hidb_colored_by_lineage_and_deletion_mutants(const std::map<std::string, std::string>& aLineageColor, const std::map<std::string, std::string>& aColorOverride, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineageAndDeletionMutants(aLineageColor), ColorOverride(aColorOverride), aStartDate, aEndDate); }
 
  private:
     std::string mVirusType;
