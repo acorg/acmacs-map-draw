@@ -20,13 +20,16 @@ class GeographicMapColoring;    // private, defined in geographic-map.cc
 class GeographicMapPoint : public PointStyleDraw
 {
  public:
-    inline GeographicMapPoint() : mLongLat{0, 0} {}
-    inline GeographicMapPoint(const Coordinates& aLongLat) : mLongLat(aLongLat) {}
+    inline GeographicMapPoint() = default; // : mLongLat{0, 0} {}
+    inline GeographicMapPoint(const Coordinates& aLongLat, long aPriority) : mLongLat(aLongLat), mPriority{aPriority} {}
 
     inline void draw(Surface& aSurface) const { PointStyleDraw::draw(aSurface, mLongLat); }
 
+    inline bool operator<(const GeographicMapPoint& aNother) const { return mPriority < aNother.mPriority; }
+
  private:
-    Coordinates mLongLat;
+    Coordinates mLongLat{0, 0};
+    long mPriority{0};
 };
 
 // ----------------------------------------------------------------------
@@ -35,6 +38,7 @@ class GeographicMapPoints : public std::vector<GeographicMapPoint>
 {
  public:
     void draw(Surface& aSurface) const;
+    inline void sort() { std::sort(begin(), end()); }
 };
 
 // ----------------------------------------------------------------------
@@ -51,6 +55,9 @@ class GeographicMapDraw
 
     void add_point(long aPriority, double aLat, double aLong, Color aFill, Pixels aSize, Color aOutline = "transparent", Pixels aOutlineWidth = Pixels{0});
     inline map_elements::Title& title() { return mTitle; }
+
+ protected:
+    inline void sort_points() { mPoints.sort(); }
 
  private:
     Color mOutline;
@@ -269,7 +276,7 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
           // static inline size_t number_of_points_at_location(const PointsAtLocation& colors) { return std::accumulate(colors.begin(), colors.end(), 0U, [](size_t sum, auto elt) -> size_t {return sum + elt.second; }); }
     };
 
-    Points mPoints;
+    Points mPointsAtLocation;
 
 }; // class GeographicMapWithPointsFromHidb
 

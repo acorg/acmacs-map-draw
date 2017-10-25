@@ -52,7 +52,7 @@ void GeographicMapDraw::draw(std::string aFilename, double aImageWidth)
 
 void GeographicMapDraw::add_point(long aPriority, double aLat, double aLong, Color aFill, Pixels aSize, Color aOutline, Pixels aOutlineWidth)
 {
-    mPoints.emplace_back(Coordinates{aLong, -aLat});
+    mPoints.emplace_back(Coordinates{aLong, -aLat}, aPriority);
     mPoints.back().shape(PointStyle::Shape::Circle).fill(aFill).outline(aOutline).outline_width(aOutlineWidth).size(aSize);
 
 } // GeographicMapDraw::add_point
@@ -70,7 +70,7 @@ void GeographicMapWithPointsFromHidb::prepare(Surface& aSurface)
     GeographicMapDraw::prepare(aSurface);
 
     const double point_scaled = aSurface.convert(mPointSize).value();
-    for (const auto& location_color: mPoints) {
+    for (const auto& location_color: mPointsAtLocation) {
         try {
             const auto location = get_locdb().find(location_color.first);
             const double center_lat = location.latitude(), center_long = location.longitude();
@@ -94,6 +94,8 @@ void GeographicMapWithPointsFromHidb::prepare(Surface& aSurface)
         }
     }
 
+    sort_points();
+    
 } // GeographicMapWithPointsFromHidb::prepare
 
 // ----------------------------------------------------------------------
@@ -118,7 +120,7 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const Geog
             if (location == "GEORGIA" && antigen->most_recent_table().table_id().find(":cdc:") != std::string::npos)
                 location = "GEORGIA STATE"; // somehow disambiguate
             const auto found = std::find(std::begin(aPriority), std::end(aPriority), tag);
-            mPoints.add(location, found == std::end(aPriority) ? 0 : (found - std::begin(aPriority) + 1), color);
+            mPointsAtLocation.add(location, found == std::end(aPriority) ? 0 : (found - std::begin(aPriority) + 1), color);
         }
         catch (virus_name::Unrecognized&) {
         }
