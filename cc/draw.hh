@@ -109,8 +109,8 @@ class ChartDraw
 
     inline void rotate(double aAngle)
         {
-            // std::cout << "INFO: rotate " << aAngle << " radians = " << (180.0 * aAngle / M_PI) << " degrees" << std::endl;
-            log("rotate ", aAngle, " radians = ", 180.0 * aAngle / M_PI, " degrees ", aAngle > 0 ? "counter-" : "", "clockwise");
+            if (!float_zero(aAngle))
+                log("rotate radians:", aAngle, " degrees:", 180.0 * aAngle / M_PI, " ", aAngle > 0 ? "counter-" : "", "clockwise");
             mTransformation.rotate(aAngle);
         }
 

@@ -219,8 +219,8 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const Chart* aP
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }
     }
-    if (verbose())
-        std::cerr << "Antigens selected: " << std::setfill(' ') << std::setw(4) << indices.size() << ' ' << aSelector << '\n';
+    if (verbose() && !indices.empty())
+        std::cerr << "INFO: antigens selected: " << std::setfill(' ') << std::setw(4) << indices.size() << ' ' << aSelector << '\n';
 
     return indices;
 

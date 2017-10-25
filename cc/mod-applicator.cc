@@ -158,7 +158,7 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::o
 {
     const auto& mods_data_mod = aModData.get_or_empty_object("mods");
     for (const auto& mod_desc: aMods) {
-        Timeit ti{"Applying " + mod_desc.to_json() + ": "};
+        Timeit ti{"INFO: Applying " + mod_desc.to_json() + ": "};
         try {
             for (const auto& mod: factory(mod_desc, mods_data_mod, {})) {
                 mod->apply(aChartDraw, aModData);
