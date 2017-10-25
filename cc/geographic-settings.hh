@@ -5,7 +5,7 @@
 // ----------------------------------------------------------------------
 
 rjson::value geographic_settings_default();
-rjson::value geographic_settings_builtin_mods();
+std::string geographic_settings_default_raw();
 
 // ----------------------------------------------------------------------
 /// Local Variables:

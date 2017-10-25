@@ -2,8 +2,7 @@
 
 // ----------------------------------------------------------------------
 
-static const char* const SETTINGS_DEFAULT = R"(
-{
+static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-",
   "coloring": "clade",
   "coloring?": ["continent", "clade", "lineage", "lineage-deletion-mutants"],
   "color_override?": {"B": {"?": "B/Vic deletion mutants", "?B/DOMINICAN REPUBLIC/9932/2016": "#00FFFF"}},
@@ -14,25 +13,10 @@ static const char* const SETTINGS_DEFAULT = R"(
   "continent_outline_color": "grey63",
   "continent_outline_width": 0.5,
   "output_image_width": 800,
-  "title": {"offset": [0, 0], "text_size": 20, "background": "transparent", "border_width": 0}
-}
-)";
 
-rjson::value geographic_settings_default()
-{
-    try {
-        return rjson::parse_string(SETTINGS_DEFAULT, rjson::remove_comments::No);
-    }
-    catch (std::exception& err) {
-        std::cerr << "ERROR: parsing SETTINGS_DEFAULT: " << err.what() << '\n';
-        throw;
-    }
-}
+  "title_text": "Geographic map",
+  "title": {"offset": [0, 0], "text_size": 20, "background": "transparent", "border_color": "black", "border_width": 0, "text_color": "black", "padding": 10.0},
 
-// ----------------------------------------------------------------------
-
-static const char* const SETTINGS_BUILTIN_MODS = R"(
-{
   "continent_color": {
     "EUROPE":            {"fill": "green",       "outline": "black", "outline_width": 0},
     "CENTRAL-AMERICA":   {"fill": "#AAF9FF",     "outline": "black", "outline_width": 0},
@@ -83,22 +67,28 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
 
   "?": "draw VICTORIA_DEL on top of VICTORIA",
   "priority": ["YAMAGATA", "VICTORIA", "VICTORIA_DEL"]
+
 }
 )";
 
-rjson::value geographic_settings_builtin_mods()
+rjson::value geographic_settings_default()
 {
     try {
-        return rjson::parse_string(SETTINGS_BUILTIN_MODS, rjson::remove_comments::Yes);
+        return rjson::parse_string(SETTINGS_DEFAULT, rjson::remove_comments::Yes);
     }
     catch (std::exception& err) {
-        std::cerr << "ERROR: parsing SETTINGS_BUILTIN_MODS: " << err.what() << '\n';
+        std::cerr << "ERROR: parsing SETTINGS_DEFAULT: " << err.what() << '\n';
         throw;
     }
 }
 
 // ----------------------------------------------------------------------
 
+std::string geographic_settings_default_raw()
+{
+    return SETTINGS_DEFAULT;
+
+} // geographic_settings_default_raw
 
 // ----------------------------------------------------------------------
 /// Local Variables:
