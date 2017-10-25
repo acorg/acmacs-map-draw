@@ -138,7 +138,7 @@ GeographicTimeSeriesBase::~GeographicTimeSeriesBase()
 void GeographicTimeSeriesBase::draw(std::string aFilenamePrefix, TimeSeriesIterator& aBegin, const TimeSeriesIterator& aEnd, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const
 {
     for (; aBegin != aEnd; ++aBegin) {
-        GeographicMapWithPointsFromHidb map = mMap;
+        auto map = mMap;        // make a copy!
         map.add_points_from_hidb_colored_by(aColoring, aColorOverride, {}, *aBegin, aBegin.next());
         map.title().add_line(aBegin.text_name());
         map.draw(aFilenamePrefix + aBegin.numeric_name() + ".pdf", aImageWidth);

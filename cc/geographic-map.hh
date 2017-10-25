@@ -315,7 +315,7 @@ class GeographicTimeSeriesBase
     inline map_elements::Title& title() { return mMap.title(); }
     virtual void draw(std::string aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const = 0;
     void draw(std::string aFilenamePrefix, TimeSeriesIterator& aBegin, const TimeSeriesIterator& aEnd, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const;
-
+    
  private:
     GeographicMapWithPointsFromHidb mMap;
 

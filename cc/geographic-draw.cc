@@ -15,6 +15,7 @@ using namespace std::string_literals;
 
 static int draw(const argc_argv& args);
 static GeographicMapColoring* make_coloring(const rjson::value& aSettings);
+static void set_title(map_elements::Title& aTitle, const rjson::value& aSettings);
 
 int main(int argc, char* const argv[])
 {
@@ -102,22 +103,7 @@ int draw(const argc_argv& args)
         std::cerr << "INFO: single map\n";
         GeographicMapWithPointsFromHidb geographic_map(args[0], settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]);
         geographic_map.add_points_from_hidb_colored_by(*coloring, ColorOverride{}, make_list(settings["priority"]), start_date, end_date);
-        if (static_cast<std::string>(settings["title_text"]) != "") {
-            const rjson::object& title_data = settings["title"];
-            auto& title = geographic_map.title()
-                    .show(true)
-                    .padding(title_data.get_or_default("padding", 10.0))
-                    .background(title_data.get_or_default("background", "transparent"))
-                    .border_color(title_data.get_or_default("border_color", "black"))
-                    .border_width(title_data.get_or_default("border_width", 0.0))
-                    .text_color(title_data.get_or_default("text_color", "black"))
-                    .text_size(title_data.get_or_default("text_size", 12.0))
-                    ;
-            const auto& offset = title_data.get_or_empty_array("offset");
-            if (!offset.empty())
-                title.offset(offset[0], offset[1]);
-            title.add_line(settings["title_text"]);
-        }
+        set_title(geographic_map.title(), settings);
 
         acmacs_base::TempFile temp_file(".pdf");
         const std::string output = args.number_of_arguments() > 1 ? std::string{args[1]} : static_cast<std::string>(temp_file);
@@ -138,6 +124,7 @@ int draw(const argc_argv& args)
             time_series.reset(new GeographicTimeSeriesWeekly(args[0], start_date, end_date, settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]));
         else
             throw std::runtime_error("Unsupported time series argument: " + static_cast<std::string>(args["--time-series"]) + " (monthly or yearly or weekly expected)");
+        set_title(time_series->title(), settings);
         time_series->draw(std::string{args[1]}, *coloring, ColorOverride{}, settings["output_image_width"]);
     }
 
@@ -178,6 +165,28 @@ GeographicMapColoring* make_coloring(const rjson::value& aSettings)
     return coloring;
 
 } // make_coloring
+
+// ----------------------------------------------------------------------
+
+void set_title(map_elements::Title& aTitle, const rjson::value& aSettings)
+{
+    if (static_cast<std::string>(aSettings["title_text"]) != "") {
+        const rjson::object& title_data = aSettings["title"];
+        aTitle.show(true)
+                .padding(title_data.get_or_default("padding", 10.0))
+                .background(title_data.get_or_default("background", "transparent"))
+                .border_color(title_data.get_or_default("border_color", "black"))
+                .border_width(title_data.get_or_default("border_width", 0.0))
+                .text_color(title_data.get_or_default("text_color", "black"))
+                .text_size(title_data.get_or_default("text_size", 12.0))
+                ;
+        const auto& offset = title_data.get_or_empty_array("offset");
+        if (!offset.empty())
+            aTitle.offset(offset[0], offset[1]);
+        aTitle.add_line(aSettings["title_text"]);
+    }
+
+} // set_title
 
 // ----------------------------------------------------------------------
 /// Local Variables:
