@@ -2,9 +2,6 @@
 #include "acmacs-base/range.hh"
 #include "acmacs-draw/surface-cairo.hh"
 #include "acmacs-draw/geographic-map.hh"
-#include "locationdb/locdb.hh"
-#include "hidb/hidb.hh"
-#include "seqdb/seqdb.hh"
 #include "geographic-map.hh"
 
 // ----------------------------------------------------------------------

@@ -4,15 +4,15 @@
 #include <map>
 
 #include "acmacs-base/time-series.hh"
+#include "hidb/hidb.hh"
+#include "seqdb/seqdb.hh"
+#include "locationdb/locdb.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 #include "map-elements.hh"
 
 // ----------------------------------------------------------------------
 
 class Surface;
-class LocDb;
-namespace hidb { class HiDb; }
-namespace seqdb { class Seqdb; }
 class GeographicMapColoring;    // private, defined in geographic-map.cc
 
 // ----------------------------------------------------------------------
