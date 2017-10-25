@@ -57,6 +57,13 @@ static inline std::map<std::string, std::string> make_map(const rjson::object& a
     return result;
 }
 
+static inline std::vector<std::string> make_list(const rjson::array& aSource)
+{
+    std::vector<std::string> result;
+    std::transform(std::begin(aSource), std::end(aSource), std::back_inserter(result), [](const auto& entry) -> std::string { return entry; });
+    return result;
+}
+
 // ----------------------------------------------------------------------
 
 int draw(const argc_argv& args)
@@ -96,13 +103,13 @@ int draw(const argc_argv& args)
     GeographicMapWithPointsFromHidb geographic_map(args[0], settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]);
     const std::string coloring = settings["coloring"], start_date = settings["start_date"], end_date = settings["end_date"];
     if (coloring == "" || coloring == "continent")
-        geographic_map.add_points_from_hidb_colored_by_continent(make_map(settings["continent_color"]), /* color_override */{}, start_date, end_date);
+        geographic_map.add_points_from_hidb_colored_by_continent(make_map(settings["continent_color"]), /* color_override */{}, make_list(settings["priority"]), start_date, end_date);
     else if (coloring == "clade")
-        geographic_map.add_points_from_hidb_colored_by_clade(make_map(settings["clade_color"]), /* color_override */{}, start_date, end_date);
+        geographic_map.add_points_from_hidb_colored_by_clade(make_map(settings["clade_color"]), /* color_override */{}, make_list(settings["priority"]), start_date, end_date);
     else if (coloring == "lineage")
-        geographic_map.add_points_from_hidb_colored_by_lineage(make_map(settings["lineage_color"]), /* color_override */{}, start_date, end_date);
+        geographic_map.add_points_from_hidb_colored_by_lineage(make_map(settings["lineage_color"]), /* color_override */{}, make_list(settings["priority"]), start_date, end_date);
     else if (coloring == "lineage-deletion-mutants")
-        geographic_map.add_points_from_hidb_colored_by_lineage_and_deletion_mutants(make_map(settings["lineage_color"]), /* color_override */{}, start_date, end_date);
+        geographic_map.add_points_from_hidb_colored_by_lineage_and_deletion_mutants(make_map(settings["lineage_color"]), /* color_override */{}, make_list(settings["priority"]), start_date, end_date);
     else
         throw std::runtime_error("Unsupported coloring: " + coloring);
 

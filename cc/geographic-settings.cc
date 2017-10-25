@@ -79,7 +79,10 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
     "YAMAGATA": "#d10000",
     "VICTORIA": "#2700b7",
     "VICTORIA_DEL": "#23a8d1"
-  }
+  },
+
+  "?": "draw VICTORIA_DEL on top of VICTORIA",
+  "priority": ["YAMAGATA", "VICTORIA", "VICTORIA_DEL"]
 }
 )";
 
