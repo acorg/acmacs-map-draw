@@ -93,7 +93,7 @@ int draw(const argc_argv& args)
         load_settings(args["--settings"]);
       // std::cerr << "DEBUG: loaded settings\n" << settings.to_json_pp() << '\n';
 
-    GeographicMapWithPointsFromHidb geographic_map(args[0], settings["point_size_in_pixels"], settings["point_density"], settings["outline_color"], settings["outline_width"]);
+    GeographicMapWithPointsFromHidb geographic_map(args[0], settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]);
     const std::string coloring = settings["coloring"], start_date = settings["start_date"], end_date = settings["end_date"];
     if (coloring == "" || coloring == "continent")
         geographic_map.add_points_from_hidb_colored_by_continent(make_map(settings["continent_color"]), /* color_override */{}, start_date, end_date);

@@ -7,12 +7,12 @@ static const char* const SETTINGS_DEFAULT = R"(
   "coloring": "clade",
   "coloring?": ["continent", "clade", "lineage", "lineage-deletion-mutants"],
   "color_override?": {"B": {"?": "B/Vic deletion mutants", "?B/DOMINICAN REPUBLIC/9932/2016": "#00FFFF"}},
-  "start_date": "",
+  "start_date": "2017-01-01",
   "end_date": "",
   "point_size_in_pixels": 4.0,
   "point_density": 0.8,
-  "outline_color": "grey63",
-  "outline_width": 0.5,
+  "continent_outline_color": "grey63",
+  "continent_outline_width": 0.5,
   "output_image_width": 800,
   "title": {"offset": [0, 0], "text_size": 20, "background": "transparent", "border_width": 0}
 }
