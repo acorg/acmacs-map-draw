@@ -50,10 +50,13 @@ int main(int argc, char* const argv[])
 
 // ----------------------------------------------------------------------
 
-static inline std::map<std::string, std::string> make_map(const rjson::object& aSource)
+static inline GeographicMapColoring::TagToColor make_map(const rjson::object& aSource)
 {
-    std::map<std::string, std::string> result;
-    std::transform(std::begin(aSource), std::end(aSource), std::inserter(result, result.end()), [](const auto& entry) -> decltype(result)::value_type { return {entry.first, entry.second}; });
+    GeographicMapColoring::TagToColor result;
+    auto rjson_to_coloring_data = [](const auto& entry) -> GeographicMapColoring::TagToColor::value_type {
+        return {entry.first, {entry.second["fill"], entry.second["outline"], entry.second["outline_width"]}};
+    };
+    std::transform(std::begin(aSource), std::end(aSource), std::inserter(result, result.end()), rjson_to_coloring_data);
     return result;
 }
 

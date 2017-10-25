@@ -34,51 +34,51 @@ rjson::value geographic_settings_default()
 static const char* const SETTINGS_BUILTIN_MODS = R"(
 {
   "continent_color": {
-    "EUROPE":            "green",
-    "CENTRAL-AMERICA":   "#AAF9FF",
-    "MIDDLE-EAST":       "#8000FF",
-    "NORTH-AMERICA":     "blue4",
-    "AFRICA":            "darkorange1",
-    "ASIA":              "red",
-    "RUSSIA":            "maroon",
-    "AUSTRALIA-OCEANIA": "hotpink",
-    "SOUTH-AMERICA":     "turquoise",
-    "ANTARCTICA":        "grey50",
-    "UNKNOWN":           "grey50",
-    "":                  "grey50"
+    "EUROPE":            {"fill": "green",       "outline": "black", "outline_width": 0},
+    "CENTRAL-AMERICA":   {"fill": "#AAF9FF",     "outline": "black", "outline_width": 0},
+    "MIDDLE-EAST":       {"fill": "#8000FF",     "outline": "black", "outline_width": 0},
+    "NORTH-AMERICA":     {"fill": "blue4",       "outline": "black", "outline_width": 0},
+    "AFRICA":            {"fill": "darkorange1", "outline": "black", "outline_width": 0},
+    "ASIA":              {"fill": "red",         "outline": "black", "outline_width": 0},
+    "RUSSIA":            {"fill": "maroon",      "outline": "black", "outline_width": 0},
+    "AUSTRALIA-OCEANIA": {"fill": "hotpink",     "outline": "black", "outline_width": 0},
+    "SOUTH-AMERICA":     {"fill": "turquoise",   "outline": "black", "outline_width": 0},
+    "ANTARCTICA":        {"fill": "grey50",      "outline": "black", "outline_width": 0},
+    "UNKNOWN":           {"fill": "grey50",      "outline": "black", "outline_width": 0},
+    "":                  {"fill": "grey50",      "outline": "black", "outline_width": 0}
   },
 
   "clade_color": {
     "?": "========== sequenced but not in any clade",
-    "": "grey50",
+    "":              {"fill": "grey50",          "outline": "black", "outline_width": 0},
 
     "?": "========== H3",
-    "3C3": "cornflowerblue",
-    "3C2a": "red",
-    "3C2a1": "darkred",
-    "3C3a": "green",
-    "3C3b": "blue",
+    "3C3":           {"fill": "cornflowerblue",  "outline": "black", "outline_width": 0},
+    "3C2a":          {"fill": "red",             "outline": "black", "outline_width": 0},
+    "3C2a1":         {"fill": "darkred",         "outline": "black", "outline_width": 0},
+    "3C3a":          {"fill": "green",           "outline": "black", "outline_width": 0},
+    "3C3b":          {"fill": "blue",            "outline": "black", "outline_width": 0},
 
     "?": "========== H1pdm",
-    "6B1": "blue",
-    "6B2": "red",
+    "6B1":           {"fill": "blue",            "outline": "black", "outline_width": 0},
+    "6B2":           {"fill": "red",             "outline": "black", "outline_width": 0},
 
     "?": "========== B/Yam",
-    "Y2": "cornflowerblue",
-    "Y3": "red",
+    "Y2":            {"fill": "cornflowerblue",  "outline": "black", "outline_width": 0},
+    "Y3":            {"fill": "red",             "outline": "black", "outline_width": 0},
 
     "?": "========== B/Vic",
-    "1": "blue",
-    "1A": "cornflowerblue",
-    "1B": "red",
-    "DEL2017": "#000080",
-    "TRIPLEDEL2017": "#46f0f0"
+    "1":             {"fill": "blue",            "outline": "black", "outline_width": 0},
+    "1A":            {"fill": "cornflowerblue",  "outline": "black", "outline_width": 0},
+    "1B":            {"fill": "red",             "outline": "black", "outline_width": 0},
+    "DEL2017":       {"fill": "#000080",         "outline": "black", "outline_width": 0},
+    "TRIPLEDEL2017": {"fill": "#46f0f0",         "outline": "black", "outline_width": 0}
   },
 
   "lineage_color": {
-    "YAMAGATA": "#d10000",
-    "VICTORIA": "#2700b7",
-    "VICTORIA_DEL": "#23a8d1"
+    "YAMAGATA":      {"fill": "#d10000",         "outline": "black", "outline_width": 0},
+    "VICTORIA":      {"fill": "#2700b7",         "outline": "black", "outline_width": 0},
+    "VICTORIA_DEL":  {"fill": "#23a8d1",         "outline": "black", "outline_width": 0}
   },
 
   "?": "draw VICTORIA_DEL on top of VICTORIA",

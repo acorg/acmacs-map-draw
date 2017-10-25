@@ -74,9 +74,24 @@ class GeographicMapDraw
 class GeographicMapColoring
 {
  public:
+    struct ColoringData
+    {
+        inline ColoringData() = default;
+          // inline ColoringData(Color aFill, Color aOutline = "black", double aOutlineWidth = 0) : fill{aFill}, outline{aOutline}, outline_width{aOutlineWidth} {}
+        inline ColoringData(std::string aFill, std::string aOutline = "black", double aOutlineWidth = 0) : fill{aFill}, outline{aOutline}, outline_width{aOutlineWidth} {}
+        inline bool operator<(const ColoringData& aNother) const { return fill == aNother.fill ? (outline == aNother.outline ? outline_width < aNother.outline_width : outline < aNother.outline) : fill < aNother.fill; }
+
+        Color fill;
+        Color outline{"black"};
+        Pixels outline_width{0};
+    };
+
+    using TagToColor = std::map<std::string, ColoringData>;
+    using TagColor = std::pair<std::string, ColoringData>;
+
     virtual ~GeographicMapColoring();
 
-    virtual std::pair<std::string, Color> color(const hidb::AntigenData& aAntigen) const = 0;
+    virtual TagColor color(const hidb::AntigenData& aAntigen) const = 0;
 };
 
 // ----------------------------------------------------------------------
@@ -84,22 +99,22 @@ class GeographicMapColoring
 class ColoringByContinent : public GeographicMapColoring
 {
  public:
-    inline ColoringByContinent(const std::map<std::string, std::string>& aContinentColor)
-        : mColors{aContinentColor.begin(), aContinentColor.end()} {}
+    inline ColoringByContinent(const std::map<std::string, std::string>& aContinentColor) : mColors{aContinentColor.begin(), aContinentColor.end()} {}
+    inline ColoringByContinent(const TagToColor& aContinentColor) : mColors{aContinentColor.begin(), aContinentColor.end()} {}
 
-    std::pair<std::string, Color> color(const hidb::AntigenData& aAntigen) const override
+    TagColor color(const hidb::AntigenData& aAntigen) const override
         {
             try {
                 auto continent = get_locdb().continent(virus_name::location(aAntigen.data().name()));
                 return {continent, mColors.at(continent)};
             }
             catch (...) {
-                return {"UNKNOWN", "grey50"};
+                return {"UNKNOWN", {"grey50"}};
             }
         }
 
  private:
-    std::map<std::string, Color> mColors;
+    TagToColor mColors;
 
 }; // class ColoringByContinent
 
@@ -108,12 +123,12 @@ class ColoringByContinent : public GeographicMapColoring
 class ColoringByClade : public GeographicMapColoring
 {
  public:
-    inline ColoringByClade(const std::map<std::string, std::string>& aCladeColor)
-        : mColors{aCladeColor.begin(), aCladeColor.end()} {}
+    inline ColoringByClade(const std::map<std::string, std::string>& aCladeColor) : mColors{aCladeColor.begin(), aCladeColor.end()} {}
+    inline ColoringByClade(const TagToColor& aCladeColor) : mColors{aCladeColor.begin(), aCladeColor.end()} {}
 
-    std::pair<std::string, Color> color(const hidb::AntigenData& aAntigen) const override
+    TagColor color(const hidb::AntigenData& aAntigen) const override
         {
-            Color result("grey50");
+            ColoringData result("grey50");
             std::string tag{"UNKNOWN"};
             try {
                 const auto* entry_seq = seqdb::get().find_hi_name(aAntigen.full_name());
@@ -135,7 +150,7 @@ class ColoringByClade : public GeographicMapColoring
         }
 
  private:
-    std::map<std::string, Color> mColors;
+    TagToColor mColors;
 
 }; // class ColoringByClade
 
@@ -144,22 +159,22 @@ class ColoringByClade : public GeographicMapColoring
 class ColoringByLineage : public GeographicMapColoring
 {
  public:
-    inline ColoringByLineage(const std::map<std::string, std::string>& aLineageColor)
-        : mColors{aLineageColor.begin(), aLineageColor.end()} {}
+    inline ColoringByLineage(const std::map<std::string, std::string>& aLineageColor) : mColors{aLineageColor.begin(), aLineageColor.end()} {}
+    inline ColoringByLineage(const TagToColor& aLineageColor) : mColors{aLineageColor.begin(), aLineageColor.end()} {}
 
-    std::pair<std::string, Color> color(const hidb::AntigenData& aAntigen) const override
+    TagColor color(const hidb::AntigenData& aAntigen) const override
         {
             try {
                 std::string lineage{aAntigen.data().lineage()};
                 return {lineage, mColors.at(lineage)};
             }
             catch (...) {
-                return {"UNKNOWN", "grey50"};
+                return {"UNKNOWN", {"grey50"}};
             }
         }
 
  private:
-    std::map<std::string, Color> mColors;
+    TagToColor mColors;
 
 }; // class ColoringByLineage
 
@@ -170,25 +185,27 @@ class ColoringByLineageAndDeletionMutants : public GeographicMapColoring
  public:
     inline ColoringByLineageAndDeletionMutants(const std::map<std::string, std::string>& aLineageColor, std::string aDeletionMutantColor = std::string{})
         : mColors(aLineageColor.begin(), aLineageColor.end()), mDeletionMutantColor{aDeletionMutantColor} {}
+    inline ColoringByLineageAndDeletionMutants(const TagToColor& aLineageColor, std::string aDeletionMutantColor = std::string{})
+        : mColors(aLineageColor.begin(), aLineageColor.end()), mDeletionMutantColor{aDeletionMutantColor} {}
 
-    std::pair<std::string, Color> color(const hidb::AntigenData& aAntigen) const override
+    TagColor color(const hidb::AntigenData& aAntigen) const override
         {
             try {
                 const auto* entry_seq = seqdb::get().find_hi_name(aAntigen.full_name());
                 if (entry_seq && entry_seq->seq().has_clade("DEL2017"))
-                    return {"VICTORIA_DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_DEL") : Color{mDeletionMutantColor}};
+                    return {"VICTORIA_DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_DEL") : ColoringData{mDeletionMutantColor}};
                 else {
                     std::string lineage{aAntigen.data().lineage()};
                     return {lineage, mColors.at(lineage)};
                 }
             }
             catch (...) {
-                return {"UNKNOWN", "grey50"};
+                return {"UNKNOWN", {"grey50"}};
             }
         }
 
  private:
-    std::map<std::string, Color> mColors;
+    TagToColor mColors;
     std::string mDeletionMutantColor;
 
 }; // class ColoringByLineage
@@ -206,13 +223,13 @@ class ColorOverride : public GeographicMapColoring
             }
         }
 
-    std::pair<std::string, Color> color(const hidb::AntigenData& aAntigen) const override
+    TagColor color(const hidb::AntigenData& aAntigen) const override
         {
             try {
-                return {aAntigen.name(), mColors.at(aAntigen.name())};
+                return TagColor{aAntigen.name(), mColors.at(aAntigen.name())};
             }
             catch (...) {
-                return {"UNKNOWN", ColorNoChange};
+                return TagColor{"UNKNOWN", {ColorNoChange}};
             }
         }
 
@@ -233,10 +250,15 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
 
     void add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate);
 
-    inline void add_points_from_hidb_colored_by_continent(const std::map<std::string, std::string>& aContinentColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByContinent(aContinentColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
-    inline void add_points_from_hidb_colored_by_clade(const std::map<std::string, std::string>& aCladeColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByClade(aCladeColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
-    inline void add_points_from_hidb_colored_by_lineage(const std::map<std::string, std::string>& aLineageColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineage(aLineageColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
-    inline void add_points_from_hidb_colored_by_lineage_and_deletion_mutants(const std::map<std::string, std::string>& aLineageColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineageAndDeletionMutants(aLineageColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
+    inline void add_points_from_hidb_colored_by_continent(const GeographicMapColoring::TagToColor& aContinentColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByContinent(aContinentColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
+    inline void add_points_from_hidb_colored_by_clade(const GeographicMapColoring::TagToColor& aCladeColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByClade(aCladeColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
+    inline void add_points_from_hidb_colored_by_lineage(const GeographicMapColoring::TagToColor& aLineageColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineage(aLineageColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
+    inline void add_points_from_hidb_colored_by_lineage_and_deletion_mutants(const GeographicMapColoring::TagToColor& aLineageColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineageAndDeletionMutants(aLineageColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
+
+    inline void add_points_from_hidb_colored_by_continent_old(const std::map<std::string, std::string>& aContinentColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByContinent(aContinentColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
+    inline void add_points_from_hidb_colored_by_clade_old(const std::map<std::string, std::string>& aCladeColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByClade(aCladeColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
+    inline void add_points_from_hidb_colored_by_lineage_old(const std::map<std::string, std::string>& aLineageColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineage(aLineageColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
+    inline void add_points_from_hidb_colored_by_lineage_and_deletion_mutants_old(const std::map<std::string, std::string>& aLineageColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineageAndDeletionMutants(aLineageColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
 
  private:
     std::string mVirusType;
@@ -245,7 +267,7 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
 
     class PointsAtLocationIterator;
 
-    class PointsAtLocation : public std::map<std::pair<Color, long>, size_t>
+    class PointsAtLocation : public std::map<std::pair<GeographicMapColoring::ColoringData, long>, size_t>
     {
      public:
         PointsAtLocationIterator iterator() const { return PointsAtLocationIterator(*this); }
@@ -272,7 +294,7 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
     {
           // location-name to color to number-of-points
      public:
-        inline void add(std::string aLocation, long aPriority, Color aColor) { ++(*this)[aLocation][{aColor, aPriority}]; }
+        inline void add(std::string aLocation, long aPriority, GeographicMapColoring::ColoringData aColoringData) { ++(*this)[aLocation][{aColoringData, aPriority}]; }
           // static inline size_t number_of_points_at_location(const PointsAtLocation& colors) { return std::accumulate(colors.begin(), colors.end(), 0U, [](size_t sum, auto elt) -> size_t {return sum + elt.second; }); }
     };
 
