@@ -844,7 +844,7 @@ class ModSerumHomologous : public Mod
     std::vector<size_t> select_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const
         {
             if (auto [antigen_present, antigen_select] = args().get_object_if("antigen"); antigen_present) {
-                const auto antigens = SelectAntigens(aVerbose).select(aChartDraw.chart(), args()["antigen"]);
+                const auto antigens = SelectAntigens(aVerbose).select(aChartDraw.chart(), antigen_select);
                 if (antigens.empty())
                     throw unrecognized_mod{"\"antigen\" does not select an antigen, mod: " + args().to_json()};
                 return antigens;
