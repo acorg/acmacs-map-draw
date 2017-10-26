@@ -117,11 +117,11 @@ int draw(const argc_argv& args)
             throw std::runtime_error("Please provide output filename prefix for time series");
         std::unique_ptr<GeographicTimeSeriesBase> time_series;
         if (args["--time-series"] == "monthly")
-            time_series.reset(new GeographicTimeSeriesMonthly(args[0], start_date, end_date, settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]));
+            time_series.reset(new GeographicTimeSeriesMonthly(args[0], start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]));
         else if (args["--time-series"] == "yearly")
-            time_series.reset(new GeographicTimeSeriesYearly(args[0], start_date, end_date, settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]));
+            time_series.reset(new GeographicTimeSeriesYearly(args[0], start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]));
         else if (args["--time-series"] == "weekly")
-            time_series.reset(new GeographicTimeSeriesWeekly(args[0], start_date, end_date, settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]));
+            time_series.reset(new GeographicTimeSeriesWeekly(args[0], start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]));
         else
             throw std::runtime_error("Unsupported time series argument: " + static_cast<std::string>(args["--time-series"]) + " (monthly or yearly or weekly expected)");
         set_title(time_series->title(), settings, false);
