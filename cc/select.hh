@@ -94,9 +94,6 @@ class SelectAntigens : public SelectAntigensSera
     virtual void filter_circle(const Chart& /*aChart*/, std::vector<size_t>& indices, const ProjectionBase& aProjection, const Circle& aCircle) override { filter_circle_in(indices, 0, aProjection.layout(), aProjection.transformation(), aCircle); }
 
  private:
-    std::unique_ptr<std::vector<seqdb::SeqdbEntrySeq>> mSeqdbEntries;
-    const Chart* mChartForSeqdbEntries = nullptr;
-
     const std::vector<seqdb::SeqdbEntrySeq>& seqdb_entries(const Chart& aChart);
 
 };  // class SelectAntigens

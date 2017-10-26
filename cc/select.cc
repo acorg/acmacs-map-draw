@@ -12,6 +12,7 @@ using namespace std::string_literals;
 
 #ifdef __clang__
 #pragma GCC diagnostic ignored "-Wexit-time-destructors"
+//#pragma GCC diagnostic ignored "-Wglobal-constructors"
 #endif
 
 // ----------------------------------------------------------------------
@@ -235,11 +236,15 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const Chart* aP
 
 const std::vector<seqdb::SeqdbEntrySeq>& SelectAntigens::seqdb_entries(const Chart& aChart)
 {
-    if (!mSeqdbEntries || mChartForSeqdbEntries != &aChart) {
-        mSeqdbEntries = std::make_unique<std::vector<seqdb::SeqdbEntrySeq>>();
-        seqdb::get(timer()).match(aChart.antigens(), *mSeqdbEntries, aChart.chart_info().virus_type(), false);
+      // thread unsafe!
+    static std::map<const Chart*, std::vector<seqdb::SeqdbEntrySeq>> cache_seqdb_entries_for_chart;
+
+    auto found = cache_seqdb_entries_for_chart.find(&aChart);
+    if (found == cache_seqdb_entries_for_chart.end()) {
+        found = cache_seqdb_entries_for_chart.emplace(&aChart, decltype(cache_seqdb_entries_for_chart)::mapped_type{}).first;
+        seqdb::get(timer()).match(aChart.antigens(), found->second, aChart.chart_info().virus_type(), false);
     }
-    return *mSeqdbEntries;
+    return found->second;
 
 } // SelectAntigens::seqdb_entries
 
@@ -295,6 +300,7 @@ void SelectAntigens::filter_vaccine(const Chart& aChart, std::vector<size_t>& in
     const auto virus_type = aChart.chart_info().virus_type();
     if (!virus_type.empty()) {
 
+          // thread unsafe!
         static std::map<const Chart*, Vaccines> cache_vaccines;
         auto vaccines_of_chart = cache_vaccines.find(&aChart);
         if (vaccines_of_chart == cache_vaccines.end()) {
