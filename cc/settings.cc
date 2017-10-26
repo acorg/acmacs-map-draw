@@ -255,13 +255,6 @@ SSM time series:
 --------------------------------------------------
 
 TODO:
-
-antigens
-  report, report_names_threshold
-
-sera
-  report, report_names_threshold
-
 path path:[], line_width: color: close: false filled: false
 
 )";

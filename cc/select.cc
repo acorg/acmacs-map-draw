@@ -237,7 +237,7 @@ const std::vector<seqdb::SeqdbEntrySeq>& SelectAntigens::seqdb_entries(const Cha
 {
     if (!mSeqdbEntries || mChartForSeqdbEntries != &aChart) {
         mSeqdbEntries = std::make_unique<std::vector<seqdb::SeqdbEntrySeq>>();
-        seqdb::get(timer()).match(aChart.antigens(), *mSeqdbEntries, false);
+        seqdb::get(timer()).match(aChart.antigens(), *mSeqdbEntries, aChart.chart_info().virus_type(), false);
     }
     return *mSeqdbEntries;
 
