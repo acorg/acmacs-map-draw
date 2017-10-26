@@ -188,8 +188,9 @@ class ModAntigens : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
         {
             const auto verbose = args().get_or_default("report", false);
+            const auto report_names_threshold = args().get_or_default("report_names_threshold", 10U);
             try {
-                const auto indices = SelectAntigens(verbose).select(aChartDraw.chart(), aChartDraw.previous_chart(), args()["select"]);
+                const auto indices = SelectAntigens(verbose, report_names_threshold).select(aChartDraw.chart(), aChartDraw.previous_chart(), args()["select"]);
                 const auto styl = style();
                 // if (verbose)
                 //     std::cerr << "DEBUG ModAntigens " << indices << ' ' << args() << ' ' << styl << '\n';
@@ -214,8 +215,9 @@ class ModSera : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
         {
             const auto verbose = args().get_or_default("report", false);
+            const auto report_names_threshold = args().get_or_default("report_names_threshold", 10U);
             try {
-                const auto indices = SelectSera(verbose).select(aChartDraw.chart(), args()["select"]);
+                const auto indices = SelectSera(verbose, report_names_threshold).select(aChartDraw.chart(), args()["select"]);
                 const auto styl = style();
                 aChartDraw.modify_sera(indices.begin(), indices.end(), styl, drawing_order());
                 try { add_labels(aChartDraw, indices, aChartDraw.number_of_antigens(), args()["label"]); } catch (rjson::field_not_found&) {}

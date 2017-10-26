@@ -22,7 +22,8 @@ class VaccineMatchData;
 class SelectAntigensSera
 {
  public:
-    inline SelectAntigensSera(bool aVerbose = false) : mVerbose{aVerbose}, mReportTime{aVerbose ? report_time::Yes : report_time::No} {}
+    inline SelectAntigensSera(bool aVerbose = false, size_t aReportNamesThreshold = 10)
+        : mVerbose{aVerbose}, mReportNamesThreshold{aReportNamesThreshold}, mReportTime{aVerbose ? report_time::Yes : report_time::No} {}
     virtual ~SelectAntigensSera();
 
     virtual std::vector<size_t> select(const Chart& aChart, const Chart* aPreviousChart, const rjson::value& aSelector);
@@ -64,10 +65,12 @@ class SelectAntigensSera
         }
 
     inline bool verbose() const { return mVerbose; }
+    inline size_t report_names_threshold() const { return mReportNamesThreshold; }
     inline auto timer() { return mReportTime; }
 
  private:
     bool mVerbose;
+    size_t mReportNamesThreshold;
     report_time mReportTime;
 
 }; // class SelectAntigensSera

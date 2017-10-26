@@ -45,7 +45,7 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": {"clade": "3C2a1"}, "outline": "black", "fill": "darkred", "legend": {"label": "3C2a1", "count": true}, "order": "raise", "report": true},
 
       {"N": "antigens", "select": {"clade": "6B1"},   "outline": "black", "fill": "blue", "legend": {"label": "6B1", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "6B2"},   "outline": "black", "fill": "red", "legend": {"label": "6B2", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "6B2"},   "outline": "black", "fill": "red", "legend": {"label": "6B2", "count": true}, "order": "raise", "report": true, "report_names_threshold": 10},
 
       {"N": "antigens", "select": {"clade": "1", "subtype": "BVIC"}, "outline": "black", "fill": "blue", "legend": {"label": "1", "count": true}, "order": "raise", "report": true},
       {"N": "antigens", "select": {"clade": "1A", "subtype": "BVIC"}, "outline": "black", "fill": "cornflowerblue", "legend": {"label": "1A", "count": true}, "order": "raise", "report": true},
@@ -165,7 +165,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
            "color": "black", "size": 12.0, "offset": [0, 1],
            "weight": "bold", "slant": "italic", "font_family": "monospace"},
  "legend": {"show": true, "label": "<TEXT>", "count": true},
- "report": false}
+ "report": false, "report_names_threshold": 10}
 
 {"N": "sera", "select": {<select>},
  "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
@@ -177,7 +177,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
            "name_type": "full|abbreviated|abbreviated_with_passage_type",
            "color": "black", "size": 12.0, "offset": [0, 1],
            "weight": "bold", "slant": "italic", "font_family": "monospace"},
- "report": false}
+ "report": false, "report_names_threshold": 10}
 
 {"N": "amino-acids", "pos": [159], "?colors": ["#FF0000", "#0000FF"],
   "?X_color": "grey25", "outline": "black", "outline_width": 1.0,

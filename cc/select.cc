@@ -219,8 +219,13 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const Chart* aP
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }
     }
-    if (verbose() && !indices.empty())
+    if (verbose() && !indices.empty()) {
         std::cerr << "INFO: antigens selected: " << std::setfill(' ') << std::setw(4) << indices.size() << ' ' << aSelector << '\n';
+        if (report_names_threshold() >= indices.size()) {
+            for (auto index: indices)
+                std::cerr << "  AG " << std::setw(5) << index << ' ' << antigens[index].full_name() << '\n';
+        }
+    }
 
     return indices;
 
@@ -380,8 +385,13 @@ std::vector<size_t> SelectSera::command(const Chart& aChart, const Chart* /*aPre
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }
     }
-    if (verbose())
-        std::cerr << "Sera selected: " << indices.size() << '\n';
+    if (verbose()) {
+        std::cerr << "Sera selected: " << std::setfill(' ') << std::setw(4) << indices.size() << ' ' << aSelector << '\n';
+        if (report_names_threshold() >= indices.size()) {
+            for (auto index: indices)
+                std::cerr << "  SR " << std::setw(5) << index << ' ' << sera[index].full_name() << '\n';
+        }
+    }
     return indices;
 
 } // SelectSera::command
