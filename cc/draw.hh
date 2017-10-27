@@ -63,7 +63,7 @@ class ChartDraw
     template <typename index_type> inline void modify(index_type aIndex, const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
             const auto index = static_cast<size_t>(aIndex);
-            mPointStyles[index] = aStyle;
+            mPointStyles.at(index) = aStyle;
               // std::cerr << "DEBUG: modified " << index << ' ' << mPointStyles[index] << '\n';
             switch (aPointDrawingOrder) {
               case PointDrawingOrder::Raise:
