@@ -28,7 +28,7 @@ trap failed ERR
 # ======================================================================
 
 if [ -f "${ACMACSD_ROOT}/data/hidb4.h3.json.xz" ]; then
-    export LD_LIBRARY_PATH="$HOME"/AD/lib
+    export LD_LIBRARY_PATH="$ACMACSD_ROOT"/lib
     cd "$TESTDIR"
 
     OUPUT="$TDIR/2004nd-003.$(date +%Y%m%d-%H%M).pdf"
