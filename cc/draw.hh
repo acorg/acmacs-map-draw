@@ -120,7 +120,7 @@ class ChartDraw
             log("flip ", aX, " ", aY);
             mTransformation.flip(aX, aY); // reflect about a line specified with vector [aX, aY]
         }
-    inline const Transformation& transformation() const { return mTransformation; }
+    inline const acmacs::Transformation& transformation() const { return mTransformation; }
 
     inline void viewport(double aX, double aY, double aSize) { mViewport.set(aX, aY, aSize); }
     inline void viewport(const acmacs::Viewport& aViewport) { mViewport = aViewport; }
@@ -169,7 +169,7 @@ class ChartDraw
     Chart_Type* mPreviousChart = nullptr;
     size_t mProjectionNo;
     acmacs::Viewport mViewport;
-    Transformation mTransformation;
+    acmacs::Transformation mTransformation;
     std::vector<PointStyleDraw> mPointStyles;
     DrawingOrder mDrawingOrder;
     map_elements::Elements mMapElements;

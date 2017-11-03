@@ -102,7 +102,7 @@ const acmacs::Viewport& ChartDraw::calculate_viewport(bool verbose)
         mViewport = viewport;
     if (verbose) {
         std::cout << "[Used]:           " << mViewport << '\n';
-        log("[Transformation]: ", transformation());
+        std::cout << "[Transformation]: " << transformation() << '\n';
     }
     return mViewport;
 
