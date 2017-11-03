@@ -90,18 +90,18 @@ size_t ChartDraw::number_of_sera() const
 
 // ----------------------------------------------------------------------
 
-const Viewport& ChartDraw::calculate_viewport(bool verbose)
+const acmacs::Viewport& ChartDraw::calculate_viewport(bool verbose)
 {
     std::unique_ptr<BoundingBall> bb(transformed_layout().minimum_bounding_ball());
-    Viewport viewport;
+    acmacs::Viewport viewport;
     viewport.set_from_center_size(bb->center(), bb->diameter());
     viewport.whole_width();
     if (verbose)
-        log("[Calculated]:     ", viewport);
+        std::cout << "[Calculated]:     " << viewport << '\n';
     if (mViewport.empty())
         mViewport = viewport;
     if (verbose) {
-        log("[Used]:           ", mViewport);
+        std::cout << "[Used]:           " << mViewport << '\n';
         log("[Transformation]: ", transformation());
     }
     return mViewport;
@@ -216,7 +216,7 @@ map_elements::SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadi
 
 // ----------------------------------------------------------------------
 
-map_elements::Line& ChartDraw::line(const Location& aBegin, const Location& aEnd)
+map_elements::Line& ChartDraw::line(const acmacs::Location& aBegin, const acmacs::Location& aEnd)
 {
     auto& line = DYNAMIC_CAST(map_elements::Line&, (mMapElements.add("line")));
     line.from_to(aBegin, aEnd);
@@ -226,7 +226,7 @@ map_elements::Line& ChartDraw::line(const Location& aBegin, const Location& aEnd
 
 // ----------------------------------------------------------------------
 
-map_elements::Arrow& ChartDraw::arrow(const Location& aBegin, const Location& aEnd)
+map_elements::Arrow& ChartDraw::arrow(const acmacs::Location& aBegin, const acmacs::Location& aEnd)
 {
     auto& arrow = DYNAMIC_CAST(map_elements::Arrow&, (mMapElements.add("arrow")));
     arrow.from_to(aBegin, aEnd);
@@ -236,7 +236,7 @@ map_elements::Arrow& ChartDraw::arrow(const Location& aBegin, const Location& aE
 
 // ----------------------------------------------------------------------
 
-map_elements::Point& ChartDraw::point(const Location& aCenter, Pixels aSize)
+map_elements::Point& ChartDraw::point(const acmacs::Location& aCenter, Pixels aSize)
 {
     auto& point = DYNAMIC_CAST(map_elements::Point&, (mMapElements.add("point")));
     point.center(aCenter);
@@ -247,7 +247,7 @@ map_elements::Point& ChartDraw::point(const Location& aCenter, Pixels aSize)
 
 // ----------------------------------------------------------------------
 
-map_elements::Rectangle& ChartDraw::rectangle(const Location& aCorner1, const Location& aCorner2)
+map_elements::Rectangle& ChartDraw::rectangle(const acmacs::Location& aCorner1, const acmacs::Location& aCorner2)
 {
     auto& rectangle = DYNAMIC_CAST(map_elements::Rectangle&, (mMapElements.add("rectangle")));
     rectangle.corners(aCorner1, aCorner2);
@@ -257,7 +257,7 @@ map_elements::Rectangle& ChartDraw::rectangle(const Location& aCorner1, const Lo
 
 // ----------------------------------------------------------------------
 
-map_elements::Circle& ChartDraw::circle(const Location& aCenter, Scaled aSize)
+map_elements::Circle& ChartDraw::circle(const acmacs::Location& aCenter, Scaled aSize)
 {
     auto& point = DYNAMIC_CAST(map_elements::Circle&, (mMapElements.add("circle")));
     point.center(aCenter);

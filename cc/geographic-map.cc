@@ -40,7 +40,7 @@ void GeographicMapDraw::draw(Surface& aOutlineSurface, Surface& aPointSurface) c
 
 void GeographicMapDraw::draw(std::string aFilename, double aImageWidth)
 {
-    const Size size = geographic_map_size();
+    const acmacs::Size size = geographic_map_size();
     PdfCairo outline_surface(aFilename, aImageWidth, aImageWidth / size.width * size.height, size.width);
     auto& point_surface = outline_surface.subsurface(outline_surface.viewport().origin, Scaled{outline_surface.viewport().size.width}, geographic_map_viewport(), false);
     prepare(point_surface);

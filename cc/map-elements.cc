@@ -91,10 +91,10 @@ map_elements::Element::~Element()
 
 // ----------------------------------------------------------------------
 
-Location map_elements::Element::subsurface_origin(Surface& aSurface, const Location& aPixelOrigin, const Size& aScaledSubsurfaceSize) const
+acmacs::Location map_elements::Element::subsurface_origin(Surface& aSurface, const acmacs::Location& aPixelOrigin, const acmacs::Size& aScaledSubsurfaceSize) const
 {
-    Location subsurface_origin{aSurface.convert(Pixels{aPixelOrigin.x}).value(), aSurface.convert(Pixels{aPixelOrigin.y}).value()};
-    const Size& surface_size = aSurface.viewport().size;
+    acmacs::Location subsurface_origin{aSurface.convert(Pixels{aPixelOrigin.x}).value(), aSurface.convert(Pixels{aPixelOrigin.y}).value()};
+    const acmacs::Size& surface_size = aSurface.viewport().size;
     if (subsurface_origin.x < 0)
         subsurface_origin.x += surface_size.width - aScaledSubsurfaceSize.width;
     if (subsurface_origin.y < 0)
@@ -117,7 +117,7 @@ void map_elements::BackgroundBorderGrid::draw(Surface& aSurface, const ChartDraw
 
 void map_elements::ContinentMap::draw(Surface& aSurface, const ChartDraw&) const
 {
-    Location origin = mOrigin;
+    acmacs::Location origin = mOrigin;
     if (origin.x < 0)
         origin.x += aSurface.width_in_pixels() - mWidthInParent.value();
     if (origin.y < 0)
@@ -143,18 +143,18 @@ void map_elements::LegendPointLabel::draw(Surface& aSurface, const ChartDraw&) c
     if (!mLines.empty()) {
         double width = 0, height = 0;
         for (const auto& line: mLines) {
-            const Size line_size = aSurface.text_size(line.label, mLabelSize, mLabelStyle);
+            const acmacs::Size line_size = aSurface.text_size(line.label, mLabelSize, mLabelStyle);
             if (line_size.width > width)
                 width = line_size.width;
             if (line_size.height > height)
                 height = line_size.height;
         }
-        const Size padding = aSurface.text_size("O", mLabelSize, mLabelStyle);
+        const acmacs::Size padding = aSurface.text_size("O", mLabelSize, mLabelStyle);
         const double scaled_point_size = aSurface.convert(mPointSize).value();
 
-        const Size legend_surface_size{width + padding.width * 3 + scaled_point_size,
+        const acmacs::Size legend_surface_size{width + padding.width * 3 + scaled_point_size,
                                        height * (mLines.size() - 1) * mInterline + height + padding.height * 2};
-        const Location legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
+        const acmacs::Location legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
 
         Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
         legend_surface.background(mBackgroud);
@@ -188,16 +188,16 @@ void map_elements::Title::draw(Surface& aSurface) const
     if (mShow && (mLines.size() > 1 || (!mLines.empty() && !mLines.front().empty()))) {
         double width = 0, height = 0;
         for (const auto& line: mLines) {
-            const Size line_size = aSurface.text_size(line, mTextSize, mTextStyle);
+            const acmacs::Size line_size = aSurface.text_size(line, mTextSize, mTextStyle);
             if (line_size.width > width)
                 width = line_size.width;
             if (line_size.height > height)
                 height = line_size.height;
         }
 
-        const Size legend_surface_size{width + padding * 2,
+        const acmacs::Size legend_surface_size{width + padding * 2,
                     height * (mLines.size() - 1) * mInterline + height + padding * 2};
-        const Location legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
+        const acmacs::Location legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
 
         Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
         legend_surface.background(mBackgroud);
@@ -240,7 +240,7 @@ void map_elements::Line::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/
 
 void map_elements::Rectangle::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
-    const std::vector<Location> path{mCorner1, {mCorner1.x, mCorner2.y}, mCorner2, {mCorner2.x, mCorner1.y}};
+    const std::vector<acmacs::Location> path{mCorner1, {mCorner1.x, mCorner2.y}, mCorner2, {mCorner2.x, mCorner1.y}};
     if (mFilled)
         aSurface.path_fill(path.begin(), path.end(), mColor);
     else

@@ -5,7 +5,7 @@
 
 #include "acmacs-base/size-scale.hh"
 #include "acmacs-base/color-target.hh"
-#include "acmacs-draw/size.hh"
+#include "acmacs-base/size.hh"
 #include "acmacs-draw/text-style.hh"
 
 // ----------------------------------------------------------------------
@@ -39,7 +39,7 @@ namespace map_elements
 
      private:
         size_t mIndex;
-        Location mOffset;
+        acmacs::Location mOffset;
         std::string mDisplayName;
         Color mTextColor;
         Pixels mTextSize;

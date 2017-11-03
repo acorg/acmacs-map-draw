@@ -717,9 +717,9 @@ class ModLine : public Mod
         }
 
  protected:
-    std::vector<Location> begins_ends(ChartDraw& aChartDraw, std::string aPrefix) const
+    std::vector<acmacs::Location> begins_ends(ChartDraw& aChartDraw, std::string aPrefix) const
         {
-            std::vector<Location> result;
+            std::vector<acmacs::Location> result;
             const auto verbose = args().get_or_default("report", false);
             if (auto [from_present, from] = args().get_array_if(aPrefix); from_present) {
                 result.emplace_back(from[0], from[1]);
