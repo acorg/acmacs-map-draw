@@ -43,7 +43,7 @@ namespace map_elements
         std::string mDisplayName;
         Color mTextColor;
         Pixels mTextSize;
-        TextStyle mTextStyle;
+        acmacs::TextStyle mTextStyle;
 
         double text_offset(double offset_hint, double point_size, double text_size, bool text_origin_at_opposite) const;
     };

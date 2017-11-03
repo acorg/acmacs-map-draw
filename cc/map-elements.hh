@@ -132,7 +132,7 @@ namespace map_elements
         Pixels mPointSize;
         Color mLabelColor;
         Pixels mLabelSize;
-        TextStyle mLabelStyle;
+        acmacs::TextStyle mLabelStyle;
         double mInterline;
         std::vector<Line> mLines;
 
@@ -172,7 +172,7 @@ namespace map_elements
         Pixels mBorderWidth;
         Color mTextColor;
         Pixels mTextSize;
-        TextStyle mTextStyle;
+        acmacs::TextStyle mTextStyle;
         double mInterline;
         std::vector<std::string> mLines;
 
