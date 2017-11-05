@@ -159,9 +159,9 @@ namespace map_elements
         inline Title& background(Color aBackgroud) { mBackgroud = aBackgroud; return *this; }
         inline Title& border_color(Color aBorderColor) { mBorderColor = aBorderColor; return *this; }
         inline Title& border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; return *this; }
-        inline Title& weight(std::string aWeight) { mTextStyle.weight(aWeight); return *this; }
-        inline Title& slant(std::string aSlant) { mTextStyle.slant(aSlant); return *this; }
-        inline Title& font_family(std::string aFamily) { mTextStyle.font_family(aFamily); return *this; }
+        inline Title& weight(std::string aWeight) { mTextStyle.weight = aWeight; return *this; }
+        inline Title& slant(std::string aSlant) { mTextStyle.slant = aSlant; return *this; }
+        inline Title& font_family(std::string aFamily) { mTextStyle.font_family = aFamily; return *this; }
 
      private:
         bool mShow;
