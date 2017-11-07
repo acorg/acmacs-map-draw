@@ -9,9 +9,9 @@ static const char* const SETTINGS_DEFAULT = R"(
     "all_grey",
     "egg",
 
-    "?use_chart_plot_spec",
+    "use_chart_plot_spec",
     "?clades",
-    "vaccines"
+    "?vaccines"
   ]
 }
 )";
