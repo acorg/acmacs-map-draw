@@ -23,14 +23,15 @@ int main(int argc, char* const argv[])
     int exit_code = 1;
     try {
         argc_argv args(argc, argv, {
+                {"--clade", false},
+                {"--settings", argc_argv::strings{}},
+                {"-s", argc_argv::strings{}},
+                {"--init-settings", ""},
+                {"--save", ""},
                 {"-h", false},
                 {"--help", false},
                 {"--help-mods", false},
                 {"--help-select", false},
-                {"-s", argc_argv::strings{}},
-                {"--settings", argc_argv::strings{}},
-                {"--init-settings", ""},
-                {"--save", ""},
                 {"--previous", ""},
                 {"--open", false},
                 {"--projection", 0L},
@@ -99,6 +100,10 @@ int draw(const argc_argv& args)
     if (args["--settings"])
         load_settings(args["--settings"]);
       // std::cerr << "DEBUG: loaded settings\n" << settings.to_json_pp() << '\n';
+
+    if (args["--clade"]) {
+        settings.set_field("apply", rjson::array{"all_grey", "egg", "clades", "vaccines"});
+    }
 
     try {
         Timeit ti("applying mods: ");

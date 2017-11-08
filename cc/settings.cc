@@ -6,8 +6,8 @@ static const char* const SETTINGS_DEFAULT = R"(
 {
   "apply": [
     {"N": "title"},
-    "all_grey",
-    "egg",
+    "?all_grey",
+    "?egg",
 
     "use_chart_plot_spec",
     "?clades",
