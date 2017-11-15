@@ -32,7 +32,7 @@ ACMACS_MAP_DRAW_LIB = $(DIST)/libacmacsmapdraw.so
 
 CXXFLAGS = -g -MMD $(OPTIMIZATION) $(PROFILE) -fPIC -std=$(STD) $(WARNINGS) -Icc -I$(AD_INCLUDE) $(PKG_INCLUDES)
 LDFLAGS = $(OPTIMIZATION) $(PROFILE)
-LDLIBS = -L$(AD_LIB) -lacmacsbase -lacmacschart -lacmacsdraw -llocationdb -lhidb -lseqdb -lboost_date_time $$(pkg-config --libs cairo) $$(pkg-config --libs liblzma) $$($(PYTHON_CONFIG) --ldflags | sed -E 's/-Wl,-stack_size,[0-9]+//') $(CXX_LIB)
+LDLIBS = $(AD_LIB)/$(call shared_lib_name,libacmacsbase,1,0) $(AD_LIB)/$(call shared_lib_name,libacmacschart,1,0) -L$(AD_LIB) -lacmacsdraw -llocationdb -lhidb -lseqdb -lboost_date_time $$(pkg-config --libs cairo) $$(pkg-config --libs liblzma) $$($(PYTHON_CONFIG) --ldflags | sed -E 's/-Wl,-stack_size,[0-9]+//') $(CXX_LIB)
 
 PKG_INCLUDES = $(shell pkg-config --cflags cairo) $(shell pkg-config --cflags liblzma) $(shell $(PYTHON_CONFIG) --includes)
 
@@ -61,15 +61,15 @@ include $(ACMACSD_ROOT)/share/makefiles/Makefile.rtags
 # ----------------------------------------------------------------------
 
 $(ACMACS_MAP_DRAW_LIB): $(patsubst %.cc,$(BUILD)/%.o,$(LIB_SOURCES)) | $(DIST)
-	@echo "SHARED     " $@ # '<--' $^
+	@printf "%-16s %s\n" "SHARED" $@
 	@$(CXX) -shared $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(BACKEND): $(patsubst %.cc,$(BUILD)/%.o,$(PY_SOURCES)) | $(DIST)
-	@echo "SHARED     " $@ # '<--' $^
+	@printf "%-16s %s\n" "SHARED" $@
 	@$(CXX) -shared $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(DIST)/%: $(BUILD)/%.o | $(ACMACS_MAP_DRAW_LIB)
-	@echo "LINK       " $@
+	@printf "%-16s %s\n" "LINK" $@
 	@$(CXX) $(LDFLAGS) -o $@ $^ $(ACMACS_MAP_DRAW_LIB) $(LDLIBS)
 
 # ======================================================================
