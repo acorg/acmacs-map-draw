@@ -66,8 +66,8 @@ ChartDraw::ChartDraw(acmacs::chart::Chart& aChart, size_t aProjectionNo)
 
 void ChartDraw::prepare()
 {
-    modify(mChart.reference_antigen_indices(), PointStyleDraw().fill("transparent").size(Pixels{8}), PointDrawingOrder::Lower);
-    modify(mChart.serum_indices(), PointStyleDraw().shape(acmacs::PointStyle::Shape::Box).fill("transparent").size(Pixels{8}), PointDrawingOrder::Lower);
+    modify(mChart.antigens()->reference_indexes(), PointStyleDraw().fill("transparent").size(Pixels{8}), PointDrawingOrder::Lower);
+    modify(mChart.sera()->all_indexes(), PointStyleDraw().shape(acmacs::PointStyle::Shape::Box).fill("transparent").size(Pixels{8}), PointDrawingOrder::Lower);
 
 } // ChartDraw::prepare
 
@@ -148,7 +148,7 @@ void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) co
 
 void ChartDraw::hide_all_except(const std::vector<size_t>& aNotHide)
 {
-    PointStyleDraw style(PointStyle::Empty);
+    PointStyleDraw style;
     style.hide();
     for (size_t index = 0; index < mPointStyles.size(); ++index) {
         if (std::find(aNotHide.begin(), aNotHide.end(), index) == aNotHide.end())
@@ -161,7 +161,7 @@ void ChartDraw::hide_all_except(const std::vector<size_t>& aNotHide)
 
 void ChartDraw::mark_egg_antigens()
 {
-    modify(mChart.egg_antigen_indices(), PointStyleDraw(PointStyle::Empty).aspect(AspectEgg));
+    modify(mChart.antigens()->egg_indexes(), PointStyleDraw().aspect(AspectEgg));
 
 } // ChartDraw::mark_egg_antigens
 
@@ -169,7 +169,7 @@ void ChartDraw::mark_egg_antigens()
 
 void ChartDraw::mark_reassortant_antigens()
 {
-    modify(mChart.reassortant_antigen_indices(), PointStyleDraw(PointStyle::Empty).rotation(RotationReassortant));
+    modify(mChart.antigens()->reassortant_indexes(), PointStyleDraw(PointStyle::Empty).rotation(RotationReassortant));
 
 } // ChartDraw::mark_reassortant_antigens
 
@@ -177,7 +177,7 @@ void ChartDraw::mark_reassortant_antigens()
 
 void ChartDraw::modify_all_sera(const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder)
 {
-    modify(mChart.serum_indices(), aStyle, aPointDrawingOrder);
+    modify(mChart.sera()->all_indexes(), aStyle, aPointDrawingOrder);
 
 } // ChartDraw::modify_all_sera
 
@@ -196,9 +196,9 @@ void ChartDraw::scale_points(double aPointScale, double aOulineScale)
 
 void ChartDraw::mark_all_grey(Color aColor)
 {
-    modify(mChart.reference_antigen_indices(), PointStyleDraw(PointStyle::Empty).outline(aColor));
-    modify(mChart.test_antigen_indices(), PointStyleDraw(PointStyle::Empty).fill(aColor).outline(aColor));
-    modify(mChart.serum_indices(), PointStyleDraw(PointStyle::Empty).outline(aColor));
+    modify(mChart.antigens()->reference_indexes(), PointStyleDraw(PointStyle::Empty).outline(aColor));
+    modify(mChart.antigens()->test_indexes(), PointStyleDraw(PointStyle::Empty).fill(aColor).outline(aColor));
+    modify(mChart.sera()->all_indexes(), PointStyleDraw(PointStyle::Empty).outline(aColor));
 
 } // ChartDraw::mark_all_grey
 
@@ -275,48 +275,11 @@ void ChartDraw::remove_serum_circles()
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::export(std::string aFilename)
+void ChartDraw::save(std::string aFilename)
 {
     acmacs::chart::export_factory(mChart, aFilename);
-    // if (mChart.number_of_projections()) {
-    //     mChart.projection(0).transformation(transformation());
-    // }
-    // auto& plot_spec = mChart.plot_spec();
-    // plot_spec.reset(mChart);
-    // for (auto [index, new_style]: acmacs::enumerate(point_styles_base())) {
-    //     ChartPlotSpecStyle style(new_style.fill(), new_style.outline(), ChartPlotSpecStyle::Circle, new_style.size().value() / 5);
-    //     switch (new_style.shape()) {
-    //       case PointStyle::Shape::NoChange:
-    //           break;
-    //       case PointStyle::Shape::Circle:
-    //           style.set_shape(ChartPlotSpecStyle::Circle);
-    //           break;
-    //       case PointStyle::Shape::Box:
-    //           style.set_shape(ChartPlotSpecStyle::Box);
-    //           break;
-    //       case PointStyle::Shape::Triangle:
-    //           style.set_shape(ChartPlotSpecStyle::Triangle);
-    //           break;
-    //     }
-    //     style.shown(new_style.shown());
-    //     style.outline_width(new_style.outline_width().value());
-    //     style.rotation(new_style.rotation().value());
-    //     style.aspect(new_style.aspect().value());
-    //       // style.label() =
-    //     plot_spec.set(index, style);
-    // }
-    // plot_spec.drawing_order() = drawing_order();
-    // export_chart(aFilename, mChart, report_time::Yes);
 
-} // ChartDraw::export_ace
-
-// ----------------------------------------------------------------------
-
-// void ChartDraw::export_lispmds(std::string aFilename)
-// {
-//     export_chart_lispmds(aFilename, chart(), point_styles_base(), transformation());
-
-// } // ChartDraw::export_lispmds
+} // ChartDraw::save
 
 // ----------------------------------------------------------------------
 /// Local Variables:

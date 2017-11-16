@@ -152,7 +152,7 @@ class ChartDraw
     size_t number_of_sera() const;
     inline size_t number_of_points() const { return number_of_antigens() + number_of_sera(); }
 
-    void export(std::string aFilename);
+    void save(std::string aFilename);
 
  private:
     acmacs::chart::Chart& mChart;
