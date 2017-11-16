@@ -6,15 +6,9 @@
 #include "acmacs-base/float.hh"
 #include "acmacs-base/enumerate.hh"
 #include "acmacs-chart-2/factory-export.hh"
-#include "acmacs-map-draw/draw.hh"
-
-#ifdef ACMACS_TARGET_OS
+#include "acmacs-chart-2/bounding-ball.hh"
 #include "acmacs-draw/surface-cairo.hh"
-#endif
-
-#ifdef ACMACS_TARGET_BROWSER
-#include "acmacs-draw/surface.hh"
-#endif
+#include "acmacs-map-draw/draw.hh"
 
 // ----------------------------------------------------------------------
 
@@ -66,8 +60,15 @@ ChartDraw::ChartDraw(acmacs::chart::Chart& aChart, size_t aProjectionNo)
 
 void ChartDraw::prepare()
 {
-    modify(mChart.antigens()->reference_indexes(), PointStyleDraw().fill("transparent").size(Pixels{8}), PointDrawingOrder::Lower);
-    modify(mChart.sera()->all_indexes(), PointStyleDraw().shape(acmacs::PointStyle::Shape::Box).fill("transparent").size(Pixels{8}), PointDrawingOrder::Lower);
+    PointStyleDraw ref_antigen;
+    ref_antigen.fill = "transparent";
+    ref_antigen.size = 8;
+    modify(mChart.antigens()->reference_indexes(), ref_antigen, PointDrawingOrder::Lower);
+    PointStyleDraw serum;
+    serum.shape = acmacs::PointShape::Box;
+    serum.fill = "transparent";
+    serum.size = 8;
+    modify(mChart.sera()->all_indexes(), serum, PointDrawingOrder::Lower);
 
 } // ChartDraw::prepare
 
@@ -91,7 +92,7 @@ size_t ChartDraw::number_of_sera() const
 
 const acmacs::Viewport& ChartDraw::calculate_viewport(bool verbose)
 {
-    std::unique_ptr<acmacs::BoundingBall> bb(transformed_layout().minimum_bounding_ball());
+    std::unique_ptr<acmacs::BoundingBall> bb{transformed_layout().minimum_bounding_ball()};
     acmacs::Viewport viewport;
     viewport.set_from_center_size(bb->center(), bb->diameter());
     viewport.whole_width();
@@ -149,7 +150,7 @@ void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) co
 void ChartDraw::hide_all_except(const std::vector<size_t>& aNotHide)
 {
     PointStyleDraw style;
-    style.hide();
+    style.shown = false;
     for (size_t index = 0; index < mPointStyles.size(); ++index) {
         if (std::find(aNotHide.begin(), aNotHide.end(), index) == aNotHide.end())
             mPointStyles[index] = style;
@@ -161,7 +162,9 @@ void ChartDraw::hide_all_except(const std::vector<size_t>& aNotHide)
 
 void ChartDraw::mark_egg_antigens()
 {
-    modify(mChart.antigens()->egg_indexes(), PointStyleDraw().aspect(AspectEgg));
+    PointStyleDraw style;
+    style.aspect = AspectEgg;
+    modify(mChart.antigens()->egg_indexes(), style);
 
 } // ChartDraw::mark_egg_antigens
 
@@ -169,13 +172,15 @@ void ChartDraw::mark_egg_antigens()
 
 void ChartDraw::mark_reassortant_antigens()
 {
-    modify(mChart.antigens()->reassortant_indexes(), PointStyleDraw(PointStyle::Empty).rotation(RotationReassortant));
+    PointStyleDraw style;
+    style.rotation = RotationReassortant;
+    modify(mChart.antigens()->reassortant_indexes(), style);
 
 } // ChartDraw::mark_reassortant_antigens
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::modify_all_sera(const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder)
+void ChartDraw::modify_all_sera(const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder)
 {
     modify(mChart.sera()->all_indexes(), aStyle, aPointDrawingOrder);
 
@@ -196,9 +201,14 @@ void ChartDraw::scale_points(double aPointScale, double aOulineScale)
 
 void ChartDraw::mark_all_grey(Color aColor)
 {
-    modify(mChart.antigens()->reference_indexes(), PointStyleDraw(PointStyle::Empty).outline(aColor));
-    modify(mChart.antigens()->test_indexes(), PointStyleDraw(PointStyle::Empty).fill(aColor).outline(aColor));
-    modify(mChart.sera()->all_indexes(), PointStyleDraw(PointStyle::Empty).outline(aColor));
+    PointStyleDraw ref_antigen;
+    ref_antigen.outline = aColor;
+    modify(mChart.antigens()->reference_indexes(), ref_antigen);
+    PointStyleDraw test_antigen;
+    test_antigen.fill = aColor;
+    test_antigen.outline = aColor;
+    modify(mChart.antigens()->test_indexes(), test_antigen);
+    modify(mChart.sera()->all_indexes(), ref_antigen);
 
 } // ChartDraw::mark_all_grey
 
@@ -275,9 +285,9 @@ void ChartDraw::remove_serum_circles()
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::save(std::string aFilename)
+void ChartDraw::save(std::string aFilename, std::string aProgramName)
 {
-    acmacs::chart::export_factory(mChart, aFilename);
+    acmacs::chart::export_factory(mChart, aFilename, aProgramName);
 
 } // ChartDraw::save
 

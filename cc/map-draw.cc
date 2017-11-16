@@ -128,7 +128,7 @@ int draw(const argc_argv& args)
         acmacs_base::write_file(save_settings, settings.to_json_pp());
 
     if (const std::string save = args["--save"]; !save.empty()) {
-        chart_draw.export(save);
+        chart_draw.save(save, args.program());
     }
 
     if (args["--open"])

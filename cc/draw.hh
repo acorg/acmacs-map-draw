@@ -80,9 +80,9 @@ class ChartDraw
                 modify(*first, aStyle, aPointDrawingOrder);
         }
 
-    inline void modify(acmacs::IndexGenerator&& aGen, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    inline void modify(const acmacs::chart::Indexes& aIndexes, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
-            for (auto index: aGen)
+            for (auto index: aIndexes)
                 modify(index, aStyle, aPointDrawingOrder);
         }
 
@@ -152,7 +152,7 @@ class ChartDraw
     size_t number_of_sera() const;
     inline size_t number_of_points() const { return number_of_antigens() + number_of_sera(); }
 
-    void save(std::string aFilename);
+    void save(std::string aFilename, std::string aProgramName);
 
  private:
     acmacs::chart::Chart& mChart;
