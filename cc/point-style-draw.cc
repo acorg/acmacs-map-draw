@@ -6,23 +6,19 @@
 
 void PointStyleDraw::draw(Surface& aSurface, const acmacs::chart::Coordinates& aCoord) const
 {
-    if (shown_raw() == Shown::Shown && aCoord.not_nan()) {
-        switch (shape()) {
-          case Shape::NoChange:
-              THROW_OR_CERR(std::runtime_error("Invalid point shape NoChange"));
-          case Shape::Circle:
-              aSurface.circle_filled(aCoord, size(), aspect(), rotation(), outline_raw(), outline_width(), fill_raw());
+    if (*shown && aCoord.not_nan()) {
+        switch (*shape) {
+          case acmacs::PointShape::Circle:
+              aSurface.circle_filled(aCoord, Pixels{*size}, *aspect, *rotation, *outline, *outline_width, *fill);
               break;
-          case Shape::Box:
-              aSurface.square_filled(aCoord, size(), aspect(), rotation(), outline_raw(), outline_width(), fill_raw());
+          case acmacs::PointShape::Box:
+              aSurface.square_filled(aCoord, Pixels{*size}, *aspect, *rotation, *outline, *outline_width, *fill);
               break;
-          case Shape::Triangle:
-              aSurface.triangle_filled(aCoord, size(), aspect(), rotation(), outline_raw(), outline_width(), fill_raw());
+          case acmacs::PointShape::Triangle:
+              aSurface.triangle_filled(aCoord, Pixels{*size}, *aspect, *rotation, *outline, *outline_width, *fill);
               break;
         }
     }
-    else if (shown_raw() == Shown::NoChange)
-        THROW_OR_CERR(std::runtime_error("Invalid shown value NoChange"));
 
 } // PointStyleDraw::draw
 
@@ -33,23 +29,23 @@ acmacs::PointStyle point_style_from_json(const rjson::object& aSource)
     acmacs::PointStyle style;
     for (auto [key, value]: aSource) {
         if (key == "fill")
-            style.fill(value);
+            style.fill = static_cast<std::string>(value);
         else if (key == "outline")
-            style.outline(value);
+            style.outline = static_cast<std::string>(value);
         else if (key == "show")
-            style.show(value ? PointStyle::Shown::Shown : PointStyle::Shown::Hidden);
+            style.shown = value;
         else if (key == "hide")
-            style.show(value ? PointStyle::Shown::Hidden : PointStyle::Shown::Shown);
+            style.shown = !value;
         else if (key == "shape")
-            style.shape(value);
+            style.shape = static_cast<std::string>(value);
         else if (key == "size")
-            style.size(Pixels{value});
+            style.size = value;
         else if (key == "outline_width")
-            style.outline_width(Pixels{value});
+            style.outline_width = Pixels{value};
         else if (key == "aspect")
-            style.aspect(value);
+            style.aspect = Aspect{value};
         else if (key == "rotation")
-            style.rotation(value);
+            style.rotation = Rotation{value};
     }
     return style;
 
