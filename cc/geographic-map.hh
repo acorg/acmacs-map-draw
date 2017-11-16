@@ -22,14 +22,14 @@ class GeographicMapPoint : public PointStyleDraw
 {
  public:
     inline GeographicMapPoint() = default; // : mLongLat{0, 0} {}
-    inline GeographicMapPoint(const Coordinates& aLongLat, long aPriority) : mLongLat(aLongLat), mPriority{aPriority} {}
+    inline GeographicMapPoint(const acmacs::chart::Coordinates& aLongLat, long aPriority) : mLongLat(aLongLat), mPriority{aPriority} {}
 
     inline void draw(Surface& aSurface) const { PointStyleDraw::draw(aSurface, mLongLat); }
 
     inline bool operator<(const GeographicMapPoint& aNother) const { return mPriority < aNother.mPriority; }
 
  private:
-    Coordinates mLongLat{0, 0};
+    acmacs::chart::Coordinates mLongLat{0, 0};
     long mPriority{0};
 };
 

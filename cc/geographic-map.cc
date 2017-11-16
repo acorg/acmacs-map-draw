@@ -53,7 +53,7 @@ void GeographicMapDraw::draw(std::string aFilename, double aImageWidth)
 void GeographicMapDraw::add_point(long aPriority, double aLat, double aLong, Color aFill, Pixels aSize, Color aOutline, Pixels aOutlineWidth)
 {
     mPoints.emplace_back(Coordinates{aLong, -aLat}, aPriority);
-    mPoints.back().shape(PointStyle::Shape::Circle).fill(aFill).outline(aOutline).outline_width(aOutlineWidth).size(aSize);
+    mPoints.back().shape(acmacs::PointShape::Circle).fill(aFill).outline(aOutline).outline_width(aOutlineWidth).size(aSize);
 
 } // GeographicMapDraw::add_point
 
