@@ -41,18 +41,18 @@ class ChartDraw
     const acmacs::Viewport& calculate_viewport(bool verbose = true);
 
     inline const std::vector<PointStyleDraw>& point_styles() const { return mPointStyles; }
-    inline std::vector<PointStyle> point_styles_base() const { std::vector<PointStyle> ps{mPointStyles.begin(), mPointStyles.end()}; return ps; }
+    inline std::vector<acmacs::PointStyle> point_styles_base() const { std::vector<acmacs::PointStyle> ps{mPointStyles.begin(), mPointStyles.end()}; return ps; }
     inline auto& chart() { return mChart; }
     inline const auto& chart() const { return mChart; }
     inline auto projection_no() const { return mProjectionNo; }
-    inline const auto& layout() const { return chart().projection(projection_no()).layout(); }
-    inline auto& layout() { return chart().projection(projection_no()).layout(); }
+    inline std::shared_ptr<acmacs::chart::Layout> layout() const { return chart().projection(projection_no())->layout(); }
+    // inline auto& layout() { return chart().projection(projection_no()).layout(); }
 
       // for "found_in_previous" and "not_found_in_previous" select keys
     inline void previous_chart(acmacs::chart::Chart& aPreviousChart) { mPreviousChart = &aPreviousChart; }
     inline const auto& previous_chart() const { return mPreviousChart; }
 
-    template <typename index_type> inline void modify(index_type aIndex, const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    template <typename index_type> inline void modify(index_type aIndex, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
             const auto index = static_cast<size_t>(aIndex);
             mPointStyles.at(index) = aStyle;
@@ -69,24 +69,24 @@ class ChartDraw
             }
         }
 
-    template <typename index_type> inline void modify_serum(index_type aSerumNo, const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    template <typename index_type> inline void modify_serum(index_type aSerumNo, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
             modify(static_cast<size_t>(aSerumNo) + number_of_antigens(), aStyle, aPointDrawingOrder);
         }
 
-    template <typename IndexIterator> inline void modify(IndexIterator first, IndexIterator last, const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    template <typename IndexIterator> inline void modify(IndexIterator first, IndexIterator last, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
             for (; first != last; ++first)
                 modify(*first, aStyle, aPointDrawingOrder);
         }
 
-    inline void modify(acmacs::IndexGenerator&& aGen, const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    inline void modify(acmacs::IndexGenerator&& aGen, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
             for (auto index: aGen)
                 modify(index, aStyle, aPointDrawingOrder);
         }
 
-    template <typename IndexIterator> inline void modify_sera(IndexIterator first, IndexIterator last, const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    template <typename IndexIterator> inline void modify_sera(IndexIterator first, IndexIterator last, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
             for (; first != last; ++first)
                 modify_serum(*first, aStyle, aPointDrawingOrder);
@@ -97,7 +97,7 @@ class ChartDraw
     void mark_reassortant_antigens();
     void mark_all_grey(Color aColor);
     void scale_points(double aPointScale, double aOulineScale);
-    void modify_all_sera(const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange);
+    void modify_all_sera(const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange);
 
     inline void rotate(double aAngle)
         {
@@ -140,11 +140,10 @@ class ChartDraw
     map_elements::Circle& circle(const acmacs::Location& aCenter, Scaled aSize);
     void remove_serum_circles();
 
-    inline const LayoutBase& transformed_layout() const
+    inline const acmacs::chart::Layout& transformed_layout() const
         {
-            if (!mTransformedLayout || mTransformedLayout->empty()) {
-                mTransformedLayout = std::unique_ptr<LayoutBase>(mChart.projection(mProjectionNo).layout().clone());
-                mTransformedLayout->transform(mTransformation);
+            if (!mTransformedLayout) {
+                mTransformedLayout = std::unique_ptr<acmacs::chart::Layout>(mChart.projection(mProjectionNo)->layout()->transform(mTransformation));
             }
             return *mTransformedLayout;
         }
@@ -165,7 +164,7 @@ class ChartDraw
     DrawingOrder mDrawingOrder;
     map_elements::Elements mMapElements;
     map_elements::Labels mLabels;
-    mutable std::unique_ptr<LayoutBase> mTransformedLayout;
+    mutable std::unique_ptr<acmacs::chart::Layout> mTransformedLayout;
 
 }; // class ChartDraw
 

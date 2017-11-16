@@ -14,11 +14,11 @@ Label::Label(size_t aIndex)
 
 // ----------------------------------------------------------------------
 
-void Label::draw(Surface& aSurface, const LayoutBase& aLayout, const std::vector<PointStyleDraw>& aPointStyles) const
+void Label::draw(Surface& aSurface, const acmacs::chart::Layout& aLayout, const std::vector<PointStyleDraw>& aPointStyles) const
 {
     const auto& style = aPointStyles[mIndex];
     if (style.shown()) {
-        Coordinates text_origin = aLayout[mIndex];
+        auto text_origin = aLayout[mIndex];
         if (!text_origin.empty()) { // point is not disconnected
             const double scaled_point_size = aSurface.convert(style.size()).value();
             const acmacs::Size text_size = aSurface.text_size(mDisplayName, mTextSize, mTextStyle);
@@ -84,7 +84,7 @@ void Labels::remove(size_t aIndex)
 
 // ----------------------------------------------------------------------
 
-void Labels::draw(Surface& aSurface, const LayoutBase& aLayout, const std::vector<PointStyleDraw>& aPointStyles) const
+void Labels::draw(Surface& aSurface, const acmacs::chart::Layout& aLayout, const std::vector<PointStyleDraw>& aPointStyles) const
 {
     for (const Label& label: mLabels) {
         label.draw(aSurface, aLayout, aPointStyles);

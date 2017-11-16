@@ -48,7 +48,7 @@ void DrawingOrder::lower(size_t aPointNo)
 ChartDraw::ChartDraw(acmacs::chart::Chart& aChart, size_t aProjectionNo)
     : mChart(aChart),
       mProjectionNo(aProjectionNo),
-      mTransformation(mChart.projection(mProjectionNo).transformation()),
+      mTransformation(mChart.projection(mProjectionNo)->transformation()),
       mPointStyles(mChart.number_of_points()),
       mDrawingOrder(mChart)
 {
@@ -66,8 +66,8 @@ ChartDraw::ChartDraw(acmacs::chart::Chart& aChart, size_t aProjectionNo)
 
 void ChartDraw::prepare()
 {
-    modify(mChart.reference_antigen_indices(), PointStyleDraw(PointStyle::Empty).fill("transparent").size(Pixels{8}), PointDrawingOrder::Lower);
-    modify(mChart.serum_indices(), PointStyleDraw(PointStyle::Empty).shape(PointStyle::Shape::Box).fill("transparent").size(Pixels{8}), PointDrawingOrder::Lower);
+    modify(mChart.reference_antigen_indices(), PointStyleDraw().fill("transparent").size(Pixels{8}), PointDrawingOrder::Lower);
+    modify(mChart.serum_indices(), PointStyleDraw().shape(acmacs::PointStyle::Shape::Box).fill("transparent").size(Pixels{8}), PointDrawingOrder::Lower);
 
 } // ChartDraw::prepare
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "acmacs-base/point-style.hh"
-#include "acmacs-map-draw/coordinates.hh"
+#include "acmacs-chart-2/layout.hh"
 
 // ----------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ class PointStyleDraw : public acmacs::PointStyle
     inline PointStyleDraw() = default;
     inline PointStyleDraw& operator = (const acmacs::PointStyle& aPS) { acmacs::PointStyle::operator=(aPS); return *this; }
 
-    void draw(Surface& aSurface, const acmacs::Coordinates& aCoord) const;
+    void draw(Surface& aSurface, const acmacs::chart::Coordinates& aCoord) const;
 
 }; // class PointStyleDraw
 
