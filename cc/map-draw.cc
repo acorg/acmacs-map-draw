@@ -7,7 +7,7 @@ using namespace std::string_literals;
 #include "acmacs-base/read-file.hh"
 #include "acmacs-base/quicklook.hh"
 // #include "acmacs-base/enumerate.hh"
-#include "acmacs-chart-1/ace.hh"
+#include "acmacs-chart-2/ace.hh"
 #include "acmacs-map-draw/draw.hh"
 
 #include "settings.hh"
@@ -128,12 +128,7 @@ int draw(const argc_argv& args)
         acmacs_base::write_file(save_settings, settings.to_json_pp());
 
     if (const std::string save = args["--save"]; !save.empty()) {
-        if (save.size() > 4 && save.substr(save.size() - 4) == ".ace")
-            chart_draw.export_ace(save);
-        else if ((save.size() > 5 && save.substr(save.size() - 5) == ".save") || (save.size() > 8 && save.substr(save.size() - 8) == ".save.xz"))
-            chart_draw.export_lispmds(save);
-        else
-            throw std::runtime_error("cannot detect export file format for " + save);
+        chart_draw.export(save);
     }
 
     if (args["--open"])

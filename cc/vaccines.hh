@@ -2,7 +2,7 @@
 
 #include "hidb/hidb.hh"
 #include "hidb/vaccines.hh"
-#include "acmacs-chart-1/point-style.hh"
+#include "acmacs-chart-2/point-style.hh"
 #include "acmacs-map-draw/draw.hh"
 
 // ----------------------------------------------------------------------

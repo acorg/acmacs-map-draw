@@ -10,7 +10,7 @@
 
 // ----------------------------------------------------------------------
 
-class ChartBase;
+namespace acmacs::chart { class Chart; }
 class Surface;
 class ChartDraw;
 class Layout;
@@ -55,7 +55,7 @@ namespace map_elements
      public:
         Labels();
 
-        Label& add(size_t aIndex, const ChartBase& aChart);
+        Label& add(size_t aIndex, const acmacs::chart::Chart& aChart);
         void remove(size_t aIndex);
         void draw(Surface& aSurface, const LayoutBase& aLayout, const std::vector<PointStyleDraw>& aPointStyles) const;
 

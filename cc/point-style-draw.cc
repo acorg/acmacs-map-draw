@@ -4,7 +4,7 @@
 
 // ----------------------------------------------------------------------
 
-void PointStyleDraw::draw(Surface& aSurface, const Coordinates& aCoord) const
+void PointStyleDraw::draw(Surface& aSurface, const acmacs::Coordinates& aCoord) const
 {
     if (shown_raw() == Shown::Shown && !aCoord.empty()) {
         switch (shape()) {
@@ -28,9 +28,9 @@ void PointStyleDraw::draw(Surface& aSurface, const Coordinates& aCoord) const
 
 // ----------------------------------------------------------------------
 
-PointStyle point_style_from_json(const rjson::object& aSource)
+acmacs::PointStyle point_style_from_json(const rjson::object& aSource)
 {
-    auto style{PointStyleEmpty()};
+    acmacs::PointStyle style;
     for (auto [key, value]: aSource) {
         if (key == "fill")
             style.fill(value);

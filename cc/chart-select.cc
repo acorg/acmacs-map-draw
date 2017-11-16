@@ -2,8 +2,7 @@
 #include <fstream>
 
 #include "acmacs-base/argc-argv.hh"
-// #include "acmacs-base/string.hh"
-#include "acmacs-chart-1/ace.hh"
+#include "acmacs-chart-2/factory-import.hh"
 
 #include "setup-dbs.hh"
 #include "settings.hh"
@@ -51,7 +50,7 @@ int do_select(const argc_argv& args)
     setup_dbs(args["--db-dir"], verbose);
     const auto selector = rjson::parse_string(args[1]);
       // const auto selector = rjson::parse_string("{\"in_rectangle\":{\"c1\":[0,0],\"c2\":[1,1]}}");
-    std::unique_ptr<Chart> chart{import_chart(args[0], verbose ? report_time::Yes : report_time::No)};
+    auto chart = import_factory(import_chart(args[0], acmacs::chart::Verify::None);
 
     if (!args["-s"] && !args["--sera"]) {
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_antigens())) + 1;

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "acmacs-chart-1/point-style.hh"
+#include "acmacs-base/point-style.hh"
+#include "acmacs-map-draw/coordinates.hh"
 
 // ----------------------------------------------------------------------
 
@@ -9,20 +10,19 @@ namespace rjson { class object; }
 
 // ----------------------------------------------------------------------
 
-class PointStyleDraw : public PointStyle
+class PointStyleDraw : public acmacs::PointStyle
 {
  public:
-    inline PointStyleDraw() : PointStyle() {}
-    inline PointStyleDraw(enum Empty e) : PointStyle(e) {}
-    inline PointStyleDraw& operator = (const PointStyle& aPS) { PointStyle::operator=(aPS); return *this; }
+    inline PointStyleDraw() = default;
+    inline PointStyleDraw& operator = (const acmacs::PointStyle& aPS) { acmacs::PointStyle::operator=(aPS); return *this; }
 
-    void draw(Surface& aSurface, const Coordinates& aCoord) const;
+    void draw(Surface& aSurface, const acmacs::Coordinates& aCoord) const;
 
 }; // class PointStyleDraw
 
 // ----------------------------------------------------------------------
 
-PointStyle point_style_from_json(const rjson::object& aSource);
+acmacs::PointStyle point_style_from_json(const rjson::object& aSource);
 
 // ----------------------------------------------------------------------
 

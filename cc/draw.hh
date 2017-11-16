@@ -6,14 +6,8 @@
 
 #include "acmacs-base/throw.hh"
 #include "acmacs-base/range.hh"
-#ifdef ACMACS_TARGET_OS
 #include "acmacs-base/timeit.hh"
-#include "acmacs-chart-1/chart.hh"
-using Chart_Type = Chart;
-#else
-#include "acmacs-chart-1/chart-base.hh"
-using Chart_Type = ChartBase;
-#endif
+#include "acmacs-chart-2/chart.hh"
 #include "acmacs-draw/viewport.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 #include "acmacs-map-draw/map-elements.hh"
@@ -26,7 +20,7 @@ class Surface;
 class DrawingOrder : public std::vector<size_t>
 {
  public:
-    DrawingOrder(Chart_Type& aChart);
+    DrawingOrder(acmacs::chart::Chart& aChart);
     inline DrawingOrder& operator=(const std::vector<size_t>& aSource) { std::vector<size_t>::operator=(aSource); return *this; }
 
     void raise(size_t aPointNo);
@@ -39,13 +33,11 @@ class DrawingOrder : public std::vector<size_t>
 class ChartDraw
 {
  public:
-    ChartDraw(Chart_Type& aChart, size_t aProjectionNo);
+    ChartDraw(acmacs::chart::Chart& aChart, size_t aProjectionNo);
 
     void prepare();
     void draw(Surface& aSurface) const;
-#ifdef ACMACS_TARGET_OS
     void draw(std::string aFilename, double aSize, report_time aTimer = report_time::No) const;
-#endif
     const acmacs::Viewport& calculate_viewport(bool verbose = true);
 
     inline const std::vector<PointStyleDraw>& point_styles() const { return mPointStyles; }
@@ -57,7 +49,7 @@ class ChartDraw
     inline auto& layout() { return chart().projection(projection_no()).layout(); }
 
       // for "found_in_previous" and "not_found_in_previous" select keys
-    inline void previous_chart(Chart_Type& aPreviousChart) { mPreviousChart = &aPreviousChart; }
+    inline void previous_chart(acmacs::chart::Chart& aPreviousChart) { mPreviousChart = &aPreviousChart; }
     inline const auto& previous_chart() const { return mPreviousChart; }
 
     template <typename index_type> inline void modify(index_type aIndex, const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
@@ -161,12 +153,11 @@ class ChartDraw
     size_t number_of_sera() const;
     inline size_t number_of_points() const { return number_of_antigens() + number_of_sera(); }
 
-    void export_ace(std::string aFilename);
-    void export_lispmds(std::string aFilename);
+    void export(std::string aFilename);
 
  private:
-    Chart_Type& mChart;
-    Chart_Type* mPreviousChart = nullptr;
+    acmacs::chart::Chart& mChart;
+    acmacs::chart::Chart* mPreviousChart = nullptr;
     size_t mProjectionNo;
     acmacs::Viewport mViewport;
     acmacs::Transformation mTransformation;

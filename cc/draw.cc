@@ -5,8 +5,7 @@
 #include "acmacs-base/log.hh"
 #include "acmacs-base/float.hh"
 #include "acmacs-base/enumerate.hh"
-#include "acmacs-chart-1/lispmds.hh"
-#include "acmacs-chart-1/ace.hh"
+#include "acmacs-chart-2/factory-export.hh"
 #include "acmacs-map-draw/draw.hh"
 
 #ifdef ACMACS_TARGET_OS
@@ -19,7 +18,7 @@
 
 // ----------------------------------------------------------------------
 
-DrawingOrder::DrawingOrder(Chart_Type& aChart)
+DrawingOrder::DrawingOrder(acmacs::chart::Chart& aChart)
     : std::vector<size_t>(acmacs::incrementer<size_t>::begin(0), acmacs::incrementer<size_t>::end(aChart.number_of_points()))
 {
 } // DrawingOrder::DrawingOrder
@@ -46,7 +45,7 @@ void DrawingOrder::lower(size_t aPointNo)
 
 // ----------------------------------------------------------------------
 
-ChartDraw::ChartDraw(Chart_Type& aChart, size_t aProjectionNo)
+ChartDraw::ChartDraw(acmacs::chart::Chart& aChart, size_t aProjectionNo)
     : mChart(aChart),
       mProjectionNo(aProjectionNo),
       mTransformation(mChart.projection(mProjectionNo).transformation()),
@@ -92,7 +91,7 @@ size_t ChartDraw::number_of_sera() const
 
 const acmacs::Viewport& ChartDraw::calculate_viewport(bool verbose)
 {
-    std::unique_ptr<BoundingBall> bb(transformed_layout().minimum_bounding_ball());
+    std::unique_ptr<acmacs::BoundingBall> bb(transformed_layout().minimum_bounding_ball());
     acmacs::Viewport viewport;
     viewport.set_from_center_size(bb->center(), bb->diameter());
     viewport.whole_width();
@@ -276,47 +275,48 @@ void ChartDraw::remove_serum_circles()
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::export_ace(std::string aFilename)
+void ChartDraw::export(std::string aFilename)
 {
-    if (mChart.number_of_projections()) {
-        mChart.projection(0).transformation(transformation());
-    }
-    auto& plot_spec = mChart.plot_spec();
-    plot_spec.reset(mChart);
-    for (auto [index, new_style]: acmacs::enumerate(point_styles_base())) {
-        ChartPlotSpecStyle style(new_style.fill(), new_style.outline(), ChartPlotSpecStyle::Circle, new_style.size().value() / 5);
-        switch (new_style.shape()) {
-          case PointStyle::Shape::NoChange:
-              break;
-          case PointStyle::Shape::Circle:
-              style.set_shape(ChartPlotSpecStyle::Circle);
-              break;
-          case PointStyle::Shape::Box:
-              style.set_shape(ChartPlotSpecStyle::Box);
-              break;
-          case PointStyle::Shape::Triangle:
-              style.set_shape(ChartPlotSpecStyle::Triangle);
-              break;
-        }
-        style.shown(new_style.shown());
-        style.outline_width(new_style.outline_width().value());
-        style.rotation(new_style.rotation().value());
-        style.aspect(new_style.aspect().value());
-          // style.label() =
-        plot_spec.set(index, style);
-    }
-    plot_spec.drawing_order() = drawing_order();
-    export_chart(aFilename, mChart, report_time::Yes);
+    acmacs::chart::export_factory(mChart, aFilename);
+    // if (mChart.number_of_projections()) {
+    //     mChart.projection(0).transformation(transformation());
+    // }
+    // auto& plot_spec = mChart.plot_spec();
+    // plot_spec.reset(mChart);
+    // for (auto [index, new_style]: acmacs::enumerate(point_styles_base())) {
+    //     ChartPlotSpecStyle style(new_style.fill(), new_style.outline(), ChartPlotSpecStyle::Circle, new_style.size().value() / 5);
+    //     switch (new_style.shape()) {
+    //       case PointStyle::Shape::NoChange:
+    //           break;
+    //       case PointStyle::Shape::Circle:
+    //           style.set_shape(ChartPlotSpecStyle::Circle);
+    //           break;
+    //       case PointStyle::Shape::Box:
+    //           style.set_shape(ChartPlotSpecStyle::Box);
+    //           break;
+    //       case PointStyle::Shape::Triangle:
+    //           style.set_shape(ChartPlotSpecStyle::Triangle);
+    //           break;
+    //     }
+    //     style.shown(new_style.shown());
+    //     style.outline_width(new_style.outline_width().value());
+    //     style.rotation(new_style.rotation().value());
+    //     style.aspect(new_style.aspect().value());
+    //       // style.label() =
+    //     plot_spec.set(index, style);
+    // }
+    // plot_spec.drawing_order() = drawing_order();
+    // export_chart(aFilename, mChart, report_time::Yes);
 
 } // ChartDraw::export_ace
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::export_lispmds(std::string aFilename)
-{
-    export_chart_lispmds(aFilename, chart(), point_styles_base(), transformation());
+// void ChartDraw::export_lispmds(std::string aFilename)
+// {
+//     export_chart_lispmds(aFilename, chart(), point_styles_base(), transformation());
 
-} // ChartDraw::export_lispmds
+// } // ChartDraw::export_lispmds
 
 // ----------------------------------------------------------------------
 /// Local Variables:
