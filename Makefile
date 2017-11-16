@@ -32,7 +32,10 @@ ACMACS_MAP_DRAW_LIB = $(DIST)/libacmacsmapdraw.so
 
 CXXFLAGS = -g -MMD $(OPTIMIZATION) $(PROFILE) -fPIC -std=$(STD) $(WARNINGS) -Icc -I$(AD_INCLUDE) $(PKG_INCLUDES)
 LDFLAGS = $(OPTIMIZATION) $(PROFILE)
-LDLIBS = $(AD_LIB)/$(call shared_lib_name,libacmacsbase,1,0) $(AD_LIB)/$(call shared_lib_name,libacmacschart,1,0) -L$(AD_LIB) -lacmacsdraw -llocationdb -lhidb -lseqdb -lboost_date_time $$(pkg-config --libs cairo) $$(pkg-config --libs liblzma) $$($(PYTHON_CONFIG) --ldflags | sed -E 's/-Wl,-stack_size,[0-9]+//') $(CXX_LIB)
+LDLIBS = $(AD_LIB)/$(call shared_lib_name,libacmacsbase,1,0) \
+	 $(AD_LIB)/$(call shared_lib_name,liblocationdb,1,0) \
+	 $(AD_LIB)/$(call shared_lib_name,libacmacschart,1,0) \
+	 -L$(AD_LIB) -lacmacsdraw -lhidb -lseqdb -lboost_date_time $$(pkg-config --libs cairo) $$(pkg-config --libs liblzma) $$($(PYTHON_CONFIG) --ldflags | sed -E 's/-Wl,-stack_size,[0-9]+//') $(CXX_LIB)
 
 PKG_INCLUDES = $(shell pkg-config --cflags cairo) $(shell pkg-config --cflags liblzma) $(shell $(PYTHON_CONFIG) --includes)
 
