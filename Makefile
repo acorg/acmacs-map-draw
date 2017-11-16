@@ -10,9 +10,10 @@ TARGETS = \
     $(ACMACS_MAP_DRAW_LIB) \
     $(ACMACS_MAP_DRAW_PY_LIB) \
     $(DIST)/chart-select \
-    $(DIST)/chart-info \
     $(DIST)/map-draw \
     $(DIST)/geographic-draw
+
+# $(DIST)/chart-info - obsolete
 
 ACMACS_MAP_DRAW_SOURCES = draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc time-series.cc \
 	vaccines.cc vaccine-matcher.cc settings.cc select.cc mod-applicator.cc setup-dbs.cc geographic-settings.cc
