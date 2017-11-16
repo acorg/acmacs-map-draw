@@ -4,9 +4,9 @@
 
 // ----------------------------------------------------------------------
 
-void PointStyleDraw::draw(Surface& aSurface, const acmacs::Coordinates& aCoord) const
+void PointStyleDraw::draw(Surface& aSurface, const acmacs::chart::Coordinates& aCoord) const
 {
-    if (shown_raw() == Shown::Shown && !aCoord.empty()) {
+    if (shown_raw() == Shown::Shown && aCoord.not_nan()) {
         switch (shape()) {
           case Shape::NoChange:
               THROW_OR_CERR(std::runtime_error("Invalid point shape NoChange"));
