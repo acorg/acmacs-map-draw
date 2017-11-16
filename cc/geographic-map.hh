@@ -7,8 +7,8 @@
 #include "hidb/hidb.hh"
 #include "seqdb/seqdb.hh"
 #include "locationdb/locdb.hh"
+#include "acmacs-chart-2/layout.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
-#include "acmacs-map-draw/coordinates.hh"
 #include "acmacs-map-draw/map-elements.hh"
 
 // ----------------------------------------------------------------------

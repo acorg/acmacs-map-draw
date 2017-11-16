@@ -17,10 +17,10 @@ Label::Label(size_t aIndex)
 void Label::draw(Surface& aSurface, const acmacs::chart::Layout& aLayout, const std::vector<PointStyleDraw>& aPointStyles) const
 {
     const auto& style = aPointStyles[mIndex];
-    if (style.shown()) {
+    if (*style.shown) {
         auto text_origin = aLayout[mIndex];
         if (!text_origin.empty()) { // point is not disconnected
-            const double scaled_point_size = aSurface.convert(style.size()).value();
+            const double scaled_point_size = aSurface.convert(Pixels{*style.size}).value();
             const acmacs::Size text_size = aSurface.text_size(mDisplayName, mTextSize, mTextStyle);
             text_origin[0] += text_offset(mOffset.x, scaled_point_size, text_size.width, false);
             text_origin[1] += text_offset(mOffset.y, scaled_point_size, text_size.height, true);
@@ -63,10 +63,11 @@ Label& Labels::add(size_t aIndex, const acmacs::chart::Chart& aChart)
     if (found == mLabels.end()) {
         mLabels.emplace_back(aIndex);
         found = mLabels.end() - 1;
-        if (aIndex < aChart.number_of_antigens())
-            found->display_name(aChart.antigen(aIndex).full_name());
+        const auto number_of_antigens = aChart.number_of_antigens();
+        if (aIndex < number_of_antigens)
+            found->display_name(aChart.antigen(aIndex)->full_name());
         else
-            found->display_name(aChart.serum(aIndex - aChart.number_of_antigens()).full_name());
+            found->display_name(aChart.serum(aIndex - number_of_antigens)->full_name());
     }
     return *found;
 
