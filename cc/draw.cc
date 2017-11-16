@@ -5,8 +5,8 @@
 #include "acmacs-base/log.hh"
 #include "acmacs-base/float.hh"
 #include "acmacs-base/enumerate.hh"
-#include "acmacs-chart/lispmds.hh"
-#include "acmacs-chart/ace.hh"
+#include "acmacs-chart-1/lispmds.hh"
+#include "acmacs-chart-1/ace.hh"
 #include "acmacs-map-draw/draw.hh"
 
 #ifdef ACMACS_TARGET_OS

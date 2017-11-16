@@ -1,5 +1,5 @@
 #include "acmacs-draw/surface.hh"
-#include "acmacs-chart/chart-base.hh"
+#include "acmacs-chart-1/chart-base.hh"
 #include "acmacs-map-draw/labels.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 

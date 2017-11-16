@@ -8,10 +8,10 @@
 #include "acmacs-base/range.hh"
 #ifdef ACMACS_TARGET_OS
 #include "acmacs-base/timeit.hh"
-#include "acmacs-chart/chart.hh"
+#include "acmacs-chart-1/chart.hh"
 using Chart_Type = Chart;
 #else
-#include "acmacs-chart/chart-base.hh"
+#include "acmacs-chart-1/chart-base.hh"
 using Chart_Type = ChartBase;
 #endif
 #include "acmacs-draw/viewport.hh"
