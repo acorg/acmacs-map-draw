@@ -347,46 +347,42 @@ class ModAminoAcids : public Mod
 
     void aa_pos(ChartDraw& aChartDraw, const rjson::array& aPos, bool aVerbose)
         {
-              // !!! $$$
-            throw std::runtime_error("Not implemented aa_pos in acmacs-map-draw/mod-applicator.cc, port seqdb to acmacs-chart-2");
-            // const auto& seqdb = seqdb::get(do_report_time(aVerbose));
-            // const auto aa_indices = seqdb.aa_at_positions_for_antigens(aChartDraw.chart().antigens(), {std::begin(aPos), std::end(aPos)}, aVerbose);
-            // std::vector<std::string> aa_sorted(aa_indices.size()); // most frequent aa first
-            // std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
-            // std::sort(std::begin(aa_sorted), std::end(aa_sorted), [&aa_indices](const auto& n1, const auto& n2) -> bool { return aa_indices.find(n1)->second.size() > aa_indices.find(n2)->second.size(); });
-            // for (auto [index, aa]: acmacs::enumerate(aa_sorted)) {
-            //     const auto& indices_for_aa = aa_indices.find(aa)->second;
-            //     auto styl = style();
-            //     styl.fill(fill_color(index, aa));
-            //     aChartDraw.modify(std::begin(indices_for_aa), std::end(indices_for_aa), styl, drawing_order());
-            //     try { add_legend(aChartDraw, indices_for_aa, styl, aa, args()["legend"]); } catch (rjson::field_not_found&) {}
-            //     if (aVerbose)
-            //         std::cerr << "INFO: amino-acids at " << aPos << ": " << aa << ' ' << indices_for_aa.size() << '\n';
-            // }
+            const auto& seqdb = seqdb::get(do_report_time(aVerbose));
+            const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), {std::begin(aPos), std::end(aPos)}, aVerbose);
+            std::vector<std::string> aa_sorted(aa_indices.size()); // most frequent aa first
+            std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
+            std::sort(std::begin(aa_sorted), std::end(aa_sorted), [&aa_indices](const auto& n1, const auto& n2) -> bool { return aa_indices.find(n1)->second.size() > aa_indices.find(n2)->second.size(); });
+            for (auto [index, aa]: acmacs::enumerate(aa_sorted)) {
+                const auto& indices_for_aa = aa_indices.find(aa)->second;
+                auto styl = style();
+                styl.fill = fill_color(index, aa);
+                aChartDraw.modify(std::begin(indices_for_aa), std::end(indices_for_aa), styl, drawing_order());
+                try { add_legend(aChartDraw, indices_for_aa, styl, aa, args()["legend"]); } catch (rjson::field_not_found&) {}
+                if (aVerbose)
+                    std::cerr << "INFO: amino-acids at " << aPos << ": " << aa << ' ' << indices_for_aa.size() << '\n';
+            }
         }
 
     void aa_group(ChartDraw& aChartDraw, const rjson::object& aGroup, bool aVerbose)
         {
-              // !!! $$$
-            throw std::runtime_error("Not implemented aa_group in acmacs-map-draw/mod-applicator.cc, port seqdb to acmacs-chart-2");
-            // const rjson::array& pos_aa = aGroup["pos_aa"];
-            // std::vector<size_t> positions(pos_aa.size());
-            // std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(positions), [](const auto& src) { return std::stoul(src); });
-            // std::string target_aas(pos_aa.size(), ' ');
-            // std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(target_aas), [](const auto& src) { return static_cast<std::string>(src).back(); });
-            // const auto& seqdb = seqdb::get(do_report_time(aVerbose));
-            // const auto aa_indices = seqdb.aa_at_positions_for_antigens(aChartDraw.chart().antigens(), positions, aVerbose);
-            // if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
-            //     auto styl = style();
-            //     styl = point_style_from_json(aGroup);
-            //     aChartDraw.modify(std::begin(aap->second), std::end(aap->second), styl, drawing_order());
-            //     try { add_legend(aChartDraw, aap->second, styl, string::join(" ", std::begin(pos_aa), std::end(pos_aa)), args()["legend"]); } catch (rjson::field_not_found&) {}
-            //     if (aVerbose)
-            //         std::cerr << "INFO: amino-acids group " << pos_aa << ": " << ' ' << aap->second.size() << '\n';
-            // }
-            // else {
-            //     std::cerr << "WARNING: no \"" << target_aas << "\" in " << aa_indices << '\n';
-            // }
+            const rjson::array& pos_aa = aGroup["pos_aa"];
+            std::vector<size_t> positions(pos_aa.size());
+            std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(positions), [](const auto& src) { return std::stoul(src); });
+            std::string target_aas(pos_aa.size(), ' ');
+            std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(target_aas), [](const auto& src) { return static_cast<std::string>(src).back(); });
+            const auto& seqdb = seqdb::get(do_report_time(aVerbose));
+            const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), positions, aVerbose);
+            if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
+                auto styl = style();
+                styl = point_style_from_json(aGroup);
+                aChartDraw.modify(std::begin(aap->second), std::end(aap->second), styl, drawing_order());
+                try { add_legend(aChartDraw, aap->second, styl, string::join(" ", std::begin(pos_aa), std::end(pos_aa)), args()["legend"]); } catch (rjson::field_not_found&) {}
+                if (aVerbose)
+                    std::cerr << "INFO: amino-acids group " << pos_aa << ": " << ' ' << aap->second.size() << '\n';
+            }
+            else {
+                std::cerr << "WARNING: no \"" << target_aas << "\" in " << aa_indices << '\n';
+            }
         }
 
     Color fill_color(size_t aIndex, std::string aAA)

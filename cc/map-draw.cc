@@ -24,6 +24,7 @@ int main(int argc, char* const argv[])
     try {
         argc_argv args(argc, argv, {
                 {"--clade", false},
+                {"--point-scale", 1.0},
                 {"--settings", argc_argv::strings{}},
                 {"-s", argc_argv::strings{}},
                 {"--init-settings", ""},
@@ -103,6 +104,10 @@ int draw(const argc_argv& args)
 
     if (args["--clade"]) {
         settings.set_field("apply", rjson::array{"all_grey", "egg", "clades", "vaccines"});
+    }
+
+    if (!float_equal(static_cast<double>(args["--point-scale"]), 1.0)) {
+        static_cast<rjson::array&>(settings["apply"]).insert(rjson::object{{{"N", rjson::string{"point_scale"}}, {"scale", rjson::number{args["--point-scale"]}}, {"outline_scale", rjson::number{1.0}}}});
     }
 
     try {

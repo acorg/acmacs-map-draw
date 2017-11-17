@@ -243,9 +243,7 @@ const std::vector<seqdb::SeqdbEntrySeq>& SelectAntigens::seqdb_entries(const acm
     auto found = cache_seqdb_entries_for_chart.find(&aChart);
     if (found == cache_seqdb_entries_for_chart.end()) {
         found = cache_seqdb_entries_for_chart.emplace(&aChart, decltype(cache_seqdb_entries_for_chart)::mapped_type{}).first;
-          //!!! $$$
-        throw std::runtime_error("Not implemented SelectAntigens::seqdb_entries in acmacs-map-draw/select.cc due to seqdb not ported to acmacs-chart-2");
-          // seqdb::get(timer()).match(*aChart.antigens(), found->second, aChart.info()->virus_type(), false);
+        seqdb::get(timer()).match(*aChart.antigens(), found->second, aChart.info()->virus_type(), false);
     }
     return found->second;
 
