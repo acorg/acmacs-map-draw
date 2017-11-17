@@ -13,47 +13,6 @@
 
 // ----------------------------------------------------------------------
 
-static inline std::string get_point_style_shape(acmacs::PointStyle& aStyle)
-{
-    std::string shape;
-    switch (*aStyle.shape) {
-      case acmacs::PointShape::Circle:
-          shape = "circle";
-          break;
-      case acmacs::PointShape::Box:
-          shape = "box";
-          break;
-      case acmacs::PointShape::Triangle:
-          shape = "triangle";
-          break;
-    }
-    return shape;
-}
-
-// ----------------------------------------------------------------------
-
-// static inline PointStyleDraw* point_style_kw(PointStyleDraw& aStyle, py::args args, py::kwargs kwargs)
-// {
-//     PointStyleDraw* obj = new (&aStyle) PointStyleDraw(PointStyle::Empty);
-//     std::cerr << "point_style_kw" << std::endl;
-//     return obj;
-// }
-
-// static inline PointStyleDraw* point_style_modify_kw(PointStyleDraw* aStyle, py::args args, py::kwargs kwargs)
-// {
-//     std::cerr << "point_style_modify_kw" << std::endl;
-//     return aStyle;
-// }
-
-// static inline PointStyleDraw* new_point_style_kw(py::args args, py::kwargs kwargs)
-// {
-//     PointStyleDraw* style = new PointStyleDraw(PointStyle::Empty);
-//     std::cerr << "new_point_style_kw" << std::endl;
-//     return style;
-// }
-
-// ----------------------------------------------------------------------
-
 template <typename Iter> class PyTimeSeriesIterator
 {
  public:
@@ -240,7 +199,7 @@ PYBIND11_MODULE(acmacs_map_draw_backend, m)
             ;
 
     py::class_<ChartDraw>(m, "ChartDraw")
-            .def(py::init<Chart&, size_t>(), py::arg("chart"), py::arg("projection_no") = 0)
+            .def(py::init<acmacs::chart::Chart&, size_t>(), py::arg("chart"), py::arg("projection_no") = 0)
             .def("prepare", &ChartDraw::prepare)
             .def("point_styles", &ChartDraw::point_styles)
             .def("point_styles_base", &ChartDraw::point_styles_base)
@@ -251,10 +210,10 @@ PYBIND11_MODULE(acmacs_map_draw_backend, m)
             .def("mark_reassortant_antigens", &ChartDraw::mark_reassortant_antigens)
             .def("all_grey", &ChartDraw::mark_all_grey, py::arg("color") = Color("grey80"))
             .def("scale_points", &ChartDraw::scale_points, py::arg("scale"), py::arg("outline_scale") = 1.0, py::doc("outline_scale=0 means use point scale for outline too"))
-            .def("modify", [](ChartDraw& cd, size_t aIndex, const PointStyle& aStyle, bool aRaise, bool aLower) { cd.modify(aIndex, aStyle, aRaise ? PointDrawingOrder::Raise : (aLower ? PointDrawingOrder::Lower : PointDrawingOrder::NoChange)); }, py::arg("index"), py::arg("style"), py::arg("raise_") = false, py::arg("lower") = false)
-            .def("modify_serum", [](ChartDraw& cd, size_t aIndex, const PointStyle& aStyle, bool aRaise, bool aLower) { cd.modify_serum(aIndex, aStyle, aRaise ? PointDrawingOrder::Raise : (aLower ? PointDrawingOrder::Lower : PointDrawingOrder::NoChange)); }, py::arg("index"), py::arg("style"), py::arg("raise_") = false, py::arg("lower") = false)
-            .def("modify", [](ChartDraw& cd, const std::vector<size_t>& indices, const PointStyle& style, bool aRaise, bool aLower) { cd.modify(indices.begin(), indices.end(), style, aRaise ? PointDrawingOrder::Raise : (aLower ? PointDrawingOrder::Lower : PointDrawingOrder::NoChange)); }, py::arg("indices"), py::arg("style"), py::arg("raise_") = false, py::arg("lower") = false)
-            .def("modify_sera", [](ChartDraw& cd, const std::vector<size_t>& indices, const PointStyle& style, bool aRaise, bool aLower) { cd.modify_sera(indices.begin(), indices.end(), style, aRaise ? PointDrawingOrder::Raise : (aLower ? PointDrawingOrder::Lower : PointDrawingOrder::NoChange)); }, py::arg("indices"), py::arg("style"), py::arg("raise_") = false, py::arg("lower") = false)
+            .def("modify", [](ChartDraw& cd, size_t aIndex, const acmacs::PointStyle& aStyle, bool aRaise, bool aLower) { cd.modify(aIndex, aStyle, aRaise ? PointDrawingOrder::Raise : (aLower ? PointDrawingOrder::Lower : PointDrawingOrder::NoChange)); }, py::arg("index"), py::arg("style"), py::arg("raise_") = false, py::arg("lower") = false)
+            .def("modify_serum", [](ChartDraw& cd, size_t aIndex, const acmacs::PointStyle& aStyle, bool aRaise, bool aLower) { cd.modify_serum(aIndex, aStyle, aRaise ? PointDrawingOrder::Raise : (aLower ? PointDrawingOrder::Lower : PointDrawingOrder::NoChange)); }, py::arg("index"), py::arg("style"), py::arg("raise_") = false, py::arg("lower") = false)
+            .def("modify", [](ChartDraw& cd, const std::vector<size_t>& indices, const acmacs::PointStyle& style, bool aRaise, bool aLower) { cd.modify(indices.begin(), indices.end(), style, aRaise ? PointDrawingOrder::Raise : (aLower ? PointDrawingOrder::Lower : PointDrawingOrder::NoChange)); }, py::arg("indices"), py::arg("style"), py::arg("raise_") = false, py::arg("lower") = false)
+            .def("modify_sera", [](ChartDraw& cd, const std::vector<size_t>& indices, const acmacs::PointStyle& style, bool aRaise, bool aLower) { cd.modify_sera(indices.begin(), indices.end(), style, aRaise ? PointDrawingOrder::Raise : (aLower ? PointDrawingOrder::Lower : PointDrawingOrder::NoChange)); }, py::arg("indices"), py::arg("style"), py::arg("raise_") = false, py::arg("lower") = false)
             .def("drawing_order", &ChartDraw::drawing_order, py::return_value_policy::reference)
             .def("rotate", &ChartDraw::rotate, py::arg("angle"))
             .def("flip", &ChartDraw::flip, py::arg("x"), py::arg("y"))
@@ -312,7 +271,7 @@ PYBIND11_MODULE(acmacs_map_draw_backend, m)
       // ----------------------------------------------------------------------
 
     py::class_<Vaccines>(m, "Vaccines")
-            .def(py::init<const Chart&>(), py::arg("chart"))
+            .def(py::init<const acmacs::chart::Chart&>(), py::arg("chart"))
             .def("report_all", &Vaccines::report_all, py::arg("indent") = 0)
             .def("report", &Vaccines::report, py::arg("indent") = 0)
             .def("match", [](Vaccines& vaccines, std::string name, std::string type, std::string passage) {
