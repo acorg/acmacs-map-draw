@@ -7,7 +7,7 @@ using namespace std::string_literals;
 #include "acmacs-base/read-file.hh"
 #include "acmacs-base/quicklook.hh"
 // #include "acmacs-base/enumerate.hh"
-#include "acmacs-chart-2/ace.hh"
+#include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-map-draw/draw.hh"
 
 #include "settings.hh"
@@ -64,10 +64,10 @@ int draw(const argc_argv& args)
     setup_dbs(args["--db-dir"], verbose);
 
     auto settings = settings_default();
-    std::unique_ptr<Chart> chart{import_chart(args[0], verbose ? report_time::Yes : report_time::No)};
-    std::unique_ptr<Chart> previous_chart;
+    auto chart = acmacs::chart::import_factory(args[0], acmacs::chart::Verify::None);
+    decltype(chart) previous_chart;
     if (args["--previous"])
-        previous_chart = std::unique_ptr<Chart>(import_chart(args["--previous"], verbose ? report_time::Yes : report_time::No));
+        previous_chart = acmacs::chart::import_factory(args["--previous"], acmacs::chart::Verify::None);
 
     ChartDraw chart_draw(*chart, args["--projection"]);
     if (previous_chart)

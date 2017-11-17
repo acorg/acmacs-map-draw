@@ -8,11 +8,11 @@
 #include "acmacs-base/rjson.hh"
 #include "acmacs-base/timeit.hh"
 #include "acmacs-base/size.hh"
+#include "acmacs-chart-2/chart.hh"
 #include "seqdb/seqdb.hh"
 
 // ----------------------------------------------------------------------
 
-namespace acmacs::chart { class Chart; class Projection; class Layout; }
 class LocDb;
 namespace hidb { class HiDb; }
 class VaccineMatchData;

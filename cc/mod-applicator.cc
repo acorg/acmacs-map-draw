@@ -239,23 +239,23 @@ class ModMoveBase : public Mod
     using Mod::Mod;
 
  protected:
-    Coordinates get_move_to(ChartDraw& aChartDraw, bool aVerbose) const
+    acmacs::chart::Coordinates get_move_to(ChartDraw& aChartDraw, bool aVerbose) const
         {
-            Coordinates move_to;
+            acmacs::chart::Coordinates move_to;
             if (auto [to_present, to] = args().get_array_if("to"); to_present) {
-                move_to = Coordinates{to[0], to[1]};
+                move_to = acmacs::chart::Coordinates{to[0], to[1]};
             }
             else if (auto [to_antigen_present, to_antigen] = args().get_object_if("to_antigen"); to_antigen_present) {
                 const auto antigens = SelectAntigens(aVerbose).select(aChartDraw.chart(), to_antigen);
                 if (antigens.size() != 1)
                     throw unrecognized_mod{"\"to_antigen\" does not select single antigen, mod: " + args().to_json()};
-                move_to = aChartDraw.layout()[antigens[0]];
+                move_to = (*aChartDraw.layout())[antigens[0]];
             }
             else if (auto [to_serum_present, to_serum] = args().get_object_if("to_serum"); to_serum_present) {
                 const auto sera = SelectSera(aVerbose).select(aChartDraw.chart(), to_serum);
                 if (sera.size() != 1)
                     throw unrecognized_mod{"\"to_serum\" does not select single serum, mod: " + args().to_json()};
-                move_to = aChartDraw.layout()[sera[0] + aChartDraw.number_of_antigens()];
+                move_to = (*aChartDraw.layout())[sera[0] + aChartDraw.number_of_antigens()];
             }
             else
                 throw unrecognized_mod{"neither \"to\" nor \"to_antigen\" nor \"to__serum\" provided in mod: " + args().to_json()};
@@ -276,8 +276,9 @@ class ModMoveAntigens : public ModMoveBase
             const auto verbose = args().get_or_default("report", false);
             try {
                 const auto move_to = get_move_to(aChartDraw, verbose);
+                auto layout = aChartDraw.layout();
                 for (auto index: SelectAntigens(verbose).select(aChartDraw.chart(), args()["select"])) {
-                    aChartDraw.layout().set(index, move_to);
+                    layout->set(index, move_to);
                 }
             }
             catch (rjson::field_not_found&) {
@@ -299,8 +300,9 @@ class ModMoveSera : public ModMoveBase
             const auto verbose = args().get_or_default("report", false);
             try {
                 const auto move_to = get_move_to(aChartDraw, verbose);
+                auto layout = aChartDraw.layout();
                 for (auto index: SelectSera(verbose).select(aChartDraw.chart(), args()["select"])) {
-                    aChartDraw.layout().set(index + aChartDraw.number_of_antigens(), move_to);
+                    layout->set(index + aChartDraw.number_of_antigens(), move_to);
                 }
             }
             catch (rjson::field_not_found&) {
@@ -345,42 +347,46 @@ class ModAminoAcids : public Mod
 
     void aa_pos(ChartDraw& aChartDraw, const rjson::array& aPos, bool aVerbose)
         {
-            const auto& seqdb = seqdb::get(do_report_time(aVerbose));
-            const auto aa_indices = seqdb.aa_at_positions_for_antigens(aChartDraw.chart().antigens(), {std::begin(aPos), std::end(aPos)}, aVerbose);
-            std::vector<std::string> aa_sorted(aa_indices.size()); // most frequent aa first
-            std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
-            std::sort(std::begin(aa_sorted), std::end(aa_sorted), [&aa_indices](const auto& n1, const auto& n2) -> bool { return aa_indices.find(n1)->second.size() > aa_indices.find(n2)->second.size(); });
-            for (auto [index, aa]: acmacs::enumerate(aa_sorted)) {
-                const auto& indices_for_aa = aa_indices.find(aa)->second;
-                auto styl = style();
-                styl.fill(fill_color(index, aa));
-                aChartDraw.modify(std::begin(indices_for_aa), std::end(indices_for_aa), styl, drawing_order());
-                try { add_legend(aChartDraw, indices_for_aa, styl, aa, args()["legend"]); } catch (rjson::field_not_found&) {}
-                if (aVerbose)
-                    std::cerr << "INFO: amino-acids at " << aPos << ": " << aa << ' ' << indices_for_aa.size() << '\n';
-            }
+              // !!! $$$
+            throw std::runtime_error("Not implemented aa_pos in acmacs-map-draw/mod-applicator.cc, port seqdb to acmacs-chart-2");
+            // const auto& seqdb = seqdb::get(do_report_time(aVerbose));
+            // const auto aa_indices = seqdb.aa_at_positions_for_antigens(aChartDraw.chart().antigens(), {std::begin(aPos), std::end(aPos)}, aVerbose);
+            // std::vector<std::string> aa_sorted(aa_indices.size()); // most frequent aa first
+            // std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
+            // std::sort(std::begin(aa_sorted), std::end(aa_sorted), [&aa_indices](const auto& n1, const auto& n2) -> bool { return aa_indices.find(n1)->second.size() > aa_indices.find(n2)->second.size(); });
+            // for (auto [index, aa]: acmacs::enumerate(aa_sorted)) {
+            //     const auto& indices_for_aa = aa_indices.find(aa)->second;
+            //     auto styl = style();
+            //     styl.fill(fill_color(index, aa));
+            //     aChartDraw.modify(std::begin(indices_for_aa), std::end(indices_for_aa), styl, drawing_order());
+            //     try { add_legend(aChartDraw, indices_for_aa, styl, aa, args()["legend"]); } catch (rjson::field_not_found&) {}
+            //     if (aVerbose)
+            //         std::cerr << "INFO: amino-acids at " << aPos << ": " << aa << ' ' << indices_for_aa.size() << '\n';
+            // }
         }
 
     void aa_group(ChartDraw& aChartDraw, const rjson::object& aGroup, bool aVerbose)
         {
-            const rjson::array& pos_aa = aGroup["pos_aa"];
-            std::vector<size_t> positions(pos_aa.size());
-            std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(positions), [](const auto& src) { return std::stoul(src); });
-            std::string target_aas(pos_aa.size(), ' ');
-            std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(target_aas), [](const auto& src) { return static_cast<std::string>(src).back(); });
-            const auto& seqdb = seqdb::get(do_report_time(aVerbose));
-            const auto aa_indices = seqdb.aa_at_positions_for_antigens(aChartDraw.chart().antigens(), positions, aVerbose);
-            if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
-                auto styl = style();
-                styl = point_style_from_json(aGroup);
-                aChartDraw.modify(std::begin(aap->second), std::end(aap->second), styl, drawing_order());
-                try { add_legend(aChartDraw, aap->second, styl, string::join(" ", std::begin(pos_aa), std::end(pos_aa)), args()["legend"]); } catch (rjson::field_not_found&) {}
-                if (aVerbose)
-                    std::cerr << "INFO: amino-acids group " << pos_aa << ": " << ' ' << aap->second.size() << '\n';
-            }
-            else {
-                std::cerr << "WARNING: no \"" << target_aas << "\" in " << aa_indices << '\n';
-            }
+              // !!! $$$
+            throw std::runtime_error("Not implemented aa_group in acmacs-map-draw/mod-applicator.cc, port seqdb to acmacs-chart-2");
+            // const rjson::array& pos_aa = aGroup["pos_aa"];
+            // std::vector<size_t> positions(pos_aa.size());
+            // std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(positions), [](const auto& src) { return std::stoul(src); });
+            // std::string target_aas(pos_aa.size(), ' ');
+            // std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(target_aas), [](const auto& src) { return static_cast<std::string>(src).back(); });
+            // const auto& seqdb = seqdb::get(do_report_time(aVerbose));
+            // const auto aa_indices = seqdb.aa_at_positions_for_antigens(aChartDraw.chart().antigens(), positions, aVerbose);
+            // if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
+            //     auto styl = style();
+            //     styl = point_style_from_json(aGroup);
+            //     aChartDraw.modify(std::begin(aap->second), std::end(aap->second), styl, drawing_order());
+            //     try { add_legend(aChartDraw, aap->second, styl, string::join(" ", std::begin(pos_aa), std::end(pos_aa)), args()["legend"]); } catch (rjson::field_not_found&) {}
+            //     if (aVerbose)
+            //         std::cerr << "INFO: amino-acids group " << pos_aa << ": " << ' ' << aap->second.size() << '\n';
+            // }
+            // else {
+            //     std::cerr << "WARNING: no \"" << target_aas << "\" in " << aa_indices << '\n';
+            // }
         }
 
     Color fill_color(size_t aIndex, std::string aAA)
@@ -678,18 +684,9 @@ class ModUseChartPlotSpec : public Mod
             try {
                 const auto& plot_spec = aChartDraw.chart().plot_spec();
                 for (size_t point_no = 0; point_no < aChartDraw.number_of_points(); ++point_no) {
-                    const auto& source = plot_spec.style_for(point_no);
-                    acmacs::PointStyle style;
-                    style.fill = source.fill_color();
-                    style.outline = source.outline_color();
-                    style.outline_width = Pixels{source.outline_width()};
-                    style.shape = source.shape_as_string();
-                    style.size = Pixels{source.size() * 5};
-                    style.rotation = source.rotation();
-                    style.aspect = source.aspect();;
-                    aChartDraw.modify(point_no, style);
+                    aChartDraw.modify(point_no, plot_spec->style(point_no));
                 }
-                aChartDraw.drawing_order() = plot_spec.drawing_order();
+                aChartDraw.drawing_order() = plot_spec->drawing_order();
             }
             catch (rjson::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};
@@ -727,14 +724,16 @@ class ModLine : public Mod
                 result.emplace_back(from[0], from[1]);
             }
             else if (auto [from_antigen_present, from_antigen] = args().get_object_if(aPrefix + "_antigen"); from_antigen_present) {
+                auto layout = aChartDraw.layout();
                 for (auto index: SelectAntigens(verbose).select(aChartDraw.chart(), from_antigen)) {
-                    const auto& coord = aChartDraw.layout()[index];
+                    const auto coord = (*layout)[index];
                     result.emplace_back(coord[0], coord[1]);
                 }
             }
             else if (auto [from_serum_present, from_serum] = args().get_object_if(aPrefix + "_serum"); from_serum_present) {
+                auto layout = aChartDraw.layout();
                 for (auto index: SelectSera(verbose).select(aChartDraw.chart(), from_serum)) {
-                    const auto& coord = aChartDraw.layout()[index + aChartDraw.number_of_antigens()];
+                    const auto coord = (*layout)[index + aChartDraw.number_of_antigens()];
                     result.emplace_back(coord[0], coord[1]);
                 }
             }
@@ -860,11 +859,13 @@ class ModSerumHomologous : public Mod
 
     std::vector<size_t> select_homologous_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool /*aVerbose*/) const
         {
-            hidb::get(aChartDraw.chart().info()->virus_type()).find_homologous_antigens_for_sera_of_chart(aChartDraw.chart());
-            const auto& antigens = aChartDraw.chart().serum(aSerumIndex).homologous();
-            if (antigens.empty())
-                throw unrecognized_mod{"no homologous antigens for serum, mod: " + args().to_json()};
-            return antigens;
+              /// !!! $$$
+            throw std::runtime_error("Not implemented select_homologous_antigens in acmacs-map-draw/mod-applicator.cc, port hidb to acmacs-chart-2");
+            // hidb::get(aChartDraw.chart().info()->virus_type()).find_homologous_antigens_for_sera_of_chart(aChartDraw.chart());
+            // const auto& antigens = aChartDraw.chart().serum(aSerumIndex).homologous();
+            // if (antigens.empty())
+            //     throw unrecognized_mod{"no homologous antigens for serum, mod: " + args().to_json()};
+            // return antigens;
         }
 
 }; // class ModSerumHomologous
@@ -911,16 +912,17 @@ class ModSerumCircle : public ModSerumHomologous
     double calculate_radius(ChartDraw& aChartDraw, size_t aSerumIndex, const std::vector<size_t>& aAntigenIndices, bool aVerbose) const
         {
             std::vector<double> radii;
-            std::transform(std::begin(aAntigenIndices), std::end(aAntigenIndices), std::back_inserter(radii), [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius(antigen_index, aSerumIndex, aChartDraw.projection_no(), false); });
+            std::transform(std::begin(aAntigenIndices), std::end(aAntigenIndices), std::back_inserter(radii),
+                           [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius(antigen_index, aSerumIndex, aChartDraw.projection_no(), false); });
             double radius = 0;
             for (auto rad: radii) {
                 if (rad > 0 && (radius <= 0 || rad < radius))
                     radius = rad;
             }
             if (aVerbose) {
-                std::cerr << "INFO: serum_circle radius: " << radius << "\n  SR " << aSerumIndex << ' ' << aChartDraw.chart().serum(aSerumIndex).full_name() << '\n';
+                std::cerr << "INFO: serum_circle radius: " << radius << "\n  SR " << aSerumIndex << ' ' << aChartDraw.chart().serum(aSerumIndex)->full_name() << '\n';
                 for (auto [no, antigen_index]: acmacs::enumerate(aAntigenIndices))
-                    std::cerr << "    radius: " << radii[no] << "  AG " << antigen_index << ' ' << aChartDraw.chart().antigen(antigen_index).full_name() << '\n';
+                    std::cerr << "    radius: " << radii[no] << "  AG " << antigen_index << ' ' << aChartDraw.chart().antigen(antigen_index)->full_name() << '\n';
             }
             return radius;
         }
@@ -943,8 +945,8 @@ class ModSerumCoverage : public ModSerumHomologous
             std::vector<size_t> within, outside;
             aChartDraw.chart().serum_coverage(antigen_indices[0], serum_index, within, outside);
             if (verbose) {
-                std::cerr << "INFO: serum coverage\n  SR " << serum_index << ' ' << aChartDraw.chart().serum(serum_index).full_name()
-                          << "\n  AG " << antigen_indices[0] << ' ' << aChartDraw.chart().antigen(antigen_indices[0]).full_name()
+                std::cerr << "INFO: serum coverage\n  SR " << serum_index << ' ' << aChartDraw.chart().serum(serum_index)->full_name()
+                          << "\n  AG " << antigen_indices[0] << ' ' << aChartDraw.chart().antigen(antigen_indices[0])->full_name()
                           << "\n  within 4fold:  " << within.size()
                           << "\n  outside 4fold: " << outside.size() << '\n';
             }

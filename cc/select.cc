@@ -1,7 +1,6 @@
 #include <chrono>
 #include <cstdlib>
 
-#include "acmacs-chart-2/chart.hh"
 #include "locationdb/locdb.hh"
 #include "hidb/hidb.hh"
 
