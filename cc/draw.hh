@@ -56,7 +56,6 @@ class ChartDraw
         {
             const auto index = static_cast<size_t>(aIndex);
             mPointStyles.at(index) = aStyle;
-              // std::cerr << "DEBUG: modified " << index << ' ' << mPointStyles[index] << '\n';
             switch (aPointDrawingOrder) {
               case PointDrawingOrder::Raise:
                   drawing_order().raise(index);
@@ -90,6 +89,12 @@ class ChartDraw
         {
             for (; first != last; ++first)
                 modify_serum(*first, aStyle, aPointDrawingOrder);
+        }
+
+    inline void modify_sera(const acmacs::chart::Indexes& aIndexes, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+        {
+            for (auto index: aIndexes)
+                modify_serum(index, aStyle, aPointDrawingOrder);
         }
 
     void hide_all_except(const std::vector<size_t>& aNotHide);

@@ -68,7 +68,7 @@ void ChartDraw::prepare()
     serum.shape = acmacs::PointShape::Box;
     serum.fill = "transparent";
     serum.size = Pixels{8};
-    modify(mChart.sera()->all_indexes(), serum, PointDrawingOrder::Lower);
+    modify_sera(mChart.sera()->all_indexes(), serum, PointDrawingOrder::Lower);
 
 } // ChartDraw::prepare
 
@@ -113,7 +113,7 @@ const acmacs::Viewport& ChartDraw::calculate_viewport(bool verbose)
 void ChartDraw::draw(Surface& aSurface) const
 {
     if (mViewport.empty()) {
-        THROW_OR_CERR(std::runtime_error("Call calculate_viewport() before draw()"));
+        throw std::runtime_error("Call calculate_viewport() before draw()");
     }
 
     Surface& rescaled_surface = aSurface.subsurface({0, 0}, Scaled{aSurface.viewport().size.width}, mViewport, true);
@@ -125,7 +125,7 @@ void ChartDraw::draw(Surface& aSurface) const
     for (auto index: mDrawingOrder) {
         mPointStyles[index].draw(rescaled_surface, layout[index]);
         // if (index < number_of_antigens())
-        //     std::cout << "AG: " << index << ' ' << layout[index] << ' ' << mPointStyles[index].fill_raw() << " \"" << mChart.antigen(index).full_name() << "\"\n";
+        //     std::cout << "AG: " << index << ' ' << layout[index] << ' ' << mPointStyles[index] << " \"" << mChart.antigen(index)->full_name() << "\"\n";
     }
     mLabels.draw(rescaled_surface, layout, mPointStyles);
 
