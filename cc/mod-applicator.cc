@@ -23,12 +23,12 @@ class Mod
  protected:
     const rjson::object& args() const { return mArgs; }
 
-    inline PointStyle style() const { return point_style_from_json(args()); }
+    inline acmacs::PointStyle style() const { return point_style_from_json(args()); }
     inline PointDrawingOrder drawing_order() const { return drawing_order_from_json(args()); }
     void add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, size_t aBaseIndex, const rjson::value& aLabelData);
     void add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, const rjson::value& aLabelData);
-    void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, const rjson::value& aLegendData);
-    void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData);
+    void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const acmacs::PointStyle& aStyle, const rjson::value& aLegendData);
+    void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData);
 
  private:
     const rjson::object mArgs;  // not reference! "N" is probably wrong due to updating args in factory!
@@ -75,25 +75,27 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
         try {
             const std::string name_type = aLabelData["name_type"];
             if (aBaseIndex == 0) { // antigen
+                auto antigen = aChartDraw.chart().antigen(aIndex);
                 if (name_type == "abbreviated")
-                    label.display_name(aChartDraw.chart().antigen(aIndex).abbreviated_name());
+                    label.display_name(antigen->abbreviated_name());
                 else if (name_type == "abbreviated_with_passage_type")
-                    label.display_name(aChartDraw.chart().antigen(aIndex).abbreviated_name_with_passage_type());
+                    label.display_name(antigen->abbreviated_name_with_passage_type());
                 else {
                     if (name_type != "full")
                         std::cerr << "WARNING: unrecognized \"name_type\" for label for antigen " << aIndex << '\n';
-                    label.display_name(aChartDraw.chart().antigen(aIndex).full_name());
+                    label.display_name(antigen->full_name());
                 }
             }
             else {      // serum
+                auto serum = aChartDraw.chart().serum(aIndex);
                 if (name_type == "abbreviated")
-                    label.display_name(aChartDraw.chart().serum(aIndex).abbreviated_name());
+                    label.display_name(serum->abbreviated_name());
                 else if (name_type == "abbreviated_with_passage_type")
-                    label.display_name(aChartDraw.chart().serum(aIndex).abbreviated_name_with_passage_type());
+                    label.display_name(serum->abbreviated_name_with_passage_type());
                 else {
                     if (name_type != "full")
                         std::cerr << "WARNING: unrecognized \"name_type\" for label for serum " << aIndex << '\n';
-                    label.display_name(aChartDraw.chart().serum(aIndex).full_name());
+                    label.display_name(serum->full_name());
                 }
             }
         }
@@ -120,7 +122,7 @@ void Mod::add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices,
 
 // ----------------------------------------------------------------------
 
-void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, const rjson::value& aLegendData)
+void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const acmacs::PointStyle& aStyle, const rjson::value& aLegendData)
 {
     const std::string label = aLegendData.get_or_default("label", "use \"label\" in \"legend\"");
     add_legend(aChartDraw, aIndices, aStyle, label, aLegendData);
@@ -129,13 +131,13 @@ void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices,
 
 // ----------------------------------------------------------------------
 
-void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData)
+void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData)
 {
     if (aLegendData.get_or_default("show", true) && !aIndices.empty()) {
         auto& legend = aChartDraw.legend();
         if (aLegendData.get_or_default("count", false))
             aLabel += " (" + std::to_string(aIndices.size()) + ")";
-        legend.add_line(aStyle.outline(), aStyle.fill(), aLabel);
+        legend.add_line(*aStyle.outline, *aStyle.fill, aLabel);
     }
 
 } // Mod::add_legend
@@ -677,14 +679,14 @@ class ModUseChartPlotSpec : public Mod
                 const auto& plot_spec = aChartDraw.chart().plot_spec();
                 for (size_t point_no = 0; point_no < aChartDraw.number_of_points(); ++point_no) {
                     const auto& source = plot_spec.style_for(point_no);
-                    auto style{PointStyleEmpty()};
-                    style.fill(source.fill_color())
-                            .outline(source.outline_color())
-                            .outline_width(Pixels{source.outline_width()})
-                            .shape(source.shape_as_string())
-                            .size(Pixels{source.size() * 5})
-                            .rotation(source.rotation())
-                            .aspect(source.aspect());
+                    acmacs::PointStyle style;
+                    style.fill = source.fill_color();
+                    style.outline = source.outline_color();
+                    style.outline_width = Pixels{source.outline_width()};
+                    style.shape = source.shape_as_string();
+                    style.size = Pixels{source.size() * 5};
+                    style.rotation = source.rotation();
+                    style.aspect = source.aspect();;
                     aChartDraw.modify(point_no, style);
                 }
                 aChartDraw.drawing_order() = plot_spec.drawing_order();
@@ -858,7 +860,7 @@ class ModSerumHomologous : public Mod
 
     std::vector<size_t> select_homologous_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool /*aVerbose*/) const
         {
-            hidb::get(aChartDraw.chart().chart_info().virus_type()).find_homologous_antigens_for_sera_of_chart(aChartDraw.chart());
+            hidb::get(aChartDraw.chart().info()->virus_type()).find_homologous_antigens_for_sera_of_chart(aChartDraw.chart());
             const auto& antigens = aChartDraw.chart().serum(aSerumIndex).homologous();
             if (antigens.empty())
                 throw unrecognized_mod{"no homologous antigens for serum, mod: " + args().to_json()};
