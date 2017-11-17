@@ -62,12 +62,12 @@ void ChartDraw::prepare()
 {
     PointStyleDraw ref_antigen;
     ref_antigen.fill = "transparent";
-    ref_antigen.size = 8;
+    ref_antigen.size = Pixels{8};
     modify(mChart.antigens()->reference_indexes(), ref_antigen, PointDrawingOrder::Lower);
     PointStyleDraw serum;
     serum.shape = acmacs::PointShape::Box;
     serum.fill = "transparent";
-    serum.size = 8;
+    serum.size = Pixels{8};
     modify(mChart.sera()->all_indexes(), serum, PointDrawingOrder::Lower);
 
 } // ChartDraw::prepare

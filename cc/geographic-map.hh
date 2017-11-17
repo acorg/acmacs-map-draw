@@ -18,18 +18,27 @@ class GeographicMapColoring;    // private, defined in geographic-map.cc
 
 // ----------------------------------------------------------------------
 
+class LongLat
+{
+ public:
+      // inline LongLat() = default;
+
+    double longitude{0}, latitude{0};
+
+}; // class LongLat
+
 class GeographicMapPoint : public PointStyleDraw
 {
  public:
-    inline GeographicMapPoint() = default; // : mLongLat{0, 0} {}
-    inline GeographicMapPoint(const acmacs::chart::Coordinates& aLongLat, long aPriority) : mLongLat(aLongLat), mPriority{aPriority} {}
+    inline GeographicMapPoint() = default;
+    inline GeographicMapPoint(const LongLat& aLongLat, long aPriority) : mLongLat(aLongLat), mPriority{aPriority} {}
 
-    inline void draw(Surface& aSurface) const { PointStyleDraw::draw(aSurface, mLongLat); }
+    inline void draw(Surface& aSurface) const { PointStyleDraw::draw(aSurface, {mLongLat.longitude, mLongLat.latitude}); }
 
     inline bool operator<(const GeographicMapPoint& aNother) const { return mPriority < aNother.mPriority; }
 
  private:
-    acmacs::chart::Coordinates mLongLat{0, 0};
+    LongLat mLongLat;
     long mPriority{0};
 };
 

@@ -39,7 +39,7 @@ acmacs::PointStyle point_style_from_json(const rjson::object& aSource)
         else if (key == "shape")
             style.shape = static_cast<std::string>(value);
         else if (key == "size")
-            style.size = value;
+            style.size = Pixels{value};
         else if (key == "outline_width")
             style.outline_width = Pixels{value};
         else if (key == "aspect")
