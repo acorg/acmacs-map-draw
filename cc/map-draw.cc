@@ -125,12 +125,12 @@ int draw(const argc_argv& args)
 
     chart_draw.calculate_viewport();
 
-    acmacs_base::TempFile temp_file(".pdf");
+    acmacs::file::temp temp_file(".pdf");
     const std::string output = args.number_of_arguments() > 1 ? std::string{args[1]} : static_cast<std::string>(temp_file);
     chart_draw.draw(output, 800, report_time::Yes);
 
     if (const std::string save_settings = args["--init-settings"]; !save_settings.empty())
-        acmacs_base::write_file(save_settings, settings.to_json_pp());
+        acmacs::file::write(save_settings, settings.to_json_pp());
 
     if (const std::string save = args["--save"]; !save.empty()) {
         chart_draw.save(save, args.program());

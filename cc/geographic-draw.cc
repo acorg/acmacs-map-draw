@@ -105,7 +105,7 @@ int draw(const argc_argv& args)
         geographic_map.add_points_from_hidb_colored_by(*coloring, ColorOverride{}, make_list(settings["priority"]), start_date, end_date);
         set_title(geographic_map.title(), settings, true);
 
-        acmacs_base::TempFile temp_file(".pdf");
+        acmacs::file::temp temp_file(".pdf");
         const std::string output = args.number_of_arguments() > 1 ? std::string{args[1]} : static_cast<std::string>(temp_file);
         geographic_map.draw(output, settings["output_image_width"]);
         if (args["--open"])
