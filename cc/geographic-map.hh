@@ -4,7 +4,8 @@
 #include <map>
 
 #include "acmacs-base/time-series.hh"
-#include "hidb/hidb.hh"
+#include "acmacs-base/virus-name.hh"
+#include "hidb-5/hidb.hh"
 #include "seqdb/seqdb.hh"
 #include "locationdb/locdb.hh"
 #include "acmacs-chart-2/layout.hh"
@@ -101,7 +102,7 @@ class GeographicMapColoring
 
     virtual ~GeographicMapColoring();
 
-    virtual TagColor color(const hidb::AntigenData& aAntigen) const = 0;
+    virtual TagColor color(const hidb::Antigen& aAntigen) const = 0;
 };
 
 // ----------------------------------------------------------------------
@@ -112,10 +113,10 @@ class ColoringByContinent : public GeographicMapColoring
     inline ColoringByContinent(const std::map<std::string, std::string>& aContinentColor) : mColors{aContinentColor.begin(), aContinentColor.end()} {}
     inline ColoringByContinent(const TagToColor& aContinentColor) : mColors{aContinentColor.begin(), aContinentColor.end()} {}
 
-    TagColor color(const hidb::AntigenData& aAntigen) const override
+    TagColor color(const hidb::Antigen& aAntigen) const override
         {
             try {
-                auto continent = get_locdb().continent(virus_name::location(aAntigen.data().name()));
+                auto continent = get_locdb().continent(virus_name::location(aAntigen.name()));
                 return {continent, mColors.at(continent)};
             }
             catch (...) {
@@ -136,7 +137,7 @@ class ColoringByClade : public GeographicMapColoring
     inline ColoringByClade(const std::map<std::string, std::string>& aCladeColor) : mColors{aCladeColor.begin(), aCladeColor.end()} {}
     inline ColoringByClade(const TagToColor& aCladeColor) : mColors{aCladeColor.begin(), aCladeColor.end()} {}
 
-    TagColor color(const hidb::AntigenData& aAntigen) const override
+    TagColor color(const hidb::Antigen& aAntigen) const override
         {
             ColoringData result("grey50");
             std::string tag{"UNKNOWN"};
@@ -172,10 +173,10 @@ class ColoringByLineage : public GeographicMapColoring
     inline ColoringByLineage(const std::map<std::string, std::string>& aLineageColor) : mColors{aLineageColor.begin(), aLineageColor.end()} {}
     inline ColoringByLineage(const TagToColor& aLineageColor) : mColors{aLineageColor.begin(), aLineageColor.end()} {}
 
-    TagColor color(const hidb::AntigenData& aAntigen) const override
+    TagColor color(const hidb::Antigen& aAntigen) const override
         {
             try {
-                std::string lineage{aAntigen.data().lineage()};
+                std::string lineage(aAntigen.lineage());
                 return {lineage, mColors.at(lineage)};
             }
             catch (...) {
@@ -198,15 +199,15 @@ class ColoringByLineageAndDeletionMutants : public GeographicMapColoring
     inline ColoringByLineageAndDeletionMutants(const TagToColor& aLineageColor, std::string aDeletionMutantColor = std::string{})
         : mColors(aLineageColor.begin(), aLineageColor.end()), mDeletionMutantColor{aDeletionMutantColor} {}
 
-    TagColor color(const hidb::AntigenData& aAntigen) const override
+    TagColor color(const hidb::Antigen& aAntigen) const override
         {
             try {
                 const auto* entry_seq = seqdb::get().find_hi_name(aAntigen.full_name());
                 if (entry_seq && entry_seq->seq().has_clade("DEL2017"))
                     return {"VICTORIA_DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_DEL") : ColoringData{mDeletionMutantColor}};
                 else {
-                    std::string lineage{aAntigen.data().lineage()};
-                    return {lineage, mColors.at(lineage)};
+                    std::string lineage(aAntigen.lineage());
+                    return {aAntigen.lineage(), mColors.at(lineage)};
                 }
             }
             catch (...) {
@@ -234,7 +235,7 @@ class ColorOverride : public GeographicMapColoring
             }
         }
 
-    TagColor color(const hidb::AntigenData& aAntigen) const override
+    TagColor color(const hidb::Antigen& aAntigen) const override
         {
             try {
                 return TagColor{aAntigen.name(), mColors.at(aAntigen.name())};

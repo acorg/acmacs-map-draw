@@ -1,7 +1,7 @@
 #include "setup-dbs.hh"
 
 #include "locationdb/locdb.hh"
-#include "hidb/hidb.hh"
+#include "hidb-5/hidb.hh"
 #include "seqdb/seqdb.hh"
 
 using namespace std::string_literals;

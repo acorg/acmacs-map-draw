@@ -110,10 +110,10 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const Geog
       // std::cerr << "add_points_from_hidb_colored_by" << '\n';
     auto antigens = hidb::get(mVirusType).all_antigens();
     antigens.date_range(aStartDate, aEndDate);
-    std::cerr << "INFO: dates: " << aStartDate << ".." << aEndDate << "  antigens: " << antigens.size() << std::endl;
+    std::cerr << "INFO: dates: " << aStartDate << ".." << aEndDate << "  antigens: " << antigens->size() << std::endl;
     if (!aPriority.empty())
         std::cerr << "INFO priority: " << aPriority << " (the last in this list to be drawn on top of others)\n";
-    for (auto& antigen: antigens) {
+    for (auto antigen: antigens) {
         auto [tag, coloring_data] = aColorOverride.color(*antigen);
         if (coloring_data.fill.empty())
             std::tie(tag, coloring_data) = aColoring.color(*antigen);

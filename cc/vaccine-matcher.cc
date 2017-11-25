@@ -6,7 +6,7 @@
 VaccineMatcherLabel& VaccineMatcherLabel::name_type(std::string aNameType)
 {
     for_each_with_vacc([&](const hidb::Vaccines::Entry& ve) {
-        auto antigen = mChartDraw.chart().antigen(ve.antigen_index);
+        auto antigen = mChartDraw.chart().antigen(ve.chart_antigen_index);
         std::string name;
         if (aNameType == "abbreviated")
             name = antigen->abbreviated_name();
@@ -21,7 +21,7 @@ VaccineMatcherLabel& VaccineMatcherLabel::name_type(std::string aNameType)
             name = antigen->full_name();
         }
           // std::cerr << "DEBUG: name " << aNameType << ": \"" << name << '"' << std::endl;
-        mChartDraw.add_label(ve.antigen_index).display_name(name);
+        mChartDraw.add_label(ve.chart_antigen_index).display_name(name);
     });
     return *this;
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "hidb/hidb.hh"
-#include "hidb/vaccines.hh"
+#include "hidb-5/hidb.hh"
+#include "hidb-5/vaccines.hh"
 #include "acmacs-base/point-style.hh"
 #include "acmacs-map-draw/draw.hh"
 

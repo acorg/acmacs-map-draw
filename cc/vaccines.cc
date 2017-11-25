@@ -65,7 +65,7 @@ std::vector<size_t> Vaccines::indices() const
     for (const auto& entry: mEntries) {
         if (*entry.style.shown) {
             if (const auto* vacc = mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, entry.antigen_no); vacc)
-                ind.push_back(vacc->antigen_index);
+                ind.push_back(vacc->chart_antigen_index);
         }
     }
     return ind;
@@ -80,7 +80,7 @@ std::vector<size_t> Vaccines::indices(const VaccineMatchData& aMatchData) const
     for (const auto& entry: mEntries) {
         if (entry.match(mVaccinesOfChart, aMatchData)) {
             if (const auto* vacc = mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, entry.antigen_no); vacc)
-                ind.push_back(vacc->antigen_index);
+                ind.push_back(vacc->chart_antigen_index);
         }
     }
     return ind;
@@ -94,7 +94,7 @@ void Vaccines::plot(ChartDraw& aChartDraw) const
     for (const auto& entry: mEntries) {
         if (*entry.style.shown) {
             if (const auto* vacc = mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, entry.antigen_no); vacc)
-                aChartDraw.modify(vacc->antigen_index, entry.style, PointDrawingOrder::Raise);
+                aChartDraw.modify(vacc->chart_antigen_index, entry.style, PointDrawingOrder::Raise);
         }
     }
 

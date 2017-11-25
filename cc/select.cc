@@ -2,7 +2,7 @@
 #include <cstdlib>
 
 #include "locationdb/locdb.hh"
-#include "hidb/hidb.hh"
+#include "hidb-5/hidb.hh"
 
 #include "vaccines.hh"
 #include "select.hh"
