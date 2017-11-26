@@ -26,9 +26,8 @@ static inline acmacs::PointStyle& point_style_for(acmacs::PointStyle&& aStyle, h
 }
 
 Vaccines::Vaccines(const acmacs::chart::Chart& aChart, bool aVerbose)
-//!!! $$$    : mVaccinesOfChart{hidb::vaccines(aChart, aVerbose)}
+    : mVaccinesOfChart{hidb::vaccines(aChart, aVerbose)}
 {
-    throw std::runtime_error("Vaccines::Vaccines not implemented in acmacs-map-draw/vaccines.cc due to hidb::vaccines(acmacs::chart::Chart)!");
     for (size_t vaccines_of_chart_index = 0; vaccines_of_chart_index < mVaccinesOfChart.size(); ++vaccines_of_chart_index) {
         auto update = [&](hidb::Vaccines::PassageType pt) {
             if (!mVaccinesOfChart[vaccines_of_chart_index].empty(pt)) {
