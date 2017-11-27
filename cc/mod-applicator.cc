@@ -855,13 +855,11 @@ class ModSerumHomologous : public Mod
 
     std::vector<size_t> select_homologous_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool /*aVerbose*/) const
         {
-              /// !!! $$$
-            throw std::runtime_error("Not implemented select_homologous_antigens in acmacs-map-draw/mod-applicator.cc, port hidb to acmacs-chart-2");
-            // hidb::get(aChartDraw.chart().info()->virus_type()).find_homologous_antigens_for_sera_of_chart(aChartDraw.chart());
-            // const auto& antigens = aChartDraw.chart().serum(aSerumIndex).homologous();
-            // if (antigens.empty())
-            //     throw unrecognized_mod{"no homologous antigens for serum, mod: " + args().to_json()};
-            // return antigens;
+            aChartDraw.chart().set_homologous(true);
+            const auto antigen_indexes = aChartDraw.chart().serum(aSerumIndex)->homologous_antigens();
+            if (antigen_indexes.empty())
+                throw unrecognized_mod{"no homologous antigens for serum, mod: " + args().to_json()};
+            return antigen_indexes;
         }
 
 }; // class ModSerumHomologous
