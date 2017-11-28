@@ -136,10 +136,10 @@ std::vector<size_t> SelectAntigens::command(const acmacs::chart::Chart& aChart, 
             indexes.erase(std::remove_if(indexes.begin(), indexes.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indexes.end());
         }
         else if (key == "country") {
-            antigens->filter_country(indexes, string::upper(value));
+            antigens->filter_country(indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "continent") {
-            antigens->filter_continent(indexes, string::upper(value));
+            antigens->filter_continent(indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "sequenced") {
             filter_sequenced(aChart, indexes);
@@ -151,10 +151,10 @@ std::vector<size_t> SelectAntigens::command(const acmacs::chart::Chart& aChart, 
             filter_clade(aChart, indexes, value); //string::upper(value));
         }
         else if (key == "name") {
-            filter_name(aChart, indexes, string::upper(value));
+            filter_name(aChart, indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "full_name") {
-            filter_full_name(aChart, indexes, string::upper(value));
+            filter_full_name(aChart, indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "vaccine" || key == "vaccines") {
             try {
@@ -186,12 +186,12 @@ std::vector<size_t> SelectAntigens::command(const acmacs::chart::Chart& aChart, 
             filter_circle(aChart, indexes, *aChart.projection(projection_no), {center[0], center[1], radius});
         }
         else if (key == "lab") {
-            if (aChart.info()->lab(acmacs::chart::Info::Compute::Yes) != string::upper(value))
+            if (aChart.info()->lab(acmacs::chart::Info::Compute::Yes) != string::upper(static_cast<std::string_view>(value)))
                 indexes.clear();
         }
         else if (key == "subtype") {
             const std::string virus_type = aChart.info()->virus_type(acmacs::chart::Info::Compute::Yes);
-            const std::string val_u = string::upper(value);
+            const std::string val_u = string::upper(static_cast<std::string_view>(value));
             if (val_u != virus_type) {
                 bool clear_indexes = true;
                 if (virus_type == "B") {
@@ -344,7 +344,7 @@ std::vector<size_t> SelectSera::command(const acmacs::chart::Chart& aChart, cons
               // do nothing
         }
         else if (key == "serum_id") {
-            sera->filter_serum_id(indexes, string::upper(value));
+            sera->filter_serum_id(indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "index") {
             const size_t index = value;
@@ -363,16 +363,16 @@ std::vector<size_t> SelectSera::command(const acmacs::chart::Chart& aChart, cons
             indexes.erase(std::remove_if(indexes.begin(), indexes.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indexes.end());
         }
         else if (key == "country") {
-            sera->filter_country(indexes, string::upper(value));
+            sera->filter_country(indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "continent") {
-            sera->filter_continent(indexes, string::upper(value));
+            sera->filter_continent(indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "name") {
-            filter_name(aChart, indexes, string::upper(value));
+            filter_name(aChart, indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "full_name") {
-            filter_full_name(aChart, indexes, string::upper(value));
+            filter_full_name(aChart, indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "in_rectangle") {
             const auto& c1 = value["c1"];
