@@ -975,7 +975,7 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const
         args.update(*ptr_obj);
     }
     else if (auto ptr_str = std::get_if<rjson::string>(&aMod)) {
-        name = *ptr_str;
+        name = ptr_str->str();
     }
     args.update(aUpdate);
 
