@@ -186,11 +186,11 @@ std::vector<size_t> SelectAntigens::command(const acmacs::chart::Chart& aChart, 
             filter_circle(aChart, indexes, *aChart.projection(projection_no), {center[0], center[1], radius});
         }
         else if (key == "lab") {
-            if (aChart.info()->lab() != string::upper(value))
+            if (aChart.info()->lab(acmacs::chart::Info::Compute::Yes) != string::upper(value))
                 indexes.clear();
         }
         else if (key == "subtype") {
-            const std::string virus_type = aChart.info()->virus_type();
+            const std::string virus_type = aChart.info()->virus_type(acmacs::chart::Info::Compute::Yes);
             const std::string val_u = string::upper(value);
             if (val_u != virus_type) {
                 bool clear_indexes = true;
@@ -243,7 +243,7 @@ const std::vector<seqdb::SeqdbEntrySeq>& SelectAntigens::seqdb_entries(const acm
     auto found = cache_seqdb_entries_for_chart.find(&aChart);
     if (found == cache_seqdb_entries_for_chart.end()) {
         found = cache_seqdb_entries_for_chart.emplace(&aChart, decltype(cache_seqdb_entries_for_chart)::mapped_type{}).first;
-        seqdb::get(timer()).match(*aChart.antigens(), found->second, aChart.info()->virus_type(), false);
+        seqdb::get(timer()).match(*aChart.antigens(), found->second, aChart.info()->virus_type(acmacs::chart::Info::Compute::Yes), false);
     }
     return found->second;
 
@@ -298,7 +298,7 @@ void SelectAntigens::filter_clade(const acmacs::chart::Chart& aChart, std::vecto
 
 void SelectAntigens::filter_vaccine(const acmacs::chart::Chart& aChart, std::vector<size_t>& indexes, const VaccineMatchData& aMatchData)
 {
-    const auto virus_type = aChart.info()->virus_type();
+    const auto virus_type = aChart.info()->virus_type(acmacs::chart::Info::Compute::Yes);
     if (!virus_type.empty()) {
 
           // thread unsafe!
