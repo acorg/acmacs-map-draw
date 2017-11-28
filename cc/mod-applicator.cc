@@ -55,7 +55,7 @@ inline std::ostream& operator << (std::ostream& out, const Mods& aMods)
 void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, const rjson::value& aLabelData)
 {
     auto& label = aChartDraw.add_label(aIndex + aBaseIndex);
-    try { label.color(static_cast<std::string>(aLabelData["color"])); } catch (rjson::field_not_found&) {}
+    try { label.color(static_cast<std::string_view>(aLabelData["color"])); } catch (rjson::field_not_found&) {}
     try { label.size(aLabelData["size"]); } catch (rjson::field_not_found&) {}
     try { label.weight(aLabelData["weight"]); } catch (rjson::field_not_found&) {}
     try { label.slant(aLabelData["slant"]); } catch (rjson::field_not_found&) {}
@@ -365,7 +365,7 @@ class ModAminoAcids : public Mod
             std::vector<size_t> positions(pos_aa.size());
             std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(positions), [](const auto& src) { return std::stoul(src); });
             std::string target_aas(pos_aa.size(), ' ');
-            std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(target_aas), [](const auto& src) { return static_cast<std::string>(src).back(); });
+            std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(target_aas), [](const auto& src) { return static_cast<std::string_view>(src).back(); });
             const auto& seqdb = seqdb::get(do_report_time(aVerbose));
             const auto aa_indices = seqdb.aa_at_positions_for_antigens(aChartDraw.chart().antigens(), positions, aVerbose);
             if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
@@ -388,8 +388,10 @@ class ModAminoAcids : public Mod
                 return args().get_or_default("X_color", "grey25");
             }
             if (mColors.empty()) {
-                if (auto [colors_present, colors] = args().get_array_if("colors"); colors_present)
-                    mColors.assign(std::begin(colors), std::end(colors));
+                if (auto [colors_present, colors] = args().get_array_if("colors"); colors_present) {
+                    mColors.resize(colors.size());
+                    std::transform(std::begin(colors), std::end(colors), mColors.begin(), [](const auto& src) -> std::string_view { return src; });
+                }
                 else
                     mColors = Color::distinct();
             }
@@ -506,7 +508,7 @@ class ModBackground : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
         {
             try {
-                aChartDraw.background_color(static_cast<std::string>(args()["color"]));
+                aChartDraw.background_color(static_cast<std::string_view>(args()["color"]));
             }
             catch (rjson::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};
@@ -599,19 +601,19 @@ class ModTitle : public Mod
                     if (auto [text_size_present, text_size] = args().get_value_if("text_size"); text_size_present)
                         title.text_size(text_size);
                     if (auto [text_color_present, text_color] = args().get_value_if("text_color"); text_color_present)
-                        title.text_color(static_cast<std::string>(text_color));
+                        title.text_color(static_cast<std::string_view>(text_color));
                     if (auto [background_present, background] = args().get_value_if("background"); background_present)
-                        title.background(static_cast<std::string>(background));
+                        title.background(static_cast<std::string_view>(background));
                     if (auto [border_color_present, border_color] = args().get_value_if("border_color"); border_color_present)
-                        title.border_color(static_cast<std::string>(border_color));
+                        title.border_color(static_cast<std::string_view>(border_color));
                     if (auto [border_width_present, border_width] = args().get_value_if("border_width"); border_width_present)
                         title.border_width(border_width);
                     if (auto [font_weight_present, font_weight] = args().get_value_if("font_weight"); font_weight_present)
-                        title.weight(static_cast<std::string>(font_weight));
+                        title.weight(font_weight.str());
                     if (auto [font_slant_present, font_slant] = args().get_value_if("font_slant"); font_slant_present)
-                        title.slant(static_cast<std::string>(font_slant));
+                        title.slant(font_slant.str());
                     if (auto [font_family_present, font_family] = args().get_value_if("font_family"); font_family_present)
-                        title.font_family(static_cast<std::string>(font_family));
+                        title.font_family(font_family.str());
                 }
                 else {
                     title.show(false);
@@ -647,9 +649,9 @@ class ModLegend : public Mod
                     if (auto [point_size_present, point_size] = args().get_value_if("point_size"); point_size_present)
                         legend.point_size(point_size);
                     if (auto [background_present, background] = args().get_value_if("background"); background_present)
-                        legend.background(static_cast<std::string>(background));
+                        legend.background(static_cast<std::string_view>(background));
                     if (auto [border_color_present, border_color] = args().get_value_if("border_color"); border_color_present)
-                        legend.border_color(static_cast<std::string>(border_color));
+                        legend.border_color(static_cast<std::string_view>(border_color));
                     if (auto [border_width_present, border_width] = args().get_value_if("border_width"); border_width_present)
                         legend.border_width(border_width);
                 }

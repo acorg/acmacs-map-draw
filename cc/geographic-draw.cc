@@ -170,7 +170,7 @@ GeographicMapColoring* make_coloring(const rjson::value& aSettings)
 
 void set_title(map_elements::Title& aTitle, const rjson::value& aSettings, bool use_title_text)
 {
-    if (!use_title_text || static_cast<std::string>(aSettings["title_text"]) != "") {
+    if (!use_title_text || static_cast<std::string_view>(aSettings["title_text"]) != "") {
         const rjson::object& title_data = aSettings["title"];
         aTitle.show(true)
                 .padding(title_data.get_or_default("padding", 10.0))

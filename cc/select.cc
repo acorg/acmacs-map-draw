@@ -137,10 +137,10 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const Chart* aP
             indices.erase(std::remove_if(indices.begin(), indices.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indices.end());
         }
         else if (key == "country") {
-            antigens.filter_country(indices, string::upper(value));
+            antigens.filter_country(indices, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "continent") {
-            antigens.filter_continent(indices, string::upper(value));
+            antigens.filter_continent(indices, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "sequenced") {
             filter_sequenced(aChart, indices);
@@ -149,13 +149,13 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const Chart* aP
             filter_not_sequenced(aChart, indices);
         }
         else if (key == "clade") {
-            filter_clade(aChart, indices, value); //string::upper(value));
+            filter_clade(aChart, indices, value); //string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "name") {
-            filter_name(aChart, indices, string::upper(value));
+            filter_name(aChart, indices, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "full_name") {
-            filter_full_name(aChart, indices, string::upper(value));
+            filter_full_name(aChart, indices, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "vaccine" || key == "vaccines") {
             try {
@@ -187,12 +187,12 @@ std::vector<size_t> SelectAntigens::command(const Chart& aChart, const Chart* aP
             filter_circle(aChart, indices, aChart.projection(projection_no), {center[0], center[1], radius});
         }
         else if (key == "lab") {
-            if (aChart.chart_info().lab() != string::upper(value))
+            if (aChart.chart_info().lab() != string::upper(static_cast<std::string_view>(value)))
                 indices.clear();
         }
         else if (key == "subtype") {
             const std::string virus_type = aChart.chart_info().virus_type();
-            const std::string val_u = string::upper(value);
+            const std::string val_u = string::upper(static_cast<std::string_view>(value));
             if (val_u != virus_type) {
                 bool clear_indices = true;
                 if (virus_type == "B") {
@@ -343,7 +343,7 @@ std::vector<size_t> SelectSera::command(const Chart& aChart, const Chart* /*aPre
               // do nothing
         }
         else if (key == "serum_id") {
-            sera.filter_serum_id(indices, string::upper(value));
+            sera.filter_serum_id(indices, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "index") {
             const size_t index = value;
@@ -362,16 +362,16 @@ std::vector<size_t> SelectSera::command(const Chart& aChart, const Chart* /*aPre
             indices.erase(std::remove_if(indices.begin(), indices.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indices.end());
         }
         else if (key == "country") {
-            sera.filter_country(indices, string::upper(value));
+            sera.filter_country(indices, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "continent") {
-            sera.filter_continent(indices, string::upper(value));
+            sera.filter_continent(indices, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "name") {
-            filter_name(aChart, indices, string::upper(value));
+            filter_name(aChart, indices, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "full_name") {
-            filter_full_name(aChart, indices, string::upper(value));
+            filter_full_name(aChart, indices, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "in_rectangle") {
             const auto& c1 = value["c1"];
