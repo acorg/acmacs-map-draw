@@ -109,6 +109,7 @@ class ChartDraw
             if (!float_zero(aAngle))
                 log("rotate radians:", aAngle, " degrees:", 180.0 * aAngle / M_PI, " ", aAngle > 0 ? "counter-" : "", "clockwise");
             mTransformation.rotate(aAngle);
+            mTransformedLayout.reset();
         }
 
     inline void flip(double aX, double aY)
@@ -116,6 +117,7 @@ class ChartDraw
             // std::cout << "INFO: flip " << aX << " " << aY << std::endl;
             log("flip ", aX, " ", aY);
             mTransformation.flip(aX, aY); // reflect about a line specified with vector [aX, aY]
+            mTransformedLayout.reset();
         }
     inline const acmacs::Transformation& transformation() const { return mTransformation; }
 
