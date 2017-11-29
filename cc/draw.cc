@@ -182,7 +182,7 @@ void ChartDraw::mark_reassortant_antigens()
 
 void ChartDraw::modify_all_sera(const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder)
 {
-    modify(mChart.sera()->all_indexes(), aStyle, aPointDrawingOrder);
+    modify_sera(mChart.sera()->all_indexes(), aStyle, aPointDrawingOrder);
 
 } // ChartDraw::modify_all_sera
 
