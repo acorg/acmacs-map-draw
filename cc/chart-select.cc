@@ -2,8 +2,7 @@
 #include <fstream>
 
 #include "acmacs-base/argc-argv.hh"
-// #include "acmacs-base/string.hh"
-#include "acmacs-chart-1/ace.hh"
+#include "acmacs-chart-2/factory-import.hh"
 
 #include "setup-dbs.hh"
 #include "settings.hh"
@@ -51,19 +50,19 @@ int do_select(const argc_argv& args)
     setup_dbs(args["--db-dir"], verbose);
     const auto selector = rjson::parse_string(args[1]);
       // const auto selector = rjson::parse_string("{\"in_rectangle\":{\"c1\":[0,0],\"c2\":[1,1]}}");
-    std::unique_ptr<Chart> chart{import_chart(args[0], verbose ? report_time::Yes : report_time::No)};
+    auto chart = acmacs::chart::import_factory(args[0], acmacs::chart::Verify::None);
 
     if (!args["-s"] && !args["--sera"]) {
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_antigens())) + 1;
         const auto indices = SelectAntigens(verbose).select(*chart, selector);
         for (auto index: indices)
-            std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->antigen(index).full_name() << '\n';
+            std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->antigen(index)->full_name() << '\n';
     }
     else {
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_sera())) + 1;
         const auto indices = SelectSera(verbose).select(*chart, selector);
         for (auto index: indices)
-            std::cout << "SR " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->serum(index).full_name() << '\n';
+            std::cout << "SR " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->serum(index)->full_name() << '\n';
     }
     return 0;
 

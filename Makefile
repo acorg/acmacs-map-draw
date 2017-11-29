@@ -13,18 +13,16 @@ TARGETS = \
     $(DIST)/map-draw \
     $(DIST)/geographic-draw
 
-# $(DIST)/chart-info - obsolete
-
 ACMACS_MAP_DRAW_SOURCES = draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc time-series.cc \
 	vaccines.cc vaccine-matcher.cc settings.cc select.cc mod-applicator.cc setup-dbs.cc geographic-settings.cc
 ACMACS_MAP_DRAW_PY_SOURCES = py.cc $(ACMACS_MAP_DRAW_SOURCES)
 
-ACMACS_MAP_DRAW_LIB_MAJOR = 1
+ACMACS_MAP_DRAW_LIB_MAJOR = 2
 ACMACS_MAP_DRAW_LIB_MINOR = 0
 ACMACS_MAP_DRAW_LIB_NAME = libacmacsmapdraw
 ACMACS_MAP_DRAW_LIB = $(DIST)/$(call shared_lib_name,$(ACMACS_MAP_DRAW_LIB_NAME),$(ACMACS_MAP_DRAW_LIB_MAJOR),$(ACMACS_MAP_DRAW_LIB_MINOR))
 
-ACMACS_MAP_DRAW_PY_LIB_MAJOR = 1
+ACMACS_MAP_DRAW_PY_LIB_MAJOR = 2
 ACMACS_MAP_DRAW_PY_LIB_MINOR = 0
 ACMACS_MAP_DRAW_PY_LIB_NAME = acmacs_map_draw_backend
 ACMACS_MAP_DRAW_PY_LIB = $(DIST)/$(ACMACS_MAP_DRAW_PY_LIB_NAME)$(PYTHON_MODULE_SUFFIX)
@@ -40,9 +38,9 @@ LDFLAGS = $(OPTIMIZATION) $(PROFILE)
 LDLIBS = \
 	$(AD_LIB)/$(call shared_lib_name,libacmacsbase,1,0) \
 	$(AD_LIB)/$(call shared_lib_name,liblocationdb,1,0) \
-	$(AD_LIB)/$(call shared_lib_name,libacmacschart,1,0) \
-	$(AD_LIB)/$(call shared_lib_name,libhidb,1,0) \
-	$(AD_LIB)/$(call shared_lib_name,libseqdb,1,0) \
+	$(AD_LIB)/$(call shared_lib_name,libacmacschart,2,0) \
+	$(AD_LIB)/$(call shared_lib_name,libhidb,5,0) \
+	$(AD_LIB)/$(call shared_lib_name,libseqdb,2,0) \
 	$(AD_LIB)/$(call shared_lib_name,libacmacsdraw,1,0) \
 	-L$(AD_LIB) -lboost_date_time $$(pkg-config --libs cairo) $$(pkg-config --libs liblzma) $$($(PYTHON_CONFIG) --ldflags | sed -E 's/-Wl,-stack_size,[0-9]+//') $(CXX_LIB)
 

@@ -1,9 +1,8 @@
 #include "acmacs-base/pybind11.hh"
+#include "acmacs-base/point-style.hh"
 #include "locationdb/locdb.hh"
-#include "acmacs-chart-1/chart.hh"
-#include "acmacs-chart-1/ace.hh"
-#include "acmacs-chart-1/lispmds.hh"
-#include "hidb/hidb.hh"
+#include "acmacs-chart-2/chart.hh"
+#include "hidb-5/hidb.hh"
 #include "seqdb/seqdb.hh"
 
 #include "draw.hh"
@@ -11,49 +10,6 @@
 #include "time-series.hh"
 #include "vaccine-matcher.hh"
 #include "setup-dbs.hh"
-
-// ----------------------------------------------------------------------
-
-static inline std::string get_point_style_shape(PointStyle& aStyle)
-{
-    std::string shape;
-    switch (aStyle.shape()) {
-      case PointStyle::Shape::Circle:
-          shape = "circle";
-          break;
-      case PointStyle::Shape::Box:
-          shape = "box";
-          break;
-      case PointStyle::Shape::Triangle:
-          shape = "triangle";
-          break;
-      case PointStyle::Shape::NoChange:
-          break;
-    }
-    return shape;
-}
-
-// ----------------------------------------------------------------------
-
-// static inline PointStyleDraw* point_style_kw(PointStyleDraw& aStyle, py::args args, py::kwargs kwargs)
-// {
-//     PointStyleDraw* obj = new (&aStyle) PointStyleDraw(PointStyle::Empty);
-//     std::cerr << "point_style_kw" << std::endl;
-//     return obj;
-// }
-
-// static inline PointStyleDraw* point_style_modify_kw(PointStyleDraw* aStyle, py::args args, py::kwargs kwargs)
-// {
-//     std::cerr << "point_style_modify_kw" << std::endl;
-//     return aStyle;
-// }
-
-// static inline PointStyleDraw* new_point_style_kw(py::args args, py::kwargs kwargs)
-// {
-//     PointStyleDraw* style = new PointStyleDraw(PointStyle::Empty);
-//     std::cerr << "new_point_style_kw" << std::endl;
-//     return style;
-// }
 
 // ----------------------------------------------------------------------
 
@@ -150,29 +106,28 @@ PYBIND11_MODULE(acmacs_map_draw_backend, m)
 
     m.def("distinct_colors", &Color::distinct_s);
 
-    py::class_<PointStyle> point_style(m, "PointStyle");
-    py::enum_<enum PointStyle::Empty>(point_style, "PointStyle_Empty").value("Empty", PointStyle::Empty).export_values();
+    py::class_<acmacs::PointStyle> point_style(m, "PointStyle");
     point_style
-            .def(py::init<enum PointStyle::Empty>(), py::arg("_") = PointStyle::Empty)
+            .def(py::init<>())
               // .def("__init__", &point_style_kw)
               // .def("modify", &point_style_modify_kw)
-            .def("show", [](PointStyle& style, bool show) -> PointStyle& { return style.show(show ? PointStyle::Shown::Shown : PointStyle::Shown::Hidden); }, py::arg("show") = true)
-            .def("hide", &PointStyle::hide)
-            .def("shape", py::overload_cast<std::string>(&PointStyle::shape), py::arg("shape"))
-            .def("shape", &get_point_style_shape)
-            .def("fill", [](PointStyle& style, std::string color) -> PointStyle& { return style.fill(color); }, py::arg("fill"))
-            .def("fill", [](PointStyle& style, std::string color, double light) -> PointStyle& { Color c{color}; c.light(light); return style.fill(c); }, py::arg("fill"), py::arg("light"))
-            .def("fill", py::overload_cast<>(&PointStyle::fill, py::const_))
-            .def("outline", [](PointStyle& style, std::string color) -> PointStyle& { return style.outline(color); }, py::arg("outline"))
-            .def("outline", [](PointStyle& style, std::string color, double light) -> PointStyle& { Color c{color}; c.light(light); return style.outline(c); }, py::arg("outline"), py::arg("light"))
-            .def("outline", py::overload_cast<>(&PointStyle::outline, py::const_))
-            .def("size", [](PointStyle& style, double aSize) -> PointStyle& { return style.size(Pixels{aSize}); }, py::arg("size"))
-            .def("outline_width", [](PointStyle& style, double aOutlineWidth) -> PointStyle& { return style.outline_width(Pixels{aOutlineWidth}); }, py::arg("outline_width"))
-            .def("outline_width", py::overload_cast<>(&PointStyle::outline_width, py::const_))
-            .def("aspect", py::overload_cast<double>(&PointStyle::aspect), py::arg("aspect"))
-            .def("rotation", py::overload_cast<double>(&PointStyle::rotation), py::arg("rotation"))
-            .def("scale", &PointStyle::scale, py::arg("scale"))
-            .def("scale_outline", &PointStyle::scale_outline, py::arg("scale"))
+            .def("show", [](acmacs::PointStyle& style, bool show) -> acmacs::PointStyle& { style.shown = show; return style; }, py::arg("show") = true)
+            .def("hide", [](acmacs::PointStyle& style) -> acmacs::PointStyle& { style.shown = false; return style; })
+            .def("shape", [](acmacs::PointStyle& style, std::string shape) -> acmacs::PointStyle& { style.shape = shape; return style; }, py::arg("shape"))
+            .def("shape", [](acmacs::PointStyle& style) -> std::string { return *style.shape; })
+            .def("fill", [](acmacs::PointStyle& style, std::string color) -> acmacs::PointStyle& { style.fill = color; return style; }, py::arg("fill"))
+            .def("fill", [](acmacs::PointStyle& style, std::string color, double light) -> acmacs::PointStyle& { Color c{color}; c.light(light); style.fill = c; return style; }, py::arg("fill"), py::arg("light"))
+            .def("fill", [](acmacs::PointStyle& style) -> std::string { return *style.fill; })
+            .def("outline", [](acmacs::PointStyle& style, std::string color) -> acmacs::PointStyle& { style.outline = color; return style; }, py::arg("outline"))
+            .def("outline", [](acmacs::PointStyle& style, std::string color, double light) -> acmacs::PointStyle& { Color c{color}; c.light(light); style.outline = c; return style; }, py::arg("outline"), py::arg("light"))
+            .def("outline", [](acmacs::PointStyle& style) -> std::string { return *style.outline; })
+            .def("size", [](acmacs::PointStyle& style, double aSize) -> acmacs::PointStyle& { style.size = Pixels{aSize}; return style; }, py::arg("size"))
+            .def("outline_width", [](acmacs::PointStyle& style, double aOutlineWidth) -> acmacs::PointStyle& { style.outline_width = Pixels{aOutlineWidth}; return style; }, py::arg("outline_width"))
+            .def("outline_width", [](acmacs::PointStyle& style) -> double { return style.outline_width->value(); })
+            .def("aspect", [](acmacs::PointStyle& style, double aAspect) -> acmacs::PointStyle& { style.aspect = Aspect{aAspect}; return style; }, py::arg("aspect"))
+            .def("rotation", [](acmacs::PointStyle& style, double aRotation) -> acmacs::PointStyle& { style.rotation = Rotation{aRotation}; return style; }, py::arg("rotation"))
+            .def("scale", &acmacs::PointStyle::scale, py::arg("scale"))
+            .def("scale_outline", &acmacs::PointStyle::scale_outline, py::arg("scale"))
             ;
 
     py::class_<DrawingOrder>(m, "DrawingOrder")
@@ -244,7 +199,7 @@ PYBIND11_MODULE(acmacs_map_draw_backend, m)
             ;
 
     py::class_<ChartDraw>(m, "ChartDraw")
-            .def(py::init<Chart&, size_t>(), py::arg("chart"), py::arg("projection_no") = 0)
+            .def(py::init<acmacs::chart::Chart&, size_t>(), py::arg("chart"), py::arg("projection_no") = 0)
             .def("prepare", &ChartDraw::prepare)
             .def("point_styles", &ChartDraw::point_styles)
             .def("point_styles_base", &ChartDraw::point_styles_base)
@@ -255,10 +210,10 @@ PYBIND11_MODULE(acmacs_map_draw_backend, m)
             .def("mark_reassortant_antigens", &ChartDraw::mark_reassortant_antigens)
             .def("all_grey", &ChartDraw::mark_all_grey, py::arg("color") = Color("grey80"))
             .def("scale_points", &ChartDraw::scale_points, py::arg("scale"), py::arg("outline_scale") = 1.0, py::doc("outline_scale=0 means use point scale for outline too"))
-            .def("modify", [](ChartDraw& cd, size_t aIndex, const PointStyle& aStyle, bool aRaise, bool aLower) { cd.modify(aIndex, aStyle, aRaise ? PointDrawingOrder::Raise : (aLower ? PointDrawingOrder::Lower : PointDrawingOrder::NoChange)); }, py::arg("index"), py::arg("style"), py::arg("raise_") = false, py::arg("lower") = false)
-            .def("modify_serum", [](ChartDraw& cd, size_t aIndex, const PointStyle& aStyle, bool aRaise, bool aLower) { cd.modify_serum(aIndex, aStyle, aRaise ? PointDrawingOrder::Raise : (aLower ? PointDrawingOrder::Lower : PointDrawingOrder::NoChange)); }, py::arg("index"), py::arg("style"), py::arg("raise_") = false, py::arg("lower") = false)
-            .def("modify", [](ChartDraw& cd, const std::vector<size_t>& indices, const PointStyle& style, bool aRaise, bool aLower) { cd.modify(indices.begin(), indices.end(), style, aRaise ? PointDrawingOrder::Raise : (aLower ? PointDrawingOrder::Lower : PointDrawingOrder::NoChange)); }, py::arg("indices"), py::arg("style"), py::arg("raise_") = false, py::arg("lower") = false)
-            .def("modify_sera", [](ChartDraw& cd, const std::vector<size_t>& indices, const PointStyle& style, bool aRaise, bool aLower) { cd.modify_sera(indices.begin(), indices.end(), style, aRaise ? PointDrawingOrder::Raise : (aLower ? PointDrawingOrder::Lower : PointDrawingOrder::NoChange)); }, py::arg("indices"), py::arg("style"), py::arg("raise_") = false, py::arg("lower") = false)
+            .def("modify", [](ChartDraw& cd, size_t aIndex, const acmacs::PointStyle& aStyle, bool aRaise, bool aLower) { cd.modify(aIndex, aStyle, aRaise ? PointDrawingOrder::Raise : (aLower ? PointDrawingOrder::Lower : PointDrawingOrder::NoChange)); }, py::arg("index"), py::arg("style"), py::arg("raise_") = false, py::arg("lower") = false)
+            .def("modify_serum", [](ChartDraw& cd, size_t aIndex, const acmacs::PointStyle& aStyle, bool aRaise, bool aLower) { cd.modify_serum(aIndex, aStyle, aRaise ? PointDrawingOrder::Raise : (aLower ? PointDrawingOrder::Lower : PointDrawingOrder::NoChange)); }, py::arg("index"), py::arg("style"), py::arg("raise_") = false, py::arg("lower") = false)
+            .def("modify", [](ChartDraw& cd, const std::vector<size_t>& indices, const acmacs::PointStyle& style, bool aRaise, bool aLower) { cd.modify(indices.begin(), indices.end(), style, aRaise ? PointDrawingOrder::Raise : (aLower ? PointDrawingOrder::Lower : PointDrawingOrder::NoChange)); }, py::arg("indices"), py::arg("style"), py::arg("raise_") = false, py::arg("lower") = false)
+            .def("modify_sera", [](ChartDraw& cd, const std::vector<size_t>& indices, const acmacs::PointStyle& style, bool aRaise, bool aLower) { cd.modify_sera(indices.begin(), indices.end(), style, aRaise ? PointDrawingOrder::Raise : (aLower ? PointDrawingOrder::Lower : PointDrawingOrder::NoChange)); }, py::arg("indices"), py::arg("style"), py::arg("raise_") = false, py::arg("lower") = false)
             .def("drawing_order", &ChartDraw::drawing_order, py::return_value_policy::reference)
             .def("rotate", &ChartDraw::rotate, py::arg("angle"))
             .def("flip", &ChartDraw::flip, py::arg("x"), py::arg("y"))
@@ -316,7 +271,7 @@ PYBIND11_MODULE(acmacs_map_draw_backend, m)
       // ----------------------------------------------------------------------
 
     py::class_<Vaccines>(m, "Vaccines")
-            .def(py::init<const Chart&>(), py::arg("chart"))
+            .def(py::init<const acmacs::chart::Chart&>(), py::arg("chart"))
             .def("report_all", &Vaccines::report_all, py::arg("indent") = 0)
             .def("report", &Vaccines::report, py::arg("indent") = 0)
             .def("match", [](Vaccines& vaccines, std::string name, std::string type, std::string passage) {

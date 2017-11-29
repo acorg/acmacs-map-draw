@@ -1,13 +1,14 @@
 #pragma once
 
-#include "hidb/hidb.hh"
-#include "hidb/vaccines.hh"
-#include "acmacs-chart-1/point-style.hh"
+#include "hidb-5/hidb.hh"
+#include "hidb-5/vaccines.hh"
+#include "acmacs-base/point-style.hh"
 #include "acmacs-map-draw/draw.hh"
 
 // ----------------------------------------------------------------------
 
 class ChartDraw;
+namespace acmacs::chart { class Chart; }
 
 // ----------------------------------------------------------------------
 
@@ -42,13 +43,13 @@ class Vaccines
     class Entry
     {
      public:
-        inline Entry(size_t aVaccinesOfChartIndex, hidb::Vaccines::PassageType aPassageType, const PointStyle& aStyle)
+        inline Entry(size_t aVaccinesOfChartIndex, hidb::Vaccines::PassageType aPassageType, const acmacs::PointStyle& aStyle)
             : vaccines_of_chart_index(aVaccinesOfChartIndex), passage_type(aPassageType), antigen_no(0), style(aStyle) {}
 
         size_t vaccines_of_chart_index;
         hidb::Vaccines::PassageType passage_type;
         size_t antigen_no;
-        PointStyle style;
+        acmacs::PointStyle style;
 
         inline bool match(const hidb::VaccinesOfChart& aVaccinesOfChart, const VaccineMatchData& aMatchData) const
             {
@@ -59,7 +60,7 @@ class Vaccines
 
     }; // class Entry
 
-    Vaccines(const Chart& aChart, bool aVerbose = false);
+    Vaccines(const acmacs::chart::Chart& aChart, bool aVerbose = false);
 
     inline std::string report_all(size_t aIndent) const { return mVaccinesOfChart.report(aIndent); }
     std::string report(size_t aIndent) const;

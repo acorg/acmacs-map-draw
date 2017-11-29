@@ -23,12 +23,12 @@ class Mod
  protected:
     const rjson::object& args() const { return mArgs; }
 
-    inline PointStyle style() const { return point_style_from_json(args()); }
+    inline acmacs::PointStyle style() const { return point_style_from_json(args()); }
     inline PointDrawingOrder drawing_order() const { return drawing_order_from_json(args()); }
     void add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, size_t aBaseIndex, const rjson::value& aLabelData);
     void add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, const rjson::value& aLabelData);
-    void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, const rjson::value& aLegendData);
-    void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData);
+    void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const acmacs::PointStyle& aStyle, const rjson::value& aLegendData);
+    void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData);
 
  private:
     const rjson::object mArgs;  // not reference! "N" is probably wrong due to updating args in factory!
@@ -75,25 +75,27 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
         try {
             const std::string name_type = aLabelData["name_type"];
             if (aBaseIndex == 0) { // antigen
+                auto antigen = aChartDraw.chart().antigen(aIndex);
                 if (name_type == "abbreviated")
-                    label.display_name(aChartDraw.chart().antigen(aIndex).abbreviated_name());
+                    label.display_name(antigen->abbreviated_name());
                 else if (name_type == "abbreviated_with_passage_type")
-                    label.display_name(aChartDraw.chart().antigen(aIndex).abbreviated_name_with_passage_type());
+                    label.display_name(antigen->abbreviated_name_with_passage_type());
                 else {
                     if (name_type != "full")
                         std::cerr << "WARNING: unrecognized \"name_type\" for label for antigen " << aIndex << '\n';
-                    label.display_name(aChartDraw.chart().antigen(aIndex).full_name());
+                    label.display_name(antigen->full_name());
                 }
             }
             else {      // serum
+                auto serum = aChartDraw.chart().serum(aIndex);
                 if (name_type == "abbreviated")
-                    label.display_name(aChartDraw.chart().serum(aIndex).abbreviated_name());
+                    label.display_name(serum->abbreviated_name());
                 else if (name_type == "abbreviated_with_passage_type")
-                    label.display_name(aChartDraw.chart().serum(aIndex).abbreviated_name_with_passage_type());
+                    label.display_name(serum->abbreviated_name_with_passage_type());
                 else {
                     if (name_type != "full")
                         std::cerr << "WARNING: unrecognized \"name_type\" for label for serum " << aIndex << '\n';
-                    label.display_name(aChartDraw.chart().serum(aIndex).full_name());
+                    label.display_name(serum->full_name());
                 }
             }
         }
@@ -120,7 +122,7 @@ void Mod::add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices,
 
 // ----------------------------------------------------------------------
 
-void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, const rjson::value& aLegendData)
+void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const acmacs::PointStyle& aStyle, const rjson::value& aLegendData)
 {
     const std::string label = aLegendData.get_or_default("label", "use \"label\" in \"legend\"");
     add_legend(aChartDraw, aIndices, aStyle, label, aLegendData);
@@ -129,13 +131,13 @@ void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices,
 
 // ----------------------------------------------------------------------
 
-void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData)
+void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData)
 {
     if (aLegendData.get_or_default("show", true) && !aIndices.empty()) {
         auto& legend = aChartDraw.legend();
         if (aLegendData.get_or_default("count", false))
             aLabel += " (" + std::to_string(aIndices.size()) + ")";
-        legend.add_line(aStyle.outline(), aStyle.fill(), aLabel);
+        legend.add_line(*aStyle.outline, *aStyle.fill, aLabel);
     }
 
 } // Mod::add_legend
@@ -237,23 +239,23 @@ class ModMoveBase : public Mod
     using Mod::Mod;
 
  protected:
-    Coordinates get_move_to(ChartDraw& aChartDraw, bool aVerbose) const
+    acmacs::chart::Coordinates get_move_to(ChartDraw& aChartDraw, bool aVerbose) const
         {
-            Coordinates move_to;
+            acmacs::chart::Coordinates move_to;
             if (auto [to_present, to] = args().get_array_if("to"); to_present) {
-                move_to = Coordinates{to[0], to[1]};
+                move_to = acmacs::chart::Coordinates{to[0], to[1]};
             }
             else if (auto [to_antigen_present, to_antigen] = args().get_object_if("to_antigen"); to_antigen_present) {
                 const auto antigens = SelectAntigens(aVerbose).select(aChartDraw.chart(), to_antigen);
                 if (antigens.size() != 1)
                     throw unrecognized_mod{"\"to_antigen\" does not select single antigen, mod: " + args().to_json()};
-                move_to = aChartDraw.layout()[antigens[0]];
+                move_to = (*aChartDraw.layout())[antigens[0]];
             }
             else if (auto [to_serum_present, to_serum] = args().get_object_if("to_serum"); to_serum_present) {
                 const auto sera = SelectSera(aVerbose).select(aChartDraw.chart(), to_serum);
                 if (sera.size() != 1)
                     throw unrecognized_mod{"\"to_serum\" does not select single serum, mod: " + args().to_json()};
-                move_to = aChartDraw.layout()[sera[0] + aChartDraw.number_of_antigens()];
+                move_to = (*aChartDraw.layout())[sera[0] + aChartDraw.number_of_antigens()];
             }
             else
                 throw unrecognized_mod{"neither \"to\" nor \"to_antigen\" nor \"to__serum\" provided in mod: " + args().to_json()};
@@ -274,8 +276,9 @@ class ModMoveAntigens : public ModMoveBase
             const auto verbose = args().get_or_default("report", false);
             try {
                 const auto move_to = get_move_to(aChartDraw, verbose);
+                auto layout = aChartDraw.layout();
                 for (auto index: SelectAntigens(verbose).select(aChartDraw.chart(), args()["select"])) {
-                    aChartDraw.layout().set(index, move_to);
+                    layout->set(index, move_to);
                 }
             }
             catch (rjson::field_not_found&) {
@@ -297,8 +300,9 @@ class ModMoveSera : public ModMoveBase
             const auto verbose = args().get_or_default("report", false);
             try {
                 const auto move_to = get_move_to(aChartDraw, verbose);
+                auto layout = aChartDraw.layout();
                 for (auto index: SelectSera(verbose).select(aChartDraw.chart(), args()["select"])) {
-                    aChartDraw.layout().set(index + aChartDraw.number_of_antigens(), move_to);
+                    layout->set(index + aChartDraw.number_of_antigens(), move_to);
                 }
             }
             catch (rjson::field_not_found&) {
@@ -344,14 +348,14 @@ class ModAminoAcids : public Mod
     void aa_pos(ChartDraw& aChartDraw, const rjson::array& aPos, bool aVerbose)
         {
             const auto& seqdb = seqdb::get(do_report_time(aVerbose));
-            const auto aa_indices = seqdb.aa_at_positions_for_antigens(aChartDraw.chart().antigens(), {std::begin(aPos), std::end(aPos)}, aVerbose);
+            const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), {std::begin(aPos), std::end(aPos)}, aVerbose);
             std::vector<std::string> aa_sorted(aa_indices.size()); // most frequent aa first
             std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
             std::sort(std::begin(aa_sorted), std::end(aa_sorted), [&aa_indices](const auto& n1, const auto& n2) -> bool { return aa_indices.find(n1)->second.size() > aa_indices.find(n2)->second.size(); });
             for (auto [index, aa]: acmacs::enumerate(aa_sorted)) {
                 const auto& indices_for_aa = aa_indices.find(aa)->second;
                 auto styl = style();
-                styl.fill(fill_color(index, aa));
+                styl.fill = fill_color(index, aa);
                 aChartDraw.modify(std::begin(indices_for_aa), std::end(indices_for_aa), styl, drawing_order());
                 try { add_legend(aChartDraw, indices_for_aa, styl, aa, args()["legend"]); } catch (rjson::field_not_found&) {}
                 if (aVerbose)
@@ -367,7 +371,7 @@ class ModAminoAcids : public Mod
             std::string target_aas(pos_aa.size(), ' ');
             std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(target_aas), [](const auto& src) { return static_cast<std::string_view>(src).back(); });
             const auto& seqdb = seqdb::get(do_report_time(aVerbose));
-            const auto aa_indices = seqdb.aa_at_positions_for_antigens(aChartDraw.chart().antigens(), positions, aVerbose);
+            const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), positions, aVerbose);
             if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
                 auto styl = style();
                 styl = point_style_from_json(aGroup);
@@ -678,18 +682,9 @@ class ModUseChartPlotSpec : public Mod
             try {
                 const auto& plot_spec = aChartDraw.chart().plot_spec();
                 for (size_t point_no = 0; point_no < aChartDraw.number_of_points(); ++point_no) {
-                    const auto& source = plot_spec.style_for(point_no);
-                    auto style{PointStyleEmpty()};
-                    style.fill(source.fill_color())
-                            .outline(source.outline_color())
-                            .outline_width(Pixels{source.outline_width()})
-                            .shape(source.shape_as_string())
-                            .size(Pixels{source.size() * 5})
-                            .rotation(source.rotation())
-                            .aspect(source.aspect());
-                    aChartDraw.modify(point_no, style);
+                    aChartDraw.modify(point_no, plot_spec->style(point_no));
                 }
-                aChartDraw.drawing_order() = plot_spec.drawing_order();
+                aChartDraw.drawing_order() = plot_spec->drawing_order();
             }
             catch (rjson::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};
@@ -727,14 +722,16 @@ class ModLine : public Mod
                 result.emplace_back(from[0], from[1]);
             }
             else if (auto [from_antigen_present, from_antigen] = args().get_object_if(aPrefix + "_antigen"); from_antigen_present) {
+                auto layout = aChartDraw.layout();
                 for (auto index: SelectAntigens(verbose).select(aChartDraw.chart(), from_antigen)) {
-                    const auto& coord = aChartDraw.layout()[index];
+                    const auto coord = (*layout)[index];
                     result.emplace_back(coord[0], coord[1]);
                 }
             }
             else if (auto [from_serum_present, from_serum] = args().get_object_if(aPrefix + "_serum"); from_serum_present) {
+                auto layout = aChartDraw.layout();
                 for (auto index: SelectSera(verbose).select(aChartDraw.chart(), from_serum)) {
-                    const auto& coord = aChartDraw.layout()[index + aChartDraw.number_of_antigens()];
+                    const auto coord = (*layout)[index + aChartDraw.number_of_antigens()];
                     result.emplace_back(coord[0], coord[1]);
                 }
             }
@@ -860,11 +857,11 @@ class ModSerumHomologous : public Mod
 
     std::vector<size_t> select_homologous_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool /*aVerbose*/) const
         {
-            hidb::get(aChartDraw.chart().chart_info().virus_type()).find_homologous_antigens_for_sera_of_chart(aChartDraw.chart());
-            const auto& antigens = aChartDraw.chart().serum(aSerumIndex).homologous();
-            if (antigens.empty())
+            aChartDraw.chart().set_homologous(true);
+            const auto antigen_indexes = aChartDraw.chart().serum(aSerumIndex)->homologous_antigens();
+            if (antigen_indexes.empty())
                 throw unrecognized_mod{"no homologous antigens for serum, mod: " + args().to_json()};
-            return antigens;
+            return antigen_indexes;
         }
 
 }; // class ModSerumHomologous
@@ -911,16 +908,17 @@ class ModSerumCircle : public ModSerumHomologous
     double calculate_radius(ChartDraw& aChartDraw, size_t aSerumIndex, const std::vector<size_t>& aAntigenIndices, bool aVerbose) const
         {
             std::vector<double> radii;
-            std::transform(std::begin(aAntigenIndices), std::end(aAntigenIndices), std::back_inserter(radii), [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius(antigen_index, aSerumIndex, aChartDraw.projection_no(), false); });
+            std::transform(std::begin(aAntigenIndices), std::end(aAntigenIndices), std::back_inserter(radii),
+                           [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius(antigen_index, aSerumIndex, aChartDraw.projection_no(), false); });
             double radius = 0;
             for (auto rad: radii) {
                 if (rad > 0 && (radius <= 0 || rad < radius))
                     radius = rad;
             }
             if (aVerbose) {
-                std::cerr << "INFO: serum_circle radius: " << radius << "\n  SR " << aSerumIndex << ' ' << aChartDraw.chart().serum(aSerumIndex).full_name() << '\n';
+                std::cerr << "INFO: serum_circle radius: " << radius << "\n  SR " << aSerumIndex << ' ' << aChartDraw.chart().serum(aSerumIndex)->full_name() << '\n';
                 for (auto [no, antigen_index]: acmacs::enumerate(aAntigenIndices))
-                    std::cerr << "    radius: " << radii[no] << "  AG " << antigen_index << ' ' << aChartDraw.chart().antigen(antigen_index).full_name() << '\n';
+                    std::cerr << "    radius: " << radii[no] << "  AG " << antigen_index << ' ' << aChartDraw.chart().antigen(antigen_index)->full_name() << '\n';
             }
             return radius;
         }
@@ -943,8 +941,8 @@ class ModSerumCoverage : public ModSerumHomologous
             std::vector<size_t> within, outside;
             aChartDraw.chart().serum_coverage(antigen_indices[0], serum_index, within, outside);
             if (verbose) {
-                std::cerr << "INFO: serum coverage\n  SR " << serum_index << ' ' << aChartDraw.chart().serum(serum_index).full_name()
-                          << "\n  AG " << antigen_indices[0] << ' ' << aChartDraw.chart().antigen(antigen_indices[0]).full_name()
+                std::cerr << "INFO: serum coverage\n  SR " << serum_index << ' ' << aChartDraw.chart().serum(serum_index)->full_name()
+                          << "\n  AG " << antigen_indices[0] << ' ' << aChartDraw.chart().antigen(antigen_indices[0])->full_name()
                           << "\n  within 4fold:  " << within.size()
                           << "\n  outside 4fold: " << outside.size() << '\n';
             }

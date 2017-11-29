@@ -52,8 +52,13 @@ void GeographicMapDraw::draw(std::string aFilename, double aImageWidth)
 
 void GeographicMapDraw::add_point(long aPriority, double aLat, double aLong, Color aFill, Pixels aSize, Color aOutline, Pixels aOutlineWidth)
 {
-    mPoints.emplace_back(Coordinates{aLong, -aLat}, aPriority);
-    mPoints.back().shape(PointStyle::Shape::Circle).fill(aFill).outline(aOutline).outline_width(aOutlineWidth).size(aSize);
+    mPoints.emplace_back(LongLat{aLong, -aLat}, aPriority);
+    auto& style = mPoints.back();
+    style.shape = acmacs::PointShape::Circle;
+    style.fill = aFill;
+    style.outline = aOutline;
+    style.outline_width = aOutlineWidth;
+    style.size = aSize;
 
 } // GeographicMapDraw::add_point
 
@@ -103,19 +108,18 @@ void GeographicMapWithPointsFromHidb::prepare(Surface& aSurface)
 void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate)
 {
       // std::cerr << "add_points_from_hidb_colored_by" << '\n';
-    auto antigens = hidb::get(mVirusType).all_antigens();
-    antigens.date_range(aStartDate, aEndDate);
+    const auto& hidb = hidb::get(mVirusType);
+    auto antigens = hidb.antigens()->date_range(aStartDate, aEndDate);
     std::cerr << "INFO: dates: " << aStartDate << ".." << aEndDate << "  antigens: " << antigens.size() << std::endl;
     if (!aPriority.empty())
         std::cerr << "INFO priority: " << aPriority << " (the last in this list to be drawn on top of others)\n";
-    for (auto& antigen: antigens) {
+    for (auto antigen: antigens) {
         auto [tag, coloring_data] = aColorOverride.color(*antigen);
         if (coloring_data.fill.empty())
             std::tie(tag, coloring_data) = aColoring.color(*antigen);
         try {
             auto location = virus_name::location(antigen->name());
-              // if (location == "GEORGIA") std::cerr << antigen->name() << ' ' << antigen->most_recent_table().table_id() << '\n';
-            if (location == "GEORGIA" && antigen->most_recent_table().table_id().find(":cdc:") != std::string::npos)
+            if (location == "GEORGIA" && hidb.tables()->most_recent(antigen->tables())->lab() == "CDC")
                 location = "GEORGIA STATE"; // somehow disambiguate
             const auto found = std::find(std::begin(aPriority), std::end(aPriority), tag);
             mPointsAtLocation.add(location, found == std::end(aPriority) ? 0 : (found - std::begin(aPriority) + 1), coloring_data);

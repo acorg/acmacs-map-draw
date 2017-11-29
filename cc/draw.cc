@@ -5,21 +5,14 @@
 #include "acmacs-base/log.hh"
 #include "acmacs-base/float.hh"
 #include "acmacs-base/enumerate.hh"
-#include "acmacs-chart-1/lispmds.hh"
-#include "acmacs-chart-1/ace.hh"
-#include "acmacs-map-draw/draw.hh"
-
-#ifdef ACMACS_TARGET_OS
+#include "acmacs-chart-2/factory-export.hh"
+#include "acmacs-chart-2/bounding-ball.hh"
 #include "acmacs-draw/surface-cairo.hh"
-#endif
-
-#ifdef ACMACS_TARGET_BROWSER
-#include "acmacs-draw/surface.hh"
-#endif
+#include "acmacs-map-draw/draw.hh"
 
 // ----------------------------------------------------------------------
 
-DrawingOrder::DrawingOrder(Chart_Type& aChart)
+DrawingOrder::DrawingOrder(acmacs::chart::Chart& aChart)
     : std::vector<size_t>(acmacs::incrementer<size_t>::begin(0), acmacs::incrementer<size_t>::end(aChart.number_of_points()))
 {
 } // DrawingOrder::DrawingOrder
@@ -46,10 +39,10 @@ void DrawingOrder::lower(size_t aPointNo)
 
 // ----------------------------------------------------------------------
 
-ChartDraw::ChartDraw(Chart_Type& aChart, size_t aProjectionNo)
+ChartDraw::ChartDraw(acmacs::chart::Chart& aChart, size_t aProjectionNo)
     : mChart(aChart),
       mProjectionNo(aProjectionNo),
-      mTransformation(mChart.projection(mProjectionNo).transformation()),
+      mTransformation(mChart.projection(mProjectionNo)->transformation()),
       mPointStyles(mChart.number_of_points()),
       mDrawingOrder(mChart)
 {
@@ -67,8 +60,15 @@ ChartDraw::ChartDraw(Chart_Type& aChart, size_t aProjectionNo)
 
 void ChartDraw::prepare()
 {
-    modify(mChart.reference_antigen_indices(), PointStyleDraw(PointStyle::Empty).fill("transparent").size(Pixels{8}), PointDrawingOrder::Lower);
-    modify(mChart.serum_indices(), PointStyleDraw(PointStyle::Empty).shape(PointStyle::Shape::Box).fill("transparent").size(Pixels{8}), PointDrawingOrder::Lower);
+    PointStyleDraw ref_antigen;
+    ref_antigen.fill = "transparent";
+    ref_antigen.size = Pixels{8};
+    modify(mChart.antigens()->reference_indexes(), ref_antigen, PointDrawingOrder::Lower);
+    PointStyleDraw serum;
+    serum.shape = acmacs::PointShape::Box;
+    serum.fill = "transparent";
+    serum.size = Pixels{8};
+    modify_sera(mChart.sera()->all_indexes(), serum, PointDrawingOrder::Lower);
 
 } // ChartDraw::prepare
 
@@ -92,7 +92,7 @@ size_t ChartDraw::number_of_sera() const
 
 const acmacs::Viewport& ChartDraw::calculate_viewport(bool verbose)
 {
-    std::unique_ptr<BoundingBall> bb(transformed_layout().minimum_bounding_ball());
+    std::unique_ptr<acmacs::BoundingBall> bb{transformed_layout().minimum_bounding_ball()};
     acmacs::Viewport viewport;
     viewport.set_from_center_size(bb->center(), bb->diameter());
     viewport.whole_width();
@@ -113,7 +113,7 @@ const acmacs::Viewport& ChartDraw::calculate_viewport(bool verbose)
 void ChartDraw::draw(Surface& aSurface) const
 {
     if (mViewport.empty()) {
-        THROW_OR_CERR(std::runtime_error("Call calculate_viewport() before draw()"));
+        throw std::runtime_error("Call calculate_viewport() before draw()");
     }
 
     Surface& rescaled_surface = aSurface.subsurface({0, 0}, Scaled{aSurface.viewport().size.width}, mViewport, true);
@@ -125,7 +125,7 @@ void ChartDraw::draw(Surface& aSurface) const
     for (auto index: mDrawingOrder) {
         mPointStyles[index].draw(rescaled_surface, layout[index]);
         // if (index < number_of_antigens())
-        //     std::cout << "AG: " << index << ' ' << layout[index] << ' ' << mPointStyles[index].fill_raw() << " \"" << mChart.antigen(index).full_name() << "\"\n";
+        //     std::cout << "AG: " << index << ' ' << layout[index] << ' ' << mPointStyles[index] << " \"" << mChart.antigen(index)->full_name() << "\"\n";
     }
     mLabels.draw(rescaled_surface, layout, mPointStyles);
 
@@ -149,8 +149,8 @@ void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) co
 
 void ChartDraw::hide_all_except(const std::vector<size_t>& aNotHide)
 {
-    PointStyleDraw style(PointStyle::Empty);
-    style.hide();
+    PointStyleDraw style;
+    style.shown = false;
     for (size_t index = 0; index < mPointStyles.size(); ++index) {
         if (std::find(aNotHide.begin(), aNotHide.end(), index) == aNotHide.end())
             mPointStyles[index] = style;
@@ -162,7 +162,9 @@ void ChartDraw::hide_all_except(const std::vector<size_t>& aNotHide)
 
 void ChartDraw::mark_egg_antigens()
 {
-    modify(mChart.egg_antigen_indices(), PointStyleDraw(PointStyle::Empty).aspect(AspectEgg));
+    PointStyleDraw style;
+    style.aspect = AspectEgg;
+    modify(mChart.antigens()->egg_indexes(), style);
 
 } // ChartDraw::mark_egg_antigens
 
@@ -170,15 +172,17 @@ void ChartDraw::mark_egg_antigens()
 
 void ChartDraw::mark_reassortant_antigens()
 {
-    modify(mChart.reassortant_antigen_indices(), PointStyleDraw(PointStyle::Empty).rotation(RotationReassortant));
+    PointStyleDraw style;
+    style.rotation = RotationReassortant;
+    modify(mChart.antigens()->reassortant_indexes(), style);
 
 } // ChartDraw::mark_reassortant_antigens
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::modify_all_sera(const PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder)
+void ChartDraw::modify_all_sera(const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder)
 {
-    modify(mChart.serum_indices(), aStyle, aPointDrawingOrder);
+    modify_sera(mChart.sera()->all_indexes(), aStyle, aPointDrawingOrder);
 
 } // ChartDraw::modify_all_sera
 
@@ -197,9 +201,14 @@ void ChartDraw::scale_points(double aPointScale, double aOulineScale)
 
 void ChartDraw::mark_all_grey(Color aColor)
 {
-    modify(mChart.reference_antigen_indices(), PointStyleDraw(PointStyle::Empty).outline(aColor));
-    modify(mChart.test_antigen_indices(), PointStyleDraw(PointStyle::Empty).fill(aColor).outline(aColor));
-    modify(mChart.serum_indices(), PointStyleDraw(PointStyle::Empty).outline(aColor));
+    PointStyleDraw ref_antigen;
+    ref_antigen.outline = aColor;
+    modify(mChart.antigens()->reference_indexes(), ref_antigen);
+    PointStyleDraw test_antigen;
+    test_antigen.fill = aColor;
+    test_antigen.outline = aColor;
+    modify(mChart.antigens()->test_indexes(), test_antigen);
+    modify(mChart.sera()->all_indexes(), ref_antigen);
 
 } // ChartDraw::mark_all_grey
 
@@ -276,47 +285,11 @@ void ChartDraw::remove_serum_circles()
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::export_ace(std::string aFilename)
+void ChartDraw::save(std::string aFilename, std::string aProgramName)
 {
-    if (mChart.number_of_projections()) {
-        mChart.projection(0).transformation(transformation());
-    }
-    auto& plot_spec = mChart.plot_spec();
-    plot_spec.reset(mChart);
-    for (auto [index, new_style]: acmacs::enumerate(point_styles_base())) {
-        ChartPlotSpecStyle style(new_style.fill(), new_style.outline(), ChartPlotSpecStyle::Circle, new_style.size().value() / 5);
-        switch (new_style.shape()) {
-          case PointStyle::Shape::NoChange:
-              break;
-          case PointStyle::Shape::Circle:
-              style.set_shape(ChartPlotSpecStyle::Circle);
-              break;
-          case PointStyle::Shape::Box:
-              style.set_shape(ChartPlotSpecStyle::Box);
-              break;
-          case PointStyle::Shape::Triangle:
-              style.set_shape(ChartPlotSpecStyle::Triangle);
-              break;
-        }
-        style.shown(new_style.shown());
-        style.outline_width(new_style.outline_width().value());
-        style.rotation(new_style.rotation().value());
-        style.aspect(new_style.aspect().value());
-          // style.label() =
-        plot_spec.set(index, style);
-    }
-    plot_spec.drawing_order() = drawing_order();
-    export_chart(aFilename, mChart, report_time::Yes);
+    acmacs::chart::export_factory(mChart, aFilename, aProgramName);
 
-} // ChartDraw::export_ace
-
-// ----------------------------------------------------------------------
-
-void ChartDraw::export_lispmds(std::string aFilename)
-{
-    export_chart_lispmds(aFilename, chart(), point_styles_base(), transformation());
-
-} // ChartDraw::export_lispmds
+} // ChartDraw::save
 
 // ----------------------------------------------------------------------
 /// Local Variables:
