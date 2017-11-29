@@ -4,7 +4,7 @@
 #include <map>
 
 #include "acmacs-base/time-series.hh"
-#include "hidb/hidb.hh"
+#include "hidb-4/hidb.hh"
 #include "seqdb/seqdb.hh"
 #include "locationdb/locdb.hh"
 #include "acmacs-map-draw/point-style-draw.hh"

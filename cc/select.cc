@@ -3,7 +3,7 @@
 
 #include "acmacs-chart-1/chart.hh"
 #include "locationdb/locdb.hh"
-#include "hidb/hidb.hh"
+#include "hidb-4/hidb.hh"
 
 #include "vaccines.hh"
 #include "select.hh"

@@ -3,7 +3,7 @@
 #include "acmacs-chart-1/chart.hh"
 #include "acmacs-chart-1/ace.hh"
 #include "acmacs-chart-1/lispmds.hh"
-#include "hidb/hidb.hh"
+#include "hidb-4/hidb.hh"
 #include "seqdb/seqdb.hh"
 
 #include "draw.hh"
