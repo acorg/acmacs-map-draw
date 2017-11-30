@@ -79,7 +79,7 @@ $(ACMACS_MAP_DRAW_PY_LIB): $(patsubst %.cc,$(BUILD)/%.o,$(ACMACS_MAP_DRAW_PY_SOU
 
 $(DIST)/%: $(BUILD)/%.o | $(ACMACS_MAP_DRAW_LIB)
 	@printf "%-16s %s\n" "LINK" $@
-	@$(CXX) $(LDFLAGS) -o $@ $^ $(ACMACS_MAP_DRAW_LIB) $(LDLIBS)
+	@$(CXX) $(LDFLAGS) -o $@ $^ $(ACMACS_MAP_DRAW_LIB) $(LDLIBS) $(AD_RPATH)
 
 # ======================================================================
 ### Local Variables:
