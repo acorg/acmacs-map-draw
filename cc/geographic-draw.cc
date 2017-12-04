@@ -112,7 +112,7 @@ int draw(const argc_argv& args)
             acmacs::quicklook(output, 2);
     }
     else {
-        std::cerr << "INFO: time series " << static_cast<std::string>(args["--time-series"]) << '\n';
+        std::cerr << "INFO: time series " << static_cast<std::string_view>(args["--time-series"]) << '\n';
         if (args.number_of_arguments() < 2)
             throw std::runtime_error("Please provide output filename prefix for time series");
         std::unique_ptr<GeographicTimeSeriesBase> time_series;
@@ -123,7 +123,7 @@ int draw(const argc_argv& args)
         else if (args["--time-series"] == "weekly")
             time_series.reset(new GeographicTimeSeriesWeekly(args[0], start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]));
         else
-            throw std::runtime_error("Unsupported time series argument: " + static_cast<std::string>(args["--time-series"]) + " (monthly or yearly or weekly expected)");
+            throw std::runtime_error("Unsupported time series argument: " + static_cast<std::string_view>(args["--time-series"]) + " (monthly or yearly or weekly expected)");
         set_title(time_series->title(), settings, false);
         time_series->draw(std::string{args[1]}, *coloring, ColorOverride{}, settings["output_image_width"]);
     }
