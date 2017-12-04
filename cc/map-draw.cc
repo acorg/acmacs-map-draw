@@ -6,7 +6,6 @@ using namespace std::string_literals;
 #include "acmacs-base/argc-argv.hh"
 #include "acmacs-base/read-file.hh"
 #include "acmacs-base/quicklook.hh"
-// #include "acmacs-base/enumerate.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-map-draw/draw.hh"
 
@@ -25,10 +24,10 @@ int main(int argc, char* const argv[])
         argc_argv args(argc, argv, {
                 {"--clade", false},
                 {"--point-scale", 1.0},
-                {"--settings", argc_argv::strings{}},
-                {"-s", argc_argv::strings{}},
-                {"--init-settings", ""},
-                {"--save", ""},
+                {"--settings", argc_argv::strings{}, "load settings from file"},
+                {"-s", argc_argv::strings{}, "load settings from file"},
+                {"--init-settings", "", "initialize (overwrite) settings file"},
+                {"--save", "", "save resulting chart with modified projection and plot spec"},
                 {"-h", false},
                 {"--help", false},
                 {"--help-mods", false},
@@ -64,18 +63,13 @@ int draw(const argc_argv& args)
 
     setup_dbs(args["--db-dir"], verbose);
 
-    auto settings = settings_default();
-    auto chart = acmacs::chart::import_factory(args[0], acmacs::chart::Verify::None);
-    decltype(chart) previous_chart;
+    ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_factory(args[0], acmacs::chart::Verify::None)), args["--projection"]);
     if (args["--previous"])
-        previous_chart = acmacs::chart::import_factory(args["--previous"], acmacs::chart::Verify::None);
-
-    ChartDraw chart_draw(*chart, args["--projection"]);
-    if (previous_chart)
-        chart_draw.previous_chart(*previous_chart);
+        chart_draw.previous_chart(acmacs::chart::import_factory(args["--previous"], acmacs::chart::Verify::None));
 
     chart_draw.prepare();
 
+    auto settings = settings_default();
     if (args["--init-settings"]) {
         auto write_settings = [&settings](std::ostream& out) { out << settings.to_json_pp() << '\n'; };
         if (args["--init-settings"] == "-") {
@@ -106,7 +100,7 @@ int draw(const argc_argv& args)
         settings.set_field("apply", rjson::array{"all_grey", "egg", "clades", "vaccines"});
     }
 
-    if (!float_equal(static_cast<double>(args["--point-scale"]), 1.0)) {
+    if (args["--point-scale"].present()) {
         static_cast<rjson::array&>(settings["apply"]).insert(rjson::object{{{"N", rjson::string{"point_scale"}}, {"scale", rjson::number{static_cast<std::string_view>(args["--point-scale"])}}, {"outline_scale", rjson::number{1.0}}}});
     }
 

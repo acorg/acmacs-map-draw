@@ -39,12 +39,12 @@ void DrawingOrder::lower(size_t aPointNo)
 
 // ----------------------------------------------------------------------
 
-ChartDraw::ChartDraw(acmacs::chart::Chart& aChart, size_t aProjectionNo)
+ChartDraw::ChartDraw(acmacs::chart::ChartModifyP aChart, size_t aProjectionNo)
     : mChart(aChart),
       mProjectionNo(aProjectionNo),
-      mTransformation(mChart.projection(mProjectionNo)->transformation()),
-      mPointStyles(mChart.number_of_points()),
-      mDrawingOrder(mChart)
+      mTransformation(mChart->projection(mProjectionNo)->transformation()),
+      mPointStyles(mChart->number_of_points()),
+      mDrawingOrder(*mChart)
 {
       // std::cerr << "DrawingOrder: " << mDrawingOrder << std::endl;
     // auto ag_ind = aChart.antigen_indices(), sr_ind = aChart.serum_indices();
@@ -63,30 +63,14 @@ void ChartDraw::prepare()
     PointStyleDraw ref_antigen;
     ref_antigen.fill = "transparent";
     ref_antigen.size = Pixels{8};
-    modify(mChart.antigens()->reference_indexes(), ref_antigen, PointDrawingOrder::Lower);
+    modify(chart().antigens()->reference_indexes(), ref_antigen, PointDrawingOrder::Lower);
     PointStyleDraw serum;
     serum.shape = acmacs::PointShape::Box;
     serum.fill = "transparent";
     serum.size = Pixels{8};
-    modify_sera(mChart.sera()->all_indexes(), serum, PointDrawingOrder::Lower);
+    modify_sera(chart().sera()->all_indexes(), serum, PointDrawingOrder::Lower);
 
 } // ChartDraw::prepare
-
-// ----------------------------------------------------------------------
-
-size_t ChartDraw::number_of_antigens() const
-{
-    return mChart.number_of_antigens();
-
-} // ChartDraw::number_of_antigens
-
-// ----------------------------------------------------------------------
-
-size_t ChartDraw::number_of_sera() const
-{
-    return mChart.number_of_sera();
-
-} // ChartDraw::number_of_sera
 
 // ----------------------------------------------------------------------
 
@@ -125,7 +109,7 @@ void ChartDraw::draw(Surface& aSurface) const
     for (auto index: mDrawingOrder) {
         mPointStyles[index].draw(rescaled_surface, layout[index]);
         // if (index < number_of_antigens())
-        //     std::cout << "AG: " << index << ' ' << layout[index] << ' ' << mPointStyles[index] << " \"" << mChart.antigen(index)->full_name() << "\"\n";
+        //     std::cout << "AG: " << index << ' ' << layout[index] << ' ' << mPointStyles[index] << " \"" << chart().antigen(index)->full_name() << "\"\n";
     }
     mLabels.draw(rescaled_surface, layout, mPointStyles);
 
@@ -164,7 +148,7 @@ void ChartDraw::mark_egg_antigens()
 {
     PointStyleDraw style;
     style.aspect = AspectEgg;
-    modify(mChart.antigens()->egg_indexes(), style);
+    modify(chart().antigens()->egg_indexes(), style);
 
 } // ChartDraw::mark_egg_antigens
 
@@ -174,7 +158,7 @@ void ChartDraw::mark_reassortant_antigens()
 {
     PointStyleDraw style;
     style.rotation = RotationReassortant;
-    modify(mChart.antigens()->reassortant_indexes(), style);
+    modify(chart().antigens()->reassortant_indexes(), style);
 
 } // ChartDraw::mark_reassortant_antigens
 
@@ -182,7 +166,7 @@ void ChartDraw::mark_reassortant_antigens()
 
 void ChartDraw::modify_all_sera(const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder)
 {
-    modify_sera(mChart.sera()->all_indexes(), aStyle, aPointDrawingOrder);
+    modify_sera(chart().sera()->all_indexes(), aStyle, aPointDrawingOrder);
 
 } // ChartDraw::modify_all_sera
 
@@ -203,12 +187,12 @@ void ChartDraw::mark_all_grey(Color aColor)
 {
     PointStyleDraw ref_antigen;
     ref_antigen.outline = aColor;
-    modify(mChart.antigens()->reference_indexes(), ref_antigen);
+    modify(chart().antigens()->reference_indexes(), ref_antigen);
     PointStyleDraw test_antigen;
     test_antigen.fill = aColor;
     test_antigen.outline = aColor;
-    modify(mChart.antigens()->test_indexes(), test_antigen);
-    modify(mChart.sera()->all_indexes(), ref_antigen);
+    modify(chart().antigens()->test_indexes(), test_antigen);
+    modify(chart().sera()->all_indexes(), ref_antigen);
 
 } // ChartDraw::mark_all_grey
 
@@ -287,7 +271,7 @@ void ChartDraw::remove_serum_circles()
 
 void ChartDraw::save(std::string aFilename, std::string aProgramName)
 {
-    acmacs::chart::export_factory(mChart, aFilename, aProgramName);
+    acmacs::chart::export_factory(chart(), aFilename, aProgramName);
 
 } // ChartDraw::save
 
