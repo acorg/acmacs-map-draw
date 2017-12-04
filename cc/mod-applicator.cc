@@ -684,7 +684,6 @@ class ModUseChartPlotSpec : public Mod
                 for (size_t point_no = 0; point_no < aChartDraw.number_of_points(); ++point_no) {
                     aChartDraw.modify(point_no, plot_spec->style(point_no));
                 }
-                aChartDraw.drawing_order() = plot_spec->drawing_order();
             }
             catch (rjson::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};

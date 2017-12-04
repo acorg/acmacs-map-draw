@@ -17,19 +17,6 @@ class Surface;
 
 // ----------------------------------------------------------------------
 
-class DrawingOrder : public std::vector<size_t>
-{
- public:
-    DrawingOrder(acmacs::chart::Chart& aChart);
-    inline DrawingOrder& operator=(const std::vector<size_t>& aSource) { std::vector<size_t>::operator=(aSource); return *this; }
-
-    void raise(size_t aPointNo);
-    void lower(size_t aPointNo);
-
-}; // class DrawingOrder
-
-// ----------------------------------------------------------------------
-
 class ChartDraw
 {
  public:
@@ -125,7 +112,8 @@ class ChartDraw
     inline void viewport(const acmacs::Viewport& aViewport) { mViewport = aViewport; }
     inline const acmacs::Viewport& viewport() const { return mViewport; }
 
-    DrawingOrder& drawing_order() { return mDrawingOrder; }
+    inline acmacs::chart::DrawingOrder& drawing_order() { return mPlotSpec->drawing_order_modify(); }
+    inline acmacs::chart::DrawingOrder drawing_order() const { return mPlotSpec->drawing_order(); }
 
     inline void background_color(Color aBackgroud) { DYNAMIC_CAST(map_elements::BackgroundBorderGrid&, (mMapElements["background-border-grid"])).background_color(aBackgroud); }
     inline void grid(Color aGridColor, double aGridLineWidth) { DYNAMIC_CAST(map_elements::BackgroundBorderGrid&, (mMapElements["background-border-grid"])).grid(aGridColor, aGridLineWidth); }
@@ -163,12 +151,12 @@ class ChartDraw
 
  private:
     acmacs::chart::ChartModifyP mChart;
+    acmacs::chart::PlotSpecModifyP mPlotSpec;
     acmacs::chart::ChartP mPreviousChart;
     size_t mProjectionNo;
     acmacs::Viewport mViewport;
     acmacs::Transformation mTransformation;
     std::vector<PointStyleDraw> mPointStyles;
-    DrawingOrder mDrawingOrder;
     map_elements::Elements mMapElements;
     map_elements::Labels mLabels;
     mutable std::unique_ptr<acmacs::chart::Layout> mTransformedLayout;

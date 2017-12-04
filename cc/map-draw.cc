@@ -101,7 +101,7 @@ int draw(const argc_argv& args)
     }
 
     if (args["--point-scale"].present()) {
-        static_cast<rjson::array&>(settings["apply"]).insert(rjson::object{{{"N", rjson::string{"point_scale"}}, {"scale", rjson::number{static_cast<std::string_view>(args["--point-scale"])}}, {"outline_scale", rjson::number{1.0}}}});
+        static_cast<rjson::array&>(settings["apply"]).insert(rjson::object{{{"N", rjson::string{"point_scale"}}, {"scale", rjson::number{static_cast<double>(args["--point-scale"])}}, {"outline_scale", rjson::number{1.0}}}});
     }
 
     try {

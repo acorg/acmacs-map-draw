@@ -12,48 +12,12 @@
 
 // ----------------------------------------------------------------------
 
-DrawingOrder::DrawingOrder(acmacs::chart::Chart& aChart)
-    : std::vector<size_t>(acmacs::incrementer<size_t>::begin(0), acmacs::incrementer<size_t>::end(aChart.number_of_points()))
-{
-} // DrawingOrder::DrawingOrder
-
-// ----------------------------------------------------------------------
-
-void DrawingOrder::raise(size_t aPointNo)
-{
-    auto p = std::find(begin(), end(), aPointNo);
-    if (p != end())
-        std::rotate(p, p + 1, end());
-
-} // DrawingOrder::raise
-
-// ----------------------------------------------------------------------
-
-void DrawingOrder::lower(size_t aPointNo)
-{
-    auto p = std::find(rbegin(), rend(), aPointNo);
-    if (p != rend())
-        std::rotate(p, p + 1, rend());
-
-} // DrawingOrder::lower
-
-// ----------------------------------------------------------------------
-
 ChartDraw::ChartDraw(acmacs::chart::ChartModifyP aChart, size_t aProjectionNo)
-    : mChart(aChart),
+    : mChart(aChart), mPlotSpec(mChart->plot_spec_modify()),
       mProjectionNo(aProjectionNo),
       mTransformation(mChart->projection(mProjectionNo)->transformation()),
-      mPointStyles(mChart->number_of_points()),
-      mDrawingOrder(*mChart)
+      mPointStyles(mChart->number_of_points())
 {
-      // std::cerr << "DrawingOrder: " << mDrawingOrder << std::endl;
-    // auto ag_ind = aChart.antigen_indices(), sr_ind = aChart.serum_indices();
-    // std::vector<size_t> ag(ag_ind.begin(), ag_ind.end());
-    // std::cerr << "AG " << ag << std::endl;
-    // std::vector<size_t> sr(sr_ind.begin(), sr_ind.end());
-    // std::cerr << "SR " << sr << std::endl;
-    // std::cerr << "AGref " << aChart.reference_antigen_indices() << std::endl;
-    // std::cerr << "AGegg " << aChart.egg_antigen_indices() << std::endl;
 }
 
 // ----------------------------------------------------------------------
@@ -104,9 +68,8 @@ void ChartDraw::draw(Surface& aSurface) const
     mMapElements.draw(rescaled_surface, map_elements::Elements::BeforePoints, *this);
 
     const auto& layout = transformed_layout();
-    if (mDrawingOrder.empty())
-        acmacs::fill_with_indexes(const_cast<ChartDraw*>(this)->mDrawingOrder, number_of_points());
-    for (auto index: mDrawingOrder) {
+
+    for (auto index: drawing_order()) {
         mPointStyles[index].draw(rescaled_surface, layout[index]);
         // if (index < number_of_antigens())
         //     std::cout << "AG: " << index << ' ' << layout[index] << ' ' << mPointStyles[index] << " \"" << chart().antigen(index)->full_name() << "\"\n";
