@@ -1,3 +1,5 @@
+#error not supported
+
 #include "acmacs-base/pybind11.hh"
 #include "acmacs-base/point-style.hh"
 #include "locationdb/locdb.hh"
