@@ -9,7 +9,6 @@ static const char* const SETTINGS_DEFAULT = R"(
     "?all_grey",
     "?egg",
 
-    "use_chart_plot_spec",
     "?clades",
     "?vaccines"
   ]
@@ -191,7 +190,6 @@ static const char* const SETTINGS_HELP_MODS = R"(
   "legend": {},
   "report": false},
 
-"use_chart_plot_spec"
 "all_grey"
 "clades"
 "clades_last_6_months"
@@ -355,7 +353,6 @@ const char* settings_help_select()
 // rotate_degrees angle:
 // rotate_radians angle:
 // viewport value:
-// use_chart_plot_spec
 // point_scale
 // {"N": "background", "color": "white"},
 // {"N": "grid", "color": "grey80", "line_width": 1},

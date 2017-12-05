@@ -4,23 +4,23 @@
 
 // ----------------------------------------------------------------------
 
-void PointStyleDraw::draw(Surface& aSurface, const acmacs::chart::Coordinates& aCoord) const
+void draw_point(Surface& aSurface, const acmacs::PointStyle& aStyle, const acmacs::chart::Coordinates& aCoord)
 {
-    if (*shown && aCoord.not_nan()) {
-        switch (*shape) {
+    if (*aStyle.shown && aCoord.not_nan()) {
+        switch (*aStyle.shape) {
           case acmacs::PointShape::Circle:
-              aSurface.circle_filled(aCoord, Pixels{*size}, *aspect, *rotation, *outline, *outline_width, *fill);
+              aSurface.circle_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, *aStyle.outline, *aStyle.outline_width, *aStyle.fill);
               break;
           case acmacs::PointShape::Box:
-              aSurface.square_filled(aCoord, Pixels{*size}, *aspect, *rotation, *outline, *outline_width, *fill);
+              aSurface.square_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, *aStyle.outline, *aStyle.outline_width, *aStyle.fill);
               break;
           case acmacs::PointShape::Triangle:
-              aSurface.triangle_filled(aCoord, Pixels{*size}, *aspect, *rotation, *outline, *outline_width, *fill);
+              aSurface.triangle_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, *aStyle.outline, *aStyle.outline_width, *aStyle.fill);
               break;
         }
     }
 
-} // PointStyleDraw::draw
+} // draw_point
 
 // ----------------------------------------------------------------------
 

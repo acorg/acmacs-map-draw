@@ -15,8 +15,7 @@
 ChartDraw::ChartDraw(acmacs::chart::ChartModifyP aChart, size_t aProjectionNo)
     : mChart(aChart),
       mProjectionModify(mChart->projection_modify(aProjectionNo)),
-      mPlotSpec(mChart->plot_spec_modify()),
-      mPointStyles(mChart->number_of_points())
+      mPlotSpec(mChart->plot_spec_modify())
 {
 }
 
@@ -24,11 +23,11 @@ ChartDraw::ChartDraw(acmacs::chart::ChartModifyP aChart, size_t aProjectionNo)
 
 void ChartDraw::prepare()
 {
-    PointStyleDraw ref_antigen;
+    acmacs::PointStyle ref_antigen;
     ref_antigen.fill = "transparent";
     ref_antigen.size = Pixels{8};
     modify(chart().antigens()->reference_indexes(), ref_antigen, PointDrawingOrder::Lower);
-    PointStyleDraw serum;
+    acmacs::PointStyle serum;
     serum.shape = acmacs::PointShape::Box;
     serum.fill = "transparent";
     serum.size = Pixels{8};
@@ -70,11 +69,11 @@ void ChartDraw::draw(Surface& aSurface) const
     const auto layout = transformed_layout();
 
     for (auto index: drawing_order()) {
-        mPointStyles[index].draw(rescaled_surface, (*layout)[index]);
+        draw_point(rescaled_surface, mPlotSpec->style(index), (*layout)[index]);
         // if (index < number_of_antigens())
         //     std::cout << "AG: " << index << ' ' << (*layout)[index] << ' ' << mPointStyles[index] << " \"" << chart().antigen(index)->full_name() << "\"\n";
     }
-    mLabels.draw(rescaled_surface, *layout, mPointStyles);
+    mLabels.draw(rescaled_surface, *layout, *mPlotSpec);
 
     mMapElements.draw(rescaled_surface, map_elements::Elements::AfterPoints, *this);
 
@@ -94,13 +93,13 @@ void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) co
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::hide_all_except(const std::vector<size_t>& aNotHide)
+void ChartDraw::hide_all_except(const acmacs::chart::Indexes& aNotHide)
 {
-    PointStyleDraw style;
+    acmacs::PointStyle style;
     style.shown = false;
-    for (size_t index = 0; index < mPointStyles.size(); ++index) {
+    for (size_t index = 0; index < number_of_points(); ++index ) {
         if (std::find(aNotHide.begin(), aNotHide.end(), index) == aNotHide.end())
-            mPointStyles[index] = style;
+            mPlotSpec->modify(index, style);
     }
 
 } // ChartDraw::hide_all_except
@@ -109,9 +108,9 @@ void ChartDraw::hide_all_except(const std::vector<size_t>& aNotHide)
 
 void ChartDraw::mark_egg_antigens()
 {
-    PointStyleDraw style;
+    acmacs::PointStyle style;
     style.aspect = AspectEgg;
-    modify(chart().antigens()->egg_indexes(), style);
+    mPlotSpec->modify(chart().antigens()->egg_indexes(), style);
 
 } // ChartDraw::mark_egg_antigens
 
@@ -119,43 +118,24 @@ void ChartDraw::mark_egg_antigens()
 
 void ChartDraw::mark_reassortant_antigens()
 {
-    PointStyleDraw style;
+    acmacs::PointStyle style;
     style.rotation = RotationReassortant;
-    modify(chart().antigens()->reassortant_indexes(), style);
+    mPlotSpec->modify(chart().antigens()->reassortant_indexes(), style);
 
 } // ChartDraw::mark_reassortant_antigens
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::modify_all_sera(const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder)
-{
-    modify_sera(chart().sera()->all_indexes(), aStyle, aPointDrawingOrder);
-
-} // ChartDraw::modify_all_sera
-
-// ----------------------------------------------------------------------
-
-void ChartDraw::scale_points(double aPointScale, double aOulineScale)
-{
-    // if (float_zero(aOulineScale))
-    //     aOulineScale = aPointScale;
-    for (auto& style: mPointStyles)
-        style.scale(aPointScale).scale_outline(aOulineScale);
-
-} // ChartDraw::scale_points
-
-// ----------------------------------------------------------------------
-
 void ChartDraw::mark_all_grey(Color aColor)
 {
-    PointStyleDraw ref_antigen;
+    acmacs::PointStyle ref_antigen;
     ref_antigen.outline = aColor;
-    modify(chart().antigens()->reference_indexes(), ref_antigen);
-    PointStyleDraw test_antigen;
+    mPlotSpec->modify(chart().antigens()->reference_indexes(), ref_antigen);
+    acmacs::PointStyle test_antigen;
     test_antigen.fill = aColor;
     test_antigen.outline = aColor;
-    modify(chart().antigens()->test_indexes(), test_antigen);
-    modify(chart().sera()->all_indexes(), ref_antigen);
+    mPlotSpec->modify(chart().antigens()->test_indexes(), test_antigen);
+    mPlotSpec->modify(chart().sera()->all_indexes(), ref_antigen);
 
 } // ChartDraw::mark_all_grey
 

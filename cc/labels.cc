@@ -1,5 +1,5 @@
 #include "acmacs-draw/surface.hh"
-#include "acmacs-chart-2/chart.hh"
+#include "acmacs-chart-2/chart-modify.hh"
 #include "acmacs-map-draw/labels.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 
@@ -14,9 +14,9 @@ Label::Label(size_t aIndex)
 
 // ----------------------------------------------------------------------
 
-void Label::draw(Surface& aSurface, const acmacs::chart::Layout& aLayout, const std::vector<PointStyleDraw>& aPointStyles) const
+void Label::draw(Surface& aSurface, const acmacs::chart::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const
 {
-    const auto& style = aPointStyles[mIndex];
+    const auto style = aPlotSpec.style(mIndex);
     if (*style.shown) {
         auto text_origin = aLayout[mIndex];
         if (!text_origin.empty()) { // point is not disconnected
@@ -82,16 +82,6 @@ void Labels::remove(size_t aIndex)
         mLabels.erase(found);
 
 } // Labels::remove
-
-// ----------------------------------------------------------------------
-
-void Labels::draw(Surface& aSurface, const acmacs::chart::Layout& aLayout, const std::vector<PointStyleDraw>& aPointStyles) const
-{
-    for (const Label& label: mLabels) {
-        label.draw(aSurface, aLayout, aPointStyles);
-    }
-
-} // Labels::draw
 
 // ----------------------------------------------------------------------
 /// Local Variables:

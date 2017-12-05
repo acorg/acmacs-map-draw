@@ -28,13 +28,13 @@ class LongLat
 
 }; // class LongLat
 
-class GeographicMapPoint : public PointStyleDraw
+class GeographicMapPoint : public acmacs::PointStyle
 {
  public:
     inline GeographicMapPoint() = default;
     inline GeographicMapPoint(const LongLat& aLongLat, long aPriority) : mLongLat(aLongLat), mPriority{aPriority} {}
 
-    inline void draw(Surface& aSurface) const { PointStyleDraw::draw(aSurface, {mLongLat.longitude, mLongLat.latitude}); }
+    inline void draw(Surface& aSurface) const { draw_point(aSurface, *this, {mLongLat.longitude, mLongLat.latitude}); }
 
     inline bool operator<(const GeographicMapPoint& aNother) const { return mPriority < aNother.mPriority; }
 

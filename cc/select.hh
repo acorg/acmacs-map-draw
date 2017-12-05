@@ -26,10 +26,10 @@ class SelectAntigensSera
         : mVerbose{aVerbose}, mReportNamesThreshold{aReportNamesThreshold}, mReportTime{aVerbose ? report_time::Yes : report_time::No} {}
     virtual ~SelectAntigensSera();
 
-    virtual std::vector<size_t> select(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* aPreviousChart, const rjson::value& aSelector);
-    inline std::vector<size_t> select(const acmacs::chart::Chart& aChart, const rjson::value& aSelector) { return select(aChart, nullptr, aSelector); }
-    virtual std::vector<size_t> command(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* aPreviousChart, const rjson::object& aSelector) = 0;
-    inline std::vector<size_t> command(const acmacs::chart::Chart& aChart, const rjson::object& aSelector) { return select(aChart, nullptr, aSelector); }
+    virtual acmacs::chart::Indexes select(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* aPreviousChart, const rjson::value& aSelector);
+    inline acmacs::chart::Indexes select(const acmacs::chart::Chart& aChart, const rjson::value& aSelector) { return select(aChart, nullptr, aSelector); }
+    virtual acmacs::chart::Indexes command(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* aPreviousChart, const rjson::object& aSelector) = 0;
+    inline acmacs::chart::Indexes command(const acmacs::chart::Chart& aChart, const rjson::object& aSelector) { return select(aChart, nullptr, aSelector); }
     virtual void filter_name(const acmacs::chart::Chart& aChart, acmacs::chart::Indexes& indices, std::string aName) = 0;
     virtual void filter_full_name(const acmacs::chart::Chart& aChart, acmacs::chart::Indexes& indices, std::string aFullName) = 0;
     virtual void filter_rectangle(const acmacs::chart::Chart& aChart, acmacs::chart::Indexes& indices, const acmacs::chart::Projection& aProjection, const acmacs::Rectangle& aRectangle) = 0;
@@ -82,7 +82,7 @@ class SelectAntigens : public SelectAntigensSera
  public:
     using SelectAntigensSera::SelectAntigensSera;
 
-    std::vector<size_t> command(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* aPreviousChart, const rjson::object& aSelector) override;
+    acmacs::chart::Indexes command(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* aPreviousChart, const rjson::object& aSelector) override;
     void filter_sequenced(const acmacs::chart::Chart& aChart, acmacs::chart::Indexes& indices);
     void filter_not_sequenced(const acmacs::chart::Chart& aChart, acmacs::chart::Indexes& indices);
     std::map<std::string, size_t> clades(const acmacs::chart::Chart& aChart);
@@ -105,7 +105,7 @@ class SelectSera : public SelectAntigensSera
  public:
     using SelectAntigensSera::SelectAntigensSera;
 
-    std::vector<size_t> command(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* aPreviousChart, const rjson::object& aSelector) override;
+    acmacs::chart::Indexes command(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* aPreviousChart, const rjson::object& aSelector) override;
     inline void filter_name(const acmacs::chart::Chart& aChart, acmacs::chart::Indexes& indices, std::string aName) override { filter_name_in(aChart.sera(), indices, aName); }
     inline void filter_full_name(const acmacs::chart::Chart& aChart, acmacs::chart::Indexes& indices, std::string aFullName) override { filter_full_name_in(aChart.antigens(), indices, aFullName); }
     inline void filter_rectangle(const acmacs::chart::Chart& aChart, acmacs::chart::Indexes& indices, const acmacs::chart::Projection& aProjection, const acmacs::Rectangle& aRectangle) override { filter_rectangle_in(indices, aChart.number_of_antigens(), *aProjection.layout(), aProjection.transformation(), aRectangle); }

@@ -196,7 +196,7 @@ class ModAntigens : public Mod
                 const auto styl = style();
                 // if (verbose)
                 //     std::cerr << "DEBUG ModAntigens " << indices << ' ' << args() << ' ' << styl << '\n';
-                aChartDraw.modify(indices.begin(), indices.end(), styl, drawing_order());
+                aChartDraw.modify(indices, styl, drawing_order());
                 try { add_labels(aChartDraw, indices, 0, args()["label"]); } catch (rjson::field_not_found&) {}
                 try { add_legend(aChartDraw, indices, styl, args()["legend"]); } catch (rjson::field_not_found&) {}
             }
@@ -221,7 +221,7 @@ class ModSera : public Mod
             try {
                 const auto indices = SelectSera(verbose, report_names_threshold).select(aChartDraw.chart(), args()["select"]);
                 const auto styl = style();
-                aChartDraw.modify_sera(indices.begin(), indices.end(), styl, drawing_order());
+                aChartDraw.modify_sera(indices, styl, drawing_order());
                 try { add_labels(aChartDraw, indices, aChartDraw.number_of_antigens(), args()["label"]); } catch (rjson::field_not_found&) {}
             }
             catch (rjson::field_not_found&) {
@@ -356,7 +356,7 @@ class ModAminoAcids : public Mod
                 const auto& indices_for_aa = aa_indices.find(aa)->second;
                 auto styl = style();
                 styl.fill = fill_color(index, aa);
-                aChartDraw.modify(std::begin(indices_for_aa), std::end(indices_for_aa), styl, drawing_order());
+                aChartDraw.modify(indices_for_aa, styl, drawing_order());
                 try { add_legend(aChartDraw, indices_for_aa, styl, aa, args()["legend"]); } catch (rjson::field_not_found&) {}
                 if (aVerbose)
                     std::cerr << "INFO: amino-acids at " << aPos << ": " << aa << ' ' << indices_for_aa.size() << '\n';
@@ -375,7 +375,7 @@ class ModAminoAcids : public Mod
             if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
                 auto styl = style();
                 styl = point_style_from_json(aGroup);
-                aChartDraw.modify(std::begin(aap->second), std::end(aap->second), styl, drawing_order());
+                aChartDraw.modify(aap->second, styl, drawing_order());
                 try { add_legend(aChartDraw, aap->second, styl, string::join(" ", std::begin(pos_aa), std::end(pos_aa)), args()["legend"]); } catch (rjson::field_not_found&) {}
                 if (aVerbose)
                     std::cerr << "INFO: amino-acids group " << pos_aa << ": " << ' ' << aap->second.size() << '\n';
@@ -672,28 +672,6 @@ class ModLegend : public Mod
 
 // ----------------------------------------------------------------------
 
-class ModUseChartPlotSpec : public Mod
-{
- public:
-    using Mod::Mod;
-
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
-        {
-            try {
-                const auto& plot_spec = aChartDraw.chart().plot_spec();
-                for (size_t point_no = 0; point_no < aChartDraw.number_of_points(); ++point_no) {
-                    aChartDraw.modify(point_no, plot_spec->style(point_no));
-                }
-            }
-            catch (rjson::field_not_found&) {
-                throw unrecognized_mod{"mod: " + args().to_json()};
-            }
-        }
-
-}; // class ModUseChartPlotSpec
-
-// ----------------------------------------------------------------------
-
 class ModLine : public Mod
 {
  public:
@@ -835,7 +813,7 @@ class ModSerumHomologous : public Mod
         {
             const auto antigen_indices = select_antigens(aChartDraw, aSerumIndex, aVerbose);
             if (auto [present, mark_antigen] = args().get_object_if("mark_antigen"); present) {
-                aChartDraw.modify(std::begin(antigen_indices), std::end(antigen_indices), point_style_from_json(mark_antigen), drawing_order_from_json(mark_antigen));
+                aChartDraw.modify(antigen_indices, point_style_from_json(mark_antigen), drawing_order_from_json(mark_antigen));
                 try { add_labels(aChartDraw, antigen_indices, 0, mark_antigen["label"]); } catch (rjson::field_not_found&) {}
             }
             return antigen_indices;
@@ -947,11 +925,11 @@ class ModSerumCoverage : public ModSerumHomologous
             }
             if (!within.empty()) {
                 const auto& within_4fold = args().get_or_empty_object("within_4fold");
-                aChartDraw.modify(std::begin(within), std::end(within), point_style_from_json(within_4fold), drawing_order_from_json(within_4fold));
+                aChartDraw.modify(within, point_style_from_json(within_4fold), drawing_order_from_json(within_4fold));
             }
             if (!outside.empty()) {
                 const auto& outside_4fold = args().get_or_empty_object("outside_4fold");
-                aChartDraw.modify(std::begin(outside), std::end(outside), point_style_from_json(outside_4fold), drawing_order_from_json(outside_4fold));
+                aChartDraw.modify(outside, point_style_from_json(outside_4fold), drawing_order_from_json(outside_4fold));
             }
         }
 
@@ -1013,9 +991,6 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const
     }
     else if (name == "viewport") {
         result.emplace_back(new ModViewport(args));
-    }
-    else if (name == "use_chart_plot_spec") {
-        result.emplace_back(new ModUseChartPlotSpec(args));
     }
     else if (name == "title") {
         result.emplace_back(new ModTitle(args));

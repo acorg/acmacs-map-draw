@@ -24,6 +24,7 @@ int main(int argc, char* const argv[])
         argc_argv args(argc, argv, {
                 {"--clade", false},
                 {"--point-scale", 1.0},
+                {"--rotate-degrees", 0.0, "counter clockwise"},
                 {"--settings", argc_argv::strings{}, "load settings from file"},
                 {"-s", argc_argv::strings{}, "load settings from file"},
                 {"--init-settings", "", "initialize (overwrite) settings file"},
@@ -102,6 +103,10 @@ int draw(const argc_argv& args)
 
     if (args["--point-scale"].present()) {
         static_cast<rjson::array&>(settings["apply"]).insert(rjson::object{{{"N", rjson::string{"point_scale"}}, {"scale", rjson::number{static_cast<double>(args["--point-scale"])}}, {"outline_scale", rjson::number{1.0}}}});
+    }
+
+    if (args["--rotate-degrees"].present()) {
+        static_cast<rjson::array&>(settings["apply"]).insert(rjson::object{{{"N", rjson::string{"rotate"}}, {"degrees", rjson::number{static_cast<double>(args["--rotate-degrees"])}}}});
     }
 
     try {

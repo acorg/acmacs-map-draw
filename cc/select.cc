@@ -22,18 +22,18 @@ SelectAntigensSera::~SelectAntigensSera()
 
 // ----------------------------------------------------------------------
 
-class SelectorVisitor : public rjson::value_visitor_base<std::vector<size_t>>
+class SelectorVisitor : public rjson::value_visitor_base<acmacs::chart::Indexes>
 {
  public:
     inline SelectorVisitor(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* aPreviousChart, SelectAntigensSera& aSelect) : mChart{aChart}, mPreviousChart{aPreviousChart}, mSelect{aSelect} {}
-    using rjson::value_visitor_base<std::vector<size_t>>::operator();
+    using rjson::value_visitor_base<acmacs::chart::Indexes>::operator();
 
-    inline std::vector<size_t> operator()(const rjson::string& aValue) override
+    inline acmacs::chart::Indexes operator()(const rjson::string& aValue) override
         {
             return mSelect.command(mChart, mPreviousChart, {{aValue, rjson::boolean{true}}});
         }
 
-    inline std::vector<size_t> operator()(const rjson::object& aValue) override
+    inline acmacs::chart::Indexes operator()(const rjson::object& aValue) override
         {
             return mSelect.command(mChart, mPreviousChart, aValue);
         }
@@ -47,7 +47,7 @@ class SelectorVisitor : public rjson::value_visitor_base<std::vector<size_t>>
 
 // ----------------------------------------------------------------------
 
-std::vector<size_t> SelectAntigensSera::select(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* aPreviousChart, const rjson::value& aSelector)
+acmacs::chart::Indexes SelectAntigensSera::select(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* aPreviousChart, const rjson::value& aSelector)
 {
     try {
         return std::visit(SelectorVisitor{aChart, aPreviousChart, *this}, aSelector);
@@ -61,7 +61,7 @@ std::vector<size_t> SelectAntigensSera::select(const acmacs::chart::Chart& aChar
 
 // ----------------------------------------------------------------------
 
-std::vector<size_t> SelectAntigens::command(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* aPreviousChart, const rjson::object& aSelector)
+acmacs::chart::Indexes SelectAntigens::command(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* aPreviousChart, const rjson::object& aSelector)
 {
       // std::cout << "DEBUG: antigens command: " << aSelector << '\n';
     auto antigens = aChart.antigens();
@@ -131,7 +131,7 @@ std::vector<size_t> SelectAntigens::command(const acmacs::chart::Chart& aChart, 
         }
         else if (key == "indexes") {
             const rjson::array& to_keep_v = value;
-            std::vector<size_t> to_keep(to_keep_v.size());
+            acmacs::chart::Indexes to_keep(to_keep_v.size());
             std::transform(to_keep_v.begin(), to_keep_v.end(), to_keep.begin(), [](const auto& v) -> size_t { return v; });
             indexes.erase(std::remove_if(indexes.begin(), indexes.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indexes.end());
         }
@@ -251,7 +251,7 @@ const std::vector<seqdb::SeqdbEntrySeq>& SelectAntigens::seqdb_entries(const acm
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_sequenced(const acmacs::chart::Chart& aChart, std::vector<size_t>& indexes)
+void SelectAntigens::filter_sequenced(const acmacs::chart::Chart& aChart, acmacs::chart::Indexes& indexes)
 {
     const auto& entries = seqdb_entries(aChart);
     auto not_sequenced = [&entries](auto index) -> bool { return !entries[index]; };
@@ -261,7 +261,7 @@ void SelectAntigens::filter_sequenced(const acmacs::chart::Chart& aChart, std::v
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_not_sequenced(const acmacs::chart::Chart& aChart, std::vector<size_t>& indexes)
+void SelectAntigens::filter_not_sequenced(const acmacs::chart::Chart& aChart, acmacs::chart::Indexes& indexes)
 {
     const auto& entries = seqdb_entries(aChart);
     auto sequenced = [&entries](auto index) -> bool { return entries[index]; };
@@ -286,7 +286,7 @@ std::map<std::string, size_t> SelectAntigens::clades(const acmacs::chart::Chart&
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_clade(const acmacs::chart::Chart& aChart, std::vector<size_t>& indexes, std::string aClade)
+void SelectAntigens::filter_clade(const acmacs::chart::Chart& aChart, acmacs::chart::Indexes& indexes, std::string aClade)
 {
     const auto& entries = seqdb_entries(aChart);
     auto not_in_clade = [&entries,aClade](auto index) -> bool { const auto& entry = entries[index]; return !entry || !entry.seq().has_clade(aClade); };
@@ -296,7 +296,7 @@ void SelectAntigens::filter_clade(const acmacs::chart::Chart& aChart, std::vecto
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_vaccine(const acmacs::chart::Chart& aChart, std::vector<size_t>& indexes, const VaccineMatchData& aMatchData)
+void SelectAntigens::filter_vaccine(const acmacs::chart::Chart& aChart, acmacs::chart::Indexes& indexes, const VaccineMatchData& aMatchData)
 {
     const auto virus_type = aChart.info()->virus_type(acmacs::chart::Info::Compute::Yes);
     if (!virus_type.empty()) {
@@ -319,7 +319,7 @@ void SelectAntigens::filter_vaccine(const acmacs::chart::Chart& aChart, std::vec
         // auto vaccine_indexes = vaccines.indexes(aMatchData);
 
         std::sort(vaccine_indexes.begin(), vaccine_indexes.end());
-        std::vector<size_t> result(vaccine_indexes.size());
+        acmacs::chart::Indexes result(vaccine_indexes.size());
         const auto end = std::set_intersection(indexes.begin(), indexes.end(), vaccine_indexes.begin(), vaccine_indexes.end(), result.begin());
         indexes.erase(std::copy(result.begin(), end, indexes.begin()), indexes.end());
     }
@@ -332,7 +332,7 @@ void SelectAntigens::filter_vaccine(const acmacs::chart::Chart& aChart, std::vec
 
 // ----------------------------------------------------------------------
 
-std::vector<size_t> SelectSera::command(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* /*aPreviousChart*/, const rjson::object& aSelector)
+acmacs::chart::Indexes SelectSera::command(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* /*aPreviousChart*/, const rjson::object& aSelector)
 {
     const auto& sera = aChart.sera();
     auto indexes = sera->all_indexes();
@@ -358,7 +358,7 @@ std::vector<size_t> SelectSera::command(const acmacs::chart::Chart& aChart, cons
         }
         else if (key == "indexes") {
             const rjson::array& to_keep_v = value;
-            std::vector<size_t> to_keep(to_keep_v.size());
+            acmacs::chart::Indexes to_keep(to_keep_v.size());
             std::transform(to_keep_v.begin(), to_keep_v.end(), to_keep.begin(), [](const auto& v) -> size_t { return v; });
             indexes.erase(std::remove_if(indexes.begin(), indexes.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indexes.end());
         }

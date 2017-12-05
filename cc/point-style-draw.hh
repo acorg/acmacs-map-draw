@@ -10,19 +10,8 @@ namespace rjson { class object; }
 
 // ----------------------------------------------------------------------
 
-class PointStyleDraw : public acmacs::PointStyle
-{
- public:
-    inline PointStyleDraw() = default;
-    inline PointStyleDraw& operator = (const acmacs::PointStyle& aPS) { acmacs::PointStyle::operator=(aPS); return *this; }
-
-    void draw(Surface& aSurface, const acmacs::chart::Coordinates& aCoord) const;
-
-}; // class PointStyleDraw
-
-// ----------------------------------------------------------------------
-
 acmacs::PointStyle point_style_from_json(const rjson::object& aSource);
+void draw_point(Surface& aSurface, const acmacs::PointStyle& aStyle, const acmacs::chart::Coordinates& aCoord);
 
 // ----------------------------------------------------------------------
 

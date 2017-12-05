@@ -27,8 +27,6 @@ class ChartDraw
     void draw(std::string aFilename, double aSize, report_time aTimer = report_time::No) const;
     const acmacs::Viewport& calculate_viewport(bool verbose = true);
 
-    inline const std::vector<PointStyleDraw>& point_styles() const { return mPointStyles; }
-    inline std::vector<acmacs::PointStyle> point_styles_base() const { std::vector<acmacs::PointStyle> ps{mPointStyles.begin(), mPointStyles.end()}; return ps; }
     inline auto& chart() { return *mChart; }
     inline const auto& chart() const { return *mChart; }
     inline std::shared_ptr<acmacs::chart::Layout> layout() const { return mProjectionModify->layout(); }
@@ -38,57 +36,64 @@ class ChartDraw
     inline void previous_chart(acmacs::chart::ChartP aPreviousChart) { mPreviousChart = aPreviousChart; }
     inline const acmacs::chart::Chart* previous_chart() const { return mPreviousChart.get(); }
 
-    template <typename index_type> inline void modify(index_type aIndex, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    template <typename T> inline void modify_drawing_order(const T& aPoints, PointDrawingOrder aPointDrawingOrder)
         {
-            const auto index = static_cast<size_t>(aIndex);
-            mPointStyles.at(index) = aStyle;
             switch (aPointDrawingOrder) {
               case PointDrawingOrder::Raise:
-                  drawing_order().raise(index);
+                  mPlotSpec->raise(aPoints);
                   break;
               case PointDrawingOrder::Lower:
-                  drawing_order().lower(index);
+                  mPlotSpec->lower(aPoints);
                   break;
               case PointDrawingOrder::NoChange:
                   break;
             }
         }
 
-    template <typename index_type> inline void modify_serum(index_type aSerumNo, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    template <typename T> inline void modify_sera_drawing_order(const T& aPoints, PointDrawingOrder aPointDrawingOrder)
         {
-            modify(static_cast<size_t>(aSerumNo) + number_of_antigens(), aStyle, aPointDrawingOrder);
+            switch (aPointDrawingOrder) {
+              case PointDrawingOrder::Raise:
+                  mPlotSpec->raise_serum(aPoints);
+                  break;
+              case PointDrawingOrder::Lower:
+                  mPlotSpec->lower_serum(aPoints);
+                  break;
+              case PointDrawingOrder::NoChange:
+                  break;
+            }
         }
 
-    template <typename IndexIterator> inline void modify(IndexIterator first, IndexIterator last, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    inline void modify(const acmacs::chart::Indexes& aPoints, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
-            for (; first != last; ++first)
-                modify(*first, aStyle, aPointDrawingOrder);
+            mPlotSpec->modify(aPoints, aStyle);
+            modify_drawing_order(aPoints, aPointDrawingOrder);
         }
 
-    inline void modify(const acmacs::chart::Indexes& aIndexes, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    inline void modify(size_t aPointNo, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
-            for (auto index: aIndexes)
-                modify(index, aStyle, aPointDrawingOrder);
+            mPlotSpec->modify(aPointNo, aStyle);
+            modify_drawing_order(aPointNo, aPointDrawingOrder);
         }
 
-    template <typename IndexIterator> inline void modify_sera(IndexIterator first, IndexIterator last, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    inline void modify_sera(const acmacs::chart::Indexes& aSera, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
-            for (; first != last; ++first)
-                modify_serum(*first, aStyle, aPointDrawingOrder);
+            mPlotSpec->modify_sera(aSera, aStyle);
+            modify_sera_drawing_order(aSera, aPointDrawingOrder);
         }
 
-    inline void modify_sera(const acmacs::chart::Indexes& aIndexes, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    inline void modify_serum(size_t aSerumNo, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
-            for (auto index: aIndexes)
-                modify_serum(index, aStyle, aPointDrawingOrder);
+            mPlotSpec->modify_serum(aSerumNo, aStyle);
+            modify_sera_drawing_order(aSerumNo, aPointDrawingOrder);
         }
 
-    void hide_all_except(const std::vector<size_t>& aNotHide);
+    void hide_all_except(const acmacs::chart::Indexes& aNotHide);
     void mark_egg_antigens();
     void mark_reassortant_antigens();
     void mark_all_grey(Color aColor);
-    void scale_points(double aPointScale, double aOulineScale);
-    void modify_all_sera(const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange);
+    inline void scale_points(double aPointScale, double aOulineScale) { mPlotSpec->scale_all(aPointScale, aOulineScale); }
+    inline void modify_all_sera(const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange) { modify_sera(chart().sera()->all_indexes(), aStyle, aPointDrawingOrder); }
 
     inline void rotate(double aAngle)
         {
@@ -146,7 +151,6 @@ class ChartDraw
     acmacs::chart::PlotSpecModifyP mPlotSpec;
     acmacs::chart::ChartP mPreviousChart;
     acmacs::Viewport mViewport;
-    std::vector<PointStyleDraw> mPointStyles;
     map_elements::Elements mMapElements;
     map_elements::Labels mLabels;
 
