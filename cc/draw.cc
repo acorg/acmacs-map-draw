@@ -13,9 +13,9 @@
 // ----------------------------------------------------------------------
 
 ChartDraw::ChartDraw(acmacs::chart::ChartModifyP aChart, size_t aProjectionNo)
-    : mChart(aChart), mPlotSpec(mChart->plot_spec_modify()),
-      mProjectionNo(aProjectionNo),
-      mTransformation(mChart->projection(mProjectionNo)->transformation()),
+    : mChart(aChart),
+      mProjectionModify(mChart->projection_modify(aProjectionNo)),
+      mPlotSpec(mChart->plot_spec_modify()),
       mPointStyles(mChart->number_of_points())
 {
 }
@@ -40,7 +40,7 @@ void ChartDraw::prepare()
 
 const acmacs::Viewport& ChartDraw::calculate_viewport(bool verbose)
 {
-    std::unique_ptr<acmacs::BoundingBall> bb{transformed_layout().minimum_bounding_ball()};
+    std::unique_ptr<acmacs::BoundingBall> bb{transformed_layout()->minimum_bounding_ball()};
     acmacs::Viewport viewport;
     viewport.set_from_center_size(bb->center(), bb->diameter());
     viewport.whole_width();
@@ -67,14 +67,14 @@ void ChartDraw::draw(Surface& aSurface) const
     Surface& rescaled_surface = aSurface.subsurface({0, 0}, Scaled{aSurface.viewport().size.width}, mViewport, true);
     mMapElements.draw(rescaled_surface, map_elements::Elements::BeforePoints, *this);
 
-    const auto& layout = transformed_layout();
+    const auto layout = transformed_layout();
 
     for (auto index: drawing_order()) {
-        mPointStyles[index].draw(rescaled_surface, layout[index]);
+        mPointStyles[index].draw(rescaled_surface, (*layout)[index]);
         // if (index < number_of_antigens())
-        //     std::cout << "AG: " << index << ' ' << layout[index] << ' ' << mPointStyles[index] << " \"" << chart().antigen(index)->full_name() << "\"\n";
+        //     std::cout << "AG: " << index << ' ' << (*layout)[index] << ' ' << mPointStyles[index] << " \"" << chart().antigen(index)->full_name() << "\"\n";
     }
-    mLabels.draw(rescaled_surface, layout, mPointStyles);
+    mLabels.draw(rescaled_surface, *layout, mPointStyles);
 
     mMapElements.draw(rescaled_surface, map_elements::Elements::AfterPoints, *this);
 

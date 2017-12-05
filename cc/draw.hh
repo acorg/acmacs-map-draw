@@ -31,9 +31,8 @@ class ChartDraw
     inline std::vector<acmacs::PointStyle> point_styles_base() const { std::vector<acmacs::PointStyle> ps{mPointStyles.begin(), mPointStyles.end()}; return ps; }
     inline auto& chart() { return *mChart; }
     inline const auto& chart() const { return *mChart; }
-    inline auto projection_no() const { return mProjectionNo; }
-    inline std::shared_ptr<acmacs::chart::Layout> layout() const { return chart().projection(projection_no())->layout(); }
-    // inline auto& layout() { return chart().projection(projection_no()).layout(); }
+    inline std::shared_ptr<acmacs::chart::Layout> layout() const { return mProjectionModify->layout(); }
+    inline size_t projection_no() const { return mProjectionModify->projection_no(); }
 
       // for "found_in_previous" and "not_found_in_previous" select keys
     inline void previous_chart(acmacs::chart::ChartP aPreviousChart) { mPreviousChart = aPreviousChart; }
@@ -95,18 +94,17 @@ class ChartDraw
         {
             if (!float_zero(aAngle))
                 log("rotate radians:", aAngle, " degrees:", 180.0 * aAngle / M_PI, " ", aAngle > 0 ? "counter-" : "", "clockwise");
-            mTransformation.rotate(aAngle);
-            mTransformedLayout.reset();
+            mProjectionModify->rotate_radians(aAngle);
         }
 
     inline void flip(double aX, double aY)
         {
-            // std::cout << "INFO: flip " << aX << " " << aY << std::endl;
             log("flip ", aX, " ", aY);
-            mTransformation.flip(aX, aY); // reflect about a line specified with vector [aX, aY]
-            mTransformedLayout.reset();
+            mProjectionModify->flip(aX, aY); // reflect about a line specified with vector [aX, aY]
         }
-    inline const acmacs::Transformation& transformation() const { return mTransformation; }
+
+    inline const acmacs::Transformation transformation() const { return mProjectionModify->transformation(); }
+    inline std::shared_ptr<acmacs::chart::Layout> transformed_layout() const { return mProjectionModify->transformed_layout(); }
 
     inline void viewport(double aX, double aY, double aSize) { mViewport.set(aX, aY, aSize); }
     inline void viewport(const acmacs::Viewport& aViewport) { mViewport = aViewport; }
@@ -135,13 +133,6 @@ class ChartDraw
     map_elements::Circle& circle(const acmacs::Location& aCenter, Scaled aSize);
     void remove_serum_circles();
 
-    inline const acmacs::chart::Layout& transformed_layout() const
-        {
-            if (!mTransformedLayout) {
-                mTransformedLayout = std::unique_ptr<acmacs::chart::Layout>(chart().projection(mProjectionNo)->layout()->transform(mTransformation));
-            }
-            return *mTransformedLayout;
-        }
 
     inline size_t number_of_antigens() const { return chart().number_of_antigens(); }
     inline size_t number_of_sera() const { return chart().number_of_sera(); }
@@ -151,15 +142,13 @@ class ChartDraw
 
  private:
     acmacs::chart::ChartModifyP mChart;
+    acmacs::chart::ProjectionModifyP mProjectionModify;
     acmacs::chart::PlotSpecModifyP mPlotSpec;
     acmacs::chart::ChartP mPreviousChart;
-    size_t mProjectionNo;
     acmacs::Viewport mViewport;
-    acmacs::Transformation mTransformation;
     std::vector<PointStyleDraw> mPointStyles;
     map_elements::Elements mMapElements;
     map_elements::Labels mLabels;
-    mutable std::unique_ptr<acmacs::chart::Layout> mTransformedLayout;
 
 }; // class ChartDraw
 
