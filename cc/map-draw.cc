@@ -68,8 +68,6 @@ int draw(const argc_argv& args)
     if (args["--previous"])
         chart_draw.previous_chart(acmacs::chart::import_factory(args["--previous"], acmacs::chart::Verify::None));
 
-    chart_draw.prepare();
-
     auto settings = settings_default();
     if (args["--init-settings"]) {
         auto write_settings = [&settings](std::ostream& out) { out << settings.to_json_pp() << '\n'; };

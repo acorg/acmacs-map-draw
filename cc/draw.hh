@@ -22,7 +22,6 @@ class ChartDraw
  public:
     ChartDraw(acmacs::chart::ChartModifyP aChart, size_t aProjectionNo);
 
-    void prepare();
     void draw(Surface& aSurface) const;
     void draw(std::string aFilename, double aSize, report_time aTimer = report_time::No) const;
     const acmacs::Viewport& calculate_viewport(bool verbose = true);
@@ -116,7 +115,7 @@ class ChartDraw
     inline const acmacs::Viewport& viewport() const { return mViewport; }
 
     inline acmacs::chart::DrawingOrder& drawing_order() { return mPlotSpec->drawing_order_modify(); }
-    inline acmacs::chart::DrawingOrder drawing_order() const { return mPlotSpec->drawing_order(); }
+    inline const acmacs::chart::DrawingOrder drawing_order() const { return mPlotSpec->drawing_order(); }
 
     inline void background_color(Color aBackgroud) { DYNAMIC_CAST(map_elements::BackgroundBorderGrid&, (mMapElements["background-border-grid"])).background_color(aBackgroud); }
     inline void grid(Color aGridColor, double aGridLineWidth) { DYNAMIC_CAST(map_elements::BackgroundBorderGrid&, (mMapElements["background-border-grid"])).grid(aGridColor, aGridLineWidth); }

@@ -21,22 +21,6 @@ ChartDraw::ChartDraw(acmacs::chart::ChartModifyP aChart, size_t aProjectionNo)
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::prepare()
-{
-    acmacs::PointStyle ref_antigen;
-    ref_antigen.fill = "transparent";
-    ref_antigen.size = Pixels{8};
-    modify(chart().antigens()->reference_indexes(), ref_antigen, PointDrawingOrder::Lower);
-    acmacs::PointStyle serum;
-    serum.shape = acmacs::PointShape::Box;
-    serum.fill = "transparent";
-    serum.size = Pixels{8};
-    modify_sera(chart().sera()->all_indexes(), serum, PointDrawingOrder::Lower);
-
-} // ChartDraw::prepare
-
-// ----------------------------------------------------------------------
-
 const acmacs::Viewport& ChartDraw::calculate_viewport(bool verbose)
 {
     std::unique_ptr<acmacs::BoundingBall> bb{transformed_layout()->minimum_bounding_ball()};
@@ -69,7 +53,9 @@ void ChartDraw::draw(Surface& aSurface) const
     const auto layout = transformed_layout();
 
     for (auto index: drawing_order()) {
-        draw_point(rescaled_surface, mPlotSpec->style(index), (*layout)[index]);
+        auto style = mPlotSpec->style(index);
+        // std::cerr << index << ' ' << style << '\n';
+        draw_point(rescaled_surface, style, (*layout)[index]);
         // if (index < number_of_antigens())
         //     std::cout << "AG: " << index << ' ' << (*layout)[index] << ' ' << mPointStyles[index] << " \"" << chart().antigen(index)->full_name() << "\"\n";
     }
