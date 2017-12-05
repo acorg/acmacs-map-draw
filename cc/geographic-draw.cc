@@ -26,7 +26,7 @@ int main(int argc, char* const argv[])
                 {"--help", false},
                 // {"--help-mods", false},
                 // {"--help-select", false},
-                {"--time-series", ""},
+                {"--time-series", "", "monthly, yearly, weekly (output prefix required)"},
                 {"-s", argc_argv::strings{}},
                 {"--settings", argc_argv::strings{}},
                 {"--init-settings", ""},
@@ -101,7 +101,7 @@ int draw(const argc_argv& args)
     if (args["--time-series"] == "") {
           // Single map
         std::cerr << "INFO: single map\n";
-        GeographicMapWithPointsFromHidb geographic_map(args[0], settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]);
+        GeographicMapWithPointsFromHidb geographic_map(string::upper(args[0]), settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]);
         geographic_map.add_points_from_hidb_colored_by(*coloring, ColorOverride{}, make_list(settings["priority"]), start_date, end_date);
         set_title(geographic_map.title(), settings, true);
 

@@ -137,28 +137,7 @@ class ColoringByClade : public GeographicMapColoring
     inline ColoringByClade(const std::map<std::string, std::string>& aCladeColor) : mColors{aCladeColor.begin(), aCladeColor.end()} {}
     inline ColoringByClade(const TagToColor& aCladeColor) : mColors{aCladeColor.begin(), aCladeColor.end()} {}
 
-    TagColor color(const hidb::Antigen& aAntigen) const override
-        {
-            ColoringData result("grey50");
-            std::string tag{"UNKNOWN"};
-            try {
-                const auto* entry_seq = seqdb::get().find_hi_name(aAntigen.full_name());
-                if (entry_seq) {
-                    for (const auto& clade: entry_seq->seq().clades()) {
-                        try {
-                            result = mColors.at(clade); // find first clade that has corresponding entry in mColors and use it
-                            tag = clade;
-                            break;
-                        }
-                        catch (...) {
-                        }
-                    }
-                }
-            }
-            catch (...) {
-            }
-            return {tag, result};
-        }
+    TagColor color(const hidb::Antigen& aAntigen) const override;
 
  private:
     TagToColor mColors;

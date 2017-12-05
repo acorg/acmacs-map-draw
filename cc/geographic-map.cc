@@ -70,6 +70,36 @@ GeographicMapColoring::~GeographicMapColoring()
 
 // ----------------------------------------------------------------------
 
+ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) const
+{
+    ColoringData result("grey50");
+    std::string tag{"UNKNOWN"};
+    try {
+        const auto* entry_seq = seqdb::get(report_time::Yes).find_hi_name(aAntigen.full_name());
+        if (entry_seq) {
+            for (const auto& clade: entry_seq->seq().clades()) {
+                try {
+                    result = mColors.at(clade); // find first clade that has corresponding entry in mColors and use it
+                    tag = clade;
+                    break;
+                }
+                catch (...) {
+                }
+            }
+        }
+    }
+    catch (std::exception& err) {
+        std::cerr << "ERROR: ColoringByClade " << aAntigen.full_name() << ": " << err.what() << '\n';
+    }
+    catch (...) {
+    }
+      // std::cerr << "INFO: ColoringByClade " << aAntigen.full_name() << ": " << tag << '\n';
+    return {tag, result};
+
+} // ColoringByClade::color
+
+// ----------------------------------------------------------------------
+
 void GeographicMapWithPointsFromHidb::prepare(Surface& aSurface)
 {
     GeographicMapDraw::prepare(aSurface);
@@ -112,7 +142,7 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const Geog
     auto antigens = hidb.antigens()->date_range(aStartDate, aEndDate);
     std::cerr << "INFO: dates: " << aStartDate << ".." << aEndDate << "  antigens: " << antigens.size() << std::endl;
     if (!aPriority.empty())
-        std::cerr << "INFO priority: " << aPriority << " (the last in this list to be drawn on top of others)\n";
+        std::cerr << "INFO: priority: " << aPriority << " (the last in this list to be drawn on top of others)\n";
     for (auto antigen: antigens) {
         auto [tag, coloring_data] = aColorOverride.color(*antigen);
         if (coloring_data.fill.empty())
