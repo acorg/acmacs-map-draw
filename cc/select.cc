@@ -296,11 +296,12 @@ void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterf
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_outlier(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, double aUnits)
+void SelectAntigens::filter_outlier(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, double aUnits)
 {
-    // auto layout = aChartSelectInterface.layout();
-    // std::vector<acmacs::Coordinates> points(indices.size());
-    // std::transform(indices.begin(), indices.end(), points.begin(), [&layout](size_t p_no) { return (*layout)[p_no]; });
+    acmacs::Layout points(*aChartSelectInterface.layout(), indexes);
+    const auto centroid = points.centroid();
+    std::cerr << "centroid: " << centroid << '\n';
+    std::cerr << points << '\n';
     // std::cerr << "filter_outliers " << indices << '\n';
 
 } // SelectAntigens::filter_outlier
