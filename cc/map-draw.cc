@@ -22,6 +22,7 @@ int main(int argc, char* const argv[])
     int exit_code = 1;
     try {
         argc_argv args(argc, argv, {
+                {"--apply", "", "json array to use as \"apply\", e.g. [\"all_grey\",\"egg\",\"clades\"]"},
                 {"--clade", false},
                 {"--point-scale", 1.0},
                 {"--rotate-degrees", 0.0, "counter clockwise"},
@@ -95,7 +96,10 @@ int draw(const argc_argv& args)
         load_settings(args["--settings"]);
       // std::cerr << "DEBUG: loaded settings\n" << settings.to_json_pp() << '\n';
 
-    if (args["--clade"]) {
+    if (args["--apply"]) {
+        settings.set_field("apply", rjson::parse_string(args["--apply"].str_view()));
+    }
+    else if (args["--clade"]) {
         settings.set_field("apply", rjson::array{"all_grey", "egg", "clades", "vaccines"});
     }
 
