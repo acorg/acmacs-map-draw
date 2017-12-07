@@ -148,7 +148,7 @@ acmacs::chart::Indexes SelectAntigens::command(const acmacs::chart::Chart& aChar
             filter_not_sequenced(aChart, indexes);
         }
         else if (key == "clade") {
-            filter_clade(aChart, indexes, value); //string::upper(value));
+            filter_clade(aChart, indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "name") {
             filter_name(aChart, indexes, string::upper(static_cast<std::string_view>(value)));
