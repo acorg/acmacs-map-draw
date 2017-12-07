@@ -7,13 +7,14 @@
 #include "acmacs-base/color-target.hh"
 #include "acmacs-base/size.hh"
 #include "acmacs-base/text-style.hh"
+#include "acmacs-base/layout.hh"
 
 // ----------------------------------------------------------------------
 
 namespace acmacs::chart
 {
     class Chart;
-    class Layout;
+    using Layout = acmacs::LayoutInterface;
     class PlotSpecModify;
 
 } // namespace acmacs::chart

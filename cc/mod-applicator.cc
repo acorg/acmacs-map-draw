@@ -239,23 +239,23 @@ class ModMoveBase : public Mod
     using Mod::Mod;
 
  protected:
-    acmacs::chart::Coordinates get_move_to(ChartDraw& aChartDraw, bool aVerbose) const
+    acmacs::Coordinates get_move_to(ChartDraw& aChartDraw, bool aVerbose) const
         {
-            acmacs::chart::Coordinates move_to;
+            acmacs::Coordinates move_to;
             if (auto [to_present, to] = args().get_array_if("to"); to_present) {
-                move_to = acmacs::chart::Coordinates{to[0], to[1]};
+                move_to = acmacs::Coordinates{to[0], to[1]};
             }
             else if (auto [to_antigen_present, to_antigen] = args().get_object_if("to_antigen"); to_antigen_present) {
                 const auto antigens = SelectAntigens(aVerbose).select(aChartDraw, to_antigen);
                 if (antigens.size() != 1)
                     throw unrecognized_mod{"\"to_antigen\" does not select single antigen, mod: " + args().to_json()};
-                move_to = (*aChartDraw.layout())[antigens[0]];
+                move_to = aChartDraw.layout()->get(antigens[0]);
             }
             else if (auto [to_serum_present, to_serum] = args().get_object_if("to_serum"); to_serum_present) {
                 const auto sera = SelectSera(aVerbose).select(aChartDraw, to_serum);
                 if (sera.size() != 1)
                     throw unrecognized_mod{"\"to_serum\" does not select single serum, mod: " + args().to_json()};
-                move_to = (*aChartDraw.layout())[sera[0] + aChartDraw.number_of_antigens()];
+                move_to = aChartDraw.layout()->get(sera[0] + aChartDraw.number_of_antigens());
             }
             else
                 throw unrecognized_mod{"neither \"to\" nor \"to_antigen\" nor \"to__serum\" provided in mod: " + args().to_json()};
@@ -701,14 +701,14 @@ class ModLine : public Mod
             else if (auto [from_antigen_present, from_antigen] = args().get_object_if(aPrefix + "_antigen"); from_antigen_present) {
                 auto layout = aChartDraw.layout();
                 for (auto index: SelectAntigens(verbose).select(aChartDraw, from_antigen)) {
-                    const auto coord = (*layout)[index];
+                    const auto coord = layout->get(index);
                     result.emplace_back(coord[0], coord[1]);
                 }
             }
             else if (auto [from_serum_present, from_serum] = args().get_object_if(aPrefix + "_serum"); from_serum_present) {
                 auto layout = aChartDraw.layout();
                 for (auto index: SelectSera(verbose).select(aChartDraw, from_serum)) {
-                    const auto coord = (*layout)[index + aChartDraw.number_of_antigens()];
+                    const auto coord = layout->get(index + aChartDraw.number_of_antigens());
                     result.emplace_back(coord[0], coord[1]);
                 }
             }

@@ -298,7 +298,10 @@ void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterf
 
 void SelectAntigens::filter_outlier(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, double aUnits)
 {
-    std::cerr << "filter_outliers " << indices << '\n';
+    // auto layout = aChartSelectInterface.layout();
+    // std::vector<acmacs::Coordinates> points(indices.size());
+    // std::transform(indices.begin(), indices.end(), points.begin(), [&layout](size_t p_no) { return (*layout)[p_no]; });
+    // std::cerr << "filter_outliers " << indices << '\n';
 
 } // SelectAntigens::filter_outlier
 
@@ -379,7 +382,6 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
         else if (key == "in_rectangle") {
             const auto& c1 = value["c1"];
             const auto& c2 = value["c2"];
-            const size_t projection_no = 0;
             filter_rectangle(aChartSelectInterface, indexes, {c1[0], c1[1], c2[0], c2[1]});
         }
         else if (key == "in_circle") {
@@ -387,7 +389,6 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
             // const auto radius = value.get_field_number("radius");
             const auto& center = value["center"];
             const double radius = value["radius"];
-            const size_t projection_no = 0;
             filter_circle(aChartSelectInterface, indexes, {center[0], center[1], radius});
         }
         else {

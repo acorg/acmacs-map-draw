@@ -1,7 +1,7 @@
 #pragma once
 
 #include "acmacs-base/point-style.hh"
-#include "acmacs-chart-2/layout.hh"
+#include "acmacs-base/layout.hh"
 
 // ----------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ namespace rjson { class object; }
 // ----------------------------------------------------------------------
 
 acmacs::PointStyle point_style_from_json(const rjson::object& aSource);
-void draw_point(Surface& aSurface, const acmacs::PointStyle& aStyle, const acmacs::chart::Coordinates& aCoord);
+void draw_point(Surface& aSurface, const acmacs::PointStyle& aStyle, const acmacs::Coordinates& aCoord);
 
 // ----------------------------------------------------------------------
 

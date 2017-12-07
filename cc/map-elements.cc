@@ -218,7 +218,7 @@ void map_elements::SerumCircle::draw(Surface& aSurface, const ChartDraw& aChartD
 {
     if (mSerumNo != static_cast<size_t>(-1)) {
         auto transformed_layout = aChartDraw.transformed_layout();
-        const auto& coord = (*transformed_layout)[mSerumNo + aChartDraw.number_of_antigens()];
+        const auto& coord = transformed_layout->get(mSerumNo + aChartDraw.number_of_antigens());
         if (mStart == mEnd) {
             aSurface.circle_filled(coord, mRadius * 2.0, AspectNormal, NoRotation, mOutlineColor, mOutlineWidth, mFillColor);
         }
