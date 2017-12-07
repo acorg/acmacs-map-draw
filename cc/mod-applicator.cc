@@ -192,7 +192,7 @@ class ModAntigens : public Mod
             const auto verbose = args().get_or_default("report", false);
             const auto report_names_threshold = args().get_or_default("report_names_threshold", 10U);
             try {
-                const auto indices = SelectAntigens(verbose, report_names_threshold).select(aChartDraw.chart(), aChartDraw.previous_chart(), args()["select"]);
+                const auto indices = SelectAntigens(verbose, report_names_threshold).select(aChartDraw, args()["select"]);
                 const auto styl = style();
                 // if (verbose)
                 //     std::cerr << "DEBUG ModAntigens " << indices << ' ' << args() << ' ' << styl << '\n';
@@ -219,7 +219,7 @@ class ModSera : public Mod
             const auto verbose = args().get_or_default("report", false);
             const auto report_names_threshold = args().get_or_default("report_names_threshold", 10U);
             try {
-                const auto indices = SelectSera(verbose, report_names_threshold).select(aChartDraw.chart(), args()["select"]);
+                const auto indices = SelectSera(verbose, report_names_threshold).select(aChartDraw, args()["select"]);
                 const auto styl = style();
                 aChartDraw.modify_sera(indices, styl, drawing_order());
                 try { add_labels(aChartDraw, indices, aChartDraw.number_of_antigens(), args()["label"]); } catch (rjson::field_not_found&) {}
@@ -246,13 +246,13 @@ class ModMoveBase : public Mod
                 move_to = acmacs::chart::Coordinates{to[0], to[1]};
             }
             else if (auto [to_antigen_present, to_antigen] = args().get_object_if("to_antigen"); to_antigen_present) {
-                const auto antigens = SelectAntigens(aVerbose).select(aChartDraw.chart(), to_antigen);
+                const auto antigens = SelectAntigens(aVerbose).select(aChartDraw, to_antigen);
                 if (antigens.size() != 1)
                     throw unrecognized_mod{"\"to_antigen\" does not select single antigen, mod: " + args().to_json()};
                 move_to = (*aChartDraw.layout())[antigens[0]];
             }
             else if (auto [to_serum_present, to_serum] = args().get_object_if("to_serum"); to_serum_present) {
-                const auto sera = SelectSera(aVerbose).select(aChartDraw.chart(), to_serum);
+                const auto sera = SelectSera(aVerbose).select(aChartDraw, to_serum);
                 if (sera.size() != 1)
                     throw unrecognized_mod{"\"to_serum\" does not select single serum, mod: " + args().to_json()};
                 move_to = (*aChartDraw.layout())[sera[0] + aChartDraw.number_of_antigens()];
@@ -277,7 +277,7 @@ class ModMoveAntigens : public ModMoveBase
             try {
                 const auto move_to = get_move_to(aChartDraw, verbose);
                 auto layout = aChartDraw.layout();
-                for (auto index: SelectAntigens(verbose).select(aChartDraw.chart(), args()["select"])) {
+                for (auto index: SelectAntigens(verbose).select(aChartDraw, args()["select"])) {
                     layout->set(index, move_to);
                 }
             }
@@ -301,7 +301,7 @@ class ModMoveSera : public ModMoveBase
             try {
                 const auto move_to = get_move_to(aChartDraw, verbose);
                 auto layout = aChartDraw.layout();
-                for (auto index: SelectSera(verbose).select(aChartDraw.chart(), args()["select"])) {
+                for (auto index: SelectSera(verbose).select(aChartDraw, args()["select"])) {
                     layout->set(index + aChartDraw.number_of_antigens(), move_to);
                 }
             }
@@ -700,14 +700,14 @@ class ModLine : public Mod
             }
             else if (auto [from_antigen_present, from_antigen] = args().get_object_if(aPrefix + "_antigen"); from_antigen_present) {
                 auto layout = aChartDraw.layout();
-                for (auto index: SelectAntigens(verbose).select(aChartDraw.chart(), from_antigen)) {
+                for (auto index: SelectAntigens(verbose).select(aChartDraw, from_antigen)) {
                     const auto coord = (*layout)[index];
                     result.emplace_back(coord[0], coord[1]);
                 }
             }
             else if (auto [from_serum_present, from_serum] = args().get_object_if(aPrefix + "_serum"); from_serum_present) {
                 auto layout = aChartDraw.layout();
-                for (auto index: SelectSera(verbose).select(aChartDraw.chart(), from_serum)) {
+                for (auto index: SelectSera(verbose).select(aChartDraw, from_serum)) {
                     const auto coord = (*layout)[index + aChartDraw.number_of_antigens()];
                     result.emplace_back(coord[0], coord[1]);
                 }
@@ -803,7 +803,7 @@ class ModSerumHomologous : public Mod
 
     size_t select_serum(ChartDraw& aChartDraw, bool aVerbose) const
         {
-            const auto sera = SelectSera(aVerbose).select(aChartDraw.chart(), args()["serum"]);
+            const auto sera = SelectSera(aVerbose).select(aChartDraw, args()["serum"]);
             if (sera.size() != 1)
                 throw unrecognized_mod{"\"serum\" does not select single serum, mod: " + args().to_json()};
             return sera[0];
@@ -822,7 +822,7 @@ class ModSerumHomologous : public Mod
     std::vector<size_t> select_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const
         {
             if (auto [antigen_present, antigen_select] = args().get_object_if("antigen"); antigen_present) {
-                const auto antigens = SelectAntigens(aVerbose).select(aChartDraw.chart(), antigen_select);
+                const auto antigens = SelectAntigens(aVerbose).select(aChartDraw, antigen_select);
                 if (antigens.empty())
                     throw unrecognized_mod{"\"antigen\" does not select an antigen, mod: " + args().to_json()};
                 return antigens;

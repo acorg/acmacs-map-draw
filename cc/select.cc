@@ -25,32 +25,31 @@ SelectAntigensSera::~SelectAntigensSera()
 class SelectorVisitor : public rjson::value_visitor_base<acmacs::chart::Indexes>
 {
  public:
-    inline SelectorVisitor(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* aPreviousChart, SelectAntigensSera& aSelect) : mChart{aChart}, mPreviousChart{aPreviousChart}, mSelect{aSelect} {}
+    inline SelectorVisitor(const ChartSelectInterface& aChartSelectInterface, SelectAntigensSera& aSelect) : mChartSelectInterface{aChartSelectInterface}, mSelect{aSelect} {}
     using rjson::value_visitor_base<acmacs::chart::Indexes>::operator();
 
     inline acmacs::chart::Indexes operator()(const rjson::string& aValue) override
         {
-            return mSelect.command(mChart, mPreviousChart, {{aValue, rjson::boolean{true}}});
+            return mSelect.command(mChartSelectInterface, {{aValue, rjson::boolean{true}}});
         }
 
     inline acmacs::chart::Indexes operator()(const rjson::object& aValue) override
         {
-            return mSelect.command(mChart, mPreviousChart, aValue);
+            return mSelect.command(mChartSelectInterface, aValue);
         }
 
  private:
-    const acmacs::chart::Chart& mChart;
-    const acmacs::chart::Chart* mPreviousChart;
+    const ChartSelectInterface& mChartSelectInterface;
     SelectAntigensSera& mSelect;
 
 }; // class SelectorVisitor
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::Indexes SelectAntigensSera::select(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* aPreviousChart, const rjson::value& aSelector)
+acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector)
 {
     try {
-        return std::visit(SelectorVisitor{aChart, aPreviousChart, *this}, aSelector);
+        return std::visit(SelectorVisitor{aChartSelectInterface, *this}, aSelector);
     }
     catch (std::exception& err) {
           // catch (SelectorVisitor::unexpected_value&) {
@@ -61,10 +60,10 @@ acmacs::chart::Indexes SelectAntigensSera::select(const acmacs::chart::Chart& aC
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::Indexes SelectAntigens::command(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* aPreviousChart, const rjson::object& aSelector)
+acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChartSelectInterface, const rjson::object& aSelector)
 {
       // std::cout << "DEBUG: antigens command: " << aSelector << '\n';
-    auto antigens = aChart.antigens();
+    auto antigens = aChartSelectInterface.chart().antigens();
     auto indexes = antigens->all_indexes();
     for (const auto& [key, value]: aSelector) {
         if (!key.empty() && (key.front() == '?' || key.back() == '?')) {
@@ -142,23 +141,26 @@ acmacs::chart::Indexes SelectAntigens::command(const acmacs::chart::Chart& aChar
             antigens->filter_continent(indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "sequenced") {
-            filter_sequenced(aChart, indexes);
+            filter_sequenced(aChartSelectInterface, indexes);
         }
         else if (key == "not_sequenced") {
-            filter_not_sequenced(aChart, indexes);
+            filter_not_sequenced(aChartSelectInterface, indexes);
         }
         else if (key == "clade") {
-            filter_clade(aChart, indexes, string::upper(static_cast<std::string_view>(value)));
+            filter_clade(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(value)));
+        }
+        else if (key == "outlier") {
+            filter_outlier(aChartSelectInterface, indexes, value);
         }
         else if (key == "name") {
-            filter_name(aChart, indexes, string::upper(static_cast<std::string_view>(value)));
+            filter_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "full_name") {
-            filter_full_name(aChart, indexes, string::upper(static_cast<std::string_view>(value)));
+            filter_full_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "vaccine" || key == "vaccines") {
             try {
-                filter_vaccine(aChart, indexes,
+                filter_vaccine(aChartSelectInterface, indexes,
                                VaccineMatchData{}
                                .type(value.get_or_default("type", ""s))
                                .passage(value.get_or_default("passage", ""s))
@@ -166,7 +168,7 @@ acmacs::chart::Indexes SelectAntigens::command(const acmacs::chart::Chart& aChar
                                .name(value.get_or_default("name", ""s)));
             }
             catch (std::bad_variant_access&) {
-                filter_vaccine(aChart, indexes, {});
+                filter_vaccine(aChartSelectInterface, indexes, {});
             }
         }
         else if (key == "in_rectangle") {
@@ -174,28 +176,26 @@ acmacs::chart::Indexes SelectAntigens::command(const acmacs::chart::Chart& aChar
             // const auto& c2 = value.get_field<rjson::array>("c2");
             const auto& c1 = value["c1"];
             const auto& c2 = value["c2"];
-            const size_t projection_no = 0;
-            filter_rectangle(aChart, indexes, *aChart.projection(projection_no), {c1[0], c1[1], c2[0], c2[1]});
+            filter_rectangle(aChartSelectInterface, indexes, {c1[0], c1[1], c2[0], c2[1]});
         }
         else if (key == "in_circle") {
             // const auto& center = value.get_field<rjson::array>("center");
             // const auto radius = value.get_field_number("radius");
             const auto& center = value["center"];
             const double radius = value["radius"];
-            const size_t projection_no = 0;
-            filter_circle(aChart, indexes, *aChart.projection(projection_no), {center[0], center[1], radius});
+            filter_circle(aChartSelectInterface, indexes, {center[0], center[1], radius});
         }
         else if (key == "lab") {
-            if (aChart.info()->lab(acmacs::chart::Info::Compute::Yes) != string::upper(static_cast<std::string_view>(value)))
+            if (aChartSelectInterface.chart().info()->lab(acmacs::chart::Info::Compute::Yes) != string::upper(static_cast<std::string_view>(value)))
                 indexes.clear();
         }
         else if (key == "subtype") {
-            const std::string virus_type = aChart.info()->virus_type(acmacs::chart::Info::Compute::Yes);
+            const std::string virus_type = aChartSelectInterface.chart().info()->virus_type(acmacs::chart::Info::Compute::Yes);
             const std::string val_u = string::upper(static_cast<std::string_view>(value));
             if (val_u != virus_type) {
                 bool clear_indexes = true;
                 if (virus_type == "B") {
-                    const std::string lineage = aChart.lineage();
+                    const std::string lineage = aChartSelectInterface.chart().lineage();
                     clear_indexes = !(((val_u == "BVIC" || val_u == "BV") && lineage == "VICTORIA") || ((val_u == "BYAM" || val_u == "BY") && lineage == "YAMAGATA"));
                 }
                 else {
@@ -206,15 +206,15 @@ acmacs::chart::Indexes SelectAntigens::command(const acmacs::chart::Chart& aChar
             }
         }
         else if (key == "found_in_previous") {
-            if (!aPreviousChart)
+            if (!aChartSelectInterface.previous_chart())
                 throw std::runtime_error{"\"found_in_previous\" selector used but no previous chart provided"};
-            auto previous_antigens = aPreviousChart->antigens();
+            auto previous_antigens = aChartSelectInterface.previous_chart()->antigens();
             antigens->filter_found_in(indexes, *previous_antigens);
         }
         else if (key == "not_found_in_previous") {
-            if (!aPreviousChart)
+            if (!aChartSelectInterface.previous_chart())
                 throw std::runtime_error{"\"not_found_in_previous\" selector used but no previous chart provided"};
-            auto previous_antigens = aPreviousChart->antigens();
+            auto previous_antigens = aChartSelectInterface.previous_chart()->antigens();
             antigens->filter_not_found_in(indexes, *previous_antigens);
         }
         else {
@@ -235,15 +235,15 @@ acmacs::chart::Indexes SelectAntigens::command(const acmacs::chart::Chart& aChar
 
 // ----------------------------------------------------------------------
 
-const std::vector<seqdb::SeqdbEntrySeq>& SelectAntigens::seqdb_entries(const acmacs::chart::Chart& aChart)
+const std::vector<seqdb::SeqdbEntrySeq>& SelectAntigens::seqdb_entries(const ChartSelectInterface& aChartSelectInterface)
 {
       // thread unsafe!
-    static std::map<const acmacs::chart::Chart*, std::vector<seqdb::SeqdbEntrySeq>> cache_seqdb_entries_for_chart;
+    static std::map<const ChartSelectInterface*, std::vector<seqdb::SeqdbEntrySeq>> cache_seqdb_entries_for_chart;
 
-    auto found = cache_seqdb_entries_for_chart.find(&aChart);
+    auto found = cache_seqdb_entries_for_chart.find(&aChartSelectInterface);
     if (found == cache_seqdb_entries_for_chart.end()) {
-        found = cache_seqdb_entries_for_chart.emplace(&aChart, decltype(cache_seqdb_entries_for_chart)::mapped_type{}).first;
-        seqdb::get(timer()).match(*aChart.antigens(), found->second, aChart.info()->virus_type(acmacs::chart::Info::Compute::Yes), false);
+        found = cache_seqdb_entries_for_chart.emplace(&aChartSelectInterface, decltype(cache_seqdb_entries_for_chart)::mapped_type{}).first;
+        seqdb::get(timer()).match(*aChartSelectInterface.chart().antigens(), found->second, aChartSelectInterface.chart().info()->virus_type(acmacs::chart::Info::Compute::Yes), false);
     }
     return found->second;
 
@@ -251,9 +251,9 @@ const std::vector<seqdb::SeqdbEntrySeq>& SelectAntigens::seqdb_entries(const acm
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_sequenced(const acmacs::chart::Chart& aChart, acmacs::chart::Indexes& indexes)
+void SelectAntigens::filter_sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes)
 {
-    const auto& entries = seqdb_entries(aChart);
+    const auto& entries = seqdb_entries(aChartSelectInterface);
     auto not_sequenced = [&entries](auto index) -> bool { return !entries[index]; };
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_sequenced), indexes.end());
 
@@ -261,9 +261,9 @@ void SelectAntigens::filter_sequenced(const acmacs::chart::Chart& aChart, acmacs
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_not_sequenced(const acmacs::chart::Chart& aChart, acmacs::chart::Indexes& indexes)
+void SelectAntigens::filter_not_sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes)
 {
-    const auto& entries = seqdb_entries(aChart);
+    const auto& entries = seqdb_entries(aChartSelectInterface);
     auto sequenced = [&entries](auto index) -> bool { return entries[index]; };
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), sequenced), indexes.end());
 
@@ -271,10 +271,10 @@ void SelectAntigens::filter_not_sequenced(const acmacs::chart::Chart& aChart, ac
 
 // ----------------------------------------------------------------------
 
-std::map<std::string, size_t> SelectAntigens::clades(const acmacs::chart::Chart& aChart)
+std::map<std::string, size_t> SelectAntigens::clades(const ChartSelectInterface& aChartSelectInterface)
 {
     std::map<std::string, size_t> result;
-    for (const auto& entry: seqdb_entries(aChart)) {
+    for (const auto& entry: seqdb_entries(aChartSelectInterface)) {
         if (entry) {
             for (const auto& clade: entry.seq().clades())
                 ++result[clade];
@@ -286,9 +286,9 @@ std::map<std::string, size_t> SelectAntigens::clades(const acmacs::chart::Chart&
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_clade(const acmacs::chart::Chart& aChart, acmacs::chart::Indexes& indexes, std::string aClade)
+void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string aClade)
 {
-    const auto& entries = seqdb_entries(aChart);
+    const auto& entries = seqdb_entries(aChartSelectInterface);
     auto not_in_clade = [&entries,aClade](auto index) -> bool { const auto& entry = entries[index]; return !entry || !entry.seq().has_clade(aClade); };
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_clade), indexes.end());
 
@@ -296,27 +296,29 @@ void SelectAntigens::filter_clade(const acmacs::chart::Chart& aChart, acmacs::ch
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_vaccine(const acmacs::chart::Chart& aChart, acmacs::chart::Indexes& indexes, const VaccineMatchData& aMatchData)
+void SelectAntigens::filter_outlier(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, double aUnits)
 {
-    const auto virus_type = aChart.info()->virus_type(acmacs::chart::Info::Compute::Yes);
+    std::cerr << "filter_outliers " << indices << '\n';
+
+} // SelectAntigens::filter_outlier
+
+// ----------------------------------------------------------------------
+
+void SelectAntigens::filter_vaccine(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const VaccineMatchData& aMatchData)
+{
+    const auto virus_type = aChartSelectInterface.chart().info()->virus_type(acmacs::chart::Info::Compute::Yes);
     if (!virus_type.empty()) {
 
           // thread unsafe!
-        static std::map<const acmacs::chart::Chart*, Vaccines> cache_vaccines;
-        auto vaccines_of_chart = cache_vaccines.find(&aChart);
+        static std::map<const ChartSelectInterface*, Vaccines> cache_vaccines;
+        auto vaccines_of_chart = cache_vaccines.find(&aChartSelectInterface);
         if (vaccines_of_chart == cache_vaccines.end()) {
             Timeit ti_vaccines("Vaccines of chart ");
-            vaccines_of_chart = cache_vaccines.emplace(&aChart, Vaccines{aChart, verbose()}).first;
+            vaccines_of_chart = cache_vaccines.emplace(&aChartSelectInterface, Vaccines{aChartSelectInterface.chart(), verbose()}).first;
             if (verbose())
                 std::cerr << vaccines_of_chart->second.report(2) << '\n';
         }
         auto vaccine_indexes = vaccines_of_chart->second.indices(aMatchData);
-
-        // Timeit ti_filter_vaccines("filter_vaccine ");
-        // Vaccines vaccines(aChart, verbose());
-        // if (verbose())
-        //     std::cerr << vaccines.report(2) << '\n';
-        // auto vaccine_indexes = vaccines.indexes(aMatchData);
 
         std::sort(vaccine_indexes.begin(), vaccine_indexes.end());
         acmacs::chart::Indexes result(vaccine_indexes.size());
@@ -325,16 +327,16 @@ void SelectAntigens::filter_vaccine(const acmacs::chart::Chart& aChart, acmacs::
     }
     else {
         indexes.clear();
-        std::cerr << "WARNING: unknown virus_type for chart: " << aChart.make_name() << '\n';
+        std::cerr << "WARNING: unknown virus_type for chart: " << aChartSelectInterface.chart().make_name() << '\n';
     }
 
 } // SelectAntigens::filter_vaccine
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::Indexes SelectSera::command(const acmacs::chart::Chart& aChart, const acmacs::chart::Chart* /*aPreviousChart*/, const rjson::object& aSelector)
+acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSelectInterface, const rjson::object& aSelector)
 {
-    const auto& sera = aChart.sera();
+    const auto& sera = aChartSelectInterface.chart().sera();
     auto indexes = sera->all_indexes();
     for (const auto& [key, value]: aSelector) {
         if (!key.empty() && (key.front() == '?' || key.back() == '?')) {
@@ -369,17 +371,16 @@ acmacs::chart::Indexes SelectSera::command(const acmacs::chart::Chart& aChart, c
             sera->filter_continent(indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "name") {
-            filter_name(aChart, indexes, string::upper(static_cast<std::string_view>(value)));
+            filter_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "full_name") {
-            filter_full_name(aChart, indexes, string::upper(static_cast<std::string_view>(value)));
+            filter_full_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "in_rectangle") {
             const auto& c1 = value["c1"];
             const auto& c2 = value["c2"];
             const size_t projection_no = 0;
-            auto projection = aChart.projection(projection_no);
-            filter_rectangle(aChart, indexes, *projection, {c1[0], c1[1], c2[0], c2[1]});
+            filter_rectangle(aChartSelectInterface, indexes, {c1[0], c1[1], c2[0], c2[1]});
         }
         else if (key == "in_circle") {
             // const auto& center = value.get_field<rjson::array>("center");
@@ -387,8 +388,7 @@ acmacs::chart::Indexes SelectSera::command(const acmacs::chart::Chart& aChart, c
             const auto& center = value["center"];
             const double radius = value["radius"];
             const size_t projection_no = 0;
-            auto projection = aChart.projection(projection_no);
-            filter_circle(aChart, indexes, *projection, {center[0], center[1], radius});
+            filter_circle(aChartSelectInterface, indexes, {center[0], center[1], radius});
         }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';

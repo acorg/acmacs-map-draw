@@ -12,15 +12,6 @@
 
 // ----------------------------------------------------------------------
 
-ChartDraw::ChartDraw(acmacs::chart::ChartModifyP aChart, size_t aProjectionNo)
-    : mChart(aChart),
-      mProjectionModify(mChart->projection_modify(aProjectionNo)),
-      mPlotSpec(mChart->plot_spec_modify())
-{
-}
-
-// ----------------------------------------------------------------------
-
 const acmacs::Viewport& ChartDraw::calculate_viewport(bool verbose)
 {
     std::unique_ptr<acmacs::BoundingBall> bb{transformed_layout()->minimum_bounding_ball()};
@@ -53,13 +44,13 @@ void ChartDraw::draw(Surface& aSurface) const
     const auto layout = transformed_layout();
 
     for (auto index: drawing_order()) {
-        auto style = mPlotSpec->style(index);
+        auto style = plot_spec().style(index);
         // std::cerr << index << ' ' << style << '\n';
         draw_point(rescaled_surface, style, (*layout)[index]);
         // if (index < number_of_antigens())
         //     std::cout << "AG: " << index << ' ' << (*layout)[index] << ' ' << mPointStyles[index] << " \"" << chart().antigen(index)->full_name() << "\"\n";
     }
-    mLabels.draw(rescaled_surface, *layout, *mPlotSpec);
+    mLabels.draw(rescaled_surface, *layout, plot_spec());
 
     mMapElements.draw(rescaled_surface, map_elements::Elements::AfterPoints, *this);
 
@@ -85,7 +76,7 @@ void ChartDraw::hide_all_except(const acmacs::chart::Indexes& aNotHide)
     style.shown = false;
     for (size_t index = 0; index < number_of_points(); ++index ) {
         if (std::find(aNotHide.begin(), aNotHide.end(), index) == aNotHide.end())
-            mPlotSpec->modify(index, style);
+            plot_spec().modify(index, style);
     }
 
 } // ChartDraw::hide_all_except
@@ -96,7 +87,7 @@ void ChartDraw::mark_egg_antigens()
 {
     acmacs::PointStyle style;
     style.aspect = AspectEgg;
-    mPlotSpec->modify(chart().antigens()->egg_indexes(), style);
+    plot_spec().modify(chart().antigens()->egg_indexes(), style);
 
 } // ChartDraw::mark_egg_antigens
 
@@ -106,7 +97,7 @@ void ChartDraw::mark_reassortant_antigens()
 {
     acmacs::PointStyle style;
     style.rotation = RotationReassortant;
-    mPlotSpec->modify(chart().antigens()->reassortant_indexes(), style);
+    plot_spec().modify(chart().antigens()->reassortant_indexes(), style);
 
 } // ChartDraw::mark_reassortant_antigens
 
@@ -116,12 +107,12 @@ void ChartDraw::mark_all_grey(Color aColor)
 {
     acmacs::PointStyle ref_antigen;
     ref_antigen.outline = aColor;
-    mPlotSpec->modify(chart().antigens()->reference_indexes(), ref_antigen);
+    plot_spec().modify(chart().antigens()->reference_indexes(), ref_antigen);
     acmacs::PointStyle test_antigen;
     test_antigen.fill = aColor;
     test_antigen.outline = aColor;
-    mPlotSpec->modify(chart().antigens()->test_indexes(), test_antigen);
-    mPlotSpec->modify(chart().sera()->all_indexes(), ref_antigen);
+    plot_spec().modify(chart().antigens()->test_indexes(), test_antigen);
+    plot_spec().modify(chart().sera()->all_indexes(), ref_antigen);
 
 } // ChartDraw::mark_all_grey
 

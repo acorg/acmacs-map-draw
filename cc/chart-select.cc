@@ -19,11 +19,12 @@ int main(int argc, char* const argv[])
     int exit_code = 1;
     try {
         argc_argv args(argc, argv, {
+                {"-s", false, "select sera (alias for --sera)"},
+                {"--sera", false, "select sera (alias for -s)"},
+                {"--projection", 0},
                 {"-h", false},
                 {"--help", false},
                 {"--help-select", false},
-                {"-s", false},
-                {"--sera", false},
                 {"--db-dir", ""},
                 {"-v", false},
                 {"--verbose", false},
@@ -51,16 +52,16 @@ int do_select(const argc_argv& args)
     const auto selector = rjson::parse_string(args[1]);
       // const auto selector = rjson::parse_string("{\"in_rectangle\":{\"c1\":[0,0],\"c2\":[1,1]}}");
     auto chart = acmacs::chart::import_factory(args[0], acmacs::chart::Verify::None);
-
+    ChartSelectInterface chart_select(std::make_shared<acmacs::chart::ChartModify>(chart), args["--projection"]);
     if (!args["-s"] && !args["--sera"]) {
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_antigens())) + 1;
-        const auto indices = SelectAntigens(verbose).select(*chart, selector);
+        const auto indices = SelectAntigens(verbose).select(chart_select, selector);
         for (auto index: indices)
             std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->antigen(index)->full_name() << '\n';
     }
     else {
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_sera())) + 1;
-        const auto indices = SelectSera(verbose).select(*chart, selector);
+        const auto indices = SelectSera(verbose).select(chart_select, selector);
         for (auto index: indices)
             std::cout << "SR " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->serum(index)->full_name() << '\n';
     }
