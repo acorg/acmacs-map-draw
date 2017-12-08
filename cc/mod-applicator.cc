@@ -276,9 +276,9 @@ class ModMoveAntigens : public ModMoveBase
             const auto verbose = args().get_or_default("report", false);
             try {
                 const auto move_to = get_move_to(aChartDraw, verbose);
-                auto layout = aChartDraw.layout();
+                auto& projection = aChartDraw.projection();
                 for (auto index: SelectAntigens(verbose).select(aChartDraw, args()["select"])) {
-                    layout->set(index, move_to);
+                    projection.move_point(index, move_to);
                 }
             }
             catch (rjson::field_not_found&) {
@@ -300,9 +300,9 @@ class ModMoveSera : public ModMoveBase
             const auto verbose = args().get_or_default("report", false);
             try {
                 const auto move_to = get_move_to(aChartDraw, verbose);
-                auto layout = aChartDraw.layout();
+                auto& projection = aChartDraw.projection();
                 for (auto index: SelectSera(verbose).select(aChartDraw, args()["select"])) {
-                    layout->set(index + aChartDraw.number_of_antigens(), move_to);
+                    projection.move_point(index + aChartDraw.number_of_antigens(), move_to);
                 }
             }
             catch (rjson::field_not_found&) {

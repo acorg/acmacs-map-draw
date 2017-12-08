@@ -292,7 +292,7 @@ Antigens:
 {"in_rectangle": {"c1": [0.0, 0.0], "c2": [1.0, 1.0]}}, {"in_circle": {"center": [2.0, 2.0], "radius": 5.0}}
 {"lab": "CDC"} - returns empty index list for other labs
 {"subtype": "H1 A(H1N1) H3 A(H3N2) B BV BVIC BY BYAM"}
-{"outlier": 1.0} // threshold in units, must be after other select args, e.g. after "clade"
+{"outlier": 1.0} // threshold in units (distance from centroid of pre-selected points), must be after other select args, e.g. after "clade"
 Sera:
 -----
 "all",
