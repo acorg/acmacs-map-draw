@@ -298,10 +298,35 @@ void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterf
 
 void SelectAntigens::filter_outlier(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, double aUnits)
 {
-    acmacs::Layout points(*aChartSelectInterface.layout(), indexes);
-    const auto centroid = points.centroid();
-    std::cerr << "centroid: " << centroid << '\n';
-    std::cerr << points << '\n';
+    auto layout = aChartSelectInterface.layout();
+
+    using sum_count_t = std::pair<acmacs::Coordinates, size_t>;
+    auto sum_count_not_nan = [&layout](const auto& sum_count, size_t index) -> sum_count_t {
+        const auto coord = layout->get(index);
+        auto [sum, count] = sum_count;
+        if (coord.not_nan()) {
+            sum += coord;
+            ++count;
+        }
+        return {sum, count};
+    };
+    auto [centroid, count] = std::accumulate(indexes.begin(), indexes.end(), sum_count_t{{0.0, 0.0}, 0}, sum_count_not_nan);
+    centroid /= count;
+    // std::cerr << "centroid new: " << centroid << '\n';
+
+    using point_dist_t = std::pair<size_t, double>; // point number (from indexes) and its distance to centroid
+    std::vector<point_dist_t> point_dist(indexes.size());
+    std::transform(indexes.begin(), indexes.end(), point_dist.begin(), [centroid=centroid,&layout](size_t index) -> point_dist_t {
+        const auto coord = layout->get(index);
+        if (coord.not_nan())
+            return {index, centroid.distance(coord)};
+        else
+            return {index, 0.0}; // not an outlier!
+    });
+    std::sort(point_dist.begin(), point_dist.end(), [](const auto& a, const auto& b) { return a.second > b.second; }); // outliers first
+
+    for (const auto& [point_no, dist]: point_dist)
+        std::cerr << std::setfill(' ') << std::setw(4) << point_no << ' ' << dist << '\n';
     // std::cerr << "filter_outliers " << indices << '\n';
 
 } // SelectAntigens::filter_outlier
