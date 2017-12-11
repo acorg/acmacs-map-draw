@@ -299,6 +299,9 @@ Antigens:
 {"lab": "CDC"} - returns empty index list for other labs
 {"subtype": "H1 A(H1N1) H3 A(H3N2) B BV BVIC BY BYAM"}
 {"outlier": 1.0} // threshold in units (distance from centroid of pre-selected points), must be after other select args, e.g. after "clade"
+{"table": "20170216"}
+  {"table": "MELB:HI:turkey:20170216"}
+
 Sera:
 -----
 "all",
@@ -307,6 +310,8 @@ Sera:
 {"country": "sweden"}, {"continent": "europe"},
 {"name": "SWITZERLAND/9715293/2013"},
 {"full_name": "A(H1N1)/MICHIGAN/2/2009 CDC 2015-121"},
+{"table": "20170216"}
+  {"table": "MELB:HI:turkey:20170216"}
 
 
 )";

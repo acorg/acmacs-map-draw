@@ -14,8 +14,8 @@
 
 // ----------------------------------------------------------------------
 
-class LocDb;
-namespace hidb { class HiDb; }
+// class LocDb;
+// namespace hidb { class HiDb; }
 class VaccineMatchData;
 
 // ----------------------------------------------------------------------
@@ -33,6 +33,9 @@ class SelectAntigensSera
     virtual void filter_full_name(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, std::string aFullName) = 0;
     virtual void filter_rectangle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, const acmacs::Rectangle& aRectangle) = 0;
     virtual void filter_circle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, const acmacs::Circle& aCircle) = 0;
+
+      // aTable is either table date or full table id (e.g. MELB:HI:turkey:20170216)
+    virtual void filter_table(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aTable) = 0;
 
  protected:
     template <typename AgSr> inline void filter_name_in(AgSr aAgSr, acmacs::chart::Indexes& indices, std::string aName)
@@ -91,7 +94,8 @@ class SelectAntigens : public SelectAntigensSera
     inline void filter_full_name(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, std::string aFullName) override { filter_full_name_in(aChartSelectInterface.chart().antigens(), indices, aFullName); }
     void filter_vaccine(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, const VaccineMatchData& aMatchData);
     inline void filter_rectangle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, const acmacs::Rectangle& aRectangle) override { filter_rectangle_in(indices, 0, *aChartSelectInterface.layout(), aChartSelectInterface.transformation(), aRectangle); }
-    virtual void filter_circle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, const acmacs::Circle& aCircle) override { filter_circle_in(indices, 0, *aChartSelectInterface.layout(), aChartSelectInterface.transformation(), aCircle); }
+    inline void filter_circle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, const acmacs::Circle& aCircle) override { filter_circle_in(indices, 0, *aChartSelectInterface.layout(), aChartSelectInterface.transformation(), aCircle); }
+    void filter_table(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aTable) override;
 
  private:
     const std::vector<seqdb::SeqdbEntrySeq>& seqdb_entries(const ChartSelectInterface& aChartSelectInterface);
@@ -107,9 +111,10 @@ class SelectSera : public SelectAntigensSera
 
     acmacs::chart::Indexes command(const ChartSelectInterface& aChartSelectInterface, const rjson::object& aSelector) override;
     inline void filter_name(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, std::string aName) override { filter_name_in(aChartSelectInterface.chart().sera(), indices, aName); }
-    inline void filter_full_name(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, std::string aFullName) override { filter_full_name_in(aChartSelectInterface.chart().antigens(), indices, aFullName); }
+    inline void filter_full_name(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, std::string aFullName) override { filter_full_name_in(aChartSelectInterface.chart().sera(), indices, aFullName); }
     inline void filter_rectangle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, const acmacs::Rectangle& aRectangle) override { filter_rectangle_in(indices, aChartSelectInterface.chart().number_of_antigens(), *aChartSelectInterface.layout(), aChartSelectInterface.transformation(), aRectangle); }
-    virtual void filter_circle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, const acmacs::Circle& aCircle) override { filter_circle_in(indices, aChartSelectInterface.chart().number_of_antigens(), *aChartSelectInterface.layout(), aChartSelectInterface.transformation(), aCircle); }
+    inline void filter_circle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indices, const acmacs::Circle& aCircle) override { filter_circle_in(indices, aChartSelectInterface.chart().number_of_antigens(), *aChartSelectInterface.layout(), aChartSelectInterface.transformation(), aCircle); }
+    void filter_table(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aTable) override;
 
 };  // class SelectSera
 

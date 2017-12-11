@@ -1,7 +1,7 @@
 #include <chrono>
 #include <cstdlib>
 
-#include "locationdb/locdb.hh"
+// #include "locationdb/locdb.hh"
 #include "hidb-5/hidb.hh"
 
 #include "vaccines.hh"
@@ -217,6 +217,9 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             auto previous_antigens = aChartSelectInterface.previous_chart()->antigens();
             antigens->filter_not_found_in(indexes, *previous_antigens);
         }
+        else if (key == "table") {
+            filter_table(aChartSelectInterface, indexes, static_cast<std::string_view>(value));
+        }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
         }
@@ -408,6 +411,9 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
         else if (key == "full_name") {
             filter_full_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(value)));
         }
+        else if (key == "table") {
+            filter_table(aChartSelectInterface, indexes, static_cast<std::string_view>(value));
+        }
         else if (key == "in_rectangle") {
             const auto& c1 = value["c1"];
             const auto& c2 = value["c2"];
@@ -434,6 +440,39 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
     return indexes;
 
 } // SelectSera::command
+
+// ----------------------------------------------------------------------
+
+template <typename AgSr> void filter_table_ag_sr(const AgSr& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aTable, std::shared_ptr<hidb::Tables> aHidbTables)
+{
+    auto not_in_table = [aTable,&aAgSr,hidb_tables=*aHidbTables](size_t index) {
+        if (auto ag_sr = aAgSr[index]; ag_sr) { // found in hidb
+            for (auto table_no: ag_sr->tables()) {
+                auto table = hidb_tables[table_no];
+                if (table->date() == aTable || table->name() == aTable)
+                    return false;
+            }
+        }
+        return true;
+    };
+    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_table), indexes.end());
+}
+
+void SelectAntigens::filter_table(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aTable)
+{
+    const auto& hidb = hidb::get(aChartSelectInterface.chart().info()->virus_type());
+    filter_table_ag_sr(hidb.antigens()->find(*aChartSelectInterface.chart().antigens()), indexes, aTable, hidb.tables());
+
+} // SelectAntigens::filter_table
+
+// ----------------------------------------------------------------------
+
+void SelectSera::filter_table(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aTable)
+{
+    const auto& hidb = hidb::get(aChartSelectInterface.chart().info()->virus_type());
+    filter_table_ag_sr(hidb.sera()->find(*aChartSelectInterface.chart().sera()), indexes, aTable, hidb.tables());
+
+} // SelectSera::filter_table
 
 // ----------------------------------------------------------------------
 
