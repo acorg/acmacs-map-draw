@@ -100,7 +100,7 @@ int draw(const argc_argv& args)
         settings.set_field("apply", rjson::parse_string(args["--apply"].str_view()));
     }
     else if (args["--clade"]) {
-        settings.set_field("apply", rjson::array{"all_grey", "egg", "clades", "vaccines"});
+        settings.set_field("apply", rjson::array{"all_grey", "egg", "clades", "vaccines", "title"});
     }
 
     if (args["--point-scale"].present()) {
