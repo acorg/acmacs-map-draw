@@ -36,6 +36,11 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": "reference", "outline": "grey80", "fill": "transparent"},
       {"N": "sera", "select": "all", "outline": "grey80", "fill": "transparent"}
     ],
+    "size_reset": [
+      {"N": "antigens", "select": "test", "size": 5.0},
+      {"N": "antigens", "select": "reference", "size": 8.0},
+      {"N": "sera", "select": "all", "size": 6.5}
+    ],
     "clades": [
       {"N": "antigens", "select": {"clade": "3C3"},   "outline": "black", "fill": "cornflowerblue", "legend": {"label": "3C3", "count": true}, "order": "raise", "report": true},
       {"N": "antigens", "select": {"clade": "3C3A"},  "outline": "black", "fill": "green", "legend": {"label": "3C3a", "count": true}, "order": "raise", "report": true},
@@ -191,6 +196,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
   "report": false},
 
 "all_grey"
+"size_reset"
 "clades"
 "clades_last_6_months"
 "clades_last_12_months"
