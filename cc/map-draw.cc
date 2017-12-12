@@ -149,7 +149,7 @@ int draw(const argc_argv& args)
         chart_draw.save(save, args.program());
     }
 
-    if (args["--open"])
+    if (args["--open"] || args.number_of_arguments() < 2)
         acmacs::quicklook(output, 2);
     return 0;
 
