@@ -64,10 +64,10 @@ static inline std::vector<std::string> make_list(const rjson::array& aSource)
 
 int draw(const argc_argv& args)
 {
+    using namespace std::string_literals;
     const bool verbose = args["-v"] || args["--verbose"];
 
     setup_dbs(args["--db-dir"], verbose);
-
 
     if (args["--init-settings"]) {
         auto write_settings = [](std::ostream& out) { out << geographic_settings_default_raw() << '\n'; };
@@ -123,7 +123,7 @@ int draw(const argc_argv& args)
         else if (args["--time-series"] == "weekly")
             time_series.reset(new GeographicTimeSeriesWeekly(string::upper(args[0]), start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]));
         else
-            throw std::runtime_error("Unsupported time series argument: " + static_cast<std::string_view>(args["--time-series"]) + " (monthly or yearly or weekly expected)");
+            throw std::runtime_error("Unsupported time series argument: " + std::string{static_cast<std::string_view>(args["--time-series"])} + " (monthly or yearly or weekly expected)");
         set_title(time_series->title(), settings, false);
         time_series->draw(std::string{args[1]}, *coloring, ColorOverride{}, settings["output_image_width"]);
     }
