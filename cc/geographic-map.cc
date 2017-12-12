@@ -118,7 +118,7 @@ void GeographicMapWithPointsFromHidb::prepare(Surface& aSurface)
                 const size_t circle_capacity = static_cast<size_t>(M_PI * 2.0 * distance * circle_no / (point_scaled * mDensity));
                 const size_t points_on_circle = std::min(circle_capacity, iter.left());
                 const double step = 2.0 * M_PI / points_on_circle;
-                for (auto index: acmacs::incrementer(0UL, points_on_circle)) {
+                for (auto index: acmacs::range(0UL, points_on_circle)) {
                     std::tie(coloring_data, priority) = *iter;
                     add_point(priority, center_lat + distance * std::cos(index * step), center_long + distance * std::sin(index * step), coloring_data.fill, mPointSize, coloring_data.outline, coloring_data.outline_width);
                     ++iter;
