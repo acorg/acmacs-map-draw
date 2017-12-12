@@ -26,6 +26,9 @@ int main(int argc, char* const argv[])
                 {"--clade", false},
                 {"--point-scale", 1.0},
                 {"--rotate-degrees", 0.0, "counter clockwise"},
+                {"-r", 0.0, "rotate in degrees, counter clockwise"},
+                {"--flip-ew", false},
+                {"--flip-ns", false},
                 {"--settings", argc_argv::strings{}, "load settings from file"},
                 {"-s", argc_argv::strings{}, "load settings from file"},
                 {"--init-settings", "", "initialize (overwrite) settings file"},
@@ -107,6 +110,15 @@ int draw(const argc_argv& args)
         static_cast<rjson::array&>(settings["apply"]).insert(rjson::object{{{"N", rjson::string{"point_scale"}}, {"scale", rjson::number{static_cast<double>(args["--point-scale"])}}, {"outline_scale", rjson::number{1.0}}}});
     }
 
+    if (args["--flip-ew"].present()) {
+        static_cast<rjson::array&>(settings["apply"]).insert(rjson::object{{{"N", rjson::string{"flip"}}, {"direction", rjson::string{"ew"}}}});
+    }
+    if (args["--flip-ns"].present()) {
+        static_cast<rjson::array&>(settings["apply"]).insert(rjson::object{{{"N", rjson::string{"flip"}}, {"direction", rjson::string{"ns"}}}});
+    }
+    if (args["-r"].present()) {
+        static_cast<rjson::array&>(settings["apply"]).insert(rjson::object{{{"N", rjson::string{"rotate"}}, {"degrees", rjson::number{static_cast<double>(args["--r"])}}}});
+    }
     if (args["--rotate-degrees"].present()) {
         static_cast<rjson::array&>(settings["apply"]).insert(rjson::object{{{"N", rjson::string{"rotate"}}, {"degrees", rjson::number{static_cast<double>(args["--rotate-degrees"])}}}});
     }
