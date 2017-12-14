@@ -77,15 +77,23 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
     try {
         const auto* entry_seq = seqdb::get(report_time::Yes).find_hi_name(aAntigen.full_name());
         if (entry_seq) {
-            for (const auto& clade: entry_seq->seq().clades()) {
-                try {
-                    result = mColors.at(clade); // find first clade that has corresponding entry in mColors and use it
-                    tag = clade;
-                    break;
+            const auto& clades_of_seq = entry_seq->seq().clades();
+            std::vector<std::string> clade_data;
+            std::copy_if(clades_of_seq.begin(), clades_of_seq.end(), std::back_inserter(clade_data), [this](const auto& clade) { return this->mColors.find(clade) != this->mColors.end(); });
+            if (clade_data.size() == 1) {
+                tag = clade_data.front();
+            }
+            else if (clade_data.size() > 1) {
+                if (std::find(clade_data.begin(), clade_data.end(), "3C2A1") != clade_data.end()) {
+                    tag = "3C2A1"; // 3C2A1 has higher priority over 3C2A
                 }
-                catch (...) {
+                else {
+                    std::cerr << "DEBUG: multi-clades: " << clade_data << '\n';
+                    tag = clade_data.front();
                 }
             }
+            if (tag != "UNKNOWN")
+                result = mColors.at(tag);
         }
     }
     catch (std::exception& err) {
