@@ -41,8 +41,9 @@ int main(int argc, char* const argv[])
                 {"--open", false},
                 {"--projection", 0L},
                 {"--db-dir", ""},
-                {"-v", false},
+                {"--time", false, "report time of loading chart"},
                 {"--verbose", false},
+                {"-v", false},
         });
         if (args["--help-mods"])
             std::cerr << settings_help_mods();
@@ -68,9 +69,9 @@ int draw(const argc_argv& args)
 
     setup_dbs(args["--db-dir"], verbose);
 
-    ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_factory(args[0], acmacs::chart::Verify::None)), args["--projection"]);
+    ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_factory(args[0], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No)), args["--projection"]);
     if (args["--previous"])
-        chart_draw.previous_chart(acmacs::chart::import_factory(args["--previous"], acmacs::chart::Verify::None));
+        chart_draw.previous_chart(acmacs::chart::import_factory(args["--previous"], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No));
 
     auto settings = settings_default();
     if (args["--init-settings"]) {

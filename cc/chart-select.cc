@@ -26,8 +26,9 @@ int main(int argc, char* const argv[])
                 {"--help", false},
                 {"--help-select", false},
                 {"--db-dir", ""},
-                {"-v", false},
+                {"--time", false, "report time of loading chart"},
                 {"--verbose", false},
+                {"-v", false},
             });
         if (args["--help-select"])
             std::cerr << settings_help_select();
@@ -51,7 +52,7 @@ int do_select(const argc_argv& args)
     setup_dbs(args["--db-dir"], verbose);
     const auto selector = rjson::parse_string(args[1]);
       // const auto selector = rjson::parse_string("{\"in_rectangle\":{\"c1\":[0,0],\"c2\":[1,1]}}");
-    auto chart = acmacs::chart::import_factory(args[0], acmacs::chart::Verify::None);
+    auto chart = acmacs::chart::import_factory(args[0], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No);
     ChartSelectInterface chart_select(std::make_shared<acmacs::chart::ChartModify>(chart), args["--projection"]);
     if (!args["-s"] && !args["--sera"]) {
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_antigens())) + 1;
