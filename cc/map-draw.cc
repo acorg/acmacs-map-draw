@@ -69,9 +69,9 @@ int draw(const argc_argv& args)
 
     setup_dbs(args["--db-dir"], verbose);
 
-    ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_factory(args[0], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No)), args["--projection"]);
+    ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No)), args["--projection"]);
     if (args["--previous"])
-        chart_draw.previous_chart(acmacs::chart::import_factory(args["--previous"], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No));
+        chart_draw.previous_chart(acmacs::chart::import_from_file(args["--previous"], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No));
 
     auto settings = settings_default();
     if (args["--init-settings"]) {
