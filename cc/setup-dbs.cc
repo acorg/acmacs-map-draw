@@ -1,17 +1,16 @@
 #include "setup-dbs.hh"
 
+#include "acmacs-base/acmacsd.hh"
 #include "locationdb/locdb.hh"
 #include "hidb-5/hidb.hh"
 #include "seqdb/seqdb.hh"
-
-using namespace std::string_literals;
 
 // ----------------------------------------------------------------------
 
 void setup_dbs(std::string aDbsDir, bool aVerbose)
 {
     if (aDbsDir.empty())
-        aDbsDir = std::getenv("HOME") + "/AD/data"s;
+        aDbsDir = acmacs::acmacsd_root() + "/data";
 
     locdb_setup(aDbsDir + "/locationdb.json.xz", aVerbose);
     hidb::setup(aDbsDir, {}, aVerbose);
