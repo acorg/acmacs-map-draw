@@ -36,6 +36,10 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": "reference", "outline": "grey80", "fill": "transparent"},
       {"N": "sera", "select": "all", "outline": "grey80", "fill": "transparent"}
     ],
+    "labels": [
+      {"N": "antigens", "select": "all", "label": {"show": true}},
+      {"N": "sera", "select": "all", "label": {"show": true}}
+    ],
     "size_reset": [
       {"N": "antigens", "select": "test", "size": 5.0},
       {"N": "antigens", "select": "reference", "size": 8.0},

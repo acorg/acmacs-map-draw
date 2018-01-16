@@ -22,7 +22,7 @@ int main(int argc, char* const argv[])
     int exit_code = 1;
     try {
         argc_argv args(argc, argv, {
-                {"--apply", "", "json array to use as \"apply\", e.g. [\"all_grey\",\"egg\",\"clades\"]"},
+                {"--apply", "", "json array to use as \"apply\", e.g. [\"all_grey\",\"egg\",\"clades\",\"labels\"]"},
                 {"--clade", false},
                 {"--point-scale", 1.0},
                 {"--rotate-degrees", 0.0, "counter clockwise"},
