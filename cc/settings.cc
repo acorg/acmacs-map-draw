@@ -36,6 +36,10 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": "reference", "outline": "grey80", "fill": "transparent"},
       {"N": "sera", "select": "all", "outline": "grey80", "fill": "transparent"}
     ],
+    "lower_reference": [
+      {"N": "antigens", "select": "reference", "order": "lower"},
+      {"N": "sera", "select": "all", "order": "lower"}
+    ],
     "labels": [
       {"N": "antigens", "select": "all", "label": {"show": true}},
       {"N": "sera", "select": "all", "label": {"show": true}}
