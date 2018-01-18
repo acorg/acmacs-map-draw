@@ -168,6 +168,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
                                .name(value.get_or_default("name", ""s)));
             }
             catch (std::bad_variant_access&) {
+                  // std::cerr << "WARNING: filter_vaccine: bad_variant_access" << '\n';
                 filter_vaccine(aChartSelectInterface, indexes, {});
             }
         }

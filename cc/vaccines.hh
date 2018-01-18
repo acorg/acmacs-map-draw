@@ -44,17 +44,16 @@ class Vaccines
     {
      public:
         inline Entry(size_t aVaccinesOfChartIndex, hidb::Vaccines::PassageType aPassageType, const acmacs::PointStyle& aStyle)
-            : vaccines_of_chart_index(aVaccinesOfChartIndex), passage_type(aPassageType), antigen_no(0), style(aStyle) {}
+            : vaccines_of_chart_index(aVaccinesOfChartIndex), passage_type(aPassageType), style(aStyle) {}
 
         size_t vaccines_of_chart_index;
         hidb::Vaccines::PassageType passage_type;
-        size_t antigen_no;
+        size_t antigen_no = 0;
         acmacs::PointStyle style;
 
         inline bool match(const hidb::VaccinesOfChart& aVaccinesOfChart, const VaccineMatchData& aMatchData) const
             {
-                return antigen_no == aMatchData.no()
-                        && (aMatchData.passage().empty() || hidb::Vaccines::passage_type(aMatchData.passage()) == passage_type)
+                return (aMatchData.passage().empty() || hidb::Vaccines::passage_type(aMatchData.passage()) == passage_type)
                         && aVaccinesOfChart[vaccines_of_chart_index].match(aMatchData.name(), aMatchData.type());
             }
 

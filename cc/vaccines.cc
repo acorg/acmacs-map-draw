@@ -77,9 +77,13 @@ std::vector<size_t> Vaccines::indices(const VaccineMatchData& aMatchData) const
 {
     std::vector<size_t> ind;
     for (const auto& entry: mEntries) {
+        // std::cerr << "Vaccine vaccines_of_chart_index: " << entry.vaccines_of_chart_index << " entry.antigen_no: " << entry.antigen_no << " size for " << entry.passage_type << ": " << mVaccinesOfChart[entry.vaccines_of_chart_index].size_for_passage_type(entry.passage_type) << '\n';
         if (entry.match(mVaccinesOfChart, aMatchData)) {
-            if (const auto* vacc = mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, entry.antigen_no); vacc)
+            // std::cerr << "Vaccine entry.antigen_no: " << entry.antigen_no << " size for " << entry.passage_type << ": " << mVaccinesOfChart[entry.vaccines_of_chart_index].size_for_passage_type(entry.passage_type) << '\n';
+            if (const auto* vacc = mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, aMatchData.no() /* entry.antigen_no */); vacc) {
+                // std::cerr << "Vaccine " << vacc->chart_antigen_index << " size for " << entry.passage_type << ": " << mVaccinesOfChart[entry.vaccines_of_chart_index].size_for_passage_type(entry.passage_type) << '\n';
                 ind.push_back(vacc->chart_antigen_index);
+            }
         }
     }
     return ind;
