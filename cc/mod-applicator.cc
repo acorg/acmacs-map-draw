@@ -5,37 +5,9 @@ using namespace std::string_literals;
 #include "acmacs-base/rjson.hh" // include rjson.hh before including string.hh (included via seqdb.hh)
 #include "seqdb/seqdb.hh"
 #include "acmacs-map-draw/draw.hh"
-
-#include "mod-applicator.hh"
-#include "select.hh"
-#include "point-style-draw.hh"
-
-// ----------------------------------------------------------------------
-
-class Mod
-{
- public:
-    inline Mod(const rjson::object& aArgs) : mArgs{aArgs} {}
-    virtual inline ~Mod() { /* std::cerr << "~Mod " << args() << '\n'; */ }
-
-    virtual void apply(ChartDraw& aChartDraw, const rjson::value& aModData) = 0;
-
- protected:
-    const rjson::object& args() const { return mArgs; }
-
-    inline acmacs::PointStyle style() const { return point_style_from_json(args()); }
-    inline PointDrawingOrder drawing_order() const { return drawing_order_from_json(args()); }
-    void add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, size_t aBaseIndex, const rjson::value& aLabelData);
-    void add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, const rjson::value& aLabelData);
-    void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const acmacs::PointStyle& aStyle, const rjson::value& aLegendData);
-    void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData);
-
- private:
-    const rjson::object mArgs;  // not reference! "N" is probably wrong due to updating args in factory!
-
-    friend inline std::ostream& operator << (std::ostream& out, const Mod& aMod) { return out << aMod.args(); }
-
-}; // class Mod
+#include "acmacs-map-draw/mod-applicator.hh"
+#include "acmacs-map-draw/select.hh"
+#include "acmacs-map-draw/point-style-draw.hh"
 
 // ----------------------------------------------------------------------
 
@@ -76,15 +48,19 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
             const std::string name_type = aLabelData["name_type"];
             if (aBaseIndex == 0) { // antigen
                 auto antigen = aChartDraw.chart().antigen(aIndex);
+                std::string name;
                 if (name_type == "abbreviated")
-                    label.display_name(antigen->abbreviated_name());
+                    name = antigen->abbreviated_name();
                 else if (name_type == "abbreviated_with_passage_type")
-                    label.display_name(antigen->abbreviated_name_with_passage_type());
+                    name = antigen->abbreviated_name_with_passage_type();
+                else if (name_type == "abbreviated_location_with_passage_type")
+                    name = antigen->abbreviated_location_with_passage_type();
                 else {
                     if (name_type != "full")
                         std::cerr << "WARNING: unrecognized \"name_type\" for label for antigen " << aIndex << '\n';
-                    label.display_name(antigen->full_name());
+                    name = antigen->full_name();
                 }
+                label.display_name(name);
             }
             else {      // serum
                 auto serum = aChartDraw.chart().serum(aIndex);
@@ -182,135 +158,104 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::o
 
 // ----------------------------------------------------------------------
 
-class ModAntigens : public Mod
+void ModAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
- public:
-    using Mod::Mod;
+    const auto verbose = args().get_or_default("report", false);
+    const auto report_names_threshold = args().get_or_default("report_names_threshold", 10U);
+    try {
+        const auto indices = SelectAntigens(verbose, report_names_threshold).select(aChartDraw, args()["select"]);
+        const auto styl = style();
+          // if (verbose)
+          //     std::cerr << "DEBUG ModAntigens " << indices << ' ' << args() << ' ' << styl << '\n';
+        aChartDraw.modify(indices, styl, drawing_order());
+        try { add_labels(aChartDraw, indices, 0, args()["label"]); } catch (rjson::field_not_found&) {}
+        try { add_legend(aChartDraw, indices, styl, args()["legend"]); } catch (rjson::field_not_found&) {}
+    }
+    catch (rjson::field_not_found&) {
+        throw unrecognized_mod{"no \"select\" in \"antigens\" mod: " + args().to_json() };
+    }
 
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
-        {
-            const auto verbose = args().get_or_default("report", false);
-            const auto report_names_threshold = args().get_or_default("report_names_threshold", 10U);
-            try {
-                const auto indices = SelectAntigens(verbose, report_names_threshold).select(aChartDraw, args()["select"]);
-                const auto styl = style();
-                // if (verbose)
-                //     std::cerr << "DEBUG ModAntigens " << indices << ' ' << args() << ' ' << styl << '\n';
-                aChartDraw.modify(indices, styl, drawing_order());
-                try { add_labels(aChartDraw, indices, 0, args()["label"]); } catch (rjson::field_not_found&) {}
-                try { add_legend(aChartDraw, indices, styl, args()["legend"]); } catch (rjson::field_not_found&) {}
-            }
-            catch (rjson::field_not_found&) {
-                throw unrecognized_mod{"no \"select\" in \"antigens\" mod: " + args().to_json() };
-            }
-        }
-
-}; // class ModAntigens
+} // ModAntigens::apply
 
 // ----------------------------------------------------------------------
 
-class ModSera : public Mod
+void ModSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
- public:
-    using Mod::Mod;
+    const auto verbose = args().get_or_default("report", false);
+    const auto report_names_threshold = args().get_or_default("report_names_threshold", 10U);
+    try {
+        const auto indices = SelectSera(verbose, report_names_threshold).select(aChartDraw, args()["select"]);
+        const auto styl = style();
+        aChartDraw.modify_sera(indices, styl, drawing_order());
+        try { add_labels(aChartDraw, indices, aChartDraw.number_of_antigens(), args()["label"]); } catch (rjson::field_not_found&) {}
+    }
+    catch (rjson::field_not_found&) {
+        throw unrecognized_mod{"no \"select\" in \"sera\" mod: " + args().to_json() };
+    }
 
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
-        {
-            const auto verbose = args().get_or_default("report", false);
-            const auto report_names_threshold = args().get_or_default("report_names_threshold", 10U);
-            try {
-                const auto indices = SelectSera(verbose, report_names_threshold).select(aChartDraw, args()["select"]);
-                const auto styl = style();
-                aChartDraw.modify_sera(indices, styl, drawing_order());
-                try { add_labels(aChartDraw, indices, aChartDraw.number_of_antigens(), args()["label"]); } catch (rjson::field_not_found&) {}
-            }
-            catch (rjson::field_not_found&) {
-                throw unrecognized_mod{"no \"select\" in \"sera\" mod: " + args().to_json() };
-            }
-        }
-
-}; // class ModSera
+} // ModSera::apply
 
 // ----------------------------------------------------------------------
 
-class ModMoveBase : public Mod
+acmacs::Coordinates ModMoveBase::get_move_to(ChartDraw& aChartDraw, bool aVerbose) const
 {
- public:
-    using Mod::Mod;
+    acmacs::Coordinates move_to;
+    if (auto [to_present, to] = args().get_array_if("to"); to_present) {
+        move_to = acmacs::Coordinates{to[0], to[1]};
+    }
+    else if (auto [to_antigen_present, to_antigen] = args().get_object_if("to_antigen"); to_antigen_present) {
+        const auto antigens = SelectAntigens(aVerbose).select(aChartDraw, to_antigen);
+        if (antigens.size() != 1)
+            throw unrecognized_mod{"\"to_antigen\" does not select single antigen, mod: " + args().to_json()};
+        move_to = aChartDraw.layout()->get(antigens[0]);
+    }
+    else if (auto [to_serum_present, to_serum] = args().get_object_if("to_serum"); to_serum_present) {
+        const auto sera = SelectSera(aVerbose).select(aChartDraw, to_serum);
+        if (sera.size() != 1)
+            throw unrecognized_mod{"\"to_serum\" does not select single serum, mod: " + args().to_json()};
+        move_to = aChartDraw.layout()->get(sera[0] + aChartDraw.number_of_antigens());
+    }
+    else
+        throw unrecognized_mod{"neither \"to\" nor \"to_antigen\" nor \"to__serum\" provided in mod: " + args().to_json()};
+    return move_to;
 
- protected:
-    acmacs::Coordinates get_move_to(ChartDraw& aChartDraw, bool aVerbose) const
-        {
-            acmacs::Coordinates move_to;
-            if (auto [to_present, to] = args().get_array_if("to"); to_present) {
-                move_to = acmacs::Coordinates{to[0], to[1]};
-            }
-            else if (auto [to_antigen_present, to_antigen] = args().get_object_if("to_antigen"); to_antigen_present) {
-                const auto antigens = SelectAntigens(aVerbose).select(aChartDraw, to_antigen);
-                if (antigens.size() != 1)
-                    throw unrecognized_mod{"\"to_antigen\" does not select single antigen, mod: " + args().to_json()};
-                move_to = aChartDraw.layout()->get(antigens[0]);
-            }
-            else if (auto [to_serum_present, to_serum] = args().get_object_if("to_serum"); to_serum_present) {
-                const auto sera = SelectSera(aVerbose).select(aChartDraw, to_serum);
-                if (sera.size() != 1)
-                    throw unrecognized_mod{"\"to_serum\" does not select single serum, mod: " + args().to_json()};
-                move_to = aChartDraw.layout()->get(sera[0] + aChartDraw.number_of_antigens());
-            }
-            else
-                throw unrecognized_mod{"neither \"to\" nor \"to_antigen\" nor \"to__serum\" provided in mod: " + args().to_json()};
-            return move_to;
-        }
-
-}; // class ModMoveBase
+} // ModMoveBase::get_move_to
 
 // ----------------------------------------------------------------------
 
-class ModMoveAntigens : public ModMoveBase
+void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
- public:
-    using ModMoveBase::ModMoveBase;
-
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
-        {
-            const auto verbose = args().get_or_default("report", false);
-            try {
-                const auto move_to = get_move_to(aChartDraw, verbose);
-                auto& projection = aChartDraw.projection();
-                for (auto index: SelectAntigens(verbose).select(aChartDraw, args()["select"])) {
-                    projection.move_point(index, move_to);
-                }
-            }
-            catch (rjson::field_not_found&) {
-                throw unrecognized_mod{"no \"select\" in \"move_antigens\" mod: " + args().to_json() };
-            }
+    const auto verbose = args().get_or_default("report", false);
+    try {
+        const auto move_to = get_move_to(aChartDraw, verbose);
+        auto& projection = aChartDraw.projection();
+        for (auto index: SelectAntigens(verbose).select(aChartDraw, args()["select"])) {
+            projection.move_point(index, move_to);
         }
+    }
+    catch (rjson::field_not_found&) {
+        throw unrecognized_mod{"no \"select\" in \"move_antigens\" mod: " + args().to_json() };
+    }
 
-}; // class ModMoveAntigens
+} // ModMoveAntigens::apply
 
 // ----------------------------------------------------------------------
 
-class ModMoveSera : public ModMoveBase
+void ModMoveSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
- public:
-    using ModMoveBase::ModMoveBase;
-
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
-        {
-            const auto verbose = args().get_or_default("report", false);
-            try {
-                const auto move_to = get_move_to(aChartDraw, verbose);
-                auto& projection = aChartDraw.projection();
-                for (auto index: SelectSera(verbose).select(aChartDraw, args()["select"])) {
-                    projection.move_point(index + aChartDraw.number_of_antigens(), move_to);
-                }
-            }
-            catch (rjson::field_not_found&) {
-                throw unrecognized_mod{"no \"select\" in \"move_sera\" mod: " + args().to_json() };
-            }
+    const auto verbose = args().get_or_default("report", false);
+    try {
+        const auto move_to = get_move_to(aChartDraw, verbose);
+        auto& projection = aChartDraw.projection();
+        for (auto index: SelectSera(verbose).select(aChartDraw, args()["select"])) {
+            projection.move_point(index + aChartDraw.number_of_antigens(), move_to);
         }
+    }
+    catch (rjson::field_not_found&) {
+        throw unrecognized_mod{"no \"select\" in \"move_sera\" mod: " + args().to_json() };
+    }
 
-}; // class ModMoveSera
+} // ModMoveSera::apply
 
 // ----------------------------------------------------------------------
 
