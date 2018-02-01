@@ -27,11 +27,11 @@ inline std::ostream& operator << (std::ostream& out, const Mods& aMods)
 void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, const rjson::value& aLabelData)
 {
     auto& label = aChartDraw.add_label(aIndex + aBaseIndex);
-    try { label.color(static_cast<std::string_view>(aLabelData["color"])); } catch (rjson::field_not_found&) {}
+    try { label.color(Color(aLabelData["color"])); } catch (rjson::field_not_found&) {}
     try { label.size(aLabelData["size"]); } catch (rjson::field_not_found&) {}
-    try { label.weight(aLabelData["weight"]); } catch (rjson::field_not_found&) {}
-    try { label.slant(aLabelData["slant"]); } catch (rjson::field_not_found&) {}
-    try { label.font_family(aLabelData["font_family"]); } catch (rjson::field_not_found&) {}
+    try { label.weight(aLabelData["weight"].str()); } catch (rjson::field_not_found&) {}
+    try { label.slant(aLabelData["slant"].str()); } catch (rjson::field_not_found&) {}
+    try { label.font_family(aLabelData["font_family"].str()); } catch (rjson::field_not_found&) {}
 
     try {
         const rjson::array& offset = aLabelData["offset"];
@@ -41,11 +41,11 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
     }
 
     try {
-        label.display_name(aLabelData["display_name"]);
+        label.display_name(aLabelData["display_name"].strv());
     }
     catch (rjson::field_not_found&) {
         try {
-            const std::string name_type = aLabelData["name_type"];
+            const auto name_type = aLabelData["name_type"].strv();
             if (aBaseIndex == 0) { // antigen
                 auto antigen = aChartDraw.chart().antigen(aIndex);
                 std::string name;
@@ -144,7 +144,7 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::o
         }
         catch (std::bad_variant_access&) {
             std::cerr << "ERROR: std::bad_variant_access: in handling mod: " << mod_desc << '\n';
-            throw unrecognized_mod{mod_desc};
+            throw unrecognized_mod{mod_desc.str()};
         }
         catch (unrecognized_mod&) {
             if (aIgnoreUnrecognized)
@@ -312,7 +312,7 @@ class ModAminoAcids : public Mod
         {
             const rjson::array& pos_aa = aGroup["pos_aa"];
             std::vector<size_t> positions(pos_aa.size());
-            std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(positions), [](const auto& src) { return std::stoul(src); });
+            std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(positions), [](const auto& src) { return std::stoul(src.str()); });
             std::string target_aas(pos_aa.size(), ' ');
             std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(target_aas), [](const auto& src) { return static_cast<std::string_view>(src).back(); });
             const auto& seqdb = seqdb::get(do_report_time(aVerbose));
@@ -334,7 +334,7 @@ class ModAminoAcids : public Mod
         {
             if (aAA == "X") {
                 ++mIndexDiff;
-                return args().get_or_default("X_color", "grey25");
+                return Color(args().get_or_default("X_color", "grey25"));
             }
             if (mColors.empty()) {
                 if (auto [colors_present, colors] = args().get_array_if("colors"); colors_present) {
@@ -392,7 +392,7 @@ class ModFlip : public Mod
         {
             try {
                 if (auto [present, direction_v] = args().get_value_if("direction"); present) {
-                    const std::string direction = direction_v;
+                    const auto direction = direction_v.strv();
                     if (direction == "ew")
                         aChartDraw.flip(0, 1);
                     else if (direction == "ns")
@@ -457,7 +457,7 @@ class ModBackground : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
         {
             try {
-                aChartDraw.background_color(static_cast<std::string_view>(args()["color"]));
+                aChartDraw.background_color(Color(args()["color"]));
             }
             catch (rjson::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};
@@ -476,7 +476,7 @@ class ModBorder : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
         {
             try {
-                aChartDraw.border(args().get_or_default("color", "black"), args().get_or_default("line_width", 1.0));
+                aChartDraw.border(Color(args().get_or_default("color", "black")), args().get_or_default("line_width", 1.0));
             }
             catch (rjson::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};
@@ -495,7 +495,7 @@ class ModGrid : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
         {
             try {
-                aChartDraw.grid(args().get_or_default("color", "grey80"), args().get_or_default("line_width", 1.0));
+                aChartDraw.grid(Color(args().get_or_default("color", "grey80")), args().get_or_default("line_width", 1.0));
             }
             catch (rjson::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};
@@ -537,8 +537,8 @@ class ModTitle : public Mod
                 if (args().get_or_default("show", true)) {
                     title.show(true);
                     if (auto [display_name_present, display_name] = args().get_array_if("display_name"); display_name_present) {
-                        for (std::string line: display_name)
-                            title.add_line(line);
+                        for (auto& line: display_name)
+                            title.add_line(line.str());
                     }
                     else {
                         title.add_line(aChartDraw.chart().make_name(aChartDraw.projection_no()));
@@ -550,11 +550,11 @@ class ModTitle : public Mod
                     if (auto [text_size_present, text_size] = args().get_value_if("text_size"); text_size_present)
                         title.text_size(text_size);
                     if (auto [text_color_present, text_color] = args().get_value_if("text_color"); text_color_present)
-                        title.text_color(static_cast<std::string_view>(text_color));
+                        title.text_color(Color(text_color));
                     if (auto [background_present, background] = args().get_value_if("background"); background_present)
-                        title.background(static_cast<std::string_view>(background));
+                        title.background(Color(background));
                     if (auto [border_color_present, border_color] = args().get_value_if("border_color"); border_color_present)
-                        title.border_color(static_cast<std::string_view>(border_color));
+                        title.border_color(Color(border_color));
                     if (auto [border_width_present, border_width] = args().get_value_if("border_width"); border_width_present)
                         title.border_width(border_width);
                     if (auto [font_weight_present, font_weight] = args().get_value_if("font_weight"); font_weight_present)
@@ -589,7 +589,7 @@ class ModLegend : public Mod
                     auto& legend = aChartDraw.legend();
                     if (auto [data_present, data] = args().get_array_if("data"); data_present) {
                         for (const rjson::object& line_data: data)
-                            legend.add_line(line_data.get_or_default("outline", "black"), line_data.get_or_default("fill", "pink"), line_data.get_or_default("display_name", "* no display_name *"));
+                            legend.add_line(Color(line_data.get_or_default("outline", "black")), Color(line_data.get_or_default("fill", "pink")), line_data.get_or_default("display_name", "* no display_name *"));
                     }
                     if (auto [offset_present, offset] = args().get_array_if("offset"); offset_present)
                         legend.offset({offset[0], offset[1]});
@@ -598,9 +598,9 @@ class ModLegend : public Mod
                     if (auto [point_size_present, point_size] = args().get_value_if("point_size"); point_size_present)
                         legend.point_size(point_size);
                     if (auto [background_present, background] = args().get_value_if("background"); background_present)
-                        legend.background(static_cast<std::string_view>(background));
+                        legend.background(Color(background));
                     if (auto [border_color_present, border_color] = args().get_value_if("border_color"); border_color_present)
-                        legend.border_color(static_cast<std::string_view>(border_color));
+                        legend.border_color(Color(border_color));
                     if (auto [border_width_present, border_width] = args().get_value_if("border_width"); border_width_present)
                         legend.border_width(border_width);
                 }
@@ -629,7 +629,7 @@ class ModLine : public Mod
             for(const auto& begin: begins) {
                 for(const auto& end: ends) {
                     auto& line = aChartDraw.line(begin, end);
-                    line.color(args().get_or_default("color", "black"));
+                    line.color(Color(args().get_or_default("color", "black")));
                     line.line_width(args().get_or_default("width", 1.0));
                 }
             }
@@ -678,9 +678,8 @@ class ModArrow : public ModLine
             for(const auto& begin: begins) {
                 for(const auto& end: ends) {
                     auto& arrow = aChartDraw.arrow(begin, end);
-                    const std::string color = args().get_or_default("color", "black");
-                    const std::string head_color = args().get_or_default("head_color", color);
-                    arrow.color(color, head_color);
+                    const auto color(args().get_or_default("color", "black"));
+                    arrow.color(Color(color), Color(args().get_or_default("head_color", color)));
                     arrow.line_width(args().get_or_default("width", 1.0));
                     arrow.arrow_head_filled(args().get_or_default("head_filled", true));
                     arrow.arrow_width(args().get_or_default("arrow_width", 5.0));
@@ -703,7 +702,7 @@ class ModRectangle : public Mod
             const rjson::array& c2 = args()["corner2"];
             auto& rectangle = aChartDraw.rectangle({c1[0], c1[1]}, {c2[0], c2[1]});
             rectangle.filled(args().get_or_default("filled", false));
-            rectangle.color(args().get_or_default("color", "#80FF00FF"));
+            rectangle.color(Color(args().get_or_default("color", "#80FF00FF")));
             rectangle.line_width(args().get_or_default("line_width", 1));
         }
 
@@ -720,7 +719,7 @@ class ModCircle : public Mod
         {
             const rjson::array& center = args()["center"];
             auto& circle = aChartDraw.circle({center[0], center[1]}, Scaled{args().get_or_default("size", 1.0)});
-            circle.color(args().get_or_default("fill", "transparent"), args().get_or_default("outline", "#80FF00FF"));
+            circle.color(Color(args().get_or_default("fill", "transparent")), Color(args().get_or_default("outline", "#80FF00FF")));
             circle.outline_width(args().get_or_default("outline_width", 1.0));
             circle.aspect(Aspect{args().get_or_default("aspect", 1.0)});
             circle.rotation(Rotation{args().get_or_default("rotation", 0.0)});
@@ -808,10 +807,10 @@ class ModSerumCircle : public ModSerumHomologous
         {
             auto& circle = aChartDraw.serum_circle(aSerumIndex, aRadius);
             if (auto [present, circle_data] = args().get_object_if("circle"); present) {
-                circle.fill(circle_data.get_or_default("fill", "transparent"));
+                circle.fill(Color(circle_data.get_or_default("fill", "transparent")));
                 const auto outline = circle_data.get_or_default("outline", "pink");
                 const auto outline_width = circle_data.get_or_default("outline_width", 1.0);
-                circle.outline(outline, outline_width);
+                circle.outline(Color(outline), outline_width);
                 if (auto [angles_present, angles] = circle_data.get_array_if("angle_degrees"); angles_present) {
                     const double pi_180 = std::acos(-1) / 180.0;
                     circle.angles(static_cast<double>(angles[0]) * pi_180, static_cast<double>(angles[1]) * pi_180);
@@ -823,7 +822,7 @@ class ModSerumCircle : public ModSerumHomologous
                     circle.radius_line_dash2();
                 else
                     circle.radius_line_no_dash();
-                circle.radius_line(circle_data.get_or_default("radius_line_color", outline), circle_data.get_or_default("radius_line_width", outline_width));
+                circle.radius_line(Color(circle_data.get_or_default("radius_line_color", outline)), circle_data.get_or_default("radius_line_width", outline_width));
             }
         }
 

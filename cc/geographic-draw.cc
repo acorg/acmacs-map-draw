@@ -56,7 +56,7 @@ int main(int argc, char* const argv[])
 static inline std::vector<std::string> make_list(const rjson::array& aSource)
 {
     std::vector<std::string> result;
-    std::transform(std::begin(aSource), std::end(aSource), std::back_inserter(result), [](const auto& entry) -> std::string { return entry; });
+    std::transform(std::begin(aSource), std::end(aSource), std::back_inserter(result), [](const auto& entry) -> std::string { return entry.str(); });
     return result;
 }
 
@@ -95,13 +95,13 @@ int draw(const argc_argv& args)
         load_settings(args["--settings"]);
       // std::cerr << "DEBUG: loaded settings\n" << settings.to_json_pp() << '\n';
 
-    const std::string start_date = settings["start_date"], end_date = settings["end_date"];
+    const auto start_date = settings["start_date"].strv(), end_date = settings["end_date"].strv();
     std::unique_ptr<GeographicMapColoring> coloring{make_coloring(settings)};
 
     if (args["--time-series"] == "") {
           // Single map
         std::cerr << "INFO: single map\n";
-        GeographicMapWithPointsFromHidb geographic_map(string::upper(args[0]), settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]);
+        GeographicMapWithPointsFromHidb geographic_map(string::upper(args[0]), settings["point_size_in_pixels"], settings["point_density"], Color(settings["continent_outline_color"]), settings["continent_outline_width"]);
         geographic_map.add_points_from_hidb_colored_by(*coloring, ColorOverride{}, make_list(settings["priority"]), start_date, end_date);
         set_title(geographic_map.title(), settings, true);
 
@@ -117,11 +117,11 @@ int draw(const argc_argv& args)
             throw std::runtime_error("Please provide output filename prefix for time series");
         std::unique_ptr<GeographicTimeSeriesBase> time_series;
         if (args["--time-series"] == "monthly")
-            time_series.reset(new GeographicTimeSeriesMonthly(string::upper(args[0]), start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]));
+            time_series.reset(new GeographicTimeSeriesMonthly(string::upper(args[0]), start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(settings["continent_outline_color"]), settings["continent_outline_width"]));
         else if (args["--time-series"] == "yearly")
-            time_series.reset(new GeographicTimeSeriesYearly(string::upper(args[0]), start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]));
+            time_series.reset(new GeographicTimeSeriesYearly(string::upper(args[0]), start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(settings["continent_outline_color"]), settings["continent_outline_width"]));
         else if (args["--time-series"] == "weekly")
-            time_series.reset(new GeographicTimeSeriesWeekly(string::upper(args[0]), start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], settings["continent_outline_color"], settings["continent_outline_width"]));
+            time_series.reset(new GeographicTimeSeriesWeekly(string::upper(args[0]), start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(settings["continent_outline_color"]), settings["continent_outline_width"]));
         else
             throw std::runtime_error("Unsupported time series argument: " + std::string{static_cast<std::string_view>(args["--time-series"])} + " (monthly or yearly or weekly expected)");
         set_title(time_series->title(), settings, false);
@@ -139,9 +139,9 @@ static inline GeographicMapColoring::TagToColor make_map(const rjson::object& aS
     GeographicMapColoring::TagToColor result;
     auto rjson_to_coloring_data = [](const auto& entry) -> GeographicMapColoring::TagToColor::value_type {
         if (!entry.first.empty() && (entry.first.front() == '?' || entry.first.back() == '?'))
-            return {entry.first, {"pink"}}; // comment field
+            return {entry.first.str(), {Color("pink")}}; // comment field
         else
-            return {entry.first, {entry.second["fill"], entry.second["outline"], entry.second["outline_width"]}};
+            return {entry.first.str(), {Color(entry.second["fill"]), Color(entry.second["outline"]), entry.second["outline_width"]}};
     };
     std::transform(std::begin(aSource), std::end(aSource), std::inserter(result, result.end()), rjson_to_coloring_data);
     return result;
@@ -150,7 +150,7 @@ static inline GeographicMapColoring::TagToColor make_map(const rjson::object& aS
 GeographicMapColoring* make_coloring(const rjson::value& aSettings)
 {
     GeographicMapColoring* coloring = nullptr;
-    const std::string coloring_name = aSettings["coloring"];
+    const auto coloring_name = aSettings["coloring"].strv();
     if (coloring_name == "" || coloring_name == "continent")
         coloring = new ColoringByContinent(make_map(aSettings["continent_color"]));
     else if (coloring_name == "clade")
@@ -160,7 +160,7 @@ GeographicMapColoring* make_coloring(const rjson::value& aSettings)
     else if (coloring_name == "lineage-deletion-mutants")
         coloring = new ColoringByLineageAndDeletionMutants(make_map(aSettings["lineage_color"]));
     else
-        throw std::runtime_error("Unsupported coloring: " + coloring_name);
+        throw std::runtime_error("Unsupported coloring: " + std::string(coloring_name));
     std::cerr << "INFO: coloring: " << coloring_name << '\n';
     return coloring;
 
@@ -174,17 +174,17 @@ void set_title(map_elements::Title& aTitle, const rjson::value& aSettings, bool 
         const rjson::object& title_data = aSettings["title"];
         aTitle.show(true)
                 .padding(title_data.get_or_default("padding", 10.0))
-                .background(title_data.get_or_default("background", "transparent"))
-                .border_color(title_data.get_or_default("border_color", "black"))
+                .background(Color(title_data.get_or_default("background", "transparent")))
+                .border_color(Color(title_data.get_or_default("border_color", "black")))
                 .border_width(title_data.get_or_default("border_width", 0.0))
-                .text_color(title_data.get_or_default("text_color", "black"))
+                .text_color(Color(title_data.get_or_default("text_color", "black")))
                 .text_size(title_data.get_or_default("text_size", 12.0))
                 ;
         const auto& offset = title_data.get_or_empty_array("offset");
         if (!offset.empty())
             aTitle.offset(offset[0], offset[1]);
         if (use_title_text)
-            aTitle.add_line(aSettings["title_text"]);
+            aTitle.add_line(aSettings["title_text"].str());
     }
 
 } // set_title

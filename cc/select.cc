@@ -88,7 +88,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             antigens->filter_reassortant(indexes);
         }
         else if (key == "passage") {
-            const std::string passage = value;
+            const auto passage = value.strv();
             if (passage == "egg")
                 antigens->filter_egg(indexes);
             else if (passage == "cell")

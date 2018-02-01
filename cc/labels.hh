@@ -34,7 +34,7 @@ namespace map_elements
         void draw(Surface& aSurface, const acmacs::chart::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const;
 
         inline Label& offset(double x, double y) { mOffset.set(x, y); return *this; }
-        inline Label& display_name(std::string aDisplayName) { mDisplayName = aDisplayName; return *this; }
+        inline Label& display_name(std::string_view aDisplayName) { mDisplayName = aDisplayName; return *this; }
         inline Label& color(Color aColor) { mTextColor = aColor; return *this; }
         inline Label& size(double aSize) { mTextSize = aSize; return *this; }
         inline Label& weight(std::string aWeight) { mTextStyle.weight = aWeight; return *this; }

@@ -71,7 +71,7 @@ class VaccineMatcherLabel : public VaccineMatcherBase
  public:
     inline VaccineMatcherLabel& display_name(std::string aDisplayName) { for_each_mf(&map_elements::Label::display_name, aDisplayName); return *this; }
     inline VaccineMatcherLabel& color(Color aColor) { for_each_mf(&map_elements::Label::color, aColor); return *this; }
-    inline VaccineMatcherLabel& color(std::string aColor) { for_each_mf(&map_elements::Label::color, aColor); return *this; }
+    inline VaccineMatcherLabel& color(std::string aColor) { for_each_mf(&map_elements::Label::color, Color(aColor)); return *this; }
     inline VaccineMatcherLabel& size(double aSize) { for_each_mf(&map_elements::Label::size, aSize); return *this; }
     inline VaccineMatcherLabel& weight(std::string aWeight) { for_each_mf(&map_elements::Label::weight, aWeight); return *this; }
     inline VaccineMatcherLabel& slant(std::string aSlant) { for_each_mf(&map_elements::Label::slant, aSlant); return *this; }
@@ -103,9 +103,9 @@ class VaccineMatcher : public VaccineMatcherBase
     inline VaccineMatcher& shape(std::string aShape) { for_each([aShape](Vaccines::Entry& e) { e.style.shape = aShape; }); return *this; }
     inline VaccineMatcher& size(double aSize) { for_each([aSize](Vaccines::Entry& e) { e.style.size = Pixels{aSize}; }); return *this; }
     inline VaccineMatcher& fill(Color aColor) { for_each([aColor](Vaccines::Entry& e) { e.style.fill = aColor; }); return *this; }
-    inline VaccineMatcher& fill(std::string aColor) { for_each([aColor](Vaccines::Entry& e) { e.style.fill = aColor; }); return *this; }
-    inline VaccineMatcher& outline(Color aColor) { for_each([aColor](Vaccines::Entry& e) { e.style.outline = aColor; }); return *this; }
-    inline VaccineMatcher& outline(std::string aColor) { for_each([aColor](Vaccines::Entry& e) { e.style.outline = aColor; }); return *this; }
+    inline VaccineMatcher& fill(std::string aColor) { for_each([aColor](Vaccines::Entry& e) { e.style.fill = Color(aColor); }); return *this; }
+    inline VaccineMatcher& outline(Color aColor) { for_each([aColor](Vaccines::Entry& e) { e.style.outline = Color(aColor); }); return *this; }
+    inline VaccineMatcher& outline(std::string aColor) { for_each([aColor](Vaccines::Entry& e) { e.style.outline = Color(aColor); }); return *this; }
     inline VaccineMatcher& outline_width(double aOutlineWidth) { for_each([aOutlineWidth](Vaccines::Entry& e) { e.style.outline_width = Pixels{aOutlineWidth}; }); return *this; }
     inline VaccineMatcher& aspect(double aAspect) { for_each([aAspect](Vaccines::Entry& e) { e.style.aspect = Aspect{aAspect}; }); return *this; }
     inline VaccineMatcher& rotation(double aRotation) { for_each([aRotation](Vaccines::Entry& e) { e.style.rotation = Rotation{aRotation}; }); return *this; }

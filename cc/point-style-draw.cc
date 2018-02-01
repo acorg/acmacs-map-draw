@@ -29,9 +29,9 @@ acmacs::PointStyle point_style_from_json(const rjson::object& aSource)
     acmacs::PointStyle style;
     for (auto [key, value]: aSource) {
         if (key == "fill")
-            style.fill = static_cast<std::string_view>(value);
+            style.fill = Color(value);
         else if (key == "outline")
-            style.outline = static_cast<std::string_view>(value);
+            style.outline = Color(value);
         else if (key == "show")
             style.shown = value;
         else if (key == "hide")

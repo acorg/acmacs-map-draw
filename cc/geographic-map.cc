@@ -72,7 +72,7 @@ GeographicMapColoring::~GeographicMapColoring()
 
 ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) const
 {
-    ColoringData result("grey50");
+    ColoringData result(GREY50);
     std::string tag{"UNKNOWN"};
     try {
         const auto* entry_seq = seqdb::get(report_time::Yes).find_hi_name(aAntigen.full_name());
@@ -143,7 +143,7 @@ void GeographicMapWithPointsFromHidb::prepare(Surface& aSurface)
 
 // ----------------------------------------------------------------------
 
-void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate)
+void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, const std::vector<std::string>& aPriority, std::string_view aStartDate, std::string_view aEndDate)
 {
       // std::cerr << "add_points_from_hidb_colored_by" << '\n';
     const auto& hidb = hidb::get(mVirusType);
@@ -181,7 +181,7 @@ void GeographicTimeSeriesBase::draw(std::string aFilenamePrefix, TimeSeriesItera
 {
     for (; aBegin != aEnd; ++aBegin) {
         auto map = mMap;        // make a copy!
-        map.add_points_from_hidb_colored_by(aColoring, aColorOverride, aPriority, *aBegin, aBegin.next());
+        map.add_points_from_hidb_colored_by(aColoring, aColorOverride, aPriority, aBegin->display(), aBegin.next().display());
         map.title().add_line(aBegin.text_name());
         map.draw(aFilenamePrefix + aBegin.numeric_name() + ".pdf", aImageWidth);
     }
