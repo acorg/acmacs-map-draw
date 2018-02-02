@@ -252,7 +252,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
  "within_4fold": {"outline": "pink", "outline_width": 3, "order": "raise"},
  "outside_4fold": {"fill": "grey50", "outline": "black", "order": "raise"}}
 
-{"N": "procrustes_arrows", "chart": "secondary.ace", "projection": 0, "match": "auto", "?match": "auto, strict, relaxed, ignored"}
+{"N": "procrustes_arrows", "chart": "secondary.ace", "projection": 0, "match": "auto", "?match": "auto, strict, relaxed, ignored", "scaling": false}
 
 --------------------------------------------------
 

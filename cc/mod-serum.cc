@@ -5,6 +5,24 @@
 
 // ----------------------------------------------------------------------
 
+void ModSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
+{
+    const auto verbose = args().get_or_default("report", false);
+    const auto report_names_threshold = args().get_or_default("report_names_threshold", 10U);
+    try {
+        const auto indices = SelectSera(verbose, report_names_threshold).select(aChartDraw, args()["select"]);
+        const auto styl = style();
+        aChartDraw.modify_sera(indices, styl, drawing_order());
+        try { add_labels(aChartDraw, indices, aChartDraw.number_of_antigens(), args()["label"]); } catch (rjson::field_not_found&) {}
+    }
+    catch (rjson::field_not_found&) {
+        throw unrecognized_mod{"no \"select\" in \"sera\" mod: " + args().to_json() };
+    }
+
+} // ModSera::apply
+
+// ----------------------------------------------------------------------
+
 size_t ModSerumHomologous::select_mark_serum(ChartDraw& aChartDraw, bool aVerbose)
 {
     const size_t serum_index = select_serum(aChartDraw, aVerbose);

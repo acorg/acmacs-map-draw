@@ -7,6 +7,7 @@ using namespace std::string_literals;
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/mod-applicator.hh"
 #include "acmacs-map-draw/mod-serum.hh"
+#include "acmacs-map-draw/mod-procrustes.hh"
 #include "acmacs-map-draw/select.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 
@@ -177,24 +178,6 @@ void ModAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
     }
 
 } // ModAntigens::apply
-
-// ----------------------------------------------------------------------
-
-void ModSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
-{
-    const auto verbose = args().get_or_default("report", false);
-    const auto report_names_threshold = args().get_or_default("report_names_threshold", 10U);
-    try {
-        const auto indices = SelectSera(verbose, report_names_threshold).select(aChartDraw, args()["select"]);
-        const auto styl = style();
-        aChartDraw.modify_sera(indices, styl, drawing_order());
-        try { add_labels(aChartDraw, indices, aChartDraw.number_of_antigens(), args()["label"]); } catch (rjson::field_not_found&) {}
-    }
-    catch (rjson::field_not_found&) {
-        throw unrecognized_mod{"no \"select\" in \"sera\" mod: " + args().to_json() };
-    }
-
-} // ModSera::apply
 
 // ----------------------------------------------------------------------
 
@@ -821,9 +804,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const
     else if (name == "serum_coverage") {
         result.emplace_back(new ModSerumCoverage(args));
     }
-    // else if (name == "procrustes_arrows") {
-    //     result.emplace_back(new ModProcrustesArrows(args));
-    // }
+    else if (name == "procrustes_arrows") {
+        result.emplace_back(new ModProcrustesArrows(args));
+    }
     else if (name.empty()) {
         std::cerr << "WARNING: mod ignored (no \"N\"): " << args << '\n';
     }

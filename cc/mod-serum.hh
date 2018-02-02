@@ -4,6 +4,17 @@
 
 // ----------------------------------------------------------------------
 
+class ModSera : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override;
+
+}; // class ModSera
+
+// ----------------------------------------------------------------------
+
 class ModSerumHomologous : public Mod
 {
  public:
