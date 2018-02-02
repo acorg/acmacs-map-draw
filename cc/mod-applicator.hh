@@ -3,6 +3,8 @@
 #include <stdexcept>
 
 #include "acmacs-base/rjson.hh"
+#include "acmacs-base/point-style.hh"
+#include "acmacs-map-draw/point-style-draw.hh"
 
 // ----------------------------------------------------------------------
 
