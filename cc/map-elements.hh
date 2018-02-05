@@ -29,6 +29,7 @@ namespace map_elements
         Element& operator[](std::string aKeyword);
         Element& add(std::string aKeyword);
         void remove(std::string aKeyword);
+        bool exists(std::string aKeyword) const;
 
         void draw(Surface& aSurface, Order aOrder, const ChartDraw& aChartDraw) const;
 

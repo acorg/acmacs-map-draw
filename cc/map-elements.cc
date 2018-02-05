@@ -12,13 +12,20 @@ map_elements::Elements::Elements()
 
 // ----------------------------------------------------------------------
 
+bool map_elements::Elements::exists(std::string aKeyword) const
+{
+    return std::find_if(mElements.begin(), mElements.end(), [&aKeyword](const auto& element) { return element->keyword() == aKeyword; }) != mElements.end();
+
+} // map_elements::Elements::exists
+
+// ----------------------------------------------------------------------
+
 map_elements::Element& map_elements::Elements::operator[](std::string aKeyword)
 {
-    for (const auto& element: mElements) {
-        if (element->keyword() == aKeyword)
-            return *element;
-    }
-    return add(aKeyword);
+    if (auto found = std::find_if(mElements.begin(), mElements.end(), [&aKeyword](const auto& element) { return element->keyword() == aKeyword; }); found != mElements.end())
+        return **found;
+    else
+        return add(aKeyword);
 
 } // map_elements::Elements::operator[]
 

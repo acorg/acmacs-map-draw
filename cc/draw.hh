@@ -26,7 +26,7 @@ class ChartDraw : public ChartSelectInterface
     void draw(std::string aFilename, double aSize, report_time aTimer = report_time::No) const;
     const acmacs::Viewport& calculate_viewport(bool verbose = true);
 
-    template <typename T> inline void modify_drawing_order(const T& aPoints, PointDrawingOrder aPointDrawingOrder)
+    template <typename T> void modify_drawing_order(const T& aPoints, PointDrawingOrder aPointDrawingOrder)
         {
             switch (aPointDrawingOrder) {
               case PointDrawingOrder::Raise:
@@ -40,7 +40,7 @@ class ChartDraw : public ChartSelectInterface
             }
         }
 
-    template <typename T> inline void modify_sera_drawing_order(const T& aPoints, PointDrawingOrder aPointDrawingOrder)
+    template <typename T> void modify_sera_drawing_order(const T& aPoints, PointDrawingOrder aPointDrawingOrder)
         {
             switch (aPointDrawingOrder) {
               case PointDrawingOrder::Raise:
@@ -54,25 +54,25 @@ class ChartDraw : public ChartSelectInterface
             }
         }
 
-    inline void modify(const acmacs::chart::Indexes& aPoints, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    void modify(const acmacs::chart::Indexes& aPoints, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
             plot_spec().modify(aPoints, aStyle);
             modify_drawing_order(aPoints, aPointDrawingOrder);
         }
 
-    inline void modify(size_t aPointNo, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    void modify(size_t aPointNo, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
             plot_spec().modify(aPointNo, aStyle);
             modify_drawing_order(aPointNo, aPointDrawingOrder);
         }
 
-    inline void modify_sera(const acmacs::chart::Indexes& aSera, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    void modify_sera(const acmacs::chart::Indexes& aSera, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
             plot_spec().modify_sera(aSera, aStyle);
             modify_sera_drawing_order(aSera, aPointDrawingOrder);
         }
 
-    inline void modify_serum(size_t aSerumNo, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    void modify_serum(size_t aSerumNo, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
             plot_spec().modify_serum(aSerumNo, aStyle);
             modify_sera_drawing_order(aSerumNo, aPointDrawingOrder);
@@ -82,38 +82,39 @@ class ChartDraw : public ChartSelectInterface
     void mark_egg_antigens();
     void mark_reassortant_antigens();
     void mark_all_grey(Color aColor);
-    inline void scale_points(double aPointScale, double aOulineScale) { plot_spec().scale_all(aPointScale, aOulineScale); }
-    inline void modify_all_sera(const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange) { modify_sera(chart().sera()->all_indexes(), aStyle, aPointDrawingOrder); }
+    void scale_points(double aPointScale, double aOulineScale) { plot_spec().scale_all(aPointScale, aOulineScale); }
+    void modify_all_sera(const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange) { modify_sera(chart().sera()->all_indexes(), aStyle, aPointDrawingOrder); }
 
-    inline void rotate(double aAngle)
+    void rotate(double aAngle)
         {
             if (!float_zero(aAngle))
                 log("rotate radians:", aAngle, " degrees:", 180.0 * aAngle / M_PI, " ", aAngle > 0 ? "counter-" : "", "clockwise");
             projection().rotate_radians(aAngle);
         }
 
-    inline void flip(double aX, double aY)
+    void flip(double aX, double aY)
         {
             log("flip ", aX, " ", aY);
             projection().flip(aX, aY); // reflect about a line specified with vector [aX, aY]
         }
 
-    inline void viewport(double aX, double aY, double aSize) { mViewport.set(aX, aY, aSize); }
-    inline void viewport(const acmacs::Viewport& aViewport) { mViewport = aViewport; }
-    inline const acmacs::Viewport& viewport() const { return mViewport; }
+    void viewport(double aX, double aY, double aSize) { mViewport.set(aX, aY, aSize); }
+    void viewport(const acmacs::Viewport& aViewport) { mViewport = aViewport; }
+    const acmacs::Viewport& viewport() const { return mViewport; }
 
-    inline void background_color(Color aBackgroud) { DYNAMIC_CAST(map_elements::BackgroundBorderGrid&, (mMapElements["background-border-grid"])).background_color(aBackgroud); }
-    inline void grid(Color aGridColor, double aGridLineWidth) { DYNAMIC_CAST(map_elements::BackgroundBorderGrid&, (mMapElements["background-border-grid"])).grid(aGridColor, aGridLineWidth); }
-    inline void border(Color aBorderColor, double aBorderWidth) { DYNAMIC_CAST(map_elements::BackgroundBorderGrid&, (mMapElements["background-border-grid"])).border(aBorderColor, aBorderWidth); }
-    inline void continent_map(const acmacs::Location& aOffset, Pixels aWidth) { DYNAMIC_CAST(map_elements::ContinentMap&, (mMapElements["continent-map"])).offset_width(aOffset, aWidth); }
-    inline map_elements::LegendPointLabel& legend(const acmacs::Location& aOffset) { auto& legend = DYNAMIC_CAST(map_elements::LegendPointLabel&, (mMapElements["legend-point-label"])); legend.offset(aOffset); return legend; }
-    inline map_elements::LegendPointLabel& legend() { return DYNAMIC_CAST(map_elements::LegendPointLabel&, (mMapElements["legend-point-label"])); }
-    inline void remove_legend() { mMapElements.remove("legend-point-label"); }
-    inline map_elements::Title& title(const acmacs::Location& aOffset) { auto& title = DYNAMIC_CAST(map_elements::Title&, (mMapElements["title"])); title.offset(aOffset); return title; }
-    inline map_elements::Title& title() { return DYNAMIC_CAST(map_elements::Title&, (mMapElements["title"])); }
-    inline map_elements::Labels& labels() { return mLabels; }
-    inline map_elements::Label& add_label(size_t aIndex) { return mLabels.add(aIndex, chart()); }
-    inline void remove_label(size_t aIndex) { return mLabels.remove(aIndex); }
+    void background_color(Color aBackgroud) { DYNAMIC_CAST(map_elements::BackgroundBorderGrid&, (mMapElements["background-border-grid"])).background_color(aBackgroud); }
+    void grid(Color aGridColor, double aGridLineWidth) { DYNAMIC_CAST(map_elements::BackgroundBorderGrid&, (mMapElements["background-border-grid"])).grid(aGridColor, aGridLineWidth); }
+    void border(Color aBorderColor, double aBorderWidth) { DYNAMIC_CAST(map_elements::BackgroundBorderGrid&, (mMapElements["background-border-grid"])).border(aBorderColor, aBorderWidth); }
+    void continent_map(const acmacs::Location& aOffset, Pixels aWidth) { DYNAMIC_CAST(map_elements::ContinentMap&, (mMapElements["continent-map"])).offset_width(aOffset, aWidth); }
+    map_elements::LegendPointLabel& legend(const acmacs::Location& aOffset) { auto& legend = DYNAMIC_CAST(map_elements::LegendPointLabel&, (mMapElements["legend-point-label"])); legend.offset(aOffset); return legend; }
+    map_elements::LegendPointLabel& legend() { return DYNAMIC_CAST(map_elements::LegendPointLabel&, (mMapElements["legend-point-label"])); }
+    void remove_legend() { mMapElements.remove("legend-point-label"); }
+    map_elements::Title& title(const acmacs::Location& aOffset) { auto& title = DYNAMIC_CAST(map_elements::Title&, (mMapElements["title"])); title.offset(aOffset); return title; }
+    map_elements::Title& title() { return DYNAMIC_CAST(map_elements::Title&, (mMapElements["title"])); }
+    bool has_title() const { return mMapElements.exists("title"); }
+    map_elements::Labels& labels() { return mLabels; }
+    map_elements::Label& add_label(size_t aIndex) { return mLabels.add(aIndex, chart()); }
+    void remove_label(size_t aIndex) { return mLabels.remove(aIndex); }
     map_elements::SerumCircle& serum_circle(size_t aSerumNo, Scaled aRadius);
     map_elements::Line& line(const acmacs::Location& aBegin, const acmacs::Location& aEnd);
     map_elements::Arrow& arrow(const acmacs::Location& aBegin, const acmacs::Location& aEnd);

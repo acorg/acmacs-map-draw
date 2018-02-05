@@ -42,6 +42,11 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
         common.report();
     auto secondary_projection = secondary_chart->projection(secondary_projection_no);
     const auto procrustes_data = acmacs::chart::procrustes(aChartDraw.projection(), *secondary_projection, common.points(), scaling);
+    if (aChartDraw.has_title()) {
+        auto& title = aChartDraw.title();
+        title.add_line(secondary_chart->make_name(secondary_projection_no));
+        title.add_line("RMS: " + std::to_string(procrustes_data.rms));
+    }
     auto secondary_layout = procrustes_data.apply(*secondary_projection->layout());
     auto primary_layout = aChartDraw.projection().transformed_layout();
     const auto arrow_config = args().get_or_empty_object("arrow");
