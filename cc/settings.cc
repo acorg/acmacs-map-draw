@@ -253,6 +253,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
  "outside_4fold": {"fill": "grey50", "outline": "black", "order": "raise"}}
 
 {"N": "procrustes_arrows", "chart": "secondary.ace", "projection": 0, "match": "auto", "?match": "auto, strict, relaxed, ignored", "scaling": false, "report": false,
+ "threshold": 0.005, "?threshold": "do not show arrows shorter than this value in units",
  "arrow": {"color": "black", "head_color": "black", "head_filled": true, "line_width": 1, "arrow_width": 5}}
 
 --------------------------------------------------

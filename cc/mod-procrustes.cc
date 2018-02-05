@@ -45,13 +45,17 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
     auto secondary_layout = procrustes_data.apply(*secondary_projection->layout());
     auto primary_layout = aChartDraw.projection().transformed_layout();
     const auto arrow_config = args().get_or_empty_object("arrow");
-
+    const auto threshold = args().get_or_default("threshold", 0.005);
     for (size_t point_no = 0; point_no < common.points().size(); ++point_no) {
-        auto& arrow = aChartDraw.arrow(primary_layout->get(common.points()[point_no].primary), secondary_layout->get(common.points()[point_no].secondary));
-        arrow.color(Color(arrow_config.get_or_default("color", "black")), Color(arrow_config.get_or_default("head_color", "black")));
-        arrow.line_width(arrow_config.get_or_default("line_width", 1.0));
-        arrow.arrow_head_filled(arrow_config.get_or_default("head_filled", true));
-        arrow.arrow_width(arrow_config.get_or_default("arrow_width", 5.0));
+        const auto primary_coords = primary_layout->get(common.points()[point_no].primary),
+                secondary_coords = secondary_layout->get(common.points()[point_no].secondary);
+        if (primary_coords.distance(secondary_coords) > threshold) {
+            auto& arrow = aChartDraw.arrow(primary_coords, secondary_coords);
+            arrow.color(Color(arrow_config.get_or_default("color", "black")), Color(arrow_config.get_or_default("head_color", "black")));
+            arrow.line_width(arrow_config.get_or_default("line_width", 1.0));
+            arrow.arrow_head_filled(arrow_config.get_or_default("head_filled", true));
+            arrow.arrow_width(arrow_config.get_or_default("arrow_width", 5.0));
+        }
     }
 
 } // ModProcrustesArrows::apply
