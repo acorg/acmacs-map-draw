@@ -25,10 +25,8 @@ static inline acmacs::chart::CommonAntigensSera::match_level_t make_match_level(
 
 // ----------------------------------------------------------------------
 
-void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& aModData)
+void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
-      // {"N": "procrustes_arrows", "chart": "secondary.ace", "projection": 0, "match": "auto", "?match": "auto, strict, relaxed, ignored"}
-
     const auto verbose = args().get_or_default("report", false);
     const auto scaling = args().get_or_default("scaling", false) ? acmacs::chart::procrustes_scaling_t::yes : acmacs::chart::procrustes_scaling_t::no;
     const auto secondary_projection_no = args().get_or_default("projection", 0UL);
@@ -42,7 +40,19 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& aModD
     acmacs::chart::CommonAntigensSera common(aChartDraw.chart(), *secondary_chart, match_level);
     if (verbose)
         common.report();
-    const auto procrustes_data = acmacs::chart::procrustes(aChartDraw.projection(), *secondary_chart->projection(secondary_projection_no), common.points(), scaling);
+    auto secondary_projection = secondary_chart->projection(secondary_projection_no);
+    const auto procrustes_data = acmacs::chart::procrustes(aChartDraw.projection(), *secondary_projection, common.points(), scaling);
+    auto secondary_layout = procrustes_data.apply(*secondary_projection->layout());
+    auto primary_layout = aChartDraw.projection().transformed_layout();
+    const auto arrow_config = args().get_or_empty_object("arrow");
+
+    for (size_t point_no = 0; point_no < common.points().size(); ++point_no) {
+        auto& arrow = aChartDraw.arrow(primary_layout->get(common.points()[point_no].primary), secondary_layout->get(common.points()[point_no].secondary));
+        arrow.color(Color(arrow_config.get_or_default("color", "black")), Color(arrow_config.get_or_default("head_color", "black")));
+        arrow.line_width(arrow_config.get_or_default("line_width", 1.0));
+        arrow.arrow_head_filled(arrow_config.get_or_default("head_filled", true));
+        arrow.arrow_width(arrow_config.get_or_default("arrow_width", 5.0));
+    }
 
 } // ModProcrustesArrows::apply
 
