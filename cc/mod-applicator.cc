@@ -68,8 +68,8 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
                 auto serum = aChartDraw.chart().serum(aIndex);
                 if (name_type == "abbreviated")
                     label.display_name(serum->abbreviated_name());
-                else if (name_type == "abbreviated_with_passage_type")
-                    label.display_name(serum->abbreviated_name_with_passage_type());
+                else if (name_type == "abbreviated_with_serum_id" || name_type == "abbreviated_with_passage_type" || name_type == "abbreviated_location_with_passage_type")
+                    label.display_name(serum->abbreviated_name_with_serum_id());
                 else {
                     if (name_type != "full")
                         std::cerr << "WARNING: unrecognized \"name_type\" for label for serum " << aIndex << '\n';
