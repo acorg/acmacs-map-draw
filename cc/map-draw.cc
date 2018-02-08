@@ -87,21 +87,39 @@ int draw(const argc_argv& args)
 
     settings.update(settings_builtin_mods());
 
+    bool settings_loaded = false;
     auto load_settings = [&](argc_argv::strings aFilenames) {
         for (auto fn: aFilenames) {
             if (verbose)
                 std::cerr << "DEBUG: reading settings from " << fn << '\n';
             settings.update(rjson::parse_file(fn, rjson::remove_comments::No));
+            settings_loaded = true;
         }
     };
-    if (args["-s"])
-        load_settings(args["-s"]);
-    if (args["--settings"])
-        load_settings(args["--settings"]);
+    load_settings(args["-s"]);
+    load_settings(args["--settings"]);
       // std::cerr << "DEBUG: loaded settings\n" << settings.to_json_pp() << '\n';
 
     if (args["--apply"]) {
-        settings.set_field("apply", rjson::parse_string(args["--apply"].str_view()));
+        const auto new_apply_value = rjson::parse_string(args["--apply"].str_view());
+        try {
+            const rjson::array& new_apply = new_apply_value;
+            if (settings_loaded) {
+                if (auto [present, old_apply_const] = settings.get_array_if("apply"); present) {
+                    auto& old_apply = const_cast<rjson::array&>(old_apply_const);
+                    for (const auto& element : new_apply)
+                        old_apply.insert(element);
+                }
+                else
+                    settings.set_field("apply", new_apply);
+            }
+            else {
+                settings.set_field("apply", new_apply);
+            }
+        }
+        catch (std::bad_variant_access&) {
+            throw std::runtime_error{"invalid --apply argument: " + args["--apply"].str()};
+        }
     }
     else if (args["--clade"]) {
         settings.set_field("apply", rjson::array{"size_reset", "all_grey", "egg", "clades", "vaccines", "title"});
