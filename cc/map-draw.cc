@@ -118,7 +118,7 @@ int draw(const argc_argv& args)
             }
         }
         catch (std::bad_variant_access&) {
-            throw std::runtime_error{"invalid --apply argument: " + args["--apply"].str()};
+            throw std::runtime_error{"invalid --apply argument (json array expected): " + args["--apply"].str()};
         }
     }
     else if (args["--clade"]) {
