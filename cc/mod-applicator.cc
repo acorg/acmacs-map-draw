@@ -682,8 +682,8 @@ class ModRectangle : public Mod
 
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
         {
-            const rjson::array& c1 = args()["corner1"];
-            const rjson::array& c2 = args()["corner2"];
+            const rjson::array& c1 = args().one_of("c1", "corner1");
+            const rjson::array& c2 = args().one_of("c2", "corner2");
             auto& rectangle = aChartDraw.rectangle({c1[0], c1[1]}, {c2[0], c2[1]});
             rectangle.filled(args().get_or_default("filled", false));
             rectangle.color(Color(args().get_or_default("color", "#80FF00FF")));
