@@ -149,6 +149,10 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         else if (key == "clade") {
             filter_clade(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(value)));
         }
+        else if (key == "amino_acid") {
+            const rjson::object& data_v = value;
+            filter_amino_acid_at_pos(aChartSelectInterface, indexes, data_v["aa"].strv()[0], data_v["pos"]);
+        }
         else if (key == "outlier") {
             filter_outlier(aChartSelectInterface, indexes, value);
         }
@@ -297,6 +301,16 @@ void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterf
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_clade), indexes.end());
 
 } // SelectAntigens::filter_clade
+
+// ----------------------------------------------------------------------
+
+void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, size_t pos)
+{
+    const auto& entries = seqdb_entries(aChartSelectInterface);
+    auto not_aa_at_pos = [&entries,amino_acid, pos](auto index) -> bool { const auto& entry = entries[index]; return !entry || entry.seq().amino_acid_at(pos) != amino_acid; };
+    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_aa_at_pos), indexes.end());
+
+} // SelectAntigens::filter_amino_acid_at_pos
 
 // ----------------------------------------------------------------------
 
