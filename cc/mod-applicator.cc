@@ -325,8 +325,10 @@ class ModAminoAcids : public Mod
                     mColors.resize(colors.size());
                     std::transform(std::begin(colors), std::end(colors), mColors.begin(), [](const auto& src) -> std::string_view { return src; });
                 }
-                else
-                    mColors = Color::distinct();
+                else {
+                    const auto ct = args().get_or_default("color_set", "ana");
+                    mColors = Color::distinct(ct == "google" ? Color::distinct_t::GoogleMaps : Color::distinct_t::Ana);
+                }
             }
             const auto index = aIndex - mIndexDiff;
             if (index < mColors.size())
