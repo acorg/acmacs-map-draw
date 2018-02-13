@@ -33,6 +33,7 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::array& aPos, bool
 {
     const auto& seqdb = seqdb::get(do_report_time(aVerbose));
     const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), {std::begin(aPos), std::end(aPos)}, aVerbose);
+      // aa_indices is std::map<std::string, std::vector<size_t>>
     std::vector<std::string> aa_sorted(aa_indices.size()); // most frequent aa first
     std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
     std::sort(std::begin(aa_sorted), std::end(aa_sorted), [&aa_indices](const auto& n1, const auto& n2) -> bool { return aa_indices.find(n1)->second.size() > aa_indices.find(n2)->second.size(); });
@@ -44,6 +45,10 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::array& aPos, bool
         try { add_legend(aChartDraw, indices_for_aa, styl, aa, args()["legend"]); } catch (rjson::field_not_found&) {}
         if (aVerbose)
             std::cerr << "INFO: amino-acids at " << aPos << ": " << aa << ' ' << indices_for_aa.size() << '\n';
+    }
+
+    if (auto centroid = args().get_or_default("centroid", false); centroid) {
+        auto layout = aChartDraw.projection().layout();
     }
 
 } // ModAminoAcids::aa_pos
