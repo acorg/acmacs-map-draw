@@ -1,3 +1,5 @@
+#include <tuple>
+
 #include "acmacs-base/enumerate.hh"
 #include "seqdb/seqdb.hh"
 #include "acmacs-map-draw/mod-amino-acids.hh"
@@ -37,18 +39,49 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::array& aPos, bool
     std::vector<std::string> aa_sorted(aa_indices.size()); // most frequent aa first
     std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
     std::sort(std::begin(aa_sorted), std::end(aa_sorted), [&aa_indices](const auto& n1, const auto& n2) -> bool { return aa_indices.find(n1)->second.size() > aa_indices.find(n2)->second.size(); });
+    std::map<std::string, Color> color_for_aa;
     for (auto [index, aa]: acmacs::enumerate(aa_sorted)) {
         const auto& indices_for_aa = aa_indices.find(aa)->second;
         auto styl = style();
-        styl.fill = fill_color(index, aa);
+        if (auto ca = color_for_aa.find(aa); ca == color_for_aa.end())
+            styl.fill = color_for_aa[aa] = fill_color(index, aa);
+        else
+            styl.fill = ca->second;
         aChartDraw.modify(indices_for_aa, styl, drawing_order());
         try { add_legend(aChartDraw, indices_for_aa, styl, aa, args()["legend"]); } catch (rjson::field_not_found&) {}
         if (aVerbose)
             std::cerr << "INFO: amino-acids at " << aPos << ": " << aa << ' ' << indices_for_aa.size() << '\n';
     }
 
-    if (auto centroid = args().get_or_default("centroid", false); centroid) {
-        auto layout = aChartDraw.projection().layout();
+    if (auto make_centroid = args().get_or_default("centroid", false); make_centroid) {
+        auto layout = aChartDraw.projection().transformed_layout();
+        for (auto [aa, indexes] : aa_indices) {
+            if (indexes.size() > 1) {
+                  // coordinates, distance to centroid of all points, distance to centroid of 90% closest points
+                using element_t = std::tuple<acmacs::Coordinates, double, double>;
+                using acmacs::Coordinates;
+                std::vector<element_t> points(indexes.size());
+                std::transform(indexes.begin(), indexes.end(), points.begin(), [layout](auto index) -> element_t { return {layout->get(index), -1, -1}; });
+                Coordinates centroid = std::accumulate(points.begin(), points.end(), Coordinates(layout->number_of_dimensions(), 0.0), [](Coordinates& sum, const auto& point) { for (size_t dim = 0; dim < std::get<0>(point).size(); ++dim) sum[dim] += std::get<0>(point)[dim]; return sum; });
+                centroid /= points.size();
+                std::for_each(points.begin(), points.end(), [&centroid](auto& point) { std::get<1>(point) = std::get<0>(point).distance(centroid); });
+                std::sort(points.begin(), points.end(), [](const auto& p1, const auto& p2) { return std::get<1>(p1) < std::get<1>(p2); });
+                const auto radius = std::get<1>(points.back());
+                  // std::cerr << "DEBUG: min dist:" << std::get<1>(points.front()) << " max:" << radius << '\n';
+
+                const auto num_points_90 = static_cast<long>(points.size() * 0.9);
+                Coordinates centroid_90 = std::accumulate(points.begin(), points.begin() + num_points_90, Coordinates(layout->number_of_dimensions(), 0.0), [](Coordinates& sum, const auto& point) { for (size_t dim = 0; dim < std::get<0>(point).size(); ++dim) sum[dim] += std::get<0>(point)[dim]; return sum; });
+                centroid_90 /= num_points_90;
+                std::for_each(points.begin(), points.begin() + num_points_90, [&centroid_90](auto& point) { std::get<2>(point) = std::get<0>(point).distance(centroid_90); });
+                std::sort(points.begin(), points.begin() + num_points_90, [](const auto& p1, const auto& p2) { return std::get<2>(p1) < std::get<2>(p2); });
+                const auto radius_90 = std::get<2>(*(points.begin() + num_points_90 - 1));
+
+                  //aChartDraw.point(centroid, Pixels{10}).color(color_for_aa.find(aa)->second, GREEN);
+                aChartDraw.circle(centroid, Scaled{radius * 2}).color(TRANSPARENT, color_for_aa.find(aa)->second);
+                aChartDraw.circle(centroid, Scaled{radius_90 * 2}).color(TRANSPARENT, color_for_aa.find(aa)->second);
+
+            }
+        }
     }
 
 } // ModAminoAcids::aa_pos
