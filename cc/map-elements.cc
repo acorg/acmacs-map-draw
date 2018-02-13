@@ -264,7 +264,7 @@ void map_elements::Arrow::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*
     const double sign2 = x_eq ? (mBegin.y < mEnd.y ? 1.0 : -1.0) : (mEnd.x < mBegin.x ? 1.0 : -1.0);
     const double angle = x_eq ? -M_PI_2 : std::atan((mEnd.y - mBegin.y) / (mEnd.x - mBegin.x));
     const auto end = aSurface.arrow_head(mEnd, angle, sign2, mArrowHeadColor, mArrowWidth, mArrowHeadFilled);
-    std::cerr << "DEBUG: Arrow " << mBegin << ' ' << mEnd << ' ' << end << " angle:" << angle << " sign2:" << sign2 << ' ' << mArrowHeadColor << '\n';
+      // std::cerr << "DEBUG: Arrow " << mBegin << ' ' << mEnd << ' ' << end << " angle:" << angle << " sign2:" << sign2 << ' ' << mArrowHeadColor << '\n';
     aSurface.line(mBegin, end, mLineColor, mLineWidth);
 
 } // map_elements::Arrow::draw
