@@ -112,16 +112,7 @@ class ColoringByContinent : public GeographicMapColoring
     ColoringByContinent(const std::map<std::string, std::string>& aContinentColor) : mColors{aContinentColor.begin(), aContinentColor.end()} {}
     ColoringByContinent(const TagToColor& aContinentColor) : mColors{aContinentColor.begin(), aContinentColor.end()} {}
 
-    TagColor color(const hidb::Antigen& aAntigen) const override
-        {
-            try {
-                auto continent = get_locdb().continent(virus_name::location(aAntigen.name()));
-                return {continent, mColors.at(continent)};
-            }
-            catch (...) {
-                return {"UNKNOWN", {GREY50}};
-            }
-        }
+    TagColor color(const hidb::Antigen& aAntigen) const override;
 
  private:
     TagToColor mColors;

@@ -70,6 +70,36 @@ GeographicMapColoring::~GeographicMapColoring()
 
 // ----------------------------------------------------------------------
 
+static inline std::string location_of_antigen(const hidb::Antigen& antigen)
+{
+    const std::string name = antigen.name();
+    auto location = virus_name::location(name);
+    if (location == "GEORGIA") {
+        const auto& hidb = hidb::get(std::string{virus_name::virus_type(name)});
+        if (hidb.tables()->most_recent(antigen.tables())->lab() == "CDC") {
+              // std::cerr << "WARNING: GEORGIA: " << antigen->full_name() << '\n';
+            location = "GEORGIA STATE"; // somehow disambiguate
+        }
+    }
+    return location;
+}
+
+// ----------------------------------------------------------------------
+
+ColorOverride::TagColor ColoringByContinent::color(const hidb::Antigen& aAntigen) const
+{
+    try {
+        auto continent = get_locdb().continent(location_of_antigen(aAntigen));
+        return {continent, mColors.at(continent)};
+    }
+    catch (...) {
+        return {"UNKNOWN", {GREY50}};
+    }
+
+} // ColoringByContinent::color
+
+// ----------------------------------------------------------------------
+
 ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) const
 {
     ColoringData result(GREY50);
@@ -156,13 +186,10 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const Geog
         if (coloring_data.fill.empty())
             std::tie(tag, coloring_data) = aColoring.color(*antigen);
         try {
-            auto location = virus_name::location(antigen->name());
-            if (location == "GEORGIA" && hidb.tables()->most_recent(antigen->tables())->lab() == "CDC")
-                location = "GEORGIA STATE"; // somehow disambiguate
             const auto found = std::find(std::begin(aPriority), std::end(aPriority), tag);
-            mPointsAtLocation.add(location, found == std::end(aPriority) ? 0 : (found - std::begin(aPriority) + 1), coloring_data);
+            mPointsAtLocation.add(location_of_antigen(*antigen), found == std::end(aPriority) ? 0 : (found - std::begin(aPriority) + 1), coloring_data);
         }
-        catch (virus_name::Unrecognized&) {
+        catch (virus_name::Unrecognized&) { // thrown by location_of_antigen() -> virus_name::location()
         }
     }
       // std::transform(mPoints.begin(), mPoints.end(), std::ostream_iterator<std::string>(std::cerr, "\n"), [](const auto& e) -> std::string { return e.first; });
