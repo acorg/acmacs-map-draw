@@ -30,8 +30,16 @@ acmacs::PointStyle point_style_from_json(const rjson::object& aSource)
     for (auto [key, value]: aSource) {
         if (key == "fill")
             style.fill = Color(value);
+        else if (key == "fill_saturation")
+            style.fill = Color(Color::type::adjust_saturation, value);
+        else if (key == "fill_brightness")
+            style.fill = Color(Color::type::adjust_brightness, value);
         else if (key == "outline")
             style.outline = Color(value);
+        else if (key == "outline_saturation")
+            style.outline = Color(Color::type::adjust_saturation, value);
+        else if (key == "outline_brightness")
+            style.outline = Color(Color::type::adjust_brightness, value);
         else if (key == "show")
             style.shown = value;
         else if (key == "hide")

@@ -168,6 +168,7 @@ rjson::value settings_builtin_mods()
 static const char* const SETTINGS_HELP_MODS = R"(
 {"N": "antigens", "select": {<select>},
  "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
+ "fill_saturation": 1.0, "fill_brightness": 1.0, "outline_saturation": 1.0, "outline_brightness": 1.0,
  "size": 1.0, "outline_width": 1.0,
  "show": true, "shape": "circle|box|triangle",
  "order": "raise|lower",
@@ -181,6 +182,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
 
 {"N": "sera", "select": {<select>},
  "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
+ "fill_saturation": 1.0, "fill_brightness": 1.0, "outline_saturation": 1.0, "outline_brightness": 1.0,
  "size": 1.0, "outline_width": 1.0,
  "show": true, "shape": "circle|box|triangle",
  "order": "raise|lower",
