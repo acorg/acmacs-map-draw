@@ -26,10 +26,7 @@ void ModSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 size_t ModSerumHomologous::select_mark_serum(ChartDraw& aChartDraw, bool aVerbose)
 {
     const size_t serum_index = select_serum(aChartDraw, aVerbose);
-    if (auto [present, mark_serum] = args().get_object_if("mark_serum"); present) {
-        aChartDraw.modify_serum(serum_index, point_style_from_json(mark_serum), drawing_order_from_json(mark_serum));
-        try { add_label(aChartDraw, serum_index, aChartDraw.number_of_antigens(), mark_serum["label"]); } catch (rjson::field_not_found&) {}
-    }
+    mark_serum(aChartDraw, serum_index);
     return serum_index;
 }
 
@@ -42,6 +39,17 @@ size_t ModSerumHomologous::select_serum(ChartDraw& aChartDraw, bool aVerbose) co
         throw unrecognized_mod{"\"serum\" does not select single serum, mod: " + args().to_json()};
     return sera[0];
 }
+
+// ----------------------------------------------------------------------
+
+void ModSerumHomologous::mark_serum(ChartDraw& aChartDraw, size_t serum_index)
+{
+    if (auto [present, mark_serum] = args().get_object_if("mark_serum"); present) {
+        aChartDraw.modify_serum(serum_index, point_style_from_json(mark_serum), drawing_order_from_json(mark_serum));
+        try { add_label(aChartDraw, serum_index, aChartDraw.number_of_antigens(), mark_serum["label"]); } catch (rjson::field_not_found&) {}
+    }
+
+} // ModSerumHomologous::mark_serum
 
 // ----------------------------------------------------------------------
 
@@ -147,7 +155,7 @@ double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumInde
 void ModSerumCoverage::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
     const auto verbose = args().get_or_default("report", false);
-    const size_t serum_index = select_mark_serum(aChartDraw, verbose);
+    const size_t serum_index = select_serum(aChartDraw, verbose);
     const auto antigen_indices = select_antigens(aChartDraw, serum_index, verbose);
 
     std::vector<size_t> within, outside;
@@ -180,6 +188,7 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDa
         const auto& outside_4fold = args().get_or_empty_object("outside_4fold");
         aChartDraw.modify(outside, point_style_from_json(outside_4fold), drawing_order_from_json(outside_4fold));
     }
+    mark_serum(aChartDraw, serum_index);
 }
 
 // ----------------------------------------------------------------------

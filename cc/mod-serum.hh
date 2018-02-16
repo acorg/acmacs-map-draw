@@ -23,6 +23,7 @@ class ModSerumHomologous : public Mod
  protected:
     size_t select_mark_serum(ChartDraw& aChartDraw, bool aVerbose);
     size_t select_serum(ChartDraw& aChartDraw, bool aVerbose) const;
+    void mark_serum(ChartDraw& aChartDraw, size_t serum_index);
     std::vector<size_t> select_mark_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose);
     std::vector<size_t> select_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const;
     std::vector<size_t> select_homologous_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const;
