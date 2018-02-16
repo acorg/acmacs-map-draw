@@ -151,10 +151,24 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDa
     const auto antigen_indices = select_antigens(aChartDraw, serum_index, verbose);
 
     std::vector<size_t> within, outside;
-    aChartDraw.chart().serum_coverage(antigen_indices[0], serum_index, within, outside);
+    std::optional<size_t> antigen_index;
+    for (auto ai = antigen_indices.begin(); ai != antigen_indices.end() && !antigen_index; ++ai) {
+        try {
+            aChartDraw.chart().serum_coverage(*ai, serum_index, within, outside);
+            antigen_index = *ai;
+        }
+        catch (acmacs::chart::serum_coverage_error& err) {
+            std::cerr << "WARNING: cannot use homologous antigen " << *ai << ": " << err.what() << '\n';
+            within.clear();
+            outside.clear();
+        }
+    }
+    if (!antigen_index)
+        throw std::runtime_error("cannot apply serum_coverage mod: no suitable antigen found?");
+
     if (verbose) {
         std::cerr << "INFO: serum coverage\n  SR " << serum_index << ' ' << aChartDraw.chart().serum(serum_index)->full_name()
-                  << "\n  AG " << antigen_indices[0] << ' ' << aChartDraw.chart().antigen(antigen_indices[0])->full_name()
+                  << "\n  AG " << *antigen_index << ' ' << aChartDraw.chart().antigen(*antigen_index)->full_name()
                   << "\n  within 4fold:  " << within.size()
                   << "\n  outside 4fold: " << outside.size() << '\n';
     }
