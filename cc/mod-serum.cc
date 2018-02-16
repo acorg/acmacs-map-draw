@@ -70,12 +70,20 @@ std::vector<size_t> ModSerumHomologous::select_antigens(ChartDraw& aChartDraw, s
     }
 }
 
-std::vector<size_t> ModSerumHomologous::select_homologous_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool /*aVerbose*/) const
+// ----------------------------------------------------------------------
+
+std::vector<size_t> ModSerumHomologous::select_homologous_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const
 {
     aChartDraw.chart().set_homologous(true);
     const auto antigen_indexes = aChartDraw.chart().serum(aSerumIndex)->homologous_antigens();
     if (antigen_indexes.empty())
         throw unrecognized_mod{"no homologous antigens for serum, mod: " + args().to_json()};
+    if (aVerbose) {
+        auto antigens = aChartDraw.chart().antigens();
+        std::cerr << "INFO: homologous antigens selected: " << std::setfill(' ') << std::setw(4) << antigen_indexes.size() << '\n';
+        for (auto index: antigen_indexes)
+            std::cerr << "  AG " << std::setw(5) << index << ' ' << (*antigens)[index]->full_name() << '\n';
+    }
     return antigen_indexes;
 }
 
