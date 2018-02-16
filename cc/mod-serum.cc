@@ -128,7 +128,7 @@ double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumInde
 {
     std::vector<double> radii;
     std::transform(std::begin(aAntigenIndices), std::end(aAntigenIndices), std::back_inserter(radii),
-                   [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius(antigen_index, aSerumIndex, aChartDraw.projection_no(), false); });
+                   [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius(antigen_index, aSerumIndex, aChartDraw.projection_no(), false /*verbose*/); });
     double radius = 0;
     for (auto rad: radii) {
         if (rad > 0 && (radius <= 0 || rad < radius))
