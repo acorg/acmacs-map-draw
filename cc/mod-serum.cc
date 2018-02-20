@@ -1,4 +1,5 @@
 #include "acmacs-base/enumerate.hh"
+//#include "acmacs-base/timeit.hh"
 #include "acmacs-map-draw/mod-serum.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/select.hh"
@@ -134,9 +135,10 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex
 
 double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumIndex, const std::vector<size_t>& aAntigenIndices, bool aVerbose) const
 {
+    // Timeit it("DEBUG: serum circle radius calculation for " + std::to_string(aSerumIndex) + ' ', aVerbose ? report_time::Yes : report_time::No);
     std::vector<double> radii;
     std::transform(std::begin(aAntigenIndices), std::end(aAntigenIndices), std::back_inserter(radii),
-                   [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius(antigen_index, aSerumIndex, aChartDraw.projection_no(), false /*verbose*/); });
+                   [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius(antigen_index, aSerumIndex, aChartDraw.projection_no(), aVerbose); });
     double radius = 0;
     for (auto rad: radii) {
         if (rad > 0 && (radius <= 0 || rad < radius))
