@@ -299,7 +299,7 @@ Antigens:
   {"older_than_days": 365},
   {"younger_than_days": 365},
 {"index": 11},
-  {"indices": [55, 66]},
+  {"indexes": [55, 66]},
 {"country": "sweden"},
   {"continent": "europe"},
 "sequenced",
@@ -322,7 +322,7 @@ Sera:
 -----
 "all",
 {"serum_id": "CDC 2016-003"},
-{"index": 11}, {"indices": [55, 66]},
+{"index": 11}, {"indexes": [55, 66]},
 {"country": "sweden"}, {"continent": "europe"},
 {"name": "SWITZERLAND/9715293/2013"},
 {"full_name": "A(H1N1)/MICHIGAN/2/2009 CDC 2015-121"},
