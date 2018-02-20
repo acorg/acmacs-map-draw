@@ -103,7 +103,13 @@ void ModSerumCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData
     const auto verbose = args().get_or_default("report", false);
     const size_t serum_index = select_mark_serum(aChartDraw, verbose);
     const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, verbose);
-    make_serum_circle(aChartDraw, serum_index, Scaled{calculate_radius(aChartDraw, serum_index, antigen_indices, verbose)});
+    const auto radius_type_s = args().get_or_default("type", "empirical");
+    serum_circle_radius_type radius_type{serum_circle_radius_type::empirical};
+    if (radius_type_s == "theoretical")
+        radius_type = serum_circle_radius_type::theoretical;
+    else if (radius_type_s != "empirical")
+        std::cerr << "WARNING: unrecognized serum circle \"type\": \"" << radius_type_s << "\", \"empirical\" (default, currently used) or \"theoretical\" expected\n";
+    make_serum_circle(aChartDraw, serum_index, Scaled{calculate_radius(aChartDraw, serum_index, antigen_indices, radius_type, verbose)});
 }
 
 // ----------------------------------------------------------------------
@@ -133,19 +139,30 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex
 
 // ----------------------------------------------------------------------
 
-double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumIndex, const std::vector<size_t>& aAntigenIndices, bool aVerbose) const
+double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumIndex, const std::vector<size_t>& aAntigenIndices, serum_circle_radius_type radius_type, bool aVerbose) const
 {
-    // Timeit it("DEBUG: serum circle radius calculation for " + std::to_string(aSerumIndex) + ' ', aVerbose ? report_time::Yes : report_time::No);
+      // Timeit it("DEBUG: serum circle radius calculation for " + std::to_string(aSerumIndex) + ' ', aVerbose ? report_time::Yes : report_time::No);
     std::vector<double> radii;
-    std::transform(std::begin(aAntigenIndices), std::end(aAntigenIndices), std::back_inserter(radii),
-                   [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius(antigen_index, aSerumIndex, aChartDraw.projection_no(), aVerbose); });
+    const char* radius_type_s;
+    switch (radius_type) {
+      case serum_circle_radius_type::theoretical:
+          std::transform(std::begin(aAntigenIndices), std::end(aAntigenIndices), std::back_inserter(radii),
+                         [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius_theoretical(antigen_index, aSerumIndex, aChartDraw.projection_no(), aVerbose); });
+          radius_type_s = "theoretical";
+          break;
+      case serum_circle_radius_type::empirical:
+          std::transform(std::begin(aAntigenIndices), std::end(aAntigenIndices), std::back_inserter(radii),
+                         [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius_empirical(antigen_index, aSerumIndex, aChartDraw.projection_no(), aVerbose); });
+          radius_type_s = "empirical";
+          break;
+    }
     double radius = 0;
     for (auto rad: radii) {
         if (rad > 0 && (radius <= 0 || rad < radius))
             radius = rad;
     }
     if (aVerbose) {
-        std::cerr << "INFO: serum_circle radius: " << radius << "\n  SR " << aSerumIndex << ' ' << aChartDraw.chart().serum(aSerumIndex)->full_name() << '\n';
+        std::cerr << "INFO: " << radius_type_s << " serum circle radius: " << radius << "\n  SR " << aSerumIndex << ' ' << aChartDraw.chart().serum(aSerumIndex)->full_name() << '\n';
         for (auto [no, antigen_index]: acmacs::enumerate(aAntigenIndices))
             std::cerr << "    radius: " << radii[no] << "  AG " << antigen_index << ' ' << aChartDraw.chart().antigen(antigen_index)->full_name() << '\n';
     }

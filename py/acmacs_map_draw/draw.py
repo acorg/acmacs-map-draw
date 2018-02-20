@@ -473,7 +473,7 @@ class ModApplicator:
                 self.sera(N="sera", select=serum_index, homologous_ag_no=antigen_indices[0], **mark_serum)
             if mark_antigen:
                 self.antigens(N="antigens", select=antigen_indices, **mark_antigen)
-            radii = [self._chart.serum_circle_radius(serum_no=serum_index, antigen_no=ag_no, projection_no=self._projection_no, verbose=False) for ag_no in antigen_indices]
+            radii = [self._chart.serum_circle_radius_empirical(serum_no=serum_index, antigen_no=ag_no, projection_no=self._projection_no, verbose=False) for ag_no in antigen_indices]
             radius = min((r for r in radii if r > 0), default=0)
             module_logger.info('serum_circle:\n  SR {} {}\n    {}\n  RADIUS: {}'.format(serum_index, self._chart.serum(serum_index).full_name(), "\n    ".join("AG {:4d} {} {}".format(ag_no, self._chart.antigen(ag_no).full_name(), radius) for ag_no, radius in zip(antigen_indices, radii)), radius))
             serum_circle = self._chart_draw.serum_circle(serum_no=serum_index, radius=radius)
