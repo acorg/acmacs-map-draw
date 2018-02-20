@@ -25,6 +25,7 @@ class unrecognized_mod : public std::runtime_error { public: using std::runtime_
 class Mod
 {
  public:
+    Mod() {}
     Mod(const rjson::object& aArgs) : mArgs{aArgs} {}
     virtual inline ~Mod() { /* std::cerr << "~Mod " << args() << '\n'; */ }
 

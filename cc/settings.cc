@@ -256,6 +256,13 @@ static const char* const SETTINGS_HELP_MODS = R"(
  "within_4fold": {"outline": "pink", "outline_width": 3, "order": "raise"},
  "outside_4fold": {"fill": "grey50", "outline": "black", "order": "raise"}}
 
+{"N": "serum_coverage_circle", "serum": {<select>}, "?antigen": {<select>}, "report": true,
+ "mark_serum": {"fill": "red", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12, "weight": "bold"}},
+ "empirical": {"show": true, "fill": "#C0FF8080", "outline": "blue", "outline_width": 2, "angle_degrees": [0, 30], "radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1},
+ "theoretical": {"show": true, "fill": "#C08080FF", "outline": "blue", "outline_width": 2, "angle_degrees": [0, 30], "radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1},
+ "within_4fold": {"outline": "pink", "outline_width": 3, "order": "raise"},
+ "outside_4fold": {"fill": "grey50", "outline": "black", "order": "raise"}}
+
 {"N": "procrustes_arrows", "chart": "secondary.ace", "projection": 0, "match": "auto", "?match": "auto, strict, relaxed, ignored", "scaling": false, "report": false,
  "threshold": 0.005, "?threshold": "do not show arrows shorter than this value in units",
  "arrow": {"color": "black", "head_color": "black", "head_filled": true, "line_width": 1, "arrow_width": 5}}

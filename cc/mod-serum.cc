@@ -173,7 +173,13 @@ double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumInde
 
 void ModSerumCoverage::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
-    const auto verbose = args().get_or_default("report", false);
+    apply(aChartDraw, args().get_or_empty_object("within_4fold"), args().get_or_empty_object("outside_4fold"), args().get_or_default("report", false));
+}
+
+// ----------------------------------------------------------------------
+
+void ModSerumCoverage::apply(ChartDraw& aChartDraw, const rjson::object& within_4fold, const rjson::object& outside_4fold, bool verbose)
+{
     const size_t serum_index = select_serum(aChartDraw, verbose);
     const auto antigen_indices = select_antigens(aChartDraw, serum_index, verbose);
 
@@ -199,16 +205,22 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDa
                   << "\n  within 4fold:  " << within.size()
                   << "\n  outside 4fold: " << outside.size() << '\n';
     }
-    if (!within.empty()) {
-        const auto& within_4fold = args().get_or_empty_object("within_4fold");
+    if (!within.empty())
         aChartDraw.modify(within, point_style_from_json(within_4fold), drawing_order_from_json(within_4fold));
-    }
-    if (!outside.empty()) {
-        const auto& outside_4fold = args().get_or_empty_object("outside_4fold");
+    if (!outside.empty())
         aChartDraw.modify(outside, point_style_from_json(outside_4fold), drawing_order_from_json(outside_4fold));
-    }
     mark_serum(aChartDraw, serum_index);
-}
+
+} // ModSerumCoverage::apply
+
+// ----------------------------------------------------------------------
+
+void ModSerumCoverageCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
+{
+    ModSerumCoverage mod_coverage;
+    mod_coverage.apply(aChartDraw, args().get_or_empty_object("within_4fold"), args().get_or_empty_object("outside_4fold"), args().get_or_default("report", false));
+
+} // ModSerumCoverageCircle::apply
 
 // ----------------------------------------------------------------------
 /// Local Variables:

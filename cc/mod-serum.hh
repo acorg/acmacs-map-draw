@@ -41,7 +41,7 @@ class ModSerumCircle : public ModSerumHomologous
 
  protected:
     enum class serum_circle_radius_type { theoretical, empirical };
-    
+
     void make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, Scaled aRadius) const;
     double calculate_radius(ChartDraw& aChartDraw, size_t aSerumIndex, const std::vector<size_t>& aAntigenIndices, serum_circle_radius_type radius_type, bool aVerbose) const;
 
@@ -50,6 +50,18 @@ class ModSerumCircle : public ModSerumHomologous
 // ----------------------------------------------------------------------
 
 class ModSerumCoverage : public ModSerumHomologous
+{
+ public:
+    using ModSerumHomologous::ModSerumHomologous;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override;
+    void apply(ChartDraw& aChartDraw, const rjson::object& within_4fold, const rjson::object& outside_4fold, bool verbose);
+
+}; // class ModSerumCoverage
+
+// ----------------------------------------------------------------------
+
+class ModSerumCoverageCircle : public ModSerumHomologous
 {
  public:
     using ModSerumHomologous::ModSerumHomologous;

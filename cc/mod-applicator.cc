@@ -706,6 +706,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const
     else if (name == "serum_coverage") {
         result.emplace_back(new ModSerumCoverage(args));
     }
+    else if (name == "serum_coverage_circle") {
+        result.emplace_back(new ModSerumCoverageCircle(args));
+    }
     else if (name == "procrustes_arrows") {
         result.emplace_back(new ModProcrustesArrows(args));
     }
