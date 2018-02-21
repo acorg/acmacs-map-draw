@@ -39,10 +39,11 @@ class ModSerumCircle : public ModSerumHomologous
 
     void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override;
 
- protected:
     enum class serum_circle_radius_type { theoretical, empirical };
+    static serum_circle_radius_type radius_type_from_string(std::string radius_type_s);
 
-    void make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, Scaled aRadius) const;
+    void make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, const std::vector<size_t>& aAntigenIndices, serum_circle_radius_type radius_type, const rjson::object& circle_plot_spec, bool verbose) const;
+    void make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, Scaled aRadius, const rjson::object& circle_plot_spec) const;
     double calculate_radius(ChartDraw& aChartDraw, size_t aSerumIndex, const std::vector<size_t>& aAntigenIndices, serum_circle_radius_type radius_type, bool aVerbose) const;
 
 }; // class ModSerumCircle
@@ -55,7 +56,7 @@ class ModSerumCoverage : public ModSerumHomologous
     using ModSerumHomologous::ModSerumHomologous;
 
     void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override;
-    void apply(ChartDraw& aChartDraw, const rjson::object& within_4fold, const rjson::object& outside_4fold, bool verbose);
+    void apply(ChartDraw& aChartDraw, size_t serum_index, const std::vector<size_t>& antigen_indices, const rjson::object& within_4fold, const rjson::object& outside_4fold, bool verbose);
 
 }; // class ModSerumCoverage
 
