@@ -61,8 +61,8 @@ class Vaccines
 
     Vaccines(const acmacs::chart::Chart& aChart, bool aVerbose = false);
 
-    inline std::string report_all(size_t aIndent) const { return mVaccinesOfChart.report(aIndent); }
-    std::string report(size_t aIndent) const;
+    inline std::string report_all(const hidb::Vaccines::ReportConfig& config) const { return mVaccinesOfChart.report(config); }
+    std::string report(const hidb::Vaccines::ReportConfig& config) const;
     std::vector<size_t> indices() const;
     std::vector<size_t> indices(const VaccineMatchData& aMatchData) const;
     void plot(ChartDraw& aChartDraw) const;

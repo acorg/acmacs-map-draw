@@ -41,15 +41,15 @@ Vaccines::Vaccines(const acmacs::chart::Chart& aChart, bool aVerbose)
 
 // ----------------------------------------------------------------------
 
-std::string Vaccines::report(size_t aIndent) const
+std::string Vaccines::report(const hidb::Vaccines::ReportConfig& config) const
 {
     std::string result;
     for (const auto& entry: mEntries) {
         if (*entry.style.shown) {
             const auto& vacc = mVaccinesOfChart[entry.vaccines_of_chart_index];
-            const std::string s = vacc.report(entry.passage_type, aIndent, entry.antigen_no);
+            const std::string s = vacc.report(entry.passage_type, config, entry.antigen_no);
             if (!s.empty())
-                result += std::string(aIndent, ' ') + vacc.type() + " " + vacc.name() + " " + acmacs::to_string(*entry.style.fill) + '\n' + s;
+                result += std::string(config.indent_, ' ') + vacc.type() + " " + vacc.name() + " " + acmacs::to_string(*entry.style.fill) + '\n' + s;
         }
     }
     return result;

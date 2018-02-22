@@ -8,10 +8,9 @@ using namespace std::string_literals;
 #include "acmacs-base/quicklook.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-map-draw/draw.hh"
-
-#include "settings.hh"
-#include "mod-applicator.hh"
-#include "setup-dbs.hh"
+#include "acmacs-map-draw/settings.hh"
+#include "acmacs-map-draw/mod-applicator.hh"
+#include "acmacs-map-draw/setup-dbs.hh"
 
 // ----------------------------------------------------------------------
 
@@ -71,7 +70,7 @@ int draw(const argc_argv& args)
 
     ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No)), args["--projection"]);
     if (args["--previous"])
-        chart_draw.previous_chart(acmacs::chart::import_from_file(args["--previous"], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No));
+        chart_draw.previous_chart(acmacs::chart::import_from_file(args["--previous"], acmacs::chart::Verify::None, do_report_time(args["--time"])));
 
     auto settings = settings_default();
     if (args["--init-settings"]) {

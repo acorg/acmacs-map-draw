@@ -363,10 +363,10 @@ void SelectAntigens::filter_vaccine(const ChartSelectInterface& aChartSelectInte
         static std::map<const ChartSelectInterface*, Vaccines> cache_vaccines;
         auto vaccines_of_chart = cache_vaccines.find(&aChartSelectInterface);
         if (vaccines_of_chart == cache_vaccines.end()) {
-            Timeit ti_vaccines("Vaccines of chart ");
+            Timeit ti_vaccines("Vaccines of chart: ");
             vaccines_of_chart = cache_vaccines.emplace(&aChartSelectInterface, Vaccines{aChartSelectInterface.chart(), verbose()}).first;
             if (verbose())
-                std::cerr << vaccines_of_chart->second.report(2) << '\n';
+                std::cerr << vaccines_of_chart->second.report(hidb::Vaccines::ReportConfig{}.indent(2)) << '\n';
         }
         auto vaccine_indexes = vaccines_of_chart->second.indices(aMatchData);
 

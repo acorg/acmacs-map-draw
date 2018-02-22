@@ -7,7 +7,7 @@
 class VaccineMatcherBase
 {
  public:
-    inline std::string report(size_t aIndent) const { return mVaccines.report(aIndent); }
+    inline std::string report(const hidb::Vaccines::ReportConfig& config) const { return mVaccines.report(config); }
 
  protected:
     inline VaccineMatcherBase(Vaccines& aVaccines, const VaccineMatchData& aMatchData) : mVaccines(aVaccines), mMatchData(aMatchData) {}
