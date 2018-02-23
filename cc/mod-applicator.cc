@@ -712,6 +712,9 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const
     else if (name == "procrustes_arrows") {
         result.emplace_back(new ModProcrustesArrows(args));
     }
+    else if (name == "comment") {
+          // comment mod silently ignored
+    }
     else if (name.empty()) {
         std::cerr << "WARNING: mod ignored (no \"N\"): " << args << '\n';
     }
