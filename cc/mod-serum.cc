@@ -83,7 +83,7 @@ std::vector<size_t> ModSerumHomologous::select_antigens(ChartDraw& aChartDraw, s
 
 std::vector<size_t> ModSerumHomologous::select_homologous_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const
 {
-    aChartDraw.chart().set_homologous(true);
+    aChartDraw.chart().set_homologous(acmacs::chart::Chart::find_homologous_for_big_chart::yes);
     const auto antigen_indexes = aChartDraw.chart().serum(aSerumIndex)->homologous_antigens();
     if (antigen_indexes.empty())
         throw unrecognized_mod{"no homologous antigens for serum, mod: " + args().to_json()};
