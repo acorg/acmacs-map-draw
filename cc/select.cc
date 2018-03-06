@@ -347,7 +347,7 @@ void SelectAntigens::filter_outlier(const ChartSelectInterface& aChartSelectInte
     for (const auto& [point_no, dist]: point_dist)
         std::cout << std::setfill(' ') << std::setw(8) << point_no << ' ' << dist << '\n';
 
-    auto not_outlier = [&point_dist,aUnits](size_t index) { const auto& [p, d] = *std::find_if(point_dist.begin(), point_dist.end(), [index](const auto& pd) { return pd.first == index; }); return d < aUnits; };
+    auto not_outlier = [&point_dist,aUnits](size_t index) { const auto& [_, d] = *std::find_if(point_dist.begin(), point_dist.end(), [index](const auto& pd) { return pd.first == index; }); return d < aUnits; };
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_outlier), indexes.end());
 
 } // SelectAntigens::filter_outlier
