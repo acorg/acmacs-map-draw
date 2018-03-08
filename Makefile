@@ -10,6 +10,7 @@ TARGETS = \
     $(ACMACS_MAP_DRAW_LIB) \
     $(DIST)/chart-select \
     $(DIST)/map-draw \
+    $(DIST)/map-procrustes \
     $(DIST)/geographic-draw \
     $(DIST)/chart-vaccines
 
