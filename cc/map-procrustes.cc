@@ -24,6 +24,7 @@ int main(int argc, char* const argv[])
                 {"--p1", 0L, "projection number of the first chart"},
                 {"--p2", 0L, "projection number of the second chart"},
                 {"--threshold", 0.1, "arrow threshold"},
+                {"--report", false, "report common antigens/sera"},
                 {"--open", false},
                 {"--db-dir", ""},
                 {"--time", false, "report time of loading chart"},
@@ -53,6 +54,8 @@ int draw(const argc_argv& args)
     // setup_dbs(args["--db-dir"], verbose);
     const size_t p1 = args["--p1"], p2 = args["--p2"];
     const double threshold = args["--threshold"];
+    const bool report_common = args["--report"];
+
     ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, report)), p1);
 
     auto settings = settings_default();
@@ -62,7 +65,7 @@ int draw(const argc_argv& args)
                                                    {"chart", rjson::string{args[1]}},
                                                    {"projection", rjson::integer{p2}},
                                                    {"threshold", rjson::number{threshold}},
-                                                   {"report", rjson::boolean{false}}}},
+                                                   {"report", rjson::boolean{report_common}}}},
                                 });
 
     try {
