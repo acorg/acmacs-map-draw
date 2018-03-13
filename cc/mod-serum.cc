@@ -38,7 +38,7 @@ size_t ModSerumHomologous::select_serum(ChartDraw& aChartDraw, bool aVerbose) co
     const auto sera = SelectSera(aVerbose).select(aChartDraw, args()["serum"]);
     if (sera.size() != 1)
         throw unrecognized_mod{"\"serum\" does not select single serum, mod: " + args().to_json()};
-    return sera[0];
+    return sera.front();
 }
 
 // ----------------------------------------------------------------------
@@ -54,7 +54,7 @@ void ModSerumHomologous::mark_serum(ChartDraw& aChartDraw, size_t serum_index)
 
 // ----------------------------------------------------------------------
 
-std::vector<size_t> ModSerumHomologous::select_mark_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose)
+acmacs::chart::PointIndexList ModSerumHomologous::select_mark_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose)
 {
     const auto antigen_indices = select_antigens(aChartDraw, aSerumIndex, aVerbose);
     if (auto [present, mark_antigen] = args().get_object_if("mark_antigen"); present) {
@@ -66,7 +66,7 @@ std::vector<size_t> ModSerumHomologous::select_mark_antigens(ChartDraw& aChartDr
 
 // ----------------------------------------------------------------------
 
-std::vector<size_t> ModSerumHomologous::select_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const
+acmacs::chart::PointIndexList ModSerumHomologous::select_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const
 {
     if (auto [antigen_present, antigen_select] = args().get_object_if("antigen"); antigen_present) {
         const auto antigens = SelectAntigens(aVerbose).select(aChartDraw, antigen_select);
@@ -81,7 +81,7 @@ std::vector<size_t> ModSerumHomologous::select_antigens(ChartDraw& aChartDraw, s
 
 // ----------------------------------------------------------------------
 
-std::vector<size_t> ModSerumHomologous::select_homologous_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const
+acmacs::chart::PointIndexList ModSerumHomologous::select_homologous_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const
 {
     aChartDraw.chart().set_homologous(acmacs::chart::Chart::find_homologous_for_big_chart::yes);
     const auto antigen_indexes = aChartDraw.chart().serum(aSerumIndex)->homologous_antigens();
@@ -125,7 +125,7 @@ void ModSerumCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData
 
 // ----------------------------------------------------------------------
 
-void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t serum_index, const std::vector<size_t>& antigen_indices, serum_circle_radius_type radius_type, const rjson::object& circle_plot_spec, bool verbose) const
+void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, serum_circle_radius_type radius_type, const rjson::object& circle_plot_spec, bool verbose) const
 {
     make_serum_circle(aChartDraw, serum_index, Scaled{calculate_radius(aChartDraw, serum_index, antigen_indices, radius_type, verbose)}, circle_plot_spec);
 
@@ -158,7 +158,7 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex
 
 // ----------------------------------------------------------------------
 
-double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumIndex, const std::vector<size_t>& aAntigenIndices, serum_circle_radius_type radius_type, bool aVerbose) const
+double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumIndex, const acmacs::chart::PointIndexList& aAntigenIndices, serum_circle_radius_type radius_type, bool aVerbose) const
 {
       // Timeit it("DEBUG: serum circle radius calculation for " + std::to_string(aSerumIndex) + ' ', aVerbose ? report_time::Yes : report_time::No);
     std::vector<double> radii;
@@ -200,9 +200,9 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDa
 
 // ----------------------------------------------------------------------
 
-void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const std::vector<size_t>& antigen_indices, const rjson::object& within_4fold, const rjson::object& outside_4fold, bool verbose)
+void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, const rjson::object& within_4fold, const rjson::object& outside_4fold, bool verbose)
 {
-    std::vector<size_t> within, outside;
+    acmacs::chart::PointIndexList within, outside;
     std::optional<size_t> antigen_index;
     for (auto ai = antigen_indices.begin(); ai != antigen_indices.end() && !antigen_index; ++ai) {
         try {

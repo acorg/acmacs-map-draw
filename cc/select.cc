@@ -119,14 +119,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             antigens->filter_date_range(indexes, buffer, "");
         }
         else if (key == "index") {
-            const size_t index = value;
-            if (std::find(indexes.begin(), indexes.end(), index) == indexes.end()) {
-                indexes.clear();
-            }
-            else {
-                indexes.clear();
-                indexes.push_back(index);
-            }
+            indexes.erase_except(value);
         }
         else if (key == "indexes") {
             const rjson::array& to_keep_v = value;
@@ -399,14 +392,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
             sera->filter_serum_id(indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "index") {
-            const size_t index = value;
-            if (std::find(indexes.begin(), indexes.end(), index) == indexes.end()) {
-                indexes.clear();
-            }
-            else {
-                indexes.clear();
-                indexes.push_back(index);
-            }
+            indexes.erase_except(value);
         }
         else if (key == "indexes") {
             const rjson::array& to_keep_v = value;

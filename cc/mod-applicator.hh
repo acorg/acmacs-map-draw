@@ -4,6 +4,7 @@
 
 #include "acmacs-base/rjson.hh"
 #include "acmacs-base/point-style.hh"
+#include "acmacs-chart-2/point-index-list.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 
 // ----------------------------------------------------------------------
@@ -36,10 +37,10 @@ class Mod
 
     acmacs::PointStyle style() const { return point_style_from_json(args()); }
     PointDrawingOrder drawing_order() const { return drawing_order_from_json(args()); }
-    void add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, size_t aBaseIndex, const rjson::value& aLabelData);
+    void add_labels(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, size_t aBaseIndex, const rjson::value& aLabelData);
     void add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, const rjson::value& aLabelData);
-    void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const acmacs::PointStyle& aStyle, const rjson::value& aLegendData);
-    void add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData);
+    void add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, const rjson::value& aLegendData);
+    void add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData);
 
  private:
     const rjson::object mArgs;  // not reference! "N" is probably wrong due to updating args in factory!

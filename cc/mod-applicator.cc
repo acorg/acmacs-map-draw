@@ -83,7 +83,7 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
 
 // ----------------------------------------------------------------------
 
-void Mod::add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, size_t aBaseIndex, const rjson::value& aLabelData)
+void Mod::add_labels(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, size_t aBaseIndex, const rjson::value& aLabelData)
 {
     if (aLabelData.get_or_default("show", true)) {
         for (auto index: aIndices)
@@ -98,7 +98,7 @@ void Mod::add_labels(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices,
 
 // ----------------------------------------------------------------------
 
-void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const acmacs::PointStyle& aStyle, const rjson::value& aLegendData)
+void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, const rjson::value& aLegendData)
 {
     const std::string label = aLegendData.get_or_default("label", "use \"label\" in \"legend\"");
     add_legend(aChartDraw, aIndices, aStyle, label, aLegendData);
@@ -107,7 +107,7 @@ void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices,
 
 // ----------------------------------------------------------------------
 
-void Mod::add_legend(ChartDraw& aChartDraw, const std::vector<size_t>& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData)
+void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData)
 {
     if (aLegendData.get_or_default("show", true) && !aIndices.empty()) {
         auto& legend = aChartDraw.legend();
@@ -189,13 +189,13 @@ acmacs::Coordinates ModMoveBase::get_move_to(ChartDraw& aChartDraw, bool aVerbos
         const auto antigens = SelectAntigens(aVerbose).select(aChartDraw, to_antigen);
         if (antigens.size() != 1)
             throw unrecognized_mod{"\"to_antigen\" does not select single antigen, mod: " + args().to_json()};
-        move_to = aChartDraw.layout()->get(antigens[0]);
+        move_to = aChartDraw.layout()->get(antigens.front());
     }
     else if (auto [to_serum_present, to_serum] = args().get_object_if("to_serum"); to_serum_present) {
         const auto sera = SelectSera(aVerbose).select(aChartDraw, to_serum);
         if (sera.size() != 1)
             throw unrecognized_mod{"\"to_serum\" does not select single serum, mod: " + args().to_json()};
-        move_to = aChartDraw.layout()->get(sera[0] + aChartDraw.number_of_antigens());
+        move_to = aChartDraw.layout()->get(sera.front() + aChartDraw.number_of_antigens());
     }
     else
         throw unrecognized_mod{"neither \"to\" nor \"to_antigen\" nor \"to__serum\" provided in mod: " + args().to_json()};
