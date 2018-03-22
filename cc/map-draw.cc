@@ -134,8 +134,8 @@ int draw(const argc_argv& args)
     if (args["--flip-ns"].present()) {
         static_cast<rjson::array&>(settings["apply"]).insert(rjson::object{{{"N", rjson::string{"flip"}}, {"direction", rjson::string{"ns"}}}});
     }
-    if (args["-r"].present()) {
-        static_cast<rjson::array&>(settings["apply"]).insert(rjson::object{{{"N", rjson::string{"rotate"}}, {"degrees", rjson::number{static_cast<double>(args["--r"])}}}});
+    if (auto r_opt = args["-r"]; r_opt.present()) {
+        static_cast<rjson::array&>(settings["apply"]).insert(rjson::object{{{"N", rjson::string{"rotate"}}, {"degrees", rjson::number{static_cast<double>(r_opt)}}}});
     }
     if (args["--rotate-degrees"].present()) {
         static_cast<rjson::array&>(settings["apply"]).insert(rjson::object{{{"N", rjson::string{"rotate"}}, {"degrees", rjson::number{static_cast<double>(args["--rotate-degrees"])}}}});
