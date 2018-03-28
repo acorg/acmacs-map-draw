@@ -5,7 +5,7 @@
 #include <memory>
 
 #include "acmacs-base/size-scale.hh"
-#include "acmacs-base/color-target.hh"
+#include "acmacs-base/color.hh"
 #include "acmacs-base/text-style.hh"
 #include "acmacs-draw/surface.hh"
 

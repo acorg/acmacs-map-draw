@@ -1,7 +1,6 @@
 #include <memory>
 #include <algorithm>
 
-#include "acmacs-base/throw.hh"
 #include "acmacs-base/log.hh"
 #include "acmacs-base/float.hh"
 #include "acmacs-base/enumerate.hh"
@@ -60,7 +59,6 @@ void ChartDraw::draw(Surface& aSurface) const
 
 // ----------------------------------------------------------------------
 
-#ifdef ACMACS_TARGET_OS
 void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) const
 {
     Timeit ti("drawing map to " + aFilename + ": ", aTimer);
@@ -68,7 +66,6 @@ void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) co
     draw(surface);
 
 } // ChartDraw::draw
-#endif
 
 // ----------------------------------------------------------------------
 
@@ -122,7 +119,7 @@ void ChartDraw::mark_all_grey(Color aColor)
 
 map_elements::SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadius)
 {
-    auto& serum_circle = DYNAMIC_CAST(map_elements::SerumCircle&, (mMapElements.add("serum-circle")));
+    auto& serum_circle = dynamic_cast<map_elements::SerumCircle&>(mMapElements.add("serum-circle"));
     serum_circle.serum_no(aSerumNo);
     serum_circle.radius(aRadius);
     return serum_circle;
@@ -133,7 +130,7 @@ map_elements::SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadi
 
 map_elements::Line& ChartDraw::line(const acmacs::Location& aBegin, const acmacs::Location& aEnd)
 {
-    auto& line = DYNAMIC_CAST(map_elements::Line&, (mMapElements.add("line")));
+    auto& line = dynamic_cast<map_elements::Line&>(mMapElements.add("line"));
     line.from_to(aBegin, aEnd);
     return line;
 
@@ -143,7 +140,7 @@ map_elements::Line& ChartDraw::line(const acmacs::Location& aBegin, const acmacs
 
 map_elements::Arrow& ChartDraw::arrow(const acmacs::Location& aBegin, const acmacs::Location& aEnd)
 {
-    auto& arrow = DYNAMIC_CAST(map_elements::Arrow&, (mMapElements.add("arrow")));
+    auto& arrow = dynamic_cast<map_elements::Arrow&>(mMapElements.add("arrow"));
     arrow.from_to(aBegin, aEnd);
     return arrow;
 
@@ -153,7 +150,7 @@ map_elements::Arrow& ChartDraw::arrow(const acmacs::Location& aBegin, const acma
 
 map_elements::Point& ChartDraw::point(const acmacs::Location& aCenter, Pixels aSize)
 {
-    auto& point = DYNAMIC_CAST(map_elements::Point&, (mMapElements.add("point")));
+    auto& point = dynamic_cast<map_elements::Point&>(mMapElements.add("point"));
     point.center(aCenter);
     point.size(aSize);
     return point;
@@ -164,7 +161,7 @@ map_elements::Point& ChartDraw::point(const acmacs::Location& aCenter, Pixels aS
 
 map_elements::Rectangle& ChartDraw::rectangle(const acmacs::Location& aCorner1, const acmacs::Location& aCorner2)
 {
-    auto& rectangle = DYNAMIC_CAST(map_elements::Rectangle&, (mMapElements.add("rectangle")));
+    auto& rectangle = dynamic_cast<map_elements::Rectangle&>(mMapElements.add("rectangle"));
     rectangle.corners(aCorner1, aCorner2);
     return rectangle;
 
@@ -174,7 +171,7 @@ map_elements::Rectangle& ChartDraw::rectangle(const acmacs::Location& aCorner1, 
 
 map_elements::Circle& ChartDraw::circle(const acmacs::Location& aCenter, Scaled aSize)
 {
-    auto& point = DYNAMIC_CAST(map_elements::Circle&, (mMapElements.add("circle")));
+    auto& point = dynamic_cast<map_elements::Circle&>(mMapElements.add("circle"));
     point.center(aCenter);
     point.size(aSize);
     return point;

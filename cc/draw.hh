@@ -4,7 +4,6 @@
 #include <vector>
 #include <memory>
 
-#include "acmacs-base/throw.hh"
 #include "acmacs-base/range.hh"
 #include "acmacs-base/timeit.hh"
 #include "acmacs-draw/viewport.hh"
@@ -102,15 +101,15 @@ class ChartDraw : public ChartSelectInterface
     void viewport(const acmacs::Viewport& aViewport) { mViewport = aViewport; }
     const acmacs::Viewport& viewport() const { return mViewport; }
 
-    void background_color(Color aBackgroud) { DYNAMIC_CAST(map_elements::BackgroundBorderGrid&, (mMapElements["background-border-grid"])).background_color(aBackgroud); }
-    void grid(Color aGridColor, double aGridLineWidth) { DYNAMIC_CAST(map_elements::BackgroundBorderGrid&, (mMapElements["background-border-grid"])).grid(aGridColor, aGridLineWidth); }
-    void border(Color aBorderColor, double aBorderWidth) { DYNAMIC_CAST(map_elements::BackgroundBorderGrid&, (mMapElements["background-border-grid"])).border(aBorderColor, aBorderWidth); }
-    void continent_map(const acmacs::Location& aOffset, Pixels aWidth) { DYNAMIC_CAST(map_elements::ContinentMap&, (mMapElements["continent-map"])).offset_width(aOffset, aWidth); }
-    map_elements::LegendPointLabel& legend(const acmacs::Location& aOffset) { auto& legend = DYNAMIC_CAST(map_elements::LegendPointLabel&, (mMapElements["legend-point-label"])); legend.offset(aOffset); return legend; }
-    map_elements::LegendPointLabel& legend() { return DYNAMIC_CAST(map_elements::LegendPointLabel&, (mMapElements["legend-point-label"])); }
+    void background_color(Color aBackgroud) { dynamic_cast<map_elements::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).background_color(aBackgroud); }
+    void grid(Color aGridColor, double aGridLineWidth) { dynamic_cast<map_elements::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).grid(aGridColor, aGridLineWidth); }
+    void border(Color aBorderColor, double aBorderWidth) { dynamic_cast<map_elements::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).border(aBorderColor, aBorderWidth); }
+    void continent_map(const acmacs::Location& aOffset, Pixels aWidth) { dynamic_cast<map_elements::ContinentMap&>(mMapElements["continent-map"]).offset_width(aOffset, aWidth); }
+    map_elements::LegendPointLabel& legend(const acmacs::Location& aOffset) { auto& legend = dynamic_cast<map_elements::LegendPointLabel&>(mMapElements["legend-point-label"]); legend.offset(aOffset); return legend; }
+    map_elements::LegendPointLabel& legend() { return dynamic_cast<map_elements::LegendPointLabel&>(mMapElements["legend-point-label"]); }
     void remove_legend() { mMapElements.remove("legend-point-label"); }
-    map_elements::Title& title(const acmacs::Location& aOffset) { auto& title = DYNAMIC_CAST(map_elements::Title&, (mMapElements["title"])); title.offset(aOffset); return title; }
-    map_elements::Title& title() { return DYNAMIC_CAST(map_elements::Title&, (mMapElements["title"])); }
+    map_elements::Title& title(const acmacs::Location& aOffset) { auto& title = dynamic_cast<map_elements::Title&>(mMapElements["title"]); title.offset(aOffset); return title; }
+    map_elements::Title& title() { return dynamic_cast<map_elements::Title&>(mMapElements["title"]); }
     bool has_title() const { return mMapElements.exists("title"); }
     map_elements::Labels& labels() { return mLabels; }
     map_elements::Label& add_label(size_t aIndex) { return mLabels.add(aIndex, chart()); }

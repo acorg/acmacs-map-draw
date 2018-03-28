@@ -64,7 +64,7 @@ map_elements::Element& map_elements::Elements::add(std::string aKeyword)
         mElements.emplace_back(new Circle{});
     }
     else {
-        THROW_OR_CERR_NO_RETURN(std::runtime_error("Don't know how to make map element " + aKeyword));
+        throw std::runtime_error("Don't know how to make map element " + aKeyword);
     }
     return *mElements.back();
 
