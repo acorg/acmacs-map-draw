@@ -80,7 +80,7 @@ void map_elements::Elements::remove(std::string aKeyword)
 
 // ----------------------------------------------------------------------
 
-void map_elements::Elements::draw(Surface& aSurface, Order aOrder, const ChartDraw& aChartDraw) const
+void map_elements::Elements::draw(acmacs::surface::Surface& aSurface, Order aOrder, const ChartDraw& aChartDraw) const
 {
     for (const auto& element: mElements) {
         if (element->order() == aOrder)
@@ -98,7 +98,7 @@ map_elements::Element::~Element()
 
 // ----------------------------------------------------------------------
 
-acmacs::Location map_elements::Element::subsurface_origin(Surface& aSurface, const acmacs::Location& aPixelOrigin, const acmacs::Size& aScaledSubsurfaceSize) const
+acmacs::Location map_elements::Element::subsurface_origin(acmacs::surface::Surface& aSurface, const acmacs::Location& aPixelOrigin, const acmacs::Size& aScaledSubsurfaceSize) const
 {
     acmacs::Location subsurface_origin{aSurface.convert(Pixels{aPixelOrigin.x}).value(), aSurface.convert(Pixels{aPixelOrigin.y}).value()};
     const acmacs::Size& surface_size = aSurface.viewport().size;
@@ -112,7 +112,7 @@ acmacs::Location map_elements::Element::subsurface_origin(Surface& aSurface, con
 
 // ----------------------------------------------------------------------
 
-void map_elements::BackgroundBorderGrid::draw(Surface& aSurface, const ChartDraw&) const
+void map_elements::BackgroundBorderGrid::draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const
 {
     aSurface.background(mBackgroud);
     aSurface.grid(Scaled{1}, mGridColor, mGridLineWidth);
@@ -122,14 +122,14 @@ void map_elements::BackgroundBorderGrid::draw(Surface& aSurface, const ChartDraw
 
 // ----------------------------------------------------------------------
 
-void map_elements::ContinentMap::draw(Surface& aSurface, const ChartDraw&) const
+void map_elements::ContinentMap::draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const
 {
     acmacs::Location origin = mOrigin;
     if (origin.x < 0)
         origin.x += aSurface.width_in_pixels() - mWidthInParent.value();
     if (origin.y < 0)
         origin.y += aSurface.height_in_pixels() - mWidthInParent.value() / continent_map_aspect();
-    Surface& continent_surface = aSurface.subsurface(origin, mWidthInParent, continent_map_size(), true);
+    acmacs::surface::Surface& continent_surface = aSurface.subsurface(origin, mWidthInParent, continent_map_size(), true);
     continent_map_draw(continent_surface);
 
 } // map_elements::ContinentMap::draw
@@ -145,7 +145,7 @@ map_elements::LegendPointLabel::LegendPointLabel()
 
 // ----------------------------------------------------------------------
 
-void map_elements::LegendPointLabel::draw(Surface& aSurface, const ChartDraw&) const
+void map_elements::LegendPointLabel::draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const
 {
     if (!mLines.empty()) {
         double width = 0, height = 0;
@@ -163,7 +163,7 @@ void map_elements::LegendPointLabel::draw(Surface& aSurface, const ChartDraw&) c
                                        height * (mLines.size() - 1) * mInterline + height + padding.height * 2};
         const acmacs::Location legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
 
-        Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
+        acmacs::surface::Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
         legend_surface.background(mBackgroud);
         legend_surface.border(mBorderColor, mBorderWidth);
         const double point_x = padding.width + scaled_point_size / 2;
@@ -189,7 +189,7 @@ map_elements::Title::Title()
 
 // ----------------------------------------------------------------------
 
-void map_elements::Title::draw(Surface& aSurface) const
+void map_elements::Title::draw(acmacs::surface::Surface& aSurface) const
 {
     const double padding = aSurface.convert(mPadding).value();
     if (mShow && (mLines.size() > 1 || (!mLines.empty() && !mLines.front().empty()))) {
@@ -206,7 +206,7 @@ void map_elements::Title::draw(Surface& aSurface) const
                     height * (mLines.size() - 1) * mInterline + height + padding * 2};
         const acmacs::Location legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
 
-        Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
+        acmacs::surface::Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
         legend_surface.background(mBackgroud);
         legend_surface.border(mBorderColor, mBorderWidth);
         const double text_x = padding;
@@ -221,7 +221,7 @@ void map_elements::Title::draw(Surface& aSurface) const
 
 // ----------------------------------------------------------------------
 
-void map_elements::SerumCircle::draw(Surface& aSurface, const ChartDraw& aChartDraw) const
+void map_elements::SerumCircle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const
 {
     if (mSerumNo != static_cast<size_t>(-1)) {
         auto transformed_layout = aChartDraw.transformed_layout();
@@ -238,7 +238,7 @@ void map_elements::SerumCircle::draw(Surface& aSurface, const ChartDraw& aChartD
 
 // ----------------------------------------------------------------------
 
-void map_elements::Line::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
+void map_elements::Line::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     aSurface.line(mBegin, mEnd, mLineColor, mLineWidth);
 
@@ -246,7 +246,7 @@ void map_elements::Line::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/
 
 // ----------------------------------------------------------------------
 
-void map_elements::Rectangle::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
+void map_elements::Rectangle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     const std::vector<acmacs::Location> path{mCorner1, {mCorner1.x, mCorner2.y}, mCorner2, {mCorner2.x, mCorner1.y}};
     if (mFilled)
@@ -258,7 +258,7 @@ void map_elements::Rectangle::draw(Surface& aSurface, const ChartDraw& /*aChartD
 
 // ----------------------------------------------------------------------
 
-void map_elements::Arrow::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
+void map_elements::Arrow::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     const bool x_eq = float_equal(mEnd.x, mBegin.x);
     const double sign2 = x_eq ? (mBegin.y < mEnd.y ? 1.0 : -1.0) : (mEnd.x < mBegin.x ? 1.0 : -1.0);
@@ -271,7 +271,7 @@ void map_elements::Arrow::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*
 
 // ----------------------------------------------------------------------
 
-void map_elements::Point::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
+void map_elements::Point::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, mFillColor);
 
@@ -279,7 +279,7 @@ void map_elements::Point::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*
 
 // ----------------------------------------------------------------------
 
-void map_elements::Circle::draw(Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
+void map_elements::Circle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, mFillColor);
 

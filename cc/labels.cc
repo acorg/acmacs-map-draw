@@ -14,7 +14,7 @@ Label::Label(size_t aIndex)
 
 // ----------------------------------------------------------------------
 
-void Label::draw(Surface& aSurface, const acmacs::chart::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const
+void Label::draw(acmacs::surface::Surface& aSurface, const acmacs::chart::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const
 {
     const auto style = aPlotSpec.style(mIndex);
     if (*style.shown) {

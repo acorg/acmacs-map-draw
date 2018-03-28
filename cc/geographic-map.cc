@@ -6,7 +6,7 @@
 
 // ----------------------------------------------------------------------
 
-void GeographicMapPoints::draw(Surface& aSurface) const
+void GeographicMapPoints::draw(acmacs::surface::Surface& aSurface) const
 {
     for (const auto& point: *this) {
         point.draw(aSurface);
@@ -22,13 +22,13 @@ GeographicMapDraw::~GeographicMapDraw()
 
 // ----------------------------------------------------------------------
 
-void GeographicMapDraw::prepare(Surface&)
+void GeographicMapDraw::prepare(acmacs::surface::Surface&)
 {
 } // GeographicMapDraw::prepare
 
 // ----------------------------------------------------------------------
 
-void GeographicMapDraw::draw(Surface& aOutlineSurface, Surface& aPointSurface) const
+void GeographicMapDraw::draw(acmacs::surface::Surface& aOutlineSurface, acmacs::surface::Surface& aPointSurface) const
 {
     geographic_map_draw(aOutlineSurface, mOutline, mOutlineWidth);
     mPoints.draw(aPointSurface);
@@ -41,7 +41,7 @@ void GeographicMapDraw::draw(Surface& aOutlineSurface, Surface& aPointSurface) c
 void GeographicMapDraw::draw(std::string aFilename, double aImageWidth)
 {
     const acmacs::Size size = geographic_map_size();
-    PdfCairo outline_surface(aFilename, aImageWidth, aImageWidth / size.width * size.height, size.width);
+    acmacs::surface::PdfCairo outline_surface(aFilename, aImageWidth, aImageWidth / size.width * size.height, size.width);
     auto& point_surface = outline_surface.subsurface(outline_surface.viewport().origin, Scaled{outline_surface.viewport().size.width}, geographic_map_viewport(), false);
     prepare(point_surface);
     draw(outline_surface, point_surface);
@@ -138,7 +138,7 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
 
 // ----------------------------------------------------------------------
 
-void GeographicMapWithPointsFromHidb::prepare(Surface& aSurface)
+void GeographicMapWithPointsFromHidb::prepare(acmacs::surface::Surface& aSurface)
 {
     GeographicMapDraw::prepare(aSurface);
 

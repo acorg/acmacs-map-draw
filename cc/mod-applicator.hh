@@ -28,7 +28,7 @@ class Mod
  public:
     Mod() {}
     Mod(const rjson::object& aArgs) : mArgs{aArgs} {}
-    virtual inline ~Mod() { /* std::cerr << "~Mod " << args() << '\n'; */ }
+    virtual ~Mod() { /* std::cerr << "~Mod " << args() << '\n'; */ }
 
     virtual void apply(ChartDraw& aChartDraw, const rjson::value& aModData) = 0;
 

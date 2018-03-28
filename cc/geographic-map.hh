@@ -13,7 +13,7 @@
 
 // ----------------------------------------------------------------------
 
-class Surface;
+namespace acmacs::surface { class Surface; }
 class GeographicMapColoring;    // private, defined in geographic-map.cc
 
 // ----------------------------------------------------------------------
@@ -33,7 +33,7 @@ class GeographicMapPoint : public acmacs::PointStyle
     GeographicMapPoint() = default;
     GeographicMapPoint(const LongLat& aLongLat, long aPriority) : mLongLat(aLongLat), mPriority{aPriority} {}
 
-    void draw(Surface& aSurface) const { draw_point(aSurface, *this, {mLongLat.longitude, mLongLat.latitude}); }
+    void draw(acmacs::surface::Surface& aSurface) const { draw_point(aSurface, *this, {mLongLat.longitude, mLongLat.latitude}); }
 
     bool operator<(const GeographicMapPoint& aNother) const { return mPriority < aNother.mPriority; }
 
@@ -47,7 +47,7 @@ class GeographicMapPoint : public acmacs::PointStyle
 class GeographicMapPoints : public std::vector<GeographicMapPoint>
 {
  public:
-    void draw(Surface& aSurface) const;
+    void draw(acmacs::surface::Surface& aSurface) const;
     void sort() { std::sort(begin(), end()); }
 };
 
@@ -60,7 +60,7 @@ class GeographicMapDraw
     GeographicMapDraw(const GeographicMapDraw&) = default;
     virtual ~GeographicMapDraw();
 
-    virtual void prepare(Surface& aSurface);
+    virtual void prepare(acmacs::surface::Surface& aSurface);
     virtual void draw(std::string aFilename, double aImageWidth);
 
     void add_point(long aPriority, double aLat, double aLong, Color aFill, Pixels aSize, Color aOutline = "transparent", Pixels aOutlineWidth = Pixels{0});
@@ -75,7 +75,7 @@ class GeographicMapDraw
     GeographicMapPoints mPoints;
     map_elements::Title mTitle;
 
-    virtual void draw(Surface& aOutlineSurface, Surface& aPointSurface) const;
+    virtual void draw(acmacs::surface::Surface& aOutlineSurface, acmacs::surface::Surface& aPointSurface) const;
 
 }; // class GeographicMapDraw
 
@@ -229,7 +229,7 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
     GeographicMapWithPointsFromHidb(std::string aVirusType, double aPointSizeInPixels, double aPointDensity, Color aOutlineColor, double aOutlineWidth)
         : GeographicMapDraw(aOutlineColor, Pixels{aOutlineWidth}), mVirusType{aVirusType}, mPointSize(aPointSizeInPixels), mDensity(aPointDensity) {}
 
-    virtual void prepare(Surface& aSurface);
+    virtual void prepare(acmacs::surface::Surface& aSurface);
 
     void add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, const std::vector<std::string>& aPriority, std::string_view aStartDate, std::string_view aEndDate);
 

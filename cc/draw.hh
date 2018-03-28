@@ -12,7 +12,7 @@
 #include "acmacs-map-draw/labels.hh"
 #include "acmacs-map-draw/chart-select-interface.hh"
 
-class Surface;
+namespace acmacs::surface { class Surface; }
 
 // ----------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ class ChartDraw : public ChartSelectInterface
  public:
     using ChartSelectInterface::ChartSelectInterface;
 
-    void draw(Surface& aSurface) const;
+    void draw(acmacs::surface::Surface& aSurface) const;
     void draw(std::string aFilename, double aSize, report_time aTimer = report_time::No) const;
     const acmacs::Viewport& calculate_viewport(bool verbose = true);
 

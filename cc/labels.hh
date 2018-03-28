@@ -19,7 +19,7 @@ namespace acmacs::chart
 
 } // namespace acmacs::chart
 
-class Surface;
+namespace acmacs::surface { class Surface; }
 class ChartDraw;
 
 // ----------------------------------------------------------------------
@@ -29,19 +29,19 @@ namespace map_elements
     class Label
     {
      public:
-        inline Label(size_t aIndex);
+        Label(size_t aIndex);
 
-        void draw(Surface& aSurface, const acmacs::chart::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const;
+        void draw(acmacs::surface::Surface& aSurface, const acmacs::chart::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const;
 
-        inline Label& offset(double x, double y) { mOffset.set(x, y); return *this; }
-        inline Label& display_name(std::string_view aDisplayName) { mDisplayName = aDisplayName; return *this; }
-        inline Label& color(Color aColor) { mTextColor = aColor; return *this; }
-        inline Label& size(double aSize) { mTextSize = aSize; return *this; }
-        inline Label& weight(std::string aWeight) { mTextStyle.weight = aWeight; return *this; }
-        inline Label& slant(std::string aSlant) { mTextStyle.slant = aSlant; return *this; }
-        inline Label& font_family(std::string aFamily) { mTextStyle.font_family = aFamily; return *this; }
+        Label& offset(double x, double y) { mOffset.set(x, y); return *this; }
+        Label& display_name(std::string_view aDisplayName) { mDisplayName = aDisplayName; return *this; }
+        Label& color(Color aColor) { mTextColor = aColor; return *this; }
+        Label& size(double aSize) { mTextSize = aSize; return *this; }
+        Label& weight(std::string aWeight) { mTextStyle.weight = aWeight; return *this; }
+        Label& slant(std::string aSlant) { mTextStyle.slant = aSlant; return *this; }
+        Label& font_family(std::string aFamily) { mTextStyle.font_family = aFamily; return *this; }
 
-        inline size_t index() const { return mIndex; }
+        size_t index() const { return mIndex; }
 
      private:
         size_t mIndex;
@@ -64,7 +64,7 @@ namespace map_elements
         Label& add(size_t aIndex, const acmacs::chart::Chart& aChart);
         void remove(size_t aIndex);
 
-        inline void draw(Surface& aSurface, const acmacs::chart::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const
+        void draw(acmacs::surface::Surface& aSurface, const acmacs::chart::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const
             {
                 std::for_each(mLabels.begin(), mLabels.end(), [&](const Label& aLabel) { aLabel.draw(aSurface, aLayout, aPlotSpec); });
             }

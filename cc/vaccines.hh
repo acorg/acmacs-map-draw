@@ -15,17 +15,17 @@ namespace acmacs::chart { class Chart; }
 class VaccineMatchData
 {
  public:
-    inline VaccineMatchData() : mNo{0} {}
+    VaccineMatchData() : mNo{0} {}
 
-    inline VaccineMatchData& type(std::string aType) { mType = aType; return *this; }
-    inline VaccineMatchData& passage(std::string aPassage) { mPassage = aPassage; return *this; }
-    inline VaccineMatchData& no(size_t aNo) { mNo = aNo; return *this; }
-    inline VaccineMatchData& name(std::string aName) { mName = aName; return *this; }
+    VaccineMatchData& type(std::string aType) { mType = aType; return *this; }
+    VaccineMatchData& passage(std::string aPassage) { mPassage = aPassage; return *this; }
+    VaccineMatchData& no(size_t aNo) { mNo = aNo; return *this; }
+    VaccineMatchData& name(std::string aName) { mName = aName; return *this; }
 
-    inline std::string type() const { return mType; }
-    inline std::string passage() const { return mPassage; }
-    inline size_t no() const { return mNo; }
-    inline std::string name() const { return mName; }
+    std::string type() const { return mType; }
+    std::string passage() const { return mPassage; }
+    size_t no() const { return mNo; }
+    std::string name() const { return mName; }
 
  private:
     std::string mType;
@@ -43,7 +43,7 @@ class Vaccines
     class Entry
     {
      public:
-        inline Entry(size_t aVaccinesOfChartIndex, hidb::Vaccines::PassageType aPassageType, const acmacs::PointStyle& aStyle)
+        Entry(size_t aVaccinesOfChartIndex, hidb::Vaccines::PassageType aPassageType, const acmacs::PointStyle& aStyle)
             : vaccines_of_chart_index(aVaccinesOfChartIndex), passage_type(aPassageType), style(aStyle) {}
 
         size_t vaccines_of_chart_index;
@@ -51,7 +51,7 @@ class Vaccines
         size_t antigen_no = 0;
         acmacs::PointStyle style;
 
-        inline bool match(const hidb::VaccinesOfChart& aVaccinesOfChart, const VaccineMatchData& aMatchData) const
+        bool match(const hidb::VaccinesOfChart& aVaccinesOfChart, const VaccineMatchData& aMatchData) const
             {
                 return (aMatchData.passage().empty() || hidb::Vaccines::passage_type(aMatchData.passage()) == passage_type)
                         && aVaccinesOfChart[vaccines_of_chart_index].match(aMatchData.name(), aMatchData.type());
@@ -61,7 +61,7 @@ class Vaccines
 
     Vaccines(const acmacs::chart::Chart& aChart, bool aVerbose = false);
 
-    inline std::string report_all(const hidb::Vaccines::ReportConfig& config) const { return mVaccinesOfChart.report(config); }
+    std::string report_all(const hidb::Vaccines::ReportConfig& config) const { return mVaccinesOfChart.report(config); }
     std::string report(const hidb::Vaccines::ReportConfig& config) const;
     std::vector<size_t> indices() const;
     std::vector<size_t> indices(const VaccineMatchData& aMatchData) const;

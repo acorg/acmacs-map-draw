@@ -18,9 +18,9 @@
 template <typename Iter> class PyTimeSeriesIterator
 {
  public:
-    inline PyTimeSeriesIterator(Iter&& begin, Iter&& end) : mStarted(false), mCurrent(begin), mEnd(end) {}
-    inline PyTimeSeriesIterator<Iter>& iter() { return *this; }
-    inline Iter& next()
+    PyTimeSeriesIterator(Iter&& begin, Iter&& end) : mStarted(false), mCurrent(begin), mEnd(end) {}
+    PyTimeSeriesIterator<Iter>& iter() { return *this; }
+    Iter& next()
         {
             if (mStarted && mCurrent != mEnd)
                 ++mCurrent;
