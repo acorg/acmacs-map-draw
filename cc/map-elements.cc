@@ -125,9 +125,10 @@ acmacs::Location map_elements::Element::subsurface_origin(acmacs::surface::Surfa
 
 void map_elements::BackgroundBorderGrid::draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const
 {
-    aSurface.background(mBackgroud);
+    const auto& v = aSurface.viewport();
+    aSurface.rectangle_filled(v.origin, v.size, mBackgroud, Pixels{0}, mBackgroud);
     aSurface.grid(Scaled{1}, mGridColor, mGridLineWidth);
-    aSurface.border(mBorderColor, mBorderWidth);
+    aSurface.rectangle(v.origin, v.size, mBorderColor, mBorderWidth);
 
 } // map_elements::BackgroundBorderGrid::draw
 
@@ -193,8 +194,9 @@ void map_elements::LegendPointLabel::draw(acmacs::surface::Surface& aSurface, co
         const acmacs::Location legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
 
         acmacs::surface::Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
-        legend_surface.background(mBackgroud);
-        legend_surface.border(mBorderColor, mBorderWidth);
+        const auto& legend_v = legend_surface.viewport();
+        legend_surface.rectangle_filled(legend_v.origin, legend_v.size, mBackgroud, Pixels{0}, mBackgroud);
+        legend_surface.rectangle(legend_v.origin, legend_v.size, mBorderColor, mBorderWidth);
         const double point_x = padding.width + scaled_point_size / 2;
         const double text_x = padding.width * 2 + scaled_point_size;
         double y = padding.height + height;
@@ -244,8 +246,9 @@ void map_elements::Title::draw(acmacs::surface::Surface& aSurface) const
         const acmacs::Location legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
 
         acmacs::surface::Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
-        legend_surface.background(mBackgroud);
-        legend_surface.border(mBorderColor, mBorderWidth);
+        const auto& legend_v = legend_surface.viewport();
+        legend_surface.rectangle_filled(legend_v.origin, legend_v.size, mBackgroud, Pixels{0}, mBackgroud);
+        legend_surface.rectangle(legend_v.origin, legend_v.size, mBorderColor, mBorderWidth);
         const double text_x = padding;
         double y = padding + height;
         for (const auto& line: mLines) {

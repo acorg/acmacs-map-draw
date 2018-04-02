@@ -63,7 +63,7 @@ void ChartDraw::draw(acmacs::surface::Surface& aSurface) const
 void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) const
 {
     Timeit ti("drawing map to " + aFilename + ": ", aTimer);
-    if (false) {
+    if (true) {
         if (mViewport.empty())
             throw std::runtime_error("Call calculate_viewport() before draw()");
         acmacs::draw::DrawElements painter(aFilename, aSize);
