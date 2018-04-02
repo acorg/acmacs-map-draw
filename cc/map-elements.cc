@@ -1,5 +1,6 @@
 #include "acmacs-draw/continent-map.hh"
 #include "acmacs-draw/draw-elements.hh"
+#include "acmacs-draw/draw-legend.hh"
 #include "acmacs-map-draw/map-elements.hh"
 #include "acmacs-map-draw/draw.hh"
 
@@ -230,7 +231,7 @@ map_elements::Title::Title()
 
 void map_elements::Title::draw(acmacs::surface::Surface& aSurface) const
 {
-    const double padding = aSurface.convert(mPadding).value();
+      // obsolete
     if (mShow && (mLines.size() > 1 || (!mLines.empty() && !mLines.front().empty()))) {
         double width = 0, height = 0;
         for (const auto& line: mLines) {
@@ -241,6 +242,7 @@ void map_elements::Title::draw(acmacs::surface::Surface& aSurface) const
                 height = line_size.height;
         }
 
+        const double padding = aSurface.convert(mPadding).value();
         const acmacs::Size legend_surface_size{width + padding * 2,
                     height * (mLines.size() - 1) * mInterline + height + padding * 2};
         const acmacs::Location legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
@@ -263,7 +265,18 @@ void map_elements::Title::draw(acmacs::surface::Surface& aSurface) const
 
 void map_elements::Title::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
 {
-    std::cerr << "WARNING: map_elements::Title::draw not imlemented\n";
+    if (mShow && (mLines.size() > 1 || (!mLines.empty() && !mLines.front().empty()))) {
+        aDrawElements.title(mLines)
+                .text_color(mTextColor)
+                .text_size(mTextSize)
+                .text_style(mTextStyle)
+                .interline(mInterline)
+                .padding(mPadding)
+                .origin(mOrigin)
+                .background(mBackgroud)
+                .border_color(mBorderColor)
+                .border_width(mBorderWidth);
+    }
 
 } // map_elements::Title::draw
 
