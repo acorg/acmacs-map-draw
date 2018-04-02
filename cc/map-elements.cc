@@ -1,4 +1,5 @@
 #include "acmacs-draw/continent-map.hh"
+#include "acmacs-draw/draw-elements.hh"
 #include "acmacs-map-draw/map-elements.hh"
 #include "acmacs-map-draw/draw.hh"
 
@@ -82,10 +83,20 @@ void map_elements::Elements::remove(std::string aKeyword)
 
 void map_elements::Elements::draw(acmacs::surface::Surface& aSurface, Order aOrder, const ChartDraw& aChartDraw) const
 {
+      // obsolete
     for (const auto& element: mElements) {
         if (element->order() == aOrder)
             element->draw(aSurface, aChartDraw);
     }
+
+} // map_elements::Elements::draw
+
+// ----------------------------------------------------------------------
+
+void map_elements::Elements::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const
+{
+    for (const auto& element: mElements)
+        element->draw(aDrawElements, aChartDraw);
 
 } // map_elements::Elements::draw
 
@@ -122,6 +133,16 @@ void map_elements::BackgroundBorderGrid::draw(acmacs::surface::Surface& aSurface
 
 // ----------------------------------------------------------------------
 
+void map_elements::BackgroundBorderGrid::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
+{
+    aDrawElements.border(mBorderColor, mBorderWidth);
+    aDrawElements.background(mBackgroud);
+    aDrawElements.grid(Scaled{1}, mGridColor, mGridLineWidth);
+
+} // map_elements::BackgroundBorderGrid::draw
+
+// ----------------------------------------------------------------------
+
 void map_elements::ContinentMap::draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const
 {
     acmacs::Location origin = mOrigin;
@@ -131,6 +152,14 @@ void map_elements::ContinentMap::draw(acmacs::surface::Surface& aSurface, const 
         origin.y += aSurface.height_in_pixels() - mWidthInParent.value() / continent_map_aspect();
     acmacs::surface::Surface& continent_surface = aSurface.subsurface(origin, mWidthInParent, continent_map_size(), true);
     continent_map_draw(continent_surface);
+
+} // map_elements::ContinentMap::draw
+
+// ----------------------------------------------------------------------
+
+void map_elements::ContinentMap::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
+{
+    std::cerr << "WARNING: map_elements::ContinentMap::draw not imlemented\n";
 
 } // map_elements::ContinentMap::draw
 
@@ -180,6 +209,14 @@ void map_elements::LegendPointLabel::draw(acmacs::surface::Surface& aSurface, co
 
 // ----------------------------------------------------------------------
 
+void map_elements::LegendPointLabel::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
+{
+    std::cerr << "WARNING: map_elements::LegendPointLabel::draw not imlemented\n";
+
+} // map_elements::LegendPointLabel::draw
+
+// ----------------------------------------------------------------------
+
 map_elements::Title::Title()
     : Element("title", Elements::AfterPoints), mOrigin{10, 10}, mPadding{10},
       mBackgroud("grey97"), mBorderColor("black"), mBorderWidth(0.1),
@@ -221,6 +258,14 @@ void map_elements::Title::draw(acmacs::surface::Surface& aSurface) const
 
 // ----------------------------------------------------------------------
 
+void map_elements::Title::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
+{
+    std::cerr << "WARNING: map_elements::Title::draw not imlemented\n";
+
+} // map_elements::Title::draw
+
+// ----------------------------------------------------------------------
+
 void map_elements::SerumCircle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const
 {
     if (mSerumNo != static_cast<size_t>(-1)) {
@@ -238,9 +283,25 @@ void map_elements::SerumCircle::draw(acmacs::surface::Surface& aSurface, const C
 
 // ----------------------------------------------------------------------
 
+void map_elements::SerumCircle::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const
+{
+    std::cerr << "WARNING: map_elements::SerumCircle::draw not imlemented\n";
+
+} // map_elements::SerumCircle::draw
+
+// ----------------------------------------------------------------------
+
 void map_elements::Line::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     aSurface.line(mBegin, mEnd, mLineColor, mLineWidth);
+
+} // map_elements::Line::draw
+
+// ----------------------------------------------------------------------
+
+void map_elements::Line::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
+{
+    std::cerr << "WARNING: map_elements::Line::draw not imlemented\n";
 
 } // map_elements::Line::draw
 
@@ -253,6 +314,14 @@ void map_elements::Rectangle::draw(acmacs::surface::Surface& aSurface, const Cha
         aSurface.path_fill(path.begin(), path.end(), mColor);
     else
         aSurface.path_outline(path.begin(), path.end(), mColor, mLineWidth, true);
+
+} // map_elements::Rectangle::draw
+
+// ----------------------------------------------------------------------
+
+void map_elements::Rectangle::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
+{
+    std::cerr << "WARNING: map_elements::Rectangle::draw not imlemented\n";
 
 } // map_elements::Rectangle::draw
 
@@ -271,6 +340,14 @@ void map_elements::Arrow::draw(acmacs::surface::Surface& aSurface, const ChartDr
 
 // ----------------------------------------------------------------------
 
+void map_elements::Arrow::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
+{
+    std::cerr << "WARNING: map_elements::Arrow::draw not imlemented\n";
+
+} // map_elements::Arrow::draw
+
+// ----------------------------------------------------------------------
+
 void map_elements::Point::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, mFillColor);
@@ -279,9 +356,25 @@ void map_elements::Point::draw(acmacs::surface::Surface& aSurface, const ChartDr
 
 // ----------------------------------------------------------------------
 
+void map_elements::Point::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
+{
+    std::cerr << "WARNING: map_elements::Point::draw not imlemented\n";
+
+} // map_elements::Point::draw
+
+// ----------------------------------------------------------------------
+
 void map_elements::Circle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, mFillColor);
+
+} // map_elements::Circle::draw
+
+// ----------------------------------------------------------------------
+
+void map_elements::Circle::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
+{
+    std::cerr << "WARNING: map_elements::Circle::draw not imlemented\n";
 
 } // map_elements::Circle::draw
 

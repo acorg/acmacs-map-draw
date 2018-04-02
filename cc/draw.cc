@@ -68,8 +68,9 @@ void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) co
             throw std::runtime_error("Call calculate_viewport() before draw()");
         acmacs::draw::DrawElements painter(aFilename, aSize);
         painter.viewport(mViewport);
-        painter.grid(Scaled{1}, "grey80", Pixels{1});
+        mMapElements.draw(painter, *this);
         painter.draw();
+        std::cerr << "\n\n";
         std::cerr << "WARNING: switch signature page to draw-elements interface\n";
         std::cerr << "WARNING: remove obsolete ChartDraw::draw(acmacs::surface::Surface&)\n";
         std::cerr << "WARNING: remove obsolete acmacs-map-draw interface: map_elements::draw(acmacs::surface::Surface& ...)\n";
