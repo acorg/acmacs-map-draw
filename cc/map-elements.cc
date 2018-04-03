@@ -219,7 +219,11 @@ void map_elements::LegendPointLabel::draw(acmacs::surface::Surface& aSurface, co
 
 void map_elements::LegendPointLabel::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
 {
-    std::cerr << "WARNING: map_elements::LegendPointLabel::draw not imlemented\n";
+    auto& legend = aDrawElements.legend();
+    for (const auto& line : mLines)
+        legend.add(line.label, line.outline, line.fill);
+
+    std::cerr << "WARNING: map_elements::LegendPointLabel::draw incomplete\n";
 
 } // map_elements::LegendPointLabel::draw
 
