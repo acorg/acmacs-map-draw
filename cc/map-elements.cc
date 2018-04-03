@@ -308,7 +308,7 @@ void map_elements::SerumCircle::draw(acmacs::surface::Surface& aSurface, const C
 
 void map_elements::SerumCircle::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const
 {
-    std::cerr << "WARNING: map_elements::SerumCircle::draw not imlemented\n";
+    aDrawElements.serum_circle(aChartDraw.layout()->get(mSerumNo + aChartDraw.number_of_antigens()), aChartDraw.transformation(), mRadius * 2.0, mFillColor, mOutlineColor, mOutlineWidth, mRadiusColor, mRadiusWidth, mRadiusDash, mStart, mEnd);
 
 } // map_elements::SerumCircle::draw
 
