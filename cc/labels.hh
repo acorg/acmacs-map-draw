@@ -26,14 +26,15 @@ class ChartDraw;
 
 namespace map_elements
 {
-      // obsolete
     class Labels : public acmacs::draw::PointLabels
     {
      public:
         Labels() = default;
 
+        using acmacs::draw::PointLabels::add;
         acmacs::draw::PointLabel& add(size_t aIndex, const acmacs::chart::Chart& aChart);
 
+          // obsolete
         void draw(acmacs::surface::Surface& aSurface, const acmacs::chart::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const
             {
                 std::for_each(begin(), end(), [&,this](const auto& aLabel) { this->draw(aLabel, aSurface, aLayout, aPlotSpec); });

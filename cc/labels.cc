@@ -28,17 +28,13 @@ void Labels::draw(const acmacs::draw::PointLabel& label, acmacs::surface::Surfac
 
 acmacs::draw::PointLabel& Labels::add(size_t aIndex, const acmacs::chart::Chart& aChart)
 {
-    auto found = std::find_if(begin(), end(), [&aIndex](const auto& label) { return label.index() == aIndex; });
-    if (found == end()) {
-        emplace_back(aIndex);
-        found = end() - 1;
-        const auto number_of_antigens = aChart.number_of_antigens();
-        if (aIndex < number_of_antigens)
-            found->display_name(aChart.antigen(aIndex)->full_name());
-        else
-            found->display_name(aChart.serum(aIndex - number_of_antigens)->full_name());
-    }
-    return *found;
+    acmacs::draw::PointLabel& added = add(aIndex);
+    const auto number_of_antigens = aChart.number_of_antigens();
+    if (aIndex < number_of_antigens)
+        added.display_name(aChart.antigen(aIndex)->full_name());
+    else
+        added.display_name(aChart.serum(aIndex - number_of_antigens)->full_name());
+    return added;
 
 } // Labels::add
 
