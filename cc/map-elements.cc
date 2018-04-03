@@ -1,6 +1,7 @@
 #include "acmacs-draw/continent-map.hh"
 #include "acmacs-draw/draw-elements.hh"
 #include "acmacs-draw/draw-legend.hh"
+#include "acmacs-draw/draw-arrow.hh"
 #include "acmacs-map-draw/map-elements.hh"
 #include "acmacs-map-draw/draw.hh"
 
@@ -82,6 +83,7 @@ void map_elements::Elements::remove(std::string aKeyword)
 
 // ----------------------------------------------------------------------
 
+// obsolete
 void map_elements::Elements::draw(acmacs::surface::Surface& aSurface, Order aOrder, const ChartDraw& aChartDraw) const
 {
       // obsolete
@@ -124,6 +126,7 @@ acmacs::Location map_elements::Element::subsurface_origin(acmacs::surface::Surfa
 
 // ----------------------------------------------------------------------
 
+// obsolete
 void map_elements::BackgroundBorderGrid::draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const
 {
     const auto& v = aSurface.viewport();
@@ -145,6 +148,7 @@ void map_elements::BackgroundBorderGrid::draw(acmacs::draw::DrawElements& aDrawE
 
 // ----------------------------------------------------------------------
 
+// obsolete
 void map_elements::ContinentMap::draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const
 {
     acmacs::Location origin = mOrigin;
@@ -176,6 +180,7 @@ map_elements::LegendPointLabel::LegendPointLabel()
 
 // ----------------------------------------------------------------------
 
+// obsolete
 void map_elements::LegendPointLabel::draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const
 {
     if (!mLines.empty()) {
@@ -229,6 +234,7 @@ map_elements::Title::Title()
 
 // ----------------------------------------------------------------------
 
+// obsolete
 void map_elements::Title::draw(acmacs::surface::Surface& aSurface) const
 {
       // obsolete
@@ -282,6 +288,7 @@ void map_elements::Title::draw(acmacs::draw::DrawElements& aDrawElements, const 
 
 // ----------------------------------------------------------------------
 
+// obsolete
 void map_elements::SerumCircle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const
 {
     if (mSerumNo != static_cast<size_t>(-1)) {
@@ -307,6 +314,7 @@ void map_elements::SerumCircle::draw(acmacs::draw::DrawElements& aDrawElements, 
 
 // ----------------------------------------------------------------------
 
+// obsolete
 void map_elements::Line::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     aSurface.line(mBegin, mEnd, mLineColor, mLineWidth);
@@ -323,6 +331,7 @@ void map_elements::Line::draw(acmacs::draw::DrawElements& aDrawElements, const C
 
 // ----------------------------------------------------------------------
 
+// obsolete
 void map_elements::Rectangle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     const std::vector<acmacs::Location> path{mCorner1, {mCorner1.x, mCorner2.y}, mCorner2, {mCorner2.x, mCorner1.y}};
@@ -343,6 +352,7 @@ void map_elements::Rectangle::draw(acmacs::draw::DrawElements& aDrawElements, co
 
 // ----------------------------------------------------------------------
 
+// obsolete
 void map_elements::Arrow::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     const bool x_eq = float_equal(mEnd.x, mBegin.x);
@@ -358,12 +368,13 @@ void map_elements::Arrow::draw(acmacs::surface::Surface& aSurface, const ChartDr
 
 void map_elements::Arrow::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
 {
-    std::cerr << "WARNING: map_elements::Arrow::draw not imlemented\n";
+    aDrawElements.arrow(mBegin, mEnd, mLineColor, mLineWidth, mArrowHeadColor, mArrowHeadFilled, mArrowWidth);
 
 } // map_elements::Arrow::draw
 
 // ----------------------------------------------------------------------
 
+// obsolete
 void map_elements::Point::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, mFillColor);
@@ -380,6 +391,7 @@ void map_elements::Point::draw(acmacs::draw::DrawElements& aDrawElements, const 
 
 // ----------------------------------------------------------------------
 
+// obsolete
 void map_elements::Circle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, mFillColor);
