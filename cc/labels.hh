@@ -26,53 +26,22 @@ class ChartDraw;
 
 namespace map_elements
 {
-    class Label : public acmacs::draw::PointLabel
-    {
-     public:
-        using acmacs::draw::PointLabel::PointLabel;
-        // Label(size_t aIndex) : mIndex(aIndex), mOffset{0, 1}, mTextColor{BLACK}, mTextSize{12} {}
-
-        void draw(acmacs::surface::Surface& aSurface, const acmacs::chart::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const;
-
-        // Label& offset(double x, double y) { mOffset.set(x, y); return *this; }
-        // Label& display_name(std::string_view aDisplayName) { mDisplayName = aDisplayName; return *this; }
-        // Label& color(Color aColor) { mTextColor = aColor; return *this; }
-        // Label& size(double aSize) { mTextSize = aSize; return *this; }
-        // Label& weight(std::string aWeight) { mTextStyle.weight = aWeight; return *this; }
-        // Label& slant(std::string aSlant) { mTextStyle.slant = aSlant; return *this; }
-        // Label& font_family(std::string aFamily) { mTextStyle.font_family = aFamily; return *this; }
-
-        // size_t index() const { return mIndex; }
-
-     private:
-        // size_t mIndex;
-        // acmacs::Location mOffset;
-        // std::string mDisplayName;
-        // Color mTextColor;
-        // Pixels mTextSize;
-        // acmacs::TextStyle mTextStyle;
-
-        double text_offset(double offset_hint, double point_size, double text_size, bool text_origin_at_opposite) const;
-    };
-
-// ----------------------------------------------------------------------
-
-    class Labels
+      // obsolete
+    class Labels : public acmacs::draw::PointLabels
     {
      public:
         Labels() = default;
 
-        Label& add(size_t aIndex, const acmacs::chart::Chart& aChart);
-        void remove(size_t aIndex);
+        acmacs::draw::PointLabel& add(size_t aIndex, const acmacs::chart::Chart& aChart);
 
         void draw(acmacs::surface::Surface& aSurface, const acmacs::chart::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const
             {
-                std::for_each(mLabels.begin(), mLabels.end(), [&](const Label& aLabel) { aLabel.draw(aSurface, aLayout, aPlotSpec); });
+                std::for_each(begin(), end(), [&,this](const auto& aLabel) { this->draw(aLabel, aSurface, aLayout, aPlotSpec); });
             }
 
-     private:
-        std::vector<Label> mLabels;
-    };
+        void draw(const acmacs::draw::PointLabel& label, acmacs::surface::Surface& aSurface, const acmacs::chart::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const;
+
+    }; // class Labels
 
 } // namespace map_elements
 
