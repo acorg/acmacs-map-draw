@@ -325,7 +325,7 @@ void map_elements::Line::draw(acmacs::surface::Surface& aSurface, const ChartDra
 
 void map_elements::Line::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
 {
-    std::cerr << "WARNING: map_elements::Line::draw not imlemented\n";
+    aDrawElements.line(mBegin, mEnd, mLineColor, mLineWidth);
 
 } // map_elements::Line::draw
 
@@ -346,7 +346,7 @@ void map_elements::Rectangle::draw(acmacs::surface::Surface& aSurface, const Cha
 
 void map_elements::Rectangle::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
 {
-    std::cerr << "WARNING: map_elements::Rectangle::draw not imlemented\n";
+    aDrawElements.rectangle(mCorner1, mCorner2, mColor, mFilled, mLineWidth);
 
 } // map_elements::Rectangle::draw
 
