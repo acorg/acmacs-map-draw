@@ -35,6 +35,7 @@ class ChartSelectInterface
 
     const acmacs::chart::PlotSpecModify& plot_spec() const { return *mPlotSpec; }
     acmacs::chart::PlotSpecModify& plot_spec() { return *mPlotSpec; }
+    acmacs::chart::PlotSpecModifyP plot_spec_ptr() const { return mPlotSpec; }
     acmacs::chart::DrawingOrder& drawing_order() { return plot_spec().drawing_order_modify(); }
     const acmacs::chart::DrawingOrder drawing_order() const { return plot_spec().drawing_order(); }
 

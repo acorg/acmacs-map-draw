@@ -73,7 +73,7 @@ void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) co
         mMapElements.draw(painter, *this);
         painter.points(layout(), transformation())
                 .drawing_order(drawing_order().data())
-                .styles(plot_spec().all_styles());
+                .styles(plot_spec_ptr());
         painter.draw();
         std::cerr << "\n\n";
         std::cerr << "WARNING: switch signature page to draw-elements interface\n";
