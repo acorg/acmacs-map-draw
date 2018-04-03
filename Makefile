@@ -58,11 +58,13 @@ all: check-acmacsd-root $(TARGETS)
 
 install: check-acmacsd-root install-headers $(TARGETS)
 	$(call install_lib,$(ACMACS_MAP_DRAW_LIB))
-	# $(call install_py_lib,$(ACMACS_MAP_DRAW_PY_LIB))
-	# ln -sf $(abspath py)/* $(AD_PY)
-	ln -sf $(abspath bin)/acmacs-map-* $(AD_BIN)
-	ln -sf $(abspath bin)/geographic-* $(AD_BIN)
-	ln -sf $(abspath $(DIST))/{map,chart,geographic}-* $(AD_BIN)
+	@# $(call install_py_lib,$(ACMACS_MAP_DRAW_PY_LIB))
+	@# ln -sf $(abspath py)/* $(AD_PY)
+	@# ln -sf $(abspath bin)/acmacs-map-* $(AD_BIN)
+	@# ln -sf $(abspath bin)/geographic-* $(AD_BIN)
+	ln -sf $(abspath $(DIST))/map-* $(AD_BIN)
+	ln -sf $(abspath $(DIST))/chart-* $(AD_BIN)
+	ln -sf $(abspath $(DIST))/geographic-* $(AD_BIN)
 
 test: install
 	test/test -v
