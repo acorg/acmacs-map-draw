@@ -7,24 +7,18 @@ using namespace map_elements;
 
 // ----------------------------------------------------------------------
 
-Label::Label(size_t aIndex)
-    : mIndex(aIndex), mOffset{0, 1}, mTextColor{"black"}, mTextSize{12}
-{
-} // Label::Label
-
-// ----------------------------------------------------------------------
-
 void Label::draw(acmacs::surface::Surface& aSurface, const acmacs::chart::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const
 {
-    const auto style = aPlotSpec.style(mIndex);
+      // obsolete
+    const auto style = aPlotSpec.style(index());
     if (*style.shown) {
-        auto text_origin = aLayout[mIndex];
+        auto text_origin = aLayout[index()];
         if (!text_origin.empty()) { // point is not disconnected
             const double scaled_point_size = aSurface.convert(Pixels{*style.size}).value();
-            const acmacs::Size text_size = aSurface.text_size(mDisplayName, mTextSize, mTextStyle);
-            text_origin[0] += text_offset(mOffset.x, scaled_point_size, text_size.width, false);
-            text_origin[1] += text_offset(mOffset.y, scaled_point_size, text_size.height, true);
-            aSurface.text(text_origin, mDisplayName, mTextColor, mTextSize, mTextStyle);
+            const acmacs::Size ts = aSurface.text_size(display_name(), text_size(), text_style());
+            text_origin[0] += text_offset(offset().x, scaled_point_size, ts.width, false);
+            text_origin[1] += text_offset(offset().y, scaled_point_size, ts.height, true);
+            aSurface.text(text_origin, display_name(), text_color(), text_size(), text_style());
         }
     }
 
@@ -47,13 +41,6 @@ double Label::text_offset(double offset_hint, double point_size, double text_siz
     return offset;
 
 } // Label::text_offset
-
-// ----------------------------------------------------------------------
-
-Labels::Labels()
-{
-
-} // Labels::Labels
 
 // ----------------------------------------------------------------------
 

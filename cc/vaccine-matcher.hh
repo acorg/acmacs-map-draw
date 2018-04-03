@@ -69,14 +69,16 @@ class VaccineMatcherLabel : public VaccineMatcherBase
         }
 
  public:
-    VaccineMatcherLabel& display_name(std::string aDisplayName) { for_each_mf(&map_elements::Label::display_name, aDisplayName); return *this; }
-    VaccineMatcherLabel& color(Color aColor) { for_each_mf(&map_elements::Label::color, aColor); return *this; }
-    VaccineMatcherLabel& color(std::string aColor) { for_each_mf(&map_elements::Label::color, Color(aColor)); return *this; }
-    VaccineMatcherLabel& size(double aSize) { for_each_mf(&map_elements::Label::size, aSize); return *this; }
-    VaccineMatcherLabel& weight(std::string aWeight) { for_each_mf(&map_elements::Label::weight, aWeight); return *this; }
-    VaccineMatcherLabel& slant(std::string aSlant) { for_each_mf(&map_elements::Label::slant, aSlant); return *this; }
-    VaccineMatcherLabel& font_family(std::string aFamily) { for_each_mf(&map_elements::Label::font_family, aFamily); return *this; }
-    VaccineMatcherLabel& offset(double x, double y) { for_each_mf(&map_elements::Label::offset, x, y); return *this; }
+    using LBL = acmacs::draw::PointLabel;
+
+    VaccineMatcherLabel& display_name(std::string aDisplayName) { for_each_mf(static_cast<LBL& (LBL::*)(std::string_view)>(&LBL::display_name), aDisplayName); return *this; }
+    VaccineMatcherLabel& color(Color aColor) { for_each_mf(&LBL::color, aColor); return *this; }
+    VaccineMatcherLabel& color(std::string aColor) { for_each_mf(&LBL::color, Color(aColor)); return *this; }
+    VaccineMatcherLabel& size(double aSize) { for_each_mf(&LBL::size, aSize); return *this; }
+    VaccineMatcherLabel& weight(std::string aWeight) { for_each_mf(&LBL::weight, aWeight); return *this; }
+    VaccineMatcherLabel& slant(std::string aSlant) { for_each_mf(&LBL::slant, aSlant); return *this; }
+    VaccineMatcherLabel& font_family(std::string aFamily) { for_each_mf(&LBL::font_family, aFamily); return *this; }
+    VaccineMatcherLabel& offset(double x, double y) { for_each_mf(static_cast<LBL& (LBL::*)(double,double)>(&LBL::offset), x, y); return *this; }
     VaccineMatcherLabel& name_type(std::string aNameType);
 
     VaccineMatcherLabel& hide() { for_each_with_vacc([this](const auto& vacc_entry) { mChartDraw.remove_label(vacc_entry.chart_antigen_index); }, false); return *this; }
