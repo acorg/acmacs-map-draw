@@ -402,7 +402,7 @@ void map_elements::Circle::draw(acmacs::surface::Surface& aSurface, const ChartD
 
 void map_elements::Circle::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
 {
-    std::cerr << "WARNING: map_elements::Circle::draw not imlemented\n";
+    aDrawElements.circle(mCenter, mSize, mFillColor, mOutlineColor, mOutlineWidth, mAspect, mRotation);
 
 } // map_elements::Circle::draw
 
