@@ -7,8 +7,9 @@
 #include "acmacs-chart-2/factory-export.hh"
 #include "acmacs-chart-2/bounding-ball.hh"
 #include "acmacs-draw/draw-elements.hh"
-#include "acmacs-draw/surface-cairo.hh"
-#include "acmacs-draw/surface-html.hh"
+#include "acmacs-draw/draw-points.hh"
+#include "acmacs-draw/surface-cairo.hh" // obsolete
+#include "acmacs-draw/surface-html.hh"  // obsolete
 #include "acmacs-map-draw/draw.hh"
 
 // ----------------------------------------------------------------------
@@ -36,6 +37,7 @@ const acmacs::Viewport& ChartDraw::calculate_viewport(bool verbose)
 
 void ChartDraw::draw(acmacs::surface::Surface& aSurface) const
 {
+      // obsolete
     if (mViewport.empty())
         throw std::runtime_error("Call calculate_viewport() before draw()");
 
@@ -69,6 +71,9 @@ void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) co
         acmacs::draw::DrawElements painter(aFilename, aSize);
         painter.viewport(mViewport);
         mMapElements.draw(painter, *this);
+        painter.points(layout(), transformation())
+                .drawing_order(drawing_order().data())
+                .styles(plot_spec().all_styles());
         painter.draw();
         std::cerr << "\n\n";
         std::cerr << "WARNING: switch signature page to draw-elements interface\n";

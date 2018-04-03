@@ -6,6 +6,7 @@
 
 void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aStyle, const acmacs::Coordinates& aCoord)
 {
+      // obsolete
     if (*aStyle.shown && aCoord.not_nan()) {
         switch (*aStyle.shape) {
           case acmacs::PointShape::Circle:
