@@ -130,16 +130,16 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": {"passage": "reassortant"}, "aspect": 0.75, "rotation": 0.5}
     ],
     "continents": [
-      {"N": "antigens", "select": {"continent": "europe"}, "fill": "green", "outline": "black", "report": true},
-      {"N": "antigens", "select": {"continent": "central-america"}, "fill": "#AAF9FF", "outline": "black", "report": true},
-      {"N": "antigens", "select": {"continent": "middle-east"}, "fill": "#8000FF", "outline": "black", "report": true},
-      {"N": "antigens", "select": {"continent": "north-america"}, "fill": "blue4", "outline": "black", "report": true},
-      {"N": "antigens", "select": {"continent": "africa"}, "fill": "darkorange1", "outline": "black", "report": true},
-      {"N": "antigens", "select": {"continent": "asia"}, "fill": "red", "outline": "black", "report": true},
-      {"N": "antigens", "select": {"continent": "russia"}, "fill": "maroon", "outline": "black", "report": true},
-      {"N": "antigens", "select": {"continent": "australia-oceania"}, "fill": "hotpink", "outline": "black", "report": true},
-      {"N": "antigens", "select": {"continent": "south-america"}, "fill": "turquoise", "outline": "black", "report": true},
-      {"N": "antigens", "select": {"continent": "antarctica"}, "fill": "grey50", "outline": "black", "report": true}
+      {"N": "antigens", "select": {"continent": "europe"}, "fill": "green", "outline": "black", "report": true, "legend": {"label": "Europe", "count": true}},
+      {"N": "antigens", "select": {"continent": "central-america"}, "fill": "#AAF9FF", "outline": "black", "report": true, "legend": {"label": "Central America", "count": true}},
+      {"N": "antigens", "select": {"continent": "middle-east"}, "fill": "#8000FF", "outline": "black", "report": true, "legend": {"label": "Middle East", "count": true}},
+      {"N": "antigens", "select": {"continent": "north-america"}, "fill": "blue4", "outline": "black", "report": true, "legend": {"label": "North America", "count": true}},
+      {"N": "antigens", "select": {"continent": "africa"}, "fill": "darkorange1", "outline": "black", "report": true, "legend": {"label": "Africa", "count": true}},
+      {"N": "antigens", "select": {"continent": "asia"}, "fill": "red", "outline": "black", "report": true, "legend": {"label": "Asia", "count": true}},
+      {"N": "antigens", "select": {"continent": "russia"}, "fill": "maroon", "outline": "black", "report": true, "legend": {"label": "Russia", "count": true}},
+      {"N": "antigens", "select": {"continent": "australia-oceania"}, "fill": "hotpink", "outline": "black", "report": true, "legend": {"label": "Oceania", "count": true}},
+      {"N": "antigens", "select": {"continent": "south-america"}, "fill": "turquoise", "outline": "black", "report": true, "legend": {"label": "South America", "count": true}},
+      {"N": "antigens", "select": {"continent": "antarctica"}, "fill": "grey50", "outline": "black", "report": true, "legend": {"label": "Antarctica", "count": true}}
     ],
     "vaccines": [
       {"N": "antigens", "select": {"vaccine": {"type": "previous"}}, "report": false, "outline": "black", "fill": "blue", "size": 15, "show": true, "order": "raise"},
