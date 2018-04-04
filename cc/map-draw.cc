@@ -156,9 +156,16 @@ int draw(const argc_argv& args)
 
     chart_draw.calculate_viewport();
 
-    acmacs::file::temp temp_file(".pdf");
-    const std::string output = args.number_of_arguments() > 1 ? std::string{args[1]} : static_cast<std::string>(temp_file);
-    chart_draw.draw(output, 800, report_time::Yes);
+    if (args.number_of_arguments() < 2) {
+        acmacs::file::temp output(".pdf");
+        chart_draw.draw(output, 800, report_time::Yes);
+        acmacs::quicklook(output, 2);
+    }
+    else {
+        chart_draw.draw(args[1], 800, report_time::Yes);
+        if (args["--open"])
+            acmacs::quicklook(args[1], 2);
+    }
 
     if (const std::string save_settings = args["--init-settings"]; !save_settings.empty())
         acmacs::file::write(save_settings, settings.to_json_pp());
@@ -167,8 +174,6 @@ int draw(const argc_argv& args)
         chart_draw.save(save, args.program());
     }
 
-    if (args["--open"] || args.number_of_arguments() < 2)
-        acmacs::quicklook(output, 2);
     return 0;
 
 } // draw
