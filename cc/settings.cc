@@ -212,6 +212,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
 "clades_last_6_months"
 "clades_last_12_months"
 "continents"
+  {"N": "continents", "legend": {"type": "continent_map", "offset": [-1, -1], "show": true, "size": 100}, "outline": "black"}
 
 {"N": "legend", "offset": [-10, 10], "show": true, "size": 50,
  "label_size": 14, "point_size": 10,

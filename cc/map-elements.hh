@@ -95,15 +95,15 @@ namespace map_elements
     class ContinentMap : public Element
     {
      public:
-        ContinentMap() : Element("continent-map", Elements::AfterPoints), mOrigin{0, 0}, mWidthInParent(100) {}
+        ContinentMap() : Element("continent-map", Elements::AfterPoints) {}
 
         void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
-        void offset_width(const acmacs::Location& aOrigin, Pixels aWidthInParent) { mOrigin = aOrigin; mWidthInParent = aWidthInParent; }
+        auto& offset_width(const acmacs::Location& aOrigin, Pixels aWidthInParent) { mOrigin = aOrigin; mWidthInParent = aWidthInParent; return *this; }
 
      private:
-        acmacs::Location mOrigin;
-        Pixels mWidthInParent;
+        acmacs::Location mOrigin{-1, -1};
+        Pixels mWidthInParent{100};
 
     }; // class ContinentMap
 

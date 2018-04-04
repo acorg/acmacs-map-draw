@@ -110,10 +110,19 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData)
 {
     if (aLegendData.get_or_default("show", true) && !aIndices.empty()) {
-        auto& legend = aChartDraw.legend();
-        if (aLegendData.get_or_default("count", false))
-            aLabel += " (" + std::to_string(aIndices.size()) + ")";
-        legend.add_line(*aStyle.outline, *aStyle.fill, aLabel);
+        if (aLegendData.get_or_default("type", "") == "continent_map") {
+            const auto& offset = aLegendData.get_or_empty_array("offset");
+            if (offset.size() != 2)
+                aChartDraw.continent_map();
+            else
+                aChartDraw.continent_map({offset[0], offset[1]}, Pixels{aLegendData.get_or_default("size", 100.0)});
+        }
+        else {
+            auto& legend = aChartDraw.legend_point_label();
+            if (aLegendData.get_or_default("count", false))
+                aLabel += " (" + std::to_string(aIndices.size()) + ")";
+            legend.add_line(*aStyle.outline, *aStyle.fill, aLabel);
+        }
     }
 
 } // Mod::add_legend
@@ -472,7 +481,7 @@ class ModLegend : public Mod
         {
             try {
                 if (args().get_or_default("show", true)) {
-                    auto& legend = aChartDraw.legend();
+                    auto& legend = aChartDraw.legend_point_label();
                     if (auto [data_present, data] = args().get_array_if("data"); data_present) {
                         for (const rjson::object& line_data: data)
                             legend.add_line(Color(line_data.get_or_default("outline", "black")), Color(line_data.get_or_default("fill", "pink")), line_data.get_or_default("display_name", "* no display_name *"));

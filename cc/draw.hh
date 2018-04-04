@@ -104,9 +104,10 @@ class ChartDraw : public ChartSelectInterface
     void background_color(Color aBackground) { dynamic_cast<map_elements::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).background_color(aBackground); }
     void grid(Color aGridColor, double aGridLineWidth) { dynamic_cast<map_elements::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).grid(aGridColor, aGridLineWidth); }
     void border(Color aBorderColor, double aBorderWidth) { dynamic_cast<map_elements::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).border(aBorderColor, aBorderWidth); }
-    void continent_map(const acmacs::Location& aOffset, Pixels aWidth) { dynamic_cast<map_elements::ContinentMap&>(mMapElements["continent-map"]).offset_width(aOffset, aWidth); }
-    map_elements::LegendPointLabel& legend(const acmacs::Location& aOffset) { auto& legend = dynamic_cast<map_elements::LegendPointLabel&>(mMapElements["legend-point-label"]); legend.offset(aOffset); return legend; }
-    map_elements::LegendPointLabel& legend() { return dynamic_cast<map_elements::LegendPointLabel&>(mMapElements["legend-point-label"]); }
+    auto& continent_map(const acmacs::Location& aOffset, Pixels aWidth) { return dynamic_cast<map_elements::ContinentMap&>(mMapElements["continent-map"]).offset_width(aOffset, aWidth); }
+    auto& continent_map() { return dynamic_cast<map_elements::ContinentMap&>(mMapElements["continent-map"]); }
+    map_elements::LegendPointLabel& legend_point_label(const acmacs::Location& aOffset) { auto& legend = dynamic_cast<map_elements::LegendPointLabel&>(mMapElements["legend-point-label"]); legend.offset(aOffset); return legend; }
+    map_elements::LegendPointLabel& legend_point_label() { return dynamic_cast<map_elements::LegendPointLabel&>(mMapElements["legend-point-label"]); }
     void remove_legend() { mMapElements.remove("legend-point-label"); }
     map_elements::Title& title(const acmacs::Location& aOffset) { auto& title = dynamic_cast<map_elements::Title&>(mMapElements["title"]); title.offset(aOffset); return title; }
     map_elements::Title& title() { return dynamic_cast<map_elements::Title&>(mMapElements["title"]); }
