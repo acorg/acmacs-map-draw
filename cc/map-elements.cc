@@ -394,7 +394,7 @@ void map_elements::Point::draw(acmacs::surface::Surface& aSurface, const ChartDr
 
 void map_elements::Point::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
 {
-    std::cerr << "WARNING: map_elements::Point::draw not imlemented\n";
+    aDrawElements.point(mCenter, mSize, mFillColor, mOutlineColor, mOutlineWidth, mAspect, mRotation);
 
 } // map_elements::Point::draw
 
