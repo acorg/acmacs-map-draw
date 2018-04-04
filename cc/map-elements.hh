@@ -72,17 +72,17 @@ namespace map_elements
      public:
         BackgroundBorderGrid()
             : Element("background-border-grid", Elements::BeforePoints),
-              mBackgroud("white"), mGridColor("grey80"), mGridLineWidth(1), mBorderColor("black"), mBorderWidth(1) {}
+              mBackground("white"), mGridColor("grey80"), mGridLineWidth(1), mBorderColor("black"), mBorderWidth(1) {}
 
         void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
-        void background_color(Color aBackgroud) { mBackgroud = aBackgroud; }
+        void background_color(Color aBackground) { mBackground = aBackground; }
         void grid(Color aGridColor, double aGridLineWidth) { mGridColor = aGridColor; mGridLineWidth = aGridLineWidth; }
         void border(Color aBorderColor, double aBorderWidth) { mBorderColor = aBorderColor; mBorderWidth = aBorderWidth; }
 
      private:
-        Color mBackgroud;
+        Color mBackground;
         Color mGridColor;
         Pixels mGridLineWidth;
         Color mBorderColor;
@@ -128,13 +128,13 @@ namespace map_elements
         void add_line(Color outline, Color fill, std::string label) { mLines.emplace_back(outline, fill, label); }
         void label_size(double aLabelSize) { mLabelSize = aLabelSize; }
         void point_size(double aPointSize) { mPointSize = aPointSize; }
-        void background(Color aBackgroud) { mBackgroud = aBackgroud; }
+        void background(Color aBackground) { mBackground = aBackground; }
         void border_color(Color aBorderColor) { mBorderColor = aBorderColor; }
         void border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; }
 
      private:
         acmacs::Location mOrigin;
-        Color mBackgroud;
+        Color mBackground;
         Color mBorderColor;
         Pixels mBorderWidth;
         Pixels mPointSize;
@@ -165,7 +165,7 @@ namespace map_elements
         Title& add_line(std::string aText) { mLines.emplace_back(aText); return *this; }
         Title& text_size(double aTextSize) { mTextSize = aTextSize; return *this; }
         Title& text_color(Color aTextColor) { mTextColor = aTextColor; return *this; }
-        Title& background(Color aBackgroud) { mBackgroud = aBackgroud; return *this; }
+        Title& background(Color aBackground) { mBackground = aBackground; return *this; }
         Title& border_color(Color aBorderColor) { mBorderColor = aBorderColor; return *this; }
         Title& border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; return *this; }
         Title& weight(std::string aWeight) { mTextStyle.weight = aWeight; return *this; }
@@ -176,7 +176,7 @@ namespace map_elements
         bool mShow;
         acmacs::Location mOrigin;
         Pixels mPadding;
-        Color mBackgroud;
+        Color mBackground;
         Color mBorderColor;
         Pixels mBorderWidth;
         Color mTextColor;

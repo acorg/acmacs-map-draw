@@ -130,7 +130,7 @@ acmacs::Location map_elements::Element::subsurface_origin(acmacs::surface::Surfa
 void map_elements::BackgroundBorderGrid::draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const
 {
     const auto& v = aSurface.viewport();
-    aSurface.rectangle_filled(v.origin, v.size, mBackgroud, Pixels{0}, mBackgroud);
+    aSurface.rectangle_filled(v.origin, v.size, mBackground, Pixels{0}, mBackground);
     aSurface.grid(Scaled{1}, mGridColor, mGridLineWidth);
     aSurface.rectangle(v.origin, v.size, mBorderColor, mBorderWidth);
 
@@ -141,7 +141,7 @@ void map_elements::BackgroundBorderGrid::draw(acmacs::surface::Surface& aSurface
 void map_elements::BackgroundBorderGrid::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
 {
     aDrawElements.border(mBorderColor, mBorderWidth);
-    aDrawElements.background(mBackgroud);
+    aDrawElements.background(mBackground);
     aDrawElements.grid(Scaled{1}, mGridColor, mGridLineWidth);
 
 } // map_elements::BackgroundBorderGrid::draw
@@ -173,8 +173,8 @@ void map_elements::ContinentMap::draw(acmacs::draw::DrawElements& aDrawElements,
 
 map_elements::LegendPointLabel::LegendPointLabel()
     : Element("legend-point-label", Elements::AfterPoints), mOrigin{-10, -10},
-      mBackgroud("white"), mBorderColor("black"), mBorderWidth(0.3), mPointSize(8),
-      mLabelColor("black"), mLabelSize(12), mInterline(2.0)
+      mBackground("white"), mBorderColor(BLACK), mBorderWidth(0.3), mPointSize(8),
+      mLabelColor(BLACK), mLabelSize(12), mInterline(2.0)
 {
 } // map_elements::LegendPointLabel::LegendPointLabel
 
@@ -201,7 +201,7 @@ void map_elements::LegendPointLabel::draw(acmacs::surface::Surface& aSurface, co
 
         acmacs::surface::Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
         const auto& legend_v = legend_surface.viewport();
-        legend_surface.rectangle_filled(legend_v.origin, legend_v.size, mBackgroud, Pixels{0}, mBackgroud);
+        legend_surface.rectangle_filled(legend_v.origin, legend_v.size, mBackground, Pixels{0}, mBackground);
         legend_surface.rectangle(legend_v.origin, legend_v.size, mBorderColor, mBorderWidth);
         const double point_x = padding.width + scaled_point_size / 2;
         const double text_x = padding.width * 2 + scaled_point_size;
@@ -220,8 +220,13 @@ void map_elements::LegendPointLabel::draw(acmacs::surface::Surface& aSurface, co
 void map_elements::LegendPointLabel::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
 {
     auto& legend = aDrawElements.legend();
+    legend.origin(mOrigin)
+            .background(mBackground)
+            .border_color(mBorderColor)
+            .border_width(mBorderWidth);
+    legend.interline(mInterline);
     for (const auto& line : mLines)
-        legend.add(line.label, line.outline, line.fill);
+        legend.add(line.label, mPointSize, line.outline, line.fill);
 
     std::cerr << "WARNING: map_elements::LegendPointLabel::draw incomplete\n";
 
@@ -231,8 +236,8 @@ void map_elements::LegendPointLabel::draw(acmacs::draw::DrawElements& aDrawEleme
 
 map_elements::Title::Title()
     : Element("title", Elements::AfterPoints), mOrigin{10, 10}, mPadding{10},
-      mBackgroud("grey97"), mBorderColor("black"), mBorderWidth(0.1),
-      mTextColor("black"), mTextSize(12), mInterline(2.0)
+      mBackground(GREY97), mBorderColor(BLACK), mBorderWidth(0.1),
+      mTextColor(BLACK), mTextSize(12), mInterline(2.0)
 {
 } // map_elements::Title::Title
 
@@ -259,7 +264,7 @@ void map_elements::Title::draw(acmacs::surface::Surface& aSurface) const
 
         acmacs::surface::Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
         const auto& legend_v = legend_surface.viewport();
-        legend_surface.rectangle_filled(legend_v.origin, legend_v.size, mBackgroud, Pixels{0}, mBackgroud);
+        legend_surface.rectangle_filled(legend_v.origin, legend_v.size, mBackground, Pixels{0}, mBackground);
         legend_surface.rectangle(legend_v.origin, legend_v.size, mBorderColor, mBorderWidth);
         const double text_x = padding;
         double y = padding + height;
@@ -283,7 +288,7 @@ void map_elements::Title::draw(acmacs::draw::DrawElements& aDrawElements, const 
                 .interline(mInterline)
                 .padding(mPadding)
                 .origin(mOrigin)
-                .background(mBackgroud)
+                .background(mBackground)
                 .border_color(mBorderColor)
                 .border_width(mBorderWidth);
     }

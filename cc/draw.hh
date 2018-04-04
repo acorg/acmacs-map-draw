@@ -101,7 +101,7 @@ class ChartDraw : public ChartSelectInterface
     void viewport(const acmacs::Viewport& aViewport) { mViewport = aViewport; }
     const acmacs::Viewport& viewport() const { return mViewport; }
 
-    void background_color(Color aBackgroud) { dynamic_cast<map_elements::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).background_color(aBackgroud); }
+    void background_color(Color aBackground) { dynamic_cast<map_elements::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).background_color(aBackground); }
     void grid(Color aGridColor, double aGridLineWidth) { dynamic_cast<map_elements::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).grid(aGridColor, aGridLineWidth); }
     void border(Color aBorderColor, double aBorderWidth) { dynamic_cast<map_elements::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).border(aBorderColor, aBorderWidth); }
     void continent_map(const acmacs::Location& aOffset, Pixels aWidth) { dynamic_cast<map_elements::ContinentMap&>(mMapElements["continent-map"]).offset_width(aOffset, aWidth); }
