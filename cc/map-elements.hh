@@ -195,7 +195,7 @@ namespace map_elements
         SerumCircle()
             : Element("serum-circle", Elements::AfterPoints), mSerumNo(static_cast<size_t>(-1)),
               mFillColor("transparent"), mOutlineColor("pink"), mOutlineWidth(1),
-              mRadiusColor("pink"), mRadiusWidth(1), mRadiusDash(acmacs::surface::Surface::Dash::Dash1), mStart(0), mEnd(0) {}
+              mRadiusColor("pink"), mRadiusWidth(1), mRadiusDash(acmacs::surface::Dash::Dash1), mStart(0), mEnd(0) {}
 
         void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
@@ -206,9 +206,9 @@ namespace map_elements
         SerumCircle& outline(Color aOutline, double aOutlineWidth) { mOutlineColor = aOutline; mOutlineWidth = aOutlineWidth; return *this; }
         SerumCircle& radius_line(Color aRadius, double aRadiusWidth) { mRadiusColor = aRadius; mRadiusWidth = aRadiusWidth; return *this; }
         SerumCircle& angles(double aStart, double aEnd) { mStart = aStart; mEnd = aEnd; return *this; }
-        SerumCircle& radius_line_no_dash() { mRadiusDash = acmacs::surface::Surface::Dash::NoDash; return *this; }
-        SerumCircle& radius_line_dash1() { mRadiusDash = acmacs::surface::Surface::Dash::Dash1; return *this; }
-        SerumCircle& radius_line_dash2() { mRadiusDash = acmacs::surface::Surface::Dash::Dash2; return *this; }
+        SerumCircle& radius_line_no_dash() { mRadiusDash = acmacs::surface::Dash::NoDash; return *this; }
+        SerumCircle& radius_line_dash1() { mRadiusDash = acmacs::surface::Dash::Dash1; return *this; }
+        SerumCircle& radius_line_dash2() { mRadiusDash = acmacs::surface::Dash::Dash2; return *this; }
 
      private:
         size_t mSerumNo;
@@ -218,7 +218,7 @@ namespace map_elements
         Pixels mOutlineWidth;
         Color mRadiusColor;
         Pixels mRadiusWidth;
-        acmacs::surface::Surface::Dash mRadiusDash;
+        acmacs::surface::Dash mRadiusDash;
         Rotation mStart;
         Rotation mEnd;
 
