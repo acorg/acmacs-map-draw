@@ -165,7 +165,7 @@ void map_elements::ContinentMap::draw(acmacs::surface::Surface& aSurface, const 
 
 void map_elements::ContinentMap::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
 {
-    std::cerr << "WARNING: map_elements::ContinentMap::draw not imlemented\n";
+    aDrawElements.continent_map(mOrigin, mWidthInParent);
 
 } // map_elements::ContinentMap::draw
 
