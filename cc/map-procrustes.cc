@@ -25,6 +25,7 @@ int main(int argc, char* const argv[])
                 {"--p2", 0L, "projection number of the second chart"},
                 {"--threshold", 0.1, "arrow threshold"},
                 {"--report", false, "report common antigens/sera"},
+                {"--clade", false},
                 {"--open", false},
                 {"--db-dir", ""},
                 {"--time", false, "report time of loading chart"},
@@ -58,15 +59,18 @@ int draw(const argc_argv& args)
 
     ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, report)), p1);
 
+    const rjson::object pc{{{"N", rjson::string{"procrustes_arrows"}},
+                            {"chart", rjson::string{args[1]}},
+                            {"projection", rjson::integer{p2}},
+                            {"threshold", rjson::number{threshold}},
+                            {"report", rjson::boolean{report_common}}}};
+
     auto settings = settings_default();
-    settings.set_field("apply", rjson::array{
-                                    "title",
-                                    rjson::object{{{"N", rjson::string{"procrustes_arrows"}},
-                                                   {"chart", rjson::string{args[1]}},
-                                                   {"projection", rjson::integer{p2}},
-                                                   {"threshold", rjson::number{threshold}},
-                                                   {"report", rjson::boolean{report_common}}}},
-                                });
+    settings.update(settings_builtin_mods());
+    if (args["--clade"])
+        settings.set_field("apply", rjson::array{"size_reset", "all_grey", "egg", "clades", "vaccines", "title", pc});
+    else
+        settings.set_field("apply", rjson::array{"title", pc});
 
     try {
         apply_mods(chart_draw, settings["apply"], settings);

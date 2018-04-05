@@ -228,8 +228,6 @@ void map_elements::LegendPointLabel::draw(acmacs::draw::DrawElements& aDrawEleme
     for (const auto& line : mLines)
         legend.add(line.label, mPointSize, line.outline, line.fill);
 
-    std::cerr << "WARNING: map_elements::LegendPointLabel::draw incomplete\n";
-
 } // map_elements::LegendPointLabel::draw
 
 // ----------------------------------------------------------------------
