@@ -337,6 +337,7 @@ Sera:
 {"full_name": "A(H1N1)/MICHIGAN/2/2009 CDC 2015-121"},
 {"table": "20170216"}
   {"table": "MELB:HI:turkey:20170216"}
+{"clade": "3C3a"} // by homologous antigen
 
 
 )";
