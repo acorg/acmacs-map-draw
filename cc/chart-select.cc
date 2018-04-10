@@ -21,6 +21,7 @@ int main(int argc, char* const argv[])
         argc_argv args(argc, argv, {
                 {"-s", false, "select sera (alias for --sera)"},
                 {"--sera", false, "select sera (alias for -s)"},
+                {"--just-indexes", false, "report just indexes, comma separated"},
                 {"--projection", 0},
                 {"-h", false},
                 {"--help", false},
@@ -51,20 +52,30 @@ int do_select(const argc_argv& args)
     const bool verbose = args["-v"] || args["--verbose"];
     setup_dbs(args["--db-dir"], verbose);
     const auto selector = rjson::parse_string(args[1]);
-      // const auto selector = rjson::parse_string("{\"in_rectangle\":{\"c1\":[0,0],\"c2\":[1,1]}}");
+    // const auto selector = rjson::parse_string("{\"in_rectangle\":{\"c1\":[0,0],\"c2\":[1,1]}}");
     auto chart = acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No);
     ChartSelectInterface chart_select(std::make_shared<acmacs::chart::ChartModify>(chart), args["--projection"]);
     if (!args["-s"] && !args["--sera"]) {
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_antigens())) + 1;
         const auto indices = SelectAntigens(verbose).select(chart_select, selector);
-        for (auto index: indices)
-            std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->antigen(index)->full_name() << '\n';
+        if (args["--just-indexes"]) {
+            std::cout << string::join(",", indices) << '\n';
+        }
+        else {
+            for (auto index : indices)
+                std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->antigen(index)->full_name() << '\n';
+        }
     }
     else {
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_sera())) + 1;
         const auto indices = SelectSera(verbose).select(chart_select, selector);
-        for (auto index: indices)
-            std::cout << "SR " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->serum(index)->full_name() << '\n';
+        if (args["--just-indexes"]) {
+            std::cout << string::join(",", indices) << '\n';
+        }
+        else {
+            for (auto index : indices)
+                std::cout << "SR " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->serum(index)->full_name() << '\n';
+        }
     }
     return 0;
 
