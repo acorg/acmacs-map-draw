@@ -214,7 +214,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
 "continents"
   {"N": "continents", "legend": {"type": "continent_map", "offset": [-1, -1], "show": true, "size": 100}, "outline": "black"}
 
-{"N": "legend", "offset": [-10, 10], "show": true, "size": 50,
+{"N": "legend", "offset": [-10, 10], "show": true,
  "label_size": 14, "point_size": 10,
  "data": [{"display_name": "163-del", "outline": "black", "fill": "red"}]}
 
