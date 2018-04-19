@@ -65,6 +65,7 @@ install: check-acmacsd-root install-headers $(TARGETS)
 	ln -sf $(abspath $(DIST))/map-* $(AD_BIN)
 	ln -sf $(abspath $(DIST))/chart-* $(AD_BIN)
 	ln -sf $(abspath $(DIST))/geographic-* $(AD_BIN)
+	mkdir -p $(AD_SHARE)/js/map-draw; ln -sf $(shell pwd)/js/*.js $(AD_SHARE)/js/map-draw
 
 test: install
 	test/test -v
