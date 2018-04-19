@@ -1,0 +1,10 @@
+.amw table {
+    border-collapse: collapse;
+}
+
+.amw .amw-title-left {
+    float: left;
+}
+.amw .amw-title-right {
+    float: right;
+}
