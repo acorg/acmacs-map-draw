@@ -1,3 +1,4 @@
+#include "acmacs-base/range.hh"
 #include "acmacs-draw/surface.hh"
 #include "acmacs-chart-2/chart-modify.hh"
 #include "acmacs-map-draw/labels.hh"
@@ -37,6 +38,15 @@ acmacs::draw::PointLabel& Labels::add(size_t aIndex, const acmacs::chart::Chart&
     return added;
 
 } // Labels::add
+
+// ----------------------------------------------------------------------
+
+void Labels::add_all(const acmacs::chart::Chart& aChart)
+{
+    for (auto point_no : acmacs::range(aChart.number_of_points()))
+        add(point_no, aChart);
+
+} // Labels::add_all
 
 // ----------------------------------------------------------------------
 /// Local Variables:

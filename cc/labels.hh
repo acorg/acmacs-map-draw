@@ -33,6 +33,7 @@ namespace map_elements
 
         using acmacs::draw::PointLabels::add;
         acmacs::draw::PointLabel& add(size_t aIndex, const acmacs::chart::Chart& aChart);
+        void add_all(const acmacs::chart::Chart& aChart);
 
           // obsolete
         void draw(acmacs::surface::Surface& aSurface, const acmacs::chart::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const

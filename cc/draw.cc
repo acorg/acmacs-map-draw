@@ -73,10 +73,14 @@ void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) co
         acmacs::draw::DrawElements painter(aFilename, aSize);
         painter.viewport(mViewport);
         mMapElements.draw(painter, *this);
-        painter.points(layout(), transformation())
+        auto& points = painter.points(layout(), transformation())
                 .drawing_order(drawing_order().data())
                 .styles(plot_spec_ptr())
                 .labels(mLabels);
+        if (painter.add_all_labels()) {
+            add_all_labels();
+            points.labels(mLabels);
+        }
         painter.draw();
         std::cerr << "\n\n";
         std::cerr << "WARNING: switch signature page to draw-elements interface\n";

@@ -114,6 +114,7 @@ class ChartDraw : public ChartSelectInterface
     bool has_title() const { return mMapElements.exists("title"); }
     map_elements::Labels& labels() { return mLabels; }
     acmacs::draw::PointLabel& add_label(size_t aIndex) { return mLabels.add(aIndex, chart()); }
+    void add_all_labels() const { const_cast<ChartDraw*>(this)->mLabels.add_all(chart()); }
     void remove_label(size_t aIndex) { return mLabels.remove(aIndex); }
     map_elements::SerumCircle& serum_circle(size_t aSerumNo, Scaled aRadius);
     map_elements::Line& line(const acmacs::Location& aBegin, const acmacs::Location& aEnd);
