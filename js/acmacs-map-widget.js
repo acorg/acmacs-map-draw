@@ -14,8 +14,10 @@ const AntigenicMapWidget_content_html = "\
     <td class='amw-title'>\
       <span class='amw-title-left'></span>\
       <span class='amw-title-middle'></span>\
-      <span class='amw-title-right'></span>\
-      <span class='amw-title-burger-menu'>&#x2630;</span>\
+      <span class='amw-title-right'>\
+        <span class='amw-title-right-left'></span>\
+        <span class='amw-title-burger-menu'>&#x2630;</span>\
+      </span>\
     </td>\
   </tr>\
   <tr>\
@@ -72,6 +74,9 @@ export class AntigenicMapWidget {
                     this.data[0].point_scale /= 1.1;
                 this.draw();
             }
+        });
+        this.attach("click", this.div.find(".amw-title-burger-menu"), event => {
+            make_popup_menu(event, this);
         });
         this.set_point_info_on_hover();
     }
@@ -146,6 +151,70 @@ export class AntigenicMapWidget {
         sval_call("background", this.data, v => this.surface.background(v));
         sval_call("grid", this.data, v => this.surface.grid(v));
         this.surface.points(sval("drawing_order", this.data), sval("layout", this.data), sval("transformation", this.data), sval("style_index", this.data), sval("styles", this.data), sval("point_scale", this.data, 1));
+    }
+}
+
+// ----------------------------------------------------------------------
+
+const PopupMenu_content_html = "\
+<div id='amw-popup-menu' class='amw-popup-menu'>\
+  <ul>\
+    <li>Black</li>\
+    <li>Circle</li>\
+    <li>Or</li>\
+  </ul>\
+</div>\
+";
+
+const PopupMenu_click_background_html = "\
+<div id='amw-popup-menu-click-background' class='amw-popup-menu-click-background'>\
+</div>\
+";
+
+function make_popup_menu(event, widget) {
+    if (window.amw_popup_menu) {
+        window.amw_popup_menu.destroy();
+        window.amw_popup_menu = null;
+    }
+    window.amw_popup_menu = new PopupMenu();
+    window.amw_popup_menu.move_to_element($(event.target));
+    window.amw_popup_menu.show();
+}
+
+class PopupMenu {
+    constructor() {
+        this.menu = $(PopupMenu_content_html).appendTo($("body"));
+        this.background = $(PopupMenu_click_background_html).appendTo($("body"));
+        this.background.on("click", () => this.hide());
+        this.menu.find("li").on("click", event => { this.clicked(event); });
+    }
+
+    clicked(event) {
+        console.log("clicked", event);
+        this.hide();
+    }
+
+    hide() {
+        this.menu.hide();
+        this.background.hide();
+    }
+
+    show() {
+        this.menu.show();
+        this.background.show();
+    }
+
+    move_to_element(element) {
+        const offset = element.offset();
+        this.menu.css({left: offset.left + element.outerWidth(true) - this.menu.outerWidth(true), top: offset.top + element.outerHeight(true)});
+    }
+
+    destroy() {
+        this.hide();
+        this.menu.find("li").off("click");
+        this.background.off("click");
+        $("body").remove("#amw-popup-menu");
+        $("body").remove("#amw-popup-menu-click-background");
     }
 }
 

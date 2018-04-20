@@ -1,3 +1,7 @@
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
 .amw {
     position: relative;
     left: 0;
@@ -18,12 +22,16 @@
     float: left;
 }
 
+.amw .amw-title-middle {
+    /* font-weight: bold; */
+}
+
 .amw .amw-title-right {
     float: right;
 }
 
 .amw .amw-title-burger-menu {
-    float: right;
+    cursor: context-menu;
 }
 
 .amw .amw-mouse-popup {
@@ -51,4 +59,41 @@
 }
 
 .amw canvas {
+}
+
+.amw-popup-menu {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: white;
+    box-shadow: 0 -1px 0 #e0e0e0, 0 0 2px rgba(0, 0, 0, .12), 0 2px 4px rgba(0, 0, 0, .24);
+    padding: 0.5em 0;
+    z-index: 200;
+}
+
+.amw-popup-menu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.amw-popup-menu ul li {
+    padding: 0.5em 1em;
+    cursor: pointer;
+}
+
+.amw-popup-menu ul li:hover {
+    background: #E1E1E1;
+}
+
+.amw-popup-menu-click-background {
+    z-index: 100;
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    /* background-color: rgba(185, 178, 178, 0.71); */
 }
