@@ -13,3 +13,12 @@
 .amw .amw-title-burger-menu {
     float: right;
 }
+
+.amw .amw-mouse-popup {
+    visibility: hidden;
+    border: 1px solid red;
+    position: absolute;
+}
+
+.amw canvas {
+}
