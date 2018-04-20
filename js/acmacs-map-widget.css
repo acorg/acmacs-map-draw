@@ -22,14 +22,15 @@
 
 .amw .amw-mouse-popup {
     display: none;
-    border: 1px solid red;
+    /* border: 1px solid red; */
     position: absolute;
     left: 0;
     top: 0;
     z-order: 1;
-    background: yellow;
+    background: #FFFFC0;
     color: blue;
     padding: 0;
+    box-shadow: 0 -1px 0 #e0e0e0, 0 0 2px rgba(0, 0, 0, .12), 0 2px 4px rgba(0, 0, 0, .24);
 }
 
 .amw .amw-mouse-popup ul {
@@ -39,7 +40,8 @@
 }
 
 .amw .amw-mouse-popup ul li {
-    font-size: 0.7em;
+    font-size: 1em;
+    font-weight: bold;
     margin: 0.5em;
 }
 
