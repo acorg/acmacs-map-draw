@@ -7,7 +7,7 @@ export class AntigenicMapWidget {
     constructor(div, data, options={}) {
         $('head').append( $('<link rel="stylesheet" type="text/css" />').attr('href', '/js/ad/map-draw/acmacs-map-widget.css') );
         $(div).addClass("amw").append("<table><tr>\
-<td class='amw-title'><span class='amw-title-left'></span><span class='amw-title-middle'></span><span class='amw-title-right'></span></td></tr>\
+<td class='amw-title'><span class='amw-title-left'></span><span class='amw-title-middle'></span><span class='amw-title-right'><span class='amw-title-burger-menu'></span></td></tr>\
 <tr><td><canvas></canvas></td></tr></table>");
         this.canvas = $(div).find("canvas");
 
@@ -19,15 +19,22 @@ export class AntigenicMapWidget {
         sval_call("title", data, lines => {
             $(div).find(".amw-title-middle").append(lines[0].text);
             //$(div).find(".amw-title-left").append("LEFT");
-            //$(div).find(".amw-title-right").append("RIGHT");
+            $(div).find(".amw-title-right").append("\u219D");
+            $(div).find(".amw-title-burger-menu").append("\u2630");
         });
 
-        this.attach();
+        this.events_ = [];
+        this.bind();
         this.draw();
+        console.log(this.events_);
     }
 
-    attach() {
-        this.canvas.on("wheel", event => {
+    destroy() {
+        this.detach_all();
+    }
+
+    bind() {
+        this.attach("wheel", this.canvas, event => {
             if (event.shiftKey) {
                 // Shift-Wheel -> point_scale
                 event.stopPropagation();
@@ -40,11 +47,31 @@ export class AntigenicMapWidget {
         });
 
         this.mousemove_timeout_id = undefined;
-        this.canvas.on("mousemove", event => {
+        this.attach("mousemove", this.canvas, event => {
             window.clearTimeout(this.mousemove_timeout_id);
             this.mousemove_timeout_id = window.setTimeout(mouse_event => this.hover(mouse_event), 100, event);
         });
-        this.canvas.on("mouseleave", event => window.clearTimeout(this.mousemove_timeout_id));
+        this.attach("mouseleave", this.canvas, event => window.clearTimeout(this.mousemove_timeout_id));
+    }
+
+    attach(event_name, target, handler) {
+        this.detach(event_name, target);
+        target.on(event_name, handler);
+        this.events_.push({name: event_name, target: target});
+    }
+
+    detach(event_name, target) {
+        let index = this.events_.findIndex(entry => entry.name === event_name && entry.target === target);
+        if (index >= 0) {
+            target.off(event_name);
+            this.events_.splice(index, 1);
+        }
+    }
+
+    detach_all() {
+        for (let entry of this.events_)
+            entry.target.off(entry.name);
+        this.events_ = [];
     }
 
     draw() {

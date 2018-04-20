@@ -5,6 +5,11 @@
 .amw .amw-title-left {
     float: left;
 }
+
 .amw .amw-title-right {
+    float: right;
+}
+
+.amw .amw-title-burger-menu {
     float: right;
 }
