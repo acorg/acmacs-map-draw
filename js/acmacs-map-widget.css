@@ -1,3 +1,9 @@
+.amw {
+    position: relative;
+    left: 0;
+    top: 0;
+}
+
 .amw table {
     border-collapse: collapse;
 }
@@ -15,9 +21,26 @@
 }
 
 .amw .amw-mouse-popup {
-    visibility: hidden;
+    display: none;
     border: 1px solid red;
     position: absolute;
+    left: 0;
+    top: 0;
+    z-order: 1;
+    background: yellow;
+    color: blue;
+    padding: 0;
+}
+
+.amw .amw-mouse-popup ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.amw .amw-mouse-popup ul li {
+    font-size: 0.7em;
+    margin: 0.5em;
 }
 
 .amw canvas {

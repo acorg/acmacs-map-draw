@@ -4,7 +4,8 @@ import {Surface} from "../draw/acmacs-draw-surface.js";
 // ----------------------------------------------------------------------
 
 const AntigenicMapWidget_options = {
-    point_info_on_hover_delay: 500
+    point_info_on_hover_delay: 500,
+    mouse_popup_offset: {left: 10, top: 20}
 };
 
 const AntigenicMapWidget_content_html = "\
@@ -23,7 +24,7 @@ const AntigenicMapWidget_content_html = "\
     </td>\
   </tr>\
 </table>\
-<div class='amw-mouse-popup'></div>\
+<div class='amw-mouse-popup'><ul></ul></div>\
 ";
 
 // ----------------------------------------------------------------------
@@ -75,15 +76,19 @@ export class AntigenicMapWidget {
         this.set_point_info_on_hover();
     }
 
-    point_info_on_hover(x, y) {
+    point_info_on_hover(offset) {
         const start = new Date();
-        const points = this.surface.find_points_at_pixel_offset(x, y);
+        const points = this.surface.find_points_at_pixel_offset(offset);
         //console.log("hover " + JSON.stringify(points));
         if (points.length) {
             const labels = sval("labels", this.data, []);
             const names = points.map((point_no) => labels[point_no]);
-            console.log("hover " + JSON.stringify(names));
+            this.show_point_info(names, offset);
+            // console.log("hover " + JSON.stringify(names));
             //console.log("search time: " + (new Date() - start) + "ms");
+        }
+        else {
+            this.hide_point_info();
         }
     }
 
@@ -91,17 +96,30 @@ export class AntigenicMapWidget {
         const border_width = parseFloat(this.canvas.css("border-width"));
         const offset_x = border_width + parseFloat(this.canvas.css("padding-left"));
         const offset_y = border_width + parseFloat(this.canvas.css("padding-top"));
-        this.point_info_on_hover(mouse_event.offsetX - offset_x, mouse_event.offsetY - offset_y);
+        this.point_info_on_hover([mouse_event.offsetX - offset_x, mouse_event.offsetY - offset_y]);
     }
 
     set_point_info_on_hover() {
         this.mousemove_timeout_id = undefined;
         this.attach("mousemove", this.canvas, event => {
             window.clearTimeout(this.mousemove_timeout_id);
-            //this.mousemove_timeout_id = window.setTimeout(mouse_event => this.point_info_on_hover(mouse_event.offsetX, mouse_event.offsetY), this.options.point_info_on_hover_delay, event);
             this.mousemove_timeout_id = window.setTimeout(me => this.point_info_on_mouse_hover(me), this.options.point_info_on_hover_delay, event);
         });
         this.attach("mouseleave", this.canvas, event => window.clearTimeout(this.mousemove_timeout_id));
+    }
+
+    show_point_info(text_rows, offset) {
+        const w = this.div.find(".amw-mouse-popup");
+        const ul = w.find("ul");
+        ul.empty();
+        text_rows.forEach(text => ul.append("<li>" + text + "</li>"));
+        const canvas_pos = this.canvas.parent().position();
+        w.css({left: offset[0] + canvas_pos.left + this.options.mouse_popup_offset.left, top: offset[1] + canvas_pos.top + this.options.mouse_popup_offset.top});
+        w.show();
+    }
+
+    hide_point_info() {
+        this.div.find(".amw-mouse-popup").hide();
     }
 
     attach(event_name, target, handler) {
