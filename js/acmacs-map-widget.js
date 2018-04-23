@@ -56,7 +56,7 @@ export class AntigenicMapWidget {
         this.events_ = [];
         this.bind();
         this.draw();
-        console.log(this.events_);
+        // console.log(this.events_);
     }
 
     destroy() {
@@ -68,6 +68,7 @@ export class AntigenicMapWidget {
             if (event.shiftKey) {
                 // Shift-Wheel -> point_scale
                 event.stopPropagation();
+                event.preventDefault();
                 if (event.originalEvent.wheelDelta > 0)
                     this.data[0].point_scale *= 1.1;
                 else
@@ -159,9 +160,9 @@ export class AntigenicMapWidget {
 const PopupMenu_content_html = "\
 <div id='amw-popup-menu' class='amw-popup-menu'>\
   <ul>\
-    <li>Black</li>\
-    <li>Circle</li>\
-    <li>Or</li>\
+    <li>Not</li>\
+    <li>Implemented</li>\
+    <li>Yet</li>\
   </ul>\
 </div>\
 ";
@@ -201,6 +202,7 @@ class PopupMenu {
 
     show() {
         this.menu.show();
+        this.background.css({width: $(document).width(), height: $(document).height()});
         this.background.show();
     }
 
