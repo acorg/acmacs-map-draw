@@ -63,6 +63,45 @@ body {
 
 /* ---------------------------------------------------------------------- */
 
+.amw201804-popup {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    box-shadow: 0 -1px 0 #e0e0e0, 0 0 2px rgba(0, 0, 0, .12), 0 2px 4px rgba(0, 0, 0, .24);
+    background: #F0FFFF;
+    padding: 0;
+}
+
+/* ---------------------------------------------------------------------- */
+
+.amw201804-popup-help {
+    padding: 0.5em 1em;
+}
+
+.amw201804-popup-help h3 {
+    text-align: center;
+    margin: 0;
+}
+
+.amw201804-popup-help ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.amw201804-popup-help ul li {
+    margin-top: 0.5em;
+}
+
+.amw201804-popup-help .amw201804-popup-help-button {
+    margin-top: 1em;
+    text-align: center;
+}
+
+/* ---------------------------------------------------------------------- */
+
 .amw201804 canvas {
 }
 
