@@ -10,7 +10,8 @@ class AMW201804 {
         this.options = {
             point_info_on_hover_delay: 500,
             mouse_popup_offset: {left: 10, top: 20},
-            canvas_size: {width: 500, height: 500}
+            canvas_size: {width: 500, height: 500},
+            min_viewport_size: 1.0
         };
 
         this.mouse_popup = new AMW_MousePopup();
@@ -122,11 +123,13 @@ export class AntigenicMapWidget {
                 // Shift-Wheel -> point_scale
                 event.stopPropagation();
                 event.preventDefault();
-                if (event.originalEvent.wheelDelta > 0)
-                    this.data[0].point_scale *= 1.1;
-                else
-                    this.data[0].point_scale /= 1.1;
-                this.draw();
+                this.point_scale(event.originalEvent.wheelDelta > 0 ? 1.1 : (1 / 1.1));
+            }
+            else if (event.altKey) {
+                // Alt-Wheel -> zoom
+                event.stopPropagation();
+                event.preventDefault();
+                this.zoom(this.mouse_offset(event), event.originalEvent.wheelDelta > 0 ? 1.05 : (1 / 1.05));
             }
         });
         this.attach("click", this.div.find(".amw201804-title-burger-menu"), event => {
@@ -150,18 +153,18 @@ export class AntigenicMapWidget {
         }
     }
 
-    point_info_on_mouse_hover(mouse_event) {
+    mouse_offset(mouse_event) {
         const border_width = parseFloat(this.canvas.css("border-width"));
         const offset_x = border_width + parseFloat(this.canvas.css("padding-left"));
         const offset_y = border_width + parseFloat(this.canvas.css("padding-top"));
-        this.point_info_on_hover({left: mouse_event.offsetX - offset_x, top: mouse_event.offsetY - offset_y});
+        return {left: mouse_event.offsetX - offset_x, top: mouse_event.offsetY - offset_y};
     }
 
     set_point_info_on_hover() {
         this.mousemove_timeout_id = undefined;
         this.attach("mousemove", this.canvas, event => {
             window.clearTimeout(this.mousemove_timeout_id);
-            this.mousemove_timeout_id = window.setTimeout(me => this.point_info_on_mouse_hover(me), this.options.point_info_on_hover_delay, event);
+            this.mousemove_timeout_id = window.setTimeout(me => this.point_info_on_hover(this.mouse_offset(me)), this.options.point_info_on_hover_delay, event);
         });
         this.attach("mouseleave", this.canvas, event => window.clearTimeout(this.mousemove_timeout_id));
     }
@@ -191,6 +194,23 @@ export class AntigenicMapWidget {
         sval_call("grid", this.data, v => this.surface.grid(v));
         this.surface.points(sval("drawing_order", this.data), sval("layout", this.data), sval("transformation", this.data), sval("style_index", this.data), sval("styles", this.data), sval("point_scale", this.data, 1));
     }
+
+    point_scale(multiply_by) {
+        this.data[0].point_scale *= multiply_by;
+        this.draw();
+    }
+
+    // value > 1 - zoom out, < 1 - zoom in
+    zoom(offset, value) {
+        let new_size = this.surface.viewport[2] * value;
+        if (new_size < this.options.min_viewport_size)
+            new_size = this.options.min_viewport_size;
+        const scaled_offset = this.surface.translate_pixel_offset(offset);
+        const prop = {left: (scaled_offset.left - this.surface.viewport[0]) / this.surface.viewport[2], top: (scaled_offset.top - this.surface.viewport[1]) / this.surface.viewport[2]};
+        this.surface.set_viewport([scaled_offset.left - new_size * prop.left, scaled_offset.top - new_size * prop.top, new_size, new_size]);
+        this.draw();
+    }
+
 }
 
 // ----------------------------------------------------------------------
