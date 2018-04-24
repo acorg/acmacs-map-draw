@@ -1,22 +1,76 @@
-import {sval, sval_call} from "../draw/utils.js";
+import {sval, sval_call, sum_offsets} from "../draw/utils.js";
 import {Surface} from "../draw/acmacs-draw-surface.js";
 
 // ----------------------------------------------------------------------
 
-const AntigenicMapWidget_options = {
-    point_info_on_hover_delay: 500,
-    mouse_popup_offset: {left: 10, top: 20}
-};
+class AMW201804 {
+
+    constructor() {
+        this.last_id_ = 0;
+        this.options = {
+            point_info_on_hover_delay: 500,
+            mouse_popup_offset: {left: 10, top: 20},
+            canvas_size: {width: 500, height: 500}
+        };
+
+        this.mouse_popup = new AMW_MousePopup();
+    }
+
+    new_id() {
+        return "" + ++this.last_id_;
+    }
+}
+
+// ----------------------------------------------------------------------
+
+class AMW_MousePopup {
+
+    constructor() {
+    }
+
+    show(contents, parent, offsets_to_parent) {
+        this.hide();
+        if ($("#amw201804-mouse-popup").length === 0)
+            $("body").append("<div id='amw201804-mouse-popup' class='amw201804-mouse-popup'></div>");
+        let popup = $("#amw201804-mouse-popup");
+        popup.empty();
+        if (typeof(contents) === "function")
+            contents(popup);
+        else
+            popup.append(contents);
+        popup.css(sum_offsets(offsets_to_parent.concat(parent.offset()))).show();
+    }
+
+    show_ul(text_rows, parent, offsets_to_parent) {
+        this.show($("<ul></ul>").append(text_rows.map(text => "<li>" + text + "</li>").join("")), parent, offsets_to_parent);
+    }
+
+    hide() {
+        $("#amw201804-mouse-popup").hide();
+    }
+}
+
+// ----------------------------------------------------------------------
+
+if (window.amw201804 === undefined)
+    window.amw201804 = new AMW201804();
+
+// ----------------------------------------------------------------------
+
+// const AntigenicMapWidget_options = {
+//     point_info_on_hover_delay: 500,
+//     mouse_popup_offset: {left: 10, top: 20}
+// };
 
 const AntigenicMapWidget_content_html = "\
 <table>\
   <tr>\
-    <td class='amw-title'>\
-      <span class='amw-title-left'></span>\
-      <span class='amw-title-middle'></span>\
-      <span class='amw-title-right'>\
-        <span class='amw-title-right-left'></span>\
-        <span class='amw-title-burger-menu'>&#x2630;</span>\
+    <td class='amw201804-title'>\
+      <span class='amw201804-title-left'></span>\
+      <span class='amw201804-title-middle'></span>\
+      <span class='amw201804-title-right'>\
+        <span class='amw201804-title-right-left'></span>\
+        <span class='amw201804-title-burger-menu'>&#x2630;</span>\
       </span>\
     </td>\
   </tr>\
@@ -26,7 +80,6 @@ const AntigenicMapWidget_content_html = "\
     </td>\
   </tr>\
 </table>\
-<div class='amw-mouse-popup'><ul></ul></div>\
 ";
 
 // ----------------------------------------------------------------------
@@ -35,22 +88,22 @@ export class AntigenicMapWidget {
 
     constructor(div, data, options={}) {
         this.div = $(div);
-        this.options = Object.assign({}, AntigenicMapWidget_options, options);
+        this.options = Object.assign({}, window.amw201804.options, options);
 
         $('head').append( $('<link rel="stylesheet" type="text/css" />').attr('href', '/js/ad/map-draw/acmacs-map-widget.css') );
-        this.div.addClass("amw").append(AntigenicMapWidget_content_html);
+        this.div.addClass("amw201804").attr("amw201804_id", window.amw201804.new_id()).append(AntigenicMapWidget_content_html);
         this.canvas = this.div.find("canvas");
 
         this.data = Array.isArray(data) ? data : [data];
         this.data.unshift({point_scale: sval("point_scale", this.data, 1)});  // for interactive manipulations
 
-        this.surface = new Surface(this.canvas, {canvas: sval("canvas", data, {width: 500, height: 500}), viewport: sval("viewport", data, [0, 0, 10, 10])});
+        this.surface = new Surface(this.canvas, {canvas: sval("canvas", data, this.options.canvas_size), viewport: sval("viewport", data, [0, 0, 10, 10])});
         sval_call("border", data, v => this.surface.border(v));
         sval_call("title", data, lines => {
-            this.div.find(".amw-title-middle").append(lines[0].text);
-            //this.div.find(".amw-title-left").append("LEFT");
-            //this.div.find(".amw-title-right").append("\u219D");
-            //this.div.find(".amw-title-burger-menu").append("\u2630");
+            this.div.find(".amw201804-title-middle").append(lines[0].text);
+            //this.div.find(".amw201804-title-left").append("LEFT");
+            //this.div.find(".amw201804-title-right").append("\u219D");
+            //this.div.find(".amw201804-title-burger-menu").append("\u2630");
         });
 
         this.events_ = [];
@@ -76,7 +129,7 @@ export class AntigenicMapWidget {
                 this.draw();
             }
         });
-        this.attach("click", this.div.find(".amw-title-burger-menu"), event => {
+        this.attach("click", this.div.find(".amw201804-title-burger-menu"), event => {
             make_popup_menu(event, this);
         });
         this.set_point_info_on_hover();
@@ -85,16 +138,15 @@ export class AntigenicMapWidget {
     point_info_on_hover(offset) {
         const start = new Date();
         const points = this.surface.find_points_at_pixel_offset(offset);
-        //console.log("hover " + JSON.stringify(points));
+        // console.log("hover " + JSON.stringify(points));
         if (points.length) {
             const labels = sval("labels", this.data, []);
             const names = points.map((point_no) => labels[point_no]);
-            this.show_point_info(names, offset);
-            // console.log("hover " + JSON.stringify(names));
-            //console.log("search time: " + (new Date() - start) + "ms");
+            window.amw201804.mouse_popup.show_ul(names, this.canvas, [offset, this.options.mouse_popup_offset]);
         }
         else {
-            this.hide_point_info();
+            window.amw201804.mouse_popup.hide();
+            // this.hide_point_info();
         }
     }
 
@@ -102,7 +154,7 @@ export class AntigenicMapWidget {
         const border_width = parseFloat(this.canvas.css("border-width"));
         const offset_x = border_width + parseFloat(this.canvas.css("padding-left"));
         const offset_y = border_width + parseFloat(this.canvas.css("padding-top"));
-        this.point_info_on_hover([mouse_event.offsetX - offset_x, mouse_event.offsetY - offset_y]);
+        this.point_info_on_hover({left: mouse_event.offsetX - offset_x, top: mouse_event.offsetY - offset_y});
     }
 
     set_point_info_on_hover() {
@@ -112,20 +164,6 @@ export class AntigenicMapWidget {
             this.mousemove_timeout_id = window.setTimeout(me => this.point_info_on_mouse_hover(me), this.options.point_info_on_hover_delay, event);
         });
         this.attach("mouseleave", this.canvas, event => window.clearTimeout(this.mousemove_timeout_id));
-    }
-
-    show_point_info(text_rows, offset) {
-        const w = this.div.find(".amw-mouse-popup");
-        const ul = w.find("ul");
-        ul.empty();
-        text_rows.forEach(text => ul.append("<li>" + text + "</li>"));
-        const canvas_pos = this.canvas.parent().position();
-        w.css({left: offset[0] + canvas_pos.left + this.options.mouse_popup_offset.left, top: offset[1] + canvas_pos.top + this.options.mouse_popup_offset.top});
-        w.show();
-    }
-
-    hide_point_info() {
-        this.div.find(".amw-mouse-popup").hide();
     }
 
     attach(event_name, target, handler) {
@@ -158,7 +196,7 @@ export class AntigenicMapWidget {
 // ----------------------------------------------------------------------
 
 const PopupMenu_content_html = "\
-<div id='amw-popup-menu' class='amw-popup-menu'>\
+<div id='amw201804-popup-menu' class='amw201804-popup-menu'>\
   <ul>\
     <li>Not</li>\
     <li>Implemented</li>\
@@ -168,18 +206,18 @@ const PopupMenu_content_html = "\
 ";
 
 const PopupMenu_click_background_html = "\
-<div id='amw-popup-menu-click-background' class='amw-popup-menu-click-background'>\
+<div id='amw201804-popup-menu-click-background' class='amw201804-popup-menu-click-background'>\
 </div>\
 ";
 
 function make_popup_menu(event, widget) {
-    if (window.amw_popup_menu) {
-        window.amw_popup_menu.destroy();
-        window.amw_popup_menu = null;
+    if (window.amw201804_popup_menu) {
+        window.amw201804_popup_menu.destroy();
+        window.amw201804_popup_menu = null;
     }
-    window.amw_popup_menu = new PopupMenu();
-    window.amw_popup_menu.move_to_element($(event.target));
-    window.amw_popup_menu.show();
+    window.amw201804_popup_menu = new PopupMenu();
+    window.amw201804_popup_menu.move_to_element($(event.target));
+    window.amw201804_popup_menu.show();
 }
 
 class PopupMenu {
@@ -215,8 +253,8 @@ class PopupMenu {
         this.hide();
         this.menu.find("li").off("click");
         this.background.off("click");
-        $("body").remove("#amw-popup-menu");
-        $("body").remove("#amw-popup-menu-click-background");
+        $("body").remove("#amw201804-popup-menu");
+        $("body").remove("#amw201804-popup-menu-click-background");
     }
 }
 
