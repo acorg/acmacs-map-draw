@@ -68,20 +68,9 @@ void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) co
 {
     Timeit ti("drawing map to " + aFilename + ": ", aTimer);
     if (true) {
-        if (mViewport.empty())
-            throw std::runtime_error("Call calculate_viewport() before draw()");
         acmacs::draw::DrawElements painter(aFilename, aSize);
-        painter.viewport(mViewport);
-        mMapElements.draw(painter, *this);
-        auto& points = painter.points(layout(), transformation())
-                .drawing_order(drawing_order().data())
-                .styles(plot_spec_ptr())
-                .labels(mLabels);
-        if (painter.add_all_labels()) {
-            add_all_labels();
-            points.labels(mLabels);
-        }
-        painter.draw();
+        draw(painter);
+
         std::cerr << "\n\n";
         std::cerr << "WARNING: switch signature page to draw-elements interface\n";
         std::cerr << "WARNING: remove obsolete ChartDraw::draw(acmacs::surface::Surface&)\n";
@@ -100,6 +89,34 @@ void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) co
             throw std::runtime_error("Unrecognized filename suffix: " + aFilename);
         }
     }
+
+} // ChartDraw::draw
+
+// ----------------------------------------------------------------------
+
+std::string ChartDraw::draw_json(report_time aTimer) const
+{
+    Timeit ti("drawing map to json: ", aTimer);
+    acmacs::draw::DrawElements painter("//.json", 0);
+    draw(painter);
+    return painter.output();
+
+} // ChartDraw::draw_json
+
+// ----------------------------------------------------------------------
+
+void ChartDraw::draw(acmacs::draw::DrawElements& painter) const
+{
+    if (mViewport.empty())
+        throw std::runtime_error("Call calculate_viewport() before draw()");
+    painter.viewport(mViewport);
+    mMapElements.draw(painter, *this);
+    auto& points = painter.points(layout(), transformation()).drawing_order(drawing_order().data()).styles(plot_spec_ptr()).labels(mLabels);
+    if (painter.add_all_labels()) {
+        add_all_labels();
+        points.labels(mLabels);
+    }
+    painter.draw();
 
 } // ChartDraw::draw
 

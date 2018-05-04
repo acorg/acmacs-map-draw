@@ -13,6 +13,7 @@
 #include "acmacs-map-draw/chart-select-interface.hh"
 
 namespace acmacs::surface { class Surface; }
+namespace acmacs::draw { class DrawElements; }
 
 // ----------------------------------------------------------------------
 
@@ -23,6 +24,7 @@ class ChartDraw : public ChartSelectInterface
 
     void draw(acmacs::surface::Surface& aSurface) const;
     void draw(std::string aFilename, double aSize, report_time aTimer = report_time::No) const;
+    std::string draw_json(report_time aTimer = report_time::No) const;
     const acmacs::Viewport& calculate_viewport(bool verbose = true);
 
     template <typename T> void modify_drawing_order(const T& aPoints, PointDrawingOrder aPointDrawingOrder)
@@ -130,6 +132,8 @@ class ChartDraw : public ChartSelectInterface
     acmacs::Viewport mViewport;
     map_elements::Elements mMapElements;
     map_elements::Labels mLabels;
+
+    void draw(acmacs::draw::DrawElements& painter) const;
 
 }; // class ChartDraw
 
