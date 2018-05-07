@@ -62,8 +62,9 @@ export class AntigenicMapWidget
 
         this.load_and_draw(data, options);
 
-        this.surface = new ace_surface.Surface(this.canvas(), {canvas: this.options.canvas_size, viewport: [-10, -10, 20, 20]});
-
+        this.canvas = $(div).find("canvas");
+        this.surface = new ace_surface.Surface(this.canvas, {canvas: this.options.canvas_size, viewport: [-10, -10, 20, 20]});
+        this.bind();
 
         // this.data = Array.isArray(data) ? data : [data];
         // this.data.unshift({point_scale: sval("point_scale", this.data, 1)});  // for interactive manipulations
@@ -83,11 +84,34 @@ export class AntigenicMapWidget
     }
 
     destroy() {
-        this.detach_all();
     }
 
-    canvas() {
-        return document.querySelector('[amw201805_id="' + this.id + '"] canvas');
+    // canvas() {
+    //     return document.querySelector('[amw201805_id="' + this.id + '"] canvas');
+    // }
+
+    bind() {
+        this.canvas.on("wheel", evt => {
+            if (evt.shiftKey) {
+                // Shift-Wheel -> point_scale
+                evt.stopPropagation();
+                evt.preventDefault();
+                this.point_scale(evt.originalEvent.wheelDelta > 0 ? 1.1 : (1 / 1.1));
+            }
+            else if (evt.altKey) {
+                // Alt-Wheel -> zoom
+                evt.stopPropagation();
+                evt.preventDefault();
+                this.zoom(this.mouse_offset(evt), evt.originalEvent.wheelDelta > 0 ? 1.05 : (1 / 1.05));
+            }
+        });
+    }
+
+    mouse_offset(mouse_event) {
+        const border_width = parseFloat(this.canvas.css("border-width"));
+        const offset_x = border_width + parseFloat(this.canvas.css("padding-left"));
+        const offset_y = border_width + parseFloat(this.canvas.css("padding-top"));
+        return {left: mouse_event.offsetX - offset_x, top: mouse_event.offsetY - offset_y};
     }
 
     load_and_draw(data, options) {
@@ -102,19 +126,39 @@ export class AntigenicMapWidget
         }
     }
 
-    draw(data, options) {
-        console.log("draw", data);
+    draw(data) {
+        if (data) {
+            this.data = data;
+            this.data.point_scale = 5;
+        }
+        // console.log("draw", this.data);
 
         this.surface.background();
         this.surface.grid();
         this.surface.border();
 
-        this.surface.points({drawing_order: data.c.p.d,
-                             layout: data.c.P[this.options.projection_no].l,
-                             transformation: data.c.P[this.options.projection_no].t,
-                             style_index: data.c.p.p,
-                             styles: data.c.p.P,
-                             point_scale: 5});
+        this.surface.points({drawing_order: this.data.c.p.d,
+                             layout: this.data.c.P[this.options.projection_no].l,
+                             transformation: this.data.c.P[this.options.projection_no].t,
+                             style_index: this.data.c.p.p,
+                             styles: this.data.c.p.P,
+                             point_scale: this.data.point_scale});
+    }
+
+    point_scale(multiply_by) {
+        this.data.point_scale *= multiply_by;
+        this.draw();
+    }
+
+    // value > 1 - zoom out, < 1 - zoom in
+    zoom(offset, value) {
+        let new_size = this.surface.viewport[2] * value;
+        if (new_size < this.options.min_viewport_size)
+            new_size = this.options.min_viewport_size;
+        const scaled_offset = this.surface.translate_pixel_offset(offset);
+        const prop = {left: (scaled_offset.left - this.surface.viewport[0]) / this.surface.viewport[2], top: (scaled_offset.top - this.surface.viewport[1]) / this.surface.viewport[2]};
+        this.surface.set_viewport([scaled_offset.left - new_size * prop.left, scaled_offset.top - new_size * prop.top, new_size, new_size]);
+        this.draw();
     }
 }
 

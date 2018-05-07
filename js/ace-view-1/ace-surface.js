@@ -6,9 +6,8 @@ export class Surface
 {
     constructor(canvas, args={}) {
         this.canvas = canvas;
-        this.canvas.setAttribute("width", args.canvas.width || 300);
-        this.canvas.setAttribute("height", args.canvas.width || 300);
-        this.context = this.canvas.getContext('2d');
+        this.canvas.prop(args.canvas || {width: 300, height: 300});
+        this.context = this.canvas[0].getContext('2d');
         this.set_viewport(args.viewport);
     }
 
@@ -19,9 +18,9 @@ export class Surface
         }
         if (viewport)
             this.viewport = viewport;
-        // else
-        //     this.viewport = [0, 0, this.canvas.prop("width"), this.canvas.prop("height")];
-        this.scale = this.canvas.getAttribute("width") / viewport[2];
+        else
+            this.viewport = [0, 0, this.canvas.prop("width"), this.canvas.prop("height")];
+        this.scale = this.canvas.prop("width") / viewport[2];
         this.scale_inv = 1 / this.scale;
         this.context.scale(this.scale, this.scale);
         this.context.translate(- this.viewport[0], - this.viewport[1]);
@@ -71,6 +70,28 @@ export class Surface
                 }
             }
         });
+    }
+
+    find_points_at_pixel_offset(offset) {
+        const scaled_offset = this.translate_pixel_offset(offset);
+        let result = [];
+        this.layout_size_shape_.forEach((point_coord_size, point_no) => {
+            switch (point_coord_size[3]) {
+            case 0:             // circle
+                if (((scaled_offset.left - point_coord_size[0])**2 + (scaled_offset.top - point_coord_size[1])**2) <= point_coord_size[2])
+                    result.push(point_no);
+                break;
+            case 1:             // box
+                if (Math.abs(scaled_offset.left - point_coord_size[0]) <= point_coord_size[2] && Math.abs(scaled_offset.top - point_coord_size[1]) <= point_coord_size[2])
+                    result.push(point_no);
+                break;
+            case 2:             // triangle
+                if (Math.abs(scaled_offset.left - point_coord_size[0]) <= point_coord_size[2] && Math.abs(scaled_offset.top - point_coord_size[1]) <= point_coord_size[2])
+                    result.push(point_no);
+                break;
+            }
+        });
+        return result;
     }
 
     circle_scaled(center, size, fill, outline, outline_width, rotation, aspect) {
@@ -170,7 +191,7 @@ export class Surface
     }
 
     border(args={line_color: "black", line_width: 1}) {
-        this.canvas.style.border = "" + args.line_width + "px solid " + args.line_color;
+        this.canvas.css("border", "" + args.line_width + "px solid " + args.line_color);
     }
 }
 
