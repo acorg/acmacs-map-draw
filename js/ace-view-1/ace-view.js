@@ -1,4 +1,5 @@
 import * as acv_utils from "./utils.js";
+import * as ace_surface from "./ace-surface.js";
 
 // ----------------------------------------------------------------------
 
@@ -7,6 +8,7 @@ class AMW201805
     constructor() {
         this.last_id_ = 0;
         this.options = {
+            projection_no: 0,
             point_info_on_hover_delay: 500,
             mouse_popup_offset: {left: 10, top: 20},
             canvas_size: {width: 500, height: 500},
@@ -51,13 +53,17 @@ const AntigenicMapWidget_content_html = "\
 export class AntigenicMapWidget
 {
     constructor(div, data, options={}) {
-        this.div = div;
+        this.id = window.amw201805.new_id();
         this.options = Object.assign({}, window.amw201805.options, options);
-        acv_utils.load_css('/js/ad/map-draw/acmacs-map-widget.css');
+        acv_utils.load_css('/js/ad/map-draw/ace-view-1/ace-view.css');
+        div.classList.add("amw201805");
+        div.setAttribute("amw201805_id", this.id);
+        div.innerHTML = AntigenicMapWidget_content_html;
 
-        // $('head').append( $('<link rel="stylesheet" type="text/css" />').attr('href', '/js/ad/map-draw/acmacs-map-widget.css') );
-        // this.div.addClass("amw201804").attr("amw201804_id", window.amw201804.new_id()).append(AntigenicMapWidget_content_html);
-        // this.canvas = this.div.find("canvas");
+        this.load_and_draw(data, options);
+
+        this.surface = new ace_surface.Surface(this.canvas(), {canvas: this.options.canvas_size, viewport: [-10, -10, 20, 20]});
+
 
         // this.data = Array.isArray(data) ? data : [data];
         // this.data.unshift({point_scale: sval("point_scale", this.data, 1)});  // for interactive manipulations
@@ -80,6 +86,36 @@ export class AntigenicMapWidget
         this.detach_all();
     }
 
+    canvas() {
+        return document.querySelector('[amw201805_id="' + this.id + '"] canvas');
+    }
+
+    load_and_draw(data, options) {
+        if (typeof(data) === "string" && data.substr(data.length - 4) === ".ace") {
+            $.getJSON(data, result => this.draw(result, options));
+        }
+        else if (typeof(data) === "object" && data.version === "acmacs-ace-v1") {
+            this.draw(data, options);
+        }
+        else {
+            console.error("unrecognized", data);
+        }
+    }
+
+    draw(data, options) {
+        console.log("draw", data);
+
+        this.surface.background();
+        this.surface.grid();
+        this.surface.border();
+
+        this.surface.points({drawing_order: data.c.p.d,
+                             layout: data.c.P[this.options.projection_no].l,
+                             transformation: data.c.P[this.options.projection_no].t,
+                             style_index: data.c.p.p,
+                             styles: data.c.p.P,
+                             point_scale: 5});
+    }
 }
 
 // ----------------------------------------------------------------------
