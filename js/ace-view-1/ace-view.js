@@ -187,30 +187,32 @@ export class AntigenicMapWidget
     }
 
     set_point_info_on_hover() {
+
         const mouse_offset = (mouse_event) => {
             const border_width = parseFloat(this.canvas.css("border-width"));
             const offset_x = border_width + parseFloat(this.canvas.css("padding-left"));
             const offset_y = border_width + parseFloat(this.canvas.css("padding-top"));
             return {left: mouse_event.offsetX - offset_x, top: mouse_event.offsetY - offset_y};
         };
+
+        const point_info_on_hover = (offset) => {
+            const points = this.surface.find_points_at_pixel_offset(offset);
+            if (points.length) {
+                const names = points.map(point_no => this.point_info_labels_[point_no]);
+                acv_toolkit.mouse_popup_show($("<ul class='point-info-on-hover'></ul>").append(names.map(text => "<li>" + text + "</li>").join("")), this.canvas, {left: offset.left + this.options.mouse_popup_offset.left, top: offset.top + this.options.mouse_popup_offset.top});
+            }
+            else {
+                acv_toolkit.mouse_popup_hide();
+            }
+        };
+
         let mousemove_timeout_id = undefined;
         this.canvas.on("mousemove", evt => {
             window.clearTimeout(mousemove_timeout_id);
             const offset = mouse_offset(evt);
-            mousemove_timeout_id = window.setTimeout(() => this.point_info_on_hover(offset), this.options.point_info_on_hover_delay);
+            mousemove_timeout_id = window.setTimeout(() => point_info_on_hover(offset), this.options.point_info_on_hover_delay);
         });
         this.canvas.on("mouseleave", () => window.clearTimeout(this.mousemove_timeout_id));
-    }
-
-    point_info_on_hover(offset) {
-        const points = this.surface.find_points_at_pixel_offset(offset);
-        if (points.length) {
-            const names = points.map(point_no => this.point_info_labels_[point_no]);
-            acv_toolkit.mouse_popup_show($("<ul class='point-info-on-hover'></ul>").append(names.map(text => "<li>" + text + "</li>").join("")), this.canvas, {left: offset.left + this.options.mouse_popup_offset.left, top: offset.top + this.options.mouse_popup_offset.top});
-        }
-        else {
-            acv_toolkit.mouse_popup_hide();
-        }
     }
 
     make_point_info_labels() {
