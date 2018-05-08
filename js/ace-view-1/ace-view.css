@@ -4,10 +4,46 @@ body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+/* ---------------------------------------------------------------------- */
+
+.amw201805 {
+    box-shadow: 0 -1px 0 #e0e0e0, 0 0 2px rgba(0, 0, 0, .12), 0 2px 4px rgba(0, 0, 0, .24);
+    margin: 0;
+    padding: 0.5em 0.7em;
+    width: auto;
+    height: auto;
+    /* position: relative; */
+    /* left: 0; */
+    /* top: 0; */
+    float: left;
+}
+
 .amw201805 table {
-    border: 1px solid pink;
+    border-collapse: collapse;
+}
+
+.amw201805 .a-title .a-left {
+    float: left;
+}
+
+.amw201805 .a-title .a-middle {
+}
+
+.amw201805 .a-title .a-right {
+    float: right;
+}
+
+.amw201805 .a-title .a-burger {
+    cursor: context-menu;
 }
 
 .amw201805 table canvas {
     border: 1px solid green;
 }
+
+/* ---------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------- */
+/* Local Variables: */
+/* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */
+/* End: */
