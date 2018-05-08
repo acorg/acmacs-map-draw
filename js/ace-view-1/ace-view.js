@@ -16,8 +16,6 @@ class AMW201805
             canvas_size: {width: 500, height: 500},
             min_viewport_size: 1.0
         };
-
-        // this.mouse_popup = new AMW_MousePopup();
     }
 
     new_id() {
@@ -27,6 +25,29 @@ class AMW201805
 
 if (window.amw201805 === undefined)
     window.amw201805 = new AMW201805();
+
+// ----------------------------------------------------------------------
+
+const BurgerMenu_html = "\
+<ul class='a-level-0'>\
+  <li><a href='#'>AA</a></li>\
+  <li><a href='#'>BB</a><span class='a-right-arrow'>&#9654;</span>\
+    <ul class='a-level-1'>\
+      <li><a href='#'>DD</a></li>\
+      <li><a href='#'>EE</a></li>\
+      <li><a href='#'>FF</a></li>\
+    </ul>\
+  </li>\
+  <li><a href='#'>CC</a></li>\
+</ul>\
+";
+
+class BurgerMenu extends acv_toolkit.Modal
+{
+    constructor() {
+        super(BurgerMenu_html);
+    }
+}
 
 // ----------------------------------------------------------------------
 
@@ -109,9 +130,7 @@ export class AntigenicMapWidget
             }
         });
 
-        // this.attach("click", this.div.find(".amw201804-title-burger-menu"), event => {
-        //     make_popup_menu(event, this);
-        // });
+        this.div.find(".a-burger").on("click", evt => new BurgerMenu().show($(evt.target)));
         this.set_point_info_on_hover();
     }
 

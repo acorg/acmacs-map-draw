@@ -8,7 +8,7 @@
     position: absolute;
     left: 0;
     top: 0;
-    z-index: 1;
+    z-index: 300;
     background: #FFFFF0;
     color: blue;
     padding: 0;
@@ -29,6 +29,74 @@
 }
 
 /* ---------------------------------------------------------------------- */
+
+#amw201805-modal-click-background {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: rgba(1, 1, 0, 0.5);
+    z-index: 100;
+}
+
+/* ---------------------------------------------------------------------- */
+
+.amw201805-burger-menu {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 200;
+}
+
+.amw201805-burger-menu ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background: white;
+    border: 1px solid blue;
+}
+
+.amw201805-burger-menu li {
+    position: relative;
+    width: 10em;
+}
+
+.amw201805-burger-menu li a {
+    display: block;
+    text-decoration: none;
+    height: 1.5em;
+    line-height: 1.5em;
+    padding: 0 0.5em;
+    color: black;
+}
+
+.amw201805-burger-menu li:hover > a {
+    background-color: #F0F0F0;
+}
+
+.amw201805-burger-menu li:hover a:hover {
+    background-color: #E0E0E0;
+}
+
+.amw201805-burger-menu ul.a-level-1 {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 10em;
+}
+
+.amw201805-burger-menu li:hover ul.a-level-1 {
+    display: block;
+}
+
+.amw201805-burger-menu .a-right-arrow {
+    position: absolute;
+    top: 0.2em;
+    right: 0.2em;
+    font-size: 0.8em;
+    color: #A0A0A0;
+}
 
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */

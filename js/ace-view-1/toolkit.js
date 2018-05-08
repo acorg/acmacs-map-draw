@@ -87,6 +87,79 @@ export class Popup extends Popup_Base {
 
 // ----------------------------------------------------------------------
 
+const Modal_click_background_id = "amw201805-modal-click-background";
+
+const Modal_click_background_html = "\
+<div id='" + Modal_click_background_id + "'>\
+</div>\
+";
+
+
+class ModalClickBackground
+{
+    constructor() {
+        this.div = $("body").find("#" + Modal_click_background_id);
+        if (this.div.length === 0)
+            this.div = $(Modal_click_background_html).appendTo($("body"));
+    }
+
+    destroy() {
+        this.div.remove();
+    }
+
+    show() {
+        this.div.css({width: $(document).width(), height: $(document).height()});
+        this.div.show();
+    }
+
+    hide() {
+        this.div.hide();
+    }
+
+    onclick(callback) {
+        this.div.on("click", callback);
+    }
+}
+
+// ----------------------------------------------------------------------
+
+export class Modal
+{
+    constructor(content) {
+        this.menu = $("<div class='amw201805-burger-menu'>" + content + "</div>").appendTo($("body"));
+        this.background = new ModalClickBackground();
+        this.background.onclick(() => this.destroy());
+    }
+
+    destroy() {
+        this.menu.remove();
+        this.background.destroy();
+    }
+
+    find(selector) {
+        return this.menu.find(selector);
+    }
+
+    show(element) {
+        this.move_to_element(element);
+        this.menu.show();
+        this.background.show();
+    }
+
+    // hide() {
+    //     this.menu.hide();
+    //     this.background.hide();
+    // }
+
+    move_to_element(element) {
+        const offset = element.offset();
+        this.menu.css({left: offset.left + element.outerWidth(true) - this.menu.outerWidth(true), top: offset.top + element.outerHeight(true)});
+    }
+}
+
+
+// ----------------------------------------------------------------------
+
 // export class Popup {
 
 //     constructor(title, content, parent, classes="") {
