@@ -67,7 +67,8 @@ export class Surface
         const scale_inv2 = this.scale_inv * this.scale_inv;
         // const transform_coord = coord => coord.length ? [coord[0] * args.transformation[0] + coord[1] * args.transformation[2], coord[0] * args.transformation[1] + coord[1] * args.transformation[3]] : [];
         this.layout_size_shape_ = args.transformation.transform_layout(args.layout); // for circles size**2, for boxes size, shape: 0 - circe, 1 - box, 2 - triangle
-        args.drawing_order.forEach(point_no => {
+        this.drawing_order_ = args.drawing_order;
+        this.drawing_order_.forEach(point_no => {
             const coord = this.layout_size_shape_[point_no];
             if (coord.length > 1) {
                 const style = args.styles[args.style_index[point_no]];
@@ -101,7 +102,8 @@ export class Surface
     find_points_at_pixel_offset(offset) {
         const scaled_offset = this.translate_pixel_offset(offset);
         let result = [];
-        this.layout_size_shape_.forEach((point_coord_size, point_no) => {
+        this.drawing_order_.forEach(point_no => {
+            const point_coord_size = this.layout_size_shape_[point_no];
             switch (point_coord_size[3]) {
             case 0:             // circle
                 if (((scaled_offset.left - point_coord_size[0])**2 + (scaled_offset.top - point_coord_size[1])**2) <= point_coord_size[2])
@@ -117,6 +119,7 @@ export class Surface
                 break;
             }
         });
+        result.reverse();
         return result;
     }
 

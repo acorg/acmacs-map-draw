@@ -1,5 +1,6 @@
 import * as acv_utils from "./utils.js";
 import * as ace_surface from "./ace-surface.js";
+import * as acv_toolkit from "./toolkit.js";
 
 // ----------------------------------------------------------------------
 
@@ -111,7 +112,7 @@ export class AntigenicMapWidget
         // this.attach("click", this.div.find(".amw201804-title-burger-menu"), event => {
         //     make_popup_menu(event, this);
         // });
-        // this.set_point_info_on_hover();
+        this.set_point_info_on_hover();
     }
 
     mouse_offset(mouse_event) {
@@ -138,6 +139,7 @@ export class AntigenicMapWidget
             this.data = data;
             this.parameters = {point_scale: this.options.point_scale};
             this.surface.set_viewport(this.calculate_viewport());
+            this.make_point_info_labels();
         }
         // console.log("draw", this.data);
 
@@ -182,6 +184,41 @@ export class AntigenicMapWidget
         const prop = {left: (scaled_offset.left - this.surface.viewport[0]) / this.surface.viewport[2], top: (scaled_offset.top - this.surface.viewport[1]) / this.surface.viewport[2]};
         this.surface.set_viewport([scaled_offset.left - new_size * prop.left, scaled_offset.top - new_size * prop.top, new_size, new_size]);
         this.draw();
+    }
+
+    set_point_info_on_hover() {
+        const mouse_offset = (mouse_event) => {
+            const border_width = parseFloat(this.canvas.css("border-width"));
+            const offset_x = border_width + parseFloat(this.canvas.css("padding-left"));
+            const offset_y = border_width + parseFloat(this.canvas.css("padding-top"));
+            return {left: mouse_event.offsetX - offset_x, top: mouse_event.offsetY - offset_y};
+        };
+        let mousemove_timeout_id = undefined;
+        this.canvas.on("mousemove", evt => {
+            window.clearTimeout(mousemove_timeout_id);
+            const offset = mouse_offset(evt);
+            mousemove_timeout_id = window.setTimeout(() => this.point_info_on_hover(offset), this.options.point_info_on_hover_delay);
+        });
+        this.canvas.on("mouseleave", () => window.clearTimeout(this.mousemove_timeout_id));
+    }
+
+    point_info_on_hover(offset) {
+        const points = this.surface.find_points_at_pixel_offset(offset);
+        if (points.length) {
+            const names = points.map(point_no => this.point_info_labels_[point_no]);
+            acv_toolkit.mouse_popup_show($("<ul class='point-info-on-hover'></ul>").append(names.map(text => "<li>" + text + "</li>").join("")), this.canvas, {left: offset.left + this.options.mouse_popup_offset.left, top: offset.top + this.options.mouse_popup_offset.top});
+        }
+        else {
+            acv_toolkit.mouse_popup_hide();
+        }
+    }
+
+    make_point_info_labels() {
+        this.point_info_labels_ = [];
+        for (let antigen of this.data.c.a)
+            this.point_info_labels_.push(acv_utils.join_collapse([antigen.N, antigen.R].concat(antigen.a, antigen.P, antigen.D && "[" + antigen.D + "]")));
+        for (let serum of this.data.c.s)
+            this.point_info_labels_.push(acv_utils.join_collapse([serum.N, serum.R].concat(serum.a, serum.I)));
     }
 }
 
