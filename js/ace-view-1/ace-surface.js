@@ -2,13 +2,34 @@ const COS_PI_6 = Math.cos(Math.PI / 6);
 
 // ----------------------------------------------------------------------
 
+export class Transformation
+{
+    constructor(transformation) {
+        if (Array.isArray(transformation) && transformation.length !== 4)
+            this.transformation = transformation;
+        else
+            this.transformation = [1, 0, 0, 1];
+    }
+
+    transform_coord(coord) {
+        return coord.length ? [coord[0] * this.transformation[0] + coord[1] * this.transformation[2], coord[0] * this.transformation[1] + coord[1] * this.transformation[3]] : [];
+    }
+
+    transform_layout(layout) {
+        return layout.map(coord => this.transform_coord(coord));
+    }
+}
+
+// ----------------------------------------------------------------------
+
 export class Surface
 {
     constructor(canvas, args={}) {
         this.canvas = canvas;
         this.canvas.prop(args.canvas || {width: 300, height: 300});
         this.context = this.canvas[0].getContext('2d');
-        this.set_viewport(args.viewport);
+        if (args.viewport)
+            this.set_viewport(args.viewport);
     }
 
     set_viewport(viewport) {
@@ -34,13 +55,11 @@ export class Surface
     points(args) {
         if (!Array.isArray(args.drawing_order))
             args.drawing_order = Array.apply(null, {length: args.layout.length}).map(Number.call, Number);
-        if (!Array.isArray(args.transformation) || args.transformation.length !== 4)
-            args.transformation = [1, 0, 0, 1];
-        console.log("points", args);
+        //console.log("points", args);
 
         const scale_inv2 = this.scale_inv * this.scale_inv;
-        const transform_coord = coord => coord.length ? [coord[0] * args.transformation[0] + coord[1] * args.transformation[2], coord[0] * args.transformation[1] + coord[1] * args.transformation[3]] : [];
-        this.layout_size_shape_ = args.layout.map(transform_coord); // for circles size**2, for boxes size, shape: 0 - circe, 1 - box, 2 - triangle
+        // const transform_coord = coord => coord.length ? [coord[0] * args.transformation[0] + coord[1] * args.transformation[2], coord[0] * args.transformation[1] + coord[1] * args.transformation[3]] : [];
+        this.layout_size_shape_ = args.transformation.transform_layout(args.layout); // for circles size**2, for boxes size, shape: 0 - circe, 1 - box, 2 - triangle
         args.drawing_order.forEach(point_no => {
             const coord = this.layout_size_shape_[point_no];
             if (coord.length > 1) {

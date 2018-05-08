@@ -9,6 +9,7 @@ class AMW201805
         this.last_id_ = 0;
         this.options = {
             projection_no: 0,
+            point_scale: 5,
             point_info_on_hover_delay: 500,
             mouse_popup_offset: {left: 10, top: 20},
             canvas_size: {width: 500, height: 500},
@@ -53,17 +54,15 @@ const AntigenicMapWidget_content_html = "\
 export class AntigenicMapWidget
 {
     constructor(div, data, options={}) {
-        this.id = window.amw201805.new_id();
+        this.div = $(div);
         this.options = Object.assign({}, window.amw201805.options, options);
         acv_utils.load_css('/js/ad/map-draw/ace-view-1/ace-view.css');
-        div.classList.add("amw201805");
-        div.setAttribute("amw201805_id", this.id);
-        div.innerHTML = AntigenicMapWidget_content_html;
+        this.div.addClass("amw201805").attr("amw201805_id", window.amw201805.new_id()).append(AntigenicMapWidget_content_html);
+        this.canvas = this.div.find("canvas");
 
-        this.load_and_draw(data, options);
+        this.load_and_draw(data);
 
-        this.canvas = $(div).find("canvas");
-        this.surface = new ace_surface.Surface(this.canvas, {canvas: this.options.canvas_size, viewport: [-10, -10, 20, 20]});
+        this.surface = new ace_surface.Surface(this.canvas, {canvas: this.options.canvas_size});
         this.bind();
 
         // this.data = Array.isArray(data) ? data : [data];
@@ -84,11 +83,8 @@ export class AntigenicMapWidget
     }
 
     destroy() {
+        this.div.empty();
     }
-
-    // canvas() {
-    //     return document.querySelector('[amw201805_id="' + this.id + '"] canvas');
-    // }
 
     bind() {
         this.canvas.on("wheel", evt => {
@@ -114,12 +110,12 @@ export class AntigenicMapWidget
         return {left: mouse_event.offsetX - offset_x, top: mouse_event.offsetY - offset_y};
     }
 
-    load_and_draw(data, options) {
+    load_and_draw(data) {
         if (typeof(data) === "string" && data.substr(data.length - 4) === ".ace") {
-            $.getJSON(data, result => this.draw(result, options));
+            $.getJSON(data, result => this.draw(result));
         }
         else if (typeof(data) === "object" && data.version === "acmacs-ace-v1") {
-            this.draw(data, options);
+            this.draw(data);
         }
         else {
             console.error("unrecognized", data);
@@ -129,7 +125,8 @@ export class AntigenicMapWidget
     draw(data) {
         if (data) {
             this.data = data;
-            this.data.point_scale = 5;
+            this.parameters = {point_scale: this.options.point_scale};
+            this.surface.set_viewport(this.calculate_viewport());
         }
         // console.log("draw", this.data);
 
@@ -139,14 +136,29 @@ export class AntigenicMapWidget
 
         this.surface.points({drawing_order: this.data.c.p.d,
                              layout: this.data.c.P[this.options.projection_no].l,
-                             transformation: this.data.c.P[this.options.projection_no].t,
+                             transformation: new ace_surface.Transformation(this.data.c.P[this.options.projection_no].t),
                              style_index: this.data.c.p.p,
                              styles: this.data.c.p.P,
-                             point_scale: this.data.point_scale});
+                             point_scale: this.parameters.point_scale});
+    }
+
+    calculate_viewport() {
+        const transformation = new ace_surface.Transformation(this.data.c.P[this.options.projection_no].t);
+        const transformed_layout = transformation.transform_layout(this.data.c.P[this.options.projection_no].l);
+        const corners = transformed_layout.reduce((target, coord) => {
+            if (coord.length)
+                return [[Math.min(target[0][0], coord[0]), Math.min(target[0][1], coord[1])], [Math.max(target[1][0], coord[0]), Math.max(target[1][1], coord[1])]];
+            else
+                return target;
+        }, [[1e10, 1e10], [-1e10, -1e10]]);
+        const size = [corners[1][0] - corners[0][0], corners[1][1] - corners[0][1]];
+        const whole_size = Math.ceil(Math.max(size[0], size[1]));
+        const to_whole = [(whole_size - size[0]) / 2, (whole_size - size[1]) / 2];
+        return [corners[0][0] - to_whole[0], corners[0][1] - to_whole[1], whole_size, whole_size];
     }
 
     point_scale(multiply_by) {
-        this.data.point_scale *= multiply_by;
+        this.parameters.point_scale *= multiply_by;
         this.draw();
     }
 
