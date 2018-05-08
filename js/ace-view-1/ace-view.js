@@ -65,9 +65,6 @@ export class AntigenicMapWidget
         this.surface = new ace_surface.Surface(this.canvas, {canvas: this.options.canvas_size});
         this.bind();
 
-        // this.data = Array.isArray(data) ? data : [data];
-        // this.data.unshift({point_scale: sval("point_scale", this.data, 1)});  // for interactive manipulations
-
         // this.surface = new Surface(this.canvas, {canvas: sval("canvas", data, this.options.canvas_size), viewport: sval("viewport", data, [0, 0, 10, 10])});
         // sval_call("border", data, v => this.surface.border(v));
         // sval_call("title", data, lines => {
@@ -77,9 +74,6 @@ export class AntigenicMapWidget
         //     //this.div.find(".amw201804-title-burger-menu").append("\u2630");
         // });
 
-        // this.events_ = [];
-        // this.bind();
-        // this.draw();
     }
 
     destroy() {
@@ -101,6 +95,23 @@ export class AntigenicMapWidget
                 this.zoom(this.mouse_offset(evt), evt.originalEvent.wheelDelta > 0 ? 1.05 : (1 / 1.05));
             }
         });
+
+        this.canvas.on("mousedown", evt => {
+            if (evt.altKey) {   // Alt-Drag - pan
+                let mousedown_pos = {left: evt.clientX, top: evt.clientY};
+                document.onmouseup = () => { document.onmouseup = document.onmousemove = null; };
+                document.onmousemove = evt => {
+                    this.surface.move_viewport(mousedown_pos.left - evt.clientX, mousedown_pos.top - evt.clientY);
+                    mousedown_pos = {left: evt.clientX, top: evt.clientY};
+                    this.draw();
+                };
+            }
+        });
+
+        // this.attach("click", this.div.find(".amw201804-title-burger-menu"), event => {
+        //     make_popup_menu(event, this);
+        // });
+        // this.set_point_info_on_hover();
     }
 
     mouse_offset(mouse_event) {

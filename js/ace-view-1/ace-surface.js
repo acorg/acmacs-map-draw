@@ -47,6 +47,13 @@ export class Surface
         this.context.translate(- this.viewport[0], - this.viewport[1]);
     }
 
+    move_viewport(x, y) {
+        this.context.translate(this.viewport[0], this.viewport[1]);
+        this.viewport[0] += x * this.scale_inv;
+        this.viewport[1] += y * this.scale_inv;
+        this.context.translate(- this.viewport[0], - this.viewport[1]);
+    }
+
     translate_pixel_offset(offset) {
         return {left: offset.left * this.scale_inv + this.viewport[0], top: offset.top * this.scale_inv + this.viewport[1]};
     }
