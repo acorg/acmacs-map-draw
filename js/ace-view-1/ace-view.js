@@ -30,15 +30,22 @@ if (window.amw201805 === undefined)
 
 const BurgerMenu_html = "\
 <ul class='a-level-0'>\
-  <li><a href='#'>AA</a></li>\
-  <li><a href='#'>BB</a><span class='a-right-arrow'>&#9654;</span>\
+  <li><a href='search' class='a-disabled'>Search</a></li>\
+  <li><a href='#'>Color by</a><span class='a-right-arrow'>&#9654;</span>\
     <ul class='a-level-1'>\
-      <li><a href='#'>DD</a></li>\
-      <li><a href='#'>EE</a></li>\
-      <li><a href='#'>FF</a></li>\
+      <li><a href='color-by-clade'>Clade</a></li>\
+      <li><a href='color-by-geography'>Geography</a></li>\
+      <li><a href='color-by-default'>Default</a></li>\
     </ul>\
   </li>\
-  <li><a href='#'>CC</a></li>\
+  <li><a href='#'>Series</a><span class='a-right-arrow'>&#9654;</span>\
+    <ul class='a-level-1'>\
+      <li><a href='time-series'>Time</a></li>\
+      <li><a href='table-series'>Table</a></li>\
+      <li><a href='clade-series'>Clade</a></li>\
+    </ul>\
+  </li>\
+  <li><a href='help'>Help</a></li>\
 </ul>\
 ";
 
@@ -46,6 +53,18 @@ class BurgerMenu extends acv_toolkit.Modal
 {
     constructor() {
         super(BurgerMenu_html);
+        this.bind();
+    }
+
+    bind() {
+        this.find("a[href='help']").on("click", evt => this.forward(evt, () => console.log("help")));
+    }
+
+    forward(evt, callback) {
+        evt.stopPropagation();
+        evt.preventDefault();
+        callback();
+        this.destroy();
     }
 }
 
