@@ -57,14 +57,19 @@ class BurgerMenu extends acv_toolkit.Modal
     }
 
     bind() {
+        this.find("a[href='search']").on("click", evt => this.forward(evt, () => console.log("search")));
         this.find("a[href='help']").on("click", evt => this.forward(evt, () => console.log("help")));
+
+        this.find("a.a-disabled").off("click").on("click", evt => this.forward(evt));
     }
 
     forward(evt, callback) {
         evt.stopPropagation();
         evt.preventDefault();
-        callback();
-        this.destroy();
+        if (callback) {
+            callback();
+            this.destroy();
+        }
     }
 }
 
