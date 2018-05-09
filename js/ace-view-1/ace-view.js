@@ -30,7 +30,7 @@ if (window.amw201805 === undefined)
 
 const BurgerMenu_html = "\
 <ul class='a-level-0'>\
-  <li><a href='search' class='a-disabled'>Search</a></li>\
+  <li class='a-disabled'><a href='search'>Search</a></li>\
   <li><a href='#'>Color by</a><span class='a-right-arrow'>&#9654;</span>\
     <ul class='a-level-1'>\
       <li><a href='color-by-clade'>Clade</a></li>\
@@ -45,6 +45,8 @@ const BurgerMenu_html = "\
       <li><a href='clade-series'>Clade</a></li>\
     </ul>\
   </li>\
+  <li><a href='raw'>Raw</a></li>\
+  <li class='a-separator'></li>\
   <li><a href='help'>Help</a></li>\
 </ul>\
 ";
@@ -53,14 +55,22 @@ class BurgerMenu extends acv_toolkit.Modal
 {
     constructor() {
         super(BurgerMenu_html);
+        this.classes("a-window-shadow");
+        this.find("ul").addClass("a-window-shadow");
         this.bind();
     }
 
     bind() {
         this.find("a[href='search']").on("click", evt => this.forward(evt, () => console.log("search")));
+        this.find("a[href='color-by-clade']").on("click", evt => this.forward(evt, () => console.log("color-by-clade")));
+        this.find("a[href='color-by-geography']").on("click", evt => this.forward(evt, () => console.log("color-by-geography")));
+        this.find("a[href='color-by-default']").on("click", evt => this.forward(evt, () => console.log("color-by-default")));
+        this.find("a[href='time-series']").on("click", evt => this.forward(evt, () => console.log("time-series")));
+        this.find("a[href='table-series']").on("click", evt => this.forward(evt, () => console.log("table-series")));
+        this.find("a[href='raw']").on("click", evt => this.forward(evt, () => console.log("raw")));
         this.find("a[href='help']").on("click", evt => this.forward(evt, () => console.log("help")));
 
-        this.find("a.a-disabled").off("click").on("click", evt => this.forward(evt));
+        this.find("li.a-disabled a").off("click").on("click", evt => this.forward(evt));
     }
 
     forward(evt, callback) {

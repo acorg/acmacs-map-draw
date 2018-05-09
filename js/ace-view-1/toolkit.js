@@ -26,7 +26,7 @@ class Popup_Base {
 
     show(contents, parent, offsets_to_parent) {
         this.hide();
-        let popup = this.find_or_create();
+        const popup = this.find_or_create();
         popup.empty();
         if (typeof(contents) === "function")
             contents(popup);
@@ -38,6 +38,12 @@ class Popup_Base {
     // show_ul(text_rows, parent, offsets_to_parent) {
     //     this.show($("<ul></ul>").append(text_rows.map(text => "<li>" + text + "</li>").join("")), parent, offsets_to_parent);
     // }
+
+    classes(classes) {
+        if (classes)
+            this.find_or_create().addClass(classes);
+        return this;
+    }
 
     hide() {
         this.find_element().hide();
@@ -59,8 +65,8 @@ class MousePopup extends Popup_Base {
     }
 }
 
-export function mouse_popup_show(contents, parent, offsets_to_parent) {
-    new MousePopup().show(contents, parent, offsets_to_parent);
+export function mouse_popup_show(contents, parent, offsets_to_parent, classes="a-window-shadow") {
+    new MousePopup().classes(classes).show(contents, parent, offsets_to_parent);
 }
 
 export function mouse_popup_hide() {
@@ -134,6 +140,12 @@ export class Modal
     destroy() {
         this.menu.remove();
         this.background.destroy();
+    }
+
+    classes(classes) {
+        if (classes)
+            this.menu.addClass(classes);
+        return this;
     }
 
     find(selector) {
