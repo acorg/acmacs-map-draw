@@ -172,41 +172,65 @@ export class Modal
 
 // ----------------------------------------------------------------------
 
-// export class Popup {
+const MovableWindow_html = "\
+<div class='amw201805-movable-window a-window-shadow'>\
+  <div class='a-window-title'>\
+    <div class='a-close a-left' title='Close'>&times;</div>\
+    <div class='a-title'></div>\
+    <div class='a-close a-right' title='Close'>&times;</div>\
+  </div>\
+  <div class='a-content'></div>\
+</div>\
+";
 
-//     constructor(title, content, parent, classes="") {
-//         this.div = $(`<div class='ADT_Popup1 adt-shadow ${classes}'><div class='adt-x-window-title'><div class='adt-x-close adt-x-left' title='Close'>&times;</div><div class='adt-x-title'>${title}</div><div class='adt-x-close adt-x-right' title='Close'>&times;</div></div><div class='adt-x-content'>${content}</div></div>`).appendTo($("body"));
-//         if (parent === "center") {
-//             const wind = $(window);
-//             this.div.css({left: (wind.scrollLeft() + wind.width() - this.div.width()) / 2, top: (wind.scrollTop() + wind.height() - this.div.height()) / 2});
-//         }
-//         else {
-//             this.div.css($(parent).offset());
-//         }
-//         this.div.find(".adt-x-close").on("click", () => this.destroy());
-//         this.div.find(".adt-x-title").on("mousedown", evt => this.title_mouse_down(evt));
-//     }
+export class MovableWindow {
 
-//     destroy() {
-//         this.div.remove();
-//     }
+    // {title, content, parent: "center"}
+    constructor(args) {
+        this.div = $(MovableWindow_html).appendTo($("body"));
+        if (args.title)
+            this.div.find(".a-title").append(args.title);
+        if (args.content)
+            this.div.find(".a-content").append(args.content);
+        if (args.parent === "center") {
+            const wind = $(window);
+            this.div.css({left: (wind.scrollLeft() + wind.width() - this.div.width()) / 2, top: (wind.scrollTop() + wind.height() - this.div.height()) / 2});
+        }
+        else {
+            this.div.css($(args.parent).offset());
+        }
+        this.div.find(".a-close").on("click", () => this.destroy());
+        this.div.find(".a-title").on("mousedown", evt => this.drag_window(evt));
+    }
 
-//     title_mouse_down(evt) {
-//         this.pos_start = {left: evt.clientX, top: evt.clientY};
-//         document.onmouseup = evt => this.title_mouse_up(evt);
-//         document.onmousemove = evt => this.title_mouse_move(evt);
-//     }
+    destroy() {
+        this.div.remove();
+    }
 
-//     title_mouse_up(evt) {
-//         document.onmouseup = document.onmousemove = null;
-//     }
+    classes(classes) {
+        if (classes)
+            this.div.addClass(classes);
+        return this;
+    }
 
-//     title_mouse_move(evt) {
-//         this.pos_current = offset_sub(this.pos_start, {left: evt.clientX, top: evt.clientY});
-//         this.pos_start = {left: evt.clientX, top: evt.clientY};
-//         this.div.css(offset_sub(this.div.offset(), this.pos_current));
-//     }
-// }
+    drag_window(evt) {
+        let mouse_pos = {left: evt.clientX, top: evt.clientY};
+        document.onmouseup = () => {
+            document.onmouseup = document.onmousemove = null;
+        };
+        document.onmousemove = evt2 => {
+            const pos_current = {left: mouse_pos.left - evt2.clientX, top: mouse_pos.top - evt2.clientY};
+            mouse_pos = {left: evt2.clientX, top: evt2.clientY};
+            this.div.css({left: this.div.offset().left - pos_current.left, top : this.div.offset().top - pos_current.top });
+        };
+    }
+}
+
+// ----------------------------------------------------------------------
+
+export function movable_window_with_json(data, invoking_node) {
+    new MovableWindow({title: data.name || data.description || data._id, content: `<pre class='json-highlight'>${acv_utils.json_syntax_highlight(JSON.stringify(data, undefined, 2))}</pre>`, parent: invoking_node});
+}
 
 // ----------------------------------------------------------------------
 /// Local Variables:

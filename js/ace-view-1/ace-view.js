@@ -53,21 +53,23 @@ const BurgerMenu_html = "\
 
 class BurgerMenu extends acv_toolkit.Modal
 {
-    constructor() {
+    constructor(parent) {
         super(BurgerMenu_html);
+        this.parent = parent;
         this.classes("a-window-shadow");
         this.find("ul").addClass("a-window-shadow");
         this.bind();
     }
 
     bind() {
+        this.find("a[href='raw']").on("click", evt => this.forward(evt, () => acv_toolkit.movable_window_with_json({a: "aaa", b: {c: 1, d: 2}}, evt.currentTarget)));
+
         this.find("a[href='search']").on("click", evt => this.forward(evt, () => console.log("search")));
         this.find("a[href='color-by-clade']").on("click", evt => this.forward(evt, () => console.log("color-by-clade")));
         this.find("a[href='color-by-geography']").on("click", evt => this.forward(evt, () => console.log("color-by-geography")));
         this.find("a[href='color-by-default']").on("click", evt => this.forward(evt, () => console.log("color-by-default")));
         this.find("a[href='time-series']").on("click", evt => this.forward(evt, () => console.log("time-series")));
         this.find("a[href='table-series']").on("click", evt => this.forward(evt, () => console.log("table-series")));
-        this.find("a[href='raw']").on("click", evt => this.forward(evt, () => console.log("raw")));
         this.find("a[href='help']").on("click", evt => this.forward(evt, () => console.log("help")));
 
         this.find("li.a-disabled a").off("click").on("click", evt => this.forward(evt));
@@ -164,7 +166,7 @@ export class AntigenicMapWidget
             }
         });
 
-        this.div.find(".a-burger").on("click", evt => new BurgerMenu().show($(evt.target)));
+        this.div.find(".a-burger").on("click", evt => new BurgerMenu(this).show($(evt.target)));
         this.set_point_info_on_hover();
     }
 

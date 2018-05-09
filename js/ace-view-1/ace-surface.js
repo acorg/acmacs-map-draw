@@ -199,7 +199,7 @@ export class Surface
         this.triangle_scaled(center, size * this.scale_inv, fill, outline, outline_width * this.scale_inv, rotation, aspect);
     }
 
-    grid(args={line_color: "#cccccc", line_width: 1, step: 1}) {
+    grid(args={line_color: "#CCCCCC", line_width: 1, step: 1}) {
         this.context.beginPath();
         for (var x = this.viewport[0] + args.step; x < this.viewport[0] + this.viewport[2]; x += args.step) {
             this.context.moveTo(x, this.viewport[1]);
@@ -219,7 +219,7 @@ export class Surface
         this.context.fillRect.apply(this.context, this.viewport);
     }
 
-    border(args={line_color: "black", line_width: 1}) {
+    border(args={line_color: "#A0A0A0", line_width: 1}) {
         this.canvas.css("border", "" + args.line_width + "px solid " + args.line_color);
     }
 }

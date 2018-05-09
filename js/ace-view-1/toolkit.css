@@ -8,7 +8,7 @@
     position: absolute;
     left: 0;
     top: 0;
-    z-index: 300;
+    z-index: 800;
     background: #FFFFF0;
     color: blue;
     padding: 0;
@@ -41,7 +41,7 @@
     left: 0;
     top: 0;
     /* background: rgba(1, 1, 0, 0.5); */
-    z-index: 100;
+    z-index: 900;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -51,7 +51,7 @@
     position: absolute;
     left: 0;
     top: 0;
-    z-index: 200;
+    z-index: 1000;
 }
 
 .amw201805-burger-menu ul {
@@ -59,11 +59,11 @@
     margin: 0;
     padding: 0;
     background: white;
+    width: 8em;
 }
 
 .amw201805-burger-menu li {
     position: relative;
-    width: 8em;
 }
 
 .amw201805-burger-menu li a {
@@ -103,7 +103,7 @@
     display: none;
     position: absolute;
     top: 0;
-    left: 8em;
+    left: 8.1em;
 }
 
 .amw201805-burger-menu li:hover ul.a-level-1 {
@@ -116,6 +116,97 @@
     right: 0.2em;
     font-size: 0.8em;
     color: #A0A0A0;
+}
+
+/* ---------------------------------------------------------------------- */
+
+.amw201805-movable-window {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: white;
+    z-index: 700;
+    max-width: 40em;
+}
+
+.amw201805-movable-window .a-window-title {
+    display: grid;
+    grid-template-columns: 1em auto 1em;
+    background-color: #EEE;
+}
+
+.amw201805-movable-window .a-window-title:hover {
+    background-color: #EEF;
+}
+
+.amw201805-movable-window.a-error .a-window-title {
+    background-color: #FEE;
+    color: magenta;
+}
+
+.amw201805-movable-window .a-title {
+    grid-column-start: 2;
+    grid-column-end: 3;
+    font-weight: bold;
+    text-align: center;
+    cursor: move;
+}
+
+.amw201805-movable-window .a-close {
+    cursor: pointer;
+    text-align: center;
+}
+
+.amw201805-movable-window .a-close:hover {
+    color: red;
+}
+
+.amw201805-movable-window .a-close.a-left {
+    grid-column-start: 1;
+    grid-column-end: 2;
+}
+
+.amw201805-movable-window .a-close.a-right {
+    grid-column-start: 3;
+    grid-column-end: 4;
+}
+
+.amw201805-movable-window .a-content {
+    white-space: nowrap;
+    overflow: auto;
+    width: 100%;
+    max-height: 40em;;
+}
+
+/* ---------------------------------------------------------------------- */
+
+pre.json-highlight {
+    padding: 0.5em;
+    margin: 0;
+}
+
+pre.json-highlight .json-syntax-key {
+    color: blue;
+}
+
+pre.json-highlight .json-syntax-string {
+    color: darkcyan;
+}
+
+pre.json-highlight .json-syntax-number {
+    color: darkorange;
+}
+
+pre.json-highlight .json-syntax-boolean {
+    color: brown;
+}
+
+pre.json-highlight .json-syntax-null {
+    color: magenta;
+}
+
+pre.json-highlight .json-syntax-object-id {
+    color: green;
 }
 
 /* ---------------------------------------------------------------------- */
