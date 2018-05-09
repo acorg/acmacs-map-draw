@@ -12,18 +12,6 @@ body {
     padding: 0.5em 0.7em;
     width: auto;
     height: auto;
-    /* position: relative; */
-    /* left: 0; */
-    /* top: 0; */
-    float: left;
-}
-
-.amw201805 table {
-    border-collapse: collapse;
-}
-
-.amw201805 table td {
-    padding: 0;
 }
 
 .amw201805 .a-title .a-left {
@@ -48,6 +36,7 @@ body {
 .amw201805 canvas {
     min-width: 100px;
     min-height: 100px;
+    vertical-align: bottom;
 }
 
 /* ---------------------------------------------------------------------- */
