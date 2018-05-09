@@ -45,7 +45,6 @@ export class Surface
         this.scale_inv = 1 / this.scale;
         this.context.scale(this.scale, this.scale);
         this.context.translate(- this.viewport[0], - this.viewport[1]);
-        console.log("viewport", this.viewport, this.scale, this.scale_inv);
     }
 
     move_viewport(x, y) {
