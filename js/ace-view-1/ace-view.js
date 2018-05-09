@@ -166,6 +166,23 @@ export class AntigenicMapWidget
         });
 
         this.div.find(".a-burger").on("click", evt => new BurgerMenu(this).show($(evt.target)));
+
+        this.div.find(".a-window-resizer").on("mousedown", evt => {
+            let mouse_pos = {left: evt.clientX, top: evt.clientY};
+            document.onmouseup = () => {
+                document.onmouseup = document.onmousemove = null;
+                // this.div.find(".a-content").removeClass("a-unselectable");
+                $("body").removeClass("a-unselectable");
+            };
+            document.onmousemove = evt2 => {
+                // this.div.find(".a-content").addClass("a-unselectable");
+                $("body").addClass("a-unselectable");
+                this.surface.resize({left: mouse_pos.left - evt2.clientX, top: mouse_pos.top - evt2.clientY});
+                this.draw();
+                mouse_pos = {left: evt2.clientX, top: evt2.clientY};
+            };
+        });
+
         this.set_point_info_on_hover();
     }
 

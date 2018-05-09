@@ -45,6 +45,7 @@ export class Surface
         this.scale_inv = 1 / this.scale;
         this.context.scale(this.scale, this.scale);
         this.context.translate(- this.viewport[0], - this.viewport[1]);
+        console.log("viewport", this.viewport, this.scale, this.scale_inv);
     }
 
     move_viewport(x, y) {
@@ -52,6 +53,16 @@ export class Surface
         this.viewport[0] += x * this.scale_inv;
         this.viewport[1] += y * this.scale_inv;
         this.context.translate(- this.viewport[0], - this.viewport[1]);
+    }
+
+    resize(size_diff) {
+        const diff = size_diff.left; // Math.min(size_diff.left, size_diff.top);
+        const new_width = Math.max(parseInt(this.canvas.css("min-width")), this.canvas.prop("width") - diff);
+        const new_height = Math.max(parseInt(this.canvas.css("min-height")), this.canvas.prop("height") - diff);
+        this.canvas.prop({width: new_width, height: new_height});
+        const viewport = this.viewport;
+        this.viewport = null;
+        this.set_viewport(viewport);
     }
 
     translate_pixel_offset(offset) {
