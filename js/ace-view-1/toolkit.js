@@ -180,6 +180,7 @@ const MovableWindow_html = "\
     <div class='a-close a-right' title='Close'>&times;</div>\
   </div>\
   <div class='a-content'></div>\
+  <div class='a-window-resizer'></div>\
 </div>\
 ";
 
@@ -200,7 +201,8 @@ export class MovableWindow {
             this.div.css($(args.parent).offset());
         }
         this.div.find(".a-close").on("click", () => this.destroy());
-        this.div.find(".a-title").on("mousedown", evt => this.drag_window(evt));
+        this.div.find(".a-title").on("mousedown", evt => this.drag(evt, pos_diff => this.drag_window(pos_diff)));
+        this.div.find(".a-window-resizer").on("mousedown", evt => this.drag(evt, pos_diff => this.resize_window(pos_diff)));
     }
 
     destroy() {
@@ -213,23 +215,35 @@ export class MovableWindow {
         return this;
     }
 
-    drag_window(evt) {
+    drag(evt, callback) {
         let mouse_pos = {left: evt.clientX, top: evt.clientY};
         document.onmouseup = () => {
             document.onmouseup = document.onmousemove = null;
+            this.div.find(".a-content").removeClass("a-unselectable");
+            $("body").removeClass("a-unselectable");
         };
         document.onmousemove = evt2 => {
-            const pos_current = {left: mouse_pos.left - evt2.clientX, top: mouse_pos.top - evt2.clientY};
+            this.div.find(".a-content").addClass("a-unselectable");
+            $("body").addClass("a-unselectable");
+            callback({left: mouse_pos.left - evt2.clientX, top: mouse_pos.top - evt2.clientY});
             mouse_pos = {left: evt2.clientX, top: evt2.clientY};
-            this.div.css({left: this.div.offset().left - pos_current.left, top : this.div.offset().top - pos_current.top });
         };
+    }
+
+    drag_window(pos_diff) {
+        this.div.css({left: this.div.offset().left - pos_diff.left, top : this.div.offset().top - pos_diff.top});
+    }
+
+    resize_window(pos_diff) {
+        const element = this.div.find(".a-content");
+        element.css({width: element.width() - pos_diff.left, height : element.height() - pos_diff.top});
     }
 }
 
 // ----------------------------------------------------------------------
 
-export function movable_window_with_json(data, invoking_node) {
-    new MovableWindow({title: data.name || data.description || data._id, content: `<pre class='json-highlight'>${acv_utils.json_syntax_highlight(JSON.stringify(data, undefined, 2))}</pre>`, parent: invoking_node});
+export function movable_window_with_json(data, invoking_node, title) {
+    new MovableWindow({title: title || data.name || data.description || data._id, content: `<pre class='json-highlight'>${acv_utils.json_syntax_highlight(JSON.stringify(data, undefined, 2))}</pre>`, parent: invoking_node});
 }
 
 // ----------------------------------------------------------------------

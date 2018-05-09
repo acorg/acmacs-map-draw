@@ -62,7 +62,7 @@ class BurgerMenu extends acv_toolkit.Modal
     }
 
     bind() {
-        this.find("a[href='raw']").on("click", evt => this.forward(evt, () => acv_toolkit.movable_window_with_json({a: "aaa", b: {c: 1, d: 2}}, evt.currentTarget)));
+        this.find("a[href='raw']").on("click", evt => this.forward(evt, () => acv_toolkit.movable_window_with_json(this.parent.data, evt.currentTarget, "map view raw data")));
 
         this.find("a[href='search']").on("click", evt => this.forward(evt, () => console.log("search")));
         this.find("a[href='color-by-clade']").on("click", evt => this.forward(evt, () => console.log("color-by-clade")));
@@ -123,8 +123,6 @@ export class AntigenicMapWidget
         this.surface = new ace_surface.Surface(this.canvas, {canvas: this.options.canvas_size});
         this.bind();
 
-        // this.surface = new Surface(this.canvas, {canvas: sval("canvas", data, this.options.canvas_size), viewport: sval("viewport", data, [0, 0, 10, 10])});
-        // sval_call("border", data, v => this.surface.border(v));
         // sval_call("title", data, lines => {
         //     this.div.find(".amw201804-title-middle").append(lines[0].text);
         //     //this.div.find(".amw201804-title-left").append("LEFT");
