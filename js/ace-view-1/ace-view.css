@@ -39,6 +39,17 @@ body {
     vertical-align: bottom;
 }
 
+ul.a-title-mouse-popup {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+ul.a-title-mouse-popup > li {
+    margin: 0.5em;
+    white-space: nowrap;
+}
+
 /* ---------------------------------------------------------------------- */
 
 /* ---------------------------------------------------------------------- */

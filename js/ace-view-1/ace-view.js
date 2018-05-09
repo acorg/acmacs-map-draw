@@ -251,12 +251,14 @@ export class AntigenicMapWidget
     }
 
     title(title) {
+        let title_box;
         if (!title) {
             let stress = this.data.c.P[this.options.projection_no].s;
             stress = stress ? stress.toFixed(4) : "";
             let mcb = this.data.c.P[this.options.projection_no].m;
             mcb = mcb ? ">=" + mcb : ">=none";
             const prefix = acv_utils.join_collapse([stress, `A:${this.data.c.a.length} S:${this.data.c.s.length}`]);
+            title_box = $(`<ul class='a-title-mouse-popup'><li>Antigens: ${this.data.c.a.length}</li><li>Sera: ${this.data.c.s.length}</li></ul>`);
             if (this.data.c.i.N) {
                 title = acv_utils.join_collapse([prefix, this.data.c.i.N]);
             }
@@ -264,13 +266,19 @@ export class AntigenicMapWidget
                 const sources = this.data.c.i.S;
                 const first = sources[0], last = sources[sources.length - 1];
                 title = acv_utils.join_collapse([prefix, first.l, first.V, first.A, first.D + "-" + last.D, mcb, `(${sources.length} tables)`]);
+                title_box.prepend(`<li>${first.v} ${first.V} ${first.A}</li><li>Lab: ${first.l}</li>`);
+                title_box.append(`<li>Tables: ${sources.length}</li>`);
+                title_box.append(`<li>Dates: ${first.D} - ${last.D}</li>`);
             }
             else {
                 const first = this.data.c.i;
                 title = acv_utils.join_collapse([prefix, first.l, first.V, first.A, first.D, mcb]);
+                title_box.prepend(`<li>${first.v} ${first.V} ${first.A}</li><li>Lab: ${first.l}</li>`);
+                title_box.append(`<li>Date: ${first.D}</li>`);
             }
         }
         this.div.find(".a-title > .a-left").empty().append(title); //.prop("title", title);
+        this.popup_on_hovering_title(title_box);
     }
 
     resize(diff) {
@@ -321,6 +329,21 @@ export class AntigenicMapWidget
             mousemove_timeout_id = window.setTimeout(() => point_info_on_hover(offset), this.options.point_info_on_hover_delay);
         });
         this.canvas.on("mouseleave", () => window.clearTimeout(this.mousemove_timeout_id));
+    }
+
+    popup_on_hovering_title(content) {
+        if (content) {
+            const title = this.div.find(".a-title > .a-left");
+            let timeout_id = undefined;
+            title.on("mouseenter", evt => {
+                window.clearTimeout(timeout_id);
+                timeout_id = window.setTimeout(() => acv_toolkit.mouse_popup_show(content, title, {left:0, top: 5}), this.options.point_info_on_hover_delay);
+            });
+            title.on("mouseleave", evt => {
+                window.clearTimeout(timeout_id);
+                timeout_id = window.setTimeout(() => acv_toolkit.mouse_popup_hide(), this.options.point_info_on_hover_delay);
+            });
+        }
     }
 
     make_point_info_labels() {
