@@ -62,7 +62,11 @@ class BurgerMenu extends acv_toolkit.Modal
     }
 
     bind() {
-        this.find("a[href='raw']").on("click", evt => this.forward(evt, () => acv_toolkit.movable_window_with_json(this.parent.data, evt.currentTarget, "map view raw data")));
+        // this.find("a[href='raw']").on("click", evt => this.forward(evt, () => acv_toolkit.movable_window_with_json(this.parent.data, evt.currentTarget, "map view raw data")));
+        this.find("a[href='raw']").on("click", evt => this.forward(evt, () => {
+            console.log("amw raw data", this.parent.data);
+            alert("Please see raw data in the console");
+        }));
 
         this.find("a[href='search']").on("click", evt => this.forward(evt, () => console.log("search")));
         this.find("a[href='color-by-clade']").on("click", evt => this.forward(evt, () => console.log("color-by-clade")));
@@ -208,7 +212,7 @@ export class AntigenicMapWidget
             this.data = data;
             this.parameters = {point_scale: this.options.point_scale};
             this.surface.set_viewport(this.calculate_viewport());
-            this.title("A title is a prefix or suffix added to someone's name in certain contexts.");
+            this.title();
             this.make_point_info_labels();
         }
         // console.log("draw", this.data);
@@ -247,7 +251,26 @@ export class AntigenicMapWidget
     }
 
     title(title) {
-        this.div.find(".a-title > .a-left").empty().append(title);
+        if (!title) {
+            let stress = this.data.c.P[this.options.projection_no].s;
+            stress = stress ? stress.toFixed(4) : "";
+            let mcb = this.data.c.P[this.options.projection_no].m;
+            mcb = mcb ? ">=" + mcb : ">=none";
+            const prefix = acv_utils.join_collapse([stress, `A:${this.data.c.a.length} S:${this.data.c.s.length}`]);
+            if (this.data.c.i.N) {
+                title = acv_utils.join_collapse([prefix, this.data.c.i.N]);
+            }
+            else if (this.data.c.i.S) {
+                const sources = this.data.c.i.S;
+                const first = sources[0], last = sources[sources.length - 1];
+                title = acv_utils.join_collapse([prefix, first.l, first.V, first.A, first.D + "-" + last.D, mcb, `(${sources.length} tables)`]);
+            }
+            else {
+                const first = this.data.c.i;
+                title = acv_utils.join_collapse([prefix, first.l, first.V, first.A, first.D, mcb]);
+            }
+        }
+        this.div.find(".a-title > .a-left").empty().append(title); //.prop("title", title);
     }
 
     resize(diff) {
