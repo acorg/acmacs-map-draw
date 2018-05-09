@@ -22,6 +22,10 @@ body {
     border-collapse: collapse;
 }
 
+.amw201805 table td {
+    padding: 0;
+}
+
 .amw201805 .a-title .a-left {
     float: left;
 }
@@ -37,8 +41,8 @@ body {
     cursor: context-menu;
 }
 
-.amw201805 table canvas {
-    border: 1px solid green;
+.amw201805 table td.a-canvas {
+    position: relative;
 }
 
 /* ---------------------------------------------------------------------- */

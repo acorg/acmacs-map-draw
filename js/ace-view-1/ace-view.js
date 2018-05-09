@@ -100,8 +100,9 @@ const AntigenicMapWidget_content_html = "\
     </td>\
   </tr>\
   <tr>\
-    <td>\
+    <td class='a-canvas'>\
       <canvas></canvas>\
+      <div class='a-window-resizer'></div>\
     </td>\
   </tr>\
 </table>\

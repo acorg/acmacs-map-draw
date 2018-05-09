@@ -39,6 +39,18 @@
     user-select: none;
 }
 
+.a-window-resizer {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    width: 0.5em;
+    height: 0.5em;
+    border-right: 2px solid black;
+    border-bottom: 2px solid black;
+    cursor: nwse-resize;
+}
+
 /* ---------------------------------------------------------------------- */
 
 #amw201805-modal-click-background {
@@ -183,18 +195,6 @@
     width: 100%;
     min-width: 10em;
     min-height: 10em;
-}
-
-.amw201805-movable-window .a-window-resizer {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    z-index: 1;
-    width: 0.5em;
-    height: 0.5em;
-    border-right: 2px solid black;
-    border-bottom: 2px solid black;
-    cursor: nwse-resize;
 }
 
 /* ---------------------------------------------------------------------- */
