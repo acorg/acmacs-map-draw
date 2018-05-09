@@ -16,9 +16,9 @@ body {
 
 .amw201805 .a-title .a-left {
     float: left;
-}
-
-.amw201805 .a-title .a-middle {
+    white-space: nowrap;
+    overflow: auto;
+    margin-right: 0.5em;
 }
 
 .amw201805 .a-title .a-right {

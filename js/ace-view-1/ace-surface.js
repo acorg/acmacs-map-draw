@@ -64,6 +64,10 @@ export class Surface
         this.set_viewport(viewport);
     }
 
+    width() {
+        return this.canvas.width();
+    }
+
     translate_pixel_offset(offset) {
         return {left: offset.left * this.scale_inv + this.viewport[0], top: offset.top * this.scale_inv + this.viewport[1]};
     }

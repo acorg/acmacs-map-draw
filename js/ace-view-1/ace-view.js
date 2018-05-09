@@ -91,12 +91,11 @@ const AntigenicMapWidget_content_html = "\
 <table>\
   <tr>\
     <td class='a-title'>\
-      <span class='a-left'></span>\
-      <span class='a-middle'></span>\
-      <span class='a-right'>\
+      <div class='a-left'></div>\
+      <div class='a-right'>\
         <span class='a-right-left'></span>\
         <span class='a-burger'>&#x2630;</span>\
-      </span>\
+      </div>\
     </td>\
   </tr>\
   <tr>\
@@ -177,8 +176,7 @@ export class AntigenicMapWidget
             document.onmousemove = evt2 => {
                 // this.div.find(".a-content").addClass("a-unselectable");
                 $("body").addClass("a-unselectable");
-                this.surface.resize({left: mouse_pos.left - evt2.clientX, top: mouse_pos.top - evt2.clientY});
-                this.draw();
+                this.resize({left: mouse_pos.left - evt2.clientX, top: mouse_pos.top - evt2.clientY});
                 mouse_pos = {left: evt2.clientX, top: evt2.clientY};
             };
         });
@@ -210,6 +208,7 @@ export class AntigenicMapWidget
             this.data = data;
             this.parameters = {point_scale: this.options.point_scale};
             this.surface.set_viewport(this.calculate_viewport());
+            this.title("A title is a prefix or suffix added to someone's name in certain contexts.");
             this.make_point_info_labels();
         }
         // console.log("draw", this.data);
@@ -224,6 +223,7 @@ export class AntigenicMapWidget
                              style_index: this.data.c.p.p,
                              styles: this.data.c.p.P,
                              point_scale: this.parameters.point_scale});
+        this.resize_title();
     }
 
     calculate_viewport() {
@@ -244,6 +244,20 @@ export class AntigenicMapWidget
     point_scale(multiply_by) {
         this.parameters.point_scale *= multiply_by;
         this.draw();
+    }
+
+    title(title) {
+        this.div.find(".a-title > .a-left").empty().append(title);
+    }
+
+    resize(diff) {
+        this.surface.resize(diff);
+        this.draw();
+    }
+
+    resize_title() {
+        const title_left = this.div.find(".a-title > .a-left");
+        title_left.css("width", this.surface.width() - this.div.find(".a-title > .a-right").outerWidth(true) - (title_left.outerWidth(true) - title_left.width()));
     }
 
     // value > 1 - zoom out, < 1 - zoom in
