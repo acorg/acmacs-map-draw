@@ -407,8 +407,21 @@ class DrawingMode_Simple_Default
 
 // ----------------------------------------------------------------------
 
+class DrawingMode_Series_Time
+{
+    draw() {
+    }
+
+    title() {
+        return ["Time series", "Time series"];
+    }
+}
+
+// ----------------------------------------------------------------------
+
 const drawing_mode_selector_data = {
     "simple-default": DrawingMode_Simple_Default,
+    "series-time": DrawingMode_Series_Time,
     null: DrawingMode_Simple_Default
 };
 
