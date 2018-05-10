@@ -14,19 +14,46 @@ body {
     height: auto;
 }
 
-.amw201805 .a-title .a-left {
+.amw201805 .a-title > .a-left {
+    display: none;
+    float: left;
+    font-weight: bold;
+    padding-right: 3px;
+    cursor: pointer;
+    position: relative;
+    bottom: 3px;
+}
+
+.amw201805 .a-title > .a-left:hover {
+    color: #00A000;
+}
+
+.amw201805 .a-title > .a-title-title {
     float: left;
     white-space: nowrap;
     overflow: auto;
-    margin-right: 0.5em;
 }
 
 .amw201805 .a-title .a-right {
     float: right;
 }
 
+.amw201805 .a-title .a-right .a-right-left {
+    display: none;
+    font-weight: bold;
+    padding-left: 3px;
+    cursor: pointer;
+    position: relative;
+    bottom: 3px;
+}
+
+.amw201805 .a-title .a-right .a-right-left:hover {
+    color: #00A000;
+}
+
 .amw201805 .a-title .a-burger {
     cursor: context-menu;
+    padding-left: 3px;
 }
 
 .amw201805 table td.a-canvas {

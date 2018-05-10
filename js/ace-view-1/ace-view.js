@@ -95,9 +95,10 @@ const AntigenicMapWidget_content_html = "\
 <table>\
   <tr>\
     <td class='a-title'>\
-      <div class='a-left'></div>\
+      <div class='a-left'>&#x27F8;</div>\
+      <div class='a-title-title'></div>\
       <div class='a-right'>\
-        <span class='a-right-left'></span>\
+        <span class='a-right-left'>&#x27F9;</span>\
         <span class='a-burger'>&#x2630;</span>\
       </div>\
     </td>\
@@ -277,7 +278,7 @@ export class AntigenicMapWidget
                 title_box.append(`<li>Date: ${first.D}</li>`);
             }
         }
-        this.div.find(".a-title > .a-left").empty().append(title); //.prop("title", title);
+        this.title_element().empty().append(title); //.prop("title", title);
         this.popup_on_hovering_title(title_box);
     }
 
@@ -286,9 +287,17 @@ export class AntigenicMapWidget
         this.draw();
     }
 
+    title_element() {
+        return this.div.find(".a-title-title");
+    }
+
     resize_title() {
+        const title_element = this.title_element();
         const title_left = this.div.find(".a-title > .a-left");
-        title_left.css("width", this.surface.width() - this.div.find(".a-title > .a-right").outerWidth(true) - (title_left.outerWidth(true) - title_left.width()));
+        const title_left_width = title_left.is(":visible") ? title_left.outerWidth(true) : 0;
+        const title_right = this.div.find(".a-title > .a-right");
+        const title_right_width = title_right.is(":visible") ? title_right.outerWidth(true) : 0;
+        title_element.css("width", this.surface.width() - title_left_width - title_right_width - (title_element.outerWidth(true) - title_element.width()));
     }
 
     // value > 1 - zoom out, < 1 - zoom in
@@ -318,7 +327,6 @@ export class AntigenicMapWidget
                 acv_toolkit.mouse_popup_show($("<ul class='point-info-on-hover'></ul>").append(names.map(text => "<li>" + text + "</li>").join("")), this.canvas, {left: offset.left + this.options.mouse_popup_offset.left, top: offset.top + this.options.mouse_popup_offset.top});
             }
             else {
-                console.log("point info hide");
                 acv_toolkit.mouse_popup_hide();
             }
         };
@@ -333,7 +341,7 @@ export class AntigenicMapWidget
 
     popup_on_hovering_title(content) {
         if (content) {
-            const title = this.div.find(".a-title > .a-left");
+            const title = this.title_element();
             let popup_events = false;
             const hide_popup = () => {
                 acv_toolkit.mouse_popup_hide().off("mouseenter").off("mouseleave");
