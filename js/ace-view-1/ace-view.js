@@ -318,31 +318,43 @@ export class AntigenicMapWidget
                 acv_toolkit.mouse_popup_show($("<ul class='point-info-on-hover'></ul>").append(names.map(text => "<li>" + text + "</li>").join("")), this.canvas, {left: offset.left + this.options.mouse_popup_offset.left, top: offset.top + this.options.mouse_popup_offset.top});
             }
             else {
+                console.log("point info hide");
                 acv_toolkit.mouse_popup_hide();
             }
         };
 
-        let mousemove_timeout_id = undefined;
         this.canvas.on("mousemove", evt => {
-            window.clearTimeout(mousemove_timeout_id);
+            window.clearTimeout(this.mouse_popup_timeout_id);
             const offset = mouse_offset(evt);
-            mousemove_timeout_id = window.setTimeout(() => point_info_on_hover(offset), this.options.point_info_on_hover_delay);
+            this.mouse_popup_timeout_id = window.setTimeout(() => point_info_on_hover(offset), this.options.point_info_on_hover_delay);
         });
-        this.canvas.on("mouseleave", () => window.clearTimeout(this.mousemove_timeout_id));
+        this.canvas.on("mouseleave", () => window.clearTimeout(this.mouse_popup_timeout_id));
     }
 
     popup_on_hovering_title(content) {
         if (content) {
             const title = this.div.find(".a-title > .a-left");
-            let timeout_id = undefined;
+            let popup_events = false;
+            const hide_popup = () => {
+                acv_toolkit.mouse_popup_hide().off("mouseenter").off("mouseleave");
+                popup_events = false;
+            };
+            const mouse_leave = () => {
+                window.clearTimeout(this.mouse_popup_timeout_id);
+                this.mouse_popup_timeout_id = window.setTimeout(hide_popup, this.options.point_info_on_hover_delay);
+            };
             title.on("mouseenter", evt => {
-                window.clearTimeout(timeout_id);
-                timeout_id = window.setTimeout(() => acv_toolkit.mouse_popup_show(content, title, {left:0, top: 5}), this.options.point_info_on_hover_delay);
+                window.clearTimeout(this.mouse_popup_timeout_id);
+                this.mouse_popup_timeout_id = window.setTimeout(() => {
+                    const popup_element = acv_toolkit.mouse_popup_show(content, title, {left:0, top: title.outerHeight()});
+                    if (!popup_events) {
+                        popup_element.on("mouseenter", () => window.clearTimeout(this.mouse_popup_timeout_id));
+                        popup_element.on("mouseleave", mouse_leave);
+                        popup_events = true;
+                    }
+                }, this.options.point_info_on_hover_delay);
             });
-            title.on("mouseleave", evt => {
-                window.clearTimeout(timeout_id);
-                timeout_id = window.setTimeout(() => acv_toolkit.mouse_popup_hide(), this.options.point_info_on_hover_delay);
-            });
+            title.on("mouseleave", mouse_leave);
         }
     }
 

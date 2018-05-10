@@ -33,6 +33,7 @@ class Popup_Base {
         else
             popup.append(contents);
         popup.css({left: offsets_to_parent.left + parent.offset().left, top: offsets_to_parent.top + parent.offset().top}).show();
+        return this;
     }
 
     // show_ul(text_rows, parent, offsets_to_parent) {
@@ -65,12 +66,13 @@ class MousePopup extends Popup_Base {
     }
 }
 
+// returns popup div
 export function mouse_popup_show(contents, parent, offsets_to_parent, classes="a-window-shadow") {
-    new MousePopup().classes(classes).show(contents, parent, offsets_to_parent);
+    return new MousePopup().classes(classes).show(contents, parent, offsets_to_parent).find_element();
 }
 
 export function mouse_popup_hide() {
-    $("#" + MousePopup_id).hide();
+    return $("#" + MousePopup_id).hide();
 }
 
 // ----------------------------------------------------------------------
