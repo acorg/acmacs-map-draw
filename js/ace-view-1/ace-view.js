@@ -10,6 +10,7 @@ class AMW201805
         this.last_id_ = 0;
         this.options = {
             projection_no: 0,
+            drawing_mode: "simple-default",
             point_scale: 5,
             point_info_on_hover_delay: 500,
             mouse_popup_offset: {left: 10, top: 20},
@@ -211,6 +212,7 @@ export class AntigenicMapWidget
     draw(data) {
         if (data) {
             this.data = data;
+            this.drawing_mode = select_drawing_mode(this.options.drawing_mode, this);
             this.parameters = {point_scale: this.options.point_scale};
             this.surface.set_viewport(this.calculate_viewport());
             this.title();
@@ -221,13 +223,7 @@ export class AntigenicMapWidget
         this.surface.background();
         this.surface.grid();
         this.surface.border();
-
-        this.surface.points({drawing_order: this.data.c.p.d,
-                             layout: this.data.c.P[this.options.projection_no].l,
-                             transformation: new ace_surface.Transformation(this.data.c.P[this.options.projection_no].t),
-                             style_index: this.data.c.p.p,
-                             styles: this.data.c.p.P,
-                             point_scale: this.parameters.point_scale});
+        this.drawing_mode.draw();
         this.resize_title();
     }
 
@@ -379,6 +375,35 @@ export class AntigenicMapWidget
 }
 
 // ----------------------------------------------------------------------
+
+class DrawingMode_Simple_Default
+{
+    constructor(widget) {
+        this.widget = widget;
+    }
+
+    draw() {
+        const chart = this.widget.data.c;
+        const projection_no = this.widget.options.projection_no;
+        this.widget.surface.points({drawing_order: chart.p.d,
+                                    layout: chart.P[projection_no].l,
+                                    transformation: new ace_surface.Transformation(chart.P[projection_no].t),
+                                    style_index: chart.p.p,
+                                    styles: chart.p.P,
+                                    point_scale: this.widget.parameters.point_scale});
+    }
+}
+
+// ----------------------------------------------------------------------
+
+const drawing_mode_selector_data = {
+    "simple-default": DrawingMode_Simple_Default,
+    null: DrawingMode_Simple_Default
+};
+
+function select_drawing_mode(mode, widget) {
+    return new (drawing_mode_selector_data[mode] || drawing_mode_selector_data[null])(widget);
+}
 
 // ----------------------------------------------------------------------
 /// Local Variables:
