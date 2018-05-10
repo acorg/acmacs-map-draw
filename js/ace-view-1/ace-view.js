@@ -70,11 +70,12 @@ class BurgerMenu extends acv_toolkit.Modal
         }));
 
         this.find("a[href='search']").on("click", evt => this.forward(evt, () => console.log("search")));
-        this.find("a[href='color-by-clade']").on("click", evt => this.forward(evt, () => console.log("color-by-clade")));
-        this.find("a[href='color-by-geography']").on("click", evt => this.forward(evt, () => console.log("color-by-geography")));
-        this.find("a[href='color-by-default']").on("click", evt => this.forward(evt, () => console.log("color-by-default")));
-        this.find("a[href='time-series']").on("click", evt => this.forward(evt, () => console.log("time-series")));
-        this.find("a[href='table-series']").on("click", evt => this.forward(evt, () => console.log("table-series")));
+        this.find("a[href='color-by-clade']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("simple-clade")));
+        this.find("a[href='color-by-geography']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("simple-geography")));
+        this.find("a[href='color-by-default']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("simple-default")));
+        this.find("a[href='time-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("series-time")));
+        this.find("a[href='table-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("series-table")));
+        this.find("a[href='clade-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("series-clade")));
         this.find("a[href='help']").on("click", evt => this.forward(evt, () => console.log("help")));
 
         this.find("li.a-disabled a").off("click").on("click", evt => this.forward(evt));
@@ -212,19 +213,24 @@ export class AntigenicMapWidget
     draw(data) {
         if (data) {
             this.data = data;
-            this.drawing_mode = select_drawing_mode(this.options.drawing_mode, this);
             this.parameters = {point_scale: this.options.point_scale};
             this.surface.set_viewport(this.calculate_viewport());
-            this.title();
             this.make_point_info_labels();
+            this.set_drawing_mode(this.options.drawing_mode);
         }
-        // console.log("draw", this.data);
+        else {
+            this.surface.background();
+            this.surface.grid();
+            this.surface.border();
+            this.drawing_mode.draw();
+            this.resize_title();
+        }
+    }
 
-        this.surface.background();
-        this.surface.grid();
-        this.surface.border();
-        this.drawing_mode.draw();
-        this.resize_title();
+    set_drawing_mode(mode) {
+        this.drawing_mode = select_drawing_mode(mode, this);
+        this.title();
+        this.draw();
     }
 
     calculate_viewport() {
@@ -247,36 +253,8 @@ export class AntigenicMapWidget
         this.draw();
     }
 
-    title(title) {
-        let title_box;
-        if (!title) {
-            let stress = this.data.c.P[this.options.projection_no].s;
-            stress = stress ? stress.toFixed(4) : "";
-            let mcb = this.data.c.P[this.options.projection_no].m;
-            mcb = mcb ? ">=" + mcb : ">=none";
-            const prefix = acv_utils.join_collapse([stress, `A:${this.data.c.a.length} S:${this.data.c.s.length}`]);
-            title_box = $(`<ul class='a-title-mouse-popup'><li>Antigens: ${this.data.c.a.length}</li><li>Sera: ${this.data.c.s.length}</li></ul>`);
-            if (this.data.c.i.N) {
-                title = acv_utils.join_collapse([prefix, this.data.c.i.N]);
-            }
-            else if (this.data.c.i.S) {
-                const sources = this.data.c.i.S;
-                const first = sources[0], last = sources[sources.length - 1];
-                title = acv_utils.join_collapse([prefix, first.l, first.V, first.A, first.D + "-" + last.D, mcb, `(${sources.length} tables)`]);
-                title_box.prepend(`<li>${first.v} ${first.V} ${first.A} ${first.r || ""}</li><li>Lab: ${first.l}</li>`);
-                title_box.append(`<li>Tables: ${sources.length}</li>`);
-                title_box.append(`<li>Dates: ${first.D} - ${last.D}</li>`);
-            }
-            else {
-                const first = this.data.c.i;
-                title = acv_utils.join_collapse([prefix, first.l, first.V, first.A, first.D, mcb]);
-                title_box.prepend(`<li>${first.v} ${first.V} ${first.A} ${first.r || ""}</li><li>Lab: ${first.l}</li>`);
-                title_box.append(`<li>Date: ${first.D}</li>`);
-            }
-            title_box.append(`<li>Projections: ${this.data.c.P.length}</li>`);
-            if (this.data.c.t.L)
-                title_box.append(`<li>Layers: ${this.data.c.t.L.length}</li>`);
-        }
+    title() {
+        let [title, title_box] = this.drawing_mode.title();
         this.title_element().empty().append(title); //.prop("title", title);
         this.popup_on_hovering_title(title_box);
     }
@@ -391,6 +369,39 @@ class DrawingMode_Simple_Default
                                     style_index: chart.p.p,
                                     styles: chart.p.P,
                                     point_scale: this.widget.parameters.point_scale});
+    }
+
+    title() {
+        const chart = this.widget.data.c;
+        const projection_no = this.widget.options.projection_no;
+        let stress = chart.P[projection_no].s;
+        stress = stress ? stress.toFixed(4) : "";
+        let mcb = chart.P[projection_no].m;
+        mcb = mcb ? ">=" + mcb : ">=none";
+        const prefix = acv_utils.join_collapse([stress, `A:${chart.a.length} S:${chart.s.length}`]);
+        let title_box = $(`<ul class='a-title-mouse-popup'><li>Antigens: ${chart.a.length}</li><li>Sera: ${chart.s.length}</li></ul>`);
+        let title;
+        if (chart.i.N) {
+            title = acv_utils.join_collapse([prefix, chart.i.N]);
+        }
+        else if (chart.i.S) {
+            const sources = chart.i.S;
+            const first = sources[0], last = sources[sources.length - 1];
+            title = acv_utils.join_collapse([prefix, first.l, first.V, first.A, first.D + "-" + last.D, mcb, `(${sources.length} tables)`]);
+            title_box.prepend(`<li>${first.v} ${first.V} ${first.A} ${first.r || ""}</li><li>Lab: ${first.l}</li>`);
+            title_box.append(`<li>Tables: ${sources.length}</li>`);
+            title_box.append(`<li>Dates: ${first.D} - ${last.D}</li>`);
+        }
+        else {
+            const first = chart.i;
+            title = acv_utils.join_collapse([prefix, first.l, first.V, first.A, first.D, mcb]);
+            title_box.prepend(`<li>${first.v} ${first.V} ${first.A} ${first.r || ""}</li><li>Lab: ${first.l}</li>`);
+            title_box.append(`<li>Date: ${first.D}</li>`);
+        }
+        title_box.append(`<li>Projections: ${chart.P.length}</li>`);
+        if (chart.t.L)
+            title_box.append(`<li>Layers: ${chart.t.L.length}</li>`);
+        return [title, title_box];
     }
 }
 
