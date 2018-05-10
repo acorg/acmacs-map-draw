@@ -267,16 +267,19 @@ export class AntigenicMapWidget
                 const sources = this.data.c.i.S;
                 const first = sources[0], last = sources[sources.length - 1];
                 title = acv_utils.join_collapse([prefix, first.l, first.V, first.A, first.D + "-" + last.D, mcb, `(${sources.length} tables)`]);
-                title_box.prepend(`<li>${first.v} ${first.V} ${first.A}</li><li>Lab: ${first.l}</li>`);
+                title_box.prepend(`<li>${first.v} ${first.V} ${first.A} ${first.r || ""}</li><li>Lab: ${first.l}</li>`);
                 title_box.append(`<li>Tables: ${sources.length}</li>`);
                 title_box.append(`<li>Dates: ${first.D} - ${last.D}</li>`);
             }
             else {
                 const first = this.data.c.i;
                 title = acv_utils.join_collapse([prefix, first.l, first.V, first.A, first.D, mcb]);
-                title_box.prepend(`<li>${first.v} ${first.V} ${first.A}</li><li>Lab: ${first.l}</li>`);
+                title_box.prepend(`<li>${first.v} ${first.V} ${first.A} ${first.r || ""}</li><li>Lab: ${first.l}</li>`);
                 title_box.append(`<li>Date: ${first.D}</li>`);
             }
+            title_box.append(`<li>Projections: ${this.data.c.P.length}</li>`);
+            if (this.data.c.t.L)
+                title_box.append(`<li>Layers: ${this.data.c.t.L.length}</li>`);
         }
         this.title_element().empty().append(title); //.prop("title", title);
         this.popup_on_hovering_title(title_box);
