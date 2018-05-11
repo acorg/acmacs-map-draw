@@ -93,17 +93,20 @@ class BurgerMenu extends acv_toolkit.Modal
 
 // ----------------------------------------------------------------------
 
-const AntigenicMapWidget_content_html = "\
+const AntigenicMapWidget_left_arrow = "&#x21E6;"; // "&#x27F8;";
+const AntigenicMapWidget_right_arrow = "&#x21E8;"; // "&#x27F9;";
+
+const AntigenicMapWidget_content_html = `\
 <table>\
   <tr>\
     <td class='a-title'>\
       <div class='a-left'>\
-        <span class='a-arrow a-left-arrow a-unselectable'>&#x27F8;</span>\
+        <div class='a-arrow a-left-arrow a-unselectable'>${AntigenicMapWidget_left_arrow}</div>\
       </div>\
       <div class='a-title-title'></div>\
       <div class='a-right'>\
-        <span class='a-right-left a-arrow a-right-arrow a-unselectable'>&#x27F9;</span>\
-        <span class='a-burger'>&#x2630;</span>\
+        <div class='a-arrow a-right-arrow a-unselectable'>${AntigenicMapWidget_right_arrow}</div>\
+        <div class='a-burger'>&#x2630;</div>\
       </div>\
     </td>\
   </tr>\
@@ -114,7 +117,7 @@ const AntigenicMapWidget_content_html = "\
     </td>\
   </tr>\
 </table>\
-";
+`;
 
 // ----------------------------------------------------------------------
 

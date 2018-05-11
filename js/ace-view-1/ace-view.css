@@ -19,6 +19,15 @@ body {
     position: relative;
 }
 
+.amw201805 .a-title .a-left > * {
+    float: left;
+}
+
+.amw201805 .a-title * {
+    vertical-align: bottom;
+    height: 1em;
+}
+
 .amw201805 .a-title > .a-title-title {
     float: left;
     white-space: nowrap;
@@ -30,14 +39,16 @@ body {
     float: right;
 }
 
-.amw201805 .a-title .a-right .a-right-left {
-    position: relative;
+.amw201805 .a-title .a-right > * {
+    float: left;
 }
 
 .amw201805 .a-title .a-arrow {
     font-weight: bold;
     cursor: pointer;
-    bottom: 3px;
+    font-size: 1.2em;
+    position: relative;
+    bottom: 0.2em;
 }
 
 .amw201805 .a-title .a-arrow:hover {
@@ -57,6 +68,8 @@ body {
 .amw201805 .a-title .a-burger {
     cursor: context-menu;
     padding-left: 3px;
+    position: relative;
+    bottom: 0.2em;
 }
 
 .amw201805 table td.a-canvas {
