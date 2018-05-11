@@ -96,9 +96,13 @@ $(DIST)/%: $(BUILD)/%.o | $(ACMACS_MAP_DRAW_LIB)
 APXS_CXX = -S CC=$(CXX) -Wc,-xc++ -Wl,-shared
 APXS_ENV = LTFLAGS="--warnings=all"
 
-$(DIST)/mod_acmacs.so: cc/apache-mod-acmacs.c
-	ln -sf $(abspath $^) $(BUILD)
-	env $(APXS_ENV) apxs $(APXS_CXX) $(CXXFLAGS:%=-Wc,%) -n acmacs_module $(LD_LIBS) -c $(BUILD)/$(notdir $^)
+$(DIST)/mod_acmacs.so: $(DIST)/.libs/mod_acmacs.so
+	ln -sf $^ $@
+
+$(DIST)/.libs/mod_acmacs.so: cc/apache-mod-acmacs.cc
+	@echo apxs does not not understand any file suffixes besides .c, so we have to use .c for C++
+	ln -sf $(abspath $^) $(BUILD)/$(basename $(notdir $^)).c
+	env $(APXS_ENV) apxs $(APXS_CXX) $(CXXFLAGS:%=-Wc,%) -n acmacs_module $(LD_LIBS) -o $@ -c $(BUILD)/$(basename $(notdir $^)).c
 
 mod-clean:
 	rm -r cc/apache-mod-acmacs.[d-z]* cc/.libs

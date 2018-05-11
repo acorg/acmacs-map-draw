@@ -1,5 +1,4 @@
 // -*- C++ -*-
-// apxs does not not understand any file suffixes besides .c, so we have to use .c for C++
 
 #include <string>
 
@@ -21,7 +20,7 @@ module AP_MODULE_DECLARE_DATA ace_module = {
     STANDARD20_MODULE_STUFF, nullptr, nullptr, nullptr, nullptr, nullptr, register_hooks
 };
 
-static void register_hooks(apr_pool_t */*pool*/) {
+static void register_hooks(apr_pool_t * /*pool*/) {
     ap_hook_handler(ace_handler, nullptr, nullptr, APR_HOOK_LAST);
 }
 
