@@ -7,6 +7,7 @@
 #include "apache2/http_core.h"
 #include "apache2/http_protocol.h"
 #include "apache2/http_request.h"
+#include "apache2/util_script.h"
 
 #include "acmacs-base/read-file.hh"
 
@@ -30,10 +31,14 @@ static int acmacs_handler(request_rec *r) {
     if (!r->handler || r->handler != std::string("acmacs"))
         return (DECLINED);
 
+    apr_table_t *GET;
+    ap_args_to_table(r, &GET);
+    const auto acv = apr_table_get(GET, "acv");
+
     const std::string data = acmacs::file::read(r->filename);
 
     ap_set_content_type(r, "application/json");
-    ap_rprintf(r, "{N: \"Hello, world! filename:[%s] args:[%s]\"}\n\n", r->filename, r->args);
+    ap_rprintf(r, "{N: \"Hello, world! filename:[%s] args:[%s] acv:[%s]\"}\n\n", r->filename, r->args, acv ? acv : "null");
       // ap_rputs(data.c_str(), r);
     return OK;
 }
