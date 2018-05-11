@@ -123,7 +123,7 @@ const AntigenicMapWidget_content_html = `\
 
 export class AntigenicMapWidget
 {
-    constructor(div, data, options={drawing_mode: "series-time"}) {
+    constructor(div, data, options={drawing_mode: "series-table"}) {
         this.div = $(div);
         this.options = Object.assign({}, window.amw201805.options, options);
         acv_utils.load_css('/js/ad/map-draw/ace-view-1/ace-view.css');
@@ -437,18 +437,12 @@ class DrawingMode_Simple_Default extends DrawingMode_Base
 
 // ----------------------------------------------------------------------
 
-class DrawingMode_Series_Time extends DrawingMode_Base
+class DrawingMode_Series extends DrawingMode_Base
 {
     constructor(widget) {
         super(widget);
-        let months = new Set();
-        for (let antigen of widget.data.c.a) {
-            const month = this.antigen_month(antigen);
-            if (month)
-                months.add(month);
-        }
-        this.months = [...months].sort();
-        this.set_page(this.months.length - 1);
+        this.make_pages();
+        this.set_page(this.pages.length - 1);
     }
 
     draw() {
@@ -463,13 +457,37 @@ class DrawingMode_Series_Time extends DrawingMode_Base
     }
 
     title() {
-        return this.months[this.page_no];
+        return this.pages[this.page_no];
     }
 
     set_page(page_no, redraw) {
-        if (page_no >= 0 && page_no < this.months.length) {
+        if (page_no >= 0 && page_no < this.pages.length) {
             this.page_no = page_no;
-            const page_month = this.months[page_no];
+            this.make_drawing_order();
+            this.widget.show_title_arrows(this.page_no > 0 ? () => this.set_page(this.page_no - 1, true) : null, this.page_no < (this.pages.length - 1) ? () => this.set_page(this.page_no + 1, true) : null);
+            if (redraw)
+                this.widget.draw();
+        }
+    }
+
+}
+
+// ----------------------------------------------------------------------
+
+class DrawingMode_Series_Time extends DrawingMode_Series
+{
+    make_pages() {
+        let months = new Set();
+        for (let antigen of this.widget.data.c.a) {
+            const month = this.antigen_month(antigen);
+            if (month)
+                months.add(month);
+        }
+        this.pages = [...months].sort();
+    }
+
+    make_drawing_order() {
+            const page_month = this.pages[this.page_no];
             const in_page = antigen => this.antigen_month(antigen) === page_month;
             let antigens = this.widget.data.c.a;
             this.drawing_order = [];
@@ -481,10 +499,6 @@ class DrawingMode_Series_Time extends DrawingMode_Base
                 if (point_no < antigens.length && in_page(antigens[point_no]))
                     this.drawing_order.push(point_no);
             }
-            this.widget.show_title_arrows(this.page_no > 0 ? () => this.set_page(this.page_no - 1, true) : null, this.page_no < (this.months.length - 1) ? () => this.set_page(this.page_no + 1, true) : null);
-            if (redraw)
-                this.widget.draw();
-        }
     }
 
     antigen_month(antigen) {
@@ -494,9 +508,24 @@ class DrawingMode_Series_Time extends DrawingMode_Base
 
 // ----------------------------------------------------------------------
 
+class DrawingMode_Series_Table extends DrawingMode_Series
+{
+    make_pages() {
+        this.pages = ["AAA"];
+    }
+
+    make_drawing_order() {
+        this.drawing_order = this.widget.data.c.p.d;
+    }
+
+}
+
+// ----------------------------------------------------------------------
+
 const drawing_mode_selector_data = {
     "simple-default": DrawingMode_Simple_Default,
     "series-time": DrawingMode_Series_Time,
+    "series-table": DrawingMode_Series_Table,
     null: DrawingMode_Simple_Default
 };
 
