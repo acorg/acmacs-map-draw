@@ -489,7 +489,7 @@ class DrawingMode_Series_Time extends DrawingMode_Series
     make_drawing_order() {
             const page_month = this.pages[this.page_no];
             const in_page = antigen => this.antigen_month(antigen) === page_month;
-            let antigens = this.widget.data.c.a;
+            const antigens = this.widget.data.c.a;
             this.drawing_order = [];
             for (let point_no of this.widget.data.c.p.d) {
                 if (point_no >= antigens.length || (antigens[point_no].S && antigens[point_no].S.indexOf("R") >= 0 && !in_page(antigens[point_no])))
@@ -525,7 +525,14 @@ class DrawingMode_Series_Table extends DrawingMode_Series
     }
 
     make_drawing_order() {
-        this.drawing_order = this.widget.data.c.p.d;
+        const antigens = this.widget.data.c.a;
+        const layer = this.widget.data.c.t.L[this.page_no];
+        const antigen_in_layer = antigen_no => Object.keys(layer[antigen_no]).length > 0;
+        const serum_in_layer = serum_no => {
+            return true;
+        };
+        const point_in_layer = point_no => point_no < antigens.length ? antigen_in_layer(point_no) : serum_in_layer(point_no - antigens.length);
+        this.drawing_order = this.widget.data.c.p.d.filter(point_in_layer);
     }
 
 }
