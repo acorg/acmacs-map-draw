@@ -95,7 +95,7 @@ $(DIST)/%: $(BUILD)/%.o | $(ACMACS_MAP_DRAW_LIB)
 # ----------------------------------------------------------------------
 
 APXS_CXX = -S CC=$(CXX) -Wc,-xc++ -Wl,-shared
-APXS_ENV = LTFLAGS="--warnings=all"
+APXS_ENV = LTFLAGS="-v"
 
 $(DIST)/mod_acmacs.so: $(BUILD)/.libs/apache-mod-acmacs.so
 	ln -sf $^ $@

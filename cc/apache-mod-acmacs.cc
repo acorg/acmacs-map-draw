@@ -33,7 +33,7 @@ static int acmacs_handler(request_rec *r) {
     const std::string data = acmacs::file::read(r->filename);
 
     ap_set_content_type(r, "application/json");
-    ap_rprintf(r, "{N: \"Hello, world! filename:[%s] args:[%s]\", b:2, c:3, d:{a:2}}\n\n", r->filename, r->args);
+    ap_rprintf(r, "{N: \"Hello, world! filename:[%s] args:[%s]\"}\n\n", r->filename, r->args);
       // ap_rputs(data.c_str(), r);
     return OK;
 }
