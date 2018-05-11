@@ -66,6 +66,7 @@ install: check-acmacsd-root install-headers $(TARGETS)
 	ln -sf $(abspath $(DIST))/map-* $(AD_BIN)
 	ln -sf $(abspath $(DIST))/chart-* $(AD_BIN)
 	ln -sf $(abspath $(DIST))/geographic-* $(AD_BIN)
+	ln -sf $(abspath $(DIST))/mod_acmacs.so $(AD_LIB)
 	mkdir -p $(AD_SHARE)/js/map-draw; ln -sf $(shell pwd)/js/* $(AD_SHARE)/js/map-draw
 
 test: install
@@ -96,16 +97,14 @@ $(DIST)/%: $(BUILD)/%.o | $(ACMACS_MAP_DRAW_LIB)
 APXS_CXX = -S CC=$(CXX) -Wc,-xc++ -Wl,-shared
 APXS_ENV = LTFLAGS="--warnings=all"
 
-$(DIST)/mod_acmacs.so: $(DIST)/.libs/mod_acmacs.so
+$(DIST)/mod_acmacs.so: $(BUILD)/.libs/apache-mod-acmacs.so
 	ln -sf $^ $@
 
-$(DIST)/.libs/mod_acmacs.so: cc/apache-mod-acmacs.cc
+$(BUILD)/.libs/apache-mod-acmacs.so: cc/apache-mod-acmacs.cc
 	@echo apxs does not not understand any file suffixes besides .c, so we have to use .c for C++
 	ln -sf $(abspath $^) $(BUILD)/$(basename $(notdir $^)).c
-	env $(APXS_ENV) apxs $(APXS_CXX) $(CXXFLAGS:%=-Wc,%) -n acmacs_module $(LD_LIBS) -o $@ -c $(BUILD)/$(basename $(notdir $^)).c
-
-mod-clean:
-	rm -r cc/apache-mod-acmacs.[d-z]* cc/.libs
+	echo $(LDLIBS)
+	env $(APXS_ENV) apxs $(APXS_CXX) $(CXXFLAGS:%=-Wc,%) -n acmacs_module -L$(AD_LIB) -lacmacsbase.1 -c $(BUILD)/$(basename $(notdir $^)).c
 
 # ======================================================================
 ### Local Variables:
