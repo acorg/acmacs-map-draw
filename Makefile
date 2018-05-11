@@ -97,7 +97,11 @@ APXS_CXX = -S CC=$(CXX) -Wc,-xc++ -Wl,-shared
 APXS_ENV = LTFLAGS="--warnings=all"
 
 $(DIST)/mod_acmacs.so: cc/apache-mod-acmacs.c
-	env $(APXS_ENV) apxs $(APXS_CXX) $(CXXFLAGS:%=-Wc,%) -n acmacs_module $(LD_LIBS) -o $@ -c $^
+	ln -sf $(abspath $^) $(BUILD)
+	env $(APXS_ENV) apxs $(APXS_CXX) $(CXXFLAGS:%=-Wc,%) -n acmacs_module $(LD_LIBS) -c $(BUILD)/$(notdir $^)
+
+mod-clean:
+	rm -r cc/apache-mod-acmacs.[d-z]* cc/.libs
 
 # ======================================================================
 ### Local Variables:
