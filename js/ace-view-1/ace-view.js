@@ -529,7 +529,8 @@ class DrawingMode_Series_Table extends DrawingMode_Series
         const layer = this.widget.data.c.t.L[this.page_no];
         const antigen_in_layer = antigen_no => Object.keys(layer[antigen_no]).length > 0;
         const serum_in_layer = serum_no => {
-            return true;
+            const serum_no_s = "" + serum_no;
+            return layer.some(entry => !!entry[serum_no_s]);
         };
         const point_in_layer = point_no => point_no < antigens.length ? antigen_in_layer(point_no) : serum_in_layer(point_no - antigens.length);
         this.drawing_order = this.widget.data.c.p.d.filter(point_in_layer);
