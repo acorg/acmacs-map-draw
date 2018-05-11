@@ -97,10 +97,11 @@ $(DIST)/%: $(BUILD)/%.o | $(ACMACS_MAP_DRAW_LIB)
 APXS_CXX = -S CC=$(CXX) -Wc,-xc++ -Wl,-shared
 APXS_ENV = LTFLAGS="-v"
 APXS_LIBS_NAMES = acmacsbase.1 acmacschart.2
-ifneq (,$(wildcard $(AD_LIB)/libacmacsbase.1.dylib))
+ifeq (Darwin,$(uname))
   APXS_LIBS = -L$(AD_LIB) $(APXS_LIBS_NAMES:%=-l%)
 else
-  APXS_LIBS = -L$(AD_LIB) $($(basename $(APXS_LIBS_NAMES)):%=-l%)
+  APXS_LIBS_NAMES_FIXED = $(basename $(APXS_LIBS_NAMES))
+  APXS_LIBS = -L$(AD_LIB) $(APXS_LIBS_NAMES_FIXED:%=-l%)
 endif
 
 $(DIST)/mod_acmacs.so: $(BUILD)/.libs/apache-mod-acmacs.so
@@ -109,7 +110,6 @@ $(DIST)/mod_acmacs.so: $(BUILD)/.libs/apache-mod-acmacs.so
 $(BUILD)/.libs/apache-mod-acmacs.so: cc/apache-mod-acmacs.cc
 	@echo apxs does not not understand any file suffixes besides .c, so we have to use .c for C++
 	ln -sf $(abspath $^) $(BUILD)/$(basename $(notdir $^)).c
-	echo $(LDLIBS)
 	env $(APXS_ENV) apxs $(APXS_CXX) $(CXXFLAGS:%=-Wc,%) -n acmacs_module $(APXS_LIBS) -c $(BUILD)/$(basename $(notdir $^)).c
 
 # ======================================================================
