@@ -97,10 +97,12 @@ const AntigenicMapWidget_content_html = "\
 <table>\
   <tr>\
     <td class='a-title'>\
-      <div class='a-left'>&#x27F8;</div>\
+      <div class='a-left'>\
+        <span class='a-arrow a-left-arrow a-unselectable'>&#x27F8;</span>\
+      </div>\
       <div class='a-title-title'></div>\
       <div class='a-right'>\
-        <span class='a-right-left'>&#x27F9;</span>\
+        <span class='a-right-left a-arrow a-right-arrow a-unselectable'>&#x27F9;</span>\
         <span class='a-burger'>&#x2630;</span>\
       </div>\
     </td>\
@@ -118,7 +120,7 @@ const AntigenicMapWidget_content_html = "\
 
 export class AntigenicMapWidget
 {
-    constructor(div, data, options={}) {
+    constructor(div, data, options={drawing_mode: "series-time"}) {
         this.div = $(div);
         this.options = Object.assign({}, window.amw201805.options, options);
         acv_utils.load_css('/js/ad/map-draw/ace-view-1/ace-view.css');
@@ -129,14 +131,6 @@ export class AntigenicMapWidget
 
         this.surface = new ace_surface.Surface(this.canvas, {canvas: this.options.canvas_size});
         this.bind();
-
-        // sval_call("title", data, lines => {
-        //     this.div.find(".amw201804-title-middle").append(lines[0].text);
-        //     //this.div.find(".amw201804-title-left").append("LEFT");
-        //     //this.div.find(".amw201804-title-right").append("\u219D");
-        //     //this.div.find(".amw201804-title-burger-menu").append("\u2630");
-        // });
-
     }
 
     destroy() {
@@ -223,13 +217,13 @@ export class AntigenicMapWidget
             this.surface.grid();
             this.surface.border();
             this.drawing_mode.draw();
+            this.title();
             this.resize_title();
         }
     }
 
     set_drawing_mode(mode) {
         this.drawing_mode = select_drawing_mode(mode, this);
-        this.title();
         this.draw();
     }
 
@@ -254,9 +248,8 @@ export class AntigenicMapWidget
     }
 
     title() {
-        let [title, title_box] = this.drawing_mode.title();
-        this.title_element().empty().append(title); //.prop("title", title);
-        this.popup_on_hovering_title(title_box);
+        this.title_element().empty().append(this.drawing_mode.title());
+        this.popup_on_hovering_title(this.drawing_mode.title_box());
     }
 
     resize(diff) {
@@ -275,6 +268,21 @@ export class AntigenicMapWidget
         const title_right = this.div.find(".a-title > .a-right");
         const title_right_width = title_right.is(":visible") ? title_right.outerWidth(true) : 0;
         title_element.css("width", this.surface.width() - title_left_width - title_right_width - (title_element.outerWidth(true) - title_element.width()));
+    }
+
+    show_title_arrows(left_callback, right_callback) {
+        const left_arrow = this.div.find(".a-title .a-left-arrow");
+        left_arrow.off("click");
+        if (left_callback)
+            left_arrow.show().on("click", left_callback);
+        else
+            left_arrow.hide();
+        const right_arrow = this.div.find(".a-title .a-right-arrow");
+        right_arrow.off("click");
+        if (right_callback)
+            right_arrow.show().on("click", right_callback);
+        else
+            right_arrow.hide();
     }
 
     // value > 1 - zoom out, < 1 - zoom in
@@ -354,12 +362,40 @@ export class AntigenicMapWidget
 
 // ----------------------------------------------------------------------
 
-class DrawingMode_Simple_Default
+class DrawingMode_Base
 {
     constructor(widget) {
         this.widget = widget;
+        widget.show_title_arrows(null, null);
     }
 
+    title_box() {
+        const chart = this.widget.data.c;
+        const projection_no = this.widget.options.projection_no;
+        let title_box = $(`<ul class='a-title-mouse-popup'><li>Antigens: ${chart.a.length}</li><li>Sera: ${chart.s.length}</li></ul>`);
+        if (chart.i.S) {
+            const sources = chart.i.S;
+            const first = sources[0], last = sources[sources.length - 1];
+            title_box.prepend(`<li>${first.v} ${first.V} ${first.A} ${first.r || ""}</li><li>Lab: ${first.l}</li>`);
+            title_box.append(`<li>Tables: ${sources.length}</li>`);
+            title_box.append(`<li>Dates: ${first.D} - ${last.D}</li>`);
+        }
+        else {
+            const first = chart.i;
+            title_box.prepend(`<li>${first.v} ${first.V} ${first.A} ${first.r || ""}</li><li>Lab: ${first.l}</li>`);
+            title_box.append(`<li>Date: ${first.D}</li>`);
+        }
+        title_box.append(`<li>Projections: ${chart.P.length}</li>`);
+        if (chart.t.L)
+            title_box.append(`<li>Layers: ${chart.t.L.length}</li>`);
+        return title_box;
+    }
+}
+
+// ----------------------------------------------------------------------
+
+class DrawingMode_Simple_Default extends DrawingMode_Base
+{
     draw() {
         const chart = this.widget.data.c;
         const projection_no = this.widget.options.projection_no;
@@ -379,7 +415,6 @@ class DrawingMode_Simple_Default
         let mcb = chart.P[projection_no].m;
         mcb = mcb ? ">=" + mcb : ">=none";
         const prefix = acv_utils.join_collapse([stress, `A:${chart.a.length} S:${chart.s.length}`]);
-        let title_box = $(`<ul class='a-title-mouse-popup'><li>Antigens: ${chart.a.length}</li><li>Sera: ${chart.s.length}</li></ul>`);
         let title;
         if (chart.i.N) {
             title = acv_utils.join_collapse([prefix, chart.i.N]);
@@ -388,32 +423,69 @@ class DrawingMode_Simple_Default
             const sources = chart.i.S;
             const first = sources[0], last = sources[sources.length - 1];
             title = acv_utils.join_collapse([prefix, first.l, first.V, first.A, first.D + "-" + last.D, mcb, `(${sources.length} tables)`]);
-            title_box.prepend(`<li>${first.v} ${first.V} ${first.A} ${first.r || ""}</li><li>Lab: ${first.l}</li>`);
-            title_box.append(`<li>Tables: ${sources.length}</li>`);
-            title_box.append(`<li>Dates: ${first.D} - ${last.D}</li>`);
         }
         else {
             const first = chart.i;
             title = acv_utils.join_collapse([prefix, first.l, first.V, first.A, first.D, mcb]);
-            title_box.prepend(`<li>${first.v} ${first.V} ${first.A} ${first.r || ""}</li><li>Lab: ${first.l}</li>`);
-            title_box.append(`<li>Date: ${first.D}</li>`);
         }
-        title_box.append(`<li>Projections: ${chart.P.length}</li>`);
-        if (chart.t.L)
-            title_box.append(`<li>Layers: ${chart.t.L.length}</li>`);
-        return [title, title_box];
+        return title;
     }
 }
 
 // ----------------------------------------------------------------------
 
-class DrawingMode_Series_Time
+class DrawingMode_Series_Time extends DrawingMode_Base
 {
+    constructor(widget) {
+        super(widget);
+        let months = new Set();
+        for (let antigen of widget.data.c.a) {
+            const month = this.antigen_month(antigen);
+            if (month)
+                months.add(month);
+        }
+        this.months = [...months].sort();
+        this.set_page(this.months.length - 1);
+    }
+
     draw() {
+        const chart = this.widget.data.c;
+        const projection_no = this.widget.options.projection_no;
+        this.widget.surface.points({drawing_order: this.drawing_order,
+                                    layout: chart.P[projection_no].l,
+                                    transformation: new ace_surface.Transformation(chart.P[projection_no].t),
+                                    style_index: chart.p.p,
+                                    styles: chart.p.P,
+                                    point_scale: this.widget.parameters.point_scale});
     }
 
     title() {
-        return ["Time series", "Time series"];
+        return this.months[this.page_no];
+    }
+
+    set_page(page_no, redraw) {
+        if (page_no >= 0 && page_no < this.months.length) {
+            this.page_no = page_no;
+            const page_month = this.months[page_no];
+            const in_page = antigen => this.antigen_month(antigen) === page_month;
+            let antigens = this.widget.data.c.a;
+            this.drawing_order = [];
+            for (let point_no of this.widget.data.c.p.d) {
+                if (point_no >= antigens.length || (antigens[point_no].S && antigens[point_no].S.indexOf("R") >= 0 && !in_page(antigens[point_no])))
+                    this.drawing_order.push(point_no);
+            }
+            for (let point_no of this.widget.data.c.p.d) {
+                if (point_no < antigens.length && in_page(antigens[point_no]))
+                    this.drawing_order.push(point_no);
+            }
+            this.widget.show_title_arrows(this.page_no > 0 ? () => this.set_page(this.page_no - 1, true) : null, this.page_no < (this.months.length - 1) ? () => this.set_page(this.page_no + 1, true) : null);
+            if (redraw)
+                this.widget.draw();
+        }
+    }
+
+    antigen_month(antigen) {
+        return antigen.D && antigen.D.substr(0, 7);
     }
 }
 
