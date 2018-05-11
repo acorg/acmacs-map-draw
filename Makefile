@@ -12,7 +12,8 @@ TARGETS = \
     $(DIST)/map-draw \
     $(DIST)/map-procrustes \
     $(DIST)/geographic-draw \
-    $(DIST)/chart-vaccines
+    $(DIST)/chart-vaccines \
+    $(DIST)/mod_acmacs.so
 
 # $(ACMACS_MAP_DRAW_PY_LIB)
 
@@ -89,6 +90,14 @@ $(ACMACS_MAP_DRAW_LIB): $(patsubst %.cc,$(BUILD)/%.o,$(ACMACS_MAP_DRAW_SOURCES))
 $(DIST)/%: $(BUILD)/%.o | $(ACMACS_MAP_DRAW_LIB)
 	@printf "%-16s %s\n" "LINK" $@
 	@$(CXX) $(LDFLAGS) -o $@ $^ $(ACMACS_MAP_DRAW_LIB) $(LDLIBS) $(AD_RPATH)
+
+# ----------------------------------------------------------------------
+
+APXS_CXX = -S CC=$(CXX) -Wc,-xc++ -Wl,-shared
+APXS_ENV = LTFLAGS="--warnings=all"
+
+$(DIST)/mod_acmacs.so: cc/apache-mod-acmacs.c
+	env $(APXS_ENV) apxs $(APXS_CXX) $(CXXFLAGS:%=-Wc,%) -n acmacs_module $(LD_LIBS) -o $@ -c $^
 
 # ======================================================================
 ### Local Variables:
