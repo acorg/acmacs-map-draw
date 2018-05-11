@@ -511,7 +511,17 @@ class DrawingMode_Series_Time extends DrawingMode_Series
 class DrawingMode_Series_Table extends DrawingMode_Series
 {
     make_pages() {
-        this.pages = ["AAA"];
+        const number_of_layers = this.widget.data.c.t.L.length;
+        const make_name = (source, index) => {
+            if (source && source.D)
+                return `${source.D} (${index + 1}/${number_of_layers})`;
+            else
+                return `Table ${index + 1}/${number_of_layers}`;
+        };
+        if (this.widget.data.c.i.S)
+            this.pages = this.widget.data.c.i.S.map(make_name);
+        else
+            this.pages = this.widget.data.c.t.L.map(make_name);
     }
 
     make_drawing_order() {
