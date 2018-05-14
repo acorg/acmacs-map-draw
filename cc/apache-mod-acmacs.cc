@@ -1,5 +1,10 @@
 // -*- C++ -*-
 
+// httpd.conf:
+//
+// LoadModule acmacs_module "mod_acmacs.so"
+// AddHandler acmacs .ace .save .save.xz .acd1 .acd1.xz
+
 #include <iostream>
 #include <string>
 #include <typeinfo>
