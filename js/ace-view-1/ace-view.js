@@ -196,7 +196,7 @@ export class AntigenicMapWidget
     }
 
     load_and_draw(data) {
-        if (typeof(data) === "string" && RegExp("\\.ace(\\?acv=ace)?$").test(data)) {
+        if (typeof(data) === "string" && RegExp("(\\.ace|\\?acv=ace)$").test(data)) {
             $.getJSON(data, result => this.draw(result));
         }
         else if (typeof(data) === "object" && data.version === "acmacs-ace-v1") {

@@ -91,10 +91,7 @@ static const char* sHtml = R"(
    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
    <script type="module">
      import * as acv_m from "/js/ad/map-draw/ace-view-1/ace-view.js";
-     $(document).ready(() => {
-       console.log("doc ready", acv_m);
-       new acv_m.AntigenicMapWidget($("#map1"), "%s?acv=ace");
-     })();
+     $(document).ready(() => new acv_m.AntigenicMapWidget($("#map1"), "%s?acv=ace"));
    </script>
   </head>
   <body>
