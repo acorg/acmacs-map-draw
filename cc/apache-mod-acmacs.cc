@@ -4,6 +4,10 @@
 //
 // LoadModule acmacs_module "mod_acmacs.so"
 // AddHandler acmacs .ace .save .save.xz .acd1 .acd1.xz
+//
+// /etc/apache2/envvars:
+//
+// export ACMACSD_ROOT="/home/.../AD"
 
 #include <iostream>
 #include <string>
