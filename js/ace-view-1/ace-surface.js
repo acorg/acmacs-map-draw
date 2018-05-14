@@ -76,7 +76,7 @@ export class Surface
     points(args) {
         if (!Array.isArray(args.drawing_order))
             args.drawing_order = Array.apply(null, {length: args.layout.length}).map(Number.call, Number);
-        //console.log("points", args);
+        // console.log("points", args, this);
 
         const scale_inv2 = this.scale_inv * this.scale_inv;
         // const transform_coord = coord => coord.length ? [coord[0] * args.transformation[0] + coord[1] * args.transformation[2], coord[0] * args.transformation[1] + coord[1] * args.transformation[3]] : [];
@@ -86,7 +86,7 @@ export class Surface
             const coord = this.layout_size_shape_[point_no];
             if (coord.length > 1) {
                 const style = args.styles[args.style_index[point_no]];
-                const size = (style.s === undefined ? 5 : style.s) * args.point_scale;
+                const size = (style.s === undefined ? 1 : style.s) * args.point_scale;
                 const shape_args = [coord,
                               size,
                               style.F || "transparent",            // fill
@@ -94,9 +94,10 @@ export class Surface
                               style.o === undefined ? 1 : style.o, // outline_width
                               style.r,                             // rotation
                               style.a === undefined ? 1 : style.a  // aspect
-                             ];
-                switch (style.S) {
+                                   ];
+                switch (style.S && style.S[0]) {
                 case "C":
+                case undefined:
                     this.circle_pixels.apply(this, shape_args);
                     coord.push(size * size * 0.25 * scale_inv2, 0);
                     break;
