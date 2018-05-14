@@ -123,7 +123,7 @@ const AntigenicMapWidget_content_html = `\
 
 export class AntigenicMapWidget
 {
-    constructor(div, data, options={drawing_mode: "series-table"}) {
+    constructor(div, data, options={}) { // drawing_mode: "series-table"}) {
         this.div = $(div);
         this.options = Object.assign({}, window.amw201805.options, options);
         acv_utils.load_css('/js/ad/map-draw/ace-view-1/ace-view.css');
@@ -196,7 +196,7 @@ export class AntigenicMapWidget
     }
 
     load_and_draw(data) {
-        if (typeof(data) === "string" && data.substr(data.length - 4) === ".ace") {
+        if (typeof(data) === "string" && RegExp("\\.ace(\\?acv=ace)?$").test(data)) {
             $.getJSON(data, result => this.draw(result));
         }
         else if (typeof(data) === "object" && data.version === "acmacs-ace-v1") {
