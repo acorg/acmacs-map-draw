@@ -77,6 +77,10 @@
     margin: 0;
     padding: 0;
     background: white;
+    white-space: nowrap;
+}
+
+.amw201805-burger-menu > ul {
     width: 8em;
 }
 

@@ -10,7 +10,7 @@ class AMW201805
         this.last_id_ = 0;
         this.options = {
             projection_no: 0,
-            drawing_mode: "simple-default",
+            drawing_mode: "best-projection",
             point_scale: 5,
             point_info_on_hover_delay: 500,
             mouse_popup_offset: {left: 10, top: 20},
@@ -32,18 +32,19 @@ if (window.amw201805 === undefined)
 const BurgerMenu_html = "\
 <ul class='a-level-0'>\
   <li class='a-disabled'><a href='search'>Search</a></li>\
-  <li><a href='#'>Color by</a><span class='a-right-arrow'>&#9654;</span>\
+  <li><a href='#'>Coloring</a><span class='a-right-arrow'>&#9654;</span>\
     <ul class='a-level-1'>\
-      <li><a href='color-by-clade'>Clade</a></li>\
-      <li><a href='color-by-geography'>Geography</a></li>\
-      <li><a href='color-by-default'>Default</a></li>\
+      <li class='a-disabled' name='color-by-clade'><a href='color-by-clade'>by Clade</a></li>\
+      <li class='a-disabled' name='color-by-geography'><a href='color-by-geography'>by Geography</a></li>\
+      <li                    name='color-by-default'><a href='color-by-default'>reset to default</a></li>\
     </ul>\
   </li>\
-  <li><a href='#'>Series</a><span class='a-right-arrow'>&#9654;</span>\
+  <li><a href='#'>Show</a><span class='a-right-arrow'>&#9654;</span>\
     <ul class='a-level-1'>\
-      <li><a href='time-series'>Time</a></li>\
-      <li><a href='table-series'>Table</a></li>\
-      <li><a href='clade-series'>Clade</a></li>\
+      <li class='a-disabled' name='best-projection'><a href='best-projection'>Best projection</a></li>\
+      <li class='a-disabled' name='time-series'><a href='time-series'>Time series</a></li>\
+      <li class='a-disabled' name='table-series'><a href='table-series'>Table series</a></li>\
+      <li class='a-disabled' name='clade-series'><a href='clade-series'>Clade series</a></li>\
     </ul>\
   </li>\
   <li><a href='raw'>Raw</a></li>\
@@ -59,6 +60,7 @@ class BurgerMenu extends acv_toolkit.Modal
         this.parent = parent;
         this.classes("a-window-shadow");
         this.find("ul").addClass("a-window-shadow");
+        this.enable_features();
         this.bind();
     }
 
@@ -70,15 +72,24 @@ class BurgerMenu extends acv_toolkit.Modal
         }));
 
         this.find("a[href='search']").on("click", evt => this.forward(evt, () => console.log("search")));
-        this.find("a[href='color-by-clade']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("simple-clade")));
-        this.find("a[href='color-by-geography']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("simple-geography")));
-        this.find("a[href='color-by-default']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("simple-default")));
+        this.find("a[href='color-by-clade']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("clade")));
+        this.find("a[href='color-by-geography']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("geography")));
+        this.find("a[href='color-by-default']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("default")));
+        this.find("a[href='best-projection']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("best-projection")));
         this.find("a[href='time-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("series-time")));
         this.find("a[href='table-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("series-table")));
         this.find("a[href='clade-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("series-clade")));
         this.find("a[href='help']").on("click", evt => this.forward(evt, () => console.log("help")));
 
         this.find("li.a-disabled a").off("click").on("click", evt => this.forward(evt));
+    }
+
+    enable_features() {
+        for (let feature in this.parent.features) {
+            if (this.parent.features[feature]) {
+                this.find(`li[name='${feature}']`).removeClass('a-disabled');
+            }
+        }
     }
 
     forward(evt, callback) {
@@ -123,7 +134,7 @@ const AntigenicMapWidget_content_html = `\
 
 export class AntigenicMapWidget
 {
-    constructor(div, data, options={}) { // drawing_mode: "series-table"}) {
+    constructor(div, data, options={}) { // drawing_mode: "table-series"}) {
         this.div = $(div);
         this.options = Object.assign({}, window.amw201805.options, options);
         acv_utils.load_css('/js/ad/map-draw/ace-view-1/ace-view.css');
@@ -210,6 +221,7 @@ export class AntigenicMapWidget
     draw(data) {
         if (data) {
             this.data = data;
+            this.set_features();
             this.parameters = {point_scale: this.options.point_scale};
             this.surface.set_viewport(this.calculate_viewport());
             this.make_point_info_labels();
@@ -228,6 +240,17 @@ export class AntigenicMapWidget
     set_drawing_mode(mode) {
         this.drawing_mode = select_drawing_mode(mode, this);
         this.draw();
+    }
+
+    set_features() {
+        this.features = {};
+        const chart = this.data.c;
+        if (chart.P && chart.P.length > 0)
+            this.features["best-projection"] = true;
+        if (chart.t.L && chart.t.L.length > 1)
+            this.features["table-series"] = true;
+        if (chart.a.reduce((with_dates, antigen) => with_dates + (antigen.D ? 1 : 0), 0) > (chart.a.length * 0.25))
+            this.features["time-series"] = true;
     }
 
     calculate_viewport() {
@@ -397,7 +420,7 @@ class DrawingMode_Base
 
 // ----------------------------------------------------------------------
 
-class DrawingMode_Simple_Default extends DrawingMode_Base
+class DrawingMode_Best_Projection extends DrawingMode_Base
 {
     draw() {
         const chart = this.widget.data.c;
@@ -541,10 +564,10 @@ class DrawingMode_Series_Table extends DrawingMode_Series
 // ----------------------------------------------------------------------
 
 const drawing_mode_selector_data = {
-    "simple-default": DrawingMode_Simple_Default,
+    "best-projection": DrawingMode_Best_Projection,
     "series-time": DrawingMode_Series_Time,
     "series-table": DrawingMode_Series_Table,
-    null: DrawingMode_Simple_Default
+    null: DrawingMode_Best_Projection
 };
 
 function select_drawing_mode(mode, widget) {
