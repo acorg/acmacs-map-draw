@@ -14,7 +14,7 @@ class AMW201805
             point_scale: 5,
             point_info_on_hover_delay: 500,
             mouse_popup_offset: {left: 10, top: 20},
-            canvas_size: {width: 500, height: 500},
+            canvas_size: {width: 0, height: 0},
             min_viewport_size: 1.0
         };
     }
@@ -140,10 +140,12 @@ export class AntigenicMapWidget
         acv_utils.load_css('/js/ad/map-draw/ace-view-1/ace-view.css');
         this.div.addClass("amw201805").attr("amw201805_id", window.amw201805.new_id()).append(AntigenicMapWidget_content_html);
         this.canvas = this.div.find("canvas");
-
-        this.load_and_draw(data);
-
+        if (!this.options.canvas_size || !this.options.canvas_size.width || !this.options.canvas_size.height) {
+            const w_size = Math.max(Math.min($(window).width(), $(window).height()) - 40, 200);
+            this.options.canvas_size = {width: w_size, height: w_size};
+        }
         this.surface = new ace_surface.Surface(this.canvas, {canvas: this.options.canvas_size});
+        this.load_and_draw(data);
         this.bind();
     }
 
@@ -402,7 +404,7 @@ class DrawingMode_Base
         if (chart.i.S) {
             const sources = chart.i.S;
             const first = sources[0], last = sources[sources.length - 1];
-            title_box.prepend(`<li>${first.v} ${first.V} ${first.A} ${first.r || ""}</li><li>Lab: ${first.l}</li>`);
+            title_box.prepend(`<li>${first.v || ""} ${first.V || ""} ${first.A || ""} ${first.r || ""}</li><li>Lab: ${first.l}</li>`);
             title_box.append(`<li>Tables: ${sources.length}</li>`);
             title_box.append(`<li>Dates: ${first.D} - ${last.D}</li>`);
         }

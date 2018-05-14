@@ -115,26 +115,28 @@ export class Surface
     }
 
     find_points_at_pixel_offset(offset) {
-        const scaled_offset = this.translate_pixel_offset(offset);
         let result = [];
-        this.drawing_order_.forEach(point_no => {
-            const point_coord_size = this.layout_size_shape_[point_no];
-            switch (point_coord_size[3]) {
-            case 0:             // circle
-                if (((scaled_offset.left - point_coord_size[0])**2 + (scaled_offset.top - point_coord_size[1])**2) <= point_coord_size[2])
-                    result.push(point_no);
-                break;
-            case 1:             // box
-                if (Math.abs(scaled_offset.left - point_coord_size[0]) <= point_coord_size[2] && Math.abs(scaled_offset.top - point_coord_size[1]) <= point_coord_size[2])
-                    result.push(point_no);
-                break;
-            case 2:             // triangle
-                if (Math.abs(scaled_offset.left - point_coord_size[0]) <= point_coord_size[2] && Math.abs(scaled_offset.top - point_coord_size[1]) <= point_coord_size[2])
-                    result.push(point_no);
-                break;
-            }
-        });
-        result.reverse();
+        if (this.viewport) {
+            const scaled_offset = this.translate_pixel_offset(offset);
+            this.drawing_order_.forEach(point_no => {
+                const point_coord_size = this.layout_size_shape_[point_no];
+                switch (point_coord_size[3]) {
+                case 0:             // circle
+                    if (((scaled_offset.left - point_coord_size[0])**2 + (scaled_offset.top - point_coord_size[1])**2) <= point_coord_size[2])
+                        result.push(point_no);
+                    break;
+                case 1:             // box
+                    if (Math.abs(scaled_offset.left - point_coord_size[0]) <= point_coord_size[2] && Math.abs(scaled_offset.top - point_coord_size[1]) <= point_coord_size[2])
+                        result.push(point_no);
+                    break;
+                case 2:             // triangle
+                    if (Math.abs(scaled_offset.left - point_coord_size[0]) <= point_coord_size[2] && Math.abs(scaled_offset.top - point_coord_size[1]) <= point_coord_size[2])
+                        result.push(point_no);
+                    break;
+                }
+            });
+            result.reverse();
+        }
         return result;
     }
 
