@@ -76,10 +76,19 @@ body {
     position: relative;
 }
 
-.amw201805 canvas {
+.amw201805 table td.a-canvas canvas {
     min-width: 100px;
     min-height: 100px;
     vertical-align: bottom;
+}
+
+.amw201805 table td.a-canvas .a-loading-message {
+    position: absolute;
+    top: 2em;
+    left: 0;
+    font-size: 1.5em;
+    z-index: 1;
+    text-align: center;
 }
 
 ul.a-title-mouse-popup {

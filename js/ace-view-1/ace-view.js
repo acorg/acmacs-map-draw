@@ -136,6 +136,7 @@ const AntigenicMapWidget_content_html = `\
     <td class='a-canvas'>\
       <canvas></canvas>\
       <div class='a-window-resizer'></div>\
+      <div class='a-loading-message'>Loading data, please wait ...</div>\
     </td>\
   </tr>\
 </table>\
@@ -221,6 +222,7 @@ export class AntigenicMapWidget
 
     load_and_draw(data) {
         if (typeof(data) === "string" && RegExp("(\\.ace|\\?acv=ace)$").test(data)) {
+            this.div.find(".a-loading-message").css({top: parseFloat(this.canvas.css("padding-top")) + this.canvas.height() / 2, width: this.canvas.width()});
             $.getJSON(data, result => this.draw(result));
         }
         else if (typeof(data) === "object" && data.version === "acmacs-ace-v1") {
@@ -233,6 +235,7 @@ export class AntigenicMapWidget
 
     draw(data) {
         if (data) {
+            this.div.find(".a-loading-message").remove();
             this.data = data;
             this.set_features();
             this.set_plot_spec();
