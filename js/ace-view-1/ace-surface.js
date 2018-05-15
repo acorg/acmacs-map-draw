@@ -72,7 +72,7 @@ export class Surface
         return {left: offset.left * this.scale_inv + this.viewport[0], top: offset.top * this.scale_inv + this.viewport[1]};
     }
 
-    // {drawing_order, layout, transformation, style_index, styles, point_scale, show_as_background: {fill:, outline:}}
+    // {drawing_order, layout, transformation, styles, point_scale, show_as_background: {fill:, outline:}}
     points(args) {
         if (!Array.isArray(args.drawing_order))
             args.drawing_order = Array.apply(null, {length: args.layout.length}).map(Number.call, Number);
@@ -101,7 +101,7 @@ export class Surface
         this.drawing_order_.forEach(point_no => {
             const coord = this.layout_size_shape_[point_no];
             if (coord.length > 1) {
-                const style = args.styles[args.style_index[point_no]];
+                const style = args.styles.styles[args.styles.index[point_no]];
                 const size = (style.s === undefined ? 1 : style.s) * args.point_scale;
                 const shape_args = [coord,
                                     size, fill(style), outline(style),

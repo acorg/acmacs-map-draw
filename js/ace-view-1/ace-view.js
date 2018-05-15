@@ -11,6 +11,7 @@ class AMW201805
         this.options = {
             projection_no: 0,
             drawing_mode: "best-projection",
+            coloring: "default",
             point_scale: 5,
             point_info_on_hover_delay: 500,
             mouse_popup_offset: {left: 10, top: 20},
@@ -144,7 +145,7 @@ const AntigenicMapWidget_content_html = `\
 
 export class AntigenicMapWidget
 {
-    constructor(div, data, options={}) { // drawing_mode: "table-series"}) {
+    constructor(div, data, options={}) { // drawing_mode: "table-series", coloring: "default"}) {
         this.div = $(div);
         this.options = Object.assign({}, window.amw201805.options, options);
         acv_utils.load_css('/js/ad/map-draw/ace-view-1/ace-view.css');
@@ -237,9 +238,11 @@ export class AntigenicMapWidget
             this.parameters = {point_scale: this.options.point_scale};
             this.surface.set_viewport(this.calculate_viewport());
             this.make_point_info_labels();
+            this.set_coloring(this.options.coloring, false);
             this.set_drawing_mode(this.options.drawing_mode);
         }
         else {
+            acv_toolkit.mouse_popup_hide();
             this.surface.background();
             this.surface.grid();
             this.surface.border();
@@ -254,9 +257,10 @@ export class AntigenicMapWidget
         this.draw();
     }
 
-    set_coloring(coloring) {
+    set_coloring(coloring, draw=true) {
         this.coloring = select_coloring(coloring, this);
-        this.draw();
+        if (draw)
+            this.draw();
     }
 
     set_features() {
@@ -445,8 +449,7 @@ class DrawingMode_Best_Projection extends DrawingMode_Base
         this.widget.surface.points({drawing_order: chart.p.d,
                                     layout: chart.P[projection_no].l,
                                     transformation: new ace_surface.Transformation(chart.P[projection_no].t),
-                                    style_index: chart.p.p,
-                                    styles: chart.p.P,
+                                    styles: this.widget.coloring.styles(),
                                     point_scale: this.widget.parameters.point_scale});
     }
 
@@ -492,8 +495,7 @@ class DrawingMode_Series extends DrawingMode_Base
             this.widget.surface.points({drawing_order: this.drawing_order_background,
                                         layout: chart.P[projection_no].l,
                                         transformation: new ace_surface.Transformation(chart.P[projection_no].t),
-                                        style_index: chart.p.p,
-                                        styles: chart.p.P,
+                                        styles: this.widget.coloring.styles(),
                                         point_scale: this.widget.parameters.point_scale,
                                         show_as_background: this.show_as_background()
                                        });
@@ -501,8 +503,7 @@ class DrawingMode_Series extends DrawingMode_Base
         this.widget.surface.points({drawing_order: this.drawing_order,
                                     layout: chart.P[projection_no].l,
                                     transformation: new ace_surface.Transformation(chart.P[projection_no].t),
-                                    style_index: chart.p.p,
-                                    styles: chart.p.P,
+                                    styles: this.widget.coloring.styles(),
                                     point_scale: this.widget.parameters.point_scale});
     }
 
@@ -671,6 +672,10 @@ class Coloring_Base
 
 class Coloring_Default extends Coloring_Base
 {
+    styles() {
+        const chart = this.widget.data.c;
+        return {index: chart.p.p, styles: chart.p.P};
+    }
 }
 
 // ----------------------------------------------------------------------
