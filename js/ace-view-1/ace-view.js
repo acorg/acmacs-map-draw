@@ -718,11 +718,10 @@ class Coloring_Continent extends Coloring_Base
         super(widget);
         const chart = this.widget.data.c;
         const index_orig = chart.p.p, styles_orig = chart.p.P;
-        let all_styles = index_orig.map(style_no  => styles_orig[style_no]);
+        let all_styles = index_orig.map(style_no => Object.assign({}, styles_orig[style_no]));
         chart.a.forEach((antigen, antigen_no) => all_styles[antigen_no].F = continent_colors[antigen.C]);
         chart.s.forEach((serum, serum_no) => delete all_styles[serum_no + chart.a.length].F);
         this.styles_ = {index: Array.apply(null, {length: all_styles.length}).map(Number.call, Number), styles: all_styles};
-        console.log("continent", this.styles_, chart.a);
     }
 
     styles() {
