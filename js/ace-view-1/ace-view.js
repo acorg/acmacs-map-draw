@@ -16,7 +16,8 @@ class AMW201805
             mouse_popup_offset: {left: 10, top: 20},
             canvas_size: {width: 0, height: 0},
             min_viewport_size: 1.0,
-            show_as_background: {fill: "#E0E0E0", outline: "#E0E0E0"}
+            show_as_background: {fill: "#E0E0E0", outline: "#E0E0E0"},
+            show_as_background_shade: 0.8
         };
     }
 
@@ -44,8 +45,10 @@ const BurgerMenu_html = "\
     <ul class='a-level-1'>\
       <li class='a-disabled' name='best-projection'><a href='best-projection'>Best projection</a></li>\
       <li class='a-disabled' name='time-series'><a href='time-series'>Time series</a></li>\
+      <li class='a-disabled' name='time-series-shade'><a href='time-series-shade'>Time series (shade)</a></li>\
       <li class='a-disabled' name='time-series-grey'><a href='time-series-grey'>Time series (grey)</a></li>\
       <li class='a-disabled' name='table-series'><a href='table-series'>Table series</a></li>\
+      <li class='a-disabled' name='table-series-shade'><a href='table-series-shade'>Table series (shade)</a></li>\
       <li class='a-disabled' name='clade-series'><a href='clade-series'>Clade series</a></li>\
     </ul>\
   </li>\
@@ -79,8 +82,10 @@ class BurgerMenu extends acv_toolkit.Modal
         this.find("a[href='color-by-default']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("default")));
         this.find("a[href='best-projection']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("best-projection")));
         this.find("a[href='time-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("time-series")));
+        this.find("a[href='time-series-shade']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("time-series-shade")));
         this.find("a[href='time-series-grey']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("time-series-grey")));
         this.find("a[href='table-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("table-series")));
+        this.find("a[href='table-series-shade']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("table-series-shade")));
         this.find("a[href='clade-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("series-clade")));
         this.find("a[href='help']").on("click", evt => this.forward(evt, () => console.log("help")));
 
@@ -253,9 +258,9 @@ export class AntigenicMapWidget
         if (chart.P && chart.P.length > 0)
             this.features["best-projection"] = true;
         if (chart.t.L && chart.t.L.length > 1)
-            this.features["table-series"] = true;
+            this.features["table-series"] = this.features["table-series-shade"] = true;
         if (chart.a.reduce((with_dates, antigen) => with_dates + (antigen.D ? 1 : 0), 0) > (chart.a.length * 0.25))
-            this.features["time-series"] = this.features["time-series-grey"] = true;
+            this.features["time-series"] = this.features["time-series-shade"] = this.features["time-series-grey"] = true;
     }
 
     calculate_viewport() {
@@ -483,7 +488,7 @@ class DrawingMode_Series extends DrawingMode_Base
                                         style_index: chart.p.p,
                                         styles: chart.p.P,
                                         point_scale: this.widget.parameters.point_scale,
-                                        show_as_background: this.widget.options.show_as_background
+                                        show_as_background: this.show_as_background()
                                        });
         }
         this.widget.surface.points({drawing_order: this.drawing_order,
@@ -508,6 +513,9 @@ class DrawingMode_Series extends DrawingMode_Base
         }
     }
 
+    show_as_background() {
+        return this.widget.options.show_as_background;
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -562,9 +570,14 @@ class DrawingMode_TimeSeriesGrey extends DrawingMode_TimeSeries
                 this.drawing_order_background.push(point_no);
         }
     }
+}
 
-    antigen_month(antigen) {
-        return antigen.D && antigen.D.substr(0, 7);
+// ----------------------------------------------------------------------
+
+class DrawingMode_TimeSeriesShade extends DrawingMode_TimeSeriesGrey
+{
+    show_as_background() {
+        return {shade: this.widget.options.show_as_background_shade};
     }
 }
 
@@ -602,11 +615,35 @@ class DrawingMode_TableSeries extends DrawingMode_Series
 
 // ----------------------------------------------------------------------
 
+class DrawingMode_TableSeriesShade extends DrawingMode_TableSeries
+{
+    make_drawing_order() {
+        const antigens = this.widget.data.c.a;
+        const layer = this.widget.data.c.t.L[this.page_no];
+        const antigen_in_layer = antigen_no => Object.keys(layer[antigen_no]).length > 0;
+        const serum_in_layer = serum_no => {
+            const serum_no_s = "" + serum_no;
+            return layer.some(entry => !!entry[serum_no_s]);
+        };
+        const point_in_layer = point_no => point_no < antigens.length ? antigen_in_layer(point_no) : serum_in_layer(point_no - antigens.length);
+        this.drawing_order = this.widget.data.c.p.d.filter(point_in_layer);
+        this.drawing_order_background = this.widget.data.c.p.d.filter(point_no => !point_in_layer(point_no));
+    }
+
+    show_as_background() {
+        return {shade: this.widget.options.show_as_background_shade};
+    }
+}
+
+// ----------------------------------------------------------------------
+
 const drawing_mode_selector_data = {
     "best-projection": DrawingMode_Best_Projection,
     "time-series": DrawingMode_TimeSeries,
+    "time-series-shade": DrawingMode_TimeSeriesShade,
     "time-series-grey": DrawingMode_TimeSeriesGrey,
     "table-series": DrawingMode_TableSeries,
+    "table-series-shade": DrawingMode_TableSeriesShade,
     null: DrawingMode_Best_Projection
 };
 
