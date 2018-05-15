@@ -22,6 +22,9 @@
 
 #include "acmacs-base/filesystem.hh"
 #include "acmacs-base/gzip.hh"
+#include "acmacs-base/range.hh"
+#include "acmacs-base/virus-name.hh"
+#include "locationdb/locdb.hh"
 #include "acmacs-chart-2/chart-modify.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-chart-2/ace-export.hh"
@@ -122,9 +125,27 @@ void make_html(request_rec *r)
 
 // ----------------------------------------------------------------------
 
-void make_ace(request_rec *r)
+void make_ace(request_rec* r)
 {
+    const auto& locdb = get_locdb(report_time::Yes);
     acmacs::chart::ChartModify chart(acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No));
+    auto antigens = chart.antigens_modify();
+
+    // set continent info
+    for (auto antigen_no : acmacs::range(antigens->size())) {
+        auto& antigen = antigens->at(antigen_no);
+        if (antigen.continent().empty()) {
+            try {
+                antigen.continent(locdb.continent(virus_name::location(antigen.name())));
+            }
+            catch (std::exception& err) {
+                ap_log_rerror(AP_WARN, r, "cannot figure out continent for \"%s\": %s", antigen.name().data(), err.what());
+            }
+            catch (...) {
+                ap_log_rerror(AP_WARN, r, "cannot figure out continent for \"%s\": unknown exception", antigen.name().data());
+            }
+        }
+    }
 
     ap_set_content_type(r, "application/json");
     r->content_encoding = "gzip";
