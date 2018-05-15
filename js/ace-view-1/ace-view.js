@@ -695,6 +695,23 @@ class Coloring_Default extends Coloring_Base
 
 // ----------------------------------------------------------------------
 
+class Coloring_WithAlllStyles extends Coloring_Base
+{
+    constructor(widget) {
+        super(widget);
+        const chart = this.widget.data.c;
+        const all_styles = chart.p.p.map(style_no => Object.assign({}, chart.p.P[style_no]));
+        this.styles_ = {index: Array.apply(null, {length: all_styles.length}).map(Number.call, Number), styles: all_styles};
+        chart.s.forEach((serum, serum_no) => delete this.styles_.styles[serum_no + chart.a.length].F);
+    }
+
+    styles() {
+        return this.styles_;
+    }
+}
+
+// ----------------------------------------------------------------------
+
 const continent_colors = {
     "EUROPE":            "#00ff00",
     "CENTRAL-AMERICA":   "#aaf9ff",
@@ -712,27 +729,59 @@ const continent_colors = {
     undefined:           "#7f7f7f"
 };
 
-class Coloring_Continent extends Coloring_Base
+class Coloring_Continent extends Coloring_WithAlllStyles
 {
     constructor(widget) {
         super(widget);
         const chart = this.widget.data.c;
-        const index_orig = chart.p.p, styles_orig = chart.p.P;
-        let all_styles = index_orig.map(style_no => Object.assign({}, styles_orig[style_no]));
-        chart.a.forEach((antigen, antigen_no) => all_styles[antigen_no].F = continent_colors[antigen.C]);
-        chart.s.forEach((serum, serum_no) => delete all_styles[serum_no + chart.a.length].F);
-        this.styles_ = {index: Array.apply(null, {length: all_styles.length}).map(Number.call, Number), styles: all_styles};
-    }
-
-    styles() {
-        return this.styles_;
+        chart.a.forEach((antigen, antigen_no) => this.styles_.styles[antigen_no].F = continent_colors[antigen.C]);
     }
 }
 
 // ----------------------------------------------------------------------
 
-class Coloring_Clade extends Coloring_Base
+const clade_colors = {
+    "3C3": "#6495ed",
+    "3C3A": "#00ff00",
+    "3C3B": "#0000ff",
+    "3C2A": "#ff0000",
+    "3C2A1": "#8b0000",
+    "6B1": "#0000ff",
+    "6B2": "#ff0000",
+    "1": "#0000ff",
+    "1A": "#6495ed",
+    "1B": "#ff0000",
+    "DEL2017": "#de8244",
+    "TRIPLEDEL2017": "#bf3eff",
+    "Y2": "#6495ed",
+    "Y3": "#ff0000",
+    undefined: "#c0c0c0",
+    null: "#c0c0c0"
+};
+
+class Coloring_Clade extends Coloring_WithAlllStyles
 {
+    constructor(widget) {
+        super(widget);
+        const chart = this.widget.data.c;
+        chart.a.forEach((antigen, antigen_no) => {
+            const clades = antigen.c;
+            if (!clades || clades.length === 0)
+                this.styles_.styles[antigen_no].F = clade_colors[null];
+            else if (clades.length === 1)
+                this.styles_.styles[antigen_no].F = clade_colors[clades[0]];
+            else {
+                let chosen_clade = "", color;
+                for (let clade of clades) {
+                    if (clade.length > chosen_clade.length && clade_colors[clade]) {
+                        chosen_clade = clade;
+                        color = clade_colors[clade];
+                    }
+                }
+                this.styles_.styles[antigen_no].F = color || clade_colors[null];
+            }
+        });
+    }
 }
 
 // ----------------------------------------------------------------------
