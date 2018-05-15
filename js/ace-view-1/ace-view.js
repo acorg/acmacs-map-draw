@@ -37,8 +37,8 @@ const BurgerMenu_html = "\
   <li class='a-disabled'><a href='search'>Search</a></li>\
   <li><a href='#'>Coloring</a><span class='a-right-arrow'>&#9654;</span>\
     <ul class='a-level-1'>\
-      <li class='a-disabled' name='color-by-clade'><a href='color-by-clade'>by Clade</a></li>\
-      <li class='a-disabled' name='color-by-continent'><a href='color-by-continent'>by Geography</a></li>\
+      <li class='a-disabled' name='clades'><a href='clades'>by Clade</a></li>\
+      <li class='a-disabled' name='continents'><a href='continents'>by Geography</a></li>\
       <li                    name='color-by-default'><a href='color-by-default'>reset to default</a></li>\
     </ul>\
   </li>\
@@ -80,8 +80,8 @@ class BurgerMenu extends acv_toolkit.Modal
         }));
 
         this.find("a[href='search']").on("click", evt => this.forward(evt, () => console.log("search")));
-        this.find("a[href='color-by-clade']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("clade")));
-        this.find("a[href='color-by-continent']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("continent")));
+        this.find("a[href='clades']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("clade")));
+        this.find("a[href='continents']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("continent")));
         this.find("a[href='color-by-default']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("default")));
         this.find("a[href='best-projection']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("best-projection")));
         this.find("a[href='time-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("time-series")));
@@ -272,6 +272,10 @@ export class AntigenicMapWidget
             this.features["table-series"] = this.features["table-series-shade"] = true;
         if (chart.a.reduce((with_dates, antigen) => with_dates + (antigen.D ? 1 : 0), 0) > (chart.a.length * 0.25))
             this.features["time-series"] = this.features["time-series-shade"] = this.features["time-series-grey"] = true;
+        if (chart.a.reduce((with_clades, antigen) => with_clades + (antigen.c && antigen.c.length > 0 ? 1 : 0), 0) > 0)
+            this.features["clades"] = true;
+        if (chart.a.reduce((with_continents, antigen) => with_continents + (antigen.C ? 1 : 0), 0) > 0)
+            this.features["continents"] = true;
     }
 
     calculate_viewport() {
