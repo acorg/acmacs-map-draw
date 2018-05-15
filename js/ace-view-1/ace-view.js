@@ -416,7 +416,7 @@ export class AntigenicMapWidget
     make_point_info_labels() {
         this.point_info_labels_ = [];
         for (let antigen of this.data.c.a)
-            this.point_info_labels_.push(acv_utils.join_collapse([antigen.N, antigen.R].concat(antigen.a, antigen.P, antigen.D && "[" + antigen.D + "]", antigen.C)));
+            this.point_info_labels_.push(acv_utils.join_collapse([antigen.N, antigen.R].concat(antigen.a, antigen.P, antigen.D && "[" + antigen.D + "]"))); // , antigen.C
         for (let serum of this.data.c.s)
             this.point_info_labels_.push(acv_utils.join_collapse([serum.N, serum.R].concat(serum.a, serum.I)));
     }
