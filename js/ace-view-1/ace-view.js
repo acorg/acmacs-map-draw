@@ -235,6 +235,7 @@ export class AntigenicMapWidget
         if (data) {
             this.data = data;
             this.set_features();
+            this.set_plot_spec();
             this.parameters = {point_scale: this.options.point_scale};
             this.surface.set_viewport(this.calculate_viewport());
             this.make_point_info_labels();
@@ -276,6 +277,16 @@ export class AntigenicMapWidget
             this.features["clades"] = true;
         if (chart.a.reduce((with_continents, antigen) => with_continents + (antigen.C ? 1 : 0), 0) > 0)
             this.features["continents"] = true;
+    }
+
+    set_plot_spec() {
+        const chart = this.data.c;
+        if (!chart.p || !chart.p.d) {
+            chart.p = {P: [{s: 1.5}, {F: "#00FF00"}, {s: 1.5, S: "B"}], p: [], d: []};
+            chart.a.forEach((antigen, antigen_no) => { if (!antigen.S || antigen.S.indexOf("R") < 0) { chart.p.d.push(antigen_no); chart.p.p[antigen_no] = 1; } });
+            chart.s.forEach((serum, serum_no) => { const point_no = serum_no + chart.a.length; chart.p.d.push(point_no); chart.p.p[point_no] = 2; });
+            chart.a.forEach((antigen, antigen_no) => { if (antigen.S && antigen.S.indexOf("R") >= 0) { chart.p.d.push(antigen_no); chart.p.p[antigen_no] = 0; } });
+        }
     }
 
     calculate_viewport() {
