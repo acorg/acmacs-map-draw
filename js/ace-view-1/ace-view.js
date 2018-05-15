@@ -37,7 +37,7 @@ const BurgerMenu_html = "\
   <li><a href='#'>Coloring</a><span class='a-right-arrow'>&#9654;</span>\
     <ul class='a-level-1'>\
       <li class='a-disabled' name='color-by-clade'><a href='color-by-clade'>by Clade</a></li>\
-      <li class='a-disabled' name='color-by-geography'><a href='color-by-geography'>by Geography</a></li>\
+      <li class='a-disabled' name='color-by-continent'><a href='color-by-continent'>by Geography</a></li>\
       <li                    name='color-by-default'><a href='color-by-default'>reset to default</a></li>\
     </ul>\
   </li>\
@@ -80,7 +80,7 @@ class BurgerMenu extends acv_toolkit.Modal
 
         this.find("a[href='search']").on("click", evt => this.forward(evt, () => console.log("search")));
         this.find("a[href='color-by-clade']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("clade")));
-        this.find("a[href='color-by-geography']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("geography")));
+        this.find("a[href='color-by-continent']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("continent")));
         this.find("a[href='color-by-default']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("default")));
         this.find("a[href='best-projection']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("best-projection")));
         this.find("a[href='time-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("time-series")));
@@ -251,6 +251,11 @@ export class AntigenicMapWidget
 
     set_drawing_mode(mode) {
         this.drawing_mode = select_drawing_mode(mode, this);
+        this.draw();
+    }
+
+    set_coloring(coloring) {
+        this.coloring = select_coloring(coloring, this);
         this.draw();
     }
 
@@ -651,6 +656,46 @@ const drawing_mode_selector_data = {
 
 function select_drawing_mode(mode, widget) {
     return new (drawing_mode_selector_data[mode] || drawing_mode_selector_data[null])(widget);
+}
+
+// ----------------------------------------------------------------------
+
+class Coloring_Base
+{
+    constructor(widget) {
+        this.widget = widget;
+    }
+}
+
+// ----------------------------------------------------------------------
+
+class Coloring_Default extends Coloring_Base
+{
+}
+
+// ----------------------------------------------------------------------
+
+class Coloring_Continent extends Coloring_Base
+{
+}
+
+// ----------------------------------------------------------------------
+
+class Coloring_Clade extends Coloring_Base
+{
+}
+
+// ----------------------------------------------------------------------
+
+const coloring_selector_data = {
+    "clade": Coloring_Clade,
+    "continent": Coloring_Continent,
+    "default": Coloring_Default,
+    null: Coloring_Default
+};
+
+function select_coloring(coloring, widget) {
+    return new (coloring_selector_data[coloring] || coloring_selector_data[null])(widget);
 }
 
 // ----------------------------------------------------------------------
