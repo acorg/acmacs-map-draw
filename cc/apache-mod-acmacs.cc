@@ -25,6 +25,7 @@
 #include "acmacs-base/range.hh"
 #include "acmacs-base/virus-name.hh"
 #include "locationdb/locdb.hh"
+#include "seqdb/seqdb.hh"
 #include "acmacs-chart-2/chart-modify.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-chart-2/ace-export.hh"
@@ -128,6 +129,8 @@ void make_html(request_rec *r)
 void make_ace(request_rec* r)
 {
     const auto& locdb = get_locdb(report_time::Yes);
+    const auto& seqdb = seqdb::get(report_time::Yes);
+
     acmacs::chart::ChartModify chart(acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No));
     auto antigens = chart.antigens_modify();
 
@@ -144,6 +147,25 @@ void make_ace(request_rec* r)
             catch (...) {
                 ap_log_rerror(AP_WARN, r, "cannot figure out continent for \"%s\": unknown exception", antigen.name().data());
             }
+        }
+    }
+
+    // set clade info
+    for (auto antigen_no : acmacs::range(antigens->size())) {
+        auto& antigen = antigens->at(antigen_no);
+        try {
+            const auto* entry_seq = seqdb.find_hi_name(antigen.full_name());
+            if (entry_seq) {
+                for (const auto& clade : entry_seq->seq().clades()) {
+                    antigen.add_clade(clade);
+                }
+            }
+        }
+        catch (std::exception& err) {
+            ap_log_rerror(AP_WARN, r, "cannot figure out clade for \"%s\": %s", antigen.name().data(), err.what());
+        }
+        catch (...) {
+            ap_log_rerror(AP_WARN, r, "cannot figure out clade for \"%s\": unknown exception", antigen.name().data());
         }
     }
 
