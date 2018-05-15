@@ -15,7 +15,8 @@ class AMW201805
             point_info_on_hover_delay: 500,
             mouse_popup_offset: {left: 10, top: 20},
             canvas_size: {width: 0, height: 0},
-            min_viewport_size: 1.0
+            min_viewport_size: 1.0,
+            show_as_background: {fill: "#E0E0E0", outline: "#E0E0E0"}
         };
     }
 
@@ -43,6 +44,7 @@ const BurgerMenu_html = "\
     <ul class='a-level-1'>\
       <li class='a-disabled' name='best-projection'><a href='best-projection'>Best projection</a></li>\
       <li class='a-disabled' name='time-series'><a href='time-series'>Time series</a></li>\
+      <li class='a-disabled' name='time-series-grey'><a href='time-series-grey'>Time series (grey)</a></li>\
       <li class='a-disabled' name='table-series'><a href='table-series'>Table series</a></li>\
       <li class='a-disabled' name='clade-series'><a href='clade-series'>Clade series</a></li>\
     </ul>\
@@ -76,8 +78,9 @@ class BurgerMenu extends acv_toolkit.Modal
         this.find("a[href='color-by-geography']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("geography")));
         this.find("a[href='color-by-default']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("default")));
         this.find("a[href='best-projection']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("best-projection")));
-        this.find("a[href='time-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("series-time")));
-        this.find("a[href='table-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("series-table")));
+        this.find("a[href='time-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("time-series")));
+        this.find("a[href='time-series-grey']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("time-series-grey")));
+        this.find("a[href='table-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("table-series")));
         this.find("a[href='clade-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("series-clade")));
         this.find("a[href='help']").on("click", evt => this.forward(evt, () => console.log("help")));
 
@@ -252,7 +255,7 @@ export class AntigenicMapWidget
         if (chart.t.L && chart.t.L.length > 1)
             this.features["table-series"] = true;
         if (chart.a.reduce((with_dates, antigen) => with_dates + (antigen.D ? 1 : 0), 0) > (chart.a.length * 0.25))
-            this.features["time-series"] = true;
+            this.features["time-series"] = this.features["time-series-grey"] = true;
     }
 
     calculate_viewport() {
@@ -473,6 +476,16 @@ class DrawingMode_Series extends DrawingMode_Base
     draw() {
         const chart = this.widget.data.c;
         const projection_no = this.widget.options.projection_no;
+        if (this.drawing_order_background) {
+            this.widget.surface.points({drawing_order: this.drawing_order_background,
+                                        layout: chart.P[projection_no].l,
+                                        transformation: new ace_surface.Transformation(chart.P[projection_no].t),
+                                        style_index: chart.p.p,
+                                        styles: chart.p.P,
+                                        point_scale: this.widget.parameters.point_scale,
+                                        show_as_background: this.widget.options.show_as_background
+                                       });
+        }
         this.widget.surface.points({drawing_order: this.drawing_order,
                                     layout: chart.P[projection_no].l,
                                     transformation: new ace_surface.Transformation(chart.P[projection_no].t),
@@ -499,7 +512,7 @@ class DrawingMode_Series extends DrawingMode_Base
 
 // ----------------------------------------------------------------------
 
-class DrawingMode_Series_Time extends DrawingMode_Series
+class DrawingMode_TimeSeries extends DrawingMode_Series
 {
     make_pages() {
         let months = new Set();
@@ -512,18 +525,19 @@ class DrawingMode_Series_Time extends DrawingMode_Series
     }
 
     make_drawing_order() {
-            const page_month = this.pages[this.page_no];
-            const in_page = antigen => this.antigen_month(antigen) === page_month;
-            const antigens = this.widget.data.c.a;
-            this.drawing_order = [];
-            for (let point_no of this.widget.data.c.p.d) {
-                if (point_no >= antigens.length || (antigens[point_no].S && antigens[point_no].S.indexOf("R") >= 0 && !in_page(antigens[point_no])))
-                    this.drawing_order.push(point_no);
-            }
-            for (let point_no of this.widget.data.c.p.d) {
-                if (point_no < antigens.length && in_page(antigens[point_no]))
-                    this.drawing_order.push(point_no);
-            }
+        const page_month = this.pages[this.page_no];
+        const in_page = antigen => this.antigen_month(antigen) === page_month;
+        const antigens = this.widget.data.c.a;
+        this.drawing_order = [];
+        this.drawing_order_background = undefined;
+        for (let point_no of this.widget.data.c.p.d) {
+            if (point_no >= antigens.length || (antigens[point_no].S && antigens[point_no].S.indexOf("R") >= 0 && !in_page(antigens[point_no])))
+                this.drawing_order.push(point_no);
+        }
+        for (let point_no of this.widget.data.c.p.d) {
+            if (point_no < antigens.length && in_page(antigens[point_no]))
+                this.drawing_order.push(point_no);
+        }
     }
 
     antigen_month(antigen) {
@@ -533,7 +547,30 @@ class DrawingMode_Series_Time extends DrawingMode_Series
 
 // ----------------------------------------------------------------------
 
-class DrawingMode_Series_Table extends DrawingMode_Series
+class DrawingMode_TimeSeriesGrey extends DrawingMode_TimeSeries
+{
+    make_drawing_order() {
+        const page_month = this.pages[this.page_no];
+        const in_page = antigen => this.antigen_month(antigen) === page_month;
+        const antigens = this.widget.data.c.a;
+        this.drawing_order = [];
+        this.drawing_order_background = [];
+        for (let point_no of this.widget.data.c.p.d) {
+            if (point_no < antigens.length && in_page(antigens[point_no]))
+                this.drawing_order.push(point_no);
+            else
+                this.drawing_order_background.push(point_no);
+        }
+    }
+
+    antigen_month(antigen) {
+        return antigen.D && antigen.D.substr(0, 7);
+    }
+}
+
+// ----------------------------------------------------------------------
+
+class DrawingMode_TableSeries extends DrawingMode_Series
 {
     make_pages() {
         const number_of_layers = this.widget.data.c.t.L.length;
@@ -567,8 +604,9 @@ class DrawingMode_Series_Table extends DrawingMode_Series
 
 const drawing_mode_selector_data = {
     "best-projection": DrawingMode_Best_Projection,
-    "series-time": DrawingMode_Series_Time,
-    "series-table": DrawingMode_Series_Table,
+    "time-series": DrawingMode_TimeSeries,
+    "time-series-grey": DrawingMode_TimeSeriesGrey,
+    "table-series": DrawingMode_TableSeries,
     null: DrawingMode_Best_Projection
 };
 

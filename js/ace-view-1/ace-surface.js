@@ -72,11 +72,21 @@ export class Surface
         return {left: offset.left * this.scale_inv + this.viewport[0], top: offset.top * this.scale_inv + this.viewport[1]};
     }
 
-    // {drawing_order, layout, transformation, style_index, styles, point_scale}
+    // {drawing_order, layout, transformation, style_index, styles, point_scale, show_as_background: {fill:, outline:}}
     points(args) {
         if (!Array.isArray(args.drawing_order))
             args.drawing_order = Array.apply(null, {length: args.layout.length}).map(Number.call, Number);
         // console.log("points", args, this);
+
+        let fill, outline;
+        if (args.show_as_background) {
+            fill = style => (style.F && args.show_as_background.fill) || "transparent";
+            outline = style => args.show_as_background.outline;
+        }
+        else {
+            fill = style => style.F || "transparent";
+            outline = style => style.O || "black";
+        }
 
         const scale_inv2 = this.scale_inv * this.scale_inv;
         // const transform_coord = coord => coord.length ? [coord[0] * args.transformation[0] + coord[1] * args.transformation[2], coord[0] * args.transformation[1] + coord[1] * args.transformation[3]] : [];
@@ -88,12 +98,10 @@ export class Surface
                 const style = args.styles[args.style_index[point_no]];
                 const size = (style.s === undefined ? 1 : style.s) * args.point_scale;
                 const shape_args = [coord,
-                              size,
-                              style.F || "transparent",            // fill
-                              style.O || "black",                  // ouline
-                              style.o === undefined ? 1 : style.o, // outline_width
-                              style.r,                             // rotation
-                              style.a === undefined ? 1 : style.a  // aspect
+                                    size, fill(style), outline(style),
+                                    style.o === undefined ? 1 : style.o, // outline_width
+                                    style.r,                             // rotation
+                                    style.a === undefined ? 1 : style.a  // aspect
                                    ];
                 switch (style.S && style.S[0]) {
                 case "C":
