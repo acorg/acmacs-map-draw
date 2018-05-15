@@ -405,7 +405,7 @@ export class AntigenicMapWidget
     make_point_info_labels() {
         this.point_info_labels_ = [];
         for (let antigen of this.data.c.a)
-            this.point_info_labels_.push(acv_utils.join_collapse([antigen.N, antigen.R].concat(antigen.a, antigen.P, antigen.D && "[" + antigen.D + "]")));
+            this.point_info_labels_.push(acv_utils.join_collapse([antigen.N, antigen.R].concat(antigen.a, antigen.P, antigen.D && "[" + antigen.D + "]", antigen.C)));
         for (let serum of this.data.c.s)
             this.point_info_labels_.push(acv_utils.join_collapse([serum.N, serum.R].concat(serum.a, serum.I)));
     }
@@ -711,6 +711,7 @@ class Coloring_Continent extends Coloring_Base
         chart.a.forEach((antigen, antigen_no) => all_styles[antigen_no].F = continent_colors[antigen.C]);
         chart.s.forEach((serum, serum_no) => delete all_styles[serum_no + chart.a.length].F);
         this.styles_ = {index: Array.apply(null, {length: all_styles.length}).map(Number.call, Number), styles: all_styles};
+        console.log("continent", this.styles_, chart.a);
     }
 
     styles() {
