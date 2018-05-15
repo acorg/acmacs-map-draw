@@ -21,6 +21,7 @@
 #include "apache2/util_script.h"
 
 #include "acmacs-base/filesystem.hh"
+#include "acmacs-base/gzip.hh"
 #include "acmacs-chart-2/chart-modify.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-chart-2/ace-export.hh"
@@ -126,7 +127,10 @@ void make_ace(request_rec *r)
     acmacs::chart::ChartModify chart(acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No));
 
     ap_set_content_type(r, "application/json");
-    ap_rputs(ace_export(chart, "mod_acmacs").data(), r);
+    r->content_encoding = "gzip";
+    const auto exported = ace_export(chart, "mod_acmacs");
+    const auto compressed = acmacs::file::gzip_compress(exported);
+    ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
 
 } // make_ace
 
