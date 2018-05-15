@@ -684,8 +684,38 @@ class Coloring_Default extends Coloring_Base
 
 // ----------------------------------------------------------------------
 
+const continent_colors = {
+    "EUROPE":            "#00ff00",
+    "CENTRAL-AMERICA":   "#aaf9ff",
+    "MIDDLE-EAST":       "#8000ff",
+    "NORTH-AMERICA":     "#00008b",
+    "AFRICA":            "#ff7f00",
+    "ASIA":              "#ff0000",
+    "RUSSIA":            "#b03060",
+    "AUSTRALIA-OCEANIA": "#ff69b4",
+    "SOUTH-AMERICA":     "#40e0d0",
+    "ANTARCTICA":        "#7f7f7f",
+    "UNKNOWN":           "#7f7f7f",
+    "":                  "#7f7f7f",
+    null:                "#7f7f7f",
+    undefined:           "#7f7f7f"
+};
+
 class Coloring_Continent extends Coloring_Base
 {
+    constructor(widget) {
+        super(widget);
+        const chart = this.widget.data.c;
+        const index_orig = chart.p.p, styles_orig = chart.p.P;
+        let all_styles = index_orig.map(style_no  => styles_orig[style_no]);
+        chart.a.forEach((antigen, antigen_no) => all_styles[antigen_no].F = continent_colors[antigen.C]);
+        chart.s.forEach((serum, serum_no) => delete all_styles[serum_no + chart.a.length].F);
+        this.styles_ = {index: Array.apply(null, {length: all_styles.length}).map(Number.call, Number), styles: all_styles};
+    }
+
+    styles() {
+        return this.styles_;
+    }
 }
 
 // ----------------------------------------------------------------------
