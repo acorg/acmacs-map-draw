@@ -44,12 +44,14 @@ const BurgerMenu_html = "\
   <li><a href='#'>Show</a><span class='a-right-arrow'>&#9654;</span>\
     <ul class='a-level-1'>\
       <li class='a-disabled' name='best-projection'><a href='best-projection'>Best projection</a></li>\
+      <li class='a-separator'></li>\
       <li class='a-disabled' name='time-series'><a href='time-series'>Time series</a></li>\
       <li class='a-disabled' name='time-series-shade'><a href='time-series-shade'>Time series (shade)</a></li>\
       <li class='a-disabled' name='time-series-grey'><a href='time-series-grey'>Time series (grey)</a></li>\
+      <li class='a-separator'></li>\
       <li class='a-disabled' name='table-series'><a href='table-series'>Table series</a></li>\
       <li class='a-disabled' name='table-series-shade'><a href='table-series-shade'>Table series (shade)</a></li>\
-      <li class='a-disabled' name='clade-series'><a href='clade-series'>Clade series</a></li>\
+      <!-- <li class='a-disabled' name='clade-series'><a href='clade-series'>Clade series</a></li> -->\
     </ul>\
   </li>\
   <li><a href='raw'>Raw</a></li>\
