@@ -34,7 +34,7 @@ if (window.amw201805 === undefined)
 
 const BurgerMenu_html = "\
 <ul class='a-level-0'>\
-  <li class='a-disabled'><a href='search'>Search</a></li>\
+  <!-- <li class='a-disabled'><a href='search'>Search</a></li> -->\
   <li><a href='#'>Coloring</a><span class='a-right-arrow'>&#9654;</span>\
     <ul class='a-level-1'>\
       <li class='a-disabled' name='clades'><a href='clades'>by Clade</a></li>\
@@ -90,7 +90,7 @@ class BurgerMenu extends acv_toolkit.Modal
         this.find("a[href='table-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("table-series")));
         this.find("a[href='table-series-shade']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("table-series-shade")));
         this.find("a[href='clade-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("series-clade")));
-        this.find("a[href='help']").on("click", evt => this.forward(evt, () => console.log("help")));
+        this.find("a[href='help']").on("click", evt => this.forward(evt, () => this.parent.show_help(evt.currentTarget)));
 
         this.find("li.a-disabled a").off("click").on("click", evt => this.forward(evt));
     }
@@ -112,6 +112,18 @@ class BurgerMenu extends acv_toolkit.Modal
         }
     }
 }
+
+// ----------------------------------------------------------------------
+
+const AntigenicMapWidget_help_html = "\
+<div class='a-help'>\
+  <ul>\
+    <li>Change point size - Shift-Wheel</li>\
+    <li>Zoom - Alt/Option-Wheel</li>\
+    <li>Move map - Alt/Option-Drag</li>\
+  </ul>\
+</div>\
+";
 
 // ----------------------------------------------------------------------
 
@@ -422,6 +434,10 @@ export class AntigenicMapWidget
             this.point_info_labels_.push(acv_utils.join_collapse([antigen.N, antigen.R].concat(antigen.a, antigen.P, antigen.D && "[" + antigen.D + "]"))); // , antigen.C
         for (let serum of this.data.c.s)
             this.point_info_labels_.push(acv_utils.join_collapse([serum.N, serum.R].concat(serum.a, serum.I)));
+    }
+
+    show_help(parent) {
+        new acv_toolkit.MovableWindow({title: "Help", content: AntigenicMapWidget_help_html, parent: parent, id: "AntigenicMapWidget_help"});
     }
 }
 

@@ -102,6 +102,20 @@ ul.a-title-mouse-popup > li {
     white-space: nowrap;
 }
 
+#AntigenicMapWidget_help {
+}
+
+#AntigenicMapWidget_help .a-content {
+    height: auto;
+    width: auto;
+}
+
+#AntigenicMapWidget_help ul {
+    list-style-type: none;
+    margin: 1em;
+    padding: 0;
+}
+
 /* ---------------------------------------------------------------------- */
 
 /* ---------------------------------------------------------------------- */
