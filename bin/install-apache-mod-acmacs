@@ -1,0 +1,23 @@
+#! /bin/bash
+
+on_error()
+{
+    (echo $PROG FAILED; echo "LOG: /scp:$HOSTNAME:$LOG") | mail -s "$(hostname) $PROG FAILED" eu@antigenic-cartography.org
+    exit 1
+}
+
+trap on_error ERR
+
+if [[ "$(hostname)" == "i19" ]]; then
+    LOG=/syn/eu/log/install-apache-mod-acmacs.log
+    exec > "$LOG"
+    exec 2>&1
+
+    MOD_SRC="$HOME/AD/lib/mod_acmacs.so"
+    if [[ -f "${MOD_SRC}" ]]; then
+        mkdir -p /syn/eu/apache-modules
+        cp -f "${MOD_SRC}" /syn/eu/apache-modules
+        sudo apachectl -t
+        sudo apachectl restart
+    fi
+fi
