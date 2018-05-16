@@ -455,15 +455,25 @@ class DrawingMode_Base
         const box_virus = entry => `<li>${entry.v || ""} ${entry.V || ""} ${entry.A || ""} ${entry.r || ""}</li>`;
         const box_lab = entry => entry.l ? `<li>Lab: ${entry.l}</li>` : "";
         const box_antigens = chart => `<li>Antigens: ${chart.a.length}</li><li>Sera: ${chart.s.length}</li>`;
-        const box_tables = chart => chart.i.S && chart.i.S.length > 0 ? `<li>Tables: ${chart.i.S.length}</li>` : "";
         const box_date = chart => chart.i.S && chart.i.S.length > 0 ? `<li>Dates: ${chart.i.S[0].D} - ${chart.i.S[chart.i.S.length - 1].D}</li>` : (chart.i.D ? `<li>Date: ${chart.i.D}</li>` : "");
-        const box_layers = chart => chart.t.L ? `<li>Layers: ${chart.t.L.length}</li>` : "";
+
+        const box_tables = chart => {
+            let result = "";
+            if (chart.i.S && chart.i.S.length > 0) {
+                const tables = chart.i.S.map(s_entry => s_entry.D || JSON.stringify(s_entry)).join("</li><li>");
+                result = `<li>Tables: ${chart.i.S.length}<ol class='a-scrollable a-tables'><li>${tables}</li></ol></li>`;
+            }
+            else if (chart.t.L && chart.t.L.length > 0) {
+                result = `<li>Layers: ${chart.t.L.length}</li>`;
+            }
+            return result;
+        };
 
         const box_projections = chart => {
             let result = "";
             if (chart.P && chart.P.length > 0) {
                 const stresses = chart.P.map(p_entry => p_entry.s ? p_entry.s.toFixed(4) : "<unknown stress>").join("</li><li>");
-                result = `<li>Projections: ${chart.P.length}<ol class='a-stresses'><li>${stresses}</li></ol></li>`;
+                result = `<li>Projections: ${chart.P.length}<ol class='a-scrollable a-stresses'><li>${stresses}</li></ol></li>`;
             }
             return result;
         };
@@ -482,10 +492,9 @@ class DrawingMode_Base
                 title_box.append(box_lab(chart.i));
             }
             title_box.append(box_antigens(chart));
-            title_box.append(box_tables(chart));
             title_box.append(box_date(chart));
+            title_box.append(box_tables(chart));
             title_box.append(box_projections(chart));
-            title_box.append(box_layers(chart));
         }
         return title_box;
     }
