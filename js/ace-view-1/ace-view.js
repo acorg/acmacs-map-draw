@@ -457,8 +457,16 @@ class DrawingMode_Base
         const box_antigens = chart => `<li>Antigens: ${chart.a.length}</li><li>Sera: ${chart.s.length}</li>`;
         const box_tables = chart => chart.i.S && chart.i.S.length > 0 ? `<li>Tables: ${chart.i.S.length}</li>` : "";
         const box_date = chart => chart.i.S && chart.i.S.length > 0 ? `<li>Dates: ${chart.i.S[0].D} - ${chart.i.S[chart.i.S.length - 1].D}</li>` : (chart.i.D ? `<li>Date: ${chart.i.D}</li>` : "");
-        const box_projections = chart => chart.P && chart.P.length > 0 ? `<li>Projections: ${chart.P.length}</li>` : "";
         const box_layers = chart => chart.t.L ? `<li>Layers: ${chart.t.L.length}</li>` : "";
+
+        const box_projections = chart => {
+            let result = "";
+            if (chart.P && chart.P.length > 0) {
+                const stresses = chart.P.map(p_entry => p_entry.s ? p_entry.s.toFixed(4) : "<unknown stress>").join("</li><li>");
+                result = `<li>Projections:<ol><li>${stresses}</li></ol></li>`;
+            }
+            return result;
+        };
 
         const chart = this.widget.data.c;
         const projection_no = this.widget.options.projection_no;
