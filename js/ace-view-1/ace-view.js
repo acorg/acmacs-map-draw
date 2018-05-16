@@ -178,18 +178,21 @@ export class AntigenicMapWidget
     }
 
     bind() {
-        this.canvas.on("wheel", evt => {
+        this.canvas.on("wheel DOMMouseScroll", evt => {
             if (evt.shiftKey) {
                 // Shift-Wheel -> point_scale
                 evt.stopPropagation();
                 evt.preventDefault();
-                this.point_scale(evt.originalEvent.wheelDelta > 0 ? 1.1 : (1 / 1.1));
+                const scroll = evt.originalEvent.deltaX != 0 ? evt.originalEvent.deltaX : evt.originalEvent.deltaY; // depends if mouse or touchpad used
+                this.point_scale(scroll > 0 ? 1.1 : (1 / 1.1));
+                window.EE = evt;
             }
             else if (evt.altKey) {
                 // Alt-Wheel -> zoom
                 evt.stopPropagation();
                 evt.preventDefault();
-                this.zoom(this.mouse_offset(evt), evt.originalEvent.wheelDelta > 0 ? 1.05 : (1 / 1.05));
+                const scroll = evt.originalEvent.deltaX != 0 ? evt.originalEvent.deltaX : evt.originalEvent.deltaY; // depends if mouse or touchpad used
+                this.zoom(this.mouse_offset(evt), scroll > 0 ? 1.05 : (1 / 1.05));
             }
         });
 
