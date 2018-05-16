@@ -10,7 +10,7 @@ class AMW201805
         this.last_id_ = 0;
         this.options = {
             projection_no: 0,
-            drawing_mode: "best-projection",
+            view_mode: "best-projection",
             coloring: "default",
             point_scale: 5,
             point_info_on_hover_delay: 500,
@@ -42,7 +42,7 @@ const BurgerMenu_html = "\
       <li                    name='color-by-default'><a href='color-by-default'>reset to default</a></li>\
     </ul>\
   </li>\
-  <li><a href='#'>Show</a><span class='a-right-arrow'>&#9654;</span>\
+  <li><a href='#'>View</a><span class='a-right-arrow'>&#9654;</span>\
     <ul class='a-level-1'>\
       <li class='a-disabled' name='best-projection'><a href='best-projection'>Best projection</a></li>\
       <li class='a-separator'></li>\
@@ -83,13 +83,13 @@ class BurgerMenu extends acv_toolkit.Modal
         this.find("a[href='clades']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("clade")));
         this.find("a[href='continents']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("continent")));
         this.find("a[href='color-by-default']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("default")));
-        this.find("a[href='best-projection']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("best-projection")));
-        this.find("a[href='time-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("time-series")));
-        this.find("a[href='time-series-shade']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("time-series-shade")));
-        this.find("a[href='time-series-grey']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("time-series-grey")));
-        this.find("a[href='table-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("table-series")));
-        this.find("a[href='table-series-shade']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("table-series-shade")));
-        this.find("a[href='clade-series']").on("click", evt => this.forward(evt, () => this.parent.set_drawing_mode("series-clade")));
+        this.find("a[href='best-projection']").on("click", evt => this.forward(evt, () => this.parent.set_view_mode("best-projection")));
+        this.find("a[href='time-series']").on("click", evt => this.forward(evt, () => this.parent.set_view_mode("time-series")));
+        this.find("a[href='time-series-shade']").on("click", evt => this.forward(evt, () => this.parent.set_view_mode("time-series-shade")));
+        this.find("a[href='time-series-grey']").on("click", evt => this.forward(evt, () => this.parent.set_view_mode("time-series-grey")));
+        this.find("a[href='table-series']").on("click", evt => this.forward(evt, () => this.parent.set_view_mode("table-series")));
+        this.find("a[href='table-series-shade']").on("click", evt => this.forward(evt, () => this.parent.set_view_mode("table-series-shade")));
+        this.find("a[href='clade-series']").on("click", evt => this.forward(evt, () => this.parent.set_view_mode("series-clade")));
         this.find("a[href='help']").on("click", evt => this.forward(evt, () => this.parent.show_help(evt.currentTarget)));
 
         this.find("li.a-disabled a").off("click").on("click", evt => this.forward(evt));
@@ -158,7 +158,7 @@ const AntigenicMapWidget_content_html = `\
 
 export class AntigenicMapWidget
 {
-    constructor(div, data, options={}) { // drawing_mode: "table-series", coloring: "default"}) {
+    constructor(div, data, options={}) { // view_mode: "table-series", coloring: "default"}) {
         this.div = $(div);
         this.options = Object.assign({}, window.amw201805.options, options);
         acv_utils.load_css('/js/ad/map-draw/ace-view-1/ace-view.css');
@@ -255,21 +255,21 @@ export class AntigenicMapWidget
             this.surface.set_viewport(this.calculate_viewport());
             this.make_point_info_labels();
             this.set_coloring(this.options.coloring, false);
-            this.set_drawing_mode(this.options.drawing_mode);
+            this.set_view_mode(this.options.view_mode);
         }
         else {
             acv_toolkit.mouse_popup_hide();
             this.surface.background();
             this.surface.grid();
             this.surface.border();
-            this.drawing_mode.draw();
+            this.view_mode.draw();
             this.title();
             this.resize_title();
         }
     }
 
-    set_drawing_mode(mode) {
-        this.drawing_mode = select_drawing_mode(mode, this);
+    set_view_mode(mode) {
+        this.view_mode = select_view_mode(mode, this);
         this.draw();
     }
 
@@ -325,8 +325,8 @@ export class AntigenicMapWidget
     }
 
     title() {
-        this.title_element().empty().append(this.drawing_mode.title());
-        this.popup_on_hovering_title(this.drawing_mode.title_box());
+        this.title_element().empty().append(this.view_mode.title());
+        this.popup_on_hovering_title(this.view_mode.title_box());
     }
 
     resize(diff) {
@@ -706,7 +706,7 @@ class DrawingMode_TableSeriesShade extends DrawingMode_TableSeries
 
 // ----------------------------------------------------------------------
 
-const drawing_mode_selector_data = {
+const view_mode_selector_data = {
     "best-projection": DrawingMode_Best_Projection,
     "time-series": DrawingMode_TimeSeries,
     "time-series-shade": DrawingMode_TimeSeriesShade,
@@ -716,8 +716,8 @@ const drawing_mode_selector_data = {
     null: DrawingMode_Best_Projection
 };
 
-function select_drawing_mode(mode, widget) {
-    return new (drawing_mode_selector_data[mode] || drawing_mode_selector_data[null])(widget);
+function select_view_mode(mode, widget) {
+    return new (view_mode_selector_data[mode] || view_mode_selector_data[null])(widget);
 }
 
 // ----------------------------------------------------------------------

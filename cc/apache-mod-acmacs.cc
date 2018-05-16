@@ -32,7 +32,7 @@
 
 static void register_hooks(apr_pool_t *pool);
 static int acmacs_handler(request_rec *r);
-static void make_html(request_rec *r);
+static void make_html(request_rec *r, const char* view_mode, const char* coloring);
 static void make_ace(request_rec *r);
 
 // ----------------------------------------------------------------------
@@ -77,7 +77,9 @@ static int acmacs_handler(request_rec *r) {
 
     try {
         if (acv == "html") {
-            make_html(r);
+            const char* view_mode = apr_table_get(GET, "view-mode");
+            const char* coloring = apr_table_get(GET, "coloring");
+            make_html(r, view_mode ? view_mode : "best-projection", coloring ? coloring : "default");
         }
         else if (acv == "ace") {
             make_ace(r);
@@ -105,7 +107,8 @@ static const char* sHtml = R"(
    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
    <script type="module">
      import * as acv_m from "/js/ad/map-draw/ace-view-1/ace-view.js";
-     $(document).ready(() => new acv_m.AntigenicMapWidget($("#map1"), "%s?acv=ace"));
+     const options = {view_mode: "%s", coloring: "%s"};
+     $(document).ready(() => new acv_m.AntigenicMapWidget($("#map1"), "%s?acv=ace", options));
    </script>
   </head>
   <body>
@@ -114,13 +117,13 @@ static const char* sHtml = R"(
 </html>
 )";
 
-void make_html(request_rec *r)
+void make_html(request_rec *r, const char* view_mode, const char* coloring)
 {
     // ap_log_rerror(AP_WARN, r, "uri: %s", r->uri);
     // ap_log_rerror(AP_WARN, r, "path_info: %s", r->path_info);
 
     ap_set_content_type(r, "text/html");
-    ap_rprintf(r, sHtml, r->filename, r->uri);
+    ap_rprintf(r, sHtml, r->filename, view_mode, coloring, r->uri);
 
 } // make_html
 
