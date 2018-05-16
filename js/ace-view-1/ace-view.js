@@ -76,7 +76,7 @@ class BurgerMenu extends acv_toolkit.Modal
         // this.find("a[href='raw']").on("click", evt => this.forward(evt, () => acv_toolkit.movable_window_with_json(this.parent.data, evt.currentTarget, "map view raw data")));
         this.find("a[href='raw']").on("click", evt => this.forward(evt, () => {
             console.log("amw raw data", this.parent.data);
-            alert("Please see raw data in the console");
+            // alert("Please see raw data in the console");
         }));
 
         this.find("a[href='search']").on("click", evt => this.forward(evt, () => console.log("search")));
@@ -451,24 +451,34 @@ class DrawingMode_Base
     }
 
     title_box() {
+        const box_name = chart => chart.i.N ? `<li>${chart.i.N}</li>` : "";
+        const box_virus = entry => `<li>${entry.v || ""} ${entry.V || ""} ${entry.A || ""} ${entry.r || ""}</li>`;
+        const box_lab = entry => entry.l ? `<li>Lab: ${entry.l}</li>` : "";
+        const box_antigens = chart => `<li>Antigens: ${chart.a.length}</li><li>Sera: ${chart.s.length}</li>`;
+        const box_tables = chart => chart.i.S && chart.i.S.length > 0 ? `<li>Tables: ${chart.i.S.length}</li>` : "";
+        const box_date = chart => chart.i.S && chart.i.S.length > 0 ? `<li>Dates: ${chart.i.S[0].D} - ${chart.i.S[chart.i.S.length - 1].D}</li>` : (chart.i.D ? `<li>Date: ${chart.i.D}</li>` : "");
+        const box_projections = chart => chart.P && chart.P.length > 0 ? `<li>Projections: ${chart.P.length}</li>` : "";
+        const box_layers = chart => chart.t.L ? `<li>Layers: ${chart.t.L.length}</li>` : "";
+
         const chart = this.widget.data.c;
         const projection_no = this.widget.options.projection_no;
-        let title_box = $(`<ul class='a-title-mouse-popup'><li>Antigens: ${chart.a.length}</li><li>Sera: ${chart.s.length}</li></ul>`);
-        if (chart.i.S) {
-            const sources = chart.i.S;
-            const first = sources[0], last = sources[sources.length - 1];
-            title_box.prepend(`<li>${first.v || ""} ${first.V || ""} ${first.A || ""} ${first.r || ""}</li><li>Lab: ${first.l}</li>`);
-            title_box.append(`<li>Tables: ${sources.length}</li>`);
-            title_box.append(`<li>Dates: ${first.D} - ${last.D}</li>`);
+        let title_box = $("<ul class='a-title-mouse-popup'></ul>");
+        if (chart.i) {
+            title_box.append(box_name(chart));
+            if (chart.i.S && chart.i.S.length > 0) {
+                title_box.append(box_virus(chart.i.S[0]));
+                title_box.append(box_lab(chart.i.S[0]));
+            }
+            else {
+                title_box.append(box_virus(chart.i));
+                title_box.append(box_lab(chart.i));
+            }
+            title_box.append(box_antigens(chart));
+            title_box.append(box_tables(chart));
+            title_box.append(box_date(chart));
+            title_box.append(box_projections(chart));
+            title_box.append(box_layers(chart));
         }
-        else {
-            const first = chart.i;
-            title_box.prepend(`<li>${first.v} ${first.V} ${first.A} ${first.r || ""}</li><li>Lab: ${first.l}</li>`);
-            title_box.append(`<li>Date: ${first.D}</li>`);
-        }
-        title_box.append(`<li>Projections: ${chart.P.length}</li>`);
-        if (chart.t.L)
-            title_box.append(`<li>Layers: ${chart.t.L.length}</li>`);
         return title_box;
     }
 }
