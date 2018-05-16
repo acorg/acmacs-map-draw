@@ -102,6 +102,12 @@ ul.a-title-mouse-popup > li {
     white-space: nowrap;
 }
 
+ul.a-title-mouse-popup > li ol.a-stresses {
+    white-space: nowrap;
+    overflow: auto;
+    max-height: 9.5em;
+}
+
 #AntigenicMapWidget_help {
 }
 

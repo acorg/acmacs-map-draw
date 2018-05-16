@@ -463,7 +463,7 @@ class DrawingMode_Base
             let result = "";
             if (chart.P && chart.P.length > 0) {
                 const stresses = chart.P.map(p_entry => p_entry.s ? p_entry.s.toFixed(4) : "<unknown stress>").join("</li><li>");
-                result = `<li>Projections:<ol><li>${stresses}</li></ol></li>`;
+                result = `<li>Projections: ${chart.P.length}<ol class='a-stresses'><li>${stresses}</li></ol></li>`;
             }
             return result;
         };
