@@ -379,9 +379,9 @@ export class AntigenicMapWidget
     set_point_info_on_hover() {
 
         const mouse_offset = (mouse_event) => {
-            const border_width = parseFloat(this.canvas.css("border-width"));
-            const offset_x = border_width + parseFloat(this.canvas.css("padding-left"));
-            const offset_y = border_width + parseFloat(this.canvas.css("padding-top"));
+            const border_width = Number.parseFloat(this.canvas.css("border-width") || "0");
+            const offset_x = border_width + parseFloat(this.canvas.css("padding-left") || "0");
+            const offset_y = border_width + parseFloat(this.canvas.css("padding-top") || "0");
             return {left: mouse_event.offsetX - offset_x, top: mouse_event.offsetY - offset_y};
         };
 
