@@ -27,7 +27,7 @@ export class Surface
     constructor(canvas, args={}) {
         this.canvas = canvas;
         this.canvas.prop(args.canvas || {width: 300, height: 300});
-        this.context = this.canvas[0].getContext('2d');
+        this.context = this.canvas[0].getContext('2d', {alpha: false});
         if (args.viewport)
             this.set_viewport(args.viewport);
     }
