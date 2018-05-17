@@ -251,7 +251,15 @@ export class MovableWindow {
 // ----------------------------------------------------------------------
 
 export function movable_window_with_json(data, invoking_node, title) {
-    new MovableWindow({title: title || data.name || data.description || data._id, content: `<pre class='json-highlight'>${acv_utils.json_syntax_highlight(JSON.stringify(data, undefined, 2))}</pre>`, parent: invoking_node});
+    new MovableWindow({title: title || data.name || data.description || data._id, content: `<pre class='json-highlight'>${acv_utils.json_syntax_highlight(JSON.stringify(data, undefined, 2))}</pre>`, parent: invoking_node}).classes("a-json-data");
+}
+
+// ----------------------------------------------------------------------
+
+export function movable_window_with_error(data, invoking_node) {
+    if (typeof(data) === "object")
+        data = `<pre class='json-highlight'>${acv_utils.json_syntax_highlight(JSON.stringify(data, undefined, 2))}</pre>`;
+    new MovableWindow({title: "ERROR", content: data, parent: invoking_node}).classes("a-error");
 }
 
 // ----------------------------------------------------------------------
