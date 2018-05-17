@@ -240,7 +240,7 @@ export class AntigenicMapWidget
             this.div.find(".a-loading-message").css({top: parseFloat(this.canvas.css("padding-top")) + this.canvas.height() / 2, width: this.canvas.width()});
             $.getJSON(data, result => this.draw(result));
         }
-        else if (typeof(data) === "object" && data.version === "acmacs-ace-v1") {
+        else if (typeof(data) === "object" && (data.version || data["  version"]) === "acmacs-ace-v1") {
             this.draw(data);
         }
         else {
