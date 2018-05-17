@@ -517,29 +517,29 @@ class DrawingMode_Best_Projection extends DrawingMode_Base
                                     point_scale: this.widget.parameters.point_scale});
     }
 
-    title() {
+    title(title_fields=["stress", "antigens", "sera", "name", "lab", "virus_type", "assay", "date", "min_col_basis", "tables"]) {
+    // title(title_fields=["stress", "antigens", "sera", "name", "date", "min_col_basis", "tables"]) {
         const chart = this.widget.data.c;
         const projection_no = this.widget.options.projection_no;
-        let stress = chart.P[projection_no].s;
-        stress = stress ? stress.toFixed(4) : "";
-        let mcb = chart.P[projection_no].m;
-        mcb = mcb ? ">=" + mcb : ">=none";
-        const prefix = acv_utils.join_collapse([stress, `A:${chart.a.length} S:${chart.s.length}`]);
-        let title;
-        if (chart.i.N) {
-            title = acv_utils.join_collapse([prefix, chart.i.N]);
-        }
-        else if (chart.i.S) {
-            const sources = chart.i.S;
-            const first = sources[0], last = sources[sources.length - 1];
-            title = acv_utils.join_collapse([prefix, first.l, first.V, first.A, first.D + "-" + last.D, mcb, `(${sources.length} tables)`]);
-        }
-        else {
-            const first = chart.i;
-            title = acv_utils.join_collapse([prefix, first.l, first.V, first.A, first.D, mcb]);
-        }
-        return title;
+        const makers = this.title_field_makers();
+        return acv_utils.join_collapse(title_fields.map(field => makers[field](chart, projection_no)));
     }
+
+    title_field_makers() {
+        return {
+            stress: (chart, projection_no) => { let stress = chart.P[projection_no].s; return stress ? stress.toFixed(4) : ""; },
+            min_col_basis: (chart, projection_no) => { let mcb = chart.P[projection_no].m; return mcb ? ">=" + mcb : ">=none"; },
+            name: (chart, projection_no) => chart.i.N,
+            date: (chart, projection_no) => chart.i.S ? (chart.i.S[0].D + "-" + chart.i.S[chart.i.S.length - 1].D) : (chart.i.D),
+            tables: (chart, projection_no) => chart.i.S ? `(${chart.i.S.length} tables)` : "",
+            antigens: (chart, projection_no) => "A:" + chart.a.length,
+            sera: (chart, projection_no) => "S:" + chart.s.length,
+            lab: (chart, projection_no) => chart.i.S ? chart.i.S[0].l : chart.i.l,
+            virus_type: (chart, projection_no) => chart.i.S ? chart.i.S[0].V : chart.i.V,
+            assay: (chart, projection_no) => chart.i.S ? chart.i.S[0].A : chart.i.A
+        };
+    }
+
 }
 
 // ----------------------------------------------------------------------
