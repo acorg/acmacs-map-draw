@@ -1,11 +1,16 @@
 const COS_PI_6 = Math.cos(Math.PI / 6);
 
+// 3D links
+// https://stackoverflow.com/questions/35518381/how-to-shade-the-circle-in-canvas
+// http://www.bitstorm.it/blog/en/2011/05/3d-sphere-html5-canvas/
+//   see source http://www.bitstorm.it/html5/sphere.html (drawPointWithGradient)
+
 // ----------------------------------------------------------------------
 
 export class Transformation
 {
     constructor(transformation) {
-        if (Array.isArray(transformation) && transformation.length !== 4)
+        if (Array.isArray(transformation) && transformation.length === 4)
             this.transformation = transformation;
         else
             this.transformation = [1, 0, 0, 1];
@@ -76,7 +81,7 @@ export class Surface
     points(args) {
         if (!Array.isArray(args.drawing_order))
             args.drawing_order = Array.apply(null, {length: args.layout.length}).map(Number.call, Number);
-        // console.log("points", args, this);
+        // console.log("points", args.transformation);
 
         let fill, outline;
         if (args.show_as_background) {
