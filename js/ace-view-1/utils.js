@@ -49,6 +49,15 @@ export function join_collapse(args, separator=" ") {
 }
 
 // ----------------------------------------------------------------------
+
+export function format(template, args) {
+    return template.replace(/\${([^}]+)}/g, (match, key) => {
+        const replacement = args[key];
+        return replacement === undefined ? match : replacement;
+    });
+}
+
+// ----------------------------------------------------------------------
 /// Local Variables:
 /// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
 /// End:
