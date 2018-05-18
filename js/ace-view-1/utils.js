@@ -1,7 +1,7 @@
 // ----------------------------------------------------------------------
 
 // https://stackoverflow.com/questions/4810841/how-can-i-pretty-print-json-using-javascript
-export function json_syntax_highlight(data, options={object_id_href_prefix: "doc/"}) {
+export function json_syntax_highlight(data, options={object_id_href_prefix: window.acv_url_prefix + "doc/"}) {
     data = data.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     return data.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
         var cls = 'json-syntax-number';
