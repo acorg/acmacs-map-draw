@@ -18,7 +18,8 @@ class AMW201805
             canvas_size: {width: 0, height: 0},
             min_viewport_size: 1.0,
             show_as_background: {fill: "#E0E0E0", outline: "#E0E0E0"},
-            show_as_background_shade: 0.8
+            show_as_background_shade: 0.8,
+            title_fields: ["stress", "antigens", "sera", "name", "lab", "virus_type", "assay", "date", "min_col_basis", "tables"]
         };
     }
 
@@ -158,7 +159,7 @@ const AntigenicMapWidget_content_html = `\
 
 export class AntigenicMapWidget
 {
-    constructor(div, data, options={}) { // view_mode: "table-series", coloring: "default"}) {
+    constructor(div, data, options={}) { // options: {view_mode: "table-series", coloring: "default", title_fields: []}
         this.div = $(div);
         this.options = Object.assign({}, window.amw201805.options, options);
         acv_utils.load_css('/js/ad/map-draw/ace-view-1/ace-view.css');
@@ -328,7 +329,7 @@ export class AntigenicMapWidget
     }
 
     title() {
-        this.title_element().empty().append(this.view_mode.title());
+        this.title_element().empty().append(this.view_mode.title({title_fields: this.options.title_fields}));
         this.popup_on_hovering_title(this.view_mode.title_box());
     }
 
@@ -517,12 +518,11 @@ class DrawingMode_Best_Projection extends DrawingMode_Base
                                     point_scale: this.widget.parameters.point_scale});
     }
 
-    title(title_fields=["stress", "antigens", "sera", "name", "lab", "virus_type", "assay", "date", "min_col_basis", "tables"]) {
-    // title(title_fields=["stress", "antigens", "sera", "name", "date", "min_col_basis", "tables"]) {
+    title(args) { // args: {title_fields:}
         const chart = this.widget.data.c;
         const projection_no = this.widget.options.projection_no;
         const makers = this.title_field_makers();
-        return acv_utils.join_collapse(title_fields.map(field => makers[field](chart, projection_no)));
+        return acv_utils.join_collapse(args.title_fields.map(field => makers[field](chart, projection_no)));
     }
 
     title_field_makers() {
