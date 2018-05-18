@@ -379,22 +379,31 @@ export class AntigenicMapWidget
 
     set_point_info_on_hover() {
 
-        const mouse_offset = (mouse_event) => {
+        const mouse_offset = mouse_event => {
             const border_width = Number.parseFloat(this.canvas.css("border-width") || "0");
             const offset_x = border_width + parseFloat(this.canvas.css("padding-left") || "0");
             const offset_y = border_width + parseFloat(this.canvas.css("padding-top") || "0");
             return {left: mouse_event.offsetX - offset_x, top: mouse_event.offsetY - offset_y};
         };
 
-        const point_info_on_hover = (offset) => {
+        const point_info_on_hover = offset => {
             const points = this.surface.find_points_at_pixel_offset(offset);
             if (points.length) {
                 const names = points.map(point_no => this.point_info_labels_[point_no]);
-                acv_toolkit.mouse_popup_show($("<ul class='point-info-on-hover'></ul>").append(names.map(text => "<li>" + text + "</li>").join("")), this.canvas, {left: offset.left + this.options.mouse_popup_offset.left, top: offset.top + this.options.mouse_popup_offset.top});
+                const popup = acv_toolkit.mouse_popup_show($("<ul class='point-info-on-hover'></ul>").append(names.map(make_point_name_row).join("")), this.canvas, {left: offset.left + this.options.mouse_popup_offset.left, top: offset.top + this.options.mouse_popup_offset.top});
+                if (this.options.point_name_on_click)
+                    popup.find("a").on("click", evt => this.options.point_name_on_click(evt.target.innerText));
             }
             else {
                 acv_toolkit.mouse_popup_hide();
             }
+        };
+
+        const make_point_name_row = name => {
+            if (this.options.point_name_on_click)
+                return `<li><a href="#show-info-on-this-name">${name}</a></li>`;
+            else
+                return `<li>${name}</li>`;
         };
 
         this.canvas.on("mousemove", evt => {
