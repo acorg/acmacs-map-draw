@@ -23,8 +23,8 @@
 #include "acmacs-base/filesystem.hh"
 #include "acmacs-base/gzip.hh"
 #include "acmacs-base/range.hh"
-#include "acmacs-base/virus-name.hh"
-#include "locationdb/locdb.hh"
+//#include "acmacs-base/virus-name.hh"
+// #include "locationdb/locdb.hh"
 #include "seqdb/seqdb.hh"
 #include "acmacs-chart-2/chart-modify.hh"
 #include "acmacs-chart-2/factory-import.hh"
@@ -131,27 +131,28 @@ void make_html(request_rec *r, const char* view_mode, const char* coloring)
 
 void make_ace(request_rec* r)
 {
-    const auto& locdb = get_locdb(report_time::Yes);
     const auto& seqdb = seqdb::get(report_time::Yes);
 
     acmacs::chart::ChartModify chart(acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No));
     auto antigens = chart.antigens_modify();
 
-    // set continent info
-    for (auto antigen_no : acmacs::range(antigens->size())) {
-        auto& antigen = antigens->at(antigen_no);
-        if (antigen.continent().empty()) {
-            try {
-                antigen.continent(locdb.continent(virus_name::location(antigen.name())));
-            }
-            catch (std::exception& err) {
-                ap_log_rerror(AP_WARN, r, "cannot figure out continent for \"%s\": %s", antigen.name().data(), err.what());
-            }
-            catch (...) {
-                ap_log_rerror(AP_WARN, r, "cannot figure out continent for \"%s\": unknown exception", antigen.name().data());
-            }
-        }
-    }
+      // set continent info
+    antigens->set_continent();
+    // const auto& locdb = get_locdb(report_time::Yes);
+    // for (auto antigen_no : acmacs::range(antigens->size())) {
+    //     auto& antigen = antigens->at(antigen_no);
+    //     if (antigen.continent().empty()) {
+    //         try {
+    //             antigen.continent(locdb.continent(virus_name::location(antigen.name())));
+    //         }
+    //         catch (std::exception& err) {
+    //             ap_log_rerror(AP_WARN, r, "cannot figure out continent for \"%s\": %s", antigen.name().data(), err.what());
+    //         }
+    //         catch (...) {
+    //             ap_log_rerror(AP_WARN, r, "cannot figure out continent for \"%s\": unknown exception", antigen.name().data());
+    //         }
+    //     }
+    // }
 
     // set clade info
     for (auto antigen_no : acmacs::range(antigens->size())) {
