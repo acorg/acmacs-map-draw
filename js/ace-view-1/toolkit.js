@@ -204,7 +204,7 @@ export class MovableWindow {
             this.div.find(".a-title").empty().append(args.title);
         if (args.content)
             this.div.find(".a-content").empty().append(args.content);
-        if (args.parent === "center") {
+        if (!args.parent || args.parent === "center") {
             const wind = $(window);
             this.div.css({left: (wind.scrollLeft() + wind.width() - this.div.width()) / 2, top: (wind.scrollTop() + wind.height() - this.div.height()) / 2});
         }
