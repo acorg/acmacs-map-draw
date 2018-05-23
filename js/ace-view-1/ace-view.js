@@ -389,8 +389,14 @@ export class AntigenicMapWidget
             if (points.length) {
                 const point_entries = points.map(point_no => { return {name: this.point_info_labels_[point_no], no: point_no}; });
                 const popup = acv_toolkit.mouse_popup_show($("<ul class='point-info-on-hover'></ul>").append(point_entries.map(make_point_name_row).join("")), this.canvas, {left: offset.left + this.options.mouse_popup_offset.left, top: offset.top + this.options.mouse_popup_offset.top});
-                if (this.options.point_name_on_click)
-                    popup.find("a").on("click", evt => acv_utils.forward_event(evt, evt => this.options.point_name_on_click({name: $(evt.target).attr("point_name"), no: parseInt($(evt.target).attr("point_no"))})));
+                if (this.options.point_on_click) {
+                    const onclick = evt => {
+                        const point_no = parseInt($(evt.target).attr("point_no"));
+                        const chart = this.data.c;
+                        this.options.point_on_click(point_no < chart.a.length ? {antigen: chart.a[point_no]} : {serum: chart.s[point_no - chart.a.length]});
+                    };
+                    popup.find("a").on("click", evt => acv_utils.forward_event(evt, onclick));
+                }
             }
             else {
                 acv_toolkit.mouse_popup_hide();
@@ -398,7 +404,7 @@ export class AntigenicMapWidget
         };
 
         const make_point_name_row = point_entry => {
-            if (this.options.point_name_on_click)
+            if (this.options.point_on_click)
                 return `<li><a href="#show-info-on-this-name" point_no="${point_entry.no}" point_name="${point_entry.name}">${point_entry.name}</a></li>`;
             else
                 return `<li>${point_entry.name}</li>`;
