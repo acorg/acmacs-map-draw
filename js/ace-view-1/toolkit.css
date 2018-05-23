@@ -27,6 +27,14 @@
     white-space: nowrap;
 }
 
+#amw201805-mouse-popup ul.point-info-on-hover a:link {
+    color: blue;
+}
+
+#amw201805-mouse-popup ul.point-info-on-hover a:visited {
+    color: blue;
+}
+
 /* ---------------------------------------------------------------------- */
 
 .a-window-shadow {

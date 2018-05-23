@@ -74,26 +74,28 @@ class BurgerMenu extends acv_toolkit.Modal
     }
 
     bind() {
-        // this.find("a[href='raw']").on("click", evt => this.forward(evt, () => acv_toolkit.movable_window_with_json(this.parent.data, evt.currentTarget, "map view raw data")));
-        this.find("a[href='raw']").on("click", evt => this.forward(evt, () => {
+        const destroy = () => this.destroy();
+
+        // this.find("a[href='raw']").on("click", evt => acv_utils.forward_event(evt, () => acv_toolkit.movable_window_with_json(this.parent.data, evt.currentTarget, "map view raw data"), destroy));
+        this.find("a[href='raw']").on("click", evt => acv_utils.forward_event(evt, () => {
             console.log("amw raw data", this.parent.data);
             // alert("Please see raw data in the console");
-        }));
+        }, destroy));
 
-        this.find("a[href='search']").on("click", evt => this.forward(evt, () => console.log("search")));
-        this.find("a[href='clades']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("clade")));
-        this.find("a[href='continents']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("continent")));
-        this.find("a[href='color-by-default']").on("click", evt => this.forward(evt, () => this.parent.set_coloring("default")));
-        this.find("a[href='best-projection']").on("click", evt => this.forward(evt, () => this.parent.set_view_mode("best-projection")));
-        this.find("a[href='time-series']").on("click", evt => this.forward(evt, () => this.parent.set_view_mode("time-series")));
-        this.find("a[href='time-series-shade']").on("click", evt => this.forward(evt, () => this.parent.set_view_mode("time-series-shade")));
-        this.find("a[href='time-series-grey']").on("click", evt => this.forward(evt, () => this.parent.set_view_mode("time-series-grey")));
-        this.find("a[href='table-series']").on("click", evt => this.forward(evt, () => this.parent.set_view_mode("table-series")));
-        this.find("a[href='table-series-shade']").on("click", evt => this.forward(evt, () => this.parent.set_view_mode("table-series-shade")));
-        this.find("a[href='clade-series']").on("click", evt => this.forward(evt, () => this.parent.set_view_mode("series-clade")));
-        this.find("a[href='help']").on("click", evt => this.forward(evt, () => this.parent.show_help(evt.currentTarget)));
+        this.find("a[href='search']").on("click", evt => acv_utils.forward_event(evt, () => console.log("search"), destroy));
+        this.find("a[href='clades']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_coloring("clade"), destroy));
+        this.find("a[href='continents']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_coloring("continent"), destroy));
+        this.find("a[href='color-by-default']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_coloring("default"), destroy));
+        this.find("a[href='best-projection']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode("best-projection"), destroy));
+        this.find("a[href='time-series']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode("time-series"), destroy));
+        this.find("a[href='time-series-shade']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode("time-series-shade"), destroy));
+        this.find("a[href='time-series-grey']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode("time-series-grey"), destroy));
+        this.find("a[href='table-series']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode("table-series"), destroy));
+        this.find("a[href='table-series-shade']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode("table-series-shade"), destroy));
+        this.find("a[href='clade-series']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode("series-clade"), destroy));
+        this.find("a[href='help']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.show_help(evt.currentTarget), destroy));
 
-        this.find("li.a-disabled a").off("click").on("click", evt => this.forward(evt));
+        this.find("li.a-disabled a").off("click").on("click", evt => acv_utils.forward_event(evt, destroy));
     }
 
     enable_features() {
@@ -104,14 +106,6 @@ class BurgerMenu extends acv_toolkit.Modal
         }
     }
 
-    forward(evt, callback) {
-        evt.stopPropagation();
-        evt.preventDefault();
-        if (callback) {
-            callback();
-            this.destroy();
-        }
-    }
 }
 
 // ----------------------------------------------------------------------
@@ -393,21 +387,21 @@ export class AntigenicMapWidget
         const point_info_on_hover = offset => {
             const points = this.surface.find_points_at_pixel_offset(offset);
             if (points.length) {
-                const names = points.map(point_no => this.point_info_labels_[point_no]);
-                const popup = acv_toolkit.mouse_popup_show($("<ul class='point-info-on-hover'></ul>").append(names.map(make_point_name_row).join("")), this.canvas, {left: offset.left + this.options.mouse_popup_offset.left, top: offset.top + this.options.mouse_popup_offset.top});
+                const point_entries = points.map(point_no => { return {name: this.point_info_labels_[point_no], no: point_no}; });
+                const popup = acv_toolkit.mouse_popup_show($("<ul class='point-info-on-hover'></ul>").append(point_entries.map(make_point_name_row).join("")), this.canvas, {left: offset.left + this.options.mouse_popup_offset.left, top: offset.top + this.options.mouse_popup_offset.top});
                 if (this.options.point_name_on_click)
-                    popup.find("a").on("click", evt => this.options.point_name_on_click(evt.target.innerText));
+                    popup.find("a").on("click", evt => acv_utils.forward_event(evt, evt => this.options.point_name_on_click({name: $(evt.target).attr("point_name"), no: parseInt($(evt.target).attr("point_no"))})));
             }
             else {
                 acv_toolkit.mouse_popup_hide();
             }
         };
 
-        const make_point_name_row = name => {
+        const make_point_name_row = point_entry => {
             if (this.options.point_name_on_click)
-                return `<li><a href="#show-info-on-this-name">${name}</a></li>`;
+                return `<li><a href="#show-info-on-this-name" point_no="${point_entry.no}" point_name="${point_entry.name}">${point_entry.name}</a></li>`;
             else
-                return `<li>${name}</li>`;
+                return `<li>${point_entry.name}</li>`;
         };
 
         this.canvas.on("mousemove", evt => {

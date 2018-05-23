@@ -58,6 +58,14 @@ export function format(template, args) {
 }
 
 // ----------------------------------------------------------------------
+
+export function forward_event(evt, ...callbacks) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    callbacks.map(callback => callback(evt));
+}
+
+// ----------------------------------------------------------------------
 /// Local Variables:
 /// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
 /// End:
