@@ -446,9 +446,11 @@ export class AntigenicMapWidget
     }
 
     make_point_info_labels() {
+        const antigen_date = antigen => antigen.D && "[" + antigen.D + "]";
+        const antigen_clades = antigen => (antigen.c && antigen.c.length > 0) ? "<" + antigen.c.join(" ") + ">" : null;
         this.point_info_labels_ = [];
         for (let antigen of this.data.c.a)
-            this.point_info_labels_.push(acv_utils.join_collapse([antigen.N, antigen.R].concat(antigen.a, antigen.P, antigen.D && "[" + antigen.D + "]"))); // , antigen.C
+            this.point_info_labels_.push(acv_utils.join_collapse([antigen.N, antigen.R].concat(antigen.a, antigen.P, antigen_date(antigen), antigen_clades(antigen)))); // , antigen.C
         for (let serum of this.data.c.s)
             this.point_info_labels_.push(acv_utils.join_collapse([serum.N, serum.R].concat(serum.a, serum.I)));
     }
