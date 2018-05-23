@@ -391,9 +391,15 @@ export class AntigenicMapWidget
                 const popup = acv_toolkit.mouse_popup_show($("<ul class='point-info-on-hover'></ul>").append(point_entries.map(make_point_name_row).join("")), this.canvas, {left: offset.left + this.options.mouse_popup_offset.left, top: offset.top + this.options.mouse_popup_offset.top});
                 if (this.options.point_on_click) {
                     const onclick = evt => {
-                        const point_no = parseInt($(evt.target).attr("point_no"));
+                        const target = $(evt.target);
+                        const point_no = parseInt(target.attr("point_no"));
                         const chart = this.data.c;
-                        this.options.point_on_click(point_no < chart.a.length ? {antigen: chart.a[point_no]} : {serum: chart.s[point_no - chart.a.length]});
+                        const point_data = {virus_type: chart.i.V || (chart.i.S && chart.i.S.length > 0 && chart.i.S[0].V)};
+                        if (point_no < chart.a.length)
+                            point_data.antigen = chart.a[point_no];
+                        else
+                            point_data.serum = chart.s[point_no - chart.a.length];
+                        this.options.point_on_click(point_data, target);
                     };
                     popup.find("a").on("click", evt => acv_utils.forward_event(evt, onclick));
                 }
