@@ -134,9 +134,20 @@ void make_ace(request_rec* r)
 
     acmacs::chart::ChartModify chart(acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No));
     auto antigens = chart.antigens_modify();
+    antigens->set_continent();
+    seqdb::add_clades(chart);
+
+    ap_set_content_type(r, "application/json");
+    r->content_encoding = "gzip";
+    const auto exported = ace_export(chart, "mod_acmacs", 0);
+    const auto compressed = acmacs::file::gzip_compress(exported);
+    ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
+
+} // make_ace
+
+// ----------------------------------------------------------------------
 
       // set continent info
-    antigens->set_continent();
     // const auto& locdb = get_locdb(report_time::Yes);
     // for (auto antigen_no : acmacs::range(antigens->size())) {
     //     auto& antigen = antigens->at(antigen_no);
@@ -154,7 +165,6 @@ void make_ace(request_rec* r)
     // }
 
     // set clade info
-    seqdb::add_clades(chart);
 
     // const auto& seqdb = seqdb::get(report_time::Yes);
     // for (auto antigen_no : acmacs::range(antigens->size())) {
@@ -174,16 +184,6 @@ void make_ace(request_rec* r)
     //         ap_log_rerror(AP_WARN, r, "cannot figure out clade for \"%s\": unknown exception", antigen.name().data());
     //     }
     // }
-
-    ap_set_content_type(r, "application/json");
-    r->content_encoding = "gzip";
-    const auto exported = ace_export(chart, "mod_acmacs", 0);
-    const auto compressed = acmacs::file::gzip_compress(exported);
-    ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
-
-} // make_ace
-
-// ----------------------------------------------------------------------
 
 
 // ----------------------------------------------------------------------

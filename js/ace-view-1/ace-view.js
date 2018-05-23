@@ -762,7 +762,12 @@ class Coloring_WithAlllStyles extends Coloring_Base
     constructor(widget) {
         super(widget);
         const chart = this.widget.data.c;
-        const all_styles = chart.p.p.map(style_no => Object.assign({}, chart.p.P[style_no]));
+        const egg_passage = (style, index) => {
+            if (index < chart.a.length && (!style.a || style.a === 1.0) && chart.a[index].S && chart.a[index].S.indexOf("E") >= 0)
+                style.a = 0.75;
+            return style;
+        };
+        const all_styles = chart.p.p.map(style_no => Object.assign({}, chart.p.P[style_no])).map(egg_passage);
         this.styles_ = {index: Array.apply(null, {length: all_styles.length}).map(Number.call, Number), styles: all_styles};
         chart.s.forEach((serum, serum_no) => delete this.styles_.styles[serum_no + chart.a.length].F);
     }
