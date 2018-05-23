@@ -105,7 +105,7 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
     ColoringData result(GREY50);
     std::string tag{"UNKNOWN"};
     try {
-        const auto* entry_seq = seqdb::get(report_time::Yes).find_hi_name(aAntigen.full_name());
+        const auto* entry_seq = seqdb::get(seqdb::ignore_errors::no, report_time::Yes).find_hi_name(aAntigen.full_name());
         if (entry_seq) {
             const auto& clades_of_seq = entry_seq->seq().clades();
             std::vector<std::string> clade_data;

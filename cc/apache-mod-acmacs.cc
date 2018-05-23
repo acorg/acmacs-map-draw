@@ -131,11 +131,10 @@ void make_html(request_rec *r, const char* view_mode, const char* coloring)
 
 void make_ace(request_rec* r)
 {
-
     acmacs::chart::ChartModify chart(acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No));
     auto antigens = chart.antigens_modify();
     antigens->set_continent();
-    seqdb::add_clades(chart);
+    seqdb::add_clades(chart, seqdb::ignore_errors::yes);
 
     ap_set_content_type(r, "application/json");
     r->content_encoding = "gzip";
@@ -166,7 +165,7 @@ void make_ace(request_rec* r)
 
     // set clade info
 
-    // const auto& seqdb = seqdb::get(report_time::Yes);
+    // if (const auto& seqdb = seqdb::get(seqdb::ignore_errors::yes, report_time::Yes); seqdb) {
     // for (auto antigen_no : acmacs::range(antigens->size())) {
     //     auto& antigen = antigens->at(antigen_no);
     //     try {
@@ -184,7 +183,7 @@ void make_ace(request_rec* r)
     //         ap_log_rerror(AP_WARN, r, "cannot figure out clade for \"%s\": unknown exception", antigen.name().data());
     //     }
     // }
-
+  // }
 
 // ----------------------------------------------------------------------
 /// Local Variables:
