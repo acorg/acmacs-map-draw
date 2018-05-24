@@ -66,6 +66,28 @@ export function forward_event(evt, ...callbacks) {
 }
 
 // ----------------------------------------------------------------------
+
+export function arrays_equal_simple(a1, a2) {
+    if (a1 === a2)
+        return true;
+    if (a1 == null || a2 == null || a1.length !== a2.length)
+        return false;
+    for (let i = 0; i < a1.length; ++i) {
+        if (a1[i] !== a2[i])
+            return false;
+    }
+    return true;
+}
+
+// ----------------------------------------------------------------------
+
+const whocc_lab_name_fix = {MELB: "VIDRL", NIMR: "Crick"};
+
+export function whocc_lab_name(name) {
+    return whocc_lab_name_fix[name] || name;
+}
+
+// ----------------------------------------------------------------------
 /// Local Variables:
 /// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
 /// End:
