@@ -910,10 +910,44 @@ class AntigenicTable
     constructor(parent, chart) {
         if (chart.a.length < 1000) {
             this.div = $("<table class='antigenic-table'></table>").appendTo(parent);
-
+            this.make_sera(chart);
+            this.make_antigens(chart);
+            this.set_size(parent);
         }
         else {
             this.div = $(`<p class='a-error-message'>Table is too big: ${chart.a.length} antigens</table>`).appendTo(parent);
+        }
+    }
+
+    make_sera(chart) {
+        this.div.append("<tr class='a-sera'><td></td><td>" + chart.s.map((serum, serum_no) => this.make_serum_name(serum, serum_no)).join("</td><td>") + "</td></tr>");
+    }
+
+    make_antigens(chart) {
+        chart.a.forEach((antigen, antigen_no) => {
+            this.div.append("<tr class='a-antigen'><td class='a-antigen-name'>" + this.make_antigen_name(antigen) + "</td>" + this.make_titers_for_antigen(antigen_no, chart) + "</tr>");
+        });
+    }
+
+    make_antigen_name(antigen, antigen_no) {
+        return antigen.N;
+    }
+
+    make_serum_name(serum, serum_no) {
+        return serum.N;
+    }
+
+    make_titers_for_antigen(antigen_no, chart) {
+        return chart.s.map((serum, serum_no) => {
+            return "<td class='a-titer'>x</td>";
+        }).join("");
+    }
+
+    set_size(parent) {
+        if (parent.width() > 600) {
+            parent.css("width", "600px");
+            if (parent.parent().width() > 600)
+                parent.css("width", parent.parent().width());
         }
     }
 }
