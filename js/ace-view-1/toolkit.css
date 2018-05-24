@@ -245,6 +245,14 @@ pre.json-highlight .json-syntax-object-id {
 }
 
 /* ---------------------------------------------------------------------- */
+
+.a-error-message {
+    color: red;
+    margin: 2em;
+    text-align: center;
+}
+
+/* ---------------------------------------------------------------------- */
 /* Local Variables: */
 /* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */
 /* End: */

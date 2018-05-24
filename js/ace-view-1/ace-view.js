@@ -73,7 +73,7 @@ const BurgerMenu_html = "\
       <li class='a-disabled' name='download-distances-between-all-points-csv'><a href='download-distances-between-all-points-csv'>Distances Between All Points (csv)</a></li>\
     </ul>\
   </li>\
-  <li class='a-disabled'><a href='table'>Table</a></li>\
+  <li><a href='table'>Table</a></li>\
   <li><a href='raw'>Raw</a></li>\
   <li class='a-separator'></li>\
   <li><a href='help'>Help</a></li>\
@@ -111,6 +111,7 @@ class BurgerMenu extends acv_toolkit.Modal
         this.find("a[href='table-series']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode("table-series"), destroy));
         this.find("a[href='table-series-shade']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode("table-series-shade"), destroy));
         this.find("a[href='clade-series']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode("series-clade"), destroy));
+        this.find("a[href='table']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.show_table(evt.currentTarget), destroy));
         this.find("a[href='help']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.show_help(evt.currentTarget), destroy));
 
         this.find("li.a-disabled a").off("click").on("click", evt => acv_utils.forward_event(evt, destroy));
@@ -485,6 +486,14 @@ export class AntigenicMapWidget
     show_help(parent) {
         new acv_toolkit.MovableWindow({title: "Help", content: AntigenicMapWidget_help_html, parent: parent, id: "AntigenicMapWidget_help"});
     }
+
+    show_table(parent) {
+        const chart = this.data.c;
+        const title_fields = ["name", "lab", "virus_type", "assay", "date"];
+        const makers = new DrawingMode_Best_Projection().title_field_makers();
+        const win = new acv_toolkit.MovableWindow({title: acv_utils.join_collapse(title_fields.map(field => makers[field](chart))), parent: parent, content_css: {width: "auto", height: "auto", "max-height": "30em"}});
+        const table = new AntigenicTable(win.content(), chart);
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -493,7 +502,8 @@ class DrawingMode_Base
 {
     constructor(widget) {
         this.widget = widget;
-        widget.show_title_arrows(null, null);
+        if (widget)
+            widget.show_title_arrows(null, null);
     }
 
     title_box() {
@@ -891,6 +901,21 @@ const coloring_selector_data = {
 
 function select_coloring(coloring, widget) {
     return new (coloring_selector_data[coloring] || coloring_selector_data[null])(widget);
+}
+
+// ----------------------------------------------------------------------
+
+class AntigenicTable
+{
+    constructor(parent, chart) {
+        if (chart.a.length < 1000) {
+            this.div = $("<table class='antigenic-table'></table>").appendTo(parent);
+
+        }
+        else {
+            this.div = $(`<p class='a-error-message'>Table is too big: ${chart.a.length} antigens</table>`).appendTo(parent);
+        }
+    }
 }
 
 // ----------------------------------------------------------------------
