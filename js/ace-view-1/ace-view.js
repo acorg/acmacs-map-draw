@@ -56,6 +56,23 @@ const BurgerMenu_html = "\
       <!-- <li class='a-disabled' name='clade-series'><a href='clade-series'>Clade series</a></li> -->\
     </ul>\
   </li>\
+  <li><a href='#'>Download</a><span class='a-right-arrow'>&#9654;</span>\
+    <ul class='a-level-1'>\
+      <li class='a-disabled' name='download-pdf'><a href='download-pdf'>PDF</a></li>\
+      <li class='a-separator'></li>\
+      <li class='a-disabled' name='download-ace'><a href='download-ace'>ace</a></li>\
+      <li class='a-disabled' name='download-save'><a href='download-save'>Lispmds Save</a></li>\
+      <li class='a-separator'></li>\
+      <li class='a-disabled' name='download-layout-plain'><a href='download-layout-plain'>Layout (plain text)</a></li>\
+      <li class='a-disabled' name='download-layout-csv'><a href='download-layout-csv'>Layout (csv)</a></li>\
+      <li class='a-separator'></li>\
+      <li class='a-disabled' name='download-table-map-distances-plain'><a href='download-table-map-distances-plain'>Table vs. Map Distances (plain text)</a></li>\
+      <li class='a-disabled' name='download-table-map-distances-csv'><a href='download-table-map-distances-csv'>Table vs. Map Distances (csv)</a></li>\
+      <li class='a-disabled' name='download-error-lines'><a href='download-error-lines'>Error lines (csv)</a></li>\
+      <li class='a-disabled' name='download-distances-between-all-points-plain'><a href='download-distances-between-all-points-plain'>Distances Between All Points (plain text)</a></li>\
+      <li class='a-disabled' name='download-distances-between-all-points-csv'><a href='download-distances-between-all-points-csv'>Distances Between All Points (csv)</a></li>\
+    </ul>\
+  </li>\
   <li><a href='raw'>Raw</a></li>\
   <li class='a-separator'></li>\
   <li><a href='help'>Help</a></li>\
