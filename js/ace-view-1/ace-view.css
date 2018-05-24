@@ -122,7 +122,13 @@ ul.a-title-mouse-popup > li .a-scrollable {
     padding: 0;
 }
 
+
 /* ---------------------------------------------------------------------- */
+/* antigenic-table */
+
+.antigenic-table {
+    margin: 0.5em;
+}
 
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */
