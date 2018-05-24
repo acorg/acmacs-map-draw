@@ -45,7 +45,7 @@ export function load_css(href) {
 // ----------------------------------------------------------------------
 
 export function join_collapse(args, separator=" ") {
-    return args.filter(arg => arg !== null && arg !== undefined && arg !== "").map(arg => "" + arg).filter(arg => arg !== "").join(separator);
+    return args ? args.filter(arg => arg !== null && arg !== undefined && arg !== "").map(arg => "" + arg).filter(arg => arg !== "").join(separator) : "";
 }
 
 // ----------------------------------------------------------------------

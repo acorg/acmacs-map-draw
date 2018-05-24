@@ -188,7 +188,7 @@ const MovableWindow_html = "\
 
 export class MovableWindow {
 
-    // {title, content, id, parent: "center"}
+    // {title, content, id, parent: "center", content_css: {width:, height:}}
     constructor(args) {
         if (args.id)
             this.div = $("body").find("#" + args.id);
@@ -203,7 +203,9 @@ export class MovableWindow {
         if (args.title)
             this.div.find(".a-title").empty().append(args.title);
         if (args.content)
-            this.div.find(".a-content").empty().append(args.content);
+            this.content().empty().append(args.content);
+        if (args.content_css)
+            this.content().css(args.content_css);
         if (!args.parent || args.parent === "center") {
             const wind = $(window);
             this.div.css({left: (wind.scrollLeft() + wind.width() - this.div.width()) / 2, top: (wind.scrollTop() + wind.height() - this.div.height()) / 2});
@@ -221,6 +223,10 @@ export class MovableWindow {
         if (classes)
             this.div.addClass(classes);
         return this;
+    }
+
+    content() {
+        return this.div.find(".a-content");
     }
 
     drag(evt, callback) {
