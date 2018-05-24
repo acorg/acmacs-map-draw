@@ -73,6 +73,7 @@ const BurgerMenu_html = "\
       <li class='a-disabled' name='download-distances-between-all-points-csv'><a href='download-distances-between-all-points-csv'>Distances Between All Points (csv)</a></li>\
     </ul>\
   </li>\
+  <li class='a-disabled'><a href='table'>Table</a></li>\
   <li><a href='raw'>Raw</a></li>\
   <li class='a-separator'></li>\
   <li><a href='help'>Help</a></li>\
