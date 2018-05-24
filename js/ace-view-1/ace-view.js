@@ -418,7 +418,10 @@ export class AntigenicMapWidget
                             point_data.serum = chart.s[point_no - chart.a.length];
                         this.options.point_on_click(point_data, target);
                     };
-                    popup.find("a").on("click", evt => acv_utils.forward_event(evt, onclick));
+                    popup.find("a").on("click", evt => {
+                        acv_utils.forward_event(evt, onclick);
+                        window.setTimeout(acv_toolkit.mouse_popup_hide, this.options.point_info_on_hover_delay);
+                    });
                 }
             }
             else {
