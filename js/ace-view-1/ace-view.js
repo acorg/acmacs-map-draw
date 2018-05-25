@@ -498,7 +498,8 @@ export class AntigenicMapWidget
         const win = new acv_toolkit.MovableWindow({
             title: acv_utils.join_collapse(title_fields.map(field => makers[field](chart))),
             parent: parent,
-            content_css: {width: "auto", height: "auto", "max-height": max_height}
+            content_css: {width: "auto", height: "auto", "max-height": max_height},
+            id: "antigenic-table-" + this.div.attr("amw201805_id")
         });
         const table = new AntigenicTable(this, win.content(), chart);
     }
