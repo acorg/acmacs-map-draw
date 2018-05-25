@@ -131,11 +131,17 @@ class BurgerMenu extends acv_toolkit.Modal
 
 const AntigenicMapWidget_help_html = "\
 <div class='a-help'>\
+  <h3>Mouse Wheel and Drag</h3>\
   <ul>\
     <li>Change point size - Shift-Wheel</li>\
     <li>Zoom - Alt/Option-Wheel</li>\
     <li>Move map - Alt/Option-Drag</li>\
   </ul>\
+  <h3>Table</h3>\
+  <p>Table view can be opened via menu. If table view is on screen,\
+     hovering point(s) on map leads to highliting corresponding\
+     row/column in the table, table view is auto-scrolled to show\
+     to the point.</p>\
 </div>\
 ";
 
