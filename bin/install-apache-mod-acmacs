@@ -1,5 +1,7 @@
 #! /bin/bash
 
+AD_LIB_DIR="${HOME}/AD/lib"
+
 on_error()
 {
     (echo $PROG FAILED; echo "LOG: /scp:$HOSTNAME:$LOG") | mail -s "$(hostname) $PROG FAILED" eu@antigenic-cartography.org
@@ -14,7 +16,6 @@ if [[ "$(hostname)" == "i19" ]]; then
     exec 2>&1
 
     MOD_DIR="/syn/eu/apache-modules"
-    AD_LIB_DIR="${HOME}/AD/lib"
     AD_LIBS="mod_acmacs.so libacmacsbase.so.1 libacmacschart.so.2 liblocationdb.so.1 libseqdb.so.2 libhidb.so.5"
 
     if [[ -f "${AD_LIB_DIR}/mod_acmacs.so" ]]; then
@@ -24,5 +25,20 @@ if [[ "$(hostname)" == "i19" ]]; then
         ldd "${AD_LIB_DIR}/mod_acmacs.so"
         sudo apachectl -t
         sudo apachectl restart
+    else
+        echo "${AD_LIB_DIR}/mod_acmacs.so not found" >&2 && false
     fi
+elif [[ "$(hostname)" == "jagd" ]]; then
+    if [[ -f "${AD_LIB_DIR}/mod_acmacs.so" ]]; then
+        # module loaded directly from ${AD_LIB_DIR}/mod_acmacs.so (see /etc/apache2/httpd.conf)
+        apachectl -t
+        echo Restarting httpd
+        sudo killall httpd
+        sudo /usr/sbin/httpd-wrapper
+    else
+        echo "${AD_LIB_DIR}/mod_acmacs.so not found" >&2 && false
+    fi
+else
+    echo "Unsupported host: $(hostname)" >&2
+    exit 1
 fi

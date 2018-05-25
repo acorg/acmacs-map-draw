@@ -179,7 +179,7 @@ export class AntigenicMapWidget
         this.div.addClass("amw201805").attr("amw201805_id", window.amw201805.new_id()).append(AntigenicMapWidget_content_html);
         this.canvas = this.div.find("canvas");
         if (!this.options.canvas_size || !this.options.canvas_size.width || !this.options.canvas_size.height) {
-            const w_size = Math.max(Math.min($(window).width(), $(window).height()) - 40, 200);
+            const w_size = Math.max(Math.min($(window).width() - 100, $(window).height()) - 40, 200);
             this.options.canvas_size = {width: w_size, height: w_size};
         }
         this.surface = new ace_surface.Surface(this.canvas, {canvas: this.options.canvas_size});
@@ -940,7 +940,7 @@ class AntigenicTable
     constructor(widget, parent, chart) {
         this.widget = widget;
         this.chart = chart;
-        if (chart.a.length < 1000) {
+        if (chart.a.length < 2000) {
             this.div = $("<table class='antigenic-table'></table>").appendTo(parent);
             this.make_sera();
             this.make_antigens();
@@ -960,9 +960,18 @@ class AntigenicTable
     }
 
     make_antigens() {
-        this.chart.a.forEach((antigen, antigen_no) => {
-            this.div.append(acv_utils.format(AntigenicTable_antigen_row_html, {no: antigen_no + 1, name: this.make_antigen_name(antigen, antigen_no), titers: this.make_titers_for_antigen(antigen_no)}));
-        });
+        const chunk_size = 50;
+        let antigen_no = 0;
+        const populate = () => {
+            const last = Math.min(antigen_no + 50, this.chart.a.length);
+            for (; antigen_no < last; ++antigen_no) {
+                const antigen = this.chart.a[antigen_no];
+                this.div.append(acv_utils.format(AntigenicTable_antigen_row_html, {no: antigen_no + 1, name: this.make_antigen_name(antigen, antigen_no), titers: this.make_titers_for_antigen(antigen_no)}));
+            }
+            if (last < this.chart.a.length)
+                window.setTimeout(populate, 0);
+        };
+        populate();
     }
 
     make_antigen_name(antigen, antigen_no) {
