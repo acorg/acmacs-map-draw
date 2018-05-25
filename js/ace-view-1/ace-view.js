@@ -1096,7 +1096,16 @@ class AntigenicTable
     }
 
     scroll_to_serum(serum_no) {
-        const column = this.table.find(`td.a-serum_name[serum_no='${serum_no}']`);
+        const column = this.table.find(`td.a-serum-name[serum_no='${serum_no}']`);
+        console.log("scroll_to_serum", `td.a-serum-name[serum_no='${serum_no}']`, column);
+        const column_left = column.position().left;
+        const scrollable = this.table.parent();
+        if (column_left < scrollable.scrollLeft())
+            scrollable.animate({scrollTop: 0, scrollLeft: column_left}, 500);
+        else if (column_left > (scrollable.scrollLeft() + scrollable.width()))
+            scrollable.animate({scrollTop: 0, scrollLeft: column_left - scrollable.width() * 0.9}, 500);
+        else if (scrollable.scrollTop() > 0)
+            scrollable.animate({scrollTop: 0}, 500);
     }
 }
 
