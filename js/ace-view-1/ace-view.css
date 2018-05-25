@@ -186,7 +186,11 @@ ul.a-title-mouse-popup > li .a-scrollable {
 }
 
 .antigenic-table tr.a-antigen.a-highlight {
-    background-color: orange;
+    background-color: #FFF000;
+}
+
+.antigenic-table td.a-highlight {
+    background-color: #FFF000;
 }
 
 /* ---------------------------------------------------------------------- */

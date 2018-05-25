@@ -414,11 +414,11 @@ export class AntigenicMapWidget
                         window.setTimeout(acv_toolkit.mouse_popup_hide, this.options.point_info_on_hover_delay);
                     });
                 }
-                this.find_table().show_points(points);
             }
             else {
                 acv_toolkit.mouse_popup_hide();
             }
+            this.find_table().show_points(points);
         };
 
         const make_point_name_row = point_entry => {
@@ -928,7 +928,7 @@ class AntigenicTable_populate
         console.log("AntigenicTable_populate", args);
         this.widget = args.widget;
         this.chart = args.chart;
-        if (this.chart.a.length < 2000) {
+        if (this.chart.a.length < 200000) {
             this.div = $("<table class='antigenic-table'></table>").appendTo(args.parent);
             this.make_sera();
             this.make_antigens();
@@ -943,7 +943,7 @@ class AntigenicTable_populate
     make_sera() {
         this.div.append(acv_utils.format(AntigenicTable_serum_rows_html, {
             nos: acv_utils.array_of_indexes(this.chart.s.length, 1).map(no => `<td class='a-serum-no' serum_no='${no-1}'>${no}</td>`).join(""),
-            names: this.chart.s.map((serum, serum_no) => this.make_serum_name(serum, serum_no)).map(text => "<td class='a-serum-name'>" + text + "</td>").join("")
+            names: this.chart.s.map((serum, serum_no) => this.make_serum_name(serum, serum_no)).map((text, serum_no) => `<td class='a-serum-name' serum_no='${serum_no}'>${text}</td>`).join("")
         }));
     }
 
@@ -1001,7 +1001,7 @@ class AntigenicTable_populate
                 cls = "a-titer-numeric";
                 break;
             }
-            return `<td class='a-titer ${cls}'>${tt}</td>`;
+            return `<td class='a-titer ${cls}' serum_no='${serum_no}'>${tt}</td>`;
         }).join("");
     }
 
@@ -1052,26 +1052,51 @@ class AntigenicTable
     }
 
     show_points(points) {
-        if (this.table && points.length > 0) {
-            if (points[0] < this.chart.a.length)
-                this.show_antigen(points[0]);
-            else
-                this.show_serum(points[0] - this.chart.a.length);
+        if (this.table) {
+            this.not_show_points();
+            points.forEach((point_no, index) => {
+                if (point_no < this.chart.a.length) {
+                    this.show_antigen(point_no);
+                    if (index === 0)
+                        this.scroll_to_antigen(point_no);
+                }
+                else {
+                    const serum_no = point_no - this.chart.a.length;
+                    this.show_serum(serum_no);
+                    if (index === 0)
+                        this.scroll_to_serum(serum_no);
+                }
+            });
         }
     }
 
-    show_antigen(antigen_no) {
+    not_show_points() {
         this.table.find("tr.a-antigen").removeClass("a-highlight");
-        const row = this.table.find(`tr.a-antigen[antigen_no='${antigen_no}']`).addClass("a-highlight");
-        const row_top = row.position().top;
-        const scrollable = this.table.parent();
-        if (row_top < scrollable.scrollTop())
-            scrollable.animate({scrollTop: row_top}, 500);
-        else if (row_top > (scrollable.scrollTop() + scrollable.height()))
-            scrollable.animate({scrollTop: row_top - scrollable.height() * 0.9}, 500);
+        this.table.find("td[serum_no]").removeClass("a-highlight");
+    }
+
+    show_antigen(antigen_no) {
+        this.table.find(`tr.a-antigen[antigen_no='${antigen_no}']`).addClass("a-highlight");
     }
 
     show_serum(serum_no) {
+        this.table.find(`td[serum_no='${serum_no}']`).addClass("a-highlight");
+    }
+
+    scroll_to_antigen(antigen_no) {
+        const row = this.table.find(`tr.a-antigen[antigen_no='${antigen_no}']`);
+        const row_top = row.position().top;
+        const scrollable = this.table.parent();
+        if (row_top < scrollable.scrollTop())
+            scrollable.animate({scrollTop: row_top, scrollLeft: 0}, 500);
+        else if (row_top > (scrollable.scrollTop() + scrollable.height()))
+            scrollable.animate({scrollTop: row_top - scrollable.height() * 0.9, scrollLeft: 0}, 500);
+        else if (scrollable.scrollLeft() > 0)
+            scrollable.animate({scrollLeft: 0}, 500);
+    }
+
+    scroll_to_serum(serum_no) {
+        const column = this.table.find(`td.a-serum_name[serum_no='${serum_no}']`);
     }
 }
 
