@@ -1093,27 +1093,30 @@ class AntigenicTable
 
     scroll_to_antigen(antigen_no) {
         const row = this.table.find(`tr.a-antigen[antigen_no='${antigen_no}']`);
-        const row_top = row.position().top;
-        const scrollable = this.table.parent();
-        if (row_top < scrollable.scrollTop())
-            scrollable.animate({scrollTop: row_top, scrollLeft: 0}, 500);
-        else if (row_top > (scrollable.scrollTop() + scrollable.height()))
-            scrollable.animate({scrollTop: row_top - scrollable.height() * 0.9, scrollLeft: 0}, 500);
-        else if (scrollable.scrollLeft() > 0)
-            scrollable.animate({scrollLeft: 0}, 500);
+        if (row.length > 0) {
+            const row_top = row.position().top;
+            const scrollable = this.table.parent();
+            if (row_top < scrollable.scrollTop())
+                scrollable.animate({scrollTop: row_top, scrollLeft: 0}, 500);
+            else if (row_top > (scrollable.scrollTop() + scrollable.height()))
+                scrollable.animate({scrollTop: row_top - scrollable.height() * 0.9, scrollLeft: 0}, 500);
+            else if (scrollable.scrollLeft() > 0)
+                scrollable.animate({scrollLeft: 0}, 500);
+        }
     }
 
     scroll_to_serum(serum_no) {
         const column = this.table.find(`td.a-serum-name[serum_no='${serum_no}']`);
-        console.log("scroll_to_serum", `td.a-serum-name[serum_no='${serum_no}']`, column);
-        const column_left = column.position().left;
-        const scrollable = this.table.parent();
-        if (column_left < scrollable.scrollLeft())
-            scrollable.animate({scrollTop: 0, scrollLeft: column_left}, 500);
-        else if (column_left > (scrollable.scrollLeft() + scrollable.width()))
-            scrollable.animate({scrollTop: 0, scrollLeft: column_left - scrollable.width() * 0.9}, 500);
-        else if (scrollable.scrollTop() > 0)
-            scrollable.animate({scrollTop: 0}, 500);
+        if (column.length > 0) {
+            const column_left = column.position().left;
+            const scrollable = this.table.parent();
+            if (column_left < scrollable.scrollLeft())
+                scrollable.animate({scrollTop: 0, scrollLeft: column_left}, 500);
+            else if (column_left > (scrollable.scrollLeft() + scrollable.width()))
+                scrollable.animate({scrollTop: 0, scrollLeft: column_left - scrollable.width() * 0.9}, 500);
+            else if (scrollable.scrollTop() > 0)
+                scrollable.animate({scrollTop: 0}, 500);
+        }
     }
 }
 
