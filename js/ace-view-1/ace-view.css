@@ -185,6 +185,9 @@ ul.a-title-mouse-popup > li .a-scrollable {
     color: #000040;
 }
 
+.antigenic-table tr.a-antigen.a-highlight {
+    background-color: orange;
+}
 
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */

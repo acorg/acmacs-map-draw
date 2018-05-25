@@ -409,22 +409,12 @@ export class AntigenicMapWidget
                 const point_entries = points.map(point_no => { return {name: this.point_info_labels_[point_no], no: point_no}; });
                 const popup = acv_toolkit.mouse_popup_show($("<ul class='point-info-on-hover'></ul>").append(point_entries.map(make_point_name_row).join("")), this.canvas, {left: offset.left + this.options.mouse_popup_offset.left, top: offset.top + this.options.mouse_popup_offset.top});
                 if (this.options.point_on_click) {
-                    // const onclick = evt => {
-                    //     const target = $(evt.target);
-                    //     const point_no = parseInt(target.attr("point_no"));
-                    //     const chart = this.data.c;
-                    //     const point_data = {virus_type: chart.i.V || (chart.i.S && chart.i.S.length > 0 && chart.i.S[0].V)};
-                    //     if (point_no < chart.a.length)
-                    //         point_data.antigen = chart.a[point_no];
-                    //     else
-                    //         point_data.serum = chart.s[point_no - chart.a.length];
-                    //     this.options.point_on_click(point_data, target);
-                    // };
                     popup.find("a").on("click", evt => {
                         acv_utils.forward_event(evt, evt => show_antigen_serum_info_from_hidb($(evt.target), this.data.c, this.options.point_on_click));
                         window.setTimeout(acv_toolkit.mouse_popup_hide, this.options.point_info_on_hover_delay);
                     });
                 }
+                this.find_table().show_points(points);
             }
             else {
                 acv_toolkit.mouse_popup_hide();
@@ -489,19 +479,16 @@ export class AntigenicMapWidget
         new acv_toolkit.MovableWindow({title: "Help", content: AntigenicMapWidget_help_html, parent: parent, id: "AntigenicMapWidget_help"});
     }
 
+    table_id() {
+        return "antigenic-table-" + this.div.attr("amw201805_id");
+    }
+
     show_table(parent) {
-        const chart = this.data.c;
-        const title_fields = ["name", "lab", "virus_type", "assay", "date"];
-        const makers = new DrawingMode_Best_Projection().title_field_makers();
-        const win_space = $(window).height() - ($(parent).offset().top - $(window).scrollTop());
-        const max_height = Math.max(win_space - $(parent).height() / 2 - 20, 400);
-        const win = new acv_toolkit.MovableWindow({
-            title: acv_utils.join_collapse(title_fields.map(field => makers[field](chart))),
-            parent: parent,
-            content_css: {width: "auto", height: "auto", "max-height": max_height},
-            id: "antigenic-table-" + this.div.attr("amw201805_id")
-        });
-        const table = new AntigenicTable(this, win.content(), chart);
+        return new AntigenicTable({populate: true, widget: this, parent: $(parent), chart: this.data.c, id: this.table_id()});
+    }
+
+    find_table(parent) {
+        return new AntigenicTable({find: true, widget: this, chart: this.data.c, id: this.table_id()});
     }
 }
 
@@ -928,33 +915,34 @@ const AntigenicTable_serum_rows_html = "\
 ";
 
 const AntigenicTable_antigen_row_html = "\
-<tr class='a-antigen'>\
- <td class='a-antigen-no'>${no}</td>\
+<tr class='a-antigen' antigen_no='${no0}'>\
+ <td class='a-antigen-no'>${no1}</td>\
  <td class='a-antigen-name'>${name}</td>\
  ${titers}\
 </tr>\
 ";
 
-class AntigenicTable
+class AntigenicTable_populate
 {
-    constructor(widget, parent, chart) {
-        this.widget = widget;
-        this.chart = chart;
-        if (chart.a.length < 2000) {
-            this.div = $("<table class='antigenic-table'></table>").appendTo(parent);
+    constructor(args) {
+        console.log("AntigenicTable_populate", args);
+        this.widget = args.widget;
+        this.chart = args.chart;
+        if (this.chart.a.length < 2000) {
+            this.div = $("<table class='antigenic-table'></table>").appendTo(args.parent);
             this.make_sera();
             this.make_antigens();
             this.show_antigen_serum_info();
-            this.set_size(parent);
+            this.set_size(args.parent);
         }
         else {
-            this.div = $(`<p class='a-error-message'>Table is too big: ${this.chart.a.length} antigens</table>`).appendTo(parent);
+            this.div = $(`<p class='a-error-message'>Table is too big: ${this.chart.a.length} antigens</table>`).appendTo(args.parent);
         }
     }
 
     make_sera() {
         this.div.append(acv_utils.format(AntigenicTable_serum_rows_html, {
-            nos: acv_utils.array_of_indexes(this.chart.s.length, 1).map(no => `<td class='a-serum-no'>${no}</td>`).join(""),
+            nos: acv_utils.array_of_indexes(this.chart.s.length, 1).map(no => `<td class='a-serum-no' serum_no='${no-1}'>${no}</td>`).join(""),
             names: this.chart.s.map((serum, serum_no) => this.make_serum_name(serum, serum_no)).map(text => "<td class='a-serum-name'>" + text + "</td>").join("")
         }));
     }
@@ -966,7 +954,7 @@ class AntigenicTable
             const last = Math.min(antigen_no + 50, this.chart.a.length);
             for (; antigen_no < last; ++antigen_no) {
                 const antigen = this.chart.a[antigen_no];
-                this.div.append(acv_utils.format(AntigenicTable_antigen_row_html, {no: antigen_no + 1, name: this.make_antigen_name(antigen, antigen_no), titers: this.make_titers_for_antigen(antigen_no)}));
+                this.div.append(acv_utils.format(AntigenicTable_antigen_row_html, {no0: antigen_no, no1: antigen_no + 1, name: this.make_antigen_name(antigen, antigen_no), titers: this.make_titers_for_antigen(antigen_no)}));
             }
             if (last < this.chart.a.length)
                 window.setTimeout(populate, 0);
@@ -1027,6 +1015,63 @@ class AntigenicTable
 
     show_antigen_serum_info() {
         this.div.find("a[title]").on("click", evt => acv_utils.forward_event(evt, () => show_antigen_serum_info_from_hidb($(evt.target), this.chart, this.widget.options.point_on_click)));
+    }
+}
+
+// ----------------------------------------------------------------------
+
+class AntigenicTable
+{
+    constructor(args) {
+        if (args.populate)
+            this.populate(args);
+        else if (args.find)
+            this.find(args);
+    }
+
+    populate(args) {
+        const title_fields = ["name", "lab", "virus_type", "assay", "date"];
+        const makers = new DrawingMode_Best_Projection().title_field_makers();
+        const win_space = $(window).height() - (args.parent.offset().top - $(window).scrollTop());
+        const max_height = Math.max(win_space - args.parent.height() / 2 - 20, 400);
+        const movable_window = new acv_toolkit.MovableWindow({
+            title: acv_utils.join_collapse(title_fields.map(field => makers[field](args.chart))),
+            parent: args.parent,
+            content_css: {width: "auto", height: "auto", "max-height": max_height},
+            id: args.id
+        });
+        new AntigenicTable_populate({widget: args.widget, parent: movable_window.content(), chart: args.chart});
+    }
+
+    find(args) {
+        const table = $("#" + args.id).find(".a-content > .antigenic-table");
+        if (table.length > 0) {
+            this.table = table;
+            this.chart = args.chart;
+        }
+    }
+
+    show_points(points) {
+        if (this.table && points.length > 0) {
+            if (points[0] < this.chart.a.length)
+                this.show_antigen(points[0]);
+            else
+                this.show_serum(points[0] - this.chart.a.length);
+        }
+    }
+
+    show_antigen(antigen_no) {
+        this.table.find("tr.a-antigen").removeClass("a-highlight");
+        const row = this.table.find(`tr.a-antigen[antigen_no='${antigen_no}']`).addClass("a-highlight");
+        const row_top = row.position().top;
+        const scrollable = this.table.parent();
+        if (row_top < scrollable.scrollTop())
+            scrollable.animate({scrollTop: row_top}, 500);
+        else if (row_top > (scrollable.scrollTop() + scrollable.height()))
+            scrollable.animate({scrollTop: row_top - scrollable.height() * 0.9}, 500);
+    }
+
+    show_serum(serum_no) {
     }
 }
 
