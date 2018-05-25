@@ -474,13 +474,15 @@ export class AntigenicMapWidget
     }
 
     make_point_info_labels() {
-        const antigen_date = antigen => antigen.D && "[" + antigen.D + "]";
-        const antigen_clades = antigen => (antigen.c && antigen.c.length > 0) ? "<" + antigen.c.join(" ") + ">" : null;
+        // const antigen_date = antigen => antigen.D && "[" + antigen.D + "]";
+        // const antigen_clades = antigen => (antigen.c && antigen.c.length > 0) ? "<" + antigen.c.join(" ") + ">" : null;
         this.point_info_labels_ = [];
         for (let antigen of this.data.c.a)
-            this.point_info_labels_.push(acv_utils.join_collapse([antigen.N, antigen.R].concat(antigen.a, antigen.P, antigen_date(antigen), antigen_clades(antigen)))); // , antigen.C
+            // this.point_info_labels_.push(acv_utils.join_collapse([antigen.N, antigen.R].concat(antigen.a, antigen.P, antigen_date(antigen), antigen_clades(antigen)))); // , antigen.C
+            this.point_info_labels_.push(acv_utils.ace_antigen_full_name(antigen));
         for (let serum of this.data.c.s)
-            this.point_info_labels_.push(acv_utils.join_collapse([serum.N, serum.R].concat(serum.a, serum.I)));
+            // this.point_info_labels_.push(acv_utils.join_collapse([serum.N, serum.R].concat(serum.a, serum.I)));
+            this.point_info_labels_.push(acv_utils.ace_serum_full_name(serum));
     }
 
     show_help(parent) {
@@ -491,7 +493,11 @@ export class AntigenicMapWidget
         const chart = this.data.c;
         const title_fields = ["name", "lab", "virus_type", "assay", "date"];
         const makers = new DrawingMode_Best_Projection().title_field_makers();
-        const win = new acv_toolkit.MovableWindow({title: acv_utils.join_collapse(title_fields.map(field => makers[field](chart))), parent: parent, content_css: {width: "auto", height: "auto", "max-height": "30em"}});
+        const win = new acv_toolkit.MovableWindow({
+            title: acv_utils.join_collapse(title_fields.map(field => makers[field](chart))),
+            parent: parent,
+            content_css: {width: "auto", height: "auto", "max-height": "30em"}
+        });
         const table = new AntigenicTable(win.content(), chart);
     }
 }
@@ -807,7 +813,7 @@ class Coloring_WithAlllStyles extends Coloring_Base
             return style;
         };
         const all_styles = chart.p.p.map(style_no => Object.assign({}, chart.p.P[style_no])).map(egg_passage);
-        this.styles_ = {index: Array.apply(null, {length: all_styles.length}).map(Number.call, Number), styles: all_styles};
+        this.styles_ = {index: acv_utils.array_of_indexes(all_styles.length), styles: all_styles};
         chart.s.forEach((serum, serum_no) => delete this.styles_.styles[serum_no + chart.a.length].F);
     }
 
@@ -905,6 +911,27 @@ function select_coloring(coloring, widget) {
 
 // ----------------------------------------------------------------------
 
+const AntigenicTable_serum_rows_html = "\
+<tr class='a-serum-nos'>\
+ <td></td>\
+ <td></td>\
+ ${nos}\
+</tr>\
+<tr class='a-serum-names'>\
+ <td></td>\
+ <td></td>\
+ ${names}\
+</tr>\
+";
+
+const AntigenicTable_antigen_row_html = "\
+<tr class='a-antigen'>\
+ <td class='a-antigen-no'>${no}</td>\
+ <td class='a-antigen-name'>${name}</td>\
+ ${titers}\
+</tr>\
+";
+
 class AntigenicTable
 {
     constructor(parent, chart) {
@@ -920,26 +947,48 @@ class AntigenicTable
     }
 
     make_sera(chart) {
-        this.div.append("<tr class='a-sera'><td></td><td>" + chart.s.map((serum, serum_no) => this.make_serum_name(serum, serum_no)).join("</td><td>") + "</td></tr>");
+        this.div.append(acv_utils.format(AntigenicTable_serum_rows_html, {
+            nos: acv_utils.array_of_indexes(chart.s.length, 1).map(no => `<td class='a-serum-no'>${no}</td>`).join(""),
+            names: chart.s.map((serum, serum_no) => this.make_serum_name(serum, serum_no)).map(text => "<td class='a-serum-name'>" + text + "</td>").join("")
+        }));
     }
 
     make_antigens(chart) {
         chart.a.forEach((antigen, antigen_no) => {
-            this.div.append("<tr class='a-antigen'><td class='a-antigen-name'>" + this.make_antigen_name(antigen) + "</td>" + this.make_titers_for_antigen(antigen_no, chart) + "</tr>");
+            this.div.append(acv_utils.format(AntigenicTable_antigen_row_html, {no: antigen_no + 1, name: this.make_antigen_name(antigen), titers: this.make_titers_for_antigen(antigen_no, chart)}));
         });
     }
 
     make_antigen_name(antigen, antigen_no) {
-        return antigen.N;
+        return `<span title='${acv_utils.ace_antigen_full_name(antigen, true)}'>${acv_utils.antigen_serum_abbreviated_name(antigen.N)}</span>`;
     }
 
     make_serum_name(serum, serum_no) {
-        return serum.N;
+        return `<span title='${acv_utils.ace_serum_full_name(serum, true)}'>${acv_utils.antigen_serum_abbreviated_name(serum.N)}</span>`;
     }
 
     make_titers_for_antigen(antigen_no, chart) {
         return chart.s.map((serum, serum_no) => {
-            return "<td class='a-titer'>x</td>";
+            const tt = acv_utils.ace_titer(chart, antigen_no, serum_no);
+            let cls = "";
+            switch (tt[0]) {
+            case "*":
+                cls = "a-titer-dontcare";
+                break;
+            case "<":
+                cls = "a-titer-thresholded a-titer-less";
+                break;
+            case ">":
+                cls = "a-titer-thresholded a-titer-more";
+                break;
+            case "~":
+                cls = "a-titer-dodgy";
+                break;
+            default:
+                cls = "a-titer-numeric";
+                break;
+            }
+            return `<td class='a-titer ${cls}'>${tt}</td>`;
         }).join("");
     }
 

@@ -88,6 +88,74 @@ export function whocc_lab_name(name) {
 }
 
 // ----------------------------------------------------------------------
+
+export function array_of_indexes(size, base=0) {
+    return Array.apply(null, {length: size}).map((_,index) => index + base);
+}
+
+// ----------------------------------------------------------------------
+
+export function ace_antigen_full_name(antigen, escape=false) {
+    const antigen_clades = (antigen.c && antigen.c.length > 0) ? "<" + antigen.c.join(" ") + ">" : null;
+    const result = join_collapse([antigen.N, antigen.R].concat(antigen.a, antigen.P, antigen.D && "[" + antigen.D + "]", antigen_clades));
+    return escape ? escape_html(result) : result;
+}
+
+// ----------------------------------------------------------------------
+
+export function ace_serum_full_name(serum, escape=false) {
+    const result = join_collapse([serum.N, serum.R].concat(serum.a, serum.I));
+    return escape ? escape_html(result) : result;
+}
+
+// ----------------------------------------------------------------------
+
+export function antigen_serum_abbreviated_name(name) {
+    const vt = text => text.match(/^(A\(H[0-9]N[0-9]\).*|B)/) ? null : text;
+    const species = text => text.substr(0, 2);
+    const loc = text => {
+        const words = text.split(" ");
+        return words.length === 1 ? capitalize(text.substr(0, 2)) : words.map(w => w.charAt(0)).join("").toUpperCase();
+    };
+    const year = text => text.length === 4 ? text.substr(2, 2) : text;
+    const fields = name.split("/");
+    switch (fields.length) {
+    case 4:
+        return join_collapse([vt(fields[0]), loc(fields[1]), fields[2], year(fields[3])], "/");
+    case 5:
+        return join_collapse([vt(fields[0]), species(fields[1]), loc(fields[2]), fields[3], year(fields[4])], "/");
+    default:
+        return name;
+    }
+}
+
+// ----------------------------------------------------------------------
+
+export function ace_titer(chart, ag_no, sr_no) {
+    if (chart.t.l) {
+        return chart.t.l[ag_no][sr_no];
+    }
+    else {
+        const tt = chart.t.d[ag_no]["" + sr_no];
+        return tt === undefined ? "*" : tt;
+    }
+}
+
+// ----------------------------------------------------------------------
+
+export function capitalize(text) {
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+}
+
+// ----------------------------------------------------------------------
+
+const escape_html_map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
+
+export function escape_html(text) {
+    return text.replace(/[&<>"']/g, m => escape_html_map[m]);
+}
+
+// ----------------------------------------------------------------------
 /// Local Variables:
 /// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
 /// End:

@@ -1,3 +1,5 @@
+import * as acv_utils from "./utils.js";
+
 const COS_PI_6 = Math.cos(Math.PI / 6);
 
 // 3D links
@@ -80,7 +82,7 @@ export class Surface
     // {drawing_order, layout, transformation, styles, point_scale, show_as_background: {fill:, outline:}}
     points(args) {
         if (!Array.isArray(args.drawing_order))
-            args.drawing_order = Array.apply(null, {length: args.layout.length}).map(Number.call, Number);
+            args.drawing_order = acv_utils.array_of_indexes(args.layout.length);
         // console.log("points", args.transformation);
 
         let fill, outline;

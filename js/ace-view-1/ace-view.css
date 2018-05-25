@@ -130,6 +130,43 @@ ul.a-title-mouse-popup > li .a-scrollable {
     margin: 0.5em;
 }
 
+.antigenic-table .a-serum-no {
+    text-align: center;
+}
+
+.antigenic-table .a-antigen-no {
+    text-align: right;
+}
+
+.antigenic-table .a-titer {
+    padding: 0 1em;
+}
+
+.antigenic-table .a-titer-dontcare {
+    color: #A0A0A0;
+    text-align: center;
+}
+
+.antigenic-table .a-titer-numeric {
+    text-align: right;
+}
+
+.antigenic-table .a-titer-thresholded {
+    text-align: right;
+}
+
+.antigenic-table .a-titer-less {
+    color: #707070;
+}
+
+.antigenic-table .a-titer-more {
+    color: #FFA0A0;
+}
+
+.antigenic-table .a-titer-dodgy {
+    text-align: right;
+}
+
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */
 /* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */
