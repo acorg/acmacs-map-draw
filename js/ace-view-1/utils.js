@@ -95,29 +95,29 @@ export function array_of_indexes(size, base=0) {
 
 // ----------------------------------------------------------------------
 
-export function ace_antigen_full_name(antigen, escape=false) {
+export function ace_antigen_full_name(antigen, options={}) {
     const antigen_clades = (antigen.c && antigen.c.length > 0) ? "<" + antigen.c.join(" ") + ">" : null;
     const result = join_collapse([antigen.N, antigen.R].concat(antigen.a, antigen.P, antigen.D && "[" + antigen.D + "]", antigen_clades));
-    return escape ? escape_html(result) : result;
+    return options.escape ? escape_html(result) : result;
 }
 
 // ----------------------------------------------------------------------
 
-export function ace_serum_full_name(serum, escape=false) {
+export function ace_serum_full_name(serum, options={}) {
     const result = join_collapse([serum.N, serum.R].concat(serum.a, serum.I));
-    return escape ? escape_html(result) : result;
+    return options.escape ? escape_html(result) : result;
 }
 
 // ----------------------------------------------------------------------
 
-export function antigen_serum_abbreviated_name(name) {
+export function antigen_serum_abbreviated_name(name, options={}) {
     const vt = text => text.match(/^(A\(H[0-9]N[0-9]\).*|B)/) ? null : text;
     const species = text => text.substr(0, 2);
     const loc = text => {
         const words = text.split(" ");
         return words.length === 1 ? capitalize(text.substr(0, 2)) : words.map(w => w.charAt(0)).join("").toUpperCase();
     };
-    const year = text => text.length === 4 ? text.substr(2, 2) : text;
+    const year = text => text.length === 4 ? (options.exclude_year ? null : text.substr(2, 2)) : text;
     const fields = name.split("/");
     switch (fields.length) {
     case 4:

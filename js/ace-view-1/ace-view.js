@@ -960,11 +960,11 @@ class AntigenicTable
     }
 
     make_antigen_name(antigen, antigen_no) {
-        return `<span title='${acv_utils.ace_antigen_full_name(antigen, true)}'>${acv_utils.antigen_serum_abbreviated_name(antigen.N)}</span>`;
+        return `<span title='${acv_utils.ace_antigen_full_name(antigen, {escape: true})}'>${acv_utils.antigen_serum_abbreviated_name(antigen.N)}</span>`;
     }
 
     make_serum_name(serum, serum_no) {
-        return `<span title='${acv_utils.ace_serum_full_name(serum, true)}'>${acv_utils.antigen_serum_abbreviated_name(serum.N)}</span>`;
+        return `<span title='${acv_utils.ace_serum_full_name(serum, {escape: true})}'>${acv_utils.antigen_serum_abbreviated_name(serum.N, {exclude_year: true})}</span>`;
     }
 
     make_titers_for_antigen(antigen_no, chart) {

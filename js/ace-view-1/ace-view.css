@@ -128,14 +128,28 @@ ul.a-title-mouse-popup > li .a-scrollable {
 
 .antigenic-table {
     margin: 0.5em;
+    border-collapse: collapse;
+}
+
+.antigenic-table tr.a-antigen:nth-child(odd) {
+    background-color: #F0F0F0;
 }
 
 .antigenic-table .a-serum-no {
     text-align: center;
 }
 
+.antigenic-table .a-serum-name {
+    padding: 0 0.5em;
+}
+
 .antigenic-table .a-antigen-no {
     text-align: right;
+    padding-right: 0.5em;
+}
+
+.antigenic-table .a-antigen-name {
+    padding-right: 0.5em;
 }
 
 .antigenic-table .a-titer {
