@@ -484,11 +484,17 @@ export class AntigenicMapWidget
     }
 
     show_table(parent) {
-        return new AntigenicTable({populate: true, widget: this, parent: $(parent), chart: this.data.c, id: this.table_id()});
+        if (this.data)
+            return new AntigenicTable({populate: true, widget: this, parent: $(parent), chart: this.data.c, id: this.table_id()});
+        else
+            return null;
     }
 
     find_table(parent) {
-        return new AntigenicTable({find: true, widget: this, chart: this.data.c, id: this.table_id()});
+        if (this.data)
+            return new AntigenicTable({find: true, widget: this, chart: this.data.c, id: this.table_id()});
+        else
+            return null;
     }
 }
 
@@ -1001,7 +1007,9 @@ class AntigenicTable_populate
                 cls = "a-titer-numeric";
                 break;
             }
-            return `<td class='a-titer ${cls}' serum_no='${serum_no}'>${tt}</td>`;
+            const ag_name = acv_utils.ace_antigen_full_name(this.chart.a[antigen_no]);
+            const sr_name = acv_utils.ace_serum_full_name(this.chart.s[serum_no]);
+            return `<td class='a-titer ${cls}' serum_no='${serum_no}' title='AG: ${ag_name}\nSR: ${sr_name}'>${tt}</td>`;
         }).join("");
     }
 
