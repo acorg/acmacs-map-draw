@@ -181,6 +181,11 @@ ul.a-title-mouse-popup > li .a-scrollable {
     text-align: right;
 }
 
+.antigenic-table a:link, .antigenic-table a:visited {
+    color: #000040;
+}
+
+
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */
 /* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */
