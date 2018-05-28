@@ -177,7 +177,7 @@ export class Modal
 const MovableWindow_html = "\
 <div class='amw201805-movable-window a-window-shadow'>\
   <div class='a-window-title'>\
-    <div class='a-close a-left' title='Close'>&times;</div>\
+    <!-- <div class='a-close a-left' title='Close'>&times;</div> -->\
     <div class='a-title'></div>\
     <div class='a-close a-right' title='Close'>&times;</div>\
   </div>\
@@ -197,7 +197,7 @@ export class MovableWindow {
             if (args.id)
                 this.div.attr("id", args.id);
             this.div.find(".a-close").on("click", () => this.destroy());
-            this.div.find(".a-title").on("mousedown", evt => this.drag(evt, pos_diff => this.drag_window(pos_diff)));
+            this.div.find(".a-window-title").on("mousedown", evt => this.drag(evt, pos_diff => this.drag_window(pos_diff)));
             this.div.find(".a-window-resizer").on("mousedown", evt => this.drag(evt, pos_diff => this.resize_window(pos_diff)));
         }
         if (args.title)

@@ -54,8 +54,8 @@
     z-index: 1;
     width: 0.5em;
     height: 0.5em;
-    border-right: 2px solid black;
-    border-bottom: 2px solid black;
+    border-right: 2px solid #B0B0B0;
+    border-bottom: 2px solid #B0B0B0;
     cursor: nwse-resize;
 }
 
@@ -156,16 +156,20 @@
     top: 0;
     background: white;
     z-index: 700;
+    padding: 0 1.5em 1.5em 1.5em;
 }
 
 .amw201805-movable-window .a-window-title {
     display: grid;
-    grid-template-columns: 1em auto 1em;
-    background-color: #EEE;
+    /* grid-template-columns: 1em auto 1em; */
+    grid-template-columns: 0 auto 1em;
+    /* background-color: #EEE; */
+    padding-top: 1.5em;
+    cursor: move;
 }
 
 .amw201805-movable-window .a-window-title:hover {
-    background-color: #EEF;
+    /* background-color: #EEF; */
 }
 
 .amw201805-movable-window.a-error .a-window-title {
@@ -177,13 +181,18 @@
     grid-column-start: 2;
     grid-column-end: 3;
     font-weight: bold;
-    text-align: center;
+    /* text-align: center; */
     cursor: move;
+    font-size: 2em;
+    text-align: left;
 }
 
 .amw201805-movable-window .a-close {
     cursor: pointer;
     text-align: center;
+    font-size: 2em;
+    position: relative;
+    top: -0.3em;
 }
 
 .amw201805-movable-window .a-close:hover {

@@ -114,14 +114,14 @@ ul.a-title-mouse-popup > li .a-scrollable {
 #AntigenicMapWidget_help .a-content {
     height: auto;
     width: auto;
-    min-width: 10em;
+    min-width: 26em;
     min-height: 10em;
-    max-width: 30em;
+    max-width: 26em;
     max-height: 50em;
 }
 
 #AntigenicMapWidget_help h3 {
-    margin: 0.5em;
+    margin: 0.5em 0;
 }
 
 #AntigenicMapWidget_help ul {
