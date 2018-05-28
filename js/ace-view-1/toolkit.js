@@ -188,7 +188,7 @@ const MovableWindow_html = "\
 
 export class MovableWindow {
 
-    // {title, content, id, parent: "center", content_css: {width:, height:}}
+    // {title, content, id, parent: "center", classes: "", content_css: {width:, height:}}
     constructor(args) {
         if (args.id)
             this.div = $("body").find("#" + args.id);
@@ -199,6 +199,8 @@ export class MovableWindow {
             this.div.find(".a-close").on("click", () => this.destroy());
             this.div.find(".a-window-title").on("mousedown", evt => this.drag(evt, pos_diff => this.drag_window(pos_diff)));
             this.div.find(".a-window-resizer").on("mousedown", evt => this.drag(evt, pos_diff => this.resize_window(pos_diff)));
+            if (args.classes)
+                this.div.addClass(args.classes);
         }
         if (args.title)
             this.div.find(".a-title").empty().append(args.title);

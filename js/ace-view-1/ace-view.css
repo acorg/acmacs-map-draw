@@ -139,13 +139,28 @@ ul.a-title-mouse-popup > li .a-scrollable {
 /* ---------------------------------------------------------------------- */
 /* antigenic-table */
 
+.antigenic-table-movable {
+    padding: 0 1em 1em 1em;
+    background-color: #DDFFEE;
+}
+
+.amw201805-movable-window.antigenic-table-movable .a-window-title {
+    padding-top: 1em;
+}
+
+.amw201805-movable-window.antigenic-table-movable .a-window-title .a-title {
+    font-size: 1.1em;
+    white-space: no-wrap;
+    overflow: hidden;
+}
+
 .antigenic-table {
     margin: 0.5em;
     border-collapse: collapse;
 }
 
 .antigenic-table tr.a-antigen:nth-child(odd) {
-    background-color: #F0F0F0;
+    background-color: #C0F0E0;
 }
 
 .antigenic-table .a-serum-no {

@@ -937,7 +937,7 @@ const AntigenicTable_antigen_row_html = "\
 class AntigenicTable_populate
 {
     constructor(args) {
-        console.log("AntigenicTable_populate", args);
+        // console.log("AntigenicTable_populate", args);
         this.widget = args.widget;
         this.chart = args.chart;
         if (this.chart.a.length < 200000) {
@@ -1051,6 +1051,7 @@ class AntigenicTable
         const movable_window = new acv_toolkit.MovableWindow({
             title: acv_utils.join_collapse(title_fields.map(field => makers[field](args.chart))),
             parent: args.parent,
+            classes: "antigenic-table-movable",
             content_css: {width: "auto", height: "auto", "max-height": max_height},
             id: args.id
         });
