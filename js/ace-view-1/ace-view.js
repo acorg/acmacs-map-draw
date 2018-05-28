@@ -114,6 +114,10 @@ class BurgerMenu extends acv_toolkit.Modal
         this.find("a[href='table']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.show_table(evt.currentTarget), destroy));
         this.find("a[href='help']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.show_help(evt.currentTarget), destroy));
 
+        ["download-pdf"].forEach(api_feature => {
+            this.find(`a[href='${api_feature}']`).on("click", evt => acv_utils.forward_event(evt, () => this.parent.external_api(api_feature), destroy));
+        });
+
         this.find("li.a-disabled a").off("click").on("click", evt => acv_utils.forward_event(evt, destroy));
     }
 
@@ -178,7 +182,7 @@ const AntigenicMapWidget_content_html = `\
 
 export class AntigenicMapWidget
 {
-    constructor(div, data, options={}) { // options: {view_mode: "table-series", coloring: "default", title_fields: []}
+    constructor(div, data, options={}) { // options: {view_mode: "table-series", coloring: "default", title_fields: [], api: object_providing_external_api}
         this.div = $(div);
         this.options = Object.assign({}, window.amw201805.options, options);
         acv_utils.load_css('/js/ad/map-draw/ace-view-1/ace-view.css');
@@ -319,6 +323,8 @@ export class AntigenicMapWidget
             this.features["clades"] = true;
         if (chart.a.reduce((with_continents, antigen) => with_continents + (antigen.C ? 1 : 0), 0) > 0)
             this.features["continents"] = true;
+        if (this.options.api && this.options.api.download_pdf)
+            this.features["download-pdf"] = true;
     }
 
     set_plot_spec() {
@@ -502,6 +508,17 @@ export class AntigenicMapWidget
         else
             return null;
     }
+
+    external_api(api_feature) {
+        switch (api_feature) {
+        case "download-pdf":
+            this.options.api.download_pdf({drawing_order_background: this.view_mode.drawing_order_background(), drawing_order: this.view_mode.drawing_order(), projection_no: this.view_mode.projection_no(), styles: this.view_mode.styles(), point_scale: this.view_mode.point_scale()});
+            break;
+        default:
+            console.warn("unrecognized api_feature: " + api_feature);
+            break;
+        }
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -562,22 +579,48 @@ class DrawingMode_Base
         }
         return title_box;
     }
+
+    draw() {
+        const chart = this.widget.data.c;
+        if (this.drawing_order_background_)
+            this.widget.surface.points({drawing_order: this.drawing_order_background(),
+                                    layout: chart.P[this.projection_no()].l,
+                                    transformation: new ace_surface.Transformation(chart.P[this.projection_no()].t),
+                                    styles: this.styles(),
+                                    point_scale: this.point_scale(),
+                                    show_as_background: this.show_as_background()});
+        this.widget.surface.points({drawing_order: this.drawing_order(),
+                                    layout: chart.P[this.projection_no()].l,
+                                    transformation: new ace_surface.Transformation(chart.P[this.projection_no()].t),
+                                    styles: this.styles(),
+                                    point_scale: this.point_scale()});
+    }
+
+    projection_no() {
+        return this.widget.options.projection_no;
+    }
+
+    styles() {
+        return this.widget.coloring.styles();
+    }
+
+    point_scale() {
+        return this.widget.parameters.point_scale;
+    }
+
+    show_as_background() {
+        return null;
+    }
+
+    drawing_order_background() {
+        return [];
+    }
 }
 
 // ----------------------------------------------------------------------
 
 class DrawingMode_Best_Projection extends DrawingMode_Base
 {
-    draw() {
-        const chart = this.widget.data.c;
-        const projection_no = this.widget.options.projection_no;
-        this.widget.surface.points({drawing_order: chart.p.d,
-                                    layout: chart.P[projection_no].l,
-                                    transformation: new ace_surface.Transformation(chart.P[projection_no].t),
-                                    styles: this.widget.coloring.styles(),
-                                    point_scale: this.widget.parameters.point_scale});
-    }
-
     title(args) { // args: {title_fields:}
         const chart = this.widget.data.c;
         const projection_no = this.widget.options.projection_no;
@@ -600,6 +643,9 @@ class DrawingMode_Best_Projection extends DrawingMode_Base
         };
     }
 
+    drawing_order() {
+        return this.widget.data.c.p.d;
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -610,25 +656,6 @@ class DrawingMode_Series extends DrawingMode_Base
         super(widget);
         this.make_pages();
         this.set_page(this.pages.length - 1);
-    }
-
-    draw() {
-        const chart = this.widget.data.c;
-        const projection_no = this.widget.options.projection_no;
-        if (this.drawing_order_background) {
-            this.widget.surface.points({drawing_order: this.drawing_order_background,
-                                        layout: chart.P[projection_no].l,
-                                        transformation: new ace_surface.Transformation(chart.P[projection_no].t),
-                                        styles: this.widget.coloring.styles(),
-                                        point_scale: this.widget.parameters.point_scale,
-                                        show_as_background: this.show_as_background()
-                                       });
-        }
-        this.widget.surface.points({drawing_order: this.drawing_order,
-                                    layout: chart.P[projection_no].l,
-                                    transformation: new ace_surface.Transformation(chart.P[projection_no].t),
-                                    styles: this.widget.coloring.styles(),
-                                    point_scale: this.widget.parameters.point_scale});
     }
 
     title() {
@@ -648,6 +675,15 @@ class DrawingMode_Series extends DrawingMode_Base
     show_as_background() {
         return this.widget.options.show_as_background;
     }
+
+    drawing_order() {
+        return this.drawing_order_;
+    }
+
+    drawing_order_background() {
+        return this.drawing_order_background_;
+    }
+
 }
 
 // ----------------------------------------------------------------------
@@ -668,15 +704,15 @@ class DrawingMode_TimeSeries extends DrawingMode_Series
         const page_month = this.pages[this.page_no];
         const in_page = antigen => this.antigen_month(antigen) === page_month;
         const antigens = this.widget.data.c.a;
-        this.drawing_order = [];
-        this.drawing_order_background = undefined;
+        this.drawing_order_ = [];
+        this.drawing_order_background_ = undefined;
         for (let point_no of this.widget.data.c.p.d) {
             if (point_no >= antigens.length || (antigens[point_no].S && antigens[point_no].S.indexOf("R") >= 0 && !in_page(antigens[point_no])))
-                this.drawing_order.push(point_no);
+                this.drawing_order_.push(point_no);
         }
         for (let point_no of this.widget.data.c.p.d) {
             if (point_no < antigens.length && in_page(antigens[point_no]))
-                this.drawing_order.push(point_no);
+                this.drawing_order_.push(point_no);
         }
     }
 
@@ -693,13 +729,13 @@ class DrawingMode_TimeSeriesGrey extends DrawingMode_TimeSeries
         const page_month = this.pages[this.page_no];
         const in_page = antigen => this.antigen_month(antigen) === page_month;
         const antigens = this.widget.data.c.a;
-        this.drawing_order = [];
-        this.drawing_order_background = [];
+        this.drawing_order_ = [];
+        this.drawing_order_background_ = [];
         for (let point_no of this.widget.data.c.p.d) {
             if (point_no < antigens.length && in_page(antigens[point_no]))
-                this.drawing_order.push(point_no);
+                this.drawing_order_.push(point_no);
             else
-                this.drawing_order_background.push(point_no);
+                this.drawing_order_background_.push(point_no);
         }
     }
 }
@@ -740,7 +776,7 @@ class DrawingMode_TableSeries extends DrawingMode_Series
             return layer.some(entry => !!entry[serum_no_s]);
         };
         const point_in_layer = point_no => point_no < antigens.length ? antigen_in_layer(point_no) : serum_in_layer(point_no - antigens.length);
-        this.drawing_order = this.widget.data.c.p.d.filter(point_in_layer);
+        this.drawing_order_ = this.widget.data.c.p.d.filter(point_in_layer);
     }
 
 }
@@ -758,8 +794,8 @@ class DrawingMode_TableSeriesShade extends DrawingMode_TableSeries
             return layer.some(entry => !!entry[serum_no_s]);
         };
         const point_in_layer = point_no => point_no < antigens.length ? antigen_in_layer(point_no) : serum_in_layer(point_no - antigens.length);
-        this.drawing_order = this.widget.data.c.p.d.filter(point_in_layer);
-        this.drawing_order_background = this.widget.data.c.p.d.filter(point_no => !point_in_layer(point_no));
+        this.drawing_order_ = this.widget.data.c.p.d.filter(point_in_layer);
+        this.drawing_order_background_ = this.widget.data.c.p.d.filter(point_no => !point_in_layer(point_no));
     }
 
     show_as_background() {
