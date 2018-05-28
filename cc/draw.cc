@@ -94,6 +94,19 @@ void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) co
 
 // ----------------------------------------------------------------------
 
+std::string ChartDraw::draw_pdf(double aSize, report_time aTimer) const
+{
+    Timeit ti("drawing map to pdf: ", aTimer);
+    acmacs::surface::PdfBufferCairo surface(aSize, aSize);
+    draw(surface);
+    surface.flush();
+    std::string d = surface.data();
+    return surface.data();
+
+} // ChartDraw::draw_pdf
+
+// ----------------------------------------------------------------------
+
 std::string ChartDraw::draw_json(report_time aTimer) const
 {
     Timeit ti("drawing map to json: ", aTimer);

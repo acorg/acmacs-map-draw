@@ -25,6 +25,7 @@ class ChartDraw : public ChartSelectInterface
     void draw(acmacs::surface::Surface& aSurface) const;
     void draw(std::string aFilename, double aSize, report_time aTimer = report_time::No) const;
     std::string draw_json(report_time aTimer = report_time::No) const;
+    std::string draw_pdf(double aSize, report_time aTimer = report_time::No) const;
     const acmacs::Viewport& calculate_viewport(bool verbose = true);
 
     template <typename T> void modify_drawing_order(const T& aPoints, PointDrawingOrder aPointDrawingOrder)
