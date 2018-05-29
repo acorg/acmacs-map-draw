@@ -438,7 +438,9 @@ export class AntigenicMapWidget
             else {
                 acv_toolkit.mouse_popup_hide();
             }
-            this.find_table().show_points(points);
+            const table = this.find_table();
+            if (table)
+                table.show_points(points);
         };
 
         const make_point_name_row = point_entry => {

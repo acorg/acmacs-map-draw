@@ -93,7 +93,7 @@ $(DIST)/%: $(BUILD)/%.o | $(ACMACS_MAP_DRAW_LIB)
 
 APXS_CXX = -S CC=$(CXX) -Wc,-xc++ -Wl,-shared
 APXS_ENV = LTFLAGS="-v"
-APXS_LIBS_NAMES = acmacsbase.1 acmacschart.2 locationdb.1 seqdb.2
+APXS_LIBS_NAMES = acmacsbase.1 acmacschart.2 acmacsmapdraw.2 locationdb.1 seqdb.2
 ifeq (Darwin,$(shell uname))
   APXS_LIBS = -L$(AD_LIB) $(APXS_LIBS_NAMES:%=-l%)
 else
@@ -101,10 +101,10 @@ else
   APXS_LIBS = -L$(AD_LIB) $(APXS_LIBS_NAMES_FIXED:%=-l%)
 endif
 
-$(DIST)/mod_acmacs.so: $(BUILD)/.libs/apache-mod-acmacs.so
+$(DIST)/mod_acmacs.so: $(BUILD)/.libs/apache-mod-acmacs.so | $(ACMACS_MAP_DRAW_LIB)
 	ln -sf $^ $@
 
-$(BUILD)/.libs/apache-mod-acmacs.so: cc/apache-mod-acmacs.cc
+$(BUILD)/.libs/apache-mod-acmacs.so: cc/apache-mod-acmacs.cc | $(ACMACS_MAP_DRAW_LIB)
 	@echo apxs does not not understand any file suffixes besides .c, so we have to use .c for C++
 	ln -sf $(abspath $^) $(BUILD)/$(basename $(notdir $^)).c
 	env $(APXS_ENV) apxs $(APXS_CXX) $(CXXFLAGS:%=-Wc,%) -n acmacs_module $(APXS_LIBS) -c $(BUILD)/$(basename $(notdir $^)).c

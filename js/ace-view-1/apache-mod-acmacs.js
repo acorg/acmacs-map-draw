@@ -1,0 +1,84 @@
+import * as acv_m from "./ace-view.js";
+
+// ----------------------------------------------------------------------
+
+// args: {parent:, uri:, view_mode:, coloring:, }
+export function show_antigenic_map_widget(args) {
+    const widget_options = {
+        view_mode: args.view_mode || "best-projection",
+        coloring: args.coloring || "default",
+        api: new Api({uri: args.uri})
+    };
+    new acv_m.AntigenicMapWidget(args.parent, args.uri + "?acv=ace", widget_options);
+}
+
+// ----------------------------------------------------------------------
+
+class Api
+{
+    constructor(args) {
+        this.uri = args.uri;
+    }
+
+    download_pdf(args) {
+        this._download({command: {C: "download_pdf"}, suffix: ".pdf"});
+    }
+
+    // download_ace(args) {
+    //     this._download({command: Object.assign({C: "download_ace", id: this.source_id}, args), blob_type: "application/octet-stream"});
+    // }
+
+    // download_save(args) {
+    //     this._download({command: Object.assign({C: "download_lispmds_save", id: this.source_id}, args), blob_type: "application/octet-stream"});
+    // }
+
+    // download_layout_plain(args) {
+    //     this._download({command: Object.assign({C: "download_layout_plain", id: this.source_id}, args), blob_type: "application/octet-stream"});
+    // }
+
+    // download_layout_csv(args) {
+    //     this._download({command: Object.assign({C: "download_layout_csv", id: this.source_id}, args), blob_type: "application/octet-stream"});
+    // }
+
+    // download_table_map_distances_plain(args) {
+    //     this._download({command: Object.assign({C: "download_table_map_distances_plain", id: this.source_id}, args), blob_type: "application/octet-stream"});
+    // }
+
+    // download_table_map_distances_csv(args) {
+    //     this._download({command: Object.assign({C: "download_table_map_distances_csv", id: this.source_id}, args), blob_type: "application/octet-stream"});
+    // }
+
+    // download_error_lines(args) {
+    //     this._download({command: Object.assign({C: "download_error_lines", id: this.source_id}, args), blob_type: "application/octet-stream"});
+    // }
+
+    // download_distances_between_all_points_plain(args) {
+    //     this._download({command: Object.assign({C: "download_distances_between_all_points_plain", id: this.source_id}, args), blob_type: "application/octet-stream"});
+    // }
+
+    // download_distances_between_all_points_csv(args) {
+    //     this._download({command: Object.assign({C: "download_distances_between_all_points_csv", id: this.source_id}, args), blob_type: "application/octet-stream"});
+    // }
+
+    // // {command:, blob_type:}
+    _download(args) {
+        $.post({
+            url: this.uri + "?acv=post",
+            data: JSON.stringify(args.command),
+            cache: false,
+            xhr: () => { let xhr = new XMLHttpRequest(); xhr.responseType= 'blob'; return xhr; }
+        }).done(result => {
+            const pathname = this.uri.split("/");
+            const url = window.URL.createObjectURL(result);
+            const link = $(`<a href='${url}' download='${pathname[pathname.length - 1] + args.suffix}'></a>`).appendTo($("body"));
+            link[0].click();
+            link.remove();
+            window.setTimeout(() =>  window.URL.revokeObjectURL(url), 100);   // For Firefox it is necessary to delay revoking the ObjectURL
+        });
+    }
+}
+
+// ----------------------------------------------------------------------
+/// Local Variables:
+/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
+/// End:

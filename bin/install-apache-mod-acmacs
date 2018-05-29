@@ -33,7 +33,9 @@ elif [[ "$(hostname)" == "jagd" ]]; then
         # module loaded directly from ${AD_LIB_DIR}/mod_acmacs.so (see /etc/apache2/httpd.conf)
         apachectl -t
         echo Restarting httpd
-        sudo killall httpd
+        if sudo /usr/bin/killall httpd 2>/dev/null; then
+            sleep 3
+        fi
         sudo /usr/sbin/httpd-wrapper
     else
         echo "${AD_LIB_DIR}/mod_acmacs.so not found" >&2 && false

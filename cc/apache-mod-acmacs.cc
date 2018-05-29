@@ -23,17 +23,21 @@
 #include "acmacs-base/filesystem.hh"
 #include "acmacs-base/gzip.hh"
 #include "acmacs-base/range.hh"
+#include "acmacs-base/rjson.hh"
 //#include "acmacs-base/virus-name.hh"
 // #include "locationdb/locdb.hh"
 #include "seqdb/seqdb.hh"
 #include "acmacs-chart-2/chart-modify.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-chart-2/ace-export.hh"
+#include "acmacs-map-draw/draw.hh"
 
 static void register_hooks(apr_pool_t *pool);
 static int acmacs_handler(request_rec *r);
 static void make_html(request_rec *r, const char* view_mode, const char* coloring);
 static void make_ace(request_rec *r);
+static int process_post_request(request_rec *r);
+static void command_download_pdf(request_rec *r, const rjson::object& args);
 
 // ----------------------------------------------------------------------
 
@@ -76,6 +80,7 @@ static int acmacs_handler(request_rec *r) {
         return HTTP_NOT_FOUND;
 
     try {
+        int rc = OK;
         if (acv == "html") {
             const char* view_mode = apr_table_get(GET, "view-mode");
             const char* coloring = apr_table_get(GET, "coloring");
@@ -84,10 +89,13 @@ static int acmacs_handler(request_rec *r) {
         else if (acv == "ace") {
             make_ace(r);
         }
-        else {
-            return DECLINED;
+        else if (acv == "post" && r->method_number == M_POST) {
+            rc = process_post_request(r);
         }
-        return OK;
+        else {
+            rc = DECLINED;
+        }
+        return rc;
     }
     catch (std::exception& err) {
         ap_log_rerror(AP_ERR, r, "%s: %s", typeid(err).name(), err.what());
@@ -106,9 +114,8 @@ static const char* sHtml = R"(
    <title>%s</title>
    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
    <script type="module">
-     import * as acv_m from "/js/ad/map-draw/ace-view-1/ace-view.js";
-     const options = {view_mode: "%s", coloring: "%s"};
-     $(document).ready(() => new acv_m.AntigenicMapWidget($("#map1"), "%s?acv=ace", options));
+     import * as mod from "/js/ad/map-draw/ace-view-1/apache-mod-acmacs.js";
+     $(document).ready(() => mod.show_antigenic_map_widget({parent: $("#map1"), view_mode: "%s", coloring: "%s", uri: "%s"}));
    </script>
   </head>
   <body>
@@ -146,44 +153,49 @@ void make_ace(request_rec* r)
 
 // ----------------------------------------------------------------------
 
-      // set continent info
-    // const auto& locdb = get_locdb(report_time::Yes);
-    // for (auto antigen_no : acmacs::range(antigens->size())) {
-    //     auto& antigen = antigens->at(antigen_no);
-    //     if (antigen.continent().empty()) {
-    //         try {
-    //             antigen.continent(locdb.continent(virus_name::location(antigen.name())));
-    //         }
-    //         catch (std::exception& err) {
-    //             ap_log_rerror(AP_WARN, r, "cannot figure out continent for \"%s\": %s", antigen.name().data(), err.what());
-    //         }
-    //         catch (...) {
-    //             ap_log_rerror(AP_WARN, r, "cannot figure out continent for \"%s\": unknown exception", antigen.name().data());
-    //         }
-    //     }
-    // }
+int process_post_request(request_rec* r)
+{
+    std::string source_data;
+    if (auto rc = ap_setup_client_block(r, REQUEST_CHUNKED_ERROR); rc != OK)
+        return rc;
+    if (ap_should_client_block(r)) {
+        char buffer[HUGE_STRING_LEN];
+        long block_size;
+        while ((block_size = ap_get_client_block(r, buffer, sizeof(buffer))) > 0)
+            source_data.append(buffer, static_cast<size_t>(block_size));
+    }
 
-    // set clade info
+    const auto data = rjson::parse_string(source_data);
+    if (std::string command = data.get_or_default("C", ""); !command.empty()) {
+        if (command == "download_pdf")
+            command_download_pdf(r, data);
+        else
+            std::cerr << "ERROR: mod_acmacs: unrecognized command in the post request: " << source_data << '\n';
+    }
+    else {
+        std::cerr << "ERROR: mod_acmacs: cannot get command in the post request: " << source_data << '\n';
+    }
+    return OK;
 
-    // if (const auto& seqdb = seqdb::get(seqdb::ignore_errors::yes, report_time::Yes); seqdb) {
-    // for (auto antigen_no : acmacs::range(antigens->size())) {
-    //     auto& antigen = antigens->at(antigen_no);
-    //     try {
-    //         const auto* entry_seq = seqdb.find_hi_name(antigen.full_name());
-    //         if (entry_seq) {
-    //             for (const auto& clade : entry_seq->seq().clades()) {
-    //                 antigen.add_clade(clade);
-    //             }
-    //         }
-    //     }
-    //     catch (std::exception& err) {
-    //         ap_log_rerror(AP_WARN, r, "cannot figure out clade for \"%s\": %s", antigen.name().data(), err.what());
-    //     }
-    //     catch (...) {
-    //         ap_log_rerror(AP_WARN, r, "cannot figure out clade for \"%s\": unknown exception", antigen.name().data());
-    //     }
-    // }
-  // }
+} // process_post_request
+
+// ----------------------------------------------------------------------
+
+void command_download_pdf(request_rec *r, const rjson::object& args)
+{
+    const auto projection_no = args.get_or_default("projection_no", 0UL);
+    ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No)), projection_no);
+    chart_draw.calculate_viewport();
+
+    ap_set_content_type(r, "application/pdf");
+    r->content_encoding = "gzip";
+    const auto compressed = acmacs::file::gzip_compress(chart_draw.draw_pdf(800));
+    ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
+
+} // command_download_pdf
+
+// ----------------------------------------------------------------------
+
 
 // ----------------------------------------------------------------------
 /// Local Variables:
