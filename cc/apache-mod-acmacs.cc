@@ -138,7 +138,7 @@ void make_ace(request_rec* r)
 
     ap_set_content_type(r, "application/json");
     r->content_encoding = "gzip";
-    const auto exported = ace_export(chart, "mod_acmacs", 0);
+    const auto exported = acmacs::chart::export_ace(chart, "mod_acmacs", 0);
     const auto compressed = acmacs::file::gzip_compress(exported);
     ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
 
