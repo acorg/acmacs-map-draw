@@ -24,13 +24,13 @@ class Api
         this._download({command: {C: "download_pdf"}, suffix: ".pdf"});
     }
 
-    // download_ace(args) {
-    //     this._download({command: Object.assign({C: "download_ace", id: this.source_id}, args), blob_type: "application/octet-stream"});
-    // }
+    download_ace(args) {
+        this._download({command: {C: "download_ace"}, suffix: ".ace"});
+    }
 
-    // download_save(args) {
-    //     this._download({command: Object.assign({C: "download_lispmds_save", id: this.source_id}, args), blob_type: "application/octet-stream"});
-    // }
+    download_save(args) {
+        this._download({command: {C: "download_save"}, suffix: ".save"});
+    }
 
     // download_layout_plain(args) {
     //     this._download({command: Object.assign({C: "download_layout_plain", id: this.source_id}, args), blob_type: "application/octet-stream"});
@@ -69,8 +69,11 @@ class Api
             xhr: () => { let xhr = new XMLHttpRequest(); xhr.responseType= 'blob'; return xhr; }
         }).done(result => {
             const pathname = this.uri.split("/");
+            let filename = pathname[pathname.length - 1];
+            if (filename.substr(filename.length - args.suffix.length, args.suffix.length) !== args.suffix)
+                filename = filename + args.suffix;
             const url = window.URL.createObjectURL(result);
-            const link = $(`<a href='${url}' download='${pathname[pathname.length - 1] + args.suffix}'></a>`).appendTo($("body"));
+            const link = $(`<a href='${url}' download='${filename}'></a>`).appendTo($("body"));
             link[0].click();
             link.remove();
             window.setTimeout(() =>  window.URL.revokeObjectURL(url), 100);   // For Firefox it is necessary to delay revoking the ObjectURL
