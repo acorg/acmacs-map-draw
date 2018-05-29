@@ -58,19 +58,19 @@ const BurgerMenu_html = "\
   </li>\
   <li><a href='#'>Download</a><span class='a-right-arrow'>&#9654;</span>\
     <ul class='a-level-1'>\
-      <li class='a-disabled' name='download-pdf'><a href='download-pdf'>PDF</a></li>\
+      <li class='a-disabled' name='download_pdf'><a href='download_pdf'>PDF</a></li>\
       <li class='a-separator'></li>\
-      <li class='a-disabled' name='download-ace'><a href='download-ace'>ace</a></li>\
-      <li class='a-disabled' name='download-save'><a href='download-save'>Lispmds Save</a></li>\
+      <li class='a-disabled' name='download_ace'><a href='download_ace'>ace</a></li>\
+      <li class='a-disabled' name='download_save'><a href='download_save'>Lispmds Save</a></li>\
       <li class='a-separator'></li>\
-      <li class='a-disabled' name='download-layout-plain'><a href='download-layout-plain'>Layout (plain text)</a></li>\
-      <li class='a-disabled' name='download-layout-csv'><a href='download-layout-csv'>Layout (csv)</a></li>\
+      <li class='a-disabled' name='download_layout_plain'><a href='download_layout_plain'>Layout (plain text)</a></li>\
+      <li class='a-disabled' name='download_layout_csv'><a href='download_layout_csv'>Layout (csv)</a></li>\
       <li class='a-separator'></li>\
-      <li class='a-disabled' name='download-table-map-distances-plain'><a href='download-table-map-distances-plain'>Table vs. Map Distances (plain text)</a></li>\
-      <li class='a-disabled' name='download-table-map-distances-csv'><a href='download-table-map-distances-csv'>Table vs. Map Distances (csv)</a></li>\
-      <li class='a-disabled' name='download-error-lines'><a href='download-error-lines'>Error lines (csv)</a></li>\
-      <li class='a-disabled' name='download-distances-between-all-points-plain'><a href='download-distances-between-all-points-plain'>Distances Between All Points (plain text)</a></li>\
-      <li class='a-disabled' name='download-distances-between-all-points-csv'><a href='download-distances-between-all-points-csv'>Distances Between All Points (csv)</a></li>\
+      <li class='a-disabled' name='download_table_map_distances_plain'><a href='download_table_map_distances_plain'>Table vs. Map Distances (plain text)</a></li>\
+      <li class='a-disabled' name='download_table_map_distances_csv'><a href='download_table_map_distances_csv'>Table vs. Map Distances (csv)</a></li>\
+      <li class='a-disabled' name='download_error_lines'><a href='download_error_lines'>Error lines (csv)</a></li>\
+      <li class='a-disabled' name='download_distances_between_all_points_plain'><a href='download_distances_between_all_points_plain'>Distances Between All Points (plain text)</a></li>\
+      <li class='a-disabled' name='download_distances_between_all_points_csv'><a href='download_distances_between_all_points_csv'>Distances Between All Points (csv)</a></li>\
     </ul>\
   </li>\
   <li><a href='table'>Table</a></li>\
@@ -79,6 +79,13 @@ const BurgerMenu_html = "\
   <li><a href='help'>Help</a></li>\
 </ul>\
 ";
+
+const API_Features = [
+    "download_pdf", "download_ace", "download_save",
+    "download_layout_plain", "download_layout_csv",
+    "download_table_map_distances_plain", "download_table_map_distances_csv", "download_error_lines",
+    "download_distances_between_all_points_plain", "download_distances_between_all_points_csv"
+];
 
 class BurgerMenu extends acv_toolkit.Modal
 {
@@ -114,7 +121,7 @@ class BurgerMenu extends acv_toolkit.Modal
         this.find("a[href='table']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.show_table(evt.currentTarget), destroy));
         this.find("a[href='help']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.show_help(evt.currentTarget), destroy));
 
-        ["download-pdf"].forEach(api_feature => {
+        API_Features.forEach(api_feature => {
             this.find(`a[href='${api_feature}']`).on("click", evt => acv_utils.forward_event(evt, () => this.parent.external_api(api_feature), destroy));
         });
 
@@ -323,8 +330,9 @@ export class AntigenicMapWidget
             this.features["clades"] = true;
         if (chart.a.reduce((with_continents, antigen) => with_continents + (antigen.C ? 1 : 0), 0) > 0)
             this.features["continents"] = true;
-        if (this.options.api && this.options.api.download_pdf)
-            this.features["download-pdf"] = true;
+        if (this.options.api) {
+            API_Features.filter(feature => !!this.options.api[feature]).forEach(feature => { this.features[feature] = true; });
+        }
     }
 
     set_plot_spec() {
@@ -511,11 +519,14 @@ export class AntigenicMapWidget
 
     external_api(api_feature) {
         switch (api_feature) {
-        case "download-pdf":
+        case "download_pdf":
             this.options.api.download_pdf({drawing_order_background: this.view_mode.drawing_order_background(), drawing_order: this.view_mode.drawing_order(), projection_no: this.view_mode.projection_no(), styles: this.view_mode.styles(), point_scale: this.view_mode.point_scale()});
             break;
         default:
-            console.warn("unrecognized api_feature: " + api_feature);
+            if (this.options.api[api_feature])
+                this.options.api[api_feature]();
+            else
+                console.warn("unrecognized api_feature: " + api_feature);
             break;
         }
     }
