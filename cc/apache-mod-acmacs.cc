@@ -30,6 +30,8 @@
 #include "acmacs-chart-2/chart-modify.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-chart-2/ace-export.hh"
+#include "acmacs-chart-2/factory-export.hh"
+#include "acmacs-chart-2/lispmds-export.hh"
 #include "acmacs-map-draw/draw.hh"
 
 static void register_hooks(apr_pool_t *pool);
@@ -38,6 +40,8 @@ static void make_html(request_rec *r, const char* view_mode, const char* colorin
 static void make_ace(request_rec *r);
 static int process_post_request(request_rec *r);
 static void command_download_pdf(request_rec *r, const rjson::object& args);
+static void command_download_ace(request_rec *r, const rjson::object& args);
+static void command_download_save(request_rec *r, const rjson::object& args);
 
 // ----------------------------------------------------------------------
 
@@ -169,6 +173,10 @@ int process_post_request(request_rec* r)
     if (std::string command = data.get_or_default("C", ""); !command.empty()) {
         if (command == "download_pdf")
             command_download_pdf(r, data);
+        else if (command == "download_ace")
+            command_download_ace(r, data);
+        else if (command == "download_save")
+            command_download_save(r, data);
         else
             std::cerr << "ERROR: mod_acmacs: unrecognized command in the post request: " << source_data << '\n';
     }
@@ -193,6 +201,29 @@ void command_download_pdf(request_rec *r, const rjson::object& args)
     ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
 
 } // command_download_pdf
+
+// ----------------------------------------------------------------------
+
+void command_download_ace(request_rec *r, const rjson::object& /*args*/)
+{
+    auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+    auto data = acmacs::chart::export_factory(*chart, acmacs::chart::export_format::ace, "apache-mod-acmacs", report_time::No);
+    ap_set_content_type(r, "application/octet-stream");
+    ap_rwrite(data.data(), static_cast<int>(data.size()), r);
+
+} // command_download_ace
+
+// ----------------------------------------------------------------------
+
+void command_download_save(request_rec* r, const rjson::object& /*args*/)
+{
+    auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+    const auto compressed = acmacs::file::gzip_compress(acmacs::chart::export_lispmds(*chart, "acmacs-api"));
+    ap_set_content_type(r, "application/octet-stream");
+    r->content_encoding = "gzip";
+    ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
+
+} // command_download_save
 
 // ----------------------------------------------------------------------
 
