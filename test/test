@@ -30,9 +30,11 @@ trap failed ERR
 export LD_LIBRARY_PATH="${ACMACSD_ROOT}/lib:${LD_LIBRARY_PATH}"
 cd "$TESTDIR"
 
-OUTPUT="${TDIR}/2004nd-003.$(date +%Y%m%d-%H%M).pdf"
-../dist/map-draw -s 2004nd-003.json 2004nd-003.ace "${OUTPUT}"
-# --open
+if [[ -f ${ACMACSD_ROOT}/data/hidb5.h3.hidb5b ]]; then
+    OUTPUT="${TDIR}/2004nd-003.$(date +%Y%m%d-%H%M).pdf"
+    ../dist/map-draw -s 2004nd-003.json 2004nd-003.ace "${OUTPUT}"
+    # --open
+fi
 
 # ======================================================================
 # Local Variables:
