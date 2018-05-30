@@ -16,7 +16,7 @@ if [[ "$(hostname)" == "i19" ]]; then
     exec 2>&1
 
     MOD_DIR="/syn/eu/apache-modules"
-    AD_LIBS="mod_acmacs.so libacmacsbase.so.1 libacmacschart.so.2 libacmacsmapdraw.so.2 liblocationdb.so.1 libseqdb.so.2 libhidb.so.5"
+    AD_LIBS="mod_acmacs.so libacmacsbase.so.1 libacmacschart.so.2 libacmacsdraw.so.1 libacmacsmapdraw.so.2 liblocationdb.so.1 libseqdb.so.2 libhidb.so.5 libboost_date_time.so"
 
     if [[ -f "${AD_LIB_DIR}/mod_acmacs.so" ]]; then
         mkdir -p /syn/eu/apache-modules
