@@ -57,14 +57,16 @@ PKG_INCLUDES = $(shell pkg-config --cflags cairo) $(shell pkg-config --cflags li
 
 all: check-acmacsd-root $(TARGETS)
 
-install: check-acmacsd-root install-headers $(TARGETS)
-	$(call install_lib,$(ACMACS_MAP_DRAW_LIB))
+install: check-acmacsd-root install-headers install-acmacs-map-draw-lib $(TARGETS)
 	ln -sf $(abspath bin)/* $(AD_BIN)
 	ln -sf $(abspath $(DIST))/map-* $(AD_BIN)
 	ln -sf $(abspath $(DIST))/chart-* $(AD_BIN)
 	ln -sf $(abspath $(DIST))/geographic-* $(AD_BIN)
 	ln -sf $(abspath $(DIST))/mod_acmacs.so $(AD_LIB)
 	mkdir -p $(AD_SHARE)/js/map-draw; ln -sf $(shell pwd)/js/* $(AD_SHARE)/js/map-draw
+
+install-acmacs-map-draw-lib: $(ACMACS_MAP_DRAW_LIB)
+	$(call install_lib,$(ACMACS_MAP_DRAW_LIB))
 
 test: install
 	test/test -v
@@ -101,10 +103,10 @@ else
   APXS_LIBS = -L$(AD_LIB) $(APXS_LIBS_NAMES_FIXED:%=-l%)
 endif
 
-$(DIST)/mod_acmacs.so: $(BUILD)/.libs/apache-mod-acmacs.so | $(ACMACS_MAP_DRAW_LIB)
+$(DIST)/mod_acmacs.so: $(BUILD)/.libs/apache-mod-acmacs.so
 	ln -sf $^ $@
 
-$(BUILD)/.libs/apache-mod-acmacs.so: cc/apache-mod-acmacs.cc | $(ACMACS_MAP_DRAW_LIB)
+$(BUILD)/.libs/apache-mod-acmacs.so: cc/apache-mod-acmacs.cc | install-acmacs-map-draw-lib
 	@echo apxs does not not understand any file suffixes besides .c, so we have to use .c for C++
 	ln -sf $(abspath $^) $(BUILD)/$(basename $(notdir $^)).c
 	env $(APXS_ENV) apxs $(APXS_CXX) $(CXXFLAGS:%=-Wc,%) -n acmacs_module $(APXS_LIBS) -c $(BUILD)/$(basename $(notdir $^)).c
