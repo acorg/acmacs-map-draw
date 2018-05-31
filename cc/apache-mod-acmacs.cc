@@ -42,6 +42,9 @@ static int process_post_request(request_rec *r);
 static void command_download_pdf(request_rec *r, const rjson::object& args);
 static void command_download_ace(request_rec *r, const rjson::object& args);
 static void command_download_save(request_rec *r, const rjson::object& args);
+static void command_download_layout(request_rec *r, const rjson::object& args);
+static void command_download_table_map_distances(request_rec *r, const rjson::object& args);
+static void command_download_distances_between_all_points(request_rec *r, const rjson::object& args);
 
 // ----------------------------------------------------------------------
 
@@ -177,6 +180,12 @@ int process_post_request(request_rec* r)
             command_download_ace(r, data);
         else if (command == "download_save")
             command_download_save(r, data);
+        else if (command == "download_layout")
+            command_download_layout(r, data);
+        else if (command == "download_table_map_distances")
+            command_download_table_map_distances(r, data);
+        else if (command == "download_distances_between_all_points")
+            command_download_distances_between_all_points(r, data);
         else
             std::cerr << "ERROR: mod_acmacs: unrecognized command in the post request: " << source_data << '\n';
     }
@@ -224,6 +233,37 @@ void command_download_save(request_rec* r, const rjson::object& /*args*/)
     ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
 
 } // command_download_save
+
+// ----------------------------------------------------------------------
+
+void command_download_layout(request_rec *r, const rjson::object& args)
+{
+    auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+    std::string layout;
+    if (args.get_or_default("format", "text") == "csv")
+        layout = acmacs::chart::export_layout<acmacs::DataFormatterCSV>(*chart, args.get_or_default("projection_no", 0UL));
+    else
+        layout = acmacs::chart::export_layout<acmacs::DataFormatterSpaceSeparated>(*chart, args.get_or_default("projection_no", 0UL));
+    const auto compressed = acmacs::file::gzip_compress(layout);
+    ap_set_content_type(r, "application/octet-stream");
+    r->content_encoding = "gzip";
+    ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
+
+} // command_download_layout
+
+// ----------------------------------------------------------------------
+
+void command_download_table_map_distances(request_rec *r, const rjson::object& args)
+{
+
+} // command_download_table_map_distances
+
+// ----------------------------------------------------------------------
+
+void command_download_distances_between_all_points(request_rec *r, const rjson::object& args)
+{
+
+} // command_download_distances_between_all_points
 
 // ----------------------------------------------------------------------
 
