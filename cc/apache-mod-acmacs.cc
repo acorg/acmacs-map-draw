@@ -255,6 +255,16 @@ void command_download_layout(request_rec *r, const rjson::object& args)
 
 void command_download_table_map_distances(request_rec *r, const rjson::object& args)
 {
+    auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+    std::string distances;
+    if (args.get_or_default("format", "text") == "csv")
+        distances = acmacs::chart::export_table_map_distances<acmacs::DataFormatterCSV>(*chart, args.get_or_default("projection_no", 0UL));
+    else
+        distances = acmacs::chart::export_table_map_distances<acmacs::DataFormatterSpaceSeparated>(*chart, args.get_or_default("projection_no", 0UL));
+    const auto compressed = acmacs::file::gzip_compress(distances);
+    ap_set_content_type(r, "application/octet-stream");
+    r->content_encoding = "gzip";
+    ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
 
 } // command_download_table_map_distances
 
@@ -262,6 +272,16 @@ void command_download_table_map_distances(request_rec *r, const rjson::object& a
 
 void command_download_distances_between_all_points(request_rec *r, const rjson::object& args)
 {
+    auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+    std::string distances;
+    if (args.get_or_default("format", "text") == "csv")
+        distances = acmacs::chart::export_distances_between_all_points<acmacs::DataFormatterCSV>(*chart, args.get_or_default("projection_no", 0UL));
+    else
+        distances = acmacs::chart::export_distances_between_all_points<acmacs::DataFormatterSpaceSeparated>(*chart, args.get_or_default("projection_no", 0UL));
+    const auto compressed = acmacs::file::gzip_compress(distances);
+    ap_set_content_type(r, "application/octet-stream");
+    r->content_encoding = "gzip";
+    ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
 
 } // command_download_distances_between_all_points
 
