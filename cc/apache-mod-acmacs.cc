@@ -45,6 +45,7 @@ static void command_download_save(request_rec *r, const rjson::object& args);
 static void command_download_layout(request_rec *r, const rjson::object& args);
 static void command_download_table_map_distances(request_rec *r, const rjson::object& args);
 static void command_download_distances_between_all_points(request_rec *r, const rjson::object& args);
+static void command_download_error_lines(request_rec *r, const rjson::object& args);
 
 // ----------------------------------------------------------------------
 
@@ -186,6 +187,8 @@ int process_post_request(request_rec* r)
             command_download_table_map_distances(r, data);
         else if (command == "download_distances_between_all_points")
             command_download_distances_between_all_points(r, data);
+        else if (command == "download_error_lines")
+            command_download_error_lines(r, data);
         else
             std::cerr << "ERROR: mod_acmacs: unrecognized command in the post request: " << source_data << '\n';
     }
@@ -284,6 +287,23 @@ void command_download_distances_between_all_points(request_rec *r, const rjson::
     ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
 
 } // command_download_distances_between_all_points
+
+// ----------------------------------------------------------------------
+
+void command_download_error_lines(request_rec *r, const rjson::object& args)
+{
+    auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+    std::string error_lines;
+    if (args.get_or_default("format", "text") == "csv")
+        error_lines = acmacs::chart::export_error_lines<acmacs::DataFormatterCSV>(*chart, args.get_or_default("projection_no", 0UL));
+    else
+        error_lines = acmacs::chart::export_error_lines<acmacs::DataFormatterSpaceSeparated>(*chart, args.get_or_default("projection_no", 0UL));
+    const auto compressed = acmacs::file::gzip_compress(error_lines);
+    ap_set_content_type(r, "application/octet-stream");
+    r->content_encoding = "gzip";
+    ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
+
+} // command_download_error_lines
 
 // ----------------------------------------------------------------------
 

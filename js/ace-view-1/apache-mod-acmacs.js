@@ -48,9 +48,9 @@ class Api
         this._download({command: Object.assign({C: "download_table_map_distances", id: this.source_id, format: "csv", projection_no: 0}, args), suffix: ".table-map-distances.csv", blob_type: "application/octet-stream"});
     }
 
-    // download_error_lines(args) {
-    //     this._download({command: Object.assign({C: "download_error_lines", id: this.source_id, projection_no: 0}, args), blob_type: "application/octet-stream"});
-    // }
+    download_error_lines(args) {
+        this._download({command: Object.assign({C: "download_error_lines", id: this.source_id, format: "csv", projection_no: 0}, args), suffix: ".error-lines.csv", blob_type: "application/octet-stream"});
+    }
 
     download_distances_between_all_points_plain(args) {
         this._download({command: Object.assign({C: "download_distances_between_all_points", id: this.source_id, format: "text", projection_no: 0}, args), suffix: ".map-distances.txt", blob_type: "application/octet-stream"});
