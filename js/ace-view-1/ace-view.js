@@ -337,7 +337,7 @@ export class AntigenicMapWidget
 
     set_plot_spec() {
         const chart = this.data.c;
-        if (!chart.p || !chart.p.d) {
+        if (!chart.p || !chart.p.p || !chart.p.P) {
             chart.p = {P: [{s: 1.5}, {F: "#00FF00"}, {s: 1.5, S: "B"}], p: [], d: []};
             chart.a.forEach((antigen, antigen_no) => { if (!antigen.S || antigen.S.indexOf("R") < 0) { chart.p.d.push(antigen_no); chart.p.p[antigen_no] = 1; } });
             chart.s.forEach((serum, serum_no) => { const point_no = serum_no + chart.a.length; chart.p.d.push(point_no); chart.p.p[point_no] = 2; });
