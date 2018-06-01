@@ -149,10 +149,9 @@ const AntigenicMapWidget_help_html = "\
     <li>Move map - Alt/Option-Drag</li>\
   </ul>\
   <h3>Table</h3>\
-  <p>Table view can be opened via menu. If table view is on screen,\
-     hovering point(s) on map leads to highliting corresponding\
-     row/column in the table, table view is auto-scrolled to show\
-     to the point.</p>\
+  <p>Table view can be opened via menu. If table view is on the screen,\
+     hovering point(s) on map leads to highlighting corresponding\
+     row/column in the table, table view is auto-scrolled.</p>\
 </div>\
 ";
 
