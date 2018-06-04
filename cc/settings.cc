@@ -31,6 +31,11 @@ rjson::value settings_default()
 static const char* const SETTINGS_BUILTIN_MODS = R"(
 {
   "mods": {
+    "default_color": [
+      {"N": "antigens", "select": "test", "outline": "black", "fill": "green"},
+      {"N": "antigens", "select": "reference", "outline": "black", "fill": "transparent"},
+      {"N": "sera", "select": "all", "outline": "black", "fill": "transparent"}
+    ],
     "all_grey": [
       {"N": "antigens", "select": "test", "outline": "grey80", "fill": "grey80"},
       {"N": "antigens", "select": "reference", "outline": "grey80", "fill": "transparent"},
