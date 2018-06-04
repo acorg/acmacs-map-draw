@@ -125,6 +125,9 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": {"clade": "Y2", "subtype": "BYAM"}, "outline": "#BFBFBF", "fill": "#8F9DBF", "legend": {"label": "Y2", "count": true}, "order": "raise", "report": true},
       {"N": "antigens", "select": {"clade": "Y3", "subtype": "BYAM"}, "outline": "#BFBFBF", "fill": "#FFBFBF", "legend": {"label": "Y3", "count": true}, "order": "raise", "report": true}
     ],
+    "sequenced": [
+      {"N": "antigens", "select": "sequenced", "outline": "black", "fill": "cornflowerblue", "legend": {"label": "sequenced", "count": true}, "order": "raise", "report": true}
+    ],
     "egg": [
       {"N": "antigens", "select": {"passage": "egg"}, "aspect": 0.75},
       {"N": "antigens", "select": {"passage": "reassortant"}, "aspect": 0.75, "rotation": 0.5}
