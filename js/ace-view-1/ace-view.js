@@ -290,7 +290,6 @@ export class AntigenicMapWidget
             this.set_plot_spec();
             this.parameters = {point_scale: this.options.point_scale};
             this.surface.set_viewport(this.calculate_viewport());
-            this.make_point_info_labels();
             this.set_coloring(this.options.coloring, false);
             this.set_view_mode(this.options.view_mode);
         }
@@ -425,7 +424,9 @@ export class AntigenicMapWidget
         const point_info_on_hover = offset => {
             const points = this.surface.find_points_at_pixel_offset(offset);
             if (points.length) {
-                const point_entries = points.map(point_no => { return {name: this.point_info_labels_[point_no], no: point_no}; });
+                const chart = this.data.c;
+                const full_name = point_no => point_no < chart.a.length ? acv_utils.ace_antigen_full_name(chart.a[point_no], {escape: true}) : acv_utils.ace_serum_full_name(chart.s[point_no - chart.a.length], {escape: true});
+                const point_entries = points.map(point_no => { return {name: full_name(point_no), no: point_no}; });
                 const popup = acv_toolkit.mouse_popup_show($("<ul class='point-info-on-hover'></ul>").append(point_entries.map(make_point_name_row).join("")), this.canvas, {left: offset.left + this.options.mouse_popup_offset.left, top: offset.top + this.options.mouse_popup_offset.top});
                 if (this.options.point_on_click) {
                     popup.find("a").on("click", evt => {
@@ -482,18 +483,6 @@ export class AntigenicMapWidget
             });
             title.on("mouseleave", mouse_leave);
         }
-    }
-
-    make_point_info_labels() {
-        // const antigen_date = antigen => antigen.D && "[" + antigen.D + "]";
-        // const antigen_clades = antigen => (antigen.c && antigen.c.length > 0) ? "<" + antigen.c.join(" ") + ">" : null;
-        this.point_info_labels_ = [];
-        for (let antigen of this.data.c.a)
-            // this.point_info_labels_.push(acv_utils.join_collapse([antigen.N, antigen.R].concat(antigen.a, antigen.P, antigen_date(antigen), antigen_clades(antigen)))); // , antigen.C
-            this.point_info_labels_.push(acv_utils.ace_antigen_full_name(antigen));
-        for (let serum of this.data.c.s)
-            // this.point_info_labels_.push(acv_utils.join_collapse([serum.N, serum.R].concat(serum.a, serum.I)));
-            this.point_info_labels_.push(acv_utils.ace_serum_full_name(serum));
     }
 
     show_help(parent) {
