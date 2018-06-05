@@ -918,6 +918,8 @@ const clade_colors = {
     "Y2": "#6495ed",
     "Y3": "#ff0000",
     "SEQUENCED": "#ffa500",
+    "NO-GLY": "#ffa500",
+    "GLY": "#ff00a5",
     undefined: "#c0c0c0",
     null: "#c0c0c0"
 };
@@ -936,7 +938,7 @@ class Coloring_Clade extends Coloring_WithAlllStyles
             else {
                 let chosen_clade = "", color;
                 for (let clade of clades) {
-                    if (clade.length > chosen_clade.length && clade_colors[clade]) {
+                    if (clade.length > chosen_clade.length && clade !== "GLY" && clade !== "NO-GLY" && clade !== "SEQUENCED" && clade_colors[clade]) {
                         chosen_clade = clade;
                         color = clade_colors[clade];
                     }
