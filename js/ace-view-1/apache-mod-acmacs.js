@@ -7,7 +7,8 @@ export function show_antigenic_map_widget(args) {
     const widget_options = {
         view_mode: args.view_mode || "best-projection",
         coloring: args.coloring || "default",
-        api: new Api({uri: args.uri})
+        api: new Api({uri: args.uri}),
+        on_data_load_failure: args.on_data_load_failure || (uri => console.error("failed to load antigenic map data from ", uri))
     };
     new acv_m.AntigenicMapWidget(args.parent, args.uri + "?acv=ace", widget_options);
 }

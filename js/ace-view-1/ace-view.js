@@ -19,7 +19,8 @@ class AMW201805
             min_viewport_size: 1.0,
             show_as_background: {fill: "#E0E0E0", outline: "#E0E0E0"},
             show_as_background_shade: 0.8,
-            title_fields: ["stress", "antigens", "sera", "name", "lab", "virus_type", "assay", "date", "min_col_basis", "tables"]
+            title_fields: ["stress", "antigens", "sera", "name", "lab", "virus_type", "assay", "date", "min_col_basis", "tables"],
+            on_data_load_failure: uri => console.error("failed to load antigenic map data from ", uri)
         };
     }
 
@@ -268,7 +269,9 @@ export class AntigenicMapWidget
     load_and_draw(data) {
         if (typeof(data) === "string" && RegExp("(\\.ace|\\?acv=ace)$").test(data)) {
             this.div.find(".a-loading-message").css({top: parseFloat(this.canvas.css("padding-top")) + this.canvas.height() / 2, width: this.canvas.width()});
-            $.getJSON(data, result => this.draw(result));
+            $.getJSON(data)
+                .done(result => this.draw(result))
+                .fail(deffered => this.options.on_data_load_failure && this.options.on_data_load_failure({source: data, statusText: deffered.statusText}));
         }
         else if (typeof(data) === "function" && data.constructor.name === 'AsyncFunction') {
             this.div.find(".a-loading-message").css({top: parseFloat(this.canvas.css("padding-top")) + this.canvas.height() / 2, width: this.canvas.width()});
