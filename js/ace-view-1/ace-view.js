@@ -51,6 +51,7 @@ const BurgerMenu_html = "\
       <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"month\", \"shading\": \"hide\"}' >Time series, monthly</a></li>\
       <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"month\", \"shading\": \"grey\"}' >Time series, monthly (grey)</a></li>\
       <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"year\",  \"shading\": \"shade\"}'>Time series, yearly (shade)</a></li>\
+      <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"season\",\"shading\": \"shade\"}'>Time series, Winter/Summer (shade)</a></li>\
       <li class='a-separator'></li>\
       <li class='a-disabled' name='table-series'><a href='table-series'>Table series</a></li>\
       <li class='a-disabled' name='table-series-shade'><a href='table-series-shade'>Table series (shade)</a></li>\
@@ -766,6 +767,16 @@ class DrawingMode_TimeSeries extends DrawingMode_Series
         switch (this.period_) {
         case "year":
             return antigen.D && antigen.D.substr(0, 4);
+        case "season":
+            const season = (year, month) => {
+                if (month <= 4)
+                    return `${year - 1} Nov - ${year} Apr`;
+                else if (month <= 10)
+                    return `${year} May - Oct`;
+                else
+                    return `${year} Nov - ${year + 1} Apr`;
+            };
+            return antigen.D && season(parseInt(antigen.D.substr(0, 4)), parseInt(antigen.D.substr(5, 2)));
         case "month":
         default:
             return antigen.D && antigen.D.substr(0, 7);
