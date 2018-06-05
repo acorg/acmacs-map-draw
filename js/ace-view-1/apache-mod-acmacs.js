@@ -7,6 +7,7 @@ export function show_antigenic_map_widget(args) {
     const widget_options = {
         view_mode: args.view_mode || "best-projection",
         coloring: args.coloring || "default",
+        canvas_size: args.canvas_size || {width: 0, height: 0},
         api: new Api({uri: args.uri}),
         on_data_load_failure: args.on_data_load_failure || (uri => console.error("failed to load antigenic map data from ", uri))
     };
