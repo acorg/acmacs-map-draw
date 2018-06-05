@@ -125,6 +125,7 @@ static const char* sHtml = R"(
      import * as mod from "/js/ad/map-draw/ace-view-1/apache-mod-acmacs.js";
      $(document).ready(() => mod.show_antigenic_map_widget({parent: $("#map1"), view_mode: {mode: "%s"}, coloring: "%s", uri: "%s"}));
    </script>
+   <style>body { margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }</style>
   </head>
   <body>
     <div id="map1"></div>

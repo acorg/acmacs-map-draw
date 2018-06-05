@@ -1,9 +1,3 @@
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-
 /* ---------------------------------------------------------------------- */
 
 .amw201805 {
@@ -12,6 +6,7 @@ body {
     padding: 0.5em 0.7em;
     width: auto;
     height: auto;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 .amw201805 .a-title > .a-left {
