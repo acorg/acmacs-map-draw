@@ -560,6 +560,20 @@ class DrawingMode_Base
             return result;
         };
 
+        const box_sequenced = chart => {
+            let clades = {}, sequenced = 0;
+            chart.a.forEach(antigen => {
+                if (antigen.c && antigen.c.length) {
+                    antigen.c.forEach(clade => { clades[clade] = (clades[clade] || 0) + 1; });
+                    ++sequenced;
+                }
+            });
+            let clades_li = "";
+            for (let cl in clades)
+                clades_li += `<li>${cl}: ${clades[cl]}</li>`;
+            return `<li>Sequenced: ${sequenced} <ul class='a-scrollable a-sequenced'>${clades_li}</ul></li>`;
+        };
+
         const chart = this.widget.data.c;
         const projection_no = this.widget.options.projection_no;
         let title_box = $("<ul class='a-title-mouse-popup'></ul>");
@@ -575,6 +589,7 @@ class DrawingMode_Base
             }
             title_box.append(box_antigens(chart));
             title_box.append(box_date(chart));
+            title_box.append(box_sequenced(chart));
             title_box.append(box_tables(chart));
             title_box.append(box_projections(chart));
         }

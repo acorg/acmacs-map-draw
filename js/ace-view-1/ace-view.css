@@ -108,6 +108,12 @@ ul.a-title-mouse-popup > li .a-scrollable {
     max-height: 9.5em;
 }
 
+ul.a-title-mouse-popup > li .a-sequenced {
+    list-style-type: none;
+    margin-left: 1em;
+    padding: 0;
+}
+
 #AntigenicMapWidget_help {
 }
 
