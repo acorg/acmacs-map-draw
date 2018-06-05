@@ -14,7 +14,7 @@ void setup_dbs(std::string aDbsDir, bool aVerbose)
 
     locdb_setup(aDbsDir + "/locationdb.json.xz", aVerbose);
     hidb::setup(aDbsDir, {}, aVerbose);
-    seqdb::setup(aDbsDir + "/seqdb.json.xz", aVerbose);
+    seqdb::setup(aDbsDir + "/seqdb.json.xz", aVerbose ? seqdb::report::yes : seqdb::report::no);
 
 } // setup_dbs
 

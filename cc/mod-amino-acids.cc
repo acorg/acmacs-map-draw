@@ -34,7 +34,7 @@ void ModAminoAcids::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*
 void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::array& aPos, bool aVerbose)
 {
     const auto& seqdb = seqdb::get(seqdb::ignore_errors::no, do_report_time(aVerbose));
-    const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), {std::begin(aPos), std::end(aPos)}, aVerbose);
+    const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), {std::begin(aPos), std::end(aPos)}, aVerbose ? seqdb::report::yes : seqdb::report::no);
       // aa_indices is std::map<std::string, std::vector<size_t>>
     std::vector<std::string> aa_sorted(aa_indices.size()); // most frequent aa first
     std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
@@ -96,7 +96,7 @@ void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::object& aGroup,
     std::string target_aas(pos_aa.size(), ' ');
     std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(target_aas), [](const auto& src) { return static_cast<std::string_view>(src).back(); });
     const auto& seqdb = seqdb::get(seqdb::ignore_errors::no, do_report_time(aVerbose));
-    const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), positions, aVerbose);
+    const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), positions, aVerbose ? seqdb::report::yes : seqdb::report::no);
     if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
         auto styl = style();
         styl = point_style_from_json(aGroup);

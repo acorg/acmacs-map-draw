@@ -244,7 +244,7 @@ const std::vector<seqdb::SeqdbEntrySeq>& SelectAntigensSera::seqdb_entries(const
     auto found = cache_seqdb_entries_for_chart.find(&aChartSelectInterface);
     if (found == cache_seqdb_entries_for_chart.end()) {
         found = cache_seqdb_entries_for_chart.emplace(&aChartSelectInterface, decltype(cache_seqdb_entries_for_chart)::mapped_type{}).first;
-        seqdb::get(seqdb::ignore_errors::no, timer()).match(*aChartSelectInterface.chart().antigens(), found->second, aChartSelectInterface.chart().info()->virus_type(acmacs::chart::Info::Compute::Yes), false);
+        seqdb::get(seqdb::ignore_errors::no, timer()).match(*aChartSelectInterface.chart().antigens(), found->second, aChartSelectInterface.chart().info()->virus_type(acmacs::chart::Info::Compute::Yes), seqdb::report::no);
     }
     return found->second;
 

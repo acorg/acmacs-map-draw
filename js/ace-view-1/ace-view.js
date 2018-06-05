@@ -917,6 +917,7 @@ const clade_colors = {
     "TRIPLEDEL2017": "#bf3eff",
     "Y2": "#6495ed",
     "Y3": "#ff0000",
+    "SEQUENCED": "#ffa500",
     undefined: "#c0c0c0",
     null: "#c0c0c0"
 };
