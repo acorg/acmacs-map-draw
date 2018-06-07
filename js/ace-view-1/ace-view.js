@@ -1167,7 +1167,12 @@ class AntigenicTable
             id: args.id
         });
         new AntigenicTable_populate({widget: args.widget, parent: movable_window.content(), chart: args.chart});
-        movable_window.content().css({"max-height": $(window).height(), "max-width": $(window).width()});
+
+        const movable_window_content = movable_window.content();
+        const target_height = $(window).height() - (movable_window_content.parent().outerHeight() - movable_window_content.height()) * 1.2;
+        const target_width = $(window).width() - (movable_window_content.parent().outerWidth() - movable_window_content.width()) * 1.2;
+        movable_window_content.css({"max-height": "", "max-width": ""});
+        movable_window_content.css({"height": Math.min(movable_window_content.height(), target_height), "width": Math.min(movable_window_content.width(), target_width)});
     }
 
     find(args) {
