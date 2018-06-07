@@ -151,7 +151,7 @@ ul.a-title-mouse-popup > li .a-sequenced {
 
 .amw201805-movable-window.antigenic-table-movable .a-window-title .a-title {
     font-size: 1.1em;
-    white-space: no-wrap;
+    white-space: nowrap;
     overflow: hidden;
 }
 

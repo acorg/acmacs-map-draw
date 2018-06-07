@@ -1167,6 +1167,7 @@ class AntigenicTable
             id: args.id
         });
         new AntigenicTable_populate({widget: args.widget, parent: movable_window.content(), chart: args.chart});
+        movable_window.content().css({"max-height": $(window).height(), "max-width": $(window).width()});
     }
 
     find(args) {
