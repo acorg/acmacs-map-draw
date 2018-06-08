@@ -134,7 +134,9 @@
     display: none;
     position: absolute;
     top: 0;
-    left: 8.1em;
+    left: 7.0em;
+    background-color: white;
+    z-index: 1;
 }
 
 .amw201805-burger-menu li:hover ul.a-level-1 {
