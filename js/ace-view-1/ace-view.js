@@ -631,26 +631,23 @@ class DrawingMode_Base
 
     draw() {
         const chart = this.widget.data.c;
-        if (this.drawing_order_background_)
-            this.widget.surface.points({drawing_order: this.drawing_order_background(),
+        const drawing_order_background = this.drawing_order_background();
+        if (drawing_order_background && drawing_order_background.length)
+            this.widget.surface.points({drawing_order: this.widget.coloring.drawing_order(drawing_order_background),
                                     layout: chart.P[this.projection_no()].l,
                                     transformation: new ace_surface.Transformation(chart.P[this.projection_no()].t),
-                                    styles: this.styles(),
+                                    styles: this.widget.coloring.styles(),
                                     point_scale: this.point_scale(),
                                     show_as_background: this.show_as_background()});
-        this.widget.surface.points({drawing_order: this.drawing_order(),
+        this.widget.surface.points({drawing_order: this.widget.coloring.drawing_order(this.drawing_order()),
                                     layout: chart.P[this.projection_no()].l,
                                     transformation: new ace_surface.Transformation(chart.P[this.projection_no()].t),
-                                    styles: this.styles(),
+                                    styles: this.widget.coloring.styles(),
                                     point_scale: this.point_scale()});
     }
 
     projection_no() {
         return this.widget.options.projection_no;
-    }
-
-    styles() {
-        return this.widget.coloring.styles();
     }
 
     point_scale() {
@@ -898,6 +895,10 @@ class Coloring_Base
     constructor(widget) {
         this.widget = widget;
     }
+
+    drawing_order(original_drawing_order) {
+        return original_drawing_order;
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -989,23 +990,35 @@ class Coloring_Clade extends Coloring_WithAlllStyles
     constructor(widget) {
         super(widget);
         const chart = this.widget.data.c;
+        this.points_to_lower = [];
         chart.a.forEach((antigen, antigen_no) => {
             const clades = antigen.c;
-            if (!clades || clades.length === 0)
-                this.styles_.styles[antigen_no].F = clade_colors[null];
-            else if (clades.length === 1)
-                this.styles_.styles[antigen_no].F = clade_colors[clades[0]];
-            else {
-                let chosen_clade = "", color;
-                for (let clade of clades) {
-                    if (clade.length > chosen_clade.length && clade !== "GLY" && clade !== "NO-GLY" && clade !== "SEQUENCED" && clade_colors[clade]) {
-                        chosen_clade = clade;
-                        color = clade_colors[clade];
+            let color = clade_colors[null];
+            if (clades && clades.length) {
+                if (clades.length === 1) {
+                    color = clade_colors[clades[0]];
+                }
+                else {
+                    let chosen_clade = "";
+                    for (let clade of clades) {
+                        if (clade.length > chosen_clade.length && clade !== "GLY" && clade !== "NO-GLY" && clade !== "SEQUENCED" && clade_colors[clade]) {
+                            chosen_clade = clade;
+                            color = clade_colors[clade];
+                        }
                     }
                 }
-                this.styles_.styles[antigen_no].F = color || clade_colors[null];
             }
+            this.styles_.styles[antigen_no].F = color;
+            if (color === clade_colors[null])
+                this.points_to_lower.push(antigen_no);
         });
+        // sera on top of grey points
+        for (let point_serum_no = 0; point_serum_no < chart.s.length; ++point_serum_no)
+            this.points_to_lower.push(point_serum_no + chart.a.length);
+    }
+
+    drawing_order(original_drawing_order) {
+        return this.points_to_lower.concat(original_drawing_order.filter(point_no => this.points_to_lower.indexOf(point_no) < 0));
     }
 }
 
