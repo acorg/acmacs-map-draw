@@ -51,8 +51,11 @@ map_elements::Element& map_elements::Elements::add(std::string aKeyword)
     else if (aKeyword == "serum-circle") {
         mElements.emplace_back(new SerumCircle{});
     }
-    else if (aKeyword == "line") {
-        mElements.emplace_back(new Line{});
+    else if (aKeyword == "line" || aKeyword == "line_from_to") {
+        mElements.emplace_back(new LineFromTo{});
+    }
+    else if (aKeyword == "line_slope") {
+        mElements.emplace_back(new LineSlope{});
     }
     else if (aKeyword == "arrow") {
         mElements.emplace_back(new Arrow{});
@@ -322,17 +325,26 @@ void map_elements::SerumCircle::draw(acmacs::draw::DrawElements& aDrawElements, 
 // ----------------------------------------------------------------------
 
 // obsolete
-void map_elements::Line::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
+void map_elements::LineFromTo::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     aSurface.line(mBegin, mEnd, mLineColor, mLineWidth);
 
-} // map_elements::Line::draw
+} // map_elements::LineFromTo::draw
 
 // ----------------------------------------------------------------------
 
-void map_elements::Line::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
+void map_elements::LineFromTo::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
 {
     aDrawElements.line(mBegin, mEnd, mLineColor, mLineWidth);
+
+} // map_elements::LineFromTo::draw
+
+// ----------------------------------------------------------------------
+
+void map_elements::LineSlope::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const
+{
+    const auto& viewport = aChartDraw.viewport();
+    aDrawElements.line({viewport.left(), viewport.left() * slope_ + intercept_}, {viewport.right(), viewport.right() * slope_ + intercept_}, mLineColor, mLineWidth);
 
 } // map_elements::Line::draw
 

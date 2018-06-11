@@ -52,7 +52,7 @@ namespace map_elements
 
         std::string keyword() const { return mKeyword; }
         Elements::Order order() const { return mOrder; }
-        virtual void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const = 0;
+        virtual void draw(acmacs::surface::Surface& /* aSurface*/, const ChartDraw& /*aChartDraw*/) const {} // obsolete
         virtual void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const = 0; // { std::cerr << "WARNING: map_elements::Element::draw " << typeid(this).name() << '\n'; }
 
      protected:
@@ -232,36 +232,56 @@ namespace map_elements
         Line()
             : Element{"line", Elements::AfterPoints}, mLineColor{"pink"}, mLineWidth{1} {}
 
-        void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
-        void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
-
-        Line& from_to(const acmacs::Location& aBegin, const acmacs::Location& aEnd) { mBegin = aBegin; mEnd = aEnd; return *this; }
         Line& color(Color aColor) { mLineColor = aColor; return *this; }
         Line& line_width(double aLineWidth) { mLineWidth = aLineWidth; return *this; }
 
      protected:
-        acmacs::Location mBegin;
-        acmacs::Location mEnd;
         Color mLineColor;
         Pixels mLineWidth;
 
     }; // class Line
 
-// ----------------------------------------------------------------------
-
-    class Arrow : public Line
+    class LineFromTo : public Line
     {
      public:
-        Arrow() : Line(), mArrowHeadColor{"pink"}, mArrowHeadFilled{true}, mArrowWidth{5} { keyword("arrow"); }
+        void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
+        void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
+
+        Line& from_to(const acmacs::Location& aBegin, const acmacs::Location& aEnd) { mBegin = aBegin; mEnd = aEnd; return *this; }
+
+     protected:
+        acmacs::Location mBegin;
+        acmacs::Location mEnd;
+
+    }; // class Line
+
+    class LineSlope : public Line
+    {
+     public:
+        void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
+
+        Line& slope_intercept(double slope, double intercept) { slope_ = slope; intercept_ = intercept; return *this; }
+
+     protected:
+        double slope_, intercept_;
+
+    }; // class LineSlope
+
+// ----------------------------------------------------------------------
+
+    class Arrow : public LineFromTo
+    {
+     public:
+        Arrow() : mArrowHeadColor{"pink"}, mArrowHeadFilled{true}, mArrowWidth{5} { keyword("arrow"); }
 
         void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
-        Arrow& from_to(const acmacs::Location& aBegin, const acmacs::Location& aEnd) { Line::from_to(aBegin, aEnd); return *this; }
-        Arrow& color(Color aLineColor, Color aArrowHeadColor) { Line::color(aLineColor); mArrowHeadColor = aArrowHeadColor; return *this; }
+        Arrow& from_to(const acmacs::Location& aBegin, const acmacs::Location& aEnd) { LineFromTo::from_to(aBegin, aEnd); return *this; }
+        Arrow& color(Color aLineColor, Color aArrowHeadColor) { LineFromTo::color(aLineColor); mArrowHeadColor = aArrowHeadColor; return *this; }
         Arrow& color(Color aColor) { return color(aColor, aColor); }
         Arrow& arrow_head_filled(bool aFilled) { mArrowHeadFilled = aFilled; return *this; }
-        Arrow& line_width(double aLineWidth) { Line::line_width(aLineWidth); return *this; }
+        Arrow& line_width(double aLineWidth) { LineFromTo::line_width(aLineWidth); return *this; }
         Arrow& arrow_width(double aArrowWidth) { mArrowWidth = aArrowWidth; return *this; }
 
      private:

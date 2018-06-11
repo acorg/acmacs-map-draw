@@ -121,6 +121,7 @@ class ChartDraw : public ChartSelectInterface
     void remove_label(size_t aIndex) { return mLabels.remove(aIndex); }
     map_elements::SerumCircle& serum_circle(size_t aSerumNo, Scaled aRadius);
     map_elements::Line& line(const acmacs::Location& aBegin, const acmacs::Location& aEnd);
+    map_elements::Line& line(double slope, double intercept);
     map_elements::Arrow& arrow(const acmacs::Location& aBegin, const acmacs::Location& aEnd);
     map_elements::Point& point(const acmacs::Location& aCenter, Pixels aSize);
     map_elements::Rectangle& rectangle(const acmacs::Location& aCorner1, const acmacs::Location& aCorner2);

@@ -196,8 +196,18 @@ map_elements::SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadi
 
 map_elements::Line& ChartDraw::line(const acmacs::Location& aBegin, const acmacs::Location& aEnd)
 {
-    auto& line = dynamic_cast<map_elements::Line&>(mMapElements.add("line"));
+    auto& line = dynamic_cast<map_elements::LineFromTo&>(mMapElements.add("line_from_to"));
     line.from_to(aBegin, aEnd);
+    return line;
+
+} // ChartDraw::line
+
+// ----------------------------------------------------------------------
+
+map_elements::Line& ChartDraw::line(double slope, double intercept)
+{
+    auto& line = dynamic_cast<map_elements::LineSlope&>(mMapElements.add("line_slope"));
+    line.slope_intercept(slope, intercept);
     return line;
 
 } // ChartDraw::line
