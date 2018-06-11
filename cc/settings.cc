@@ -276,6 +276,8 @@ static const char* const SETTINGS_HELP_MODS = R"(
  "threshold": 0.005, "?threshold": "do not show arrows shorter than this value in units",
  "arrow": {"color": "black", "head_color": "black", "head_filled": true, "line_width": 1, "arrow_width": 5}}
 
+{"N": "serum_line", "color": "red", "line_width": 1}
+
 --------------------------------------------------
 
 SSM time series:

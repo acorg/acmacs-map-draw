@@ -1,4 +1,5 @@
 #include "acmacs-base/enumerate.hh"
+#include "acmacs-base/statistics.hh"
 //#include "acmacs-base/timeit.hh"
 #include "acmacs-map-draw/mod-serum.hh"
 #include "acmacs-map-draw/draw.hh"
@@ -253,6 +254,24 @@ void ModSerumCoverageCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*
     }
 
 } // ModSerumCoverageCircle::apply
+
+// ----------------------------------------------------------------------
+
+void ModSerumLine::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
+{
+    auto layout = aChartDraw.layout();
+    if (layout->number_of_dimensions() != 2)
+        throw unrecognized_mod("invalid number of dimensions in projection: " + std::to_string(layout->number_of_dimensions()) + ", only 2 is supported");
+    // const auto [x_mean, x_size] = mean_size(x_first, y_first);
+    // std::cerr << "x_mean " << x_mean << " x_size " << x_size << '\n';
+    const auto linear_regression = acmacs::statistics::simple_linear_regression(layout->begin_sera_dimension(aChartDraw.number_of_antigens(), 0), layout->end_sera_dimension(aChartDraw.number_of_antigens(), 0), layout->begin_sera_dimension(aChartDraw.number_of_antigens(), 1));
+    std::cerr << linear_regression << '\n';
+      // auto& line = aChartDraw.line({-10, linear_regression.slope() * -10 + linear_regression.intercept()}, {10, linear_regression.slope() * 10 + linear_regression.intercept()});
+    auto& line = aChartDraw.line(linear_regression.slope(), linear_regression.intercept());
+    line.color(Color(args().get_or_default("color", "red")));
+    line.line_width(args().get_or_default("line_width", 1.0));
+
+} // ModSerumLine::apply
 
 // ----------------------------------------------------------------------
 /// Local Variables:
