@@ -265,10 +265,12 @@ void ModSerumLine::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/
 
     const auto linear_regression = acmacs::statistics::simple_linear_regression(layout->begin_sera_dimension(aChartDraw.number_of_antigens(), 0), layout->end_sera_dimension(aChartDraw.number_of_antigens(), 0), layout->begin_sera_dimension(aChartDraw.number_of_antigens(), 1));
     std::cerr << linear_regression << '\n';
-    for (auto serum_iter = layout->begin_sera(aChartDraw.number_of_antigens()); serum_iter != layout->end_sera(aChartDraw.number_of_antigens()); ++serum_iter) {
-        const auto coord = *serum_iter;
-        std::cerr << "D: " << linear_regression.distance_to(coord[0], coord[1]) << '\n';
-    }
+
+    std::vector<double> distances;
+    std::transform(layout->begin_sera(aChartDraw.number_of_antigens()), layout->end_sera(aChartDraw.number_of_antigens()), std::back_inserter(distances),
+                   [&linear_regression](const auto& coord) { return linear_regression.distance_to(coord[0], coord[1]); });
+    auto sd = acmacs::statistics::standard_deviation(distances.begin(), distances.end());
+    std::cerr << "sd: " << sd.sd() << '\n';
 
     auto& line = aChartDraw.line(linear_regression.slope(), linear_regression.intercept());
     line.color(Color(args().get_or_default("color", "red")));
