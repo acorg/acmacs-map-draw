@@ -204,10 +204,12 @@ map_elements::Line& ChartDraw::line(const acmacs::Location& aBegin, const acmacs
 
 // ----------------------------------------------------------------------
 
-map_elements::Line& ChartDraw::line(double slope, double intercept)
+map_elements::Line& ChartDraw::line(double slope, double intercept, apply_map_transformation a_apply_map_transformation)
 {
     auto& line = dynamic_cast<map_elements::LineSlope&>(mMapElements.add("line_slope"));
     line.slope_intercept(slope, intercept);
+    if (a_apply_map_transformation == apply_map_transformation::yes)
+        line.apply_map_transformation(true);
     return line;
 
 } // ChartDraw::line

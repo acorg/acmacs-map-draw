@@ -261,9 +261,11 @@ namespace map_elements
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
         Line& slope_intercept(double slope, double intercept) { slope_ = slope; intercept_ = intercept; return *this; }
+        Line& apply_map_transformation(bool apply = true) { apply_map_transformation_ = apply; return *this; }
 
      protected:
         double slope_, intercept_;
+        bool apply_map_transformation_ = false;
 
     }; // class LineSlope
 

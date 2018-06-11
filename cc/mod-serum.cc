@@ -272,7 +272,7 @@ void ModSerumLine::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/
     auto sd = acmacs::statistics::standard_deviation(distances.begin(), distances.end());
     std::cerr << "sd: " << sd.sd() << '\n';
 
-    auto& line = aChartDraw.line(linear_regression.slope(), linear_regression.intercept());
+    auto& line = aChartDraw.line(linear_regression.slope(), linear_regression.intercept(), ChartDraw::apply_map_transformation::yes);
     line.color(Color(args().get_or_default("color", "red")));
     line.line_width(args().get_or_default("line_width", 1.0));
 
