@@ -8,7 +8,7 @@
 #include "acmacs-chart-2/bounding-ball.hh"
 #include "acmacs-draw/draw-elements.hh"
 #include "acmacs-draw/draw-points.hh"
-#include "acmacs-draw/surface-cairo.hh" // obsolete
+#include "acmacs-draw/surface-cairo.hh"
 #include "acmacs-map-draw/draw.hh"
 
 // ----------------------------------------------------------------------
@@ -66,29 +66,30 @@ void ChartDraw::draw(acmacs::surface::Surface& aSurface) const
 void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) const
 {
     Timeit ti("drawing map to " + aFilename + ": ", aTimer);
-    if (true) {
-        acmacs::draw::DrawElements painter(aFilename, aSize);
-        draw(painter);
 
-        std::cerr << "\n\n";
-        std::cerr << "WARNING: switch signature page to draw-elements interface\n";
-        std::cerr << "WARNING: remove obsolete ChartDraw::draw(acmacs::surface::Surface&)\n";
-        std::cerr << "WARNING: remove obsolete acmacs-map-draw interface: map_elements::draw(acmacs::surface::Surface& ...)\n";
-    }
-    else {
-        if (std::string_view(aFilename.data() + aFilename.size() - 4, 4) == ".pdf") {
-            acmacs::surface::PdfCairo surface(aFilename, aSize, aSize);
-            draw(surface);
-        }
-        // Obsolete
-        // else if (std::string_view(aFilename.data() + aFilename.size() - 5, 5) == ".html") {
-        //     acmacs::surface::Html surface(aFilename, aSize, aSize);
-        //     draw(surface);
-        // }
-        else {
-            throw std::runtime_error("Unrecognized filename suffix: " + aFilename);
-        }
-    }
+    acmacs::draw::DrawElements painter(aFilename, aSize);
+    draw(painter);
+
+    std::cerr << "\n\n";
+    std::cerr << "WARNING: switch signature page to draw-elements interface\n";
+    std::cerr << "WARNING: remove obsolete ChartDraw::draw(acmacs::surface::Surface&)\n";
+    std::cerr << "WARNING: remove obsolete acmacs-map-draw interface: map_elements::draw(acmacs::surface::Surface& ...)\n";
+
+    // }
+    // else {
+    //     if (std::string_view(aFilename.data() + aFilename.size() - 4, 4) == ".pdf") {
+    //         acmacs::surface::PdfCairo surface(aFilename, aSize, aSize);
+    //         draw(surface);
+    //     }
+    //     // Obsolete
+    //     // else if (std::string_view(aFilename.data() + aFilename.size() - 5, 5) == ".html") {
+    //     //     acmacs::surface::Html surface(aFilename, aSize, aSize);
+    //     //     draw(surface);
+    //     // }
+    //     else {
+    //         throw std::runtime_error("Unrecognized filename suffix: " + aFilename);
+    //     }
+    // }
 
 } // ChartDraw::draw
 
