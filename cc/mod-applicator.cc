@@ -229,6 +229,12 @@ void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDat
             }
         }
         else if (args().get_or_default("flip_over_serum_line", false)) {
+            const SerumLine serum_line(aChartDraw);
+            auto layout = aChartDraw.layout();
+            for (auto index : SelectAntigens(verbose).select(aChartDraw, args()["select"])) {
+                const auto flipped = serum_line.line().flip_over(layout->get(index));
+                projection.move_point(index, flipped);
+            }
         }
         else {
             const auto move_to = get_move_to(aChartDraw, verbose);
