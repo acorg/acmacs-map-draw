@@ -220,19 +220,11 @@ void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDat
     const auto verbose = args().get_or_default("report", false);
     try {
         auto& projection = aChartDraw.projection();
-        if (args().get_or_default("to_serum_line", false)) {
+        if (auto flip_scale = args().get_or_default("flip_over_serum_line", std::numeric_limits<double>::max()); flip_scale < (std::numeric_limits<double>::max() / 2)) {
             const SerumLine serum_line(aChartDraw);
             auto layout = aChartDraw.layout();
             for (auto index : SelectAntigens(verbose).select(aChartDraw, args()["select"])) {
-                const auto on_line = serum_line.line().project_on(layout->get(index));
-                projection.move_point(index, on_line);
-            }
-        }
-        else if (args().get_or_default("flip_over_serum_line", false)) {
-            const SerumLine serum_line(aChartDraw);
-            auto layout = aChartDraw.layout();
-            for (auto index : SelectAntigens(verbose).select(aChartDraw, args()["select"])) {
-                const auto flipped = serum_line.line().flip_over(layout->get(index));
+                const auto flipped = serum_line.line().flip_over(layout->get(index), flip_scale);
                 projection.move_point(index, flipped);
             }
         }
