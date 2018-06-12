@@ -512,7 +512,7 @@ void SelectAntigens::filter_relative_to_serum_line(const ChartSelectInterface& a
 
     auto not_relative_to_line = [&serum_line, &layout, distance_min, distance_max, direction](auto antigen_no) -> bool {
         const auto distance = serum_line.line().distance_with_direction(layout->get(antigen_no));
-        return std::abs(distance) >= distance_min && std::abs(distance) < distance_max && (direction == 0 || (direction * distance) > 0);
+        return std::abs(distance) < distance_min || std::abs(distance) > distance_max || (direction != 0 && (direction * distance) < 0);
     };
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_relative_to_line), indexes.end());
 
