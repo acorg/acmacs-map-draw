@@ -35,7 +35,7 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
 
     try {
         const rjson::array& offset = aLabelData["offset"];
-        label.offset(offset[0], offset[1]);
+        label.offset({offset[0], offset[1]});
     }
     catch (std::exception&) {
     }
@@ -319,7 +319,7 @@ class ModViewport : public Mod
                 if (auto [present_abs, abs] = args().get_array_if("abs"); present_abs) {
                     if (abs.size() != 3)
                         throw unrecognized_mod{"\"abs\" must be array of 3 floats. mod: " + args().to_json()};
-                    aChartDraw.viewport(abs[0], abs[1], abs[2]);
+                    aChartDraw.viewport({abs[0], abs[1]}, abs[2]);
                 }
                 else if (auto [present_rel, rel] = args().get_array_if("rel"); present_rel) {
                     if (rel.size() != 3)
@@ -329,7 +329,7 @@ class ModViewport : public Mod
                     const auto new_size = static_cast<double>(rel[2]) + orig_viewport.size.width;
                     if (new_size < 1)
                         throw unrecognized_mod{"invalid size difference in \"rel\". mod: " + args().to_json()};
-                    aChartDraw.viewport(orig_viewport.left() + static_cast<double>(rel[0]), orig_viewport.top() + static_cast<double>(rel[1]), new_size);
+                    aChartDraw.viewport(orig_viewport.origin + acmacs::Location2D{static_cast<double>(rel[0]), static_cast<double>(rel[1])}, new_size);
                 }
                 else {
                     throw rjson::field_not_found{};
@@ -439,7 +439,7 @@ class ModTitle : public Mod
                         title.add_line(aChartDraw.chart().make_name(aChartDraw.projection_no()));
                     }
                     if (auto [offset_present, offset] = args().get_array_if("offset"); offset_present)
-                        title.offset(offset[0], offset[1]);
+                        title.offset({offset[0], offset[1]});
                     if (auto [padding_present, padding] = args().get_value_if("padding"); padding_present)
                         title.padding(padding);
                     if (auto [text_size_present, text_size] = args().get_value_if("text_size"); text_size_present)
@@ -531,25 +531,25 @@ class ModLine : public Mod
         }
 
  protected:
-    std::vector<acmacs::Location> begins_ends(ChartDraw& aChartDraw, std::string aPrefix) const
+    std::vector<acmacs::Location2D> begins_ends(ChartDraw& aChartDraw, std::string aPrefix) const
         {
-            std::vector<acmacs::Location> result;
+            std::vector<acmacs::Location2D> result;
             const auto verbose = args().get_or_default("report", false);
             if (auto [from_present, from] = args().get_array_if(aPrefix); from_present) {
-                result.emplace_back(from[0], from[1]);
+                result.push_back({from[0], from[1]});
             }
             else if (auto [from_antigen_present, from_antigen] = args().get_object_if(aPrefix + "_antigen"); from_antigen_present) {
                 auto layout = aChartDraw.layout();
                 for (auto index: SelectAntigens(verbose).select(aChartDraw, from_antigen)) {
                     const auto coord = layout->get(index);
-                    result.emplace_back(coord[0], coord[1]);
+                    result.push_back({coord[0], coord[1]});
                 }
             }
             else if (auto [from_serum_present, from_serum] = args().get_object_if(aPrefix + "_serum"); from_serum_present) {
                 auto layout = aChartDraw.layout();
                 for (auto index: SelectSera(verbose).select(aChartDraw, from_serum)) {
                     const auto coord = layout->get(index + aChartDraw.number_of_antigens());
-                    result.emplace_back(coord[0], coord[1]);
+                    result.push_back({coord[0], coord[1]});
                 }
             }
             else

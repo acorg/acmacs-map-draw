@@ -78,7 +78,7 @@ class VaccineMatcherLabel : public VaccineMatcherBase
     VaccineMatcherLabel& weight(std::string aWeight) { for_each_mf(&LBL::weight, aWeight); return *this; }
     VaccineMatcherLabel& slant(std::string aSlant) { for_each_mf(&LBL::slant, aSlant); return *this; }
     VaccineMatcherLabel& font_family(std::string aFamily) { for_each_mf(&LBL::font_family, aFamily); return *this; }
-    VaccineMatcherLabel& offset(double x, double y) { for_each_mf(static_cast<LBL& (LBL::*)(double,double)>(&LBL::offset), x, y); return *this; }
+    VaccineMatcherLabel& offset(acmacs::Location2D loc) { for_each_mf(static_cast<LBL& (LBL::*)(acmacs::Location2D)>(&LBL::offset), loc); return *this; }
     VaccineMatcherLabel& name_type(std::string aNameType);
 
     VaccineMatcherLabel& hide() { for_each_with_vacc([this](const auto& vacc_entry) { mChartDraw.remove_label(vacc_entry.chart_antigen_index); }, false); return *this; }

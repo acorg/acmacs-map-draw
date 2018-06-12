@@ -115,14 +115,14 @@ map_elements::Element::~Element()
 
 // ----------------------------------------------------------------------
 
-acmacs::Location map_elements::Element::subsurface_origin(acmacs::surface::Surface& aSurface, const acmacs::Location& aPixelOrigin, const acmacs::Size& aScaledSubsurfaceSize) const
+acmacs::Location2D map_elements::Element::subsurface_origin(acmacs::surface::Surface& aSurface, acmacs::Location2D aPixelOrigin, const acmacs::Size& aScaledSubsurfaceSize) const
 {
-    acmacs::Location subsurface_origin{aSurface.convert(Pixels{aPixelOrigin.x}).value(), aSurface.convert(Pixels{aPixelOrigin.y}).value()};
+    acmacs::Location2D subsurface_origin{aSurface.convert(Pixels{aPixelOrigin.x()}).value(), aSurface.convert(Pixels{aPixelOrigin.y()}).value()};
     const acmacs::Size& surface_size = aSurface.viewport().size;
-    if (subsurface_origin.x < 0)
-        subsurface_origin.x += surface_size.width - aScaledSubsurfaceSize.width;
-    if (subsurface_origin.y < 0)
-        subsurface_origin.y += surface_size.height - aScaledSubsurfaceSize.height;
+    if (subsurface_origin.x() < 0)
+        subsurface_origin.x(subsurface_origin.x() + surface_size.width - aScaledSubsurfaceSize.width);
+    if (subsurface_origin.y() < 0)
+        subsurface_origin.y(subsurface_origin.y() + surface_size.height - aScaledSubsurfaceSize.height);
     return subsurface_origin;
 
 } // map_elements::Element::subsurface_origin
@@ -154,11 +154,11 @@ void map_elements::BackgroundBorderGrid::draw(acmacs::draw::DrawElements& aDrawE
 // obsolete
 void map_elements::ContinentMap::draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const
 {
-    acmacs::Location origin = mOrigin;
-    if (origin.x < 0)
-        origin.x += aSurface.width_in_pixels() - mWidthInParent.value();
-    if (origin.y < 0)
-        origin.y += aSurface.height_in_pixels() - mWidthInParent.value() / continent_map_aspect();
+    acmacs::Location2D origin = mOrigin;
+    if (origin.x() < 0)
+        origin.x(origin.x() + aSurface.width_in_pixels() - mWidthInParent.value());
+    if (origin.y() < 0)
+        origin.y(origin.y() + aSurface.height_in_pixels() - mWidthInParent.value() / continent_map_aspect());
     acmacs::surface::Surface& continent_surface = aSurface.subsurface(origin, mWidthInParent, continent_map_size(), true);
     continent_map_draw(continent_surface);
 
@@ -200,7 +200,7 @@ void map_elements::LegendPointLabel::draw(acmacs::surface::Surface& aSurface, co
 
         const acmacs::Size legend_surface_size{width + padding.width * 3 + scaled_point_size,
                                        height * (mLines.size() - 1) * mInterline + height + padding.height * 2};
-        const acmacs::Location legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
+        const acmacs::Location2D legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
 
         acmacs::surface::Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
         const auto& legend_v = legend_surface.viewport();
@@ -261,7 +261,7 @@ void map_elements::Title::draw(acmacs::surface::Surface& aSurface) const
         const double padding = aSurface.convert(mPadding).value();
         const acmacs::Size legend_surface_size{width + padding * 2,
                     height * (mLines.size() - 1) * mInterline + height + padding * 2};
-        const acmacs::Location legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
+        const acmacs::Location2D legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
 
         acmacs::surface::Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
         const auto& legend_v = legend_surface.viewport();
@@ -344,7 +344,7 @@ void map_elements::LineFromTo::draw(acmacs::draw::DrawElements& aDrawElements, c
 void map_elements::LineSlope::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const
 {
     const auto& viewport = aChartDraw.viewport();
-    const acmacs::Location
+    const acmacs::Location2D
             from{viewport.left(), viewport.left() * slope_ + intercept_},
             to{viewport.right(), viewport.right() * slope_ + intercept_};
     aDrawElements.line(from, to, mLineColor, mLineWidth, apply_map_transformation_);
@@ -356,7 +356,7 @@ void map_elements::LineSlope::draw(acmacs::draw::DrawElements& aDrawElements, co
 // obsolete
 void map_elements::Rectangle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
-    const std::vector<acmacs::Location> path{mCorner1, {mCorner1.x, mCorner2.y}, mCorner2, {mCorner2.x, mCorner1.y}};
+    const std::vector<acmacs::Location2D> path{mCorner1, {mCorner1.x(), mCorner2.y()}, mCorner2, {mCorner2.x(), mCorner1.y()}};
     if (mFilled)
         aSurface.path_fill(path.begin(), path.end(), mColor);
     else
@@ -377,9 +377,9 @@ void map_elements::Rectangle::draw(acmacs::draw::DrawElements& aDrawElements, co
 // obsolete
 void map_elements::Arrow::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
-    const bool x_eq = float_equal(mEnd.x, mBegin.x);
-    const double sign2 = x_eq ? (mBegin.y < mEnd.y ? 1.0 : -1.0) : (mEnd.x < mBegin.x ? 1.0 : -1.0);
-    const double angle = x_eq ? -M_PI_2 : std::atan((mEnd.y - mBegin.y) / (mEnd.x - mBegin.x));
+    const bool x_eq = float_equal(mEnd.x(), mBegin.x());
+    const double sign2 = x_eq ? (mBegin.y() < mEnd.y() ? 1.0 : -1.0) : (mEnd.x() < mBegin.x() ? 1.0 : -1.0);
+    const double angle = x_eq ? -M_PI_2 : std::atan((mEnd.y() - mBegin.y()) / (mEnd.x() - mBegin.x()));
     const auto end = aSurface.arrow_head(mEnd, angle, sign2, mArrowHeadColor, mArrowWidth, mArrowHeadFilled);
       // std::cerr << "DEBUG: Arrow " << mBegin << ' ' << mEnd << ' ' << end << " angle:" << angle << " sign2:" << sign2 << ' ' << mArrowHeadColor << '\n';
     aSurface.line(mBegin, end, mLineColor, mLineWidth);

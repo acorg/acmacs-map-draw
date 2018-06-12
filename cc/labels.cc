@@ -17,8 +17,8 @@ void Labels::draw(const acmacs::draw::PointLabel& label, acmacs::surface::Surfac
         if (!text_origin.empty()) { // point is not disconnected
             const double scaled_point_size = aSurface.convert(Pixels{*style.size}).value();
             const acmacs::Size ts = aSurface.text_size(label.display_name(), label.text_size(), label.text_style());
-            text_origin[0] += label.text_offset(label.offset().x, scaled_point_size, ts.width, false);
-            text_origin[1] += label.text_offset(label.offset().y, scaled_point_size, ts.height, true);
+            text_origin[0] += label.text_offset(label.offset().x(), scaled_point_size, ts.width, false);
+            text_origin[1] += label.text_offset(label.offset().y(), scaled_point_size, ts.height, true);
             aSurface.text(text_origin, label.display_name(), label.text_color(), label.text_size(), label.text_style());
         }
     }

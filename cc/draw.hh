@@ -102,19 +102,19 @@ class ChartDraw : public ChartSelectInterface
             projection().flip(aX, aY); // reflect about a line specified with vector [aX, aY]
         }
 
-    void viewport(double aX, double aY, double aSize) { mViewport.set(aX, aY, aSize); }
+    void viewport(acmacs::Location2D origin, double size) { mViewport.set(origin, size); }
     void viewport(const acmacs::Viewport& aViewport) { mViewport = aViewport; }
     const acmacs::Viewport& viewport() const { return mViewport; }
 
     void background_color(Color aBackground) { dynamic_cast<map_elements::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).background_color(aBackground); }
     void grid(Color aGridColor, double aGridLineWidth) { dynamic_cast<map_elements::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).grid(aGridColor, aGridLineWidth); }
     void border(Color aBorderColor, double aBorderWidth) { dynamic_cast<map_elements::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).border(aBorderColor, aBorderWidth); }
-    auto& continent_map(const acmacs::Location& aOffset, Pixels aWidth) { return dynamic_cast<map_elements::ContinentMap&>(mMapElements["continent-map"]).offset_width(aOffset, aWidth); }
+    auto& continent_map(acmacs::Location2D aOffset, Pixels aWidth) { return dynamic_cast<map_elements::ContinentMap&>(mMapElements["continent-map"]).offset_width(aOffset, aWidth); }
     auto& continent_map() { return dynamic_cast<map_elements::ContinentMap&>(mMapElements["continent-map"]); }
-    map_elements::LegendPointLabel& legend_point_label(const acmacs::Location& aOffset) { auto& legend = dynamic_cast<map_elements::LegendPointLabel&>(mMapElements["legend-point-label"]); legend.offset(aOffset); return legend; }
+    map_elements::LegendPointLabel& legend_point_label(acmacs::Location2D aOffset) { auto& legend = dynamic_cast<map_elements::LegendPointLabel&>(mMapElements["legend-point-label"]); legend.offset(aOffset); return legend; }
     map_elements::LegendPointLabel& legend_point_label() { return dynamic_cast<map_elements::LegendPointLabel&>(mMapElements["legend-point-label"]); }
     void remove_legend() { mMapElements.remove("legend-point-label"); }
-    map_elements::Title& title(const acmacs::Location& aOffset) { auto& title = dynamic_cast<map_elements::Title&>(mMapElements["title"]); title.offset(aOffset); return title; }
+    map_elements::Title& title(acmacs::Location2D aOffset) { auto& title = dynamic_cast<map_elements::Title&>(mMapElements["title"]); title.offset(aOffset); return title; }
     map_elements::Title& title() { return dynamic_cast<map_elements::Title&>(mMapElements["title"]); }
     bool has_title() const { return mMapElements.exists("title"); }
     map_elements::Labels& labels() { return mLabels; }
@@ -122,12 +122,12 @@ class ChartDraw : public ChartSelectInterface
     void add_all_labels() const { const_cast<ChartDraw*>(this)->mLabels.add_all(chart()); }
     void remove_label(size_t aIndex) { return mLabels.remove(aIndex); }
     map_elements::SerumCircle& serum_circle(size_t aSerumNo, Scaled aRadius);
-    map_elements::Line& line(const acmacs::Location& aBegin, const acmacs::Location& aEnd);
+    map_elements::Line& line(acmacs::Location2D aBegin, acmacs::Location2D aEnd);
     map_elements::Line& line(double slope, double intercept, apply_map_transformation a_apply_map_transformation);
-    map_elements::Arrow& arrow(const acmacs::Location& aBegin, const acmacs::Location& aEnd);
-    map_elements::Point& point(const acmacs::Location& aCenter, Pixels aSize);
-    map_elements::Rectangle& rectangle(const acmacs::Location& aCorner1, const acmacs::Location& aCorner2);
-    map_elements::Circle& circle(const acmacs::Location& aCenter, Scaled aSize);
+    map_elements::Arrow& arrow(acmacs::Location2D aBegin, acmacs::Location2D aEnd);
+    map_elements::Point& point(acmacs::Location2D aCenter, Pixels aSize);
+    map_elements::Rectangle& rectangle(acmacs::Location2D aCorner1, acmacs::Location2D aCorner2);
+    map_elements::Circle& circle(acmacs::Location2D aCenter, Scaled aSize);
     void remove_serum_circles();
 
     void save(std::string aFilename, std::string aProgramName);

@@ -182,7 +182,7 @@ void set_title(map_elements::Title& aTitle, const rjson::value& aSettings, bool 
                 ;
         const auto& offset = title_data.get_or_empty_array("offset");
         if (!offset.empty())
-            aTitle.offset(offset[0], offset[1]);
+            aTitle.offset({offset[0], offset[1]});
         if (use_title_text)
             aTitle.add_line(aSettings["title_text"].str());
     }

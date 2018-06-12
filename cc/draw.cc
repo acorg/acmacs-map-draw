@@ -9,7 +9,6 @@
 #include "acmacs-draw/draw-elements.hh"
 #include "acmacs-draw/draw-points.hh"
 #include "acmacs-draw/surface-cairo.hh" // obsolete
-#include "acmacs-draw/surface-html.hh"  // obsolete
 #include "acmacs-map-draw/draw.hh"
 
 // ----------------------------------------------------------------------
@@ -81,10 +80,11 @@ void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) co
             acmacs::surface::PdfCairo surface(aFilename, aSize, aSize);
             draw(surface);
         }
-        else if (std::string_view(aFilename.data() + aFilename.size() - 5, 5) == ".html") {
-            acmacs::surface::Html surface(aFilename, aSize, aSize);
-            draw(surface);
-        }
+        // Obsolete
+        // else if (std::string_view(aFilename.data() + aFilename.size() - 5, 5) == ".html") {
+        //     acmacs::surface::Html surface(aFilename, aSize, aSize);
+        //     draw(surface);
+        // }
         else {
             throw std::runtime_error("Unrecognized filename suffix: " + aFilename);
         }
@@ -194,7 +194,7 @@ map_elements::SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadi
 
 // ----------------------------------------------------------------------
 
-map_elements::Line& ChartDraw::line(const acmacs::Location& aBegin, const acmacs::Location& aEnd)
+map_elements::Line& ChartDraw::line(acmacs::Location2D aBegin, acmacs::Location2D aEnd)
 {
     auto& line = dynamic_cast<map_elements::LineFromTo&>(mMapElements.add("line_from_to"));
     line.from_to(aBegin, aEnd);
@@ -216,7 +216,7 @@ map_elements::Line& ChartDraw::line(double slope, double intercept, apply_map_tr
 
 // ----------------------------------------------------------------------
 
-map_elements::Arrow& ChartDraw::arrow(const acmacs::Location& aBegin, const acmacs::Location& aEnd)
+map_elements::Arrow& ChartDraw::arrow(acmacs::Location2D aBegin, acmacs::Location2D aEnd)
 {
     auto& arrow = dynamic_cast<map_elements::Arrow&>(mMapElements.add("arrow"));
     arrow.from_to(aBegin, aEnd);
@@ -226,7 +226,7 @@ map_elements::Arrow& ChartDraw::arrow(const acmacs::Location& aBegin, const acma
 
 // ----------------------------------------------------------------------
 
-map_elements::Point& ChartDraw::point(const acmacs::Location& aCenter, Pixels aSize)
+map_elements::Point& ChartDraw::point(acmacs::Location2D aCenter, Pixels aSize)
 {
     auto& point = dynamic_cast<map_elements::Point&>(mMapElements.add("point"));
     point.center(aCenter);
@@ -237,7 +237,7 @@ map_elements::Point& ChartDraw::point(const acmacs::Location& aCenter, Pixels aS
 
 // ----------------------------------------------------------------------
 
-map_elements::Rectangle& ChartDraw::rectangle(const acmacs::Location& aCorner1, const acmacs::Location& aCorner2)
+map_elements::Rectangle& ChartDraw::rectangle(acmacs::Location2D aCorner1, acmacs::Location2D aCorner2)
 {
     auto& rectangle = dynamic_cast<map_elements::Rectangle&>(mMapElements.add("rectangle"));
     rectangle.corners(aCorner1, aCorner2);
@@ -247,7 +247,7 @@ map_elements::Rectangle& ChartDraw::rectangle(const acmacs::Location& aCorner1, 
 
 // ----------------------------------------------------------------------
 
-map_elements::Circle& ChartDraw::circle(const acmacs::Location& aCenter, Scaled aSize)
+map_elements::Circle& ChartDraw::circle(acmacs::Location2D aCenter, Scaled aSize)
 {
     auto& point = dynamic_cast<map_elements::Circle&>(mMapElements.add("circle"));
     point.center(aCenter);

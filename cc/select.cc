@@ -181,7 +181,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             // const auto radius = value.get_field_number("radius");
             const auto& center = value["center"];
             const double radius = value["radius"];
-            filter_circle(aChartSelectInterface, indexes, {center[0], center[1], radius});
+            filter_circle(aChartSelectInterface, indexes, {{center[0], center[1]}, radius});
         }
         else if (key == "lab") {
             if (aChartSelectInterface.chart().info()->lab(acmacs::chart::Info::Compute::Yes) != string::upper(static_cast<std::string_view>(value)))
@@ -428,7 +428,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
             // const auto radius = value.get_field_number("radius");
             const auto& center = value["center"];
             const double radius = value["radius"];
-            filter_circle(aChartSelectInterface, indexes, {center[0], center[1], radius});
+            filter_circle(aChartSelectInterface, indexes, {{center[0], center[1]}, radius});
         }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';

@@ -56,7 +56,7 @@ namespace map_elements
         virtual void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const = 0; // { std::cerr << "WARNING: map_elements::Element::draw " << typeid(this).name() << '\n'; }
 
      protected:
-        virtual acmacs::Location subsurface_origin(acmacs::surface::Surface& aSurface, const acmacs::Location& aPixelOrigin, const acmacs::Size& aScaledSubsurfaceSize) const;
+        virtual acmacs::Location2D subsurface_origin(acmacs::surface::Surface& aSurface, acmacs::Location2D aPixelOrigin, const acmacs::Size& aScaledSubsurfaceSize) const;
 
         void keyword(std::string aKeyword) { mKeyword = aKeyword; }
 
@@ -99,10 +99,10 @@ namespace map_elements
 
         void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
-        auto& offset_width(const acmacs::Location& aOrigin, Pixels aWidthInParent) { mOrigin = aOrigin; mWidthInParent = aWidthInParent; return *this; }
+        auto& offset_width(acmacs::Location2D aOrigin, Pixels aWidthInParent) { mOrigin = aOrigin; mWidthInParent = aWidthInParent; return *this; }
 
      private:
-        acmacs::Location mOrigin{-1, -1};
+        acmacs::Location2D mOrigin{-1, -1};
         Pixels mWidthInParent{100};
 
     }; // class ContinentMap
@@ -124,7 +124,7 @@ namespace map_elements
         void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
-        void offset(const acmacs::Location& aOrigin) { mOrigin = aOrigin; }
+        void offset(acmacs::Location2D aOrigin) { mOrigin = aOrigin; }
         void add_line(Color outline, Color fill, std::string label) { mLines.emplace_back(outline, fill, label); }
         void label_size(double aLabelSize) { mLabelSize = aLabelSize; }
         void point_size(double aPointSize) { mPointSize = aPointSize; }
@@ -133,7 +133,7 @@ namespace map_elements
         void border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; }
 
      private:
-        acmacs::Location mOrigin;
+        acmacs::Location2D mOrigin;
         Color mBackground;
         Color mBorderColor;
         Pixels mBorderWidth;
@@ -158,8 +158,8 @@ namespace map_elements
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
         Title& show(bool aShow) { mShow = aShow; return *this; }
-        Title& offset(const acmacs::Location& aOrigin) { mOrigin = aOrigin; return *this; }
-        Title& offset(double x, double y) { mOrigin.set(x, y); return *this; }
+        Title& offset(acmacs::Location2D aOrigin) { mOrigin = aOrigin; return *this; }
+          // Title& offset(double x, double y) { mOrigin = Location2D{x, y}; return *this; }
         Title& padding(double x) { mPadding = x; return *this; }
         Title& remove_all_lines() { mLines.clear(); return *this; }
         Title& add_line(std::string aText) { mLines.emplace_back(aText); return *this; }
@@ -174,7 +174,7 @@ namespace map_elements
 
      private:
         bool mShow;
-        acmacs::Location mOrigin;
+        acmacs::Location2D mOrigin;
         Pixels mPadding;
         Color mBackground;
         Color mBorderColor;
@@ -247,11 +247,11 @@ namespace map_elements
         void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
-        Line& from_to(const acmacs::Location& aBegin, const acmacs::Location& aEnd) { mBegin = aBegin; mEnd = aEnd; return *this; }
+        Line& from_to(acmacs::Location2D aBegin, acmacs::Location2D aEnd) { mBegin = aBegin; mEnd = aEnd; return *this; }
 
      protected:
-        acmacs::Location mBegin;
-        acmacs::Location mEnd;
+        acmacs::Location2D mBegin;
+        acmacs::Location2D mEnd;
 
     }; // class Line
 
@@ -279,7 +279,7 @@ namespace map_elements
         void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
-        Arrow& from_to(const acmacs::Location& aBegin, const acmacs::Location& aEnd) { LineFromTo::from_to(aBegin, aEnd); return *this; }
+        Arrow& from_to(acmacs::Location2D aBegin, acmacs::Location2D aEnd) { LineFromTo::from_to(aBegin, aEnd); return *this; }
         Arrow& color(Color aLineColor, Color aArrowHeadColor) { LineFromTo::color(aLineColor); mArrowHeadColor = aArrowHeadColor; return *this; }
         Arrow& color(Color aColor) { return color(aColor, aColor); }
         Arrow& arrow_head_filled(bool aFilled) { mArrowHeadFilled = aFilled; return *this; }
@@ -304,13 +304,13 @@ namespace map_elements
         void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
-        Rectangle& corners(const acmacs::Location& aCorner1, const acmacs::Location& aCorner2) { mCorner1 = aCorner1; mCorner2 = aCorner2; return *this; }
+        Rectangle& corners(acmacs::Location2D aCorner1, acmacs::Location2D aCorner2) { mCorner1 = aCorner1; mCorner2 = aCorner2; return *this; }
         Rectangle& color(Color aColor) { mColor = aColor; return *this; }
         Rectangle& filled(bool aFilled) { mFilled = aFilled; return *this; }
         Rectangle& line_width(double aLineWidth) { mLineWidth = aLineWidth; return *this; }
 
      protected:
-        acmacs::Location mCorner1, mCorner2;
+        acmacs::Location2D mCorner1, mCorner2;
         Color mColor;
         bool mFilled;
         Pixels mLineWidth;
@@ -328,7 +328,7 @@ namespace map_elements
         void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
-        Circle& center(const acmacs::Location& aCenter) { mCenter = aCenter; return *this; }
+        Circle& center(acmacs::Location2D aCenter) { mCenter = aCenter; return *this; }
         Circle& size(Scaled aSize) { mSize = aSize; return *this; }
         Circle& color(Color aFillColor, Color aOutlineColor) { mFillColor = aFillColor; mOutlineColor = aOutlineColor; return *this; }
         Circle& outline_width(double aOutlineWidth) { mOutlineWidth = aOutlineWidth; return *this; }
@@ -336,7 +336,7 @@ namespace map_elements
         Circle& rotation(Rotation aRotation) { mRotation = aRotation; return *this; }
 
      protected:
-        acmacs::Location mCenter;
+        acmacs::Location2D mCenter;
         Scaled mSize;
         Color mFillColor;
         Color mOutlineColor;
@@ -358,13 +358,13 @@ namespace map_elements
         void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
-        Point& center(const acmacs::Location& aCenter) { mCenter = aCenter; return *this; }
+        Point& center(acmacs::Location2D aCenter) { mCenter = aCenter; return *this; }
         Point& size(Pixels aSize) { mSize = aSize; return *this; }
         Point& color(Color aFillColor, Color aOutlineColor) { mFillColor = aFillColor; mOutlineColor = aOutlineColor; return *this; }
         Point& outline_width(double aOutlineWidth) { mOutlineWidth = aOutlineWidth; return *this; }
 
      private:
-        acmacs::Location mCenter;
+        acmacs::Location2D mCenter;
         Pixels mSize;
         Color mFillColor;
         Color mOutlineColor;
