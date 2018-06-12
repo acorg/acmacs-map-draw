@@ -1,6 +1,7 @@
 #include "acmacs-base/enumerate.hh"
 #include "acmacs-base/statistics.hh"
 //#include "acmacs-base/timeit.hh"
+#include "acmacs-map-draw/serum-line.hh"
 #include "acmacs-map-draw/mod-serum.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/select.hh"
@@ -259,20 +260,10 @@ void ModSerumCoverageCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*
 
 void ModSerumLine::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
-    auto layout = aChartDraw.layout();
-    if (layout->number_of_dimensions() != 2)
-        throw unrecognized_mod("invalid number of dimensions in projection: " + std::to_string(layout->number_of_dimensions()) + ", only 2 is supported");
+    SerumLine serum_line(aChartDraw);
+    std::cerr << "sd: " << serum_line.standard_deviation() << '\n';
 
-    const auto linear_regression = acmacs::statistics::simple_linear_regression(layout->begin_sera_dimension(aChartDraw.number_of_antigens(), 0), layout->end_sera_dimension(aChartDraw.number_of_antigens(), 0), layout->begin_sera_dimension(aChartDraw.number_of_antigens(), 1));
-    std::cerr << linear_regression << '\n';
-
-    std::vector<double> distances;
-    std::transform(layout->begin_sera(aChartDraw.number_of_antigens()), layout->end_sera(aChartDraw.number_of_antigens()), std::back_inserter(distances),
-                   [&linear_regression](const auto& coord) { return linear_regression.distance_to(coord[0], coord[1]); });
-    auto sd = acmacs::statistics::standard_deviation(distances.begin(), distances.end());
-    std::cerr << "sd: " << sd.sd() << '\n';
-
-    auto& line = aChartDraw.line(linear_regression.slope(), linear_regression.intercept(), ChartDraw::apply_map_transformation::yes);
+    auto& line = aChartDraw.line(serum_line.line(), ChartDraw::apply_map_transformation::yes);
     line.color(Color(args().get_or_default("color", "red")));
     line.line_width(args().get_or_default("line_width", 1.0));
 

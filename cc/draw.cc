@@ -4,6 +4,7 @@
 #include "acmacs-base/log.hh"
 #include "acmacs-base/float.hh"
 #include "acmacs-base/enumerate.hh"
+#include "acmacs-base/line.hh"
 #include "acmacs-chart-2/factory-export.hh"
 #include "acmacs-chart-2/bounding-ball.hh"
 #include "acmacs-draw/draw-elements.hh"
@@ -205,13 +206,25 @@ map_elements::Line& ChartDraw::line(acmacs::Location2D aBegin, acmacs::Location2
 
 // ----------------------------------------------------------------------
 
-map_elements::Line& ChartDraw::line(double slope, double intercept, apply_map_transformation a_apply_map_transformation)
+// map_elements::Line& ChartDraw::line(double slope, double intercept, apply_map_transformation a_apply_map_transformation)
+// {
+//     auto& line = dynamic_cast<map_elements::LineSlope&>(mMapElements.add("line_slope"));
+//     line.slope_intercept(slope, intercept);
+//     if (a_apply_map_transformation == apply_map_transformation::yes)
+//         line.apply_map_transformation(true);
+//     return line;
+
+// } // ChartDraw::line
+
+// ----------------------------------------------------------------------
+
+map_elements::Line& ChartDraw::line(const acmacs::LineDefinedByEquation& line, apply_map_transformation a_apply_map_transformation)
 {
-    auto& line = dynamic_cast<map_elements::LineSlope&>(mMapElements.add("line_slope"));
-    line.slope_intercept(slope, intercept);
+    auto& line_slope = dynamic_cast<map_elements::LineSlope&>(mMapElements.add("line_slope"));
+    line_slope.slope_intercept(line.slope(), line.intercept());
     if (a_apply_map_transformation == apply_map_transformation::yes)
-        line.apply_map_transformation(true);
-    return line;
+        line_slope.apply_map_transformation(true);
+    return line_slope;
 
 } // ChartDraw::line
 
