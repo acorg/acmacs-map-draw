@@ -2,6 +2,7 @@
 using namespace std::string_literals;
 
 #include "acmacs-map-draw/draw.hh"
+#include "acmacs-map-draw/serum-line.hh"
 #include "acmacs-map-draw/mod-applicator.hh"
 #include "acmacs-map-draw/mod-serum.hh"
 #include "acmacs-map-draw/mod-procrustes.hh"
@@ -207,7 +208,7 @@ acmacs::Coordinates ModMoveBase::get_move_to(ChartDraw& aChartDraw, bool aVerbos
         move_to = aChartDraw.layout()->get(sera.front() + aChartDraw.number_of_antigens());
     }
     else
-        throw unrecognized_mod{"neither \"to\" nor \"to_antigen\" nor \"to__serum\" provided in mod: " + args().to_json()};
+        throw unrecognized_mod{"neither of \"to\", \"to_antigen\", \"to__serum\" provided in mod: " + args().to_json()};
     return move_to;
 
 } // ModMoveBase::get_move_to
@@ -218,14 +219,26 @@ void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDat
 {
     const auto verbose = args().get_or_default("report", false);
     try {
-        const auto move_to = get_move_to(aChartDraw, verbose);
         auto& projection = aChartDraw.projection();
-        for (auto index: SelectAntigens(verbose).select(aChartDraw, args()["select"])) {
-            projection.move_point(index, move_to);
+        if (args().get_or_default("to_serum_line", false)) {
+            const SerumLine serum_line(aChartDraw);
+            auto layout = aChartDraw.layout();
+            for (auto index : SelectAntigens(verbose).select(aChartDraw, args()["select"])) {
+                const auto on_line = serum_line.line().project_on(layout->get(index));
+                projection.move_point(index, on_line);
+            }
+        }
+        else if (args().get_or_default("flip_over_serum_line", false)) {
+        }
+        else {
+            const auto move_to = get_move_to(aChartDraw, verbose);
+            for (auto index : SelectAntigens(verbose).select(aChartDraw, args()["select"])) {
+                projection.move_point(index, move_to);
+            }
         }
     }
     catch (rjson::field_not_found&) {
-        throw unrecognized_mod{"no \"select\" in \"move_antigens\" mod: " + args().to_json() };
+        throw unrecognized_mod{"no \"select\" in \"move_antigens\" mod: " + args().to_json()};
     }
 
 } // ModMoveAntigens::apply
