@@ -24,6 +24,7 @@ int main(int argc, char* const argv[])
                 {"--p1", 0L, "projection number of the first chart"},
                 {"--p2", 0L, "projection number of the second chart"},
                 {"--threshold", 0.1, "arrow threshold"},
+                {"--subset", "all", "all, antigens, sera"},
                 {"--report", false, "report common antigens/sera"},
                 {"--clade", false},
                 {"--open", false},
@@ -62,6 +63,7 @@ int draw(const argc_argv& args)
     const rjson::object pc{{{"N", rjson::string{"procrustes_arrows"}},
                             {"chart", rjson::string{args[1]}},
                             {"projection", rjson::integer{p2}},
+                            {"subset", rjson::string{args["--subset"]}},
                             {"threshold", rjson::number{threshold}},
                             {"report", rjson::boolean{report_common}}}};
 

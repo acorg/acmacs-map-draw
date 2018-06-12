@@ -31,6 +31,15 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
     const auto scaling = args().get_or_default("scaling", false) ? acmacs::chart::procrustes_scaling_t::yes : acmacs::chart::procrustes_scaling_t::no;
     const auto secondary_projection_no = args().get_or_default("projection", 0UL);
 
+    const auto subset_s = args().get_or_default("subset", "all");
+    acmacs::chart::CommonAntigensSera::subset subset = acmacs::chart::CommonAntigensSera::subset::all;
+    if (subset_s == "sera")
+        subset = acmacs::chart::CommonAntigensSera::subset::sera;
+    else if (subset_s == "antigens")
+        subset = acmacs::chart::CommonAntigensSera::subset::antigens;
+    else if (subset_s != "all")
+        std::cerr << "WARNING: unrecognized common points subset: \"" << subset_s << "\", supported: all, antigens, sera\n";
+
     acmacs::chart::ChartP secondary_chart;
     if (const auto [present, chart_filename] = args().get_value_if("chart"); present)
         secondary_chart = acmacs::chart::import_from_file(chart_filename.str(), acmacs::chart::Verify::None, verbose ? report_time::Yes : report_time::No);
@@ -40,8 +49,9 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
     acmacs::chart::CommonAntigensSera common(aChartDraw.chart(), *secondary_chart, match_level);
     if (verbose)
         common.report();
+    const auto common_points = common.points(subset);
     auto secondary_projection = secondary_chart->projection(secondary_projection_no);
-    const auto procrustes_data = acmacs::chart::procrustes(aChartDraw.projection(), *secondary_projection, common.points(), scaling);
+    const auto procrustes_data = acmacs::chart::procrustes(aChartDraw.projection(), *secondary_projection, common_points, scaling);
     if (aChartDraw.has_title()) {
         auto& title = aChartDraw.title();
         title.add_line(secondary_chart->make_name(secondary_projection_no));
@@ -51,9 +61,9 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
     auto primary_layout = aChartDraw.projection().transformed_layout();
     const auto arrow_config = args().get_or_empty_object("arrow");
     const auto threshold = args().get_or_default("threshold", 0.005);
-    for (size_t point_no = 0; point_no < common.points().size(); ++point_no) {
-        const auto primary_coords = primary_layout->get(common.points()[point_no].primary),
-                secondary_coords = secondary_layout->get(common.points()[point_no].secondary);
+    for (size_t point_no = 0; point_no < common_points.size(); ++point_no) {
+        const auto primary_coords = primary_layout->get(common_points[point_no].primary),
+                secondary_coords = secondary_layout->get(common_points[point_no].secondary);
         if (primary_coords.distance(secondary_coords) > threshold) {
             auto& arrow = aChartDraw.arrow(primary_coords, secondary_coords);
             arrow.color(Color(arrow_config.get_or_default("color", "black")), Color(arrow_config.get_or_default("head_color", "black")));
