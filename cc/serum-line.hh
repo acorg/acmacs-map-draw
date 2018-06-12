@@ -4,12 +4,12 @@
 
 // ----------------------------------------------------------------------
 
-class ChartDraw;
+class ChartSelectInterface;
 
 class SerumLine
 {
  public:
-    SerumLine(const ChartDraw& aChartDraw);
+    SerumLine(const ChartSelectInterface& aChartSelectInterface);
 
     constexpr const acmacs::LineDefinedByEquation& line() const { return line_; }
     constexpr double standard_deviation() const { return standard_deviation_; }

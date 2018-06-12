@@ -336,6 +336,7 @@ Antigens:
 {"outlier": 1.0} // threshold in units (distance from centroid of pre-selected points), must be after other select args, e.g. after "clade"
 {"table": "20170216"}
   {"table": "MELB:HI:turkey:20170216"}
+{"relative_to_serum_line": {"distance_min": 0, "distance_max": 10000, "direction": 1}} // direction: 1, -1, 0
 
 Sera:
 -----

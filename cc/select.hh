@@ -99,6 +99,7 @@ class SelectAntigens : public SelectAntigensSera
     void filter_vaccine(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const VaccineMatchData& aMatchData);
     void filter_rectangle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::Rectangle& aRectangle) override { filter_rectangle_in(indexes, 0, *aChartSelectInterface.layout(), aChartSelectInterface.transformation(), aRectangle); }
     void filter_circle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::Circle& aCircle) override { filter_circle_in(indexes, 0, *aChartSelectInterface.layout(), aChartSelectInterface.transformation(), aCircle); }
+    void filter_relative_to_serum_line(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, double distance_min, double distance_max, int direction);
     void filter_table(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aTable) override;
 
 };  // class SelectAntigens

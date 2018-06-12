@@ -4,8 +4,9 @@
 // #include "locationdb/locdb.hh"
 #include "hidb-5/hidb.hh"
 
-#include "vaccines.hh"
-#include "select.hh"
+#include "acmacs-map-draw/serum-line.hh"
+#include "acmacs-map-draw/vaccines.hh"
+#include "acmacs-map-draw/select.hh"
 
 using namespace std::string_literals;
 
@@ -182,6 +183,12 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             const auto& center = value["center"];
             const double radius = value["radius"];
             filter_circle(aChartSelectInterface, indexes, {{center[0], center[1]}, radius});
+        }
+        else if (key == "relative_to_serum_line") {
+            const auto distance_min = value.get_or_default("distance_min", 0.0);
+            const auto distance_max = value.get_or_default("distance_min", std::numeric_limits<double>::max());
+            const auto direction = value.get_or_default("direction", 0);
+            filter_relative_to_serum_line(aChartSelectInterface, indexes, distance_min, distance_max, direction);
         }
         else if (key == "lab") {
             if (aChartSelectInterface.chart().info()->lab(acmacs::chart::Info::Compute::Yes) != string::upper(static_cast<std::string_view>(value)))
@@ -495,6 +502,21 @@ void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface,
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), homologous_not_in_clade), indexes.end());
 
 } // SelectSera::filter_clade
+
+// ----------------------------------------------------------------------
+
+void SelectAntigens::filter_relative_to_serum_line(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, double distance_min, double distance_max, int direction)
+{
+    SerumLine serum_line(aChartSelectInterface);
+    auto layout = aChartSelectInterface.layout();
+
+    auto not_relative_to_line = [&serum_line, &layout, distance_min, distance_max, direction](auto antigen_no) -> bool {
+        const auto distance = serum_line.line().distance_with_direction(layout->get(antigen_no));
+        return std::abs(distance) >= distance_min && std::abs(distance) < distance_max && (direction == 0 || (direction * distance) > 0);
+    };
+    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_relative_to_line), indexes.end());
+
+} // SelectAntigens::filter_relative_to_serum_line
 
 // ----------------------------------------------------------------------
 
