@@ -1,7 +1,7 @@
 #include "acmacs-base/enumerate.hh"
 #include "acmacs-base/statistics.hh"
 //#include "acmacs-base/timeit.hh"
-#include "acmacs-map-draw/serum-line.hh"
+#include "acmacs-chart-2/serum-line.hh"
 #include "acmacs-map-draw/mod-serum.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/select.hh"
@@ -260,8 +260,8 @@ void ModSerumCoverageCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*
 
 void ModSerumLine::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
-    SerumLine serum_line(aChartDraw);
-    std::cerr << "sd: " << serum_line.standard_deviation() << '\n';
+    acmacs::chart::SerumLine serum_line(aChartDraw.projection());
+    std::cerr << "INFO: " << serum_line << '\n';
 
     auto& line = aChartDraw.line(serum_line.line(), ChartDraw::apply_map_transformation::yes);
     line.color(Color(args().get_or_default("color", "red")));

@@ -3,8 +3,7 @@
 
 // #include "locationdb/locdb.hh"
 #include "hidb-5/hidb.hh"
-
-#include "acmacs-map-draw/serum-line.hh"
+#include "acmacs-chart-2/serum-line.hh"
 #include "acmacs-map-draw/vaccines.hh"
 #include "acmacs-map-draw/select.hh"
 
@@ -507,7 +506,7 @@ void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface,
 
 void SelectAntigens::filter_relative_to_serum_line(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, double distance_min, double distance_max, int direction)
 {
-    SerumLine serum_line(aChartSelectInterface);
+    acmacs::chart::SerumLine serum_line(aChartSelectInterface.projection());
     auto layout = aChartSelectInterface.layout();
 
     auto not_relative_to_line = [&serum_line, &layout, distance_min, distance_max, direction](auto antigen_no) -> bool {

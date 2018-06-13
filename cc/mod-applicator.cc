@@ -1,8 +1,8 @@
 #include <string>
 using namespace std::string_literals;
 
+#include "acmacs-chart-2/serum-line.hh"
 #include "acmacs-map-draw/draw.hh"
-#include "acmacs-map-draw/serum-line.hh"
 #include "acmacs-map-draw/mod-applicator.hh"
 #include "acmacs-map-draw/mod-serum.hh"
 #include "acmacs-map-draw/mod-procrustes.hh"
@@ -221,7 +221,7 @@ void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDat
     try {
         auto& projection = aChartDraw.projection();
         if (auto flip_scale = args().get_or_default("flip_over_serum_line", std::numeric_limits<double>::max()); flip_scale < (std::numeric_limits<double>::max() / 2)) {
-            const SerumLine serum_line(aChartDraw);
+            const acmacs::chart::SerumLine serum_line(projection);
             auto layout = aChartDraw.layout();
             for (auto index : SelectAntigens(verbose).select(aChartDraw, args()["select"])) {
                 const auto flipped = serum_line.line().flip_over(layout->get(index), flip_scale);
