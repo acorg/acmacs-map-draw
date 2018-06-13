@@ -35,8 +35,8 @@ int main(int argc, char* const argv[])
                 {"--verbose", false},
                 {"-v", false},
         });
-        if (args["-h"] || args["--help"] || args.number_of_arguments() < 2 || args.number_of_arguments() > 3)
-            std::cerr << "Usage: " << args.program() << " [options] <chart1.ace> <chart2.ace> [<pc.pdf>]\n" << args.usage_options() << '\n';
+        if (args["-h"] || args["--help"] || args.number_of_arguments() < 1 || args.number_of_arguments() > 3)
+            std::cerr << "Usage: " << args.program() << " [options] <chart1.ace> [<chart2.ace>] [<pc.pdf>]\n" << args.usage_options() << '\n';
         else
             exit_code = draw(args);
     }
@@ -60,8 +60,9 @@ int draw(const argc_argv& args)
 
     ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, report)), p1);
 
+    std::string secondary_chart = (args.number_of_arguments() > 1 && !string::ends_with(std::string_view(args[1]), ".pdf")) ? args[1] : args[0];
     const rjson::object pc{{{"N", rjson::string{"procrustes_arrows"}},
-                            {"chart", rjson::string{args[1]}},
+                            {"chart", rjson::string{secondary_chart}},
                             {"projection", rjson::integer{p2}},
                             {"subset", rjson::string{args["--subset"]}},
                             {"threshold", rjson::number{threshold}},
@@ -83,11 +84,16 @@ int draw(const argc_argv& args)
 
     chart_draw.calculate_viewport();
 
+    std::string output_file;
+    if (args.number_of_arguments() > 2)
+        output_file = args[2];
+    else if (args.number_of_arguments() > 1 && string::ends_with(std::string_view(args[1]), ".pdf"))
+        output_file = args[1];
     acmacs::file::temp temp_file(".pdf");
-    const std::string output = args.number_of_arguments() > 2 ? std::string{args[2]} : static_cast<std::string>(temp_file);
+    const std::string output = output_file.empty() ? static_cast<std::string>(temp_file) : output_file;
     chart_draw.draw(output, 800, report_time::Yes);
 
-    if (args["--open"] || args.number_of_arguments() < 3)
+    if (args["--open"] || output_file.empty())
         acmacs::quicklook(output, 2);
     return 0;
 

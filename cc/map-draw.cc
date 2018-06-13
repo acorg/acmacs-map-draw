@@ -39,6 +39,7 @@ int main(int argc, char* const argv[])
                 {"--previous", ""},
                 {"--open", false},
                 {"--projection", 0L},
+                {"-p", 0L, "projection"},
                 {"--db-dir", ""},
                 {"--time", false, "report time of loading chart"},
                 {"--verbose", false},
@@ -65,10 +66,15 @@ int main(int argc, char* const argv[])
 int draw(const argc_argv& args)
 {
     const bool verbose = args["-v"] || args["--verbose"];
+    size_t projection_no = 0;
+    if (const auto pr1 = args["--projection"]; pr1.present())
+        projection_no = pr1;
+    else if (const auto pr2 = args["-p"]; pr2.present())
+        projection_no = pr2;
 
     setup_dbs(args["--db-dir"], verbose);
 
-    ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No)), args["--projection"]);
+    ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No)), projection_no);
     if (args["--previous"])
         chart_draw.previous_chart(acmacs::chart::import_from_file(args["--previous"], acmacs::chart::Verify::None, do_report_time(args["--time"])));
 
