@@ -163,7 +163,7 @@ int draw(const argc_argv& args)
     chart_draw.calculate_viewport();
 
     if (args.number_of_arguments() < 2) {
-        acmacs::file::temp output(fs::path(args[0]).stem(), ".pdf");
+        acmacs::file::temp output(static_cast<std::string>(fs::path(args[0]).stem()) + "--p" + std::to_string(projection_no), ".pdf");
         chart_draw.draw(output, 800, report_time::Yes);
         acmacs::quicklook(output, 2);
     }
