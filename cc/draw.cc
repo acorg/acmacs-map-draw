@@ -221,7 +221,7 @@ map_elements::Line& ChartDraw::line(acmacs::Location2D aBegin, acmacs::Location2
 map_elements::Line& ChartDraw::line(const acmacs::LineDefinedByEquation& line, apply_map_transformation a_apply_map_transformation)
 {
     auto& line_slope = dynamic_cast<map_elements::LineSlope&>(mMapElements.add("line_slope"));
-    line_slope.slope_intercept(line.slope(), line.intercept());
+    line_slope.line(line);
     if (a_apply_map_transformation == apply_map_transformation::yes)
         line_slope.apply_map_transformation(true);
     return line_slope;

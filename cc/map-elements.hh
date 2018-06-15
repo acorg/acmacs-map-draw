@@ -8,6 +8,7 @@
 #include "acmacs-base/size-scale.hh"
 #include "acmacs-base/color.hh"
 #include "acmacs-base/text-style.hh"
+#include "acmacs-base/line.hh"
 #include "acmacs-draw/surface.hh"
 
 // ----------------------------------------------------------------------
@@ -260,11 +261,11 @@ namespace map_elements
      public:
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
-        Line& slope_intercept(double slope, double intercept) { slope_ = slope; intercept_ = intercept; return *this; }
+        Line& line(acmacs::LineDefinedByEquation line) { line_ = line; return *this; }
         Line& apply_map_transformation(bool apply = true) { apply_map_transformation_ = apply; return *this; }
 
      protected:
-        double slope_, intercept_;
+        acmacs::LineDefinedByEquation line_;
         bool apply_map_transformation_ = false;
 
     }; // class LineSlope

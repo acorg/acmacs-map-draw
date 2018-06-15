@@ -341,13 +341,9 @@ void map_elements::LineFromTo::draw(acmacs::draw::DrawElements& aDrawElements, c
 
 // ----------------------------------------------------------------------
 
-void map_elements::LineSlope::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const
+void map_elements::LineSlope::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
 {
-    const auto& viewport = aChartDraw.viewport();
-    const acmacs::Location2D
-            from{viewport.left(), viewport.left() * slope_ + intercept_},
-            to{viewport.right(), viewport.right() * slope_ + intercept_};
-    aDrawElements.line(from, to, mLineColor, mLineWidth, apply_map_transformation_);
+    aDrawElements.line(line_, mLineColor, mLineWidth, apply_map_transformation_);
 
 } // map_elements::Line::draw
 
