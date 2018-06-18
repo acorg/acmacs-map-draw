@@ -3,6 +3,12 @@
 
 /* ---------------------------------------------------------------------- */
 
+.a-error {
+    color: red;
+}
+
+/* ---------------------------------------------------------------------- */
+
 #amw201805-mouse-popup {
     display: none;
     position: absolute;
@@ -186,14 +192,14 @@
     font-weight: bold;
     /* text-align: center; */
     cursor: move;
-    font-size: 2em;
+    font-size: 1.3em;
     text-align: left;
 }
 
 .amw201805-movable-window .a-close {
     cursor: pointer;
     text-align: center;
-    font-size: 2em;
+    font-size: 1.3em;
     position: relative;
     top: -0.3em;
 }

@@ -44,6 +44,7 @@ const BurgerMenu_html = "\
       <li                    name='color-by-default'><a href='color-by-default'>reset to default</a></li>\
     </ul>\
   </li>\
+  <li><a href='view'>View ...</a></li>\
   <li><a href='#'>View</a><span class='a-right-arrow'>&#9654;</span>\
     <ul class='a-level-1'>\
       <li class='a-disabled' name='best-projection'><a href='best-projection'>Best projection</a></li>\
@@ -120,6 +121,7 @@ class BurgerMenu extends acv_toolkit.Modal
         this.find("a[href='table-series-shade']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode({mode: "table-series", shading: "shade"}), destroy));
         this.find("a[href='clade-series']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode({mode: "series-clade", shading: "shade"}), destroy));
         this.find("a[href='table']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.show_table(evt.currentTarget), destroy));
+        this.find("a[href='view']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.show_view_dialog(evt.currentTarget), destroy));
         this.find("a[href='help']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.show_help(evt.currentTarget), destroy));
 
         API_Features.forEach(api_feature => {
@@ -522,8 +524,12 @@ export class AntigenicMapWidget
         new acv_toolkit.MovableWindow({title: "Help", content: AntigenicMapWidget_help_html, parent: parent, id: "AntigenicMapWidget_help"});
     }
 
+    dialog_id(prefix) {
+        return prefix + "-" + this.div.attr("amw201805_id");
+    }
+
     table_id() {
-        return "antigenic-table-" + this.div.attr("amw201805_id");
+        return this.dialog_id("antigenic-table");
     }
 
     show_table(parent) {
@@ -536,6 +542,13 @@ export class AntigenicMapWidget
     find_table(parent) {
         if (this.data)
             return new AntigenicTable({find: true, widget: this, chart: this.data.c, id: this.table_id()});
+        else
+            return null;
+    }
+
+    show_view_dialog(parent) {
+        if (this.data)
+            return new ViewDialog({widget: this, parent: $(parent), chart: this.data.c, id: this.dialog_id("view")});
         else
             return null;
     }
@@ -667,6 +680,14 @@ class DrawingMode_Base
 
 class DrawingMode_Best_Projection extends DrawingMode_Base
 {
+    mode() {
+        return "projection";
+    }
+
+    shading() {
+        return null;
+    }
+
     title(args) { // args: {title_fields:}
         const chart = this.widget.data.c;
         const projection_no = this.widget.options.projection_no;
@@ -737,6 +758,14 @@ class DrawingMode_TimeSeries extends DrawingMode_Series
         this.set_page(this.pages.length - 1);
     }
 
+    mode() {
+        return "time-series";
+    }
+
+    shading() {
+        return "hide";
+    }
+
     make_pages() {
         let periods = new Set();
         for (let antigen of this.widget.data.c.a) {
@@ -788,6 +817,10 @@ class DrawingMode_TimeSeries extends DrawingMode_Series
 
 class DrawingMode_TimeSeriesGrey extends DrawingMode_TimeSeries
 {
+    shading() {
+        return "grey";
+    }
+
     make_drawing_order() {
         const page_period_name = this.pages[this.page_no];
         const in_page = antigen => this.antigen_period_name(antigen) === page_period_name;
@@ -807,6 +840,10 @@ class DrawingMode_TimeSeriesGrey extends DrawingMode_TimeSeries
 
 class DrawingMode_TimeSeriesShade extends DrawingMode_TimeSeriesGrey
 {
+    shading() {
+        return "shade";
+    }
+
     show_as_background() {
         return {shade: this.widget.options.show_as_background_shade};
     }
@@ -820,6 +857,14 @@ class DrawingMode_TableSeries extends DrawingMode_Series
         super(widget);
         this.make_pages();
         this.set_page(this.pages.length - 1);
+    }
+
+    mode() {
+        return "table-series";
+    }
+
+    shading() {
+        return "hide";
     }
 
     make_pages() {
@@ -854,6 +899,10 @@ class DrawingMode_TableSeries extends DrawingMode_Series
 
 class DrawingMode_TableSeriesShade extends DrawingMode_TableSeries
 {
+    shading() {
+        return "shade";
+    }
+
     make_drawing_order() {
         const antigens = this.widget.data.c.a;
         const layer = this.widget.data.c.t.L[this.page_no];
@@ -1260,6 +1309,102 @@ class AntigenicTable
             else if (scrollable.scrollTop() > 0)
                 scrollable.animate({scrollTop: 0}, 500);
         }
+    }
+}
+
+// ----------------------------------------------------------------------
+
+const ViewDialog_html = "\
+<table>\
+  <tr>\
+    <td class='a-label'>Projection</td>\
+    <td class='projection-chooser'></td>\
+  </tr>\
+  <tr>\
+    <td class='a-label'>Coloring</td>\
+    <td class='coloring'></td>\
+  </tr>\
+  <tr>\
+    <td class='a-label'>Mode</td>\
+    <td class='mode'></td>\
+  </tr>\
+  <tr class='shading'>\
+    <td class='a-label'>Shading</td>\
+    <td class='shading'>\
+      <a href='hide'>legacy</a>\
+      <a href='shade'>shade</a>\
+      <a href='grey'>grey</a>\
+    </td>\
+  </tr>\
+</table>\
+";
+
+class ViewDialog
+{
+    constructor(args) {
+        this.widget = args.widget;
+        const movable_window = new acv_toolkit.MovableWindow({title: "View", parent: args.parent, classes: "view-dialog-movable", content_css: {width: "auto", height: "auto"}, id: args.id});
+        this.content = movable_window.content();
+        if (movable_window.content().find("table.view-dialog").length === 0)
+            this.populate({content: this.content, chart: args.chart});
+    }
+
+    populate(args) {
+        const table = $(ViewDialog_html).appendTo(args.content);
+        if (args.chart.P.length === 0)
+            table.find("td.projection-chooser").append("<div class='a-error'>None</div>");
+        else if (args.chart.P.length === 1)
+            table.find("td.projection-chooser").append(`<div>${this.projection_title(args.chart.P[0])}</div>`);
+        else {
+            const entries = args.chart.P.map((prj, index) => `<option value="${index}">${this.projection_title(prj, index)}</option>`).join();
+            const select = $(`<select>${entries}</select>`).appendTo(table.find("td.projection-chooser"));
+            select.on("change", evt => console.log("projection-chooser", evt));
+        }
+
+        // console.log("features", this.widget.features);
+        const td_mode = table.find("td.mode");
+        td_mode.append("<a href='projection'>projection</a>");
+        if (this.widget.features["time-series"])
+            td_mode.append("<a href='time-series'>time-series</a>");
+        if (this.widget.features["table-series"])
+            td_mode.append("<a href='table-series'>table-series</a>");
+        this.set_current_mode();
+        td_mode.find("a").on("click", evt => acv_utils.forward_event(evt, evt => {
+            this.widget.set_view_mode({mode: evt.currentTarget.getAttribute("href"), shading: "shade"});
+            this.set_current_mode();
+        }));
+        table.find("td.shading > a").on("click", evt => acv_utils.forward_event(evt, evt => {
+            this.widget.set_view_mode({mode: this.widget.view_mode.mode(), shading: evt.currentTarget.getAttribute("href")});
+            this.set_current_mode();
+        }));
+    }
+
+    projection_title(projection, index) {
+        return acv_utils.join_collapse([index === undefined ? null : "" + (index + 1) + ".", projection.s.toFixed(4), "&ge;" + (projection.m || "none"), projection.C ? "forced-col-bases" : null, projection.c]);
+    }
+
+    set_current_mode() {
+        const td_mode = this.content.find("table td.mode");
+        td_mode.find("a").removeClass("a-current");
+        const mode = this.widget.view_mode.mode();
+        td_mode.find(`a[href="${mode}"]`).addClass("a-current");
+
+        const tr_shading = this.content.find("table tr.shading");
+        tr_shading.find("a").removeClass("a-current");
+        switch (mode) {
+        case "time-series":
+            tr_shading.show();
+            tr_shading.find("a[href='grey']").show();
+            break;
+        case "table-series":
+            tr_shading.show();
+            tr_shading.find("a[href='grey']").hide();
+            break;
+        case "projection":
+        default:
+            tr_shading.hide();
+        }
+        tr_shading.find(`a[href="${this.widget.view_mode.shading()}"]`).addClass("a-current");
     }
 }
 

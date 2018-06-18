@@ -223,6 +223,32 @@ ul.a-title-mouse-popup > li .a-sequenced {
 }
 
 /* ---------------------------------------------------------------------- */
+/* view-dialog */
+
+.view-dialog-movable {
+    background-color: #F8F8F8;
+}
+
+.view-dialog-movable > .a-content > table {
+    border-collapse: separate;
+    border-spacing: 1em;
+}
+
+.view-dialog-movable > .a-content > table td.a-label {
+    padding-right: 1em;
+}
+.view-dialog-movable > .a-content > table td > a {
+    padding-right: 1em;
+}
+
+.view-dialog-movable > .a-content > table td > a.a-current {
+    cursor: default;
+    font-weight: bold;
+    color: black;
+    text-decoration: none;
+}
+
+/* ---------------------------------------------------------------------- */
 /* Local Variables: */
 /* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */
 /* End: */
