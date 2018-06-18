@@ -336,24 +336,24 @@ export class AntigenicMapWidget
         }
     }
 
-    set_view_mode(mode) {
-        switch (mode.mode) {
+    set_view_mode(args) {
+        switch (args.mode) {
         case "time-series":
-            switch (mode.shading) {
+            switch (args.shading) {
             case "hide":
-                this.view_mode = new DrawingMode_TimeSeries(this, mode);
+                this.view_mode = new DrawingMode_TimeSeries(this, args);
                 break;
             case "grey":
-                this.view_mode = new DrawingMode_TimeSeriesGrey(this, mode);
+                this.view_mode = new DrawingMode_TimeSeriesGrey(this, args);
                 break;
             case "shade":
             default:
-                this.view_mode = new DrawingMode_TimeSeriesShade(this, mode);
+                this.view_mode = new DrawingMode_TimeSeriesShade(this, args);
                 break;
             }
             break;
         case "table-series":
-            switch (mode.shading) {
+            switch (args.shading) {
             case "hide":
                 this.view_mode = new DrawingMode_TableSeries(this);
                 break;
@@ -368,6 +368,8 @@ export class AntigenicMapWidget
             this.view_mode = new DrawingMode_Best_Projection(this);
             break;
         }
+        if (args.projection_no !== undefined)
+            this.view_mode.projection_no_ = args.projection_no;
         this.draw();
     }
 
@@ -601,6 +603,7 @@ class DrawingMode_Base
 {
     constructor(widget) {
         this.widget = widget;
+        this.projection_no_ = this.widget.options.projection_no;
         if (widget)
             widget.show_title_arrows(null, null);
     }
@@ -687,7 +690,7 @@ class DrawingMode_Base
     }
 
     projection_no() {
-        return this.widget.options.projection_no;
+        return this.projection_no_;
     }
 
     point_scale() {
@@ -1415,7 +1418,9 @@ class ViewDialog
         else {
             const entries = args.chart.P.map((prj, index) => `<option value="${index}">${this.projection_title(prj, index)}</option>`).join();
             const select = $(`<select>${entries}</select>`).appendTo(table.find("td.projection-chooser"));
-            select.on("change", evt => console.log("projection-chooser", evt));
+            select.on("change", evt => acv_utils.forward_event(evt, evt => {
+                this.widget.set_view_mode({mode: this.widget.view_mode.mode(), shading: this.widget.view_mode.shading(), period: this.widget.view_mode.period(), projection_no: this.projection_no()});
+            }));
         }
 
         const td_coloring = table.find("td.coloring");
@@ -1436,15 +1441,15 @@ class ViewDialog
         if (this.widget.features["table-series"])
             td_mode.append("<a href='table-series'>table series</a>");
         td_mode.find("a").on("click", evt => acv_utils.forward_event(evt, evt => {
-            this.widget.set_view_mode({mode: evt.currentTarget.getAttribute("href"), shading: "shade"});
+            this.widget.set_view_mode({mode: evt.currentTarget.getAttribute("href"), shading: "shade", projection_no: this.projection_no()});
             this.set_current_mode();
         }));
         table.find("td.period > a").on("click", evt => acv_utils.forward_event(evt, evt => {
-            this.widget.set_view_mode({mode: this.widget.view_mode.mode(), shading: this.widget.view_mode.shading(), period: evt.currentTarget.getAttribute("href")});
+            this.widget.set_view_mode({mode: this.widget.view_mode.mode(), shading: this.widget.view_mode.shading(), period: evt.currentTarget.getAttribute("href"), projection_no: this.projection_no()});
             this.set_current_mode();
         }));
         table.find("td.shading > a").on("click", evt => acv_utils.forward_event(evt, evt => {
-            this.widget.set_view_mode({mode: this.widget.view_mode.mode(), shading: evt.currentTarget.getAttribute("href"), period: this.widget.view_mode.period()});
+            this.widget.set_view_mode({mode: this.widget.view_mode.mode(), shading: evt.currentTarget.getAttribute("href"), period: this.widget.view_mode.period(), projection_no: this.projection_no()});
             this.set_current_mode();
         }));
 
@@ -1453,6 +1458,14 @@ class ViewDialog
 
     projection_title(projection, index) {
         return acv_utils.join_collapse([index === undefined ? null : "" + (index + 1) + ".", projection.s.toFixed(4), "&ge;" + (projection.m || "none"), projection.C ? "forced-col-bases" : null, projection.c]);
+    }
+
+    projection_no() {
+        const select = this.content.find("table td.projection-chooser select");
+        if (select.length > 0)
+            return parseInt(select.val());
+        else
+            return 0;
     }
 
     set_current_mode() {
