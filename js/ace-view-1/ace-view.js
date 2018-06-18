@@ -954,6 +954,10 @@ class Coloring_Base
 
 class Coloring_Default extends Coloring_Base
 {
+    coloring() {
+        return "default";
+    }
+
     styles() {
         const chart = this.widget.data.c;
         return {index: chart.p.p, styles: chart.p.P};
@@ -962,7 +966,7 @@ class Coloring_Default extends Coloring_Base
 
 // ----------------------------------------------------------------------
 
-class Coloring_WithAlllStyles extends Coloring_Base
+class Coloring_WithAllStyles extends Coloring_Base
 {
     constructor(widget) {
         super(widget);
@@ -1001,12 +1005,16 @@ const continent_colors = {
     undefined:           "#7f7f7f"
 };
 
-class Coloring_Continent extends Coloring_WithAlllStyles
+class Coloring_Continent extends Coloring_WithAllStyles
 {
     constructor(widget) {
         super(widget);
         const chart = this.widget.data.c;
         chart.a.forEach((antigen, antigen_no) => this.styles_.styles[antigen_no].F = continent_colors[antigen.C]);
+    }
+
+    coloring() {
+        return "continent";
     }
 }
 
@@ -1035,12 +1043,16 @@ const sCladeColors = {
     null: "#c0c0c0"
 };
 
-class Coloring_Clade extends Coloring_WithAlllStyles
+class Coloring_Clade extends Coloring_WithAllStyles
 {
     constructor(widget) {
         super(widget);
         this._make_antigens_by_clade();
         this._make_styles();
+    }
+
+    coloring() {
+        return "clade";
     }
 
     _make_antigens_by_clade() {
@@ -1350,6 +1362,8 @@ class ViewDialog
     }
 
     populate(args) {
+        console.log("features", this.widget.features);
+
         const table = $(ViewDialog_html).appendTo(args.content);
         if (args.chart.P.length === 0)
             table.find("td.projection-chooser").append("<div class='a-error'>None</div>");
@@ -1361,14 +1375,23 @@ class ViewDialog
             select.on("change", evt => console.log("projection-chooser", evt));
         }
 
-        // console.log("features", this.widget.features);
+        const td_coloring = table.find("td.coloring");
+        td_coloring.append("<a href='default'>default</a>");
+        if (this.widget.features["clades"])
+            td_coloring.append("<a href='clade'>by clade</a>");
+        if (this.widget.features["continents"])
+            td_coloring.append("<a href='continent'>by geography</a>");
+        td_coloring.find("a").on("click", evt => acv_utils.forward_event(evt, evt => {
+            this.widget.set_coloring(evt.currentTarget.getAttribute("href"));
+            this.set_current_mode();
+        }));
+
         const td_mode = table.find("td.mode");
         td_mode.append("<a href='projection'>projection</a>");
         if (this.widget.features["time-series"])
-            td_mode.append("<a href='time-series'>time-series</a>");
+            td_mode.append("<a href='time-series'>time series</a>");
         if (this.widget.features["table-series"])
-            td_mode.append("<a href='table-series'>table-series</a>");
-        this.set_current_mode();
+            td_mode.append("<a href='table-series'>table series</a>");
         td_mode.find("a").on("click", evt => acv_utils.forward_event(evt, evt => {
             this.widget.set_view_mode({mode: evt.currentTarget.getAttribute("href"), shading: "shade"});
             this.set_current_mode();
@@ -1377,6 +1400,8 @@ class ViewDialog
             this.widget.set_view_mode({mode: this.widget.view_mode.mode(), shading: evt.currentTarget.getAttribute("href")});
             this.set_current_mode();
         }));
+
+        this.set_current_mode();
     }
 
     projection_title(projection, index) {
@@ -1384,6 +1409,11 @@ class ViewDialog
     }
 
     set_current_mode() {
+        const td_coloring = this.content.find("table td.coloring");
+        td_coloring.find("a").removeClass("a-current");
+        const coloring = this.widget.coloring.coloring();
+        td_coloring.find(`a[href="${coloring}"]`).addClass("a-current");
+
         const td_mode = this.content.find("table td.mode");
         td_mode.find("a").removeClass("a-current");
         const mode = this.widget.view_mode.mode();

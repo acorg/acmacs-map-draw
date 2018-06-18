@@ -239,6 +239,7 @@ ul.a-title-mouse-popup > li .a-sequenced {
 }
 .view-dialog-movable > .a-content > table td > a {
     padding-right: 1em;
+    text-decoration: none;
 }
 
 .view-dialog-movable > .a-content > table td > a.a-current {
