@@ -603,9 +603,10 @@ class DrawingMode_Base
 {
     constructor(widget) {
         this.widget = widget;
-        this.projection_no_ = this.widget.options.projection_no;
-        if (widget)
+        if (widget) {
+            this.projection_no_ = widget.options.projection_no;
             widget.show_title_arrows(null, null);
+        }
     }
 
     title_box() {
