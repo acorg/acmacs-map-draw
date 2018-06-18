@@ -609,6 +609,14 @@ class DrawingMode_Base
         }
     }
 
+    shading() {
+        return null;
+    }
+
+    period() {
+        return null;
+    }
+
     title_box() {
         const box_name = chart => chart.i.N ? `<li>${chart.i.N}</li>` : "";
         const box_virus = entry => `<li>${entry.v || ""} ${entry.V || ""} ${entry.A || ""} ${entry.r || ""}</li>`;
@@ -713,14 +721,6 @@ class DrawingMode_Best_Projection extends DrawingMode_Base
 {
     mode() {
         return "projection";
-    }
-
-    shading() {
-        return null;
-    }
-
-    period() {
-        return null;
     }
 
     title(args) { // args: {title_fields:}
@@ -1280,7 +1280,7 @@ class AntigenicTable
         const max_height = Math.max(win_space - args.parent.height() / 2 - 20, 400);
         const movable_window = new acv_toolkit.MovableWindow({
             title: acv_utils.join_collapse(title_fields.map(field => makers[field](args.chart))),
-            parent: args.parent,
+            parent: args.widget.div.find("canvas"), // args.parent,
             classes: "antigenic-table-movable",
             content_css: {width: "auto", height: "auto", "max-height": max_height},
             id: args.id
@@ -1402,7 +1402,7 @@ class ViewDialog
 {
     constructor(args) {
         this.widget = args.widget;
-        const movable_window = new acv_toolkit.MovableWindow({title: "View", parent: args.parent, classes: "view-dialog-movable", content_css: {width: "auto", height: "auto"}, id: args.id});
+        const movable_window = new acv_toolkit.MovableWindow({title: "View", parent: args.widget.div.find("canvas"), classes: "view-dialog-movable", content_css: {width: "auto", height: "auto"}, id: args.id});
         this.content = movable_window.content();
         if (movable_window.content().find("table.view-dialog").length === 0)
             this.populate({content: this.content, chart: args.chart});

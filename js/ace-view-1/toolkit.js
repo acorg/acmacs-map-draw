@@ -213,7 +213,9 @@ export class MovableWindow {
             this.div.css({left: (wind.scrollLeft() + wind.width() - this.div.width()) / 2, top: (wind.scrollTop() + wind.height() - this.div.height()) / 2});
         }
         else {
-            this.div.css($(args.parent).offset());
+            let offset = $(args.parent).offset();
+            offset.left += $(args.parent).width();
+            this.div.css(offset);
         }
     }
 
