@@ -37,29 +37,7 @@ if (window.amw201805 === undefined)
 const BurgerMenu_html = "\
 <ul class='a-level-0'>\
   <!-- <li class='a-disabled'><a href='search'>Search</a></li> -->\
-  <li><a href='#'>Coloring</a><span class='a-right-arrow'>&#9654;</span>\
-    <ul class='a-level-1'>\
-      <li class='a-disabled' name='clades'><a href='clades'>by Clade</a></li>\
-      <li class='a-disabled' name='continents'><a href='continents'>by Geography</a></li>\
-      <li                    name='color-by-default'><a href='color-by-default'>reset to default</a></li>\
-    </ul>\
-  </li>\
   <li><a href='view'>View ...</a></li>\
-  <li><a href='#'>View</a><span class='a-right-arrow'>&#9654;</span>\
-    <ul class='a-level-1'>\
-      <li class='a-disabled' name='best-projection'><a href='best-projection'>Best projection</a></li>\
-      <li class='a-separator'></li>\
-      <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"month\", \"shading\": \"shade\"}'>Time series, monthly (shade)</a></li>\
-      <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"month\", \"shading\": \"hide\"}' >Time series, monthly</a></li>\
-      <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"month\", \"shading\": \"grey\"}' >Time series, monthly (grey)</a></li>\
-      <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"year\",  \"shading\": \"shade\"}'>Time series, yearly (shade)</a></li>\
-      <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"season\",\"shading\": \"shade\"}'>Time series, Winter/Summer (shade)</a></li>\
-      <li class='a-separator'></li>\
-      <li class='a-disabled' name='table-series'><a href='table-series'>Table series</a></li>\
-      <li class='a-disabled' name='table-series-shade'><a href='table-series-shade'>Table series (shade)</a></li>\
-      <!-- <li class='a-disabled' name='clade-series'><a href='clade-series'>Clade series</a></li> -->\
-    </ul>\
-  </li>\
   <li><a href='#'>Download</a><span class='a-right-arrow'>&#9654;</span>\
     <ul class='a-level-1'>\
       <li class='a-disabled' name='download_pdf'><a href='download_pdf'>PDF</a></li>\
@@ -83,6 +61,55 @@ const BurgerMenu_html = "\
   <li><a href='help'>Help</a></li>\
 </ul>\
 ";
+
+// const BurgerMenu_html = "\
+// <ul class='a-level-0'>\
+//   <!-- <li class='a-disabled'><a href='search'>Search</a></li> -->\
+//   <li><a href='#'>Coloring</a><span class='a-right-arrow'>&#9654;</span>\
+//     <ul class='a-level-1'>\
+//       <li class='a-disabled' name='clades'><a href='clades'>by Clade</a></li>\
+//       <li class='a-disabled' name='continents'><a href='continents'>by Geography</a></li>\
+//       <li                    name='color-by-default'><a href='color-by-default'>reset to default</a></li>\
+//     </ul>\
+//   </li>\
+//   <li><a href='#'>View</a><span class='a-right-arrow'>&#9654;</span>\
+//     <ul class='a-level-1'>\
+//       <li class='a-disabled' name='best-projection'><a href='best-projection'>Best projection</a></li>\
+//       <li class='a-separator'></li>\
+//       <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"month\", \"shading\": \"shade\"}'>Time series, monthly (shade)</a></li>\
+//       <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"month\", \"shading\": \"hide\"}' >Time series, monthly</a></li>\
+//       <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"month\", \"shading\": \"grey\"}' >Time series, monthly (grey)</a></li>\
+//       <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"year\",  \"shading\": \"shade\"}'>Time series, yearly (shade)</a></li>\
+//       <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"season\",\"shading\": \"shade\"}'>Time series, Winter/Summer (shade)</a></li>\
+//       <li class='a-separator'></li>\
+//       <li class='a-disabled' name='table-series'><a href='table-series'>Table series</a></li>\
+//       <li class='a-disabled' name='table-series-shade'><a href='table-series-shade'>Table series (shade)</a></li>\
+//       <!-- <li class='a-disabled' name='clade-series'><a href='clade-series'>Clade series</a></li> -->\
+//     </ul>\
+//   </li>\
+//   <li><a href='#'>Download</a><span class='a-right-arrow'>&#9654;</span>\
+//     <ul class='a-level-1'>\
+//       <li class='a-disabled' name='download_pdf'><a href='download_pdf'>PDF</a></li>\
+//       <li class='a-separator'></li>\
+//       <li class='a-disabled' name='download_ace'><a href='download_ace'>ace</a></li>\
+//       <li class='a-disabled' name='download_save'><a href='download_save'>Lispmds Save</a></li>\
+//       <li class='a-separator'></li>\
+//       <li class='a-disabled' name='download_layout_plain'><a href='download_layout_plain'>Layout (plain text)</a></li>\
+//       <li class='a-disabled' name='download_layout_csv'><a href='download_layout_csv'>Layout (csv)</a></li>\
+//       <li class='a-separator'></li>\
+//       <li class='a-disabled' name='download_table_map_distances_plain'><a href='download_table_map_distances_plain'>Table vs. Map Distances (plain text)</a></li>\
+//       <li class='a-disabled' name='download_table_map_distances_csv'><a href='download_table_map_distances_csv'>Table vs. Map Distances (csv)</a></li>\
+//       <li class='a-disabled' name='download_error_lines'><a href='download_error_lines'>Error lines (csv)</a></li>\
+//       <li class='a-disabled' name='download_distances_between_all_points_plain'><a href='download_distances_between_all_points_plain'>Distances Between All Points (plain text)</a></li>\
+//       <li class='a-disabled' name='download_distances_between_all_points_csv'><a href='download_distances_between_all_points_csv'>Distances Between All Points (csv)</a></li>\
+//     </ul>\
+//   </li>\
+//   <li><a href='table'>Table</a></li>\
+//   <li><a href='raw'>Raw</a></li>\
+//   <li class='a-separator'></li>\
+//   <li><a href='help'>Help</a></li>\
+// </ul>\
+// ";
 
 const API_Features = [
     "download_pdf", "download_ace", "download_save",
@@ -356,7 +383,7 @@ export class AntigenicMapWidget
         if (chart.P && chart.P.length > 0)
             this.features["best-projection"] = true;
         if (chart.t.L && chart.t.L.length > 1)
-            this.features["table-series"] = this.features["table-series-shade"] = true;
+            this.features["table-series"] = true;
         if (chart.a.reduce((with_dates, antigen) => with_dates + (antigen.D ? 1 : 0), 0) > (chart.a.length * 0.25))
             this.features["time-series"] = true;
         if (chart.a.reduce((with_clades, antigen) => with_clades + (antigen.c && antigen.c.length > 0 ? 1 : 0), 0) > 0)
@@ -688,6 +715,10 @@ class DrawingMode_Best_Projection extends DrawingMode_Base
         return null;
     }
 
+    period() {
+        return null;
+    }
+
     title(args) { // args: {title_fields:}
         const chart = this.widget.data.c;
         const projection_no = this.widget.options.projection_no;
@@ -764,6 +795,10 @@ class DrawingMode_TimeSeries extends DrawingMode_Series
 
     shading() {
         return "hide";
+    }
+
+    period() {
+        return this.period_;
     }
 
     make_pages() {
@@ -1340,6 +1375,14 @@ const ViewDialog_html = "\
     <td class='a-label'>Mode</td>\
     <td class='mode'></td>\
   </tr>\
+  <tr class='time-series-period'>\
+    <td class='a-label'>Period</td>\
+    <td class='period'>\
+      <a href='month'>monthly</a>\
+      <a href='season'>winter/summer</a>\
+      <a href='year'>yearly</a>\
+    </td>\
+  </tr>\
   <tr class='shading'>\
     <td class='a-label'>Shading</td>\
     <td class='shading'>\
@@ -1362,7 +1405,7 @@ class ViewDialog
     }
 
     populate(args) {
-        console.log("features", this.widget.features);
+        //console.log("features", this.widget.features);
 
         const table = $(ViewDialog_html).appendTo(args.content);
         if (args.chart.P.length === 0)
@@ -1396,8 +1439,12 @@ class ViewDialog
             this.widget.set_view_mode({mode: evt.currentTarget.getAttribute("href"), shading: "shade"});
             this.set_current_mode();
         }));
+        table.find("td.period > a").on("click", evt => acv_utils.forward_event(evt, evt => {
+            this.widget.set_view_mode({mode: this.widget.view_mode.mode(), shading: this.widget.view_mode.shading(), period: evt.currentTarget.getAttribute("href")});
+            this.set_current_mode();
+        }));
         table.find("td.shading > a").on("click", evt => acv_utils.forward_event(evt, evt => {
-            this.widget.set_view_mode({mode: this.widget.view_mode.mode(), shading: evt.currentTarget.getAttribute("href")});
+            this.widget.set_view_mode({mode: this.widget.view_mode.mode(), shading: evt.currentTarget.getAttribute("href"), period: this.widget.view_mode.period()});
             this.set_current_mode();
         }));
 
@@ -1419,21 +1466,27 @@ class ViewDialog
         const mode = this.widget.view_mode.mode();
         td_mode.find(`a[href="${mode}"]`).addClass("a-current");
 
+        const tr_period = this.content.find("table tr.time-series-period");
         const tr_shading = this.content.find("table tr.shading");
+        tr_period.find("a").removeClass("a-current");
         tr_shading.find("a").removeClass("a-current");
         switch (mode) {
         case "time-series":
             tr_shading.show();
+            tr_period.show();
             tr_shading.find("a[href='grey']").show();
             break;
         case "table-series":
             tr_shading.show();
+            tr_period.hide();
             tr_shading.find("a[href='grey']").hide();
             break;
         case "projection":
         default:
             tr_shading.hide();
+            tr_period.hide();
         }
+        tr_period.find(`a[href="${this.widget.view_mode.period()}"]`).addClass("a-current");
         tr_shading.find(`a[href="${this.widget.view_mode.shading()}"]`).addClass("a-current");
     }
 }
