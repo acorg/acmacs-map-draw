@@ -595,6 +595,10 @@ export class AntigenicMapWidget
             break;
         }
     }
+
+    async sequences() {
+        return this.options.api.get_sequences().then(data => console.log("AntigenicMapWidget::sequences", data));
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -1189,11 +1193,9 @@ class Coloring_AAPos extends Coloring_WithAllStyles
 {
     constructor(widget) {
         super(widget);
-        const chart = this.widget.data.c;
-        chart.a.forEach((antigen, antigen_no) => {
-            this.styles_.styles[antigen_no].F = this.styles_.styles[antigen_no].O = sGREY;
-        });
+        this._reset_styles();
         this._make_styles();
+        widget.sequences().then(data => console.log("Coloring_AAPos::constructor", data));
     }
 
     coloring() {
@@ -1208,6 +1210,15 @@ class Coloring_AAPos extends Coloring_WithAllStyles
         return original_drawing_order;
     }
 
+    legend() {
+        return [{name: "loading, please wait"}];
+    }
+
+    _reset_styles() {
+        this.widget.data.c.a.forEach((antigen, antigen_no) => {
+            this.styles_.styles[antigen_no].F = this.styles_.styles[antigen_no].O = sGREY;
+        });
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -1606,7 +1617,8 @@ class ViewDialog
             td_legend.append("<table><tr class='a-names'></tr><tr class='a-colors'></tr></table>");
             legend.map(entry => {
                 td_legend.find("tr.a-names").append(`<td>${entry.name}</td>`);
-                td_legend.find("tr.a-colors").append(`<td><span class="a-color" style="background-color: ${entry.color}">__</span>${entry.count}</td>`);
+                if (entry.color !== undefined && entry.color !== null)
+                    td_legend.find("tr.a-colors").append(`<td><span class="a-color" style="background-color: ${entry.color}">__</span>${entry.count || ""}</td>`);
             });
             tr_legend.show();
         }
