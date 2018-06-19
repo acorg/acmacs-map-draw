@@ -1110,6 +1110,11 @@ const sCladeColors = {
     "3C3B": "#0000ff",
     "3C2A": "#ff0000",
     "3C2A1": "#8b0000",
+    "3C2A1A": "#8b0000",
+    "3C2A1B": "#8b0000",
+    "3C2A2": "#8b4040",
+    "3C2A3": "#8b4000",
+    "3C2A4": "#8b0040",
     "6B1": "#0000ff",
     "6B2": "#ff0000",
     "1": "#0000ff",
@@ -1121,7 +1126,8 @@ const sCladeColors = {
     "Y3": "#ff0000",
     "SEQUENCED": "#ffa500",
     "NO-GLY": "#ffa500",
-    "GLY": "#ff00a5",
+    // "GLY": "#ff00a5",
+    "GLY": "#ffa500",
     "": sGREY,
     undefined: sGREY,
     null: sGREY
@@ -1144,7 +1150,9 @@ class Coloring_Clade extends Coloring_WithAllStyles
         this.clade_for_antigen = this.widget.data.c.a.map(antigen => {
             const clade_sorting_key = clade => (clade === "GLY" || clade === "NO-GLY" || clade === "SEQUENCED") ? 0 : clade.length;
             const clades = (antigen.c || []).sort((a, b) => clade_sorting_key(b) - clade_sorting_key(a));
-            const clade = clades.length > 0 ? clades[0] : "";
+            let clade = clades.length > 0 ? clades[0] : "";
+            if (clade === "GLY" || clade === "NO-GLY")
+                clade = "SEQUENCED";
             this.clade_to_number_of_antigens[clade] = (this.clade_to_number_of_antigens[clade] || 0) + 1;
             return clade;
         });
@@ -1165,10 +1173,13 @@ class Coloring_Clade extends Coloring_WithAllStyles
         this.clade_for_antigen.forEach((clade, antigen_no) => this.styles_.styles[antigen_no].F = sCladeColors[clade]);
     }
 
-
     drawing_order(original_drawing_order) {
         // order: sera, not sequenced, sequenced without clade, clade with max number of antigens, ..., clade with fewer antigens
         return original_drawing_order.slice(0).sort((p1, p2) => this.point_rank[p1] - this.point_rank[p2]);
+    }
+
+    legend() {
+        return this.clade_order.filter(clade => !!clade).map(clade => { return {name: clade, count: this.clade_to_number_of_antigens[clade], color: sCladeColors[clade]}; });
     }
 }
 
