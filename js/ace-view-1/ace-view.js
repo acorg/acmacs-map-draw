@@ -597,7 +597,26 @@ export class AntigenicMapWidget
     }
 
     async sequences() {
-        return this.options.api.get_sequences().then(data => console.log("AntigenicMapWidget::sequences", data));
+        if (this.sequences_ === undefined) {
+            this.sequences_ = "loading, please wait";
+            return this.options.api.get_sequences().then(
+                data => {
+                    this.sequences_ = data.sequences;
+                    return new Promise(resolve => resolve(this.sequences_));
+                },
+                error => {
+                    this.sequences_ = "Error: " + error;
+                    return new Promise((_, reject) => reject(error));
+                });
+        }
+        else {
+            return new Promise((resolve, reject) => {
+                if (typeof(this.sequences_) === "string" && this.sequences_.substr(0, 6) === "Error:")
+                    reject(this.sequences_);
+                else
+                    resolve(this.sequences_);
+            });
+        }
     }
 }
 
@@ -1612,7 +1631,7 @@ class ViewDialog
         const tr_legend = this.content.find("table tr.coloring-legend");
         const legend = this.widget.coloring.legend();
         if (legend) {
-            console.log("legend", legend);
+            // console.log("legend", legend);
             const td_legend = tr_legend.find("td.coloring-legend").empty();
             td_legend.append("<table><tr class='a-names'></tr><tr class='a-colors'></tr></table>");
             legend.map(entry => {
