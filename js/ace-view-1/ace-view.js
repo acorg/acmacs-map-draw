@@ -1064,7 +1064,7 @@ class Coloring_Continent extends Coloring_WithAllStyles
             continent_count[antigen.C] = (continent_count[antigen.C] || 0) + 1;
         });
         const big_count_first = (e1, e2) => e2.N - e1.N;
-        this.continent_count = Object.keys(continent_count).map(continent => { return {C: continent, N: continent_count[continent]}; }).sort(big_count_first);
+        this.continent_count = Object.keys(continent_count).map(continent => { return {C: continent, N: continent_count[continent], c: continent_colors[continent]}; }).sort(big_count_first);
     }
 
     coloring() {
@@ -1080,7 +1080,7 @@ class Coloring_Continent extends Coloring_WithAllStyles
     }
 
     legend() {
-        return null;
+        return this.continent_count;
     }
 }
 
@@ -1566,12 +1566,15 @@ class ViewDialog
         }
         tr_period.find(`a[href="${this.widget.view_mode.period()}"]`).addClass("a-current");
         tr_shading.find(`a[href="${this.widget.view_mode.shading()}"]`).addClass("a-current");
+        this.show_legend();
     }
 
     show_legend() {
         const legend = this.widget.coloring.legend();
+        console.log("legend", legend);
         if (legend) {
             const tr_coloring_legend = this.content.find("table tr.coloring-legend").show();
+            console.log("legend", legend);
         }
     }
 }
