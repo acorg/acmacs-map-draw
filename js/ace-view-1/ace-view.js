@@ -1075,7 +1075,7 @@ class Coloring_Continent extends Coloring_WithAllStyles
         // order: sera, most popular continent, ..., lest popular continent
         const continent_order = this.continent_count.map(entry => entry.C);
         const chart = this.widget.data.c;
-        let ranks = Array.apply(null, {length: chart.a.length}).map((_, ag_no) => continent_order.indexOf(chart.a[ag_no].C) + 10).concat(Array.apply(0, {length: chart.s.length}));
+        const ranks = Array.apply(null, {length: chart.a.length}).map((_, ag_no) => continent_order.indexOf(chart.a[ag_no].C) + 10).concat(Array.apply(null, {length: chart.s.length}).map(_ => 0));
         return original_drawing_order.slice(0).sort((p1, p2) => ranks[p1] - ranks[p2]);
     }
 
