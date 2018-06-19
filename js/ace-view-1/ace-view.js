@@ -225,7 +225,7 @@ export class AntigenicMapWidget
         this.div.addClass("amw201805").attr("amw201805_id", window.amw201805.new_id()).append(AntigenicMapWidget_content_html);
         this.canvas = this.div.find("canvas");
         if (!this.options.canvas_size || !this.options.canvas_size.width || !this.options.canvas_size.height) {
-            const w_size = Math.max(Math.min($(window).width() - 100, $(window).height()) - 40, 200);
+            const w_size = Math.max(Math.min($(window).width() - 100, $(window).height()) - 60, 200);
             this.options.canvas_size = {width: w_size, height: w_size};
         }
         this.surface = new ace_surface.Surface(this.canvas, {canvas: this.options.canvas_size});
@@ -987,6 +987,10 @@ class Coloring_Base
     drawing_order(original_drawing_order) {
         return original_drawing_order;
     }
+
+    legend() {
+        return null;
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -1005,6 +1009,8 @@ class Coloring_Default extends Coloring_Base
 
 // ----------------------------------------------------------------------
 
+const sGREY = "#c0c0c0";
+
 class Coloring_WithAllStyles extends Coloring_Base
 {
     constructor(widget) {
@@ -1017,7 +1023,10 @@ class Coloring_WithAllStyles extends Coloring_Base
         };
         const all_styles = chart.p.p.map(style_no => Object.assign({}, chart.p.P[style_no])).map(egg_passage);
         this.styles_ = {index: acv_utils.array_of_indexes(all_styles.length), styles: all_styles};
-        chart.s.forEach((serum, serum_no) => delete this.styles_.styles[serum_no + chart.a.length].F);
+        chart.s.forEach((serum, serum_no) => {
+            delete this.styles_.styles[serum_no + chart.a.length].F;
+            this.styles_.styles[serum_no + chart.a.length].O = sGREY;
+        });
     }
 
     styles() {
@@ -1049,11 +1058,29 @@ class Coloring_Continent extends Coloring_WithAllStyles
     constructor(widget) {
         super(widget);
         const chart = this.widget.data.c;
-        chart.a.forEach((antigen, antigen_no) => this.styles_.styles[antigen_no].F = continent_colors[antigen.C]);
+        let continent_count = {};
+        chart.a.forEach((antigen, antigen_no) => {
+            this.styles_.styles[antigen_no].F = continent_colors[antigen.C];
+            continent_count[antigen.C] = (continent_count[antigen.C] || 0) + 1;
+        });
+        const big_count_first = (e1, e2) => e2.N - e1.N;
+        this.continent_count = Object.keys(continent_count).map(continent => { return {C: continent, N: continent_count[continent]}; }).sort(big_count_first);
     }
 
     coloring() {
         return "continent";
+    }
+
+    drawing_order(original_drawing_order) {
+        // order: sera, most popular continent, ..., lest popular continent
+        const continent_order = this.continent_count.map(entry => entry.C);
+        const chart = this.widget.data.c;
+        let ranks = Array.apply(null, {length: chart.a.length}).map((_, ag_no) => continent_order.indexOf(chart.a[ag_no].C) + 10).concat(Array.apply(0, {length: chart.s.length}));
+        return original_drawing_order.slice(0).sort((p1, p2) => ranks[p1] - ranks[p2]);
+    }
+
+    legend() {
+        return null;
     }
 }
 
@@ -1077,9 +1104,9 @@ const sCladeColors = {
     "SEQUENCED": "#ffa500",
     "NO-GLY": "#ffa500",
     "GLY": "#ff00a5",
-    "": "#c0c0c0",
-    undefined: "#c0c0c0",
-    null: "#c0c0c0"
+    "": sGREY,
+    undefined: sGREY,
+    null: sGREY
 };
 
 class Coloring_Clade extends Coloring_WithAllStyles
@@ -1125,6 +1152,32 @@ class Coloring_Clade extends Coloring_WithAllStyles
         // order: sera, not sequenced, sequenced without clade, clade with max number of antigens, ..., clade with fewer antigens
         return original_drawing_order.slice(0).sort((p1, p2) => this.point_rank[p1] - this.point_rank[p2]);
     }
+}
+
+// ----------------------------------------------------------------------
+
+class Coloring_AAPos extends Coloring_WithAllStyles
+{
+    constructor(widget) {
+        super(widget);
+        const chart = this.widget.data.c;
+        chart.a.forEach((antigen, antigen_no) => {
+            this.styles_.styles[antigen_no].F = this.styles_.styles[antigen_no].O = sGREY;
+        });
+        this._make_styles();
+    }
+
+    coloring() {
+        return "aa_pos";
+    }
+
+    _make_styles() {
+    }
+
+    drawing_order(original_drawing_order) {
+        // order: sera, not sequenced, "clade" with max number of antigens, ..., "clade" with fewer antigens
+        return original_drawing_order;
+    }
 
 }
 
@@ -1132,6 +1185,7 @@ class Coloring_Clade extends Coloring_WithAllStyles
 
 const coloring_selector_data = {
     "clade": Coloring_Clade,
+    "aa_pos": Coloring_AAPos,
     "continent": Coloring_Continent,
     "default": Coloring_Default,
     null: Coloring_Default
@@ -1375,6 +1429,14 @@ const ViewDialog_html = "\
     <td class='a-label'>Coloring</td>\
     <td class='coloring'></td>\
   </tr>\
+  <tr class='coloring-aa-pos'>\
+    <td class='a-label'>Positions</td>\
+    <td class='coloring-aa-pos'><input type='text'></input></td>\
+  </tr>\
+  <tr class='coloring-legend'>\
+    <td class='a-label'>Legend</td>\
+    <td class='coloring-legend'></td>\
+  </tr>\
   <tr>\
     <td class='a-label'>Mode</td>\
     <td class='mode'></td>\
@@ -1382,9 +1444,9 @@ const ViewDialog_html = "\
   <tr class='time-series-period'>\
     <td class='a-label'>Period</td>\
     <td class='period'>\
-      <a href='month'>monthly</a>\
+      <a href='month'>month</a>\
       <a href='season'>winter/summer</a>\
-      <a href='year'>yearly</a>\
+      <a href='year'>year</a>\
     </td>\
   </tr>\
   <tr class='shading'>\
@@ -1427,7 +1489,7 @@ class ViewDialog
         const td_coloring = table.find("td.coloring");
         td_coloring.append("<a href='default'>default</a>");
         if (this.widget.features["clades"])
-            td_coloring.append("<a href='clade'>by clade</a>");
+            td_coloring.append("<a href='clade'>by clade</a><a href='aa_pos'>by AA at pos</a>");
         if (this.widget.features["continents"])
             td_coloring.append("<a href='continent'>by geography</a>");
         td_coloring.find("a").on("click", evt => acv_utils.forward_event(evt, evt => {
@@ -1474,14 +1536,18 @@ class ViewDialog
         td_coloring.find("a").removeClass("a-current");
         const coloring = this.widget.coloring.coloring();
         td_coloring.find(`a[href="${coloring}"]`).addClass("a-current");
+        const tr_coloring_aa_pos = this.content.find("table tr.coloring-aa-pos").hide();
+        this.content.find("table tr.coloring-legend").hide();
+        if (coloring === "aa_pos")
+            tr_coloring_aa_pos.show();
 
         const td_mode = this.content.find("table td.mode");
         td_mode.find("a").removeClass("a-current");
         const mode = this.widget.view_mode.mode();
         td_mode.find(`a[href="${mode}"]`).addClass("a-current");
 
-        const tr_period = this.content.find("table tr.time-series-period");
-        const tr_shading = this.content.find("table tr.shading");
+        const tr_period = this.content.find("table tr.time-series-period").hide();
+        const tr_shading = this.content.find("table tr.shading").hide();
         tr_period.find("a").removeClass("a-current");
         tr_shading.find("a").removeClass("a-current");
         switch (mode) {
@@ -1492,16 +1558,21 @@ class ViewDialog
             break;
         case "table-series":
             tr_shading.show();
-            tr_period.hide();
             tr_shading.find("a[href='grey']").hide();
             break;
         case "projection":
         default:
-            tr_shading.hide();
-            tr_period.hide();
+            break;
         }
         tr_period.find(`a[href="${this.widget.view_mode.period()}"]`).addClass("a-current");
         tr_shading.find(`a[href="${this.widget.view_mode.shading()}"]`).addClass("a-current");
+    }
+
+    show_legend() {
+        const legend = this.widget.coloring.legend();
+        if (legend) {
+            const tr_coloring_legend = this.content.find("table tr.coloring-legend").show();
+        }
     }
 }
 
