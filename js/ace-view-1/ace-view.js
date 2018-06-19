@@ -1053,6 +1053,23 @@ const continent_colors = {
     undefined:           "#7f7f7f"
 };
 
+const continent_name_for_legend = {
+    "EUROPE":            "Europe",
+    "CENTRAL-AMERICA":   "C-America",
+    "MIDDLE-EAST":       "MiddleEast",
+    "NORTH-AMERICA":     "N-America",
+    "AFRICA":            "Africa",
+    "ASIA":              "Asia",
+    "RUSSIA":            "Russia",
+    "AUSTRALIA-OCEANIA": "Australia",
+    "SOUTH-AMERICA":     "S-America",
+    "ANTARCTICA":        "Antarctica",
+    "UNKNOWN":           "unknown",
+    "":                  "unknown",
+    null:                "unknown",
+    undefined:           "unknown"
+};
+
 class Coloring_Continent extends Coloring_WithAllStyles
 {
     constructor(widget) {
@@ -1063,8 +1080,9 @@ class Coloring_Continent extends Coloring_WithAllStyles
             this.styles_.styles[antigen_no].F = continent_colors[antigen.C];
             continent_count[antigen.C] = (continent_count[antigen.C] || 0) + 1;
         });
-        const big_count_first = (e1, e2) => e2.N - e1.N;
-        this.continent_count = Object.keys(continent_count).map(continent => { return {C: continent, N: continent_count[continent], c: continent_colors[continent]}; }).sort(big_count_first);
+        this.continent_count = Object.keys(continent_count)
+            .map(continent => { return {name: continent, count: continent_count[continent], color: continent_colors[continent]}; })
+            .sort((e1, e2) => e2.count - e1.count);
     }
 
     coloring() {
@@ -1073,14 +1091,14 @@ class Coloring_Continent extends Coloring_WithAllStyles
 
     drawing_order(original_drawing_order) {
         // order: sera, most popular continent, ..., lest popular continent
-        const continent_order = this.continent_count.map(entry => entry.C);
+        const continent_order = this.continent_count.map(entry => entry.name);
         const chart = this.widget.data.c;
         const ranks = Array.apply(null, {length: chart.a.length}).map((_, ag_no) => continent_order.indexOf(chart.a[ag_no].C) + 10).concat(Array.apply(null, {length: chart.s.length}).map(_ => 0));
         return original_drawing_order.slice(0).sort((p1, p2) => ranks[p1] - ranks[p2]);
     }
 
     legend() {
-        return this.continent_count;
+        return this.continent_count.map(entry => Object.assign(entry, {name: continent_name_for_legend[entry.name]}));
     }
 }
 
@@ -1537,7 +1555,6 @@ class ViewDialog
         const coloring = this.widget.coloring.coloring();
         td_coloring.find(`a[href="${coloring}"]`).addClass("a-current");
         const tr_coloring_aa_pos = this.content.find("table tr.coloring-aa-pos").hide();
-        this.content.find("table tr.coloring-legend").hide();
         if (coloring === "aa_pos")
             tr_coloring_aa_pos.show();
 
@@ -1570,11 +1587,20 @@ class ViewDialog
     }
 
     show_legend() {
+        const tr_legend = this.content.find("table tr.coloring-legend");
         const legend = this.widget.coloring.legend();
-        console.log("legend", legend);
         if (legend) {
-            const tr_coloring_legend = this.content.find("table tr.coloring-legend").show();
             console.log("legend", legend);
+            const td_legend = tr_legend.find("td.coloring-legend").empty();
+            td_legend.append("<table><tr class='a-names'></tr><tr class='a-colors'></tr></table>");
+            legend.map(entry => {
+                td_legend.find("tr.a-names").append(`<td>${entry.name}</td>`);
+                td_legend.find("tr.a-colors").append(`<td><span class="a-color" style="background-color: ${entry.color}">__</span>${entry.count}</td>`);
+            });
+            tr_legend.show();
+        }
+        else {
+            tr_legend.hide();
         }
     }
 }

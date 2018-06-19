@@ -249,6 +249,25 @@ ul.a-title-mouse-popup > li .a-sequenced {
     text-decoration: none;
 }
 
+.view-dialog-movable tr.coloring-legend > td.coloring-legend > table {
+    border-collapse: separate;
+    border-spacing: 1em 0;
+}
+
+.view-dialog-movable tr.coloring-legend > td.coloring-legend > table td {
+    text-align: center;
+}
+
+.view-dialog-movable tr.coloring-legend > td.coloring-legend > table tr.a-colors td {
+    white-space: nowrap;
+}
+
+.view-dialog-movable tr.coloring-legend > td.coloring-legend > table tr.a-colors .a-color {
+    color: transparent;
+    margin-right: 0.3em;
+    font-family: monospace;
+}
+
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */
 /* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */
