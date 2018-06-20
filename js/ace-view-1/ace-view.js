@@ -1193,7 +1193,7 @@ class Coloring_Clade extends Coloring_WithAllStyles
 {
     constructor(widget) {
         super(widget);
-        this._make_antigens_by_clade();
+        this._make_antigens_by_clade({set_clade_for_antigen: true});
         this._make_styles();
     }
 
@@ -1201,19 +1201,25 @@ class Coloring_Clade extends Coloring_WithAllStyles
         return "clade";
     }
 
-    _make_antigens_by_clade() {
+    _make_antigens_by_clade(args) {
+        const drawing_order = this.drawing_order_ || super.drawing_order();
+        const chart = this.widget.data.c;
+        const clade_sorting_key = clade => (clade === "GLY" || clade === "NO-GLY" || clade === "SEQUENCED") ? 0 : clade.length;
         this.clade_to_number_of_antigens = {};
-        this.clade_for_antigen = this.widget.data.c.a.map(antigen => {
-            const clade_sorting_key = clade => (clade === "GLY" || clade === "NO-GLY" || clade === "SEQUENCED") ? 0 : clade.length;
-            const clades = (antigen.c || []).sort((a, b) => clade_sorting_key(b) - clade_sorting_key(a));
+        if (args && args.set_clade_for_antigen)
+            this.clade_for_antigen = Array.apply(null, {length: chart.a.length}).map(() => "");
+        drawing_order.filter(no => no < chart.a.length).forEach(antigen_no => {
+            const clades = (chart.a[antigen_no].c || []).sort((a, b) => clade_sorting_key(b) - clade_sorting_key(a));
             let clade = clades.length > 0 ? clades[0] : "";
             if (clade === "GLY" || clade === "NO-GLY")
                 clade = "SEQUENCED";
             this.clade_to_number_of_antigens[clade] = (this.clade_to_number_of_antigens[clade] || 0) + 1;
-            return clade;
+            if (args && args.set_clade_for_antigen)
+                this.clade_for_antigen[antigen_no] = clade;
         });
         this.clade_order = Object.keys(this.clade_to_number_of_antigens).sort((a, b) => this._clade_rank(a) - this._clade_rank(b));
-        this.point_rank = this.clade_for_antigen.map(clade => this.clade_order.indexOf(clade)).concat(Array.apply(null, {length: this.widget.data.c.s.length}).map(() => -2));
+        if (args && args.set_clade_for_antigen)
+            this.point_rank = this.clade_for_antigen.map(clade => this.clade_order.indexOf(clade)).concat(Array.apply(null, {length: this.widget.data.c.s.length}).map(() => -2));
     }
 
     _clade_rank(clade) {
@@ -1231,7 +1237,10 @@ class Coloring_Clade extends Coloring_WithAllStyles
 
     drawing_order(original_drawing_order, options) {
         // order: sera, not sequenced, sequenced without clade, clade with max number of antigens, ..., clade with fewer antigens
-        return super.drawing_order(original_drawing_order).slice(0).sort((p1, p2) => this.point_rank[p1] - this.point_rank[p2]);
+        this.drawing_order_ = super.drawing_order(original_drawing_order).slice(0).sort((p1, p2) => this.point_rank[p1] - this.point_rank[p2]);
+        if (!options || !options.background)
+            this._make_antigens_by_clade();
+        return this.drawing_order_;
     }
 
     legend() {
