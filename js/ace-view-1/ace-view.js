@@ -495,7 +495,7 @@ export class AntigenicMapWidget
                 const popup = acv_toolkit.mouse_popup_show($("<ul class='point-info-on-hover'></ul>").append(point_entries.map(make_point_name_row).join("")), this.canvas, {left: offset.left + this.options.mouse_popup_offset.left, top: offset.top + this.options.mouse_popup_offset.top});
                 if (this.options.point_on_click) {
                     popup.find("a").on("click", evt => {
-                        acv_utils.forward_event(evt, evt => show_antigen_serum_info_from_hidb($(evt.target), this.data.c, this.options.point_on_click));
+                        acv_utils.forward_event(evt, evt => show_antigen_serum_info_from_hidb($(evt.target), this.data.c, this.canvas, this.options.point_on_click));
                         window.setTimeout(acv_toolkit.mouse_popup_hide, this.options.point_info_on_hover_delay);
                     });
                 }
@@ -510,7 +510,7 @@ export class AntigenicMapWidget
 
         const make_point_name_row = point_entry => {
             if (this.options.point_on_click)
-                return `<li><a href="#show-info-on-this-name" point_no="${point_entry.no}" point_name="${point_entry.name}">${point_entry.name}</a></li>`;
+                return `<li><a href="show-info-on-this-name" point_no="${point_entry.no}" point_name="${point_entry.name}">${point_entry.name}</a></li>`;
             else
                 return `<li>${point_entry.name}</li>`;
         };
@@ -1413,7 +1413,7 @@ class AntigenicTable_populate
     }
 
     show_antigen_serum_info() {
-        this.div.find("a[title]").on("click", evt => acv_utils.forward_event(evt, () => show_antigen_serum_info_from_hidb($(evt.target), this.chart, this.widget.options.point_on_click)));
+        this.div.find("a[title]").on("click", evt => acv_utils.forward_event(evt, () => show_antigen_serum_info_from_hidb($(evt.target), this.chart, $(evt.target), this.widget.options.point_on_click)));
     }
 }
 
@@ -1709,7 +1709,7 @@ class ViewDialog
 
 // ----------------------------------------------------------------------
 
-function show_antigen_serum_info_from_hidb(target, chart, shower) {
+function show_antigen_serum_info_from_hidb(target, chart, invoking_node, shower) {
     if (shower) {
         const point_no = parseInt(target.attr("point_no"));
         const point_data = {virus_type: chart.i.V || (chart.i.S && chart.i.S.length > 0 && chart.i.S[0].V)};
@@ -1717,7 +1717,7 @@ function show_antigen_serum_info_from_hidb(target, chart, shower) {
             point_data.antigen = chart.a[point_no];
         else
             point_data.serum = chart.s[point_no - chart.a.length];
-        shower(point_data, target);
+        shower(point_data, invoking_node);
     }
 }
 
