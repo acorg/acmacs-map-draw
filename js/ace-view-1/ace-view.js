@@ -1012,7 +1012,6 @@ class Coloring_Base
             const chart = this.widget.data.c;
             original_drawing_order = acv_utils.array_of_indexes(chart.a.length + chart.s.length);
         }
-        console.log("original_drawing_order", original_drawing_order);
         return original_drawing_order;
     }
 
@@ -1126,7 +1125,7 @@ class Coloring_Continent extends Coloring_WithAllStyles
     }
 
     legend() {
-        return this.continent_count.map(entry => Object.assign(entry, {name: continent_name_for_legend[entry.name]}));
+        return this.continent_count.map(entry => Object.assign({}, entry, {name: continent_name_for_legend[entry.name] || entry.name}));
     }
 }
 
