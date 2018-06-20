@@ -331,6 +331,7 @@ export class AntigenicMapWidget
             this.surface.grid();
             this.surface.border();
             this.view_mode.draw();
+            this.update_view_dialog();
             this.title();
             this.resize_title();
         }
@@ -576,8 +577,21 @@ export class AntigenicMapWidget
     }
 
     show_view_dialog(parent) {
-        if (this.data)
-            return new ViewDialog({widget: this, parent: $(parent), chart: this.data.c, id: this.dialog_id("view")});
+        if (this.data) {
+            if (!this.view_dialog_) {
+                this.view_dialog_ = new ViewDialog({
+                    widget: this,
+                    parent: $(parent),
+                    chart: this.data.c,
+                    id: this.dialog_id("view"),
+                    on_destroy: () => delete this.view_dialog_
+                });
+            }
+            else {
+                this.view_dialog_.find_me();
+            }
+            return this.view_dialog_;
+        }
         else
             return null;
     }
@@ -617,6 +631,9 @@ export class AntigenicMapWidget
                     resolve(this.sequences_);
             });
         }
+    }
+
+    update_view_dialog() {
     }
 }
 
@@ -1120,7 +1137,6 @@ class Coloring_Continent extends Coloring_WithAllStyles
     }
 
     legend() {
-        console.log("legend");
         return this.continent_count.map(entry => Object.assign({}, entry, {name: continent_name_for_legend[entry.name] || entry.name}));
     }
 
@@ -1538,10 +1554,28 @@ class ViewDialog
 {
     constructor(args) {
         this.widget = args.widget;
-        const movable_window = new acv_toolkit.MovableWindow({title: "View", parent: args.widget.div.find("canvas"), classes: "view-dialog-movable", content_css: {width: "auto", height: "auto"}, id: args.id});
+        this.id = args.id;
+        const movable_window = new acv_toolkit.MovableWindow({
+            title: "View",
+            parent: args.widget.div.find("canvas"),
+            classes: "view-dialog-movable",
+            content_css: {width: "auto", height: "auto"},
+            id: args.id,
+            on_destroy: () => this.destroy()
+        });
         this.content = movable_window.content();
         if (movable_window.content().find("table.view-dialog").length === 0)
             this.populate({content: this.content, chart: args.chart});
+        this.on_destroy = args.on_destroy;
+    }
+
+    destroy() {
+        if (this.on_destroy)
+            this.on_destroy();
+    }
+
+    find_me() {
+        new acv_toolkit.MovableWindow({parent: this.widget.div.find("canvas"), id: this.id});
     }
 
     populate(args) {

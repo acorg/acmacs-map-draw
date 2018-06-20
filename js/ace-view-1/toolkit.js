@@ -188,7 +188,7 @@ const MovableWindow_html = "\
 
 export class MovableWindow {
 
-    // {title, content, id, parent: "center", classes: "", content_css: {width:, height:}}
+    // {title, content, id, parent: "center", classes: "", content_css: {width:, height:}, on_destroy: function}
     constructor(args) {
         if (args.id)
             this.div = $("body").find("#" + args.id);
@@ -217,10 +217,13 @@ export class MovableWindow {
             offset.left += $(args.parent).width();
             this.div.css(offset);
         }
+        this.on_destroy = args.on_destroy;
     }
 
     destroy() {
         this.div.remove();
+        if (this.on_destroy)
+            this.on_destroy();
     }
 
     classes(classes) {
