@@ -1056,6 +1056,7 @@ class Coloring_Default extends Coloring_Base
 // ----------------------------------------------------------------------
 
 const sGREY = "#c0c0c0";
+const sLIGHTGREY = "#e0e0e0";
 
 class Coloring_WithAllStyles extends Coloring_Base
 {
@@ -1219,7 +1220,7 @@ class Coloring_Clade extends Coloring_WithAllStyles
         });
         this.clade_order = Object.keys(this.clade_to_number_of_antigens).sort((a, b) => this._clade_rank(a) - this._clade_rank(b));
         if (args && args.set_clade_for_antigen)
-            this.point_rank = this.clade_for_antigen.map(clade => this.clade_order.indexOf(clade)).concat(Array.apply(null, {length: this.widget.data.c.s.length}).map(() => -2));
+            this.point_rank_ = this.clade_for_antigen.map(clade => this.clade_order.indexOf(clade)).concat(Array.apply(null, {length: this.widget.data.c.s.length}).map(() => -2));
     }
 
     _clade_rank(clade) {
@@ -1237,7 +1238,7 @@ class Coloring_Clade extends Coloring_WithAllStyles
 
     drawing_order(original_drawing_order, options) {
         // order: sera, not sequenced, sequenced without clade, clade with max number of antigens, ..., clade with fewer antigens
-        this.drawing_order_ = super.drawing_order(original_drawing_order).slice(0).sort((p1, p2) => this.point_rank[p1] - this.point_rank[p2]);
+        this.drawing_order_ = super.drawing_order(original_drawing_order).slice(0).sort((p1, p2) => this.point_rank_[p1] - this.point_rank_[p2]);
         if (!options || !options.background)
             this._make_antigens_by_clade();
         return this.drawing_order_;
@@ -1255,7 +1256,7 @@ class Coloring_AAPos extends Coloring_WithAllStyles
 {
     constructor(widget) {
         super(widget);
-        this._make_styles();
+        this._make_styles({set_point_rank: true});
         widget.sequences().then(data => this._sequences_received(data));
     }
 
@@ -1263,23 +1264,39 @@ class Coloring_AAPos extends Coloring_WithAllStyles
         return "aa_pos";
     }
 
-    _make_styles() {
+    _make_styles(args) {
         this._reset_styles();
         this.legend_ = null;
         if (this.sequences_ && this.positions_ && this.positions_.length) {
             const to_color = this.sequences_.per_pos[this.positions_[0]];
             if (to_color) {
-                this.aa_order_ = Object.keys(to_color).sort((e1, e2) => to_color[e1] - to_color[e2]);
+                this.aa_order_ = Object.keys(to_color).sort((e1, e2) => to_color[e2] - to_color[e1]);
                 if (this.aa_order_.length) {
-                    this.legend_ = this.aa_order_.map((aa, index) => { return {name: this.positions_[0] + aa, count: to_color[aa], color: acv_toolkit.ana_colors[index]}; });
+                    this.legend_ = this.aa_order_.map((aa, index) => { return {name: /* this.positions_[0] + */ aa, count: to_color[aa], color: acv_toolkit.ana_colors[index]}; });
                 }
+                if (args && args.set_point_rank)
+                    this.point_rank_ = Array.apply(null, {length: this.widget.data.c.a.length}).map(() => -1).concat(Array.apply(null, {length: this.widget.data.c.s.length}).map(() => -2));
+                Object.entries(this.sequences_.antigens).map(entry => {
+                    const antigen_no = parseInt(entry[0]);
+                    const aa = entry[1][this.positions_[0] - 1];
+                    const aa_index = this.aa_order_.indexOf(aa);
+                    const color = acv_toolkit.ana_colors[aa_index] || sGREY;
+                    this.styles_.styles[antigen_no].F = color;
+                    this.styles_.styles[antigen_no].O = "black";
+                    if (args && args.set_point_rank)
+                        this.point_rank_[antigen_no] = aa_index;
+                });
             }
         }
     }
 
     drawing_order(original_drawing_order, options) {
         // order: sera, not sequenced, "clade" with max number of antigens, ..., "clade" with fewer antigens
-        return super.drawing_order(original_drawing_order);
+        original_drawing_order = super.drawing_order(original_drawing_order);
+        if (!this.point_rank_)
+            return original_drawing_order;
+        this.drawing_order_ = original_drawing_order.slice(0).sort((p1, p2) => this.point_rank_[p1] - this.point_rank_[p2]);
+        return this.drawing_order_;
     }
 
     legend() {
@@ -1297,21 +1314,21 @@ class Coloring_AAPos extends Coloring_WithAllStyles
         const update = positions !== this.positions_;
         if (update) {
             this.positions_ = positions;
-            this._make_styles();
+            this._make_styles({set_point_rank: true});
         }
         return update;
     }
 
     _reset_styles() {
         this.widget.data.c.a.forEach((antigen, antigen_no) => {
-            this.styles_.styles[antigen_no].F = this.styles_.styles[antigen_no].O = sGREY;
+            this.styles_.styles[antigen_no].F = this.styles_.styles[antigen_no].O = sLIGHTGREY;
         });
     }
 
     _sequences_received(data) {
+        // console.log("_sequences_received", data);
         this.sequences_ = data;
         this.widget.update_view_dialog();
-        console.log("_sequences_received", data);
     }
 }
 
@@ -1755,6 +1772,7 @@ class ViewDialog
                 }
             });
             tr_coloring_aa_pos.show();
+            window.setTimeout(() => input.focus(), 10);
         }
         else {
             tr_coloring_aa_pos.hide();
