@@ -708,7 +708,7 @@ class DrawingMode_Base
         const chart = this.widget.data.c;
         const drawing_order_background = this.drawing_order_background();
         if (drawing_order_background && drawing_order_background.length)
-            this.widget.surface.points({drawing_order: this.widget.coloring.drawing_order(drawing_order_background),
+            this.widget.surface.points({drawing_order: this.widget.coloring.drawing_order(drawing_order_background, {background: true}),
                                     layout: chart.P[this.projection_no()].l,
                                     transformation: new ace_surface.Transformation(chart.P[this.projection_no()].t),
                                     styles: this.widget.coloring.styles(),
@@ -1007,7 +1007,7 @@ class Coloring_Base
         this.widget = widget;
     }
 
-    drawing_order(original_drawing_order) {
+    drawing_order(original_drawing_order, options) {
         if (!Array.isArray(original_drawing_order)) {
             const chart = this.widget.data.c;
             original_drawing_order = acv_utils.array_of_indexes(chart.a.length + chart.s.length);
@@ -1101,31 +1101,42 @@ class Coloring_Continent extends Coloring_WithAllStyles
 {
     constructor(widget) {
         super(widget);
-        const chart = this.widget.data.c;
-        let continent_count = {};
-        chart.a.forEach((antigen, antigen_no) => {
-            this.styles_.styles[antigen_no].F = continent_colors[antigen.C];
-            continent_count[antigen.C] = (continent_count[antigen.C] || 0) + 1;
-        });
-        this.continent_count = Object.keys(continent_count)
-            .map(continent => { return {name: continent, count: continent_count[continent], color: continent_colors[continent]}; })
-            .sort((e1, e2) => e2.count - e1.count);
+        this._make_continent_count({set_styles: true});
     }
 
     coloring() {
         return "continent";
     }
 
-    drawing_order(original_drawing_order) {
+    drawing_order(original_drawing_order, options) {
         // order: sera, most popular continent, ..., lest popular continent
         const continent_order = this.continent_count.map(entry => entry.name);
         const chart = this.widget.data.c;
         const ranks = Array.apply(null, {length: chart.a.length}).map((_, ag_no) => continent_order.indexOf(chart.a[ag_no].C) + 10).concat(Array.apply(null, {length: chart.s.length}).map(_ => 0));
-        return super.drawing_order(original_drawing_order).slice(0).sort((p1, p2) => ranks[p1] - ranks[p2]);
+        this.drawing_order_ = super.drawing_order(original_drawing_order).slice(0).sort((p1, p2) => ranks[p1] - ranks[p2]);
+        if (!options || !options.background)
+            this._make_continent_count();
+        return this.drawing_order_;
     }
 
     legend() {
+        console.log("legend");
         return this.continent_count.map(entry => Object.assign({}, entry, {name: continent_name_for_legend[entry.name] || entry.name}));
+    }
+
+    _make_continent_count(args) {
+        const drawing_order = this.drawing_order_ || super.drawing_order();
+        const chart = this.widget.data.c;
+        let continent_count = {};
+        drawing_order.filter(no => no < chart.a.length).forEach(antigen_no => {
+            const continent = chart.a[antigen_no].C;
+            if (args && args.set_styles)
+                this.styles_.styles[antigen_no].F = continent_colors[continent];
+            continent_count[continent] = (continent_count[continent] || 0) + 1;
+        });
+        this.continent_count = Object.keys(continent_count)
+            .map(continent => { return {name: continent, count: continent_count[continent], color: continent_colors[continent]}; })
+            .sort((e1, e2) => e2.count - e1.count);
     }
 }
 
@@ -1200,7 +1211,7 @@ class Coloring_Clade extends Coloring_WithAllStyles
         this.clade_for_antigen.forEach((clade, antigen_no) => this.styles_.styles[antigen_no].F = sCladeColors[clade]);
     }
 
-    drawing_order(original_drawing_order) {
+    drawing_order(original_drawing_order, options) {
         // order: sera, not sequenced, sequenced without clade, clade with max number of antigens, ..., clade with fewer antigens
         return super.drawing_order(original_drawing_order).slice(0).sort((p1, p2) => this.point_rank[p1] - this.point_rank[p2]);
     }
@@ -1228,7 +1239,7 @@ class Coloring_AAPos extends Coloring_WithAllStyles
     _make_styles() {
     }
 
-    drawing_order(original_drawing_order) {
+    drawing_order(original_drawing_order, options) {
         // order: sera, not sequenced, "clade" with max number of antigens, ..., "clade" with fewer antigens
         return super.drawing_order(original_drawing_order);
     }
