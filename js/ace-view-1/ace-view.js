@@ -1290,13 +1290,34 @@ class Coloring_AAPos extends Coloring_WithAllStyles
         }
     }
 
+    _make_legend() {
+    }
+
     drawing_order(original_drawing_order, options) {
         // order: sera, not sequenced, "clade" with max number of antigens, ..., "clade" with fewer antigens
         original_drawing_order = super.drawing_order(original_drawing_order);
         if (!this.point_rank_)
             return original_drawing_order;
         this.drawing_order_ = original_drawing_order.slice(0).sort((p1, p2) => this.point_rank_[p1] - this.point_rank_[p2]);
+        if (!options || !options.background)
+            this._make_legend();
         return this.drawing_order_;
+    }
+
+    _make_legend() {
+        let aa_count = {};
+        this.drawing_order_.filter(no => no < this.widget.data.c.a.length).forEach(antigen_no => {
+            const antigen_sequence = this.sequences_.antigens[antigen_no];
+            if (antigen_sequence) {
+                const aa = antigen_sequence[this.positions_[0] - 1];
+                aa_count[aa] = (aa_count[aa] || 0) + 1;
+            }
+        });
+        this.legend_ = [];
+        this.aa_order_.forEach((aa, index) => {
+            if (aa_count[aa])
+                this.legend_.push({name: aa, count: aa_count[aa], color: acv_toolkit.ana_colors[index]});
+        });
     }
 
     legend() {
