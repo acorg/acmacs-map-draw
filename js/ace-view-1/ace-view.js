@@ -1684,8 +1684,11 @@ class ViewDialog
 
         const td_coloring = table.find("td.coloring");
         td_coloring.append("<a href='default'>default</a>");
-        if (this.widget.features["clades"])
-            td_coloring.append("<a href='clade'>by clade</a><a href='aa_pos'>by AA at pos</a>");
+        if (this.widget.features["clades"]) {
+            td_coloring.append("<a href='clade'>by clade</a>");
+            if (this.widget.options.api.get_sequences)
+                td_coloring.append("<a href='aa_pos'>by AA at pos</a>");
+        }
         if (this.widget.features["continents"])
             td_coloring.append("<a href='continent'>by geography</a>");
         td_coloring.find("a").on("click", evt => acv_utils.forward_event(evt, evt => {
