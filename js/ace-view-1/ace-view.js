@@ -1008,6 +1008,11 @@ class Coloring_Base
     }
 
     drawing_order(original_drawing_order) {
+        if (!Array.isArray(original_drawing_order)) {
+            const chart = this.widget.data.c;
+            original_drawing_order = acv_utils.array_of_indexes(chart.a.length + chart.s.length);
+        }
+        console.log("original_drawing_order", original_drawing_order);
         return original_drawing_order;
     }
 
@@ -1117,7 +1122,7 @@ class Coloring_Continent extends Coloring_WithAllStyles
         const continent_order = this.continent_count.map(entry => entry.name);
         const chart = this.widget.data.c;
         const ranks = Array.apply(null, {length: chart.a.length}).map((_, ag_no) => continent_order.indexOf(chart.a[ag_no].C) + 10).concat(Array.apply(null, {length: chart.s.length}).map(_ => 0));
-        return original_drawing_order.slice(0).sort((p1, p2) => ranks[p1] - ranks[p2]);
+        return super.drawing_order(original_drawing_order).slice(0).sort((p1, p2) => ranks[p1] - ranks[p2]);
     }
 
     legend() {
@@ -1198,7 +1203,7 @@ class Coloring_Clade extends Coloring_WithAllStyles
 
     drawing_order(original_drawing_order) {
         // order: sera, not sequenced, sequenced without clade, clade with max number of antigens, ..., clade with fewer antigens
-        return original_drawing_order.slice(0).sort((p1, p2) => this.point_rank[p1] - this.point_rank[p2]);
+        return super.drawing_order(original_drawing_order).slice(0).sort((p1, p2) => this.point_rank[p1] - this.point_rank[p2]);
     }
 
     legend() {
@@ -1226,7 +1231,7 @@ class Coloring_AAPos extends Coloring_WithAllStyles
 
     drawing_order(original_drawing_order) {
         // order: sera, not sequenced, "clade" with max number of antigens, ..., "clade" with fewer antigens
-        return original_drawing_order;
+        return super.drawing_order(original_drawing_order);
     }
 
     legend() {
