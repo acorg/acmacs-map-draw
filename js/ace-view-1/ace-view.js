@@ -1250,13 +1250,13 @@ class Coloring_Clade extends Coloring_WithAllStyles
 
 // ----------------------------------------------------------------------
 
+
 class Coloring_AAPos extends Coloring_WithAllStyles
 {
     constructor(widget) {
         super(widget);
-        this._reset_styles();
         this._make_styles();
-        widget.sequences().then(data => console.log("Coloring_AAPos::constructor", data));
+        widget.sequences().then(data => this._sequences_received(data));
     }
 
     coloring() {
@@ -1264,6 +1264,17 @@ class Coloring_AAPos extends Coloring_WithAllStyles
     }
 
     _make_styles() {
+        this._reset_styles();
+        this.legend_ = null;
+        if (this.sequences_ && this.positions_ && this.positions_.length) {
+            const to_color = this.sequences_.per_pos[this.positions_[0]];
+            if (to_color) {
+                this.aa_order_ = Object.keys(to_color).sort((e1, e2) => to_color[e1] - to_color[e2]);
+                if (this.aa_order_.length) {
+                    this.legend_ = this.aa_order_.map((aa, index) => { return {name: this.positions_[0] + aa, count: to_color[aa], color: acv_toolkit.ana_colors[index]}; });
+                }
+            }
+        }
     }
 
     drawing_order(original_drawing_order, options) {
@@ -1272,13 +1283,35 @@ class Coloring_AAPos extends Coloring_WithAllStyles
     }
 
     legend() {
-        return [{name: "loading, please wait"}];
+        if (this.sequences_) {
+            if (this.legend_)
+                return this.legend_;
+            else
+                return [{name: "type space separated positions and press Enter"}];
+        }
+        else
+            return [{name: "loading, please wait"}];
+    }
+
+    set_positions(positions) {
+        const update = positions !== this.positions_;
+        if (update) {
+            this.positions_ = positions;
+            this._make_styles();
+        }
+        return update;
     }
 
     _reset_styles() {
         this.widget.data.c.a.forEach((antigen, antigen_no) => {
             this.styles_.styles[antigen_no].F = this.styles_.styles[antigen_no].O = sGREY;
         });
+    }
+
+    _sequences_received(data) {
+        this.sequences_ = data;
+        this.widget.update_view_dialog();
+        console.log("_sequences_received", data);
     }
 }
 
@@ -1657,9 +1690,6 @@ class ViewDialog
         td_coloring.find("a").removeClass("a-current");
         const coloring = this.widget.coloring.coloring();
         td_coloring.find(`a[href="${coloring}"]`).addClass("a-current");
-        const tr_coloring_aa_pos = this.content.find("table tr.coloring-aa-pos").hide();
-        if (coloring === "aa_pos")
-            tr_coloring_aa_pos.show();
 
         const td_mode = this.content.find("table td.mode");
         td_mode.find("a").removeClass("a-current");
@@ -1686,6 +1716,8 @@ class ViewDialog
         }
         tr_period.find(`a[href="${this.widget.view_mode.period()}"]`).addClass("a-current");
         tr_shading.find(`a[href="${this.widget.view_mode.shading()}"]`).addClass("a-current");
+
+        this.handle_aa_position_entry();
         this.show_legend();
     }
 
@@ -1705,6 +1737,27 @@ class ViewDialog
         }
         else {
             tr_legend.hide();
+        }
+    }
+
+    handle_aa_position_entry() {
+        const coloring = this.widget.coloring.coloring();
+        const tr_coloring_aa_pos = this.content.find("table tr.coloring-aa-pos");
+        const input = tr_coloring_aa_pos.find("input");
+        input.off("keypress");
+        if (coloring === "aa_pos") {
+            input.on("keypress", evt => {
+                if (evt.charCode === 13) {
+                    if (this.widget.coloring.set_positions(evt.currentTarget.value.split(/[^0-9]/).filter(entry => !!entry))) {
+                        this.widget.set_view_mode({mode: this.widget.view_mode.mode(), shading: this.widget.view_mode.shading(), period: this.widget.view_mode.period(), projection_no: this.projection_no()});
+                        this.set_current_mode();
+                    }
+                }
+            });
+            tr_coloring_aa_pos.show();
+        }
+        else {
+            tr_coloring_aa_pos.hide();
         }
     }
 }
