@@ -1329,7 +1329,6 @@ class AntigenicTable_populate
             this.div = $("<table class='antigenic-table'></table>").appendTo(args.parent);
             this.make_sera();
             this.make_antigens();
-            this.show_antigen_serum_info();
             this.set_size(args.parent);
         }
         else {
@@ -1353,6 +1352,7 @@ class AntigenicTable_populate
                 const antigen = this.chart.a[antigen_no];
                 this.div.append(acv_utils.format(AntigenicTable_antigen_row_html, {no0: antigen_no, no1: antigen_no + 1, name: this.make_antigen_name(antigen, antigen_no), titers: this.make_titers_for_antigen(antigen_no)}));
             }
+            this.show_antigen_serum_info();
             if (last < this.chart.a.length)
                 window.setTimeout(populate, 0);
         };
@@ -1413,7 +1413,9 @@ class AntigenicTable_populate
     }
 
     show_antigen_serum_info() {
-        this.div.find("a[title]").on("click", evt => acv_utils.forward_event(evt, () => show_antigen_serum_info_from_hidb($(evt.target), this.chart, $(evt.target), this.widget.options.point_on_click)));
+        // called many times while table is populated, first remove old callbacks
+        this.div.find("a[title]").off("click");
+        this.div.find("a[title]").on("click", evt => acv_utils.forward_event(evt, () => show_antigen_serum_info_from_hidb($(evt.target), this.chart, this.widget.canvas, this.widget.options.point_on_click)));
     }
 }
 
