@@ -634,6 +634,8 @@ export class AntigenicMapWidget
     }
 
     update_view_dialog() {
+        if (this.view_dialog_)
+            this.view_dialog_.show_legend();
     }
 }
 
