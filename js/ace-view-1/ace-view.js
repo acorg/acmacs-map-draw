@@ -1331,6 +1331,10 @@ class Coloring_AAPos extends Coloring_WithAllStyles
             return [{name: "loading, please wait"}];
     }
 
+    positions() {
+        return this.positions_;
+    }
+
     set_positions(positions) {
         const update = positions !== this.positions_;
         if (update) {
@@ -1792,6 +1796,9 @@ class ViewDialog
                     }
                 }
             });
+            const positions = this.widget.coloring.positions();
+            if (positions && positions.length)
+                input.val(positions.join(" "));
             tr_coloring_aa_pos.show();
             window.setTimeout(() => input.focus(), 10);
         }
