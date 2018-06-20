@@ -46,6 +46,7 @@ static void command_download_layout(request_rec *r, const rjson::object& args);
 static void command_download_table_map_distances(request_rec *r, const rjson::object& args);
 static void command_download_distances_between_all_points(request_rec *r, const rjson::object& args);
 static void command_download_error_lines(request_rec *r, const rjson::object& args);
+static void command_sequences_of_chart(request_rec *r, const rjson::object& args);
 
 // ----------------------------------------------------------------------
 
@@ -190,6 +191,8 @@ int process_post_request(request_rec* r)
             command_download_distances_between_all_points(r, data);
         else if (command == "download_error_lines")
             command_download_error_lines(r, data);
+        else if (command == "sequences_of_chart")
+            command_sequences_of_chart(r, data);
         else
             std::cerr << "ERROR: mod_acmacs: unrecognized command in the post request: " << source_data << '\n';
     }
@@ -305,6 +308,17 @@ void command_download_error_lines(request_rec *r, const rjson::object& args)
     ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
 
 } // command_download_error_lines
+
+// ----------------------------------------------------------------------
+
+void command_sequences_of_chart(request_rec *r, const rjson::object& /*args*/)
+{
+    auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+    ap_set_content_type(r, "application/json");
+    std::string data = "{\"sequences\": \"whoa\"}";
+    ap_rwrite(data.data(), static_cast<int>(data.size()), r);
+
+} // command_sequences_of_chart
 
 // ----------------------------------------------------------------------
 

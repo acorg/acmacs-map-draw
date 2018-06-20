@@ -62,14 +62,13 @@ class Api
         this._download({command: Object.assign({C: "download_distances_between_all_points", id: this.source_id, format: "csv", projection_no: 0}, args), suffix: ".map-distances.csv", blob_type: "application/octet-stream"});
     }
 
-    // // {command:, blob_type:}
+    get_sequences() {
+        return this._post({command: {C: "sequences_of_chart", id: this.source_id}, responseType: 'json'});
+    }
+
+    // {command:, blob_type:}
     _download(args) {
-        $.post({
-            url: this.uri + "?acv=post",
-            data: JSON.stringify(args.command),
-            cache: false,
-            xhr: () => { let xhr = new XMLHttpRequest(); xhr.responseType= 'blob'; return xhr; }
-        }).done(result => {
+        this._post(args).done(result => {
             const pathname = this.uri.split("/");
             let filename = pathname[pathname.length - 1];
             if (filename.substr(filename.length - args.suffix.length, args.suffix.length) !== args.suffix)
@@ -79,6 +78,16 @@ class Api
             link[0].click();
             link.remove();
             window.setTimeout(() =>  window.URL.revokeObjectURL(url), 100);   // For Firefox it is necessary to delay revoking the ObjectURL
+        });
+    }
+
+    // {command:, responseType}
+    _post(args) {
+        return $.post({
+            url: this.uri + "?acv=post",
+            data: JSON.stringify(args.command),
+            cache: false,
+            xhr: () => { let xhr = new XMLHttpRequest(); xhr.responseType = args.responseType || 'blob'; return xhr; }
         });
     }
 }
