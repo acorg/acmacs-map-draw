@@ -35,6 +35,8 @@ export class Surface
         this.canvas = canvas;
         this.canvas.prop(args.canvas || {width: 300, height: 300});
         this.context = this.canvas[0].getContext('2d', {alpha: false});
+        this.context.fillStyle = "#F8F8F8";
+        this.context.fillRect(0, 0, this.canvas.width(), this.canvas.height()); // clear canvas, otherwise chrome makes it black
         if (args.viewport)
             this.set_viewport(args.viewport);
     }
