@@ -267,6 +267,31 @@ ul.a-title-mouse-popup > li .a-sequenced {
     font-family: monospace;
 }
 
+.view-dialog-movable tr.coloring-aa-pos > td.coloring-aa-pos > a {
+    text-decoration: none;
+    margin-left: 1em;
+}
+
+.amw201805-movable-window.coloring-aa-pos-hint > .a-content {
+    margin-top: 1em;
+}
+
+.amw201805-movable-window.coloring-aa-pos-hint > .a-content > table td.a-pos {
+    text-align: right;
+    padding-right: 0.2em;
+}
+
+.amw201805-movable-window.coloring-aa-pos-hint > .a-content > table td.a-aa {
+    text-align: center;
+    padding-left: 0.3em;
+    border-left: thin solid grey;
+}
+
+.amw201805-movable-window.coloring-aa-pos-hint > .a-content > table td.a-count {
+    text-align: right;
+    padding-right: 0.3em;
+}
+
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */
 /* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */

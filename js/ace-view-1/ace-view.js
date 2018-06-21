@@ -1609,7 +1609,7 @@ const ViewDialog_html = "\
   </tr>\
   <tr class='coloring-aa-pos'>\
     <td class='a-label'>Positions</td>\
-    <td class='coloring-aa-pos'><input type='text'></input></td>\
+    <td class='coloring-aa-pos'><input type='text'></input><a href='coloring-aa-pos-hint'>hint</a></td>\
   </tr>\
   <tr class='coloring-legend'>\
     <td class='a-label'>Legend</td>\
@@ -1789,7 +1789,9 @@ class ViewDialog
         const coloring = this.widget.coloring.coloring();
         const tr_coloring_aa_pos = this.content.find("table tr.coloring-aa-pos");
         const input = tr_coloring_aa_pos.find("input");
+        const hint = tr_coloring_aa_pos.find("a");
         input.off("keypress");
+        hint.off("click");
         if (coloring === "aa_pos") {
             input.on("keypress", evt => {
                 if (evt.charCode === 13) {
@@ -1799,6 +1801,7 @@ class ViewDialog
                     }
                 }
             });
+            hint.on("click", evt => acv_utils.forward_event(evt, evt => this._aa_positions_hint($(evt.currentTarget))));
             const positions = this.widget.coloring.positions();
             if (positions && positions.length)
                 input.val(positions.join(" "));
@@ -1808,6 +1811,33 @@ class ViewDialog
         else {
             tr_coloring_aa_pos.hide();
         }
+    }
+
+    _aa_positions_hint(parent) {
+        const movable_window = new acv_toolkit.MovableWindow({
+            title: "AA positions", parent: parent,
+            classes: "coloring-aa-pos-hint",
+            content_css: {width: "auto", height: "auto"}
+        });
+        const content = movable_window.content();
+        const fill = () => {
+            const tbl = $("<table></table>").appendTo(content.empty());
+            console.log("seq", this.widget.sequences_);
+            Object.entries(this.widget.sequences_.per_pos).forEach(entry1 => {
+                if (Object.keys(entry1[1]).length > 1) {
+                    const row = $(`<tr><td class='a-pos'>${entry1[0]}</td></tr>`).appendTo(tbl);
+                    const aa_order = Object.keys(entry1[1]).sort((aa1, aa2) => entry1[1][aa2] - entry1[1][aa1]);
+                    aa_order.forEach(aa => {
+                        row.append(`<td class='a-aa'>${aa}</td><td class='a-count'>${entry1[1][aa]}</td>`);
+                    });
+                }
+            });
+            window.setTimeout(() => {
+                if (content.height() > 300)
+                    content.css("height", "300px");
+            }, 10);
+        };
+        fill();
     }
 }
 
