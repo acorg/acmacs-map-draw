@@ -1837,7 +1837,13 @@ class ViewDialog
                     content.css("height", "300px");
             }, 10);
         };
-        fill();
+        const wait_fill = () => {
+            if (this.widget.sequences_ && typeof(this.widget.sequences_) !== "string")
+                fill();
+            else
+                window.setTimeout(wait_fill, 100);
+        };
+        wait_fill();
     }
 }
 
