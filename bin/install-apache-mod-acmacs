@@ -37,7 +37,7 @@ elif [[ "$(hostname)" == "jagd" ]]; then
         if sudo /usr/bin/killall httpd 2>/dev/null; then
             sleep 3
         fi
-        sudo /usr/sbin/httpd-wrapper
+        sudo ACMACSD_ROOT="${HOME}/AD" /usr/sbin/httpd-wrapper
     else
         echo "${AD_LIB_DIR}/mod_acmacs.so not found" >&2 && false
     fi
