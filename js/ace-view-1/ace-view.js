@@ -1257,7 +1257,7 @@ class Coloring_AAPos extends Coloring_WithAllStyles
     constructor(widget) {
         super(widget);
         this._make_styles({set_point_rank: true});
-        widget.sequences().then(data => this._sequences_received(data));
+        widget.sequences().then(data => this._sequences_received(data)).catch(error => console.log("Coloring_AAPos::constructor sequences error", error));
     }
 
     coloring() {

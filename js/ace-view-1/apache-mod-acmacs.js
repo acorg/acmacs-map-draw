@@ -62,13 +62,13 @@ class Api
         this._download({command: Object.assign({C: "download_distances_between_all_points", id: this.source_id, format: "csv", projection_no: 0}, args), suffix: ".map-distances.csv", blob_type: "application/octet-stream"});
     }
 
-    get_sequences() {
-        return this._post({command: {C: "sequences_of_chart", id: this.source_id}, responseType: 'json'});
+    async get_sequences() {
+        return Promise.resolve(this._post_expect_json({command: {C: "sequences_of_chart", id: this.source_id}}));
     }
 
     // {command:, blob_type:}
     _download(args) {
-        this._post(args).done(result => {
+        this._post_expect_blob(args).done(result => {
             const pathname = this.uri.split("/");
             let filename = pathname[pathname.length - 1];
             if (filename.substr(filename.length - args.suffix.length, args.suffix.length) !== args.suffix)
@@ -81,14 +81,19 @@ class Api
         });
     }
 
-    // {command:, responseType}
-    _post(args) {
+    // {command:}
+    _post_expect_blob(args) {
         return $.post({
             url: this.uri + "?acv=post",
             data: JSON.stringify(args.command),
             cache: false,
-            xhr: () => { let xhr = new XMLHttpRequest(); xhr.responseType = args.responseType || 'blob'; return xhr; }
+            xhr: () => { let xhr = new XMLHttpRequest(); xhr.responseType = "blob"; return xhr; }
         });
+    }
+
+    // {command:}
+    _post_expect_json(args) {
+        return $.post(this.uri + "?acv=post", JSON.stringify(args.command));
     }
 }
 

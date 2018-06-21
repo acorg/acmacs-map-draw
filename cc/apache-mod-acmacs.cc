@@ -311,12 +311,17 @@ void command_download_error_lines(request_rec *r, const rjson::object& args)
 
 // ----------------------------------------------------------------------
 
-void command_sequences_of_chart(request_rec *r, const rjson::object& /*args*/)
+void command_sequences_of_chart(request_rec* r, const rjson::object& /*args*/)
 {
-    auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
-    ap_set_content_type(r, "application/json");
-    std::string data = "{\"sequences\": \"whoa\"}";
-    ap_rwrite(data.data(), static_cast<int>(data.size()), r);
+    try {
+        auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+        ap_set_content_type(r, "application/json");
+        std::string data = "{\"sequences\": \"whoa\"}";
+        ap_rwrite(data.data(), static_cast<int>(data.size()), r);
+    }
+    catch (std::exception& err) {
+        std::cerr << "ERROR: command_sequences_of_chart: " << err.what() << '\n';
+    }
 
 } // command_sequences_of_chart
 
