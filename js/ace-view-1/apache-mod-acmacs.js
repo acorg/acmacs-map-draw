@@ -5,7 +5,7 @@ import * as acv_m from "./ace-view.js";
 // args: {parent:, uri:, view_mode:, coloring:, }
 export function show_antigenic_map_widget(args) {
     const widget_options = {
-        view_mode: args.view_mode || "best-projection",
+        view_mode: {mode: args.view_mode || "best-projection"},
         coloring: args.coloring || "default",
         canvas_size: args.canvas_size || {width: 0, height: 0},
         api: new Api({uri: args.uri}),

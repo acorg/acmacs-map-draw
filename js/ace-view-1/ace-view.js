@@ -139,14 +139,14 @@ class BurgerMenu extends acv_toolkit.Modal
         }, destroy));
 
         this.find("a[href='search']").on("click", evt => acv_utils.forward_event(evt, () => console.log("search"), destroy));
-        this.find("a[href='clades']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_coloring("clade"), destroy));
-        this.find("a[href='continents']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_coloring("continent"), destroy));
-        this.find("a[href='color-by-default']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_coloring("default"), destroy));
-        this.find("a[href='best-projection']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode({mode: "best-projection"}), destroy));
-        this.find("a[href='time-series']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode(Object.assign({mode: "time-series"}, JSON.parse(evt.target.getAttribute("args")))), destroy));
-        this.find("a[href='table-series']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode({mode: "table-series", shading: "hide"}), destroy));
-        this.find("a[href='table-series-shade']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode({mode: "table-series", shading: "shade"}), destroy));
-        this.find("a[href='clade-series']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode({mode: "series-clade", shading: "shade"}), destroy));
+        // this.find("a[href='clades']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_coloring("clade"), destroy));
+        // this.find("a[href='continents']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_coloring("continent"), destroy));
+        // this.find("a[href='color-by-default']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_coloring("default"), destroy));
+        // this.find("a[href='best-projection']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode({mode: "best-projection"}), destroy));
+        // this.find("a[href='time-series']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode(Object.assign({mode: "time-series"}, JSON.parse(evt.target.getAttribute("args")))), destroy));
+        // this.find("a[href='table-series']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode({mode: "table-series", shading: "hide"}), destroy));
+        // this.find("a[href='table-series-shade']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode({mode: "table-series", shading: "shade"}), destroy));
+        // this.find("a[href='clade-series']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode({mode: "series-clade", shading: "shade"}), destroy));
         this.find("a[href='table']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.show_table(evt.currentTarget), destroy));
         this.find("a[href='view']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.show_view_dialog(evt.currentTarget), destroy));
         this.find("a[href='help']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.show_help(evt.currentTarget), destroy));
@@ -337,10 +337,15 @@ export class AntigenicMapWidget
         }
     }
 
-    set_view_mode(args) {
-        switch (args.mode) {
+    set_view_mode(args={}) {
+        const mode = args.mode || (this.view_mode && this.view_mode.mode()) || "best-projection";
+        const shading = args.shading || (this.view_mode && this.view_mode.shading()) || "shade";
+        const period = args.period || (this.view_mode && this.view_mode.period());
+        const page = args.page || (this.view_mode && this.view_mode.current_page());
+        args = Object.assign({}, args, {period: period, page: page});
+        switch (mode) {
         case "time-series":
-            switch (args.shading) {
+            switch (shading) {
             case "hide":
                 this.view_mode = new DrawingMode_TimeSeries(this, args);
                 break;
@@ -354,19 +359,19 @@ export class AntigenicMapWidget
             }
             break;
         case "table-series":
-            switch (args.shading) {
+            switch (shading) {
             case "hide":
-                this.view_mode = new DrawingMode_TableSeries(this);
+                this.view_mode = new DrawingMode_TableSeries(this, args);
                 break;
             case "shade":
             default:
-                this.view_mode = new DrawingMode_TableSeriesShade(this);
+                this.view_mode = new DrawingMode_TableSeriesShade(this, args);
                 break;
             }
             break;
         case "best-projection":
         default:
-            this.view_mode = new DrawingMode_Best_Projection(this);
+            this.view_mode = new DrawingMode_Best_Projection(this, args);
             break;
         }
         if (args.projection_no !== undefined)
@@ -744,6 +749,10 @@ class DrawingMode_Base
         return this.projection_no_;
     }
 
+    current_page() {
+        return undefined;
+    }
+
     point_scale() {
         return this.widget.parameters.point_scale;
     }
@@ -822,17 +831,21 @@ class DrawingMode_Series extends DrawingMode_Base
         return this.drawing_order_background_;
     }
 
+    current_page() {
+        return this.page_no;
+    }
 }
 
 // ----------------------------------------------------------------------
 
 class DrawingMode_TimeSeries extends DrawingMode_Series
 {
-    constructor(widget, args) {
+    constructor(widget, args={}) {
         super(widget);
         this.period_ = (args && args.period) || "month";
         this.make_pages();
-        this.set_page(this.pages.length - 1);
+        console.log("constructor", args);
+        this.set_page(args.page === undefined ? this.pages.length - 1 : args.page);
     }
 
     mode() {
@@ -934,10 +947,10 @@ class DrawingMode_TimeSeriesShade extends DrawingMode_TimeSeriesGrey
 
 class DrawingMode_TableSeries extends DrawingMode_Series
 {
-    constructor(widget, args) {
+    constructor(widget, args={}) {
         super(widget);
         this.make_pages();
-        this.set_page(this.pages.length - 1);
+        this.set_page(args.page === undefined ? this.pages.length - 1 : args.page);
     }
 
     mode() {
@@ -1678,7 +1691,7 @@ class ViewDialog
             const entries = args.chart.P.map((prj, index) => `<option value="${index}">${this.projection_title(prj, index)}</option>`).join();
             const select = $(`<select>${entries}</select>`).appendTo(table.find("td.projection-chooser"));
             select.on("change", evt => acv_utils.forward_event(evt, evt => {
-                this.widget.set_view_mode({mode: this.widget.view_mode.mode(), shading: this.widget.view_mode.shading(), period: this.widget.view_mode.period(), projection_no: this.projection_no()});
+                this.widget.set_view_mode({projection_no: this.projection_no()});
             }));
         }
 
@@ -1703,15 +1716,15 @@ class ViewDialog
         if (this.widget.features["table-series"])
             td_mode.append("<a href='table-series'>table series</a>");
         td_mode.find("a").on("click", evt => acv_utils.forward_event(evt, evt => {
-            this.widget.set_view_mode({mode: evt.currentTarget.getAttribute("href"), shading: "shade", projection_no: this.projection_no()});
+            this.widget.set_view_mode({mode: evt.currentTarget.getAttribute("href"), projection_no: this.projection_no()});
             this.set_current_mode();
         }));
         table.find("td.period > a").on("click", evt => acv_utils.forward_event(evt, evt => {
-            this.widget.set_view_mode({mode: this.widget.view_mode.mode(), shading: this.widget.view_mode.shading(), period: evt.currentTarget.getAttribute("href"), projection_no: this.projection_no()});
+            this.widget.set_view_mode({period: evt.currentTarget.getAttribute("href"), projection_no: this.projection_no()});
             this.set_current_mode();
         }));
         table.find("td.shading > a").on("click", evt => acv_utils.forward_event(evt, evt => {
-            this.widget.set_view_mode({mode: this.widget.view_mode.mode(), shading: evt.currentTarget.getAttribute("href"), period: this.widget.view_mode.period(), projection_no: this.projection_no()});
+            this.widget.set_view_mode({shading: evt.currentTarget.getAttribute("href"), projection_no: this.projection_no()});
             this.set_current_mode();
         }));
 
@@ -1796,7 +1809,7 @@ class ViewDialog
             input.on("keypress", evt => {
                 if (evt.charCode === 13) {
                     if (this.widget.coloring.set_positions(evt.currentTarget.value.split(/[^0-9]/).filter(entry => !!entry))) {
-                        this.widget.set_view_mode({mode: this.widget.view_mode.mode(), shading: this.widget.view_mode.shading(), period: this.widget.view_mode.period(), projection_no: this.projection_no()});
+                        this.widget.set_view_mode({projection_no: this.projection_no()});
                         this.set_current_mode();
                     }
                 }
