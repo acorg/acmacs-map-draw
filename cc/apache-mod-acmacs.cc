@@ -315,8 +315,8 @@ void command_sequences_of_chart(request_rec* r, const rjson::object& /*args*/)
 {
     try {
         auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+        const auto data = seqdb::sequences_of_chart_for_ace_view_1(*chart);
         ap_set_content_type(r, "application/json");
-        std::string data = "{\"sequences\": \"whoa\"}";
         ap_rwrite(data.data(), static_cast<int>(data.size()), r);
     }
     catch (std::exception& err) {
