@@ -1817,19 +1817,35 @@ class ViewDialog
             classes: "coloring-aa-pos-hint",
             content_css: {width: "auto", height: "auto"}
         });
-        const content = movable_window.content();
-        const fill = () => {
-            const tbl = $("<table></table>").appendTo(content.empty());
-            console.log("seq", this.widget.sequences_);
-            Object.entries(this.widget.sequences_.per_pos).forEach(entry1 => {
-                if (Object.keys(entry1[1]).length > 1) {
-                    const row = $(`<tr><td class='a-pos'>${entry1[0]}</td></tr>`).appendTo(tbl);
-                    const aa_order = Object.keys(entry1[1]).sort((aa1, aa2) => entry1[1][aa2] - entry1[1][aa1]);
+        const content = movable_window.content().empty();
+        const compare_shannon = (e1, e2) => e2[1].shannon - e1[1].shannon;
+        const compare_position = (e1, e2) => e1[0] - e2[0];
+        let sort_by = "shannon";
+        const make_table = tbl => {
+            tbl.empty();
+            Object.entries(this.widget.sequences_.per_pos).sort(sort_by === "shannon" ? compare_shannon : compare_position).forEach(entry => {
+                let [pos, sh_count] = entry;
+                if (Object.keys(sh_count.aa_count).length > 1) {
+                    const row = $(`<tr><td class='a-pos'>${pos}</td></tr>`).appendTo(tbl);
+                    const aa_order = Object.keys(sh_count.aa_count).sort((aa1, aa2) => sh_count.aa_count[aa2] - sh_count.aa_count[aa1]);
                     aa_order.forEach(aa => {
-                        row.append(`<td class='a-aa'>${aa}</td><td class='a-count'>${entry1[1][aa]}</td>`);
+                        row.append(`<td class='a-aa'>${aa}</td><td class='a-count'>${sh_count.aa_count[aa]}</td>`);
                     });
                 }
             });
+        };
+        const fill = () => {
+            const sort_by_button = $("<a href='sort-by'></a>").appendTo(content);
+            const sort_by_text = () => { sort_by_button.empty().append(sort_by === "shannon" ? "re-sort by position" : "re-sort by shannon index"); };
+            const tbl = $("<table></table>").appendTo(content);
+            sort_by_button.on("click", evt => acv_utils.forward_event(evt, evt => {
+                sort_by = sort_by === "shannon" ? "position" : "shannon";
+                make_table(tbl);
+                sort_by_text();
+            }));
+            console.log("per_pos", this.widget.sequences_.per_pos);
+            sort_by_text();
+            make_table(tbl);
             window.setTimeout(() => {
                 if (content.height() > 300)
                     content.css("height", "300px");

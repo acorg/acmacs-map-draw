@@ -276,6 +276,11 @@ ul.a-title-mouse-popup > li .a-sequenced {
     margin-top: 1em;
 }
 
+.amw201805-movable-window.coloring-aa-pos-hint > .a-content > a {
+    text-decoration: none;
+    margin: 0 0 0.5em 1em;
+}
+
 .amw201805-movable-window.coloring-aa-pos-hint > .a-content > table td.a-pos {
     text-align: right;
     padding-right: 0.2em;
