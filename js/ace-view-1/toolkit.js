@@ -4,7 +4,15 @@ acv_utils.load_css("/js/ad/map-draw/ace-view-1/toolkit.css");
 
 // ----------------------------------------------------------------------
 
-export const ana_colors = ["#03569b", "#e72f27", "#ffc808", "#a2b324", "#a5b8c7", "#049457", "#f1b066", "#742f32", "#9e806e", "#75ada9", "#675b2c", "#a020f0", "#8b8989", "#e9a390", "#dde8cf", "#00939f"];
+export const sGREY = "#c0c0c0";
+export const sLIGHTGREY = "#e0e0e0";
+const sAnaColors = ["#03569b", "#e72f27", "#ffc808", "#a2b324", "#a5b8c7", "#049457", "#f1b066", "#742f32", "#9e806e", "#75ada9", "#675b2c", "#a020f0", "#8b8989", "#e9a390", "#dde8cf", "#00939f"];
+
+export function ana_colors(index) {
+    if (index < 0 || index >= sAnaColors.length)
+        return sGREY;
+    return sAnaColors[index];
+}
 
 // ----------------------------------------------------------------------
 

@@ -1068,9 +1068,6 @@ class Coloring_Default extends Coloring_Base
 
 // ----------------------------------------------------------------------
 
-const sGREY = "#c0c0c0";
-const sLIGHTGREY = "#e0e0e0";
-
 class Coloring_WithAllStyles extends Coloring_Base
 {
     constructor(widget) {
@@ -1085,7 +1082,7 @@ class Coloring_WithAllStyles extends Coloring_Base
         this.styles_ = {index: acv_utils.array_of_indexes(all_styles.length), styles: all_styles};
         chart.s.forEach((serum, serum_no) => {
             delete this.styles_.styles[serum_no + chart.a.length].F;
-            this.styles_.styles[serum_no + chart.a.length].O = sGREY;
+            this.styles_.styles[serum_no + chart.a.length].O = acv_toolkit.sGREY;
         });
     }
 
@@ -1198,9 +1195,9 @@ const sCladeColors = {
     "NO-GLY": "#ffa500",
     // "GLY": "#ff00a5",
     "GLY": "#ffa500",
-    "": sGREY,
-    undefined: sGREY,
-    null: sGREY
+    "": acv_toolkit.sGREY,
+    undefined: acv_toolkit.sGREY,
+    null: acv_toolkit.sGREY
 };
 
 class Coloring_Clade extends Coloring_WithAllStyles
@@ -1284,14 +1281,11 @@ class Coloring_AAPos extends Coloring_WithAllStyles
             this.antigen_aa_  = Object.entries(this.sequences_.antigens).map(entry => { return {no: parseInt(entry[0]), aa: this.positions_.map(pos => entry[1][pos - 1]).join("")}; });
             const aa_count = this.antigen_aa_.reduce((count, entry) => { count[entry.aa] = (count[entry.aa] || 0) + 1; return count; }, {});
             this.aa_order_ = Object.keys(aa_count).sort((e1, e2) => aa_count[e2] - aa_count[e1]);
-            // if (this.aa_order_.length)
-            //     this.legend_ = this.aa_order_.map((aa, index) => { return {name: /* this.positions_[0] + */ aa, count: aa_count[aa], color: acv_toolkit.ana_colors[index]}; });
             if (args && args.set_point_rank)
                 this.point_rank_ = Array.apply(null, {length: this.widget.data.c.a.length}).map(() => -1).concat(Array.apply(null, {length: this.widget.data.c.s.length}).map(() => -2));
             this.antigen_aa_.forEach(entry => {
                 const aa_index = this.aa_order_.indexOf(entry.aa);
-                const color = acv_toolkit.ana_colors[aa_index] || sGREY;
-                this.styles_.styles[entry.no].F = color;
+                this.styles_.styles[entry.no].F = acv_toolkit.ana_colors(aa_index);
                 this.styles_.styles[entry.no].O = "black";
                 if (args && args.set_point_rank)
                     this.point_rank_[entry.no] = aa_index;
@@ -1316,7 +1310,7 @@ class Coloring_AAPos extends Coloring_WithAllStyles
                 count[entry.aa] = (count[entry.aa] || 0) + 1;
             return count;
         }, {});
-        this.legend_ = this.aa_order_.map((aa, index) => aa_count[aa] ? {name: aa, count: aa_count[aa], color: acv_toolkit.ana_colors[index]} : null).filter(elt => !!elt);
+        this.legend_ = this.aa_order_.map((aa, index) => aa_count[aa] ? {name: aa, count: aa_count[aa], color: acv_toolkit.ana_colors(index)} : null).filter(elt => !!elt);
     }
 
     legend() {
@@ -1345,7 +1339,7 @@ class Coloring_AAPos extends Coloring_WithAllStyles
 
     _reset_styles() {
         this.widget.data.c.a.forEach((antigen, antigen_no) => {
-            this.styles_.styles[antigen_no].F = this.styles_.styles[antigen_no].O = sLIGHTGREY;
+            this.styles_.styles[antigen_no].F = this.styles_.styles[antigen_no].O = acv_toolkit.sLIGHTGREY;
         });
     }
 
