@@ -62,55 +62,6 @@ const BurgerMenu_html = "\
 </ul>\
 ";
 
-// const BurgerMenu_html = "\
-// <ul class='a-level-0'>\
-//   <!-- <li class='a-disabled'><a href='search'>Search</a></li> -->\
-//   <li><a href='#'>Coloring</a><span class='a-right-arrow'>&#9654;</span>\
-//     <ul class='a-level-1'>\
-//       <li class='a-disabled' name='clades'><a href='clades'>by Clade</a></li>\
-//       <li class='a-disabled' name='continents'><a href='continents'>by Geography</a></li>\
-//       <li                    name='color-by-default'><a href='color-by-default'>reset to default</a></li>\
-//     </ul>\
-//   </li>\
-//   <li><a href='#'>View</a><span class='a-right-arrow'>&#9654;</span>\
-//     <ul class='a-level-1'>\
-//       <li class='a-disabled' name='best-projection'><a href='best-projection'>Best projection</a></li>\
-//       <li class='a-separator'></li>\
-//       <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"month\", \"shading\": \"shade\"}'>Time series, monthly (shade)</a></li>\
-//       <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"month\", \"shading\": \"hide\"}' >Time series, monthly</a></li>\
-//       <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"month\", \"shading\": \"grey\"}' >Time series, monthly (grey)</a></li>\
-//       <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"year\",  \"shading\": \"shade\"}'>Time series, yearly (shade)</a></li>\
-//       <li class='a-disabled' name='time-series'><a href='time-series' args='{\"period\":\"season\",\"shading\": \"shade\"}'>Time series, Winter/Summer (shade)</a></li>\
-//       <li class='a-separator'></li>\
-//       <li class='a-disabled' name='table-series'><a href='table-series'>Table series</a></li>\
-//       <li class='a-disabled' name='table-series-shade'><a href='table-series-shade'>Table series (shade)</a></li>\
-//       <!-- <li class='a-disabled' name='clade-series'><a href='clade-series'>Clade series</a></li> -->\
-//     </ul>\
-//   </li>\
-//   <li><a href='#'>Download</a><span class='a-right-arrow'>&#9654;</span>\
-//     <ul class='a-level-1'>\
-//       <li class='a-disabled' name='download_pdf'><a href='download_pdf'>PDF</a></li>\
-//       <li class='a-separator'></li>\
-//       <li class='a-disabled' name='download_ace'><a href='download_ace'>ace</a></li>\
-//       <li class='a-disabled' name='download_save'><a href='download_save'>Lispmds Save</a></li>\
-//       <li class='a-separator'></li>\
-//       <li class='a-disabled' name='download_layout_plain'><a href='download_layout_plain'>Layout (plain text)</a></li>\
-//       <li class='a-disabled' name='download_layout_csv'><a href='download_layout_csv'>Layout (csv)</a></li>\
-//       <li class='a-separator'></li>\
-//       <li class='a-disabled' name='download_table_map_distances_plain'><a href='download_table_map_distances_plain'>Table vs. Map Distances (plain text)</a></li>\
-//       <li class='a-disabled' name='download_table_map_distances_csv'><a href='download_table_map_distances_csv'>Table vs. Map Distances (csv)</a></li>\
-//       <li class='a-disabled' name='download_error_lines'><a href='download_error_lines'>Error lines (csv)</a></li>\
-//       <li class='a-disabled' name='download_distances_between_all_points_plain'><a href='download_distances_between_all_points_plain'>Distances Between All Points (plain text)</a></li>\
-//       <li class='a-disabled' name='download_distances_between_all_points_csv'><a href='download_distances_between_all_points_csv'>Distances Between All Points (csv)</a></li>\
-//     </ul>\
-//   </li>\
-//   <li><a href='table'>Table</a></li>\
-//   <li><a href='raw'>Raw</a></li>\
-//   <li class='a-separator'></li>\
-//   <li><a href='help'>Help</a></li>\
-// </ul>\
-// ";
-
 const API_Features = [
     "download_pdf", "download_ace", "download_save",
     "download_layout_plain", "download_layout_csv",
@@ -132,21 +83,12 @@ class BurgerMenu extends acv_toolkit.Modal
     bind() {
         const destroy = () => this.destroy();
 
-        // this.find("a[href='raw']").on("click", evt => acv_utils.forward_event(evt, () => acv_toolkit.movable_window_with_json(this.parent.data, evt.currentTarget, "map view raw data"), destroy));
         this.find("a[href='raw']").on("click", evt => acv_utils.forward_event(evt, () => {
             console.log("amw raw data", this.parent.data);
             // alert("Please see raw data in the console");
         }, destroy));
 
         this.find("a[href='search']").on("click", evt => acv_utils.forward_event(evt, () => console.log("search"), destroy));
-        // this.find("a[href='clades']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_coloring("clade"), destroy));
-        // this.find("a[href='continents']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_coloring("continent"), destroy));
-        // this.find("a[href='color-by-default']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_coloring("default"), destroy));
-        // this.find("a[href='best-projection']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode({mode: "best-projection"}), destroy));
-        // this.find("a[href='time-series']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode(Object.assign({mode: "time-series"}, JSON.parse(evt.target.getAttribute("args")))), destroy));
-        // this.find("a[href='table-series']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode({mode: "table-series", shading: "hide"}), destroy));
-        // this.find("a[href='table-series-shade']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode({mode: "table-series", shading: "shade"}), destroy));
-        // this.find("a[href='clade-series']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.set_view_mode({mode: "series-clade", shading: "shade"}), destroy));
         this.find("a[href='table']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.show_table(evt.currentTarget), destroy));
         this.find("a[href='view']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.show_view_dialog(evt.currentTarget), destroy));
         this.find("a[href='help']").on("click", evt => acv_utils.forward_event(evt, () => this.parent.show_help(evt.currentTarget), destroy));
@@ -368,6 +310,9 @@ export class AntigenicMapWidget
                 this.view_mode = new DrawingMode_TableSeriesShade(this, args);
                 break;
             }
+            break;
+        case "group-series":
+            this.view_mode = new DrawingMode_GroupSeries(this, args);
             break;
         case "best-projection":
         default:
@@ -1017,19 +962,44 @@ class DrawingMode_TableSeriesShade extends DrawingMode_TableSeries
 
 // ----------------------------------------------------------------------
 
-// const view_mode_selector_data = {
-//     "best-projection": DrawingMode_Best_Projection,
-//     "time-series": DrawingMode_TimeSeries,
-//     "time-series-shade": DrawingMode_TimeSeriesShade,
-//     "time-series-grey": DrawingMode_TimeSeriesGrey,
-//     "table-series": DrawingMode_TableSeries,
-//     "table-series-shade": DrawingMode_TableSeriesShade,
-//     null: DrawingMode_Best_Projection
-// };
+class DrawingMode_GroupSeries extends DrawingMode_Series
+{
+    constructor(widget, args={}) {
+        super(widget);
+        this.shading_ = args.shading || "shade";
+        this.pages = ["*no-groups*"];
+        this.set_page(args.page === undefined ? 0 : args.page);
+    }
 
-// function select_view_mode(mode, widget) {
-//     return new (view_mode_selector_data[mode] || view_mode_selector_data[null])(widget);
-// }
+    mode() {
+        return "group-series";
+    }
+
+    shading() {
+        return this.shading_;
+    }
+
+    make_pages() {
+        const number_of_layers = this.widget.data.c.t.L.length;
+        const make_name = (source, index) => {
+            if (source && source.D)
+                return `${source.D} (${index + 1}/${number_of_layers})`;
+            else
+                return `Table ${index + 1}/${number_of_layers}`;
+        };
+        if (this.widget.data.c.i.S)
+            this.pages = this.widget.data.c.i.S.map(make_name);
+        else
+            this.pages = this.widget.data.c.t.L.map(make_name);
+    }
+
+    make_drawing_order() {
+        const chart = this.widget.data.c;
+        this.drawing_order_ = [];
+        this.drawing_order_background_ = acv_utils.array_of_indexes(chart.a.length + chart.s.length);
+    }
+
+}
 
 // ----------------------------------------------------------------------
 
@@ -1694,6 +1664,7 @@ class ViewDialog
             td_mode.append("<a href='time-series'>time series</a>");
         if (this.widget.features["table-series"])
             td_mode.append("<a href='table-series'>table series</a>");
+        td_mode.append("<a href='group-series'>group series</a>");
         td_mode.find("a").on("click", evt => acv_utils.forward_event(evt, evt => {
             this.widget.set_view_mode({mode: evt.currentTarget.getAttribute("href"), projection_no: this.projection_no()});
             this.set_current_mode();
