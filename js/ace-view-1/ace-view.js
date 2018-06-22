@@ -1597,6 +1597,17 @@ const ViewDialog_html = "\
       <a href='grey'>grey</a>\
     </td>\
   </tr>\
+  <tr class='group-series'>\
+    <td class='a-label'>Group Sets</td>\
+    <td class='group-series'>\
+      <div class='a-sets'>\
+      </div>\
+      <div class='a-buttons'>\
+        <a href='upload'>upload</a>\
+        <a href='download'>download sample</a>\
+      </div>\
+    </td>\
+  </tr>\
 </table>\
 ";
 
@@ -1659,12 +1670,12 @@ class ViewDialog
         }));
 
         const td_mode = table.find("td.mode");
+        td_mode.append("<a href='group-series'>group series</a>");
         td_mode.append("<a href='projection'>projection</a>");
         if (this.widget.features["time-series"])
             td_mode.append("<a href='time-series'>time series</a>");
         if (this.widget.features["table-series"])
             td_mode.append("<a href='table-series'>table series</a>");
-        td_mode.append("<a href='group-series'>group series</a>");
         td_mode.find("a").on("click", evt => acv_utils.forward_event(evt, evt => {
             this.widget.set_view_mode({mode: evt.currentTarget.getAttribute("href"), projection_no: this.projection_no()});
             this.set_current_mode();
@@ -1726,6 +1737,7 @@ class ViewDialog
         tr_shading.find(`a[href="${this.widget.view_mode.shading()}"]`).addClass("a-current");
 
         this.handle_aa_position_entry();
+        this.handle_group_series();
         this.show_legend();
     }
 
@@ -1823,6 +1835,23 @@ class ViewDialog
                 window.setTimeout(wait_fill, 100);
         };
         wait_fill();
+    }
+
+    handle_group_series() {
+        const tr_group_series = this.content.find("table tr.group-series");
+        tr_group_series.find("a").off("click");
+        if (this.widget.view_mode.mode() === "group-series") {
+            tr_group_series.show();
+            tr_group_series.find("a[href='upload']").on("click", evt => acv_utils.forward_event(evt, evt => {
+                console.log("group series upload");
+            }));
+            tr_group_series.find("a[href='download']").on("click", evt => acv_utils.forward_event(evt, evt => {
+                console.log("group series download");
+            }));
+        }
+        else {
+            tr_group_series.hide();
+        }
     }
 }
 

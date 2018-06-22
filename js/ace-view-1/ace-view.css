@@ -297,6 +297,12 @@ ul.a-title-mouse-popup > li .a-sequenced {
     padding-right: 0.3em;
 }
 
+.view-dialog-movable tr.group-series > td.group-series > .a-buttons > a {
+    text-decoration: none;
+    margin-left: 1em;
+}
+
+
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */
 /* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */
