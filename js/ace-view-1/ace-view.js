@@ -1281,29 +1281,22 @@ class Coloring_AAPos extends Coloring_WithAllStyles
         this._reset_styles();
         this.legend_ = null;
         if (this.sequences_ && this.positions_ && this.positions_.length) {
-            const to_color = this.sequences_.per_pos[this.positions_[0]];
-            if (to_color) {
-                this.aa_order_ = Object.keys(to_color).sort((e1, e2) => to_color[e2] - to_color[e1]);
-                if (this.aa_order_.length) {
-                    this.legend_ = this.aa_order_.map((aa, index) => { return {name: /* this.positions_[0] + */ aa, count: to_color[aa], color: acv_toolkit.ana_colors[index]}; });
-                }
+            this.antigen_aa_  = Object.entries(this.sequences_.antigens).map(entry => { return {no: parseInt(entry[0]), aa: this.positions_.map(pos => entry[1][pos - 1]).join("")}; });
+            const aa_count = this.antigen_aa_.reduce((count, entry) => { count[entry.aa] = (count[entry.aa] || 0) + 1; return count; }, {});
+            this.aa_order_ = Object.keys(aa_count).sort((e1, e2) => aa_count[e2] - aa_count[e1]);
+            // if (this.aa_order_.length)
+            //     this.legend_ = this.aa_order_.map((aa, index) => { return {name: /* this.positions_[0] + */ aa, count: aa_count[aa], color: acv_toolkit.ana_colors[index]}; });
+            if (args && args.set_point_rank)
+                this.point_rank_ = Array.apply(null, {length: this.widget.data.c.a.length}).map(() => -1).concat(Array.apply(null, {length: this.widget.data.c.s.length}).map(() => -2));
+            this.antigen_aa_.forEach(entry => {
+                const aa_index = this.aa_order_.indexOf(entry.aa);
+                const color = acv_toolkit.ana_colors[aa_index] || sGREY;
+                this.styles_.styles[entry.no].F = color;
+                this.styles_.styles[entry.no].O = "black";
                 if (args && args.set_point_rank)
-                    this.point_rank_ = Array.apply(null, {length: this.widget.data.c.a.length}).map(() => -1).concat(Array.apply(null, {length: this.widget.data.c.s.length}).map(() => -2));
-                Object.entries(this.sequences_.antigens).map(entry => {
-                    const antigen_no = parseInt(entry[0]);
-                    const aa = entry[1][this.positions_[0] - 1];
-                    const aa_index = this.aa_order_.indexOf(aa);
-                    const color = acv_toolkit.ana_colors[aa_index] || sGREY;
-                    this.styles_.styles[antigen_no].F = color;
-                    this.styles_.styles[antigen_no].O = "black";
-                    if (args && args.set_point_rank)
-                        this.point_rank_[antigen_no] = aa_index;
-                });
-            }
+                    this.point_rank_[entry.no] = aa_index;
+            });
         }
-    }
-
-    _make_legend() {
     }
 
     drawing_order(original_drawing_order, options) {
@@ -1318,19 +1311,12 @@ class Coloring_AAPos extends Coloring_WithAllStyles
     }
 
     _make_legend() {
-        let aa_count = {};
-        this.drawing_order_.filter(no => no < this.widget.data.c.a.length).forEach(antigen_no => {
-            const antigen_sequence = this.sequences_.antigens[antigen_no];
-            if (antigen_sequence) {
-                const aa = antigen_sequence[this.positions_[0] - 1];
-                aa_count[aa] = (aa_count[aa] || 0) + 1;
-            }
-        });
-        this.legend_ = [];
-        this.aa_order_.forEach((aa, index) => {
-            if (aa_count[aa])
-                this.legend_.push({name: aa, count: aa_count[aa], color: acv_toolkit.ana_colors[index]});
-        });
+        const aa_count = this.antigen_aa_.reduce((count, entry) => {
+            if (this.drawing_order_.includes(entry.no))
+                count[entry.aa] = (count[entry.aa] || 0) + 1;
+            return count;
+        }, {});
+        this.legend_ = this.aa_order_.map((aa, index) => aa_count[aa] ? {name: aa, count: aa_count[aa], color: acv_toolkit.ana_colors[index]} : null).filter(elt => !!elt);
     }
 
     legend() {
@@ -1364,7 +1350,6 @@ class Coloring_AAPos extends Coloring_WithAllStyles
     }
 
     _sequences_received(data) {
-        // console.log("_sequences_received", data);
         this.sequences_ = data;
         this.widget.update_view_dialog();
     }
