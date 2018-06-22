@@ -1846,8 +1846,14 @@ class ViewDialog
                 console.log("group series upload");
             }));
             tr_group_series.find("a[href='download']").on("click", evt => acv_utils.forward_event(evt, evt => {
+                const chart = this.widget.data.c;
                 console.log("group series download");
-                const data = {"  version": "group-series-set-v1", "a": [], "s": [], "group_sets": []};
+                const data = {
+                    "  version": "group-series-set-v1",
+                    "a": chart.a.map((antigen, ag_no) => Object.assign({"?no": ag_no}, antigen)),
+                    "s": chart.s.map((serum, sr_no) => Object.assign({"?no": sr_no + chart.a.length}, serum)),
+                    "group_sets": []
+                };
                 const blob = new window.Blob([JSON.stringify(data, null, 1)], {type: "application/json"});
                 const url = window.URL.createObjectURL(blob);
                 const link = $(`<a href='${url}' download='group-series-sets.json'></a>`).appendTo($("body"));
