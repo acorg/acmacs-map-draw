@@ -999,6 +999,7 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
     }
 
     make_pages(group_set) {
+        console.log("make_pages", group_set);
         this.groups_ = group_set.groups;
         this.gs_line_color_ = group_set.line_color || "black";
         this.gs_line_width_ = group_set.line_width || 1;
@@ -1696,12 +1697,12 @@ class ViewDialog
         }));
 
         const td_mode = table.find("td.mode");
-        td_mode.append("<a href='group-series'>group series</a>");
         td_mode.append("<a href='projection'>projection</a>");
         if (this.widget.features["time-series"])
             td_mode.append("<a href='time-series'>time series</a>");
         if (this.widget.features["table-series"])
             td_mode.append("<a href='table-series'>table series</a>");
+        td_mode.append("<a href='group-series'>group series</a>");
         td_mode.find("a").on("click", evt => acv_utils.forward_event(evt, evt => {
             this.widget.set_view_mode({mode: evt.currentTarget.getAttribute("href"), projection_no: this.projection_no()});
             this.set_current_mode();
@@ -1869,9 +1870,7 @@ class ViewDialog
         if (this.widget.view_mode.mode() === "group-series") {
             tr_group_series.show();
             this.show_group_series_data();
-            acv_utils.upload_json({button: tr_group_series.find("a[href='upload']"), drop_area: this.content.find("table")})
-                .then(data => this.show_group_series_uploaded_data(data))
-                .catch(err => acv_toolkit.movable_window_with_error(err, tr_group_series.find(".a-label")));
+            this._make_uploader({button: tr_group_series.find("a[href='upload']"), drop_area: this.content.find("table")});
             tr_group_series.find("a[href='download']").on("click", evt => acv_utils.forward_event(evt, evt => {
                 const chart = this.widget.data.c;
                 console.log("group series download");
@@ -1887,6 +1886,12 @@ class ViewDialog
         else {
             tr_group_series.hide();
         }
+    }
+
+    _make_uploader(args) {
+        acv_utils.upload_json(args)
+            .then(data => { this.show_group_series_uploaded_data(data); this._make_uploader(args); })
+            .catch(err => { acv_toolkit.movable_window_with_error(err, args.button); this._make_uploader(args); });
     }
 
     show_group_series_data() {
@@ -1918,6 +1923,7 @@ class ViewDialog
 
     show_group_series_uploaded_data(data) {
         try {
+            console.log("show_group_series_uploaded_data");
             this._check_group_sets(data);
             this._match_groups(data);
             this.show_group_series_data();
