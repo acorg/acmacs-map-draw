@@ -242,7 +242,7 @@ ul.a-title-mouse-popup > li .a-sequenced {
     text-decoration: none;
 }
 
-.view-dialog-movable > .a-content > table td > a.a-current {
+.view-dialog-movable > .a-content > table td a.a-current {
     cursor: default;
     font-weight: bold;
     color: black;

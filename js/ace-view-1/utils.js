@@ -81,6 +81,24 @@ export function arrays_equal_simple(a1, a2) {
 
 // ----------------------------------------------------------------------
 
+export function objects_equal(obj1, obj2, ignore_keys=[]) {
+    if (typeof(obj1) !== typeof(obj2))
+        return false;
+    if (Array.isArray(obj1)) {
+        return Array.isArray(obj2) && arrays_equal_simple(obj1, obj2);
+    }
+    else if (typeof(obj1) === "object") {
+        const not_equal_index = Object.entries(obj1).findIndex(entry => {
+            return !ignore_keys.includes(entry[0]) && !objects_equal(entry[1], obj2[entry[0]], ignore_keys);
+        });
+        return not_equal_index < 0;
+    }
+    else
+        return obj1 === obj2;
+}
+
+// ----------------------------------------------------------------------
+
 const whocc_lab_name_fix = {MELB: "VIDRL", NIMR: "Crick"};
 
 export function whocc_lab_name(name) {

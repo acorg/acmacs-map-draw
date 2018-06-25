@@ -985,18 +985,19 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
         return this.shading_;
     }
 
-    make_pages() {
-        const number_of_layers = this.widget.data.c.t.L.length;
-        const make_name = (source, index) => {
-            if (source && source.D)
-                return `${source.D} (${index + 1}/${number_of_layers})`;
-            else
-                return `Table ${index + 1}/${number_of_layers}`;
-        };
-        if (this.widget.data.c.i.S)
-            this.pages = this.widget.data.c.i.S.map(make_name);
-        else
-            this.pages = this.widget.data.c.t.L.map(make_name);
+    make_pages(group_set) {
+        console.log("make_pages", group_set);
+        // const number_of_layers = this.widget.data.c.t.L.length;
+        // const make_name = (source, index) => {
+        //     if (source && source.D)
+        //         return `${source.D} (${index + 1}/${number_of_layers})`;
+        //     else
+        //         return `Table ${index + 1}/${number_of_layers}`;
+        // };
+        // if (this.widget.data.c.i.S)
+        //     this.pages = this.widget.data.c.i.S.map(make_name);
+        // else
+        //     this.pages = this.widget.data.c.t.L.map(make_name);
     }
 
     make_drawing_order() {
@@ -1848,8 +1849,9 @@ class ViewDialog
         tr_group_series.find("a").off("click");
         if (this.widget.view_mode.mode() === "group-series") {
             tr_group_series.show();
+            this.show_group_series_data();
             acv_utils.upload_json({button: tr_group_series.find("a[href='upload']"), drop_area: this.content.find("table")})
-                .then(data => this.show_group_series_data(data))
+                .then(data => this.show_group_series_uploaded_data(data))
                 .catch(err => acv_toolkit.movable_window_with_error(err, tr_group_series.find(".a-label")));
             tr_group_series.find("a[href='download']").on("click", evt => acv_utils.forward_event(evt, evt => {
                 const chart = this.widget.data.c;
@@ -1868,8 +1870,82 @@ class ViewDialog
         }
     }
 
-    show_group_series_data(data) {
-        console.log("show_group_series_data", data);
+    show_group_series_data() {
+        if (this.widget.group_sets_) {
+            const group_sets = this.content.find("table tr.group-series .a-sets").empty();
+            if (this.widget.group_sets_.length === 1) {
+                const gs = this.widget.group_sets_[0];
+                group_sets.append(`<a class='a-current' href='${gs.N}'>${gs.N}</a>`);
+                group_sets.find("a").on("click", evt => acv_utils.forward_event(evt));
+                this.widget.view_mode.make_pages(gs);
+            }
+            else {
+                for (let gs of this.widget.group_sets_) {
+                    group_sets.append(`<a href='${gs.N}'>${gs.N}</a>`);
+                }
+                group_sets.find("a").on("click", evt => acv_utils.forward_event(evt, evt => {
+                    if (!evt.currentTarget.hasClass("a-current")) {
+                        group_sets.find("a").removeClass("a-current");
+                        evt.currentTarget.addClass("a-current");
+                        this.widget.view_mode.make_pages(this.widget.group_sets_[this.widget.group_sets_.findIndex(gs => gs.N === evt.currentTarget.getAttribute("href"))]);
+                    }
+                }));
+            }
+        }
+    }
+
+    show_group_series_uploaded_data(data) {
+        try {
+            this._check_group_sets(data);
+            this._match_groups(data);
+            this.show_group_series_data();
+        }
+        catch (err) {
+            acv_toolkit.movable_window_with_error(err, this.content.find("table tr.group-series .a-label"));
+        }
+    }
+
+    _match_groups(data) {
+        const chart = this.widget.data.c;
+        const point_to_point_ar = data.a.map((elt, no) => [no, chart.a.findIndex(antigen => acv_utils.objects_equal(elt, antigen, ["?no", "no", "C", "S", "c"]))])
+              .concat(data.s.map((elt, no) => [no + data.a.length, chart.a.length + chart.s.findIndex(antigen => acv_utils.objects_equal(elt, antigen, ["?no", "no", "S"]))]));
+        const point_to_point = point_to_point_ar.reduce((obj, entry) => { obj[entry[0]] = entry[1]; return obj; }, {});
+        for (let gs of data.group_sets) {
+            for (let grp of gs.groups) {
+                if (grp.root !== undefined)
+                    grp.root = point_to_point[grp.root];
+                grp.members = grp.members.map(no => point_to_point[no]);
+            }
+        }
+        this.widget.group_sets_ = data.group_sets;
+    }
+
+    _check_group_sets(data) {
+        if (data["  version"] !== "group-series-set-v1")
+            throw "Ivalid \"  version\" of the uploaded data";
+        if (!data.a || !Array.isArray(data.a) || data.a.length === 0 || !data.s || !Array.isArray(data.s) || data.s.length === 0)
+            throw "Invalid or empty \"a\" or \"s\" in the uploaded data";
+        const number_of_points = data.a.length + data.s.length;
+        if (!data.group_sets || !Array.isArray(data.group_sets) || data.group_sets.length === 0)
+            throw "Invalid or empty \"group_sets\" in the uploaded data";
+        data.group_sets.forEach((group_set, group_set_no) => {
+            if (!group_set.N)
+                throw "invalid \"N\" in \"group_set\" " + group_set_no;
+            if (!group_set.groups || !Array.isArray(group_set.groups) || group_set.groups.length === 0)
+                throw "invalid or empty \"groups\" in \"group_set\" " + group_set_no + " \"" + group_set.N + "\"";
+            group_set.groups.forEach((group, group_no) => {
+                if (!group.N)
+                    throw `invalid "N" in "group" ${group_no} of "group_set" "${group_set.N}"`;
+                if (group.root !== undefined && (typeof(group.root) !== "number" || group.root < 0 || group.root >= number_of_points))
+                    throw `invalid "root" in group "${group.N}" of "group_set" "${group_set.N}"`;
+                if (!group.members || !Array.isArray(group.members) || group.members.length === 0)
+                    throw `invalid "members" in group "${group.N}" of "group_set" "${group_set.N}"`;
+                group.members.forEach(no => {
+                    if (typeof(no) !== "number" || no < 0 || no >= number_of_points)
+                        throw `invalid "members" element ${no} in "group" ${group_no} of "group_set" "${group_set.N}"`;
+                });
+            });
+        });
     }
 }
 
