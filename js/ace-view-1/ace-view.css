@@ -302,6 +302,11 @@ ul.a-title-mouse-popup > li .a-sequenced {
     margin-left: 1em;
 }
 
+.view-dialog-movable .a-drop-area {
+    border: 2px dashed #008000;
+    border-radius: 20px;
+    cursor: copy;
+}
 
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */

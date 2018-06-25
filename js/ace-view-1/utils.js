@@ -180,31 +180,43 @@ export function download_blob(args) {
 
 // ----------------------------------------------------------------------
 
+// args: {button: , drop_area: }
 export function upload_json(args) {
     return new Promise((resolve, reject) => {
+
+        const upload = file => {
+            const reader = new window.FileReader();
+            reader.onloadend = reader_evt => {
+                if (reader_evt.target.readyState === window.FileReader.DONE) {
+                    try {
+                        resolve(JSON.parse(reader_evt.target.result));
+                    }
+                    catch (err) {
+                        reject("cannot parse json: " + err);
+                    }
+                }
+                else
+                    reject("cannot upload file: " + JSON.stringify(reader_evt.target));
+            };
+            reader.readAsText(file);
+        };
+
         if (args.button) {
             args.button.on("click", evt => forward_event(evt, evt => {
-                const upload = file => {
-                    const reader = new window.FileReader();
-                    reader.onloadend = reader_evt => {
-                        if (reader_evt.target.readyState === window.FileReader.DONE) {
-                            try {
-                                resolve(JSON.parse(reader_evt.target.result));
-                            }
-                            catch (err) {
-                                reject("cannot parse json: " + err);
-                            }
-                        }
-                        else
-                            reject("cannot upload file: " + JSON.stringify(reader_evt.target));
-                    };
-                    reader.readAsText(file);
-                };
                 const hidden_button = $('<input type="file" style="display: none;" />').appendTo($("body"));
                 hidden_button.on("change", evt => {
                     upload(evt.currentTarget.files[0]);
                     hidden_button.remove();
                 }).trigger("click");
+            }));
+        }
+        if (args.drop_area) {
+            args.drop_area.off("dragenter dragover dragleave drop");
+            args.drop_area.on("dragenter dragover", evt => forward_event(evt, evt => args.drop_area.addClass("a-drop-area")));
+            args.drop_area.on("dragleave", evt => forward_event(evt, evt => args.drop_area.removeClass("a-drop-area")));
+            args.drop_area.on("drop", evt => forward_event(evt, evt => {
+                upload(evt.originalEvent.dataTransfer.files[0]);
+                args.drop_area.removeClass("a-drop-area");
             }));
         }
     });
