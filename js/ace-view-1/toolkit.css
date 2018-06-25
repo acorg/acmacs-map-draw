@@ -181,9 +181,17 @@
     /* background-color: #EEF; */
 }
 
-.amw201805-movable-window.a-error .a-window-title {
+.amw201805-movable-window.a-error {
     background-color: #FEE;
+}
+
+.amw201805-movable-window.a-error .a-window-title {
     color: magenta;
+}
+
+.amw201805-movable-window.a-error p {
+    width: 30em;
+    white-space: normal;
 }
 
 .amw201805-movable-window .a-title {

@@ -1848,9 +1848,9 @@ class ViewDialog
         tr_group_series.find("a").off("click");
         if (this.widget.view_mode.mode() === "group-series") {
             tr_group_series.show();
-            tr_group_series.find("a[href='upload']").on("click", evt => acv_utils.forward_event(evt, evt => {
-                console.log("group series upload");
-            }));
+            acv_utils.upload_json({button: tr_group_series.find("a[href='upload']")})
+                .then(data => this.show_group_series_data(data))
+                .catch(err => acv_toolkit.movable_window_with_error(err, tr_group_series.find(".a-label")));
             tr_group_series.find("a[href='download']").on("click", evt => acv_utils.forward_event(evt, evt => {
                 const chart = this.widget.data.c;
                 console.log("group series download");
@@ -1866,6 +1866,10 @@ class ViewDialog
         else {
             tr_group_series.hide();
         }
+    }
+
+    show_group_series_data(data) {
+        console.log("show_group_series_data", data);
     }
 }
 

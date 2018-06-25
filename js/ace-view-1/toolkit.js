@@ -284,6 +284,8 @@ export function movable_window_with_json(data, invoking_node, title) {
 export function movable_window_with_error(data, invoking_node) {
     if (typeof(data) === "object")
         data = `<pre class='json-highlight'>${acv_utils.json_syntax_highlight(JSON.stringify(data, undefined, 2))}</pre>`;
+    else
+        data = `<p>${data}</p>`;
     new MovableWindow({title: "ERROR", content: data, parent: invoking_node}).classes("a-error");
 }
 

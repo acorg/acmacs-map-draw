@@ -179,6 +179,38 @@ export function download_blob(args) {
 }
 
 // ----------------------------------------------------------------------
+
+export function upload_json(args) {
+    return new Promise((resolve, reject) => {
+        if (args.button) {
+            args.button.on("click", evt => forward_event(evt, evt => {
+                const upload = file => {
+                    const reader = new window.FileReader();
+                    reader.onloadend = reader_evt => {
+                        if (reader_evt.target.readyState === window.FileReader.DONE) {
+                            try {
+                                resolve(JSON.parse(reader_evt.target.result));
+                            }
+                            catch (err) {
+                                reject("cannot parse json: " + err);
+                            }
+                        }
+                        else
+                            reject("cannot upload file: " + JSON.stringify(reader_evt.target));
+                    };
+                    reader.readAsText(file);
+                };
+                const hidden_button = $('<input type="file" style="display: none;" />').appendTo($("body"));
+                hidden_button.on("change", evt => {
+                    upload(evt.currentTarget.files[0]);
+                    hidden_button.remove();
+                }).trigger("click");
+            }));
+        }
+    });
+}
+
+// ----------------------------------------------------------------------
 /// Local Variables:
 /// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
 /// End:
