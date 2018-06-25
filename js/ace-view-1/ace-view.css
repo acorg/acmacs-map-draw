@@ -236,8 +236,9 @@ ul.a-title-mouse-popup > li .a-sequenced {
 
 .view-dialog-movable > .a-content > table td.a-label {
     padding-right: 1em;
+    vertical-align: top;
 }
-.view-dialog-movable > .a-content > table td > a {
+.view-dialog-movable > .a-content > table td a {
     padding-right: 1em;
     text-decoration: none;
 }
@@ -297,9 +298,18 @@ ul.a-title-mouse-popup > li .a-sequenced {
     padding-right: 0.3em;
 }
 
+.view-dialog-movable tr.group-series .a-hint {
+    margin: 0;
+    font-size: 0.8em;
+    color: #C0C0C0;
+}
+
+.view-dialog-movable tr.group-series > td.group-series > .a-buttons {
+    margin-top: 1em;
+}
+
 .view-dialog-movable tr.group-series > td.group-series > .a-buttons > a {
     text-decoration: none;
-    margin-left: 1em;
 }
 
 .view-dialog-movable .a-drop-area {

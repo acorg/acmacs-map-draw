@@ -1626,6 +1626,7 @@ const ViewDialog_html = "\
     <td class='a-label'>Group Sets</td>\
     <td class='group-series'>\
       <div class='a-sets'>\
+        <p class='a-hint'>please drop here group description file or click below to upload</p>\
       </div>\
       <div class='a-buttons'>\
         <a href='upload'>upload</a>\
@@ -1902,12 +1903,15 @@ class ViewDialog
                     group_sets.append(`<a href='${gs.N}'>${gs.N}</a>`);
                 }
                 group_sets.find("a").on("click", evt => acv_utils.forward_event(evt, evt => {
-                    if (!evt.currentTarget.hasClass("a-current")) {
+                    const target = $(evt.currentTarget);
+                    if (!target.hasClass("a-current")) {
                         group_sets.find("a").removeClass("a-current");
-                        evt.currentTarget.addClass("a-current");
+                        target.addClass("a-current");
                         this.widget.view_mode.make_pages(this.widget.group_sets_[this.widget.group_sets_.findIndex(gs => gs.N === evt.currentTarget.getAttribute("href"))]);
                     }
                 }));
+                $(group_sets.find("a")[0]).addClass("a-current");
+                this.widget.view_mode.make_pages(this.widget.group_sets_[0]);
             }
         }
     }
