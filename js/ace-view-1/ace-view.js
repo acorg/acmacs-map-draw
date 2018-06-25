@@ -999,7 +999,6 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
     }
 
     make_pages(group_set) {
-        console.log("make_pages", group_set);
         this.groups_ = group_set.groups;
         this.gs_line_color_ = group_set.line_color || "black";
         this.gs_line_width_ = group_set.line_width || 1;
@@ -1873,7 +1872,6 @@ class ViewDialog
             this._make_uploader({button: tr_group_series.find("a[href='upload']"), drop_area: this.content.find("table")});
             tr_group_series.find("a[href='download']").on("click", evt => acv_utils.forward_event(evt, evt => {
                 const chart = this.widget.data.c;
-                console.log("group series download");
                 const data = {
                     "  version": "group-series-set-v1",
                     "a": chart.a.map((antigen, ag_no) => Object.assign({"?no": ag_no}, antigen)),
@@ -1923,7 +1921,6 @@ class ViewDialog
 
     show_group_series_uploaded_data(data) {
         try {
-            console.log("show_group_series_uploaded_data");
             this._check_group_sets(data);
             this._match_groups(data);
             this.show_group_series_data();

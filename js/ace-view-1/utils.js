@@ -220,6 +220,7 @@ export function upload_json(args) {
         };
 
         if (args.button) {
+            args.button.off("click");
             args.button.on("click", evt => forward_event(evt, evt => {
                 const hidden_button = $('<input type="file" style="display: none;" />').appendTo($("body"));
                 hidden_button.on("change", evt => {
