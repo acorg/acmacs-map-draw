@@ -1,4 +1,5 @@
 import * as acv_m from "./ace-view.js";
+import * as acv_utils from "./utils.js";
 
 // ----------------------------------------------------------------------
 
@@ -68,17 +69,11 @@ class Api
 
     // {command:, blob_type:}
     _download(args) {
-        this._post_expect_blob(args).done(result => {
-            const pathname = this.uri.split("/");
-            let filename = pathname[pathname.length - 1];
-            if (filename.substr(filename.length - args.suffix.length, args.suffix.length) !== args.suffix)
-                filename = filename + args.suffix;
-            const url = window.URL.createObjectURL(result);
-            const link = $(`<a href='${url}' download='${filename}'></a>`).appendTo($("body"));
-            link[0].click();
-            link.remove();
-            window.setTimeout(() =>  window.URL.revokeObjectURL(url), 100);   // For Firefox it is necessary to delay revoking the ObjectURL
-        });
+        const pathname = this.uri.split("/");
+        let filename = pathname[pathname.length - 1];
+        if (filename.substr(filename.length - args.suffix.length, args.suffix.length) !== args.suffix)
+            filename = filename + args.suffix;
+        this._post_expect_blob(args).done(result => acv_utils.download_blob({data: result, filename: filename}));
     }
 
     // {command:}

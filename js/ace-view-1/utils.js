@@ -161,8 +161,14 @@ export function escape_html(text) {
 export function download_blob(args) {
     if (args.data === null || args.data === undefined)
         throw "download_blob: no data in " + JSON.stringify(args);
-    const data = typeof(args.data) === "object" ?  JSON.stringify(args.data, null, 1) : data;
-    const blob = new window.Blob([data], {type: args.blob_type || "application/octet-stream"});
+    const blob_type = args.blob_type || "application/octet-stream";
+    let blob;
+    if (args.data instanceof Blob)
+        blob = args.data;
+    else if (typeof(args.data) === "object")
+        blob = new window.Blob([JSON.stringify(args.data, null, 1)], {type: blob_type});
+    else
+        blob = new window.Blob([args.data], {type: blob_type});
     const url = window.URL.createObjectURL(blob);
     const link = $(`<a href='${url}' download='${args.filename || "unknown.binary"}'></a>`).appendTo($("body"));
     link[0].click();

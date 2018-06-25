@@ -549,7 +549,13 @@ export class AntigenicMapWidget
     external_api(api_feature) {
         switch (api_feature) {
         case "download_pdf":
-            this.options.api.download_pdf({drawing_order_background: this.view_mode.drawing_order_background(), drawing_order: this.view_mode.drawing_order(), projection_no: this.view_mode.projection_no(), styles: this.view_mode.styles(), point_scale: this.view_mode.point_scale()});
+            this.options.api.download_pdf({
+                drawing_order_background: this.view_mode.drawing_order_background(),
+                drawing_order: this.view_mode.drawing_order(),
+                projection_no: this.view_mode.projection_no(),
+                styles: this.coloring.styles(),
+                point_scale: this.view_mode.point_scale()
+            });
             break;
         default:
             if (this.options.api[api_feature])
