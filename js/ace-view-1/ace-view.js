@@ -989,16 +989,19 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
         super.draw();
         const group = this.groups_ && this.groups_[this.page_no];
         if (group && group.root !== undefined) {
+            const line_color = group.line_color || this.gs_line_color_;
+            const line_width = group.line_width || this.gs_line_width_;
             for (let point_no of this.drawing_order_) {
                 if (point_no !== group.root)
-                    this.widget.surface.line_connecting_points({p1: point_no, p2: group.root, line_color: "red", line_width: 1});
+                    this.widget.surface.line_connecting_points({p1: point_no, p2: group.root, line_color: line_color, line_width: line_width});
             }
         }
     }
 
     make_pages(group_set) {
-        console.log("make_pages", group_set);
         this.groups_ = group_set.groups;
+        this.gs_line_color_ = group_set.line_color || "black";
+        this.gs_line_width_ = group_set.line_width || 1;
         this.pages = this.groups_.map(gr => gr.N);
         this.set_page(0, true);
     }
@@ -1875,7 +1878,7 @@ class ViewDialog
                     "  version": "group-series-set-v1",
                     "a": chart.a.map((antigen, ag_no) => Object.assign({"?no": ag_no}, antigen)),
                     "s": chart.s.map((serum, sr_no) => Object.assign({"?no": sr_no + chart.a.length}, serum)),
-                    "group_sets": []
+                    "group_sets": [{N: "set-1", line_color: "black", line_width: 1, groups: [{"N": "gr-1", line_color: "black", line_width: 1, root: 0, members: [0, 1, 2]}, {"N": "gr-2", root: 3, members: [3, 4, 5]}]}]
                 };
                 acv_utils.download_blob({data: data, blob_type: "application/json", filename: "group-series-sets.json"});
             }));
@@ -1946,6 +1949,10 @@ class ViewDialog
         data.group_sets.forEach((group_set, group_set_no) => {
             if (!group_set.N)
                 throw "invalid \"N\" in \"group_set\" " + group_set_no;
+            if (group_set.line_color !== undefined && typeof(group_set.line_color) !== "string")
+                throw "invalid \"line_color\" in group_set " + group_set.N;
+            if (group_set.line_width !== undefined && (typeof(group_set.line_width) !== "number" || group_set.line_width < 0))
+                throw "invalid \"line_width\" in group_set " + group_set.N;
             if (!group_set.groups || !Array.isArray(group_set.groups) || group_set.groups.length === 0)
                 throw "invalid or empty \"groups\" in \"group_set\" " + group_set_no + " \"" + group_set.N + "\"";
             group_set.groups.forEach((group, group_no) => {
@@ -1959,6 +1966,10 @@ class ViewDialog
                     if (typeof(no) !== "number" || no < 0 || no >= number_of_points)
                         throw `invalid "members" element ${no} in "group" ${group_no} of "group_set" "${group_set.N}"`;
                 });
+                if (group.line_color !== undefined && typeof(group.line_color) !== "string")
+                    throw "invalid \"line_color\" in group " + group.N;
+                if (group.line_width !== undefined && (typeof(group.line_width) !== "number" || group.line_width < 0))
+                    throw "invalid \"line_width\" in group " + group.N;
             });
         });
     }
