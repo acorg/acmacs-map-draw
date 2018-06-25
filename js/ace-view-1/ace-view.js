@@ -1854,15 +1854,7 @@ class ViewDialog
                     "s": chart.s.map((serum, sr_no) => Object.assign({"?no": sr_no + chart.a.length}, serum)),
                     "group_sets": []
                 };
-                const blob = new window.Blob([JSON.stringify(data, null, 1)], {type: "application/json"});
-                const url = window.URL.createObjectURL(blob);
-                const link = $(`<a href='${url}' download='group-series-sets.json'></a>`).appendTo($("body"));
-                link[0].click();
-                link.remove();
-                window.setTimeout(() => {    // For Firefox it is necessary to delay revoking the ObjectURL
-                    window.URL.revokeObjectURL(url);
-                    // link.remove();
-                }, 100);
+                acv_utils.download_blob({data: data, blob_type: "application/json", filename: "group-series-sets.json"});
             }));
         }
         else {

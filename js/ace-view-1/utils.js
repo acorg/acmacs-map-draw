@@ -156,6 +156,23 @@ export function escape_html(text) {
 }
 
 // ----------------------------------------------------------------------
+
+// args: {data:, blob_type: "application/octet-stream", filename:}
+export function download_blob(args) {
+    if (args.data === null || args.data === undefined)
+        throw "download_blob: no data in " + JSON.stringify(args);
+    const data = typeof(args.data) === "object" ?  JSON.stringify(args.data, null, 1) : data;
+    const blob = new window.Blob([data], {type: args.blob_type || "application/octet-stream"});
+    const url = window.URL.createObjectURL(blob);
+    const link = $(`<a href='${url}' download='${args.filename || "unknown.binary"}'></a>`).appendTo($("body"));
+    link[0].click();
+    link.remove();
+    window.setTimeout(() => {    // For Firefox it is necessary to delay revoking the ObjectURL
+        window.URL.revokeObjectURL(url);
+    }, 100);
+}
+
+// ----------------------------------------------------------------------
 /// Local Variables:
 /// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
 /// End:
