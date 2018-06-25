@@ -987,25 +987,29 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
 
     make_pages(group_set) {
         console.log("make_pages", group_set);
-        // const number_of_layers = this.widget.data.c.t.L.length;
-        // const make_name = (source, index) => {
-        //     if (source && source.D)
-        //         return `${source.D} (${index + 1}/${number_of_layers})`;
-        //     else
-        //         return `Table ${index + 1}/${number_of_layers}`;
-        // };
-        // if (this.widget.data.c.i.S)
-        //     this.pages = this.widget.data.c.i.S.map(make_name);
-        // else
-        //     this.pages = this.widget.data.c.t.L.map(make_name);
+        this.groups_ = group_set.groups;
+        this.pages = this.groups_.map(gr => gr.N);
+        this.set_page(0, true);
     }
 
     make_drawing_order() {
         const chart = this.widget.data.c;
-        this.drawing_order_ = [];
-        this.drawing_order_background_ = acv_utils.array_of_indexes(chart.a.length + chart.s.length);
+        if (this.groups_ && this.groups_[this.page_no]) {
+            const group = this.groups_[this.page_no];
+            this.drawing_order_ = group.members.filter(index => index !== group.root);
+            if (group.root !== undefined) {
+                this.drawing_order_.push(group.root);
+            }
+        }
+        else {
+            this.drawing_order_ = [];
+        }
+        this.drawing_order_background_ = acv_utils.array_of_indexes(chart.a.length + chart.s.length).filter(index => !this.drawing_order_.includes(index));
     }
 
+    show_as_background() {
+        return this.shading_ === "shade" ? {shade: this.widget.options.show_as_background_shade} : null;
+    }
 }
 
 // ----------------------------------------------------------------------
