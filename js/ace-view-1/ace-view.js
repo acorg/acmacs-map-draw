@@ -985,6 +985,17 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
         return this.shading_;
     }
 
+    draw() {
+        super.draw();
+        const group = this.groups_ && this.groups_[this.page_no];
+        if (group && group.root !== undefined) {
+            for (let point_no of this.drawing_order_) {
+                if (point_no !== group.root)
+                    this.widget.surface.line_connecting_points({p1: point_no, p2: group.root, line_color: "red", line_width: 1});
+            }
+        }
+    }
+
     make_pages(group_set) {
         console.log("make_pages", group_set);
         this.groups_ = group_set.groups;

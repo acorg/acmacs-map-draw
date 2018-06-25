@@ -137,6 +137,17 @@ export class Surface
         });
     }
 
+    // args: {p1: <index>, p2: <index>, line_color:, line_width:}
+    line_connecting_points(args) {
+        if (this.layout_size_shape_) {
+            const coord1 = this.layout_size_shape_[args.p1], coord2 = this.layout_size_shape_[args.p2];
+            if (coord1 && coord1.length > 1 && coord2 && coord2.length > 1)
+                this.line_pixels(coord1.slice(0, 2), coord2.slice(0, 2), args.line_color, args.line_width);
+        }
+        else
+            console.error("acv::surface::line_connecting_points: no layout_size_shape_");
+    }
+
     find_points_at_pixel_offset(offset) {
         let result = [];
         if (this.viewport) {
@@ -161,6 +172,22 @@ export class Surface
             result.reverse();
         }
         return result;
+    }
+
+    line_pixels(p1, p2, color, line_width) {
+        this.context.save();
+        try {
+            this.context.lineWidth = line_width * this.scale_inv;
+            this.context.strokeStyle = color;
+            this.context.beginPath();
+            this.context.moveTo.apply(this.context, p1);
+            this.context.lineTo.apply(this.context, p2);
+            this.context.stroke();
+        }
+        catch(err) {
+            console.error('Surface::line_pixels', err);
+        }
+        this.context.restore();
     }
 
     circle_scaled(center, size, fill, outline, outline_width, rotation, aspect) {
