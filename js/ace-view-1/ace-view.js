@@ -17,7 +17,7 @@ class AMW201805
             mouse_popup_offset: {left: 10, top: 20},
             canvas_size: {width: 0, height: 0},
             min_viewport_size: 1.0,
-            show_as_background: {fill: "#E0E0E0", outline: "#E0E0E0"},
+            show_as_background: {fill: acv_toolkit.sLIGHTGREY, outline: acv_toolkit.sLIGHTGREY},
             show_as_background_shade: 0.8,
             title_fields: ["stress", "antigens", "sera", "name", "lab", "virus_type", "assay", "date", "min_col_basis", "tables"],
             on_data_load_failure: uri => console.error("failed to load antigenic map data from ", uri)
@@ -795,7 +795,6 @@ class DrawingMode_TimeSeries extends DrawingMode_Series
         super(widget);
         this.period_ = (args && args.period) || "month";
         this.make_pages();
-        console.log("constructor", args);
         this.set_page(args.page === undefined ? this.pages.length - 1 : args.page);
     }
 
@@ -1018,11 +1017,20 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
         else {
             this.drawing_order_ = [];
         }
-        this.drawing_order_background_ = acv_utils.array_of_indexes(chart.a.length + chart.s.length).filter(index => !this.drawing_order_.includes(index));
+        if (this.shading() !== "hide")
+            this.drawing_order_background_ = acv_utils.array_of_indexes(chart.a.length + chart.s.length).filter(index => !this.drawing_order_.includes(index));
     }
 
     show_as_background() {
-        return this.shading_ === "shade" ? {shade: this.widget.options.show_as_background_shade} : null;
+        switch (this.shading()) {
+        case "grey":
+            return this.widget.options.show_as_background;
+        case "hide":
+            return null;
+        case "shade":
+        default:
+            return {shade: this.widget.options.show_as_background_shade};
+        }
     }
 }
 
@@ -1617,14 +1625,6 @@ const ViewDialog_html = "\
       <a href='year'>year</a>\
     </td>\
   </tr>\
-  <tr class='shading'>\
-    <td class='a-label'>Shading</td>\
-    <td class='shading'>\
-      <a href='hide'>legacy</a>\
-      <a href='shade'>shade</a>\
-      <a href='grey'>grey</a>\
-    </td>\
-  </tr>\
   <tr class='group-series'>\
     <td class='a-label'>Group Sets</td>\
     <td class='group-series'>\
@@ -1635,6 +1635,14 @@ const ViewDialog_html = "\
         <a href='upload'>upload</a>\
         <a href='download'>download sample</a>\
       </div>\
+    </td>\
+  </tr>\
+  <tr class='shading'>\
+    <td class='a-label'>Shading</td>\
+    <td class='shading'>\
+      <a href='hide'>legacy</a>\
+      <a href='shade'>shade</a>\
+      <a href='grey'>grey</a>\
     </td>\
   </tr>\
 </table>\
@@ -1757,6 +1765,10 @@ class ViewDialog
         case "table-series":
             tr_shading.show();
             tr_shading.find("a[href='grey']").hide();
+            break;
+        case "group-series":
+            tr_shading.show();
+            tr_shading.find("a[href='grey']").show();
             break;
         case "projection":
         default:
