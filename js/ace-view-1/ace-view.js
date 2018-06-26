@@ -1921,7 +1921,8 @@ class ViewDialog
         button_download_chart.off("click");
         if (this.widget.group_sets_) {
             button_download_chart.show().on("click", evt => acv_utils.forward_event(evt, evt => {
-                console.log("download-chart");
+                const data = {"  version": "acmacs-ace-v1", "?created": `ace-view-1 GroupSeries on ${new Date()}`, c: Object.assign({group_sets: this.widget.group_sets_}, this.widget.data.c)};
+                acv_utils.download_blob({data: data, blob_type: "application/json", filename: "chart-with-group-series-sets.ace"});
             }));
         }
         else
