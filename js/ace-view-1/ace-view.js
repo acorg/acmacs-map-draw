@@ -900,11 +900,18 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
     constructor(widget, args={}) {
         super(widget, args);
         this.pages = ["*no-groups*"];
+        this.combined_mode_ = "exclusive";
         this.set_page(args.page === undefined ? 0 : args.page);
     }
 
     mode() {
         return "group-series";
+    }
+
+    combined_mode(new_mode) {
+        if (typeof(new_mode) === "string")
+            this.combined_mode_ = new_mode;
+        return this.combined_mode_;
     }
 
     draw() {
@@ -1548,6 +1555,17 @@ const ViewDialog_html = "\
       </div>\
     </td>\
   </tr>\
+  <tr class='group-series-combined'>\
+    <td class='a-label'>Groups</td>\
+    <td class='group-series-combined'>\
+      <div class='a-buttons'>\
+        <a href='exclusive'>exclusive</a>\
+        <a href='combined'>combined</a>\
+      </div>\
+      <table class='a-groups'>\
+      </table>\
+    </td>\
+  </tr>\
   <tr class='shading'>\
     <td class='a-label'>Shading</td>\
     <td class='shading'>\
@@ -1793,20 +1811,12 @@ class ViewDialog
             tr_group_series.show();
             this.show_group_series_data();
             this._make_uploader({button: tr_group_series.find("a[href='upload']"), drop_area: this.content.find("table")});
-            tr_group_series.find("a[href='download']").on("click", evt => acv_utils.forward_event(evt, evt => {
-                const chart = this.widget.data.c;
-                const data = {
-                    "  version": "group-series-set-v1",
-                    "a": chart.a.map((antigen, ag_no) => Object.assign({"?no": ag_no}, antigen)),
-                    "s": chart.s.map((serum, sr_no) => Object.assign({"?no": sr_no + chart.a.length}, serum)),
-                    "group_sets": [{N: "set-1", line_color: "black", line_width: 1, groups: [{"N": "gr-1", line_color: "black", line_width: 1, root: 0, members: [0, 1, 2]}, {"N": "gr-2", root: 3, members: [3, 4, 5]}]}]
-                };
-                acv_utils.download_blob({data: data, blob_type: "application/json", filename: "group-series-sets.json"});
-            }));
+            this._make_downloader({button: tr_group_series.find("a[href='download']")});
         }
         else {
             tr_group_series.hide();
         }
+        this._make_exclusive_combined();
     }
 
     _make_uploader(args) {
@@ -1815,13 +1825,64 @@ class ViewDialog
             .catch(err => { acv_toolkit.movable_window_with_error(err, args.button); this._make_uploader(args); });
     }
 
+    _make_downloader(args) {
+        args.button.on("click", evt => acv_utils.forward_event(evt, evt => {
+            const chart = this.widget.data.c;
+            const data = {
+                "  version": "group-series-set-v1",
+                "a": chart.a.map((antigen, ag_no) => Object.assign({"?no": ag_no}, antigen)),
+                "s": chart.s.map((serum, sr_no) => Object.assign({"?no": sr_no + chart.a.length}, serum)),
+                "group_sets": [{N: "set-1", line_color: "black", line_width: 1, groups: [{"N": "gr-1", line_color: "black", line_width: 1, root: 0, members: [0, 1, 2]}, {"N": "gr-2", root: 3, members: [3, 4, 5]}]}]
+            };
+            acv_utils.download_blob({data: data, blob_type: "application/json", filename: "group-series-sets.json"});
+        }));
+    }
+
+    _make_exclusive_combined() {
+        const tr_group_series_combined = this.content.find("table tr.group-series-combined");
+        tr_group_series_combined.find(".a-buttons a").off("click");
+        if (this.widget.view_mode.mode() === "group-series" && this.widget.group_sets_) {
+            tr_group_series_combined.show();
+            const button_exclusive = tr_group_series_combined.find(".a-buttons a[href='exclusive']");
+            const button_combined = tr_group_series_combined.find(".a-buttons a[href='combined']");
+            const table_groups = tr_group_series_combined.find("table.a-groups");
+            button_exclusive.on("click", evt => acv_utils.forward_event(evt, evt => {
+                this.widget.view_mode.combined_mode("exclusive");
+                this._make_exclusive_combined();
+            }));
+            button_combined.on("click", evt => acv_utils.forward_event(evt, evt => {
+                this.widget.view_mode.combined_mode("combined");
+                this._make_exclusive_combined();
+            }));
+            if (this.widget.view_mode.combined_mode() === "exclusive") {
+                button_exclusive.addClass("a-current");
+                button_combined.removeClass("a-current");
+                table_groups.hide();
+            }
+            else {
+                button_exclusive.removeClass("a-current");
+                button_combined.addClass("a-current");
+                table_groups.show();
+            }
+        }
+        else {
+            tr_group_series_combined.hide();
+        }
+    }
+
+    _populate_table_groups(group_set) {
+        console.log("_populate_table_groups", group_set);
+    }
+
     show_group_series_data() {
+        this._make_exclusive_combined();
         if (this.widget.group_sets_) {
             const group_sets = this.content.find("table tr.group-series .a-sets").empty();
             if (this.widget.group_sets_.length === 1) {
                 const gs = this.widget.group_sets_[0];
                 group_sets.append(`<a class='a-current' href='${gs.N}'>${gs.N}</a>`);
                 group_sets.find("a").on("click", evt => acv_utils.forward_event(evt));
+                this._populate_table_groups(gs);
                 this.widget.view_mode.make_pages(gs);
             }
             else {
@@ -1833,10 +1894,13 @@ class ViewDialog
                     if (!target.hasClass("a-current")) {
                         group_sets.find("a").removeClass("a-current");
                         target.addClass("a-current");
-                        this.widget.view_mode.make_pages(this.widget.group_sets_[this.widget.group_sets_.findIndex(gs => gs.N === evt.currentTarget.getAttribute("href"))]);
+                        const gs = this.widget.group_sets_[this.widget.group_sets_.findIndex(gs => gs.N === evt.currentTarget.getAttribute("href"))];
+                        this._populate_table_groups(gs);
+                        this.widget.view_mode.make_pages(gs);
                     }
                 }));
                 $(group_sets.find("a")[0]).addClass("a-current");
+                this._populate_table_groups(this.widget.group_sets_[0]);
                 this.widget.view_mode.make_pages(this.widget.group_sets_[0]);
             }
         }
