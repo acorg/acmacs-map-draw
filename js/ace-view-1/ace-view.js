@@ -899,8 +899,9 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
 {
     constructor(widget, args={}) {
         super(widget, args);
-        this.pages = ["*no-groups*"];
-        this.combined_mode_ = "exclusive";
+        this.pages_exclusive_ = ["*no-groups*"];
+        this.groups_ = [];
+        this.combined_mode("exclusive");
         this.set_page(args.page === undefined ? 0 : args.page);
     }
 
@@ -909,14 +910,31 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
     }
 
     combined_mode(new_mode) {
-        if (typeof(new_mode) === "string")
+        if (typeof(new_mode) === "string") {
             this.combined_mode_ = new_mode;
+            if (new_mode === "exclusive") {
+                this.pages = this.pages_exclusive_;
+            }
+            else {
+                this.pages = ["Multiple groups"];
+            }
+        }
         return this.combined_mode_;
+    }
+
+    set_page(page_no, redraw) {
+        if (this.combined_mode() === "exclusive")
+            super.set_page(page_no, redraw);
+        else
+            super.set_page(0, redraw);
     }
 
     draw() {
         super.draw();
-        const group = this.groups_ && this.groups_[this.page_no];
+        this._draw_root_connecting_line(this.groups_ && this.groups_[this.page_no]);
+    }
+
+    _draw_root_connecting_line(group) {
         if (group && group.root !== undefined) {
             const line_color = group.line_color || this.gs_line_color_;
             const line_width = group.line_width || this.gs_line_width_;
@@ -931,12 +949,23 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
         this.groups_ = group_set.groups;
         this.gs_line_color_ = group_set.line_color || "black";
         this.gs_line_width_ = group_set.line_width || 1;
-        this.pages = this.groups_.map(gr => gr.N);
+        this.pages_exclusive_ = this.groups_.map(gr => gr.N);
+        this.combined_mode(this.combined_mode());
         this.set_page(0, true);
     }
 
     make_drawing_order() {
-        const chart = this.widget.data.c;
+        if (this.combined_mode() === "exclusive")
+            this._make_drawing_order_exclusive();
+        else
+            this._make_drawing_order_combined();
+        if (this.shading() !== "hide") {
+            const chart = this.widget.data.c;
+            this.drawing_order_background_ = acv_utils.array_of_indexes(chart.a.length + chart.s.length).filter(index => !this.drawing_order_.includes(index));
+        }
+    }
+
+    _make_drawing_order_exclusive() {
         if (this.groups_ && this.groups_[this.page_no]) {
             const group = this.groups_[this.page_no];
             this.drawing_order_ = group.members.filter(index => index !== group.root);
@@ -947,8 +976,10 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
         else {
             this.drawing_order_ = [];
         }
-        if (this.shading() !== "hide")
-            this.drawing_order_background_ = acv_utils.array_of_indexes(chart.a.length + chart.s.length).filter(index => !this.drawing_order_.includes(index));
+    }
+
+    _make_drawing_order_combined() {
+        this.drawing_order_ = [];
     }
 }
 
@@ -1848,10 +1879,12 @@ class ViewDialog
             const table_groups = tr_group_series_combined.find("table.a-groups");
             button_exclusive.on("click", evt => acv_utils.forward_event(evt, evt => {
                 this.widget.view_mode.combined_mode("exclusive");
+                this.widget.view_mode.set_page(0, true);
                 this._make_exclusive_combined();
             }));
             button_combined.on("click", evt => acv_utils.forward_event(evt, evt => {
                 this.widget.view_mode.combined_mode("combined");
+                this.widget.view_mode.set_page(0, true);
                 this._make_exclusive_combined();
             }));
             if (this.widget.view_mode.combined_mode() === "exclusive") {
@@ -1872,9 +1905,13 @@ class ViewDialog
 
     _populate_table_groups(group_set) {
         const group_html = group_set.groups.map(group => {
-            return `<tr><td class="a-checkbox"><input type="checkbox"></input></td><td class="a-name">${group.N}</td></tr>`;
+            return `<tr><td class="a-checkbox"><input type="checkbox" name="${group.N}"></input></td><td class="a-name">${group.N}</td></tr>`;
         }).join("");
         const tbl = this.content.find("table.a-view-dialog tr.group-series-combined table.a-groups").empty().append(group_html);
+        tbl.find("input").on("change", evt => acv_utils.forward_event(evt, evt => {
+            console.log("group toggle", evt.currentTarget.name, evt.currentTarget.checked, evt);
+            window.ZZ = evt.currentTarget;
+        }));
     }
 
     show_group_series_data() {
