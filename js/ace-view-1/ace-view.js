@@ -1629,8 +1629,9 @@ const ViewDialog_html = "\
         <p class='a-hint'>please drop here group description file or click below to upload</p>\
       </div>\
       <div class='a-buttons'>\
-        <a href='upload'>upload</a>\
-        <a href='download'>download sample</a>\
+        <a href='upload' title='upload and apply group definition'>upload</a>\
+        <a href='download' title='download sample group definition for this chart'>download sample</a>\
+        <a href='download-chart' title='download chart in the .ace format with the embedded group data'>download chart</a>\
       </div>\
     </td>\
   </tr>\
@@ -1887,7 +1888,7 @@ class ViewDialog
             tr_group_series.show();
             this.show_group_series_data();
             this._make_uploader({button: tr_group_series.find("a[href='upload']"), drop_area: this.content.find("table.a-view-dialog")});
-            this._make_downloader({button: tr_group_series.find("a[href='download']")});
+            this._make_downloader();
         }
         else {
             tr_group_series.hide();
@@ -1901,8 +1902,11 @@ class ViewDialog
             .catch(err => { acv_toolkit.movable_window_with_error(err, args.button); this._make_uploader(args); });
     }
 
-    _make_downloader(args) {
-        args.button.on("click", evt => acv_utils.forward_event(evt, evt => {
+    _make_downloader() {
+        const tr_group_series = this.content.find("table.a-view-dialog tr.group-series");
+        const button_download_sample = tr_group_series.find("a[href='download']");
+        button_download_sample.off("click");
+        button_download_sample.on("click", evt => acv_utils.forward_event(evt, evt => {
             const chart = this.widget.data.c;
             const data = {
                 "  version": "group-series-set-v1",
@@ -1912,6 +1916,16 @@ class ViewDialog
             };
             acv_utils.download_blob({data: data, blob_type: "application/json", filename: "group-series-sets.json"});
         }));
+
+        const button_download_chart = tr_group_series.find("a[href='download-chart']");
+        button_download_chart.off("click");
+        if (this.widget.group_sets_) {
+            button_download_chart.show().on("click", evt => acv_utils.forward_event(evt, evt => {
+                console.log("download-chart");
+            }));
+        }
+        else
+            button_download_chart.hide();
     }
 
     _make_exclusive_combined() {
@@ -1999,6 +2013,7 @@ class ViewDialog
             this._check_group_sets(data);
             this._match_groups(data);
             this.show_group_series_data();
+            this._make_downloader();
         }
         catch (err) {
             acv_toolkit.movable_window_with_error(err, this.content.find("table.a-view-dialog tr.group-series .a-label"));
