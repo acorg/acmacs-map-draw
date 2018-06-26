@@ -290,15 +290,7 @@ export class AntigenicMapWidget
             this.view_mode = new DrawingMode_TimeSeries(this, args);
             break;
         case "table-series":
-            switch (shading) {
-            case "hide":
-                this.view_mode = new DrawingMode_TableSeries(this, args);
-                break;
-            case "shade":
-            default:
-                this.view_mode = new DrawingMode_TableSeriesShade(this, args);
-                break;
-            }
+            this.view_mode = new DrawingMode_TableSeries(this, args);
             break;
         case "group-series":
             this.view_mode = new DrawingMode_GroupSeries(this, args);
@@ -896,25 +888,8 @@ class DrawingMode_TableSeries extends DrawingMode_Series
         };
         const point_in_layer = point_no => point_no < antigens.length ? antigen_in_layer(point_no) : serum_in_layer(point_no - antigens.length);
         this.drawing_order_ = this.widget.data.c.p.d.filter(point_in_layer);
-    }
-
-}
-
-// ----------------------------------------------------------------------
-
-class DrawingMode_TableSeriesShade extends DrawingMode_TableSeries
-{
-    make_drawing_order() {
-        const antigens = this.widget.data.c.a;
-        const layer = this.widget.data.c.t.L[this.page_no];
-        const antigen_in_layer = antigen_no => Object.keys(layer[antigen_no]).length > 0;
-        const serum_in_layer = serum_no => {
-            const serum_no_s = "" + serum_no;
-            return layer.some(entry => !!entry[serum_no_s]);
-        };
-        const point_in_layer = point_no => point_no < antigens.length ? antigen_in_layer(point_no) : serum_in_layer(point_no - antigens.length);
-        this.drawing_order_ = this.widget.data.c.p.d.filter(point_in_layer);
-        this.drawing_order_background_ = this.widget.data.c.p.d.filter(point_no => !point_in_layer(point_no));
+        if (this.shading() !== "hide")
+            this.drawing_order_background_ = this.widget.data.c.p.d.filter(point_no => !point_in_layer(point_no));
     }
 }
 
@@ -1696,15 +1671,12 @@ class ViewDialog
         case "time-series":
             tr_shading.show();
             tr_period.show();
-            tr_shading.find("a[href='grey']").show();
             break;
         case "table-series":
             tr_shading.show();
-            tr_shading.find("a[href='grey']").hide();
             break;
         case "group-series":
             tr_shading.show();
-            tr_shading.find("a[href='grey']").show();
             break;
         case "projection":
         default:
