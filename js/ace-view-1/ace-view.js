@@ -287,18 +287,7 @@ export class AntigenicMapWidget
         args = Object.assign({}, args, {period: period, page: page});
         switch (mode) {
         case "time-series":
-            switch (shading) {
-            case "hide":
-                this.view_mode = new DrawingMode_TimeSeries(this, args);
-                break;
-            case "grey":
-                this.view_mode = new DrawingMode_TimeSeriesGrey(this, args);
-                break;
-            case "shade":
-            default:
-                this.view_mode = new DrawingMode_TimeSeriesShade(this, args);
-                break;
-            }
+            this.view_mode = new DrawingMode_TimeSeries(this, args);
             break;
         case "table-series":
             switch (shading) {
@@ -599,8 +588,9 @@ export class AntigenicMapWidget
 
 class DrawingMode_Base
 {
-    constructor(widget) {
+    constructor(widget, args={}) {
         this.widget = widget;
+        this.shading_ = args.shading || "shade";
         if (widget) {
             this.projection_no_ = widget.options.projection_no;
             widget.show_title_arrows(null, null);
@@ -608,7 +598,7 @@ class DrawingMode_Base
     }
 
     shading() {
-        return null;
+        return this.shading_;
     }
 
     period() {
@@ -709,7 +699,15 @@ class DrawingMode_Base
     }
 
     show_as_background() {
-        return null;
+        switch (this.shading()) {
+        case "grey":
+            return this.widget.options.show_as_background;
+        case "hide":
+            return null;
+        case "shade":
+        default:
+            return {shade: this.widget.options.show_as_background_shade};
+        }
     }
 
     drawing_order_background() {
@@ -770,10 +768,6 @@ class DrawingMode_Series extends DrawingMode_Base
         }
     }
 
-    show_as_background() {
-        return this.widget.options.show_as_background;
-    }
-
     drawing_order() {
         return this.drawing_order_;
     }
@@ -792,7 +786,7 @@ class DrawingMode_Series extends DrawingMode_Base
 class DrawingMode_TimeSeries extends DrawingMode_Series
 {
     constructor(widget, args={}) {
-        super(widget);
+        super(widget, args);
         this.period_ = (args && args.period) || "month";
         this.make_pages();
         this.set_page(args.page === undefined ? this.pages.length - 1 : args.page);
@@ -800,10 +794,6 @@ class DrawingMode_TimeSeries extends DrawingMode_Series
 
     mode() {
         return "time-series";
-    }
-
-    shading() {
-        return "hide";
     }
 
     period() {
@@ -825,14 +815,25 @@ class DrawingMode_TimeSeries extends DrawingMode_Series
         const in_page = antigen => this.antigen_period_name(antigen) === page_period_name;
         const antigens = this.widget.data.c.a;
         this.drawing_order_ = [];
-        this.drawing_order_background_ = undefined;
-        for (let point_no of this.widget.data.c.p.d) {
-            if (point_no >= antigens.length || (antigens[point_no].S && antigens[point_no].S.indexOf("R") >= 0 && !in_page(antigens[point_no])))
-                this.drawing_order_.push(point_no);
+        if (this.shading() === "hide") {
+            this.drawing_order_background_ = undefined;
+            for (let point_no of this.widget.data.c.p.d) {
+                if (point_no >= antigens.length || (antigens[point_no].S && antigens[point_no].S.indexOf("R") >= 0 && !in_page(antigens[point_no])))
+                    this.drawing_order_.push(point_no);
+            }
+            for (let point_no of this.widget.data.c.p.d) {
+                if (point_no < antigens.length && in_page(antigens[point_no]))
+                    this.drawing_order_.push(point_no);
+            }
         }
-        for (let point_no of this.widget.data.c.p.d) {
-            if (point_no < antigens.length && in_page(antigens[point_no]))
-                this.drawing_order_.push(point_no);
+        else {
+            this.drawing_order_background_ = [];
+            for (let point_no of this.widget.data.c.p.d) {
+                if (point_no < antigens.length && in_page(antigens[point_no]))
+                    this.drawing_order_.push(point_no);
+                else
+                    this.drawing_order_background_.push(point_no);
+            }
         }
     }
 
@@ -859,56 +860,16 @@ class DrawingMode_TimeSeries extends DrawingMode_Series
 
 // ----------------------------------------------------------------------
 
-class DrawingMode_TimeSeriesGrey extends DrawingMode_TimeSeries
-{
-    shading() {
-        return "grey";
-    }
-
-    make_drawing_order() {
-        const page_period_name = this.pages[this.page_no];
-        const in_page = antigen => this.antigen_period_name(antigen) === page_period_name;
-        const antigens = this.widget.data.c.a;
-        this.drawing_order_ = [];
-        this.drawing_order_background_ = [];
-        for (let point_no of this.widget.data.c.p.d) {
-            if (point_no < antigens.length && in_page(antigens[point_no]))
-                this.drawing_order_.push(point_no);
-            else
-                this.drawing_order_background_.push(point_no);
-        }
-    }
-}
-
-// ----------------------------------------------------------------------
-
-class DrawingMode_TimeSeriesShade extends DrawingMode_TimeSeriesGrey
-{
-    shading() {
-        return "shade";
-    }
-
-    show_as_background() {
-        return {shade: this.widget.options.show_as_background_shade};
-    }
-}
-
-// ----------------------------------------------------------------------
-
 class DrawingMode_TableSeries extends DrawingMode_Series
 {
     constructor(widget, args={}) {
-        super(widget);
+        super(widget, args);
         this.make_pages();
         this.set_page(args.page === undefined ? this.pages.length - 1 : args.page);
     }
 
     mode() {
         return "table-series";
-    }
-
-    shading() {
-        return "hide";
     }
 
     make_pages() {
@@ -943,10 +904,6 @@ class DrawingMode_TableSeries extends DrawingMode_Series
 
 class DrawingMode_TableSeriesShade extends DrawingMode_TableSeries
 {
-    shading() {
-        return "shade";
-    }
-
     make_drawing_order() {
         const antigens = this.widget.data.c.a;
         const layer = this.widget.data.c.t.L[this.page_no];
@@ -959,10 +916,6 @@ class DrawingMode_TableSeriesShade extends DrawingMode_TableSeries
         this.drawing_order_ = this.widget.data.c.p.d.filter(point_in_layer);
         this.drawing_order_background_ = this.widget.data.c.p.d.filter(point_no => !point_in_layer(point_no));
     }
-
-    show_as_background() {
-        return {shade: this.widget.options.show_as_background_shade};
-    }
 }
 
 // ----------------------------------------------------------------------
@@ -970,18 +923,13 @@ class DrawingMode_TableSeriesShade extends DrawingMode_TableSeries
 class DrawingMode_GroupSeries extends DrawingMode_Series
 {
     constructor(widget, args={}) {
-        super(widget);
-        this.shading_ = args.shading || "shade";
+        super(widget, args);
         this.pages = ["*no-groups*"];
         this.set_page(args.page === undefined ? 0 : args.page);
     }
 
     mode() {
         return "group-series";
-    }
-
-    shading() {
-        return this.shading_;
     }
 
     draw() {
@@ -1019,18 +967,6 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
         }
         if (this.shading() !== "hide")
             this.drawing_order_background_ = acv_utils.array_of_indexes(chart.a.length + chart.s.length).filter(index => !this.drawing_order_.includes(index));
-    }
-
-    show_as_background() {
-        switch (this.shading()) {
-        case "grey":
-            return this.widget.options.show_as_background;
-        case "hide":
-            return null;
-        case "shade":
-        default:
-            return {shade: this.widget.options.show_as_background_shade};
-        }
     }
 }
 
