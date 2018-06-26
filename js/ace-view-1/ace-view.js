@@ -1921,7 +1921,7 @@ class ViewDialog
         button_download_chart.off("click");
         if (this.widget.group_sets_) {
             button_download_chart.show().on("click", evt => acv_utils.forward_event(evt, evt => {
-                const data = {"  version": "acmacs-ace-v1", "?created": `ace-view-1 GroupSeries on ${new Date()}`, c: Object.assign({group_sets: this.widget.group_sets_}, this.widget.data.c)};
+                const data = {"  version": "acmacs-ace-v1", "?created": `ace-view-1 GroupSeries on ${new Date()}`, c: Object.assign({}, this.widget.data.c, {group_sets: this.widget.group_sets_})};
                 acv_utils.download_blob({data: data, blob_type: "application/json", filename: "chart-with-group-series-sets.ace"});
             }));
         }
@@ -1979,6 +1979,10 @@ class ViewDialog
 
     show_group_series_data() {
         this._make_exclusive_combined();
+        const chart = this.widget.data.c;
+        // console.log("chart", this.widget.data);
+        if (!this.widget.group_sets_ && chart.group_sets)
+            this.widget.group_sets_ = chart.group_sets;
         if (this.widget.group_sets_) {
             const group_sets = this.content.find("table.a-view-dialog tr.group-series .a-sets").empty();
             if (this.widget.group_sets_.length === 1) {
