@@ -981,21 +981,28 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
     }
 
     _make_drawing_order_exclusive() {
-        if (this.groups_ && this.groups_[this.page_no]) {
-            const group = this.groups_[this.page_no];
-            this.drawing_order_ = group.members.filter(index => index !== group.root);
-            if (group.root !== undefined) {
-                this.drawing_order_.push(group.root);
-            }
-        }
-        else {
-            this.drawing_order_ = [];
-        }
+        this.drawing_order_ = [];
+        if (this.groups_ && this.groups_[this.page_no])
+            this._update_drawing_order_(this.groups_[this.page_no]);
     }
 
     _make_drawing_order_combined() {
-        console.log("_make_drawing_order_combined", this.groups_combined_);
         this.drawing_order_ = [];
+        this.groups_combined_.forEach(group => this._update_drawing_order_(group));
+    }
+
+    _update_drawing_order_(group) {
+        const add_member = point_no => {
+            const index = this.drawing_order_.indexOf(point_no);
+            if (index >= 0)
+                this.drawing_order_.splice(index, 1);
+            this.drawing_order_.push(point_no);
+        };
+        if (typeof(group) === "string")
+            group = this.groups_.find(grp => grp.N === group);
+        group.members.forEach(add_member);
+        if (group.root !== undefined)
+            add_member(group.root);
     }
 }
 
@@ -1360,7 +1367,6 @@ const AntigenicTable_antigen_row_html = "\
 class AntigenicTable_populate
 {
     constructor(args) {
-        // console.log("AntigenicTable_populate", args);
         this.widget = args.widget;
         this.chart = args.chart;
         if (this.chart.a.length < 200000) {
@@ -1653,8 +1659,6 @@ class ViewDialog
     }
 
     populate(args) {
-        //console.log("features", this.widget.features);
-
         const table = $(ViewDialog_html).appendTo(args.content);
         if (args.chart.P.length === 0)
             table.find("td.projection-chooser").append("<div class='a-error'>None</div>");
@@ -1759,7 +1763,6 @@ class ViewDialog
         const tr_legend = this.content.find("table.a-view-dialog tr.coloring-legend");
         const legend = this.widget.coloring.legend();
         if (legend) {
-            // console.log("legend", legend);
             const td_legend = tr_legend.find("td.coloring-legend").empty();
             td_legend.append("<table class='a-legend'><tr class='a-names'></tr><tr class='a-colors'></tr></table>");
             legend.map(entry => {
