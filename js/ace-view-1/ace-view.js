@@ -2007,9 +2007,14 @@ class ViewDialog
                 throw "invalid \"line_width\" in group_set " + group_set.N;
             if (!group_set.groups || !Array.isArray(group_set.groups) || group_set.groups.length === 0)
                 throw "invalid or empty \"groups\" in \"group_set\" " + group_set_no + " \"" + group_set.N + "\"";
+            let present_groups = {};
             group_set.groups.forEach((group, group_no) => {
                 if (!group.N)
                     throw `invalid "N" in "group" ${group_no} of "group_set" "${group_set.N}"`;
+                const orig_group_name = group.N;
+                for (let copy_no = 2; present_groups[group.N] !== undefined; ++copy_no)
+                    group.N = `${orig_group_name} (${copy_no})`;
+                present_groups[group.N] = true;
                 if (group.root !== undefined && (typeof(group.root) !== "number" || group.root < 0 || group.root >= number_of_points))
                     throw `invalid "root" in group "${group.N}" of "group_set" "${group_set.N}"`;
                 if (!group.members || !Array.isArray(group.members) || group.members.length === 0)
