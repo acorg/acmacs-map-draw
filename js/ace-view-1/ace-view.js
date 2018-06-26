@@ -958,17 +958,24 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
 
     draw() {
         super.draw();
-        this._draw_root_connecting_line(this.groups_ && this.groups_[this.page_no]);
+        this._draw_root_connecting_lines();
+    }
+
+    _draw_root_connecting_lines() {
+        if (this.combined_mode() === "exclusive")
+            this._draw_root_connecting_line(this.groups_ && this.groups_[this.page_no]);
+        else
+            this.groups_combined_.forEach(group => this._draw_root_connecting_line(group));
     }
 
     _draw_root_connecting_line(group) {
+        group = this._find_group(group);
         if (group && group.root !== undefined) {
             const line_color = group.line_color || this.gs_line_color_;
             const line_width = group.line_width || this.gs_line_width_;
-            for (let point_no of this.drawing_order_) {
-                if (point_no !== group.root)
-                    this.widget.surface.line_connecting_points({p1: point_no, p2: group.root, line_color: line_color, line_width: line_width});
-            }
+            group.members.filter(point_no => this.drawing_order_.includes(point_no))
+                .filter(point_no => point_no !== group.root)
+                .forEach(point_no => this.widget.surface.line_connecting_points({p1: point_no, p2: group.root, line_color: line_color, line_width: line_width}));
         }
     }
 
@@ -1012,11 +1019,16 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
                 this.drawing_order_.splice(index, 1);
             this.drawing_order_.push(point_no);
         };
-        if (typeof(group) === "string")
-            group = this.groups_.find(grp => grp.N === group);
+        group = this._find_group(group);
         group.members.forEach(add_member);
         if (group.root !== undefined)
             add_member(group.root);
+    }
+
+    _find_group(group) {
+        if (typeof(group) === "string")
+            group = this.groups_.find(grp => grp.N === group);
+        return group;
     }
 }
 
