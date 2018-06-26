@@ -900,7 +900,7 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
     constructor(widget, args={}) {
         super(widget, args);
         this.pages_exclusive_ = ["*no-groups*"];
-        this.groups_ = [];
+        this.groups_combined_ = [];
         this.combined_mode("exclusive");
         this.set_page(args.page === undefined ? 0 : args.page);
     }
@@ -920,6 +920,21 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
             }
         }
         return this.combined_mode_;
+    }
+
+    add_combined_group(group) {
+        if (!this.groups_combined_.includes(group)) {
+            this.groups_combined_.push(group);
+            this.set_page(this.page_no, true);
+        }
+    }
+
+    remove_combined_group(group) {
+        const index = this.groups_combined_.indexOf(group);
+        if (index >= 0) {
+            this.groups_combined_.splice(index, 1);
+            this.set_page(this.page_no, true);
+        }
     }
 
     set_page(page_no, redraw) {
@@ -979,6 +994,7 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
     }
 
     _make_drawing_order_combined() {
+        console.log("_make_drawing_order_combined", this.groups_combined_);
         this.drawing_order_ = [];
     }
 }
@@ -1909,8 +1925,10 @@ class ViewDialog
         }).join("");
         const tbl = this.content.find("table.a-view-dialog tr.group-series-combined table.a-groups").empty().append(group_html);
         tbl.find("input").on("change", evt => acv_utils.forward_event(evt, evt => {
-            console.log("group toggle", evt.currentTarget.name, evt.currentTarget.checked, evt);
-            window.ZZ = evt.currentTarget;
+            if (evt.currentTarget.checked)
+                this.widget.view_mode.add_combined_group(evt.currentTarget.name);
+            else
+                this.widget.view_mode.remove_combined_group(evt.currentTarget.name);
         }));
     }
 
