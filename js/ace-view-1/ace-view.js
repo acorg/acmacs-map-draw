@@ -139,7 +139,7 @@ const AntigenicMapWidget_content_html = `\
       <div class='a-left'>\
         <div class='a-arrow a-left-arrow a-unselectable'>${AntigenicMapWidget_left_arrow}</div>\
       </div>\
-      <div class='a-title-title'></div>\
+      <div class='a-title-title'><span></span></div>\
       <div class='a-right'>\
         <div class='a-arrow a-right-arrow a-unselectable'>${AntigenicMapWidget_right_arrow}</div>\
         <div class='a-burger'>&#x2630;</div>\
@@ -379,7 +379,7 @@ export class AntigenicMapWidget
     }
 
     title() {
-        this.title_element().empty().append(this.view_mode.title({title_fields: this.options.title_fields}));
+        this.title_element().find("span").empty().append(this.view_mode.title({title_fields: this.options.title_fields}));
         this.popup_on_hovering_title(this.view_mode.title_box());
     }
 
@@ -475,7 +475,7 @@ export class AntigenicMapWidget
 
     popup_on_hovering_title(content) {
         if (content) {
-            const title = this.title_element();
+            const title = this.title_element().find("span");
             let popup_events = false;
             const hide_popup = () => {
                 acv_toolkit.mouse_popup_hide().off("mouseenter").off("mouseleave");
@@ -1238,7 +1238,10 @@ class Coloring_Clade extends Coloring_WithAllStyles
     }
 
     _make_styles() {
-        this.clade_for_antigen.forEach((clade, antigen_no) => this.styles_.styles[antigen_no].F = sCladeColors[clade]);
+        this.clade_for_antigen.forEach((clade, antigen_no) => {
+            this.styles_.styles[antigen_no].F = sCladeColors[clade];
+            // this.styles_.styles[antigen_no].O = "white";
+        });
     }
 
     drawing_order(original_drawing_order, options) {

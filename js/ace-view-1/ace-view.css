@@ -28,6 +28,15 @@
     white-space: nowrap;
     overflow: auto;
     text-align: center;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+.amw201805 .a-title > .a-title-title > span {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    user-select: text;
 }
 
 .amw201805 .a-title .a-right {
