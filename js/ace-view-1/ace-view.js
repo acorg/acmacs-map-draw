@@ -293,8 +293,10 @@ export class AntigenicMapWidget
             this.view_mode = new DrawingMode_TableSeries(this, fixed_args);
             break;
         case "group-series":
-            if (this.view_mode instanceof DrawingMode_GroupSeries)
+            if (this.view_mode instanceof DrawingMode_GroupSeries) {
                 this.view_mode.set(args);
+                this.view_mode.make_drawing_order();
+            }
             else
                 this.view_mode = new DrawingMode_GroupSeries(this, fixed_args);
             break;
@@ -988,6 +990,8 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
             const chart = this.widget.data.c;
             this.drawing_order_background_ = acv_utils.array_of_indexes(chart.a.length + chart.s.length).filter(index => !this.drawing_order_.includes(index));
         }
+        else
+            this.drawing_order_background_ = undefined;
     }
 
     _make_drawing_order_exclusive() {
