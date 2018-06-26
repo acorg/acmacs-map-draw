@@ -1514,7 +1514,7 @@ class AntigenicTable
 // ----------------------------------------------------------------------
 
 const ViewDialog_html = "\
-<table>\
+<table class='a-view-dialog'>\
   <tr>\
     <td class='a-label'>Projection</td>\
     <td class='projection-chooser'></td>\
@@ -1663,7 +1663,7 @@ class ViewDialog
     }
 
     projection_no() {
-        const select = this.content.find("table td.projection-chooser select");
+        const select = this.content.find("table.a-view-dialog td.projection-chooser select");
         if (select.length > 0)
             return parseInt(select.val());
         else
@@ -1671,18 +1671,18 @@ class ViewDialog
     }
 
     set_current_mode() {
-        const td_coloring = this.content.find("table td.coloring");
+        const td_coloring = this.content.find("table.a-view-dialog td.coloring");
         td_coloring.find("a").removeClass("a-current");
         const coloring = this.widget.coloring.coloring();
         td_coloring.find(`a[href="${coloring}"]`).addClass("a-current");
 
-        const td_mode = this.content.find("table td.mode");
+        const td_mode = this.content.find("table.a-view-dialog td.mode");
         td_mode.find("a").removeClass("a-current");
         const mode = this.widget.view_mode.mode();
         td_mode.find(`a[href="${mode}"]`).addClass("a-current");
 
-        const tr_period = this.content.find("table tr.time-series-period").hide();
-        const tr_shading = this.content.find("table tr.shading").hide();
+        const tr_period = this.content.find("table.a-view-dialog tr.time-series-period").hide();
+        const tr_shading = this.content.find("table.a-view-dialog tr.shading").hide();
         tr_period.find("a").removeClass("a-current");
         tr_shading.find("a").removeClass("a-current");
         switch (mode) {
@@ -1709,12 +1709,12 @@ class ViewDialog
     }
 
     show_legend() {
-        const tr_legend = this.content.find("table tr.coloring-legend");
+        const tr_legend = this.content.find("table.a-view-dialog tr.coloring-legend");
         const legend = this.widget.coloring.legend();
         if (legend) {
             // console.log("legend", legend);
             const td_legend = tr_legend.find("td.coloring-legend").empty();
-            td_legend.append("<table><tr class='a-names'></tr><tr class='a-colors'></tr></table>");
+            td_legend.append("<table class='a-legend'><tr class='a-names'></tr><tr class='a-colors'></tr></table>");
             legend.map(entry => {
                 td_legend.find("tr.a-names").append(`<td>${entry.name}</td>`);
                 if (entry.color !== undefined && entry.color !== null)
@@ -1729,7 +1729,7 @@ class ViewDialog
 
     handle_aa_position_entry() {
         const coloring = this.widget.coloring.coloring();
-        const tr_coloring_aa_pos = this.content.find("table tr.coloring-aa-pos");
+        const tr_coloring_aa_pos = this.content.find("table.a-view-dialog tr.coloring-aa-pos");
         const input = tr_coloring_aa_pos.find("input");
         const hint = tr_coloring_aa_pos.find("a");
         input.off("keypress");
@@ -1781,7 +1781,7 @@ class ViewDialog
         const fill = () => {
             const sort_by_button = $("<a href='sort-by'></a>").appendTo(content);
             const sort_by_text = () => { sort_by_button.empty().append(sort_by === "shannon" ? "re-sort by position" : "re-sort by shannon index"); };
-            const tbl = $("<table></table>").appendTo(content);
+            const tbl = $("<table class='a-position-hint''></table>").appendTo(content);
             sort_by_button.on("click", evt => acv_utils.forward_event(evt, evt => {
                 sort_by = sort_by === "shannon" ? "position" : "shannon";
                 make_table(tbl);
@@ -1805,12 +1805,12 @@ class ViewDialog
     }
 
     handle_group_series() {
-        const tr_group_series = this.content.find("table tr.group-series");
+        const tr_group_series = this.content.find("table.a-view-dialog tr.group-series");
         tr_group_series.find("a").off("click");
         if (this.widget.view_mode.mode() === "group-series") {
             tr_group_series.show();
             this.show_group_series_data();
-            this._make_uploader({button: tr_group_series.find("a[href='upload']"), drop_area: this.content.find("table")});
+            this._make_uploader({button: tr_group_series.find("a[href='upload']"), drop_area: this.content.find("table.a-view-dialog")});
             this._make_downloader({button: tr_group_series.find("a[href='download']")});
         }
         else {
@@ -1839,7 +1839,7 @@ class ViewDialog
     }
 
     _make_exclusive_combined() {
-        const tr_group_series_combined = this.content.find("table tr.group-series-combined");
+        const tr_group_series_combined = this.content.find("table.a-view-dialog tr.group-series-combined");
         tr_group_series_combined.find(".a-buttons a").off("click");
         if (this.widget.view_mode.mode() === "group-series" && this.widget.group_sets_) {
             tr_group_series_combined.show();
@@ -1871,13 +1871,16 @@ class ViewDialog
     }
 
     _populate_table_groups(group_set) {
-        console.log("_populate_table_groups", group_set);
+        const group_html = group_set.groups.map(group => {
+            return `<tr><td class="a-checkbox"><input type="checkbox"></input></td><td class="a-name">${group.N}</td></tr>`;
+        }).join("");
+        const tbl = this.content.find("table.a-view-dialog tr.group-series-combined table.a-groups").empty().append(group_html);
     }
 
     show_group_series_data() {
         this._make_exclusive_combined();
         if (this.widget.group_sets_) {
-            const group_sets = this.content.find("table tr.group-series .a-sets").empty();
+            const group_sets = this.content.find("table.a-view-dialog tr.group-series .a-sets").empty();
             if (this.widget.group_sets_.length === 1) {
                 const gs = this.widget.group_sets_[0];
                 group_sets.append(`<a class='a-current' href='${gs.N}'>${gs.N}</a>`);
@@ -1913,7 +1916,7 @@ class ViewDialog
             this.show_group_series_data();
         }
         catch (err) {
-            acv_toolkit.movable_window_with_error(err, this.content.find("table tr.group-series .a-label"));
+            acv_toolkit.movable_window_with_error(err, this.content.find("table.a-view-dialog tr.group-series .a-label"));
         }
     }
 

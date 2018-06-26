@@ -327,6 +327,15 @@ ul.a-title-mouse-popup > li .a-sequenced {
     cursor: copy;
 }
 
+.view-dialog-movable table.a-view-dialog tr.group-series-combined table.a-groups {
+    margin-top: 0.5em;
+    border-collapse: collapse;
+}
+
+.view-dialog-movable table.a-view-dialog tr.group-series-combined table.a-groups td.a-checkbox {
+    padding-right: 0.5em;
+}
+
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */
 /* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */
