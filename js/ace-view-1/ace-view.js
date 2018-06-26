@@ -284,20 +284,23 @@ export class AntigenicMapWidget
         const shading = args.shading || (this.view_mode && this.view_mode.shading()) || "shade";
         const period = args.period || (this.view_mode && this.view_mode.period());
         const page = args.page || (this.view_mode && this.view_mode.current_page());
-        args = Object.assign({}, args, {period: period, page: page});
+        const fixed_args = Object.assign({}, args, {period: period, page: page});
         switch (mode) {
         case "time-series":
-            this.view_mode = new DrawingMode_TimeSeries(this, args);
+            this.view_mode = new DrawingMode_TimeSeries(this, fixed_args);
             break;
         case "table-series":
-            this.view_mode = new DrawingMode_TableSeries(this, args);
+            this.view_mode = new DrawingMode_TableSeries(this, fixed_args);
             break;
         case "group-series":
-            this.view_mode = new DrawingMode_GroupSeries(this, args);
+            if (this.view_mode instanceof DrawingMode_GroupSeries)
+                this.view_mode.set(args);
+            else
+                this.view_mode = new DrawingMode_GroupSeries(this, fixed_args);
             break;
         case "best-projection":
         default:
-            this.view_mode = new DrawingMode_Best_Projection(this, args);
+            this.view_mode = new DrawingMode_Best_Projection(this, fixed_args);
             break;
         }
         if (args.projection_no !== undefined)
@@ -589,7 +592,9 @@ class DrawingMode_Base
         }
     }
 
-    shading() {
+    shading(new_shading) {
+        if (typeof(new_shading) === "string")
+            this.shading_ = new_shading;
         return this.shading_;
     }
 
@@ -909,6 +914,11 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
         return "group-series";
     }
 
+    set(args) {
+        if (args.shading)
+            this.shading_ = args.shading;
+    }
+
     combined_mode(new_mode) {
         if (typeof(new_mode) === "string") {
             this.combined_mode_ = new_mode;
@@ -966,7 +976,7 @@ class DrawingMode_GroupSeries extends DrawingMode_Series
         this.gs_line_width_ = group_set.line_width || 1;
         this.pages_exclusive_ = this.groups_.map(gr => gr.N);
         this.combined_mode(this.combined_mode());
-        this.set_page(0, true);
+        this.set_page(this.current_page() || 0, true);
     }
 
     make_drawing_order() {
