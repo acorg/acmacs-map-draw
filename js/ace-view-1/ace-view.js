@@ -1947,6 +1947,7 @@ class ViewDialog
             else
                 this.widget.view_mode.remove_combined_group(evt.currentTarget.name);
         }));
+        this.widget.view_mode.groups_combined_.forEach(group_name => tbl.find(`input[name="${group_name}"]`).prop("checked", true));
     }
 
     show_group_series_data() {
