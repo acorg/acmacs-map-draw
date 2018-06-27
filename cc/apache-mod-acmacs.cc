@@ -153,9 +153,13 @@ void make_ace(request_rec* r)
     antigens->set_continent();
     seqdb::add_clades(chart, seqdb::ignore_errors::yes, seqdb::report::yes);
 
+    auto ace = acmacs::chart::export_ace_to_rjson(chart, "mod_acmacs");
+    if (const auto& group_sets = chart.extension_field("group_sets"); group_sets != rjson::null{})
+        ace["c"].set_field("group_sets", group_sets);
+
     ap_set_content_type(r, "application/json");
     r->content_encoding = "gzip";
-    const auto exported = acmacs::chart::export_ace(chart, "mod_acmacs", 0);
+    const auto exported = ace.to_json();
     const auto compressed = acmacs::file::gzip_compress(exported);
     ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
 

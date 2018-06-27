@@ -1980,7 +1980,6 @@ class ViewDialog
     show_group_series_data() {
         this._make_exclusive_combined();
         const chart = this.widget.data.c;
-        // console.log("chart", this.widget.data);
         if (!this.widget.group_sets_ && chart.group_sets)
             this.widget.group_sets_ = chart.group_sets;
         if (this.widget.group_sets_) {
