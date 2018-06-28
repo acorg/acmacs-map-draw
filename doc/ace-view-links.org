@@ -1,0 +1,5 @@
+* Color picker
+** http://bgrins.github.io/spectrum/
+history
+** http://jscolor.com/examples/
+no history

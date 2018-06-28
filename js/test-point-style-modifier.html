@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Test Point Style Modifier</title>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script type="module">
+      import * as mod from "/js/ad/map-draw/ace-view-1/point-style.js";
+      $(document).ready(() => {
+        mod.point_style_modifier({canvas: $("div.main canvas")});
+      });
+    </script>
+    <style>
+      body { margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+      h3 { margin-left: 1em; }
+      div.main { margin: 2em; }
+    </style>
+  </head>
+  <body>
+    <h3>Test Point Style Modifier</h3>
+    <div class="main">
+      <canvas acv_background="#E0E0E0" acv_shapex="triangle" acv_outline_width="1" acv_outline="black", acv_fill="red" style="width: 100px; height: 100px;"></canvas>
+    </div>
+    <canvas id="c2"></canvas>
+  </body>
+</html>
