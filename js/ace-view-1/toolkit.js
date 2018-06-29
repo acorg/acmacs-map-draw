@@ -107,20 +107,47 @@ export class Popup extends Popup_Base {
 
 // ----------------------------------------------------------------------
 
-const Modal_click_background_id = "amw201805-modal-click-background";
+export class Modal
+{
+    // args: {element:, z_index:, dismiss: function}
+    constructor(args) {
+        this.background_ = $("<div></div>").appendTo("body")
+            .css({width: $(document).width(), height: $(document).height(), position: "absolute", left: 0, top: 0, "z-index": args.z_index || 900})
+            .on("click", evt => acv_utils.forward_event(evt, () => {
+                if (args.dismiss)
+                    args.dismiss();
+                this.destroy();
+            }))
+            .show();
+        if (args.element) {
+            args.element.css("z-index", args.z_index ? args.z_index + 1 : 901);
+        }
+    }
 
-const Modal_click_background_html = "\
-<div id='" + Modal_click_background_id + "'>\
+    destroy() {
+        if (this.background_) {
+            this.background_.remove();
+            delete this.background_;
+        }
+    }
+}
+
+// ----------------------------------------------------------------------
+
+const Old_Modal_click_background_id = "amw201805-old-modal-click-background";
+
+const Old_Modal_click_background_html = "\
+<div id='" + Old_Modal_click_background_id + "'>\
 </div>\
 ";
 
 
-class ModalClickBackground
+class Old_ModalClickBackground
 {
     constructor() {
-        this.div = $("body").find("#" + Modal_click_background_id);
+        this.div = $("body").find("#" + Old_Modal_click_background_id);
         if (this.div.length === 0)
-            this.div = $(Modal_click_background_html).appendTo($("body"));
+            this.div = $(Old_Modal_click_background_html).appendTo($("body"));
     }
 
     destroy() {
@@ -141,13 +168,11 @@ class ModalClickBackground
     }
 }
 
-// ----------------------------------------------------------------------
-
-export class Modal
+export class Old_Modal
 {
     constructor(content) {
         this.menu = $("<div class='amw201805-burger-menu'>" + content + "</div>").appendTo($("body"));
-        this.background = new ModalClickBackground();
+        this.background = new Old_ModalClickBackground();
         this.background.onclick(() => this.destroy());
     }
 

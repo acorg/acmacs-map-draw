@@ -1,9 +1,104 @@
+import * as acv_toolkit from "./toolkit.js";
+import * as acv_utils from "./utils.js";
+
+acv_utils.load_css("/js/ad/map-draw/ace-view-1/point-style.css");
+
 // ----------------------------------------------------------------------
 
 export function point_style_modifier(args={}) {
     if (!args.canvas || !args.canvas.is("canvas"))
         throw "point_style_modifier: canvas argument must be canvas element";
-    new PointStyleModifierCanvas(args).run();
+    new PointStyleModifier({modifier_canvas: new PointStyleModifierCanvas(args)});
+}
+
+// ----------------------------------------------------------------------
+
+var point_style_modifier_dialog_singleton = null;
+
+class PointStyleModifier
+{
+    // args: {modifier_canvas: PointStyleModifierCanvas }
+    constructor(args) {
+        this.canvas_ = args.modifier_canvas;
+        this.canvas_.draw();
+        this.canvas_.on("click", evt => acv_utils.forward_event(evt, () => this.show_dialog()));
+    }
+
+    show_dialog() {
+        if (!point_style_modifier_dialog_singleton)
+            point_style_modifier_dialog_singleton = new PointStyleModifierDialog();
+        point_style_modifier_dialog_singleton.show(this.canvas_);
+    }
+}
+
+// ----------------------------------------------------------------------
+
+const PointStyleModifierDialog_html = "\
+<div class='a-window-shadow'>\
+  <table>\
+    <tr>\
+      <td>Fill</td>\
+      <td>Outline</td>\
+      <td title='Outline width'>W</td>\
+    </tr>\
+    <tr>\
+      <td></td>\
+      <td></td>\
+      <td><div class='a-point-style-slider-vertical'><input type='range' name='outline_width' value='0' min='-10' max='9' list='point-style-input-tickmarks'></div></td>\
+    </tr>\
+    <tr>\
+      <td></td>\
+      <td></td>\
+      <td><span name='outline_width'></span></td>\
+    </tr>\
+  </table>\
+  <datalist id='point-style-input-tickmarks'></datalist>\
+</div>\
+";
+
+class PointStyleModifierDialog
+{
+    // args: {}
+    constructor(args={}) {
+        this._make();
+    }
+
+    show(modifier_canvas) {
+        this.modifier_canvas_ = modifier_canvas;
+        modifier_canvas.draw();
+        this._setup();
+        this.div_.css(modifier_canvas.bottom_left_absolute());
+        this.modal_ = new acv_toolkit.Modal({element: this.div_, z_index: 900, dismiss: () => this.hide()});
+        this.div_.show();
+    }
+
+    hide() {
+        this.modifier_canvas_ = null;
+        this.div_.hide();
+    }
+
+    _make() {
+        this.div_ = $(PointStyleModifierDialog_html).appendTo("body").hide().css({position: "absolute"});
+        const tickmarks = this.div_.find("datalist#point-style-input-tickmarks").empty();
+        for (let i = -20; i <= 20; ++i)
+            tickmarks.append(`<option value='${i}'>`);
+
+        this.div_.find("input[name='outline_width']").on("change", evt => {
+            let value = parseFloat(evt.currentTarget.value);
+            if (value < 0) {
+                value = (10 + value) / 10;
+            }
+            else {
+                ++value;
+            }
+            this.div_.find("span[name='outline_width']").empty().append(value.toFixed(1));
+            if (this.modifier_canvas_)
+                this.modifier_canvas_.set("outline_width", value, true);
+        });
+    }
+
+    _setup() {
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -22,13 +117,9 @@ class PointStyleModifierCanvas
         this.context_.translate(0.5, 0.5);
     }
 
-    run() {
-        this.draw();
-    }
-
     draw() {
         this.context_.save();
-        this.context_.fillStyle = this._get("background");
+        this.context_.fillStyle = this.get("background");
         this.context_.fillRect(-0.5, -0.5, 1, 1);
         this._rotation();
         this._aspect();
@@ -40,23 +131,32 @@ class PointStyleModifierCanvas
         this.context_.restore();
     }
 
+    on(event, callback) {
+        this.canvas_.on(event, callback);
+    }
+
+    bottom_left_absolute() {
+        const offs = this.canvas_.offset();
+        return {left: offs.left, top: offs.top + this.canvas_.height()};
+    }
+
     _aspect() {
-        const aspect = parseFloat(this._get("aspect", "unknown"));
+        const aspect = parseFloat(this.get("aspect", "unknown"));
         if (!isNaN(aspect) && aspect > 0)
             this.context_.scale(aspect, 1);
     }
 
     _rotation() {
-        const rotation = parseFloat(this._get("rotation", "unknown"));
+        const rotation = parseFloat(this.get("rotation", "unknown"));
         if (!isNaN(rotation))
             this.context_.rotate(rotation);
     }
 
     _shape() {
-        const outline_width = parseFloat(this._get("outline_width", "unknown")) || 1;
+        const outline_width = parseFloat(this.get("outline_width", "unknown")) || 1;
         let radius = 0.5 - this.scale_ * outline_width;
         this.context_.beginPath();
-        switch (this._get("shape", "unknown").toLowerCase()) {
+        switch (this.get("shape", "unknown").toLowerCase()) {
         case "circle":
             this.context_.arc(0, 0, radius, 0, 2*Math.PI);
             break;
@@ -86,7 +186,7 @@ class PointStyleModifierCanvas
     }
 
     _outline() {
-        const outline = this._get("outline", "unknown");
+        const outline = this.get("outline", "unknown");
         if (outline === "unknown") {
             this.context_.setLineDash([this.scale_ * 3, this.scale_ * 6]);
             this.context_.strokeStyle = "pink";
@@ -96,7 +196,7 @@ class PointStyleModifierCanvas
     }
 
     _outline_width() {
-        let outline_width = parseFloat(this._get("outline_width", "unknown"));
+        let outline_width = parseFloat(this.get("outline_width", "unknown"));
         if (isNaN(outline_width)) {
             outline_width = 1;
             this.context_.setLineDash([this.scale_ * 5, this.scale_ * 5]);
@@ -107,7 +207,7 @@ class PointStyleModifierCanvas
     }
 
     _fill() {
-        const fill = this._get("fill", "unknown");
+        const fill = this.get("fill", "unknown");
         if (fill === "unknown") {
             this._fill_chess("#A0A0FF", "#E0E0E0");
         }
@@ -138,12 +238,14 @@ class PointStyleModifierCanvas
         this.context_.restore();
     }
 
-    _get(name, dflt) {
+    get(name, dflt) {
         return this.canvas_.attr("acv_" + name) || dflt;
     }
 
-    _set(name, value) {
-        return this.canvas_.attr("acv_" + name, value);
+    set(name, value, draw) {
+        this.canvas_.attr("acv_" + name, value);
+        if (draw)
+            this.draw();
     }
 }
 

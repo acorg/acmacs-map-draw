@@ -69,7 +69,7 @@ const API_Features = [
     "download_distances_between_all_points_plain", "download_distances_between_all_points_csv"
 ];
 
-class BurgerMenu extends acv_toolkit.Modal
+class BurgerMenu extends acv_toolkit.Old_Modal
 {
     constructor(parent) {
         super(BurgerMenu_html);
