@@ -57,6 +57,7 @@ const PointStyleModifierDialog_html = "\
       <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='rotation'></span></td>\
     </tr>\
   </table>\
+  <div class='a-reset-button' title='undo all changes'><div></div></div>\
   <datalist id='point-style-input-tickmarks'></datalist>\
   <datalist id='point-style-input-tickmarks-angle'></datalist>\
   <datalist id='point-style-input-tickmarks-aspect'></datalist>\
@@ -119,6 +120,8 @@ class PointStyleModifierDialog
         this.div_.find("input[name='outline_width']").on("change", evt => this._outline_width_from_slider(parseFloat(evt.currentTarget.value)));
         this.div_.find("input[name='rotation']").on("change", evt => this._rotation_from_slider(parseFloat(evt.currentTarget.value)));
         this.div_.find("input[name='aspect']").on("change", evt => this._aspect_from_slider(parseFloat(evt.currentTarget.value)));
+
+        this.div_.find("div.a-reset-button").on("click", evt => acv_utils.forward_event(evt, () => this._undo()));
     }
 
     _setup() {
@@ -188,6 +191,10 @@ class PointStyleModifierDialog
     _aspect_to_slider(value) {
         this.div_.find("input[name='aspect']").val(value);
         this.div_.find("span[name='aspect']").empty().append(value.toFixed(1));
+    }
+
+    _undo() {
+        console.log("undo");
     }
 }
 
