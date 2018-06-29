@@ -47,7 +47,7 @@ const PointStyleModifierDialog_html = "\
       <td></td>\
       <td></td>\
       <td><div class='a-point-style-slider-vertical'><input type='range' name='outline_width' value='0' min='-3' max='19' list='point-style-input-tickmarks'></div></td>\
-      <td><div class='a-point-style-slider-vertical'><input type='range' name='aspect' value='0' min='-10' max='9' list='point-style-input-tickmarks'></div></td>\
+      <td><div class='a-point-style-slider-vertical'><input type='range' name='aspect' value='1' min='0.1' max='1' step='0.1', list='point-style-input-tickmarks'></div></td>\
       <td><div class='a-point-style-slider-vertical'><input type='range' name='rotation' value='0' min='-180' max='180' step='15' list='point-style-input-tickmarks-angle'></div></td>\
     </tr>\
     <tr>\
@@ -97,11 +97,13 @@ class PointStyleModifierDialog
 
         this.div_.find("input[name='outline_width']").on("change", evt => this._outline_width_from_slider(parseFloat(evt.currentTarget.value)));
         this.div_.find("input[name='rotation']").on("change", evt => this._rotation_from_slider(parseFloat(evt.currentTarget.value)));
+        this.div_.find("input[name='aspect']").on("change", evt => this._aspect_from_slider(parseFloat(evt.currentTarget.value)));
     }
 
     _setup() {
-        this._outline_width_to_slider(this.modifier_canvas_.get("outline_width", 1));
-        this._rotation_to_slider(this.modifier_canvas_.get("rotation", 0));
+        this._outline_width_to_slider(parseFloat(this.modifier_canvas_.get("outline_width", 1)));
+        this._rotation_to_slider(parseFloat(this.modifier_canvas_.get("rotation", 0)));
+        this._aspect_to_slider(parseFloat(this.modifier_canvas_.get("aspect", 1)));
     }
 
     _outline_width_from_slider(value) {
@@ -139,6 +141,17 @@ class PointStyleModifierDialog
         const degrees = value / DegreesToRadians;
         this.div_.find("input[name='rotation']").val(degrees);
         this.div_.find("span[name='rotation']").empty().append(degrees.toFixed(0));
+    }
+
+    _aspect_from_slider(value) {
+        this.div_.find("span[name='aspect']").empty().append(value.toFixed(1));
+        if (this.modifier_canvas_)
+            this.modifier_canvas_.set("aspect", value, true);
+    }
+
+    _aspect_to_slider(value) {
+        this.div_.find("input[name='aspect']").val(value);
+        this.div_.find("span[name='aspect']").empty().append(value.toFixed(1));
     }
 }
 
