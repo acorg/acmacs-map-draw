@@ -57,3 +57,33 @@ td.a-point-style-slider-value {
 span.a-point-style-slider-value {
     font-size: 0.8em;
 }
+
+.a-point-style-modifier-dialog td.a-shape div {
+    float: left;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.a-point-style-modifier-dialog td.a-shape div.a-label {
+    font-size: 0.8em;
+}
+
+.a-point-style-modifier-dialog td.a-shape div.a-shape {
+    width: 16px;
+    height: 16px;
+    background: #808080;
+    margin-left: 12px;
+}
+
+.a-point-style-modifier-dialog td.a-shape div.a-shape[name="circle"] {
+    border-radius: 8px;
+}
+
+.a-point-style-modifier-dialog td.a-shape div.a-shape[name="triangle"] {
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 16px solid #808080;
+    background: transparent;
+}

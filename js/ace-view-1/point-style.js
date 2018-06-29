@@ -51,8 +51,7 @@ const PointStyleModifierDialog_html = "\
       <td><div class='a-point-style-slider-vertical'><input type='range' name='rotation' value='0' min='-180' max='180' step='15' list='point-style-input-tickmarks-angle'></div></td>\
     </tr>\
     <tr>\
-      <td></td>\
-      <td></td>\
+      <td colspan='2' class='a-shape'><div class='a-label'>Shape:</div><div class='a-shape' name='circle'></div><div class='a-shape' name='box'></div><div class='a-shape' name='triangle'></div></td>\
       <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='outline_width'></span></td>\
       <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='aspect'></span></td>\
       <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='rotation'></span></td>\
