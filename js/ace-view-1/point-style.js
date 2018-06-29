@@ -51,7 +51,7 @@ const PointStyleModifierDialog_html = "\
       <td><div class='a-point-style-slider-vertical'><input type='range' name='rotation' value='0' min='-180' max='180' step='15' list='point-style-input-tickmarks-angle'></div></td>\
     </tr>\
     <tr>\
-      <td colspan='2' class='a-shape'><div class='a-label'>Shape:</div><div class='a-shape' name='circle'></div><div class='a-shape' name='box'></div><div class='a-shape' name='triangle'></div></td>\
+      <td colspan='2' class='a-shape'><div class='a-label'>Shape:</div><div class='a-shape' name='circle' title='circle'></div><div class='a-shape' name='box' title='box'></div><div class='a-shape' name='triangle' title='triangle'></div></td>\
       <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='outline_width'></span></td>\
       <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='aspect'></span></td>\
       <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='rotation'></span></td>\
@@ -91,15 +91,15 @@ class PointStyleModifierDialog
 
         const td_fill = this.div_.find('td[name="fill"]');
         const td_outline = this.div_.find('td[name="outline"]');
-        const colors = ["#000000", "#FFFFFF", "#808080", "#FF0000", "#00FF00", "#0000FF", "#FFA500", "#6495ED"].concat(acv_toolkit.sAnaColors);
+        const colors = ["#000000", "#ffffff", "#808080", "#ff0000", "#00ff00", "#0000ff", "#ffa500", "#6495ed"].concat(acv_toolkit.sAnaColors);
         colors.forEach(color => {
             if (color === "#FFFFFF") {
-                td_fill.append(`<div class="a-fill-color a-white" name="${color}"></div>`);
-                td_outline.append(`<div class="a-outline-color a-white" name="${color}" style="background-color: #E0E0E0; border: 3px solid ${color}"></div>`);
+                td_fill.append(`<div class="a-fill-color a-white" name="${color}" title="fill with ${color}"></div>`);
+                td_outline.append(`<div class="a-outline-color a-white" name="${color}" style="background-color: #E0E0E0; border: 3px solid ${color}" title="outline ${color}"></div>`);
             }
             else {
-                td_fill.append(`<div class="a-fill-color" name="${color}" style="background-color: ${color}"></div>`);
-                td_outline.append(`<div class="a-outline-color" name="${color}" style="border: 3px solid ${color}"></div>`);
+                td_fill.append(`<div class="a-fill-color" name="${color}" style="background-color: ${color}" title="fill with ${color}"></div>`);
+                td_outline.append(`<div class="a-outline-color" name="${color}" style="border: 3px solid ${color}" title="outline ${color}"></div>`);
             }
         });
         this.div_.find("div.a-fill-color").on("click", evt => acv_utils.forward_event(evt, () => this._fill(evt.currentTarget.getAttribute("name"))));
@@ -244,7 +244,7 @@ class PointStyleModifierCanvas
 
     _shape() {
         const outline_width = parseFloat(this.get("outline_width", "unknown")) || 1;
-        let radius = 0.5 - this.scale_ * outline_width;
+        let radius = 0.35 - this.scale_ * outline_width;
         this.context_.beginPath();
         switch (this.get("shape", "unknown").toLowerCase()) {
         case "circle":
@@ -260,7 +260,6 @@ class PointStyleModifierCanvas
             break;
         case "triangle":
             const aspect = 1;
-            radius -= this.scale_ * outline_width;
             this.context_.moveTo(0, -radius);
             this.context_.lineTo(-radius * COS_PI_6 * aspect, radius / 2);
             this.context_.lineTo(radius * COS_PI_6 * aspect, radius / 2);
