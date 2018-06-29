@@ -117,9 +117,9 @@ class PointStyleModifierDialog
         for (let aspect = 0; aspect <= 1; aspect += 0.2)
             tickmarks_aspect.append(`<option value='${aspect}'>`);
 
-        this.div_.find("input[name='outline_width']").on("change", evt => this._outline_width_from_slider(parseFloat(evt.currentTarget.value)));
-        this.div_.find("input[name='rotation']").on("change", evt => this._rotation_from_slider(parseFloat(evt.currentTarget.value)));
-        this.div_.find("input[name='aspect']").on("change", evt => this._aspect_from_slider(parseFloat(evt.currentTarget.value)));
+        this.div_.find("input[name='outline_width']").on("input", evt => this._outline_width_from_slider(parseFloat(evt.currentTarget.value)));
+        this.div_.find("input[name='rotation']").on("input", evt => this._rotation_from_slider(parseFloat(evt.currentTarget.value)));
+        this.div_.find("input[name='aspect']").on("input", evt => this._aspect_from_slider(parseFloat(evt.currentTarget.value)));
 
         this.div_.find("div.a-reset-button").on("click", evt => acv_utils.forward_event(evt, () => this._undo()));
     }
