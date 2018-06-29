@@ -104,6 +104,7 @@ class PointStyleModifierDialog
         });
         this.div_.find("div.a-fill-color").on("click", evt => acv_utils.forward_event(evt, () => this._fill(evt.currentTarget.getAttribute("name"))));
         this.div_.find("div.a-outline-color").on("click", evt => acv_utils.forward_event(evt, evt => this._outline(evt.currentTarget.getAttribute("name"))));
+        this.div_.find("div.a-shape").on("click", evt => acv_utils.forward_event(evt, evt => this._shape(evt.currentTarget.getAttribute("name"))));
 
         const tickmarks = this.div_.find("datalist#point-style-input-tickmarks").empty();
         for (let i = -20; i <= 20; i += 2)
@@ -134,6 +135,11 @@ class PointStyleModifierDialog
     _outline(color) {
         if (this.modifier_canvas_)
             this.modifier_canvas_.set("outline", color, true);
+    }
+
+    _shape(shape) {
+        if (this.modifier_canvas_)
+            this.modifier_canvas_.set("shape", shape, true);
     }
 
     _outline_width_from_slider(value) {
