@@ -30,17 +30,26 @@ class PointStyleModifierCanvas
         this.context_.save();
         this.context_.fillStyle = this._get("background");
         this.context_.fillRect(-0.5, -0.5, 1, 1);
+        this._rotation();
+        this._aspect();
         this._shape();
         this._outline();
         this._outline_width();
         this.context_.stroke();
         this._fill();
-
-        // aspect
-        // rotation
-
-        // this.context_.fill();
         this.context_.restore();
+    }
+
+    _aspect() {
+        const aspect = parseFloat(this._get("aspect", "unknown"));
+        if (!isNaN(aspect) && aspect > 0)
+            this.context_.scale(aspect, 1);
+    }
+
+    _rotation() {
+        const rotation = parseFloat(this._get("rotation", "unknown"));
+        if (!isNaN(rotation))
+            this.context_.rotate(rotation);
     }
 
     _shape() {
