@@ -34,27 +34,36 @@ class PointStyleModifier
 // ----------------------------------------------------------------------
 
 const PointStyleModifierDialog_html = "\
-<div class='a-window-shadow'>\
+<div class='a-point-style-modifier-dialog a-window-shadow'>\
   <table>\
-    <tr>\
+    <tr class='a-title'>\
       <td>Fill</td>\
       <td>Outline</td>\
       <td title='Outline width'>W</td>\
+      <td title='Aspect'>A</td>\
+      <td title='Rotation'>R</td>\
     </tr>\
     <tr>\
       <td></td>\
       <td></td>\
-      <td><div class='a-point-style-slider-vertical'><input type='range' name='outline_width' value='0' min='-10' max='9' list='point-style-input-tickmarks'></div></td>\
+      <td><div class='a-point-style-slider-vertical'><input type='range' name='outline_width' value='0' min='-3' max='19' list='point-style-input-tickmarks'></div></td>\
+      <td><div class='a-point-style-slider-vertical'><input type='range' name='aspect' value='0' min='-10' max='9' list='point-style-input-tickmarks'></div></td>\
+      <td><div class='a-point-style-slider-vertical'><input type='range' name='rotation' value='0' min='-180' max='180' step='15' list='point-style-input-tickmarks-angle'></div></td>\
     </tr>\
     <tr>\
       <td></td>\
       <td></td>\
-      <td><span name='outline_width'></span></td>\
+      <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='outline_width'></span></td>\
+      <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='aspect'></span></td>\
+      <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='rotation'></span></td>\
     </tr>\
   </table>\
   <datalist id='point-style-input-tickmarks'></datalist>\
+  <datalist id='point-style-input-tickmarks-angle'></datalist>\
 </div>\
 ";
+
+const DegreesToRadians = Math.PI / 180;
 
 class PointStyleModifierDialog
 {
@@ -82,22 +91,54 @@ class PointStyleModifierDialog
         const tickmarks = this.div_.find("datalist#point-style-input-tickmarks").empty();
         for (let i = -20; i <= 20; ++i)
             tickmarks.append(`<option value='${i}'>`);
+        const tickmarks_angle = this.div_.find("datalist#point-style-input-tickmarks-angle").empty();
+        for (let angle = -180; angle <= 180; angle += 15)
+            tickmarks_angle.append(`<option value='${angle}'>`);
 
-        this.div_.find("input[name='outline_width']").on("change", evt => {
-            let value = parseFloat(evt.currentTarget.value);
-            if (value < 0) {
-                value = (10 + value) / 10;
-            }
-            else {
-                ++value;
-            }
-            this.div_.find("span[name='outline_width']").empty().append(value.toFixed(1));
-            if (this.modifier_canvas_)
-                this.modifier_canvas_.set("outline_width", value, true);
-        });
+        this.div_.find("input[name='outline_width']").on("change", evt => this._outline_width_from_slider(parseFloat(evt.currentTarget.value)));
+        this.div_.find("input[name='rotation']").on("change", evt => this._rotation_from_slider(parseFloat(evt.currentTarget.value)));
     }
 
     _setup() {
+        this._outline_width_to_slider(this.modifier_canvas_.get("outline_width", 1));
+        this._rotation_to_slider(this.modifier_canvas_.get("rotation", 0));
+    }
+
+    _outline_width_from_slider(value) {
+        if (value < 0) {
+            value = 10**value;
+            if (value < 0.01)
+                value = 0;
+        }
+        else {
+            ++value;
+        }
+        this.div_.find("span[name='outline_width']").empty().append(value);
+        if (this.modifier_canvas_)
+            this.modifier_canvas_.set("outline_width", value, true);
+    }
+
+    _outline_width_to_slider(value) {
+        const slider = this.div_.find("input[name='outline_width']");
+        if (value >= 1)
+            slider.val(value - 1);
+        else if (value < 0.01)
+            slider.val(-3);
+        else
+            slider.val(Math.log10(value));
+        this.div_.find("span[name='outline_width']").empty().append(value);
+    }
+
+    _rotation_from_slider(value) {
+        this.div_.find("span[name='rotation']").empty().append(value);
+        if (this.modifier_canvas_)
+            this.modifier_canvas_.set("rotation", value * DegreesToRadians, true);
+    }
+
+    _rotation_to_slider(value) {
+        const degrees = value / DegreesToRadians;
+        this.div_.find("input[name='rotation']").val(degrees);
+        this.div_.find("span[name='rotation']").empty().append(degrees.toFixed(0));
     }
 }
 

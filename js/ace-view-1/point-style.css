@@ -1,3 +1,7 @@
+.a-point-style-modifier-dialog tr.a-title td {
+    text-align: center;
+}
+
 .a-point-style-slider-vertical {
     display: inline-block;
     width: 20px;
@@ -11,4 +15,12 @@
     margin: 0;
     transform-origin: 75px 75px;
     transform: rotate(-90deg);
+}
+
+td.a-point-style-slider-value {
+    text-align: center;
+}
+
+span.a-point-style-slider-value {
+    font-size: 0.8em;
 }
