@@ -47,7 +47,7 @@ const PointStyleModifierDialog_html = "\
       <td></td>\
       <td></td>\
       <td><div class='a-point-style-slider-vertical'><input type='range' name='outline_width' value='0' min='-3' max='19' list='point-style-input-tickmarks'></div></td>\
-      <td><div class='a-point-style-slider-vertical'><input type='range' name='aspect' value='1' min='0.1' max='1' step='0.1', list='point-style-input-tickmarks'></div></td>\
+      <td><div class='a-point-style-slider-vertical'><input type='range' name='aspect' value='1' min='0.1' max='1' step='0.1', list='point-style-input-tickmarks-aspect'></div></td>\
       <td><div class='a-point-style-slider-vertical'><input type='range' name='rotation' value='0' min='-180' max='180' step='15' list='point-style-input-tickmarks-angle'></div></td>\
     </tr>\
     <tr>\
@@ -60,6 +60,7 @@ const PointStyleModifierDialog_html = "\
   </table>\
   <datalist id='point-style-input-tickmarks'></datalist>\
   <datalist id='point-style-input-tickmarks-angle'></datalist>\
+  <datalist id='point-style-input-tickmarks-aspect'></datalist>\
 </div>\
 ";
 
@@ -89,11 +90,14 @@ class PointStyleModifierDialog
     _make() {
         this.div_ = $(PointStyleModifierDialog_html).appendTo("body").hide().css({position: "absolute"});
         const tickmarks = this.div_.find("datalist#point-style-input-tickmarks").empty();
-        for (let i = -20; i <= 20; ++i)
+        for (let i = -20; i <= 20; i += 2)
             tickmarks.append(`<option value='${i}'>`);
         const tickmarks_angle = this.div_.find("datalist#point-style-input-tickmarks-angle").empty();
-        for (let angle = -180; angle <= 180; angle += 15)
+        for (let angle = -180; angle <= 180; angle += 30)
             tickmarks_angle.append(`<option value='${angle}'>`);
+        const tickmarks_aspect = this.div_.find("datalist#point-style-input-tickmarks-aspect").empty();
+        for (let aspect = 0; aspect <= 1; aspect += 0.2)
+            tickmarks_aspect.append(`<option value='${aspect}'>`);
 
         this.div_.find("input[name='outline_width']").on("change", evt => this._outline_width_from_slider(parseFloat(evt.currentTarget.value)));
         this.div_.find("input[name='rotation']").on("change", evt => this._rotation_from_slider(parseFloat(evt.currentTarget.value)));
