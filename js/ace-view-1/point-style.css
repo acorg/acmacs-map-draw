@@ -1,5 +1,38 @@
+.a-point-style-modifier-dialog table {
+    border-collapse: separate;
+    border-spacing: 0.5em 0;
+}
+
 .a-point-style-modifier-dialog tr.a-title td {
     text-align: center;
+}
+
+.a-point-style-modifier-dialog td[name="fill"] {
+    width: 60px;
+}
+
+.a-point-style-modifier-dialog td[name="outline"] {
+    width: 60px;
+}
+
+.a-point-style-modifier-dialog div.a-fill-color {
+    width: 13px;
+    height: 13px;
+    margin: 3px;
+    float: left;
+}
+
+.a-point-style-modifier-dialog div.a-fill-color.a-white {
+    width: 7px;
+    height: 7px;
+    border: 3px dashed #E0E0E0;
+}
+
+.a-point-style-modifier-dialog div.a-outline-color {
+    width: 7px;
+    height: 7px;
+    margin: 3px;
+    float: left;
 }
 
 .a-point-style-slider-vertical {

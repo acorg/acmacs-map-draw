@@ -44,8 +44,8 @@ const PointStyleModifierDialog_html = "\
       <td title='Rotation'>R</td>\
     </tr>\
     <tr>\
-      <td></td>\
-      <td></td>\
+      <td name='fill'></td>\
+      <td name='outline'></td>\
       <td><div class='a-point-style-slider-vertical'><input type='range' name='outline_width' value='0' min='-3' max='19' list='point-style-input-tickmarks'></div></td>\
       <td><div class='a-point-style-slider-vertical'><input type='range' name='aspect' value='1' min='0.1' max='1' step='0.1', list='point-style-input-tickmarks-aspect'></div></td>\
       <td><div class='a-point-style-slider-vertical'><input type='range' name='rotation' value='0' min='-180' max='180' step='15' list='point-style-input-tickmarks-angle'></div></td>\
@@ -89,6 +89,23 @@ class PointStyleModifierDialog
 
     _make() {
         this.div_ = $(PointStyleModifierDialog_html).appendTo("body").hide().css({position: "absolute"});
+
+        const td_fill = this.div_.find('td[name="fill"]');
+        const td_outline = this.div_.find('td[name="outline"]');
+        const colors = ["#000000", "#FFFFFF", "#808080", "#FF0000", "#00FF00", "#0000FF", "#FFA500", "#6495ED"].concat(acv_toolkit.sAnaColors);
+        colors.forEach(color => {
+            if (color === "#FFFFFF") {
+                td_fill.append(`<div class="a-fill-color a-white" name="${color}"></div>`);
+                td_outline.append(`<div class="a-outline-color a-white" name="${color}" style="background-color: #E0E0E0; border: 3px solid ${color}"></div>`);
+            }
+            else {
+                td_fill.append(`<div class="a-fill-color" name="${color}" style="background-color: ${color}"></div>`);
+                td_outline.append(`<div class="a-outline-color" name="${color}" style="border: 3px solid ${color}"></div>`);
+            }
+        });
+        this.div_.find("div.a-fill-color").on("click", evt => acv_utils.forward_event(evt, () => this._fill(evt.currentTarget.getAttribute("name"))));
+        this.div_.find("div.a-outline-color").on("click", evt => acv_utils.forward_event(evt, evt => this._outline(evt.currentTarget.getAttribute("name"))));
+
         const tickmarks = this.div_.find("datalist#point-style-input-tickmarks").empty();
         for (let i = -20; i <= 20; i += 2)
             tickmarks.append(`<option value='${i}'>`);
@@ -108,6 +125,16 @@ class PointStyleModifierDialog
         this._outline_width_to_slider(parseFloat(this.modifier_canvas_.get("outline_width", 1)));
         this._rotation_to_slider(parseFloat(this.modifier_canvas_.get("rotation", 0)));
         this._aspect_to_slider(parseFloat(this.modifier_canvas_.get("aspect", 1)));
+    }
+
+    _fill(color) {
+        if (this.modifier_canvas_)
+            this.modifier_canvas_.set("fill", color, true);
+    }
+
+    _outline(color) {
+        if (this.modifier_canvas_)
+            this.modifier_canvas_.set("outline", color, true);
     }
 
     _outline_width_from_slider(value) {
