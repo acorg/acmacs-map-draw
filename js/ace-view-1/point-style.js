@@ -124,7 +124,17 @@ class PointStyleModifierDialog
         this.div_.find("div.a-reset-button").on("click", evt => acv_utils.forward_event(evt, () => this._undo()));
     }
 
-    _setup() {
+    _setup(save=true) {
+        if (save) {
+            this.saved_data_ = {
+                fill: this.modifier_canvas_.get("fill", null),
+                outline: this.modifier_canvas_.get("outline", null),
+                outline_width: this.modifier_canvas_.get("outline_width", null),
+                shape: this.modifier_canvas_.get("shape", null),
+                rotation: this.modifier_canvas_.get("rotation", null),
+                aspect: this.modifier_canvas_.get("aspect", null)
+            };
+        }
         this._outline_width_to_slider(parseFloat(this.modifier_canvas_.get("outline_width", 1)));
         this._rotation_to_slider(parseFloat(this.modifier_canvas_.get("rotation", 0)));
         this._aspect_to_slider(parseFloat(this.modifier_canvas_.get("aspect", 1)));
@@ -194,7 +204,11 @@ class PointStyleModifierDialog
     }
 
     _undo() {
-        console.log("undo");
+        if (this.saved_data_ && this.modifier_canvas_) {
+            Object.entries(this.saved_data_).forEach(entry => this.modifier_canvas_.set(entry[0], entry[1], false));
+            this.modifier_canvas_.draw();
+            this._setup(false);
+        }
     }
 }
 
