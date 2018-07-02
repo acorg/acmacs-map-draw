@@ -904,8 +904,8 @@ class DrawingMode_Selection extends DrawingMode_Base
     }
 
     _style_modified(data, indexes) {
-        const key_mapping = {fill: "F", outline: "O", outline_width: "o", aspect: "a", rotation: "r", shape: "S"};
-        console.log("_style_modified", data, indexes, this.styles_.styles[indexes[0]]);
+        const key_mapping = {fill: "F", outline: "O", outline_width: "o", aspect: "a", rotation: "r", shape: "S", size: "s"};
+        // console.log("_style_modified", data, indexes, this.styles_.styles[indexes[0]]);
         indexes.forEach(index => this.styles_.styles[index][key_mapping[data.name]] = data.value);
         this.widget.draw();
     }

@@ -318,6 +318,8 @@ class PointStyleModifierCanvas
     _shape() {
         const outline_width = parseFloat(this.get("outline_width", "unknown")) || 1;
         let radius = 0.35 - this.scale_ * outline_width;
+        if (radius < 0)
+            radius = 0;
         this.context_.beginPath();
         switch (this.get("shape", "unknown")[0].toLowerCase()) {
         case "c":
