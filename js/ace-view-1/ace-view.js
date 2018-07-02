@@ -793,6 +793,15 @@ class DrawingMode_Selection extends DrawingMode_Base
         return this.styles_ || this.widget.coloring.styles();
     }
 
+    // {selection_results: <table>}
+    reset(args) {
+        args.selection_results.empty();
+        this.selected_antigens_ = [];
+        this.selected_sera_ = [];
+        this._make_drawing_order();
+        this.widget.draw();
+    }
+
     // {regex:, subset: "antigens" "sera" "all", selection_results: <table>}
     filter(args) {
         args.selection_results.empty();
@@ -852,9 +861,26 @@ class DrawingMode_Selection extends DrawingMode_Base
     }
 
     _add_many(table, indexes, label) {
-        const canvas = `<canvas></canvas>`;
-        const tr = $(`<tr class='a-many'><td class='a-plot-spec'>${canvas}</td><td class='a-label'>${label}</td></tr>`).appendTo(table);
-        acv_point_style.point_style_modifier({canvas: tr.find("canvas")});
+        const styles = this._make_styles().styles;
+        const attrs = indexes.reduce((attrs, index) => {
+            const style = styles[index];
+            attrs.shape[style.S || "C"] = true;
+            attrs.fill[style.F || "transparent"] = true;
+            attrs.outline[style.O || "black"] = true;
+            attrs.outline_width[style.o || 1] = true;
+            attrs.aspect[style.a || 1] = true;
+            attrs.rotation[style.r || 0] = true;
+            return attrs;
+        }, {shape: {}, fill: {}, outline: {}, outline_width: {}, aspect: {}, rotation: {}});
+        const canvas = $("<canvas></canvas>");
+        Object.entries(attrs).forEach(entry => {
+            const keys = Object.keys(entry[1]);
+            if (keys.length === 1)
+                canvas.attr("acv_" + entry[0], keys[0]);
+        });
+        const tr = $(`<tr class='a-many'><td class='a-plot-spec'></td><td class='a-label'>${label}</td></tr>`).appendTo(table);
+        tr.find("td.a-plot-spec").append(canvas);
+        acv_point_style.point_style_modifier({canvas: canvas});
     }
 
     _add(table, index, collection, base) {
@@ -1184,8 +1210,10 @@ class Coloring_Base
     all_styles(args={}) {
         const chart = this.widget.data.c;
         const egg_passage = (style, index) => {
-            if (index < chart.a.length && (!style.a || style.a === 1.0) && chart.a[index].S && chart.a[index].S.indexOf("E") >= 0)
+            if (index < chart.a.length && (!style.a || style.a === 1) && chart.a[index].S && chart.a[index].S.indexOf("E") >= 0)
                 style.a = 0.75;
+            if (index < chart.a.length && (!style.r || style.r === 0) && chart.a[index].R && chart.a[index].R.length)
+                style.r = Math.PI / 6;
             return style;
         };
         const all_styles_1 = chart.p.p.map(style_no => Object.assign({}, chart.p.P[style_no])).map(egg_passage);
@@ -2248,17 +2276,21 @@ class ViewDialog
     handle_selection() {
         const tr_selection = this.content.find("table.a-view-dialog tr.selection");
         const select = tr_selection.find("td.regex select");
-        const input = tr_selection.find("td.regex input");
+        const input = tr_selection.find("td.regex input").val("");
         const selection_results = this.content.find("table.a-view-dialog tr.selection-results td.selection-results");
         const filter = () => {
-            if (input.val() === "")
+            if (input.val() === "") {
                 selection_results.find(".a-message").show();
-            else
+                this.widget.view_mode.reset({selection_results: selection_results.find("table")});
+            }
+            else {
                 selection_results.find(".a-message").hide();
-            this.widget.view_mode.filter({regex: input.val(), subset: select.val(), selection_results: selection_results.find("table")});
+                this.widget.view_mode.filter({regex: input.val(), subset: select.val(), selection_results: selection_results.find("table")});
+            }
         };
-        input.off("keypress").on("keypress", evt => { if (evt.charCode === 13) filter(); });
+        input.off("keypress").on("keypress", evt => { if (evt.charCode === 13) filter(); }).focus();
         select.off("change").on("change", filter);
+        filter();
     }
 }
 
