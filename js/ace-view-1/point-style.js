@@ -48,7 +48,7 @@ const PointStyleModifierDialog_html = "\
     <tr>\
       <td name='fill'></td>\
       <td name='outline'></td>\
-      <td><div class='a-point-style-slider-vertical'><input type='range' name='size' value='1' min='1' max='10' list='point-style-input-tickmarks'></div></td>\
+      <td><div class='a-point-style-slider-vertical'><input type='range' name='size' value='0' min='-3' max='9' list='point-style-input-tickmarks'></div></td>\
       <td><div class='a-point-style-slider-vertical'><input type='range' name='outline_width' value='0' min='-3' max='19' list='point-style-input-tickmarks'></div></td>\
       <td><div class='a-point-style-slider-vertical'><input type='range' name='aspect' value='1' min='0.1' max='1' step='0.1', list='point-style-input-tickmarks-aspect'></div></td>\
       <td><div class='a-point-style-slider-vertical'><input type='range' name='rotation' value='0' min='-180' max='180' step='15' list='point-style-input-tickmarks-angle'></div></td>\
@@ -96,11 +96,15 @@ class PointStyleModifierDialog
 
         const td_fill = this.div_.find('td[name="fill"]');
         const td_outline = this.div_.find('td[name="outline"]');
-        const colors = ["#000000", "#ffffff", "#808080", "#ff0000", "#00ff00", "#0000ff", "#ffa500", "#6495ed"].concat(acv_toolkit.sAnaColors);
+        const colors = ["#000000", "white", "transparent", "#ff0000", "#00ff00", "#0000ff", "#ffa500", "#6495ed"].concat(acv_toolkit.sAnaColors);
         colors.forEach(color => {
-            if (color.toLowerCase() === "#ffffff") {
+            if (color === "white") {
                 td_fill.append(`<div class="a-fill-color a-white" name="${color}" title="fill with ${color}"></div>`);
-                td_outline.append(`<div class="a-outline-color a-white" name="${color}" style="background-color: #E0E0E0; border: 3px solid ${color}" title="outline ${color}"></div>`);
+                td_outline.append(`<div class="a-outline-color a-white" name="${color}" style="background-color: #E0E0E0; border: 3px solid ${color}" title="${color} outline"></div>`);
+            }
+            else if (color === "transparent") {
+                td_fill.append(`<div class="a-fill-color a-transparent" name="${color}" title="${color}"></div>`);
+                td_outline.append(`<div class="a-outline-color a-transparent" name="${color}" style="background-color: #E0E0E0; border: 3px solid ${color}" title="${color} outline"></div>`);
             }
             else {
                 td_fill.append(`<div class="a-fill-color" name="${color}" style="background-color: ${color}" title="fill with ${color}"></div>`);
@@ -140,6 +144,7 @@ class PointStyleModifierDialog
                 aspect: this.modifier_canvas_.get("aspect", null)
             };
         }
+        this._size_to_slider(parseFloat(this.modifier_canvas_.get("size", 1)));
         this._outline_width_to_slider(parseFloat(this.modifier_canvas_.get("outline_width", 1)));
         this._rotation_to_slider(parseFloat(this.modifier_canvas_.get("rotation", 0)));
         this._aspect_to_slider(parseFloat(this.modifier_canvas_.get("aspect", 1)));
@@ -161,12 +166,14 @@ class PointStyleModifierDialog
     }
 
     _size_from_slider(value) {
-        if (value < 0) {
-            value = 10 + value;
-        }
-        else {
-            // ++value;
-        }
+        if (value === -1)
+            value = 0.7;
+        else if (value === -2)
+            value = 0.4;
+        else if (value < 0)
+            value = 0.1;
+        else
+            ++value;
         this.div_.find("span[name='size']").empty().append(value);
         if (this.modifier_canvas_)
             this.modifier_canvas_.set("size", value, true);
@@ -174,13 +181,15 @@ class PointStyleModifierDialog
 
     _size_to_slider(value) {
         const slider = this.div_.find("input[name='size']");
-        // if (value >= 1)
-        //     slider.val(value - 1);
-        // else if (value < 0.01)
-        //     slider.val(-3);
-        // else
-        //     slider.val(Math.log10(value));
-        // this.div_.find("span[name='size']").empty().append(value);
+        if (value >= 1)
+            slider.val(value - 1);
+        else if (value < 1 && value >= 0.7)
+            slider.val(-1);
+        else if (value < 0.7 && value >= 0.4)
+            slider.val(-2);
+        else
+            slider.val(-3);
+        this.div_.find("span[name='size']").empty().append(value);
     }
 
     _outline_width_from_slider(value) {
@@ -262,6 +271,7 @@ class PointStyleModifierCanvas
         this.context_.clearRect(-0.5, -0.5, 1, 1);
         this.context_.fillStyle = this.get("background", "transparent");
         this.context_.fillRect(-0.5, -0.5, 1, 1);
+        this._size();
         this._rotation();
         this._aspect();
         this._shape();
@@ -279,6 +289,18 @@ class PointStyleModifierCanvas
     bottom_left_absolute() {
         const offs = this.canvas_.offset();
         return {left: offs.left, top: offs.top + this.canvas_.height()};
+    }
+
+    _size() {
+        let size = parseFloat(this.get("size", "1"));
+        if (isNaN(size))
+            size = 1;
+        let scale = 0.5;
+        if (size > 1)
+            scale = 0.5 + (size - 1) * 0.5 / 9;
+        else if (size < 1)
+            scale = size * 0.3 + 0.2;
+        this.context_.scale(scale, scale);
     }
 
     _aspect() {
