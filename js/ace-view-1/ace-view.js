@@ -870,8 +870,9 @@ class DrawingMode_Selection extends DrawingMode_Base
             attrs.outline_width[style.o || 1] = true;
             attrs.aspect[style.a || 1] = true;
             attrs.rotation[style.r || 0] = true;
+            attrs.size[style.s || 0] = true;
             return attrs;
-        }, {shape: {}, fill: {}, outline: {}, outline_width: {}, aspect: {}, rotation: {}});
+        }, {shape: {}, fill: {}, outline: {}, outline_width: {}, aspect: {}, rotation: {}, size: {}});
         const canvas = $("<canvas></canvas>");
         Object.entries(attrs).forEach(entry => {
             const keys = Object.keys(entry[1]);
@@ -885,7 +886,7 @@ class DrawingMode_Selection extends DrawingMode_Base
 
     _add(table, index, collection, base) {
         const style = this._make_styles().styles[index];
-        const canvas = `<canvas acv_shape="${style.S || 'C'}" acv_fill="${style.F || 'transparent'}" acv_outline="${style.O || 'black'}" acv_outline_width="${style.o || 1}" acv_aspect="${style.a || 1}" acv_rotation="${style.r || 0}"></canvas>`;
+        const canvas = `<canvas acv_shape="${style.S || 'C'}" acv_size="${style.s || 1}" acv_fill="${style.F || 'transparent'}" acv_outline="${style.O || 'black'}" acv_outline_width="${style.o || 1}" acv_aspect="${style.a || 1}" acv_rotation="${style.r || 0}"></canvas>`;
         const tr = $(`<tr class='a-many'><td class='a-plot-spec'>${canvas}</td><td class='a-label'>${collection[index - base]}</td></tr>`).appendTo(table);
         acv_point_style.point_style_modifier({canvas: tr.find("canvas"), onchange: data => this._style_modified(data, [index])});
     }
