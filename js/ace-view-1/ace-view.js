@@ -10,7 +10,7 @@ class AMW201805
         this.last_id_ = 0;
         this.options = {
             projection_no: 0,
-            view_mode: {mode: "best-projection"},
+            view_mode: {mode: "projection"},
             coloring: "default",
             point_scale: 5,
             point_info_on_hover_delay: 500,
@@ -280,7 +280,7 @@ export class AntigenicMapWidget
     }
 
     set_view_mode(args={}) {
-        const mode = args.mode || (this.view_mode && this.view_mode.mode()) || "best-projection";
+        const mode = args.mode || (this.view_mode && this.view_mode.mode()) || "projection";
         const shading = args.shading || (this.view_mode && this.view_mode.shading()) || "shade";
         const period = args.period || (this.view_mode && this.view_mode.period());
         const page = args.page || (this.view_mode && this.view_mode.current_page());
@@ -300,7 +300,10 @@ export class AntigenicMapWidget
             else
                 this.view_mode = new DrawingMode_GroupSeries(this, fixed_args);
             break;
-        case "best-projection":
+        case "selection":
+            this.view_mode = new DrawingMode_Selection(this, fixed_args);
+            break;
+        case "projection":
         default:
             this.view_mode = new DrawingMode_Best_Projection(this, fixed_args);
             break;
@@ -746,6 +749,57 @@ class DrawingMode_Best_Projection extends DrawingMode_Base
 
     drawing_order() {
         return this.widget.data.c.p.d;
+    }
+}
+
+// ----------------------------------------------------------------------
+
+class DrawingMode_Selection extends DrawingMode_Base
+{
+    constructor(widget, args={}) {
+        super(widget, args);
+        this.selected_antigens_ = [];
+        this.selected_sera_ = [];
+        this.drawing_order_background_ = this.widget.data.c.p.d;
+        this.drawing_order_ = [];
+    }
+
+    mode() {
+        return "selection";
+    }
+
+    title(args) {
+        return "Selection";
+    }
+
+    drawing_order() {
+        return this.drawing_order_;
+    }
+
+    drawing_order_background() {
+        return this.drawing_order_background_;
+    }
+
+    // {regex:, subset: "antigens" "sera" "all", selection_results: <table>}
+    filter(args) {
+        args.selection_results.empty();
+        if (args.subset.indexOf("antigens") >= 0)
+            this._match_antigens(args.regex);
+        if (args.subset.indexOf("sera") >= 0)
+            this._match_sera(args.regex);
+        if (this.selected_antigens_.length || this.selected_sera_.length) {
+            console.log("DrawingMode_Selection selected", this.selected_antigens_, this.selected_sera_);
+        }
+        else {
+            args.selection_results.append("<tr><td class='a-message'>nothing matched</td></tr>");
+        }
+    }
+
+    _match_antigens(regex) {
+        console.log(this.widget.data.c.a);
+    }
+
+    _match_sera(regex) {
     }
 }
 
@@ -1654,6 +1708,23 @@ const ViewDialog_html = "\
       <a href='grey'>grey</a>\
     </td>\
   </tr>\
+  <tr class='selection'>\
+    <td class='a-label'>RegEx</td>\
+    <td class='regex'>\
+      <input type='text'></input>\
+      <select name='selection-mode'>\
+        <option value='antigens'>antigens only</option>\
+        <option value='sera'>sera only</option>\
+        <option value='antigens+sera'>antigens and sera</option>\
+      </select>\
+    </td>\
+  <tr class='selection-results'>\
+    <td class='a-label'></td>\
+    <td class='selection-results'>\
+      <p class='a-message'>please enter regular expression above and press enter</p>\
+      <table></table>\
+    </td>\
+  </tr>\
 </table>\
 ";
 
@@ -1714,7 +1785,8 @@ class ViewDialog
         }));
 
         const td_mode = table.find("td.mode");
-        td_mode.append("<a href='projection'>projection</a>");
+        td_mode.append("<a href='projection'>all</a>");
+        td_mode.append("<a href='selection'>selection</a>");
         if (this.widget.features["time-series"])
             td_mode.append("<a href='time-series'>time series</a>");
         if (this.widget.features["table-series"])
@@ -1761,6 +1833,8 @@ class ViewDialog
 
         const tr_period = this.content.find("table.a-view-dialog tr.time-series-period").hide();
         const tr_shading = this.content.find("table.a-view-dialog tr.shading").hide();
+        const tr_selection = this.content.find("table.a-view-dialog tr.selection").hide();
+        const tr_selection_results = this.content.find("table.a-view-dialog tr.selection-results").hide();
         tr_period.find("a").removeClass("a-current");
         tr_shading.find("a").removeClass("a-current");
         switch (mode) {
@@ -1773,6 +1847,11 @@ class ViewDialog
             break;
         case "group-series":
             tr_shading.show();
+            break;
+        case "selection":
+            tr_selection.show();
+            tr_selection_results.show();
+            this.handle_selection();
             break;
         case "projection":
         default:
@@ -2078,6 +2157,22 @@ class ViewDialog
                     throw "invalid \"line_width\" in group " + group.N;
             });
         });
+    }
+
+    handle_selection() {
+        const tr_selection = this.content.find("table.a-view-dialog tr.selection");
+        const select = tr_selection.find("td.regex select");
+        const input = tr_selection.find("td.regex input");
+        const selection_results = this.content.find("table.a-view-dialog tr.selection-results td.selection-results");
+        const filter = () => {
+            if (input.val() === "")
+                selection_results.find(".a-message").show();
+            else
+                selection_results.find(".a-message").hide();
+            this.widget.view_mode.filter({regex: input.val(), subset: select.val(), selection_results: selection_results.find("table")});
+        };
+        input.off("keypress").on("keypress", evt => { if (evt.charCode === 13) filter(); });
+        select.off("change").on("change", filter);
     }
 }
 
