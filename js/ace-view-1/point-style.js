@@ -230,7 +230,8 @@ class PointStyleModifierCanvas
 
     draw() {
         this.context_.save();
-        this.context_.fillStyle = this.get("background");
+        this.context_.clearRect(-0.5, -0.5, 1, 1);
+        this.context_.fillStyle = this.get("background", "transparent");
         this.context_.fillRect(-0.5, -0.5, 1, 1);
         this._rotation();
         this._aspect();
@@ -267,26 +268,26 @@ class PointStyleModifierCanvas
         const outline_width = parseFloat(this.get("outline_width", "unknown")) || 1;
         let radius = 0.35 - this.scale_ * outline_width;
         this.context_.beginPath();
-        switch (this.get("shape", "unknown").toLowerCase()) {
-        case "circle":
+        switch (this.get("shape", "unknown")[0].toLowerCase()) {
+        case "c":
             this.context_.arc(0, 0, radius, 0, 2*Math.PI);
             break;
-        case "box":
-        case "rectangle":
+        case "b":
+        case "r":
             this.context_.moveTo(- radius, - radius);
             this.context_.lineTo(  radius, - radius);
             this.context_.lineTo(  radius,   radius);
             this.context_.lineTo(- radius,   radius);
             this.context_.closePath();
             break;
-        case "triangle":
+        case "t":
             const aspect = 1;
             this.context_.moveTo(0, -radius);
             this.context_.lineTo(-radius * COS_PI_6 * aspect, radius / 2);
             this.context_.lineTo(radius * COS_PI_6 * aspect, radius / 2);
             this.context_.closePath();
             break;
-        case "unknown":
+        case "u":
         default:
             this.context_.arc(0, 0, radius, 0.5, Math.PI);
             this.context_.lineTo(- radius, - radius);

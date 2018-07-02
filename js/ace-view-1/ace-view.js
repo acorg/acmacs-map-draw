@@ -1,6 +1,7 @@
 import * as acv_utils from "./utils.js";
 import * as ace_surface from "./ace-surface.js";
 import * as acv_toolkit from "./toolkit.js";
+import * as acv_point_style from "./point-style.js";
 
 // ----------------------------------------------------------------------
 
@@ -678,13 +679,13 @@ class DrawingMode_Base
             this.widget.surface.points({drawing_order: this.widget.coloring.drawing_order(drawing_order_background, {background: true}),
                                     layout: chart.P[this.projection_no()].l,
                                     transformation: new ace_surface.Transformation(chart.P[this.projection_no()].t),
-                                    styles: this.widget.coloring.styles(),
+                                    styles: this.styles(),
                                     point_scale: this.point_scale(),
                                     show_as_background: this.show_as_background()});
         this.widget.surface.points({drawing_order: this.widget.coloring.drawing_order(this.drawing_order()),
                                     layout: chart.P[this.projection_no()].l,
                                     transformation: new ace_surface.Transformation(chart.P[this.projection_no()].t),
-                                    styles: this.widget.coloring.styles(),
+                                    styles: this.styles(),
                                     point_scale: this.point_scale()});
     }
 
@@ -714,6 +715,10 @@ class DrawingMode_Base
 
     drawing_order_background() {
         return [];
+    }
+
+    styles() {
+        return this.widget.coloring.styles();
     }
 }
 
@@ -769,7 +774,11 @@ class DrawingMode_Selection extends DrawingMode_Base
     }
 
     title(args) {
-        return "Selection";
+        if (this.selected_antigens_.length || this.selected_sera_.length) {
+            return `${this.selected_antigens_.length} antigens and ${this.selected_sera_.length} sera selected`;
+        }
+        else
+            return "no matches";
     }
 
     drawing_order() {
@@ -780,26 +789,91 @@ class DrawingMode_Selection extends DrawingMode_Base
         return this.drawing_order_background_;
     }
 
+    styles() {
+        return this.styles_ || this.widget.coloring.styles();
+    }
+
     // {regex:, subset: "antigens" "sera" "all", selection_results: <table>}
     filter(args) {
         args.selection_results.empty();
+        this.selected_antigens_ = [];
+        this.selected_sera_ = [];
         if (args.subset.indexOf("antigens") >= 0)
             this._match_antigens(args.regex);
         if (args.subset.indexOf("sera") >= 0)
             this._match_sera(args.regex);
         if (this.selected_antigens_.length || this.selected_sera_.length) {
-            console.log("DrawingMode_Selection selected", this.selected_antigens_, this.selected_sera_);
+            if (this.selected_antigens_.length)
+                this._add_many(args.selection_results, this.selected_antigens_, "" + this.selected_antigens_.length + " antigens");
+            if (this.selected_sera_.length)
+                this._add_many(args.selection_results, this.selected_sera_, "" + this.selected_sera_.length + " sera");
+            if ((this.selected_antigens_.length + this.selected_sera_.length) < 100) {
+                if (this.selected_antigens_.length) {
+                    this._add_separator(args.selection_results);
+                    this.selected_antigens_.forEach(no => this._add(args.selection_results, no, this.antigens_match_, 0));
+                }
+                if (this.selected_sera_.length) {
+                    this._add_separator(args.selection_results);
+                    this.selected_sera_.forEach(no => this._add(args.selection_results, no, this.sera_match_, this.widget.data.c.a.length));
+                }
+            }
+            this._make_drawing_order();
         }
         else {
             args.selection_results.append("<tr><td class='a-message'>nothing matched</td></tr>");
         }
+        this.widget.draw();
     }
 
     _match_antigens(regex) {
-        console.log(this.widget.data.c.a);
+        if (!this.antigens_match_)
+            this.antigens_match_ = this.widget.data.c.a.map(ag => acv_utils.join_collapse([ag.N, ag.R, acv_utils.join_collapse(ag.a), ag.P, acv_utils.join_collapse(ag.l)]));
+        this._match(regex, this.antigens_match_, this.selected_antigens_, 0);
     }
 
     _match_sera(regex) {
+        if (!this.sera_match_)
+            this.sera_match_ = this.widget.data.c.s.map(sr => acv_utils.join_collapse([sr.N, sr.R, acv_utils.join_collapse(sr.a), sr.I, sr.s]));
+        this._match(regex, this.sera_match_, this.selected_sera_, this.widget.data.c.a.length);
+    }
+
+    _match(regex, match_data, result, base) {
+        const re = new RegExp(regex, "i");
+        // result.splice(0);
+        match_data.forEach((ag, no) => {
+            if (ag.search(re) >= 0)
+                result.push(no + base);
+        });
+    }
+
+    _make_drawing_order() {
+        this.drawing_order_ = this.selected_sera_.concat(this.selected_antigens_);
+        this.drawing_order_background_ = this.widget.data.c.p.d.filter(no => !this.drawing_order_.includes(no));
+    }
+
+    _add_many(table, indexes, label) {
+        const canvas = `<canvas></canvas>`;
+        const tr = $(`<tr class='a-many'><td class='a-plot-spec'>${canvas}</td><td class='a-label'>${label}</td></tr>`).appendTo(table);
+        acv_point_style.point_style_modifier({canvas: tr.find("canvas")});
+    }
+
+    _add(table, index, collection, base) {
+        const style = this._make_styles().styles[index];
+        const canvas = `<canvas acv_shape="${style.S || 'C'}" acv_fill="${style.F || 'transparent'}" acv_outline="${style.O || 'black'}" acv_outline_width="${style.o || 1}" acv_aspect="${style.a || 1}" acv_rotation="${style.r || 0}"></canvas>`;
+        const tr = $(`<tr class='a-many'><td class='a-plot-spec'>${canvas}</td><td class='a-label'>${collection[index - base]}</td></tr>`).appendTo(table);
+        acv_point_style.point_style_modifier({canvas: tr.find("canvas")});
+    }
+
+    _add_separator(table) {
+        table.append("<tr class='a-separator'><td colspan='2'></td></tr>");
+    }
+
+    _make_styles() {
+        if (!this.styles_) {
+            const as = this.widget.coloring.all_styles();
+            this.styles_ = {index: as.index, styles: as.styles.map(st => Object.assign({}, st))};
+        }
+        return this.styles_;
     }
 }
 
@@ -1105,6 +1179,25 @@ class Coloring_Base
     legend() {
         return null;
     }
+
+    // {reset_sera: false}
+    all_styles(args={}) {
+        const chart = this.widget.data.c;
+        const egg_passage = (style, index) => {
+            if (index < chart.a.length && (!style.a || style.a === 1.0) && chart.a[index].S && chart.a[index].S.indexOf("E") >= 0)
+                style.a = 0.75;
+            return style;
+        };
+        const all_styles_1 = chart.p.p.map(style_no => Object.assign({}, chart.p.P[style_no])).map(egg_passage);
+        let all_styles = {index: acv_utils.array_of_indexes(all_styles_1.length), styles: all_styles_1};
+        if (args.reset_sera) {
+            chart.s.forEach((serum, serum_no) => {
+                delete all_styles.styles[serum_no + chart.a.length].F;
+                all_styles.styles[serum_no + chart.a.length].O = acv_toolkit.sGREY;
+            });
+        }
+        return all_styles;
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -1127,21 +1220,14 @@ class Coloring_WithAllStyles extends Coloring_Base
 {
     constructor(widget) {
         super(widget);
-        const chart = this.widget.data.c;
-        const egg_passage = (style, index) => {
-            if (index < chart.a.length && (!style.a || style.a === 1.0) && chart.a[index].S && chart.a[index].S.indexOf("E") >= 0)
-                style.a = 0.75;
-            return style;
-        };
-        const all_styles = chart.p.p.map(style_no => Object.assign({}, chart.p.P[style_no])).map(egg_passage);
-        this.styles_ = {index: acv_utils.array_of_indexes(all_styles.length), styles: all_styles};
-        chart.s.forEach((serum, serum_no) => {
-            delete this.styles_.styles[serum_no + chart.a.length].F;
-            this.styles_.styles[serum_no + chart.a.length].O = acv_toolkit.sGREY;
-        });
+        this.styles_ = super.all_styles({reset_sera: true});
     }
 
     styles() {
+        return this.styles_;
+    }
+
+    all_styles() {
         return this.styles_;
     }
 }

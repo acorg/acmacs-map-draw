@@ -341,6 +341,24 @@ ul.a-title-mouse-popup > li .a-sequenced {
     color: #808080;
 }
 
+.view-dialog-movable table.a-view-dialog tr.selection-results td.selection-results table {
+    border-collapse: collapse;
+}
+
+.view-dialog-movable table.a-view-dialog tr.selection-results td.selection-results td.a-label {
+    vertical-align: middle;
+    padding-left: 1em;
+}
+
+.view-dialog-movable table.a-view-dialog tr.selection-results td.selection-results table tr.a-separator td {
+    border-top: 1px solid black;
+}
+
+.view-dialog-movable table.a-view-dialog tr.selection-results canvas {
+    width: 30px;
+    height: 30px;
+}
+
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */
 /* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */

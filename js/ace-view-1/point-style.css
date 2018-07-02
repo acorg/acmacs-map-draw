@@ -1,3 +1,7 @@
+.a-point-style-modifier-dialog {
+    background-color: white;
+}
+
 .a-point-style-modifier-dialog > div.a-reset-button {
     position: absolute;
     top: 5px;
