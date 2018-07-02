@@ -5,7 +5,8 @@ acv_utils.load_css("/js/ad/map-draw/ace-view-1/point-style.css");
 
 // ----------------------------------------------------------------------
 
-export function point_style_modifier(args={}) {
+// {canvas: <canvas>, onchange: callback}
+export function point_style_modifier(args) {
     if (!args.canvas || !args.canvas.is("canvas"))
         throw "point_style_modifier: canvas argument must be canvas element";
     new PointStyleModifier({modifier_canvas: new PointStyleModifierCanvas(args)});
@@ -226,6 +227,7 @@ class PointStyleModifierCanvas
         this.scale_ = 1 / scale_inv;
         this.context_.scale(scale_inv, scale_inv);
         this.context_.translate(0.5, 0.5);
+        this.onchange_ = args.onchange;
     }
 
     draw() {
@@ -357,6 +359,8 @@ class PointStyleModifierCanvas
         this.canvas_.attr("acv_" + name, value);
         if (draw)
             this.draw();
+        if (this.onchange_)
+            this.onchange_({canvas: this.canvas_, name: name, value: value});
     }
 }
 

@@ -880,14 +880,14 @@ class DrawingMode_Selection extends DrawingMode_Base
         });
         const tr = $(`<tr class='a-many'><td class='a-plot-spec'></td><td class='a-label'>${label}</td></tr>`).appendTo(table);
         tr.find("td.a-plot-spec").append(canvas);
-        acv_point_style.point_style_modifier({canvas: canvas});
+        acv_point_style.point_style_modifier({canvas: canvas, onchange: data => this._style_modified(data, indexes)});
     }
 
     _add(table, index, collection, base) {
         const style = this._make_styles().styles[index];
         const canvas = `<canvas acv_shape="${style.S || 'C'}" acv_fill="${style.F || 'transparent'}" acv_outline="${style.O || 'black'}" acv_outline_width="${style.o || 1}" acv_aspect="${style.a || 1}" acv_rotation="${style.r || 0}"></canvas>`;
         const tr = $(`<tr class='a-many'><td class='a-plot-spec'>${canvas}</td><td class='a-label'>${collection[index - base]}</td></tr>`).appendTo(table);
-        acv_point_style.point_style_modifier({canvas: tr.find("canvas")});
+        acv_point_style.point_style_modifier({canvas: tr.find("canvas"), onchange: data => this._style_modified(data, [index])});
     }
 
     _add_separator(table) {
@@ -900,6 +900,13 @@ class DrawingMode_Selection extends DrawingMode_Base
             this.styles_ = {index: as.index, styles: as.styles.map(st => Object.assign({}, st))};
         }
         return this.styles_;
+    }
+
+    _style_modified(data, indexes) {
+        const key_mapping = {fill: "F", outline: "O", outline_width: "o", aspect: "a", rotation: "r", shape: "S"};
+        console.log("_style_modified", data, indexes, this.styles_.styles[indexes[0]]);
+        indexes.forEach(index => this.styles_.styles[index][key_mapping[data.name]] = data.value);
+        this.widget.draw();
     }
 }
 
