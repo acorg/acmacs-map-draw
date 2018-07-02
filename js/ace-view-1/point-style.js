@@ -40,6 +40,7 @@ const PointStyleModifierDialog_html = "\
     <tr class='a-title'>\
       <td>Fill</td>\
       <td>Outline</td>\
+      <td title='Size'>S</td>\
       <td title='Outline width'>W</td>\
       <td title='Aspect'>A</td>\
       <td title='Rotation'>R</td>\
@@ -47,12 +48,14 @@ const PointStyleModifierDialog_html = "\
     <tr>\
       <td name='fill'></td>\
       <td name='outline'></td>\
+      <td><div class='a-point-style-slider-vertical'><input type='range' name='size' value='1' min='1' max='10' list='point-style-input-tickmarks'></div></td>\
       <td><div class='a-point-style-slider-vertical'><input type='range' name='outline_width' value='0' min='-3' max='19' list='point-style-input-tickmarks'></div></td>\
       <td><div class='a-point-style-slider-vertical'><input type='range' name='aspect' value='1' min='0.1' max='1' step='0.1', list='point-style-input-tickmarks-aspect'></div></td>\
       <td><div class='a-point-style-slider-vertical'><input type='range' name='rotation' value='0' min='-180' max='180' step='15' list='point-style-input-tickmarks-angle'></div></td>\
     </tr>\
     <tr>\
       <td colspan='2' class='a-shape'><div class='a-label'>Shape:</div><div class='a-shape' name='circle' title='circle'></div><div class='a-shape' name='box' title='box'></div><div class='a-shape' name='triangle' title='triangle'></div></td>\
+      <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='size'></span></td>\
       <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='outline_width'></span></td>\
       <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='aspect'></span></td>\
       <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='rotation'></span></td>\
@@ -95,7 +98,7 @@ class PointStyleModifierDialog
         const td_outline = this.div_.find('td[name="outline"]');
         const colors = ["#000000", "#ffffff", "#808080", "#ff0000", "#00ff00", "#0000ff", "#ffa500", "#6495ed"].concat(acv_toolkit.sAnaColors);
         colors.forEach(color => {
-            if (color === "#FFFFFF") {
+            if (color.toLowerCase() === "#ffffff") {
                 td_fill.append(`<div class="a-fill-color a-white" name="${color}" title="fill with ${color}"></div>`);
                 td_outline.append(`<div class="a-outline-color a-white" name="${color}" style="background-color: #E0E0E0; border: 3px solid ${color}" title="outline ${color}"></div>`);
             }
@@ -118,6 +121,7 @@ class PointStyleModifierDialog
         for (let aspect = 0; aspect <= 1; aspect += 0.2)
             tickmarks_aspect.append(`<option value='${aspect}'>`);
 
+        this.div_.find("input[name='size']").on("input", evt => this._size_from_slider(parseFloat(evt.currentTarget.value)));
         this.div_.find("input[name='outline_width']").on("input", evt => this._outline_width_from_slider(parseFloat(evt.currentTarget.value)));
         this.div_.find("input[name='rotation']").on("input", evt => this._rotation_from_slider(parseFloat(evt.currentTarget.value)));
         this.div_.find("input[name='aspect']").on("input", evt => this._aspect_from_slider(parseFloat(evt.currentTarget.value)));
@@ -154,6 +158,29 @@ class PointStyleModifierDialog
     _shape(shape) {
         if (this.modifier_canvas_)
             this.modifier_canvas_.set("shape", shape, true);
+    }
+
+    _size_from_slider(value) {
+        if (value < 0) {
+            value = 10 + value;
+        }
+        else {
+            // ++value;
+        }
+        this.div_.find("span[name='size']").empty().append(value);
+        if (this.modifier_canvas_)
+            this.modifier_canvas_.set("size", value, true);
+    }
+
+    _size_to_slider(value) {
+        const slider = this.div_.find("input[name='size']");
+        // if (value >= 1)
+        //     slider.val(value - 1);
+        // else if (value < 0.01)
+        //     slider.val(-3);
+        // else
+        //     slider.val(Math.log10(value));
+        // this.div_.find("span[name='size']").empty().append(value);
     }
 
     _outline_width_from_slider(value) {
