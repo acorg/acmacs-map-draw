@@ -99,15 +99,15 @@ class PointStyleModifierDialog
         const colors = ["#000000", "white", "transparent", "#ff0000", "#00ff00", "#0000ff", "#ffa500", "#6495ed"].concat(acv_toolkit.sAnaColors);
         colors.forEach(color => {
             if (color === "white") {
-                td_fill.append(`<div class="a-fill-color a-white" name="${color}" title="fill with ${color}"></div>`);
+                td_fill.append(`<div class="a-fill-color a-white" name="${color}" title="fill ${color}"></div>`);
                 td_outline.append(`<div class="a-outline-color a-white" name="${color}" style="background-color: #E0E0E0; border: 3px solid ${color}" title="${color} outline"></div>`);
             }
             else if (color === "transparent") {
-                td_fill.append(`<div class="a-fill-color a-transparent" name="${color}" title="${color}"></div>`);
-                td_outline.append(`<div class="a-outline-color a-transparent" name="${color}" style="background-color: #E0E0E0; border: 3px solid ${color}" title="${color} outline"></div>`);
+                td_fill.append(`<div class="a-fill-color a-transparent" name="${color}" title="fill ${color}"></div>`);
+                td_outline.append(`<div class="a-outline-color a-transparent" name="${color}" title="${color} outline"></div>`);
             }
             else {
-                td_fill.append(`<div class="a-fill-color" name="${color}" style="background-color: ${color}" title="fill with ${color}"></div>`);
+                td_fill.append(`<div class="a-fill-color" name="${color}" style="background-color: ${color}" title="fill ${color}"></div>`);
                 td_outline.append(`<div class="a-outline-color" name="${color}" style="border: 3px solid ${color}" title="outline ${color}"></div>`);
             }
         });

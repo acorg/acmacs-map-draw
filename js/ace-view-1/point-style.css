@@ -66,11 +66,20 @@
     border: 3px dashed #E0E0E0;
 }
 
+.a-point-style-modifier-dialog div.a-fill-color.a-transparent {
+    background-image: repeating-linear-gradient(to top left, white , #D0D0D0 4px);
+}
+
 .a-point-style-modifier-dialog div.a-outline-color {
     width: 7px;
     height: 7px;
     margin: 3px;
     float: left;
+}
+
+.a-point-style-modifier-dialog div.a-outline-color.a-transparent {
+    background-color: transparent;
+    border: 3px dashed #D0D0D0;
 }
 
 .a-point-style-slider-vertical {
