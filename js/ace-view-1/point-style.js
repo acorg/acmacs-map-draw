@@ -278,8 +278,7 @@ class PointStyleModifierCanvas
         this._shape();
         this._outline();
         this._outline_width();
-        this.context_.stroke();
-        this._fill();
+        this._fill_stroke();
         this.context_.restore();
     }
 
@@ -354,21 +353,19 @@ class PointStyleModifierCanvas
     }
 
     _outline_width() {
-        let line_width;
         if (!this.get_raw("outline_width")) {
-            line_width = this.scale_inv_;
+            this.context_.lineWidth = this.scale_inv_;
             this.context_.setLineDash([this.scale_inv_ * 5, this.scale_inv_ * 5]);
         }
         else {
             let outline_width = this.get_float("outline_width", 1);
             if (outline_width < 1e-5)
                 outline_width = 1e-5;
-            line_width = outline_width * this.scale_inv_;
+            this.context_.lineWidth = outline_width * this.scale_inv_;
         }
-        this.context_.lineWidth = line_width;
     }
 
-    _fill() {
+    _fill_stroke() {
         const fill = this.get("fill", "unknown");
         if (fill === "unknown") {
             this._fill_chess("#A0A0FF", "#E0E0E0");
@@ -379,10 +376,12 @@ class PointStyleModifierCanvas
         else {
             this.context_.fillStyle = fill;
             this.context_.fill();
+            this.context_.stroke();
         }
     }
 
     _fill_chess(color1, color2) {
+        this.context_.stroke();
         this.context_.save();
         this.context_.clip();
         this.context_.fillStyle = color1;
