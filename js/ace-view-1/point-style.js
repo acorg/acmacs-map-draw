@@ -255,13 +255,15 @@ const COS_PI_6 = Math.cos(Math.PI / 6);
 
 class PointStyleModifierCanvas
 {
+    // {canvas: $(<canvas>), onchange: callback({canvas:, name:, value:}), point_scale: 5}
     constructor(args) {
         this.canvas_ = args.canvas;
         this.canvas_.prop({width: this.canvas_.width(), height: this.canvas_.height()});
         this.context_ = this.canvas_[0].getContext('2d', {alpha: false});
-        const scale_inv = this.canvas_.prop("width");
-        this.scale_ = 1 / scale_inv;
-        this.context_.scale(scale_inv, scale_inv);
+        this.point_scale_ = args.point_scale || 5;
+        this.scale_ = this.canvas_.prop("width");
+        this.scale_inv_ = 1 / this.scale_;
+        this.context_.scale(this.scale_, this.scale_);
         this.context_.translate(0.5, 0.5);
         this.onchange_ = args.onchange;
     }
@@ -271,7 +273,6 @@ class PointStyleModifierCanvas
         this.context_.clearRect(-0.5, -0.5, 1, 1);
         this.context_.fillStyle = this.get("background", "transparent");
         this.context_.fillRect(-0.5, -0.5, 1, 1);
-        this._size();
         this._rotation();
         this._aspect();
         this._shape();
@@ -291,35 +292,20 @@ class PointStyleModifierCanvas
         return {left: offs.left, top: offs.top + this.canvas_.height()};
     }
 
-    _size() {
-        let size = parseFloat(this.get("size", "1"));
-        if (isNaN(size))
-            size = 1;
-        let scale = 0.5;
-        if (size > 1)
-            scale = 0.5 + (size - 1) * 0.5 / 9;
-        else if (size < 1)
-            scale = size * 0.3 + 0.2;
-        this.context_.scale(scale, scale);
-    }
-
     _aspect() {
-        const aspect = parseFloat(this.get("aspect", "unknown"));
-        if (!isNaN(aspect) && aspect > 0)
+        const aspect = this.get_float("aspect", 1);
+        if (aspect > 0 && aspect !== 1)
             this.context_.scale(aspect, 1);
     }
 
     _rotation() {
-        const rotation = parseFloat(this.get("rotation", "unknown"));
-        if (!isNaN(rotation))
+        const rotation = this.get_float("rotation", 0);
+        if (rotation !== 0)
             this.context_.rotate(rotation);
     }
 
     _shape() {
-        const outline_width = parseFloat(this.get("outline_width", "unknown")) || 1;
-        let radius = 0.35 - this.scale_ * outline_width;
-        if (radius < 0)
-            radius = 0;
+        const radius = this._radius();
         this.context_.beginPath();
         switch (this.get("shape", "unknown")[0].toLowerCase()) {
         case "c":
@@ -349,10 +335,18 @@ class PointStyleModifierCanvas
         }
     }
 
+    _radius() {
+        const size = this.get_float("size", 1);
+        if (size <= 0)
+            return 0;
+        const size_scaled = size * this.point_scale_ * this.scale_inv_;
+        return size_scaled > 1 ? 0.5 : size_scaled * 0.5;
+    }
+
     _outline() {
         const outline = this.get("outline", "unknown");
         if (outline === "unknown") {
-            this.context_.setLineDash([this.scale_ * 3, this.scale_ * 6]);
+            this.context_.setLineDash([this.scale_inv_ * 3, this.scale_inv_ * 6]);
             this.context_.strokeStyle = "pink";
         }
         else
@@ -360,14 +354,18 @@ class PointStyleModifierCanvas
     }
 
     _outline_width() {
-        let outline_width = parseFloat(this.get("outline_width", "unknown"));
-        if (isNaN(outline_width)) {
-            outline_width = 1;
-            this.context_.setLineDash([this.scale_ * 5, this.scale_ * 5]);
+        let line_width;
+        if (!this.get_raw("outline_width")) {
+            line_width = this.scale_inv_;
+            this.context_.setLineDash([this.scale_inv_ * 5, this.scale_inv_ * 5]);
         }
-        else if (outline_width < 1e-5)
-            outline_width = 1e-5;
-        this.context_.lineWidth = this.scale_ * outline_width * 2;
+        else {
+            let outline_width = this.get_float("outline_width", 1);
+            if (outline_width < 1e-5)
+                outline_width = 1e-5;
+            line_width = outline_width * this.scale_inv_;
+        }
+        this.context_.lineWidth = line_width;
     }
 
     _fill() {
@@ -402,8 +400,17 @@ class PointStyleModifierCanvas
         this.context_.restore();
     }
 
+    get_raw(name) {
+        return this.canvas_.attr("acv_" + name);
+    }
+
     get(name, dflt) {
-        return this.canvas_.attr("acv_" + name) || dflt;
+        return this.get_raw(name) || dflt;
+    }
+
+    get_float(name, dflt) {
+        const value = parseFloat(this.get_raw(name));
+        return isNaN(value) ? dflt : value;
     }
 
     set(name, value, draw) {

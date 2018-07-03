@@ -103,7 +103,7 @@ export class Surface
             outline = style => style.O || "black";
         }
 
-        const scale_inv2 = this.scale_inv * this.scale_inv;
+        const scale_inv_2 = this.scale_inv * this.scale_inv;
         // const transform_coord = coord => coord.length ? [coord[0] * args.transformation[0] + coord[1] * args.transformation[2], coord[0] * args.transformation[1] + coord[1] * args.transformation[3]] : [];
         this.layout_size_shape_ = args.transformation.transform_layout(args.layout); // for circles size**2, for boxes size, shape: 0 - circe, 1 - box, 2 - triangle
         this.drawing_order_ = args.drawing_order;
@@ -122,7 +122,7 @@ export class Surface
                 case "C":
                 case undefined:
                     this.circle_pixels.apply(this, shape_args);
-                    coord.push(size * size * 0.25 * scale_inv2, 0);
+                    coord.push(size * size * 0.25 * scale_inv_2, 0);
                     break;
                 case "B":
                     this.box_pixels.apply(this, shape_args);
