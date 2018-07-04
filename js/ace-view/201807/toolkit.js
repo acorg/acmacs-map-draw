@@ -43,6 +43,123 @@ export class Modal
 
 // ----------------------------------------------------------------------
 
+export function draw_circle(context, radius)
+{
+    context.arc(0, 0, radius, 0, 2*Math.PI);
+}
+
+export function draw_box(context, radius)
+{
+    context.moveTo(- radius, - radius);
+    context.lineTo(  radius, - radius);
+    context.lineTo(  radius,   radius);
+    context.lineTo(- radius,   radius);
+    context.closePath();
+}
+
+export function draw_triangle(context, radius)
+{
+    const side = radius * av_utils.sqrt_3;
+    context.moveTo(0, -radius);
+    context.lineTo(- side / 2, radius / 2);
+    context.lineTo(  side / 2, radius / 2);
+    context.closePath();
+}
+
+export function draw_unknown(context, radius)
+{
+    context.arc(0, 0, radius, 0.5, Math.PI);
+    context.lineTo(- radius, - radius);
+    context.closePath();
+}
+
+export function draw_shape(context, shape, radius)
+{
+    context.beginPath();
+    switch (shape[0].toLowerCase()) {
+    case "c":
+        draw_circle(context, radius);
+        break;
+    case "b":
+    case "r":
+        draw_box(context, radius);
+        break;
+    case "t":
+        draw_triangle(context, radius);
+        break;
+    case "u":
+    default:
+        draw_unknown(context, radius);
+        break;
+    }
+}
+
+// {S: shape, F: fill, O: outline, radius: , r: rotation, a: aspect, o: outline_width, scale_inv: }
+export function draw_point(context, args)
+{
+    context.save();
+    try {
+        if (args.r)
+            context.rotate(args.r);
+        if (args.a && args.a > 0 && args.a !== 1)
+            context.scale(args.a, 1);
+        draw_shape(context, args.S || "u", args.radius);
+        if (!args.O || args.O === "unknown") {
+            context.setLineDash([args.scale_inv * 3, args.scale_inv * 6]);
+            context.strokeStyle = "pink";
+        }
+        else
+            context.strokeStyle = args.O;
+        if (!args.o) {
+            context.lineWidth = args.scale_inv;
+            context.setLineDash([args.scale_inv * 5, args.scale_inv * 5]);
+        }
+        else
+            context.lineWidth = (args.o < 1e-5 ? 1e-5 : args.o) * args.scale_inv;
+        switch (args.F) {
+        case null:
+        case undefined:
+        case "unknown":
+            _fill_chess(context, "#A0A0FF", "#E0E0E0");
+            break;
+        case "transparent":
+            _fill_chess(context, "#F0F0F0", "#E0E0E0");
+            break;
+        default:
+            context.fillStyle = args.F;
+            context.fill();
+            context.stroke();
+            break;
+        }
+    }
+    catch (err) {
+        console.error("av_toolkit::draw_point", e);
+    }
+    context.restore();
+}
+
+function _fill_chess(context, color1, color2)
+{
+    context.stroke();
+    context.save();
+    context.clip();
+    context.fillStyle = color1;
+    context.fillRect(-0.5, -0.5, 1, 1);
+    const step = 0.1;
+    context.strokeStyle = color2;
+    context.lineWidth = step;
+    context.setLineDash([step, step]);
+    context.beginPath();
+    for (let y = -0.5, z = 0; y < 0.5; y += step, z = z == 0 ? step : 0) {
+        context.moveTo(-0.5 + z, y);
+        context.lineTo(0.5, y);
+    }
+    context.stroke();
+    context.restore();
+}
+
+// ----------------------------------------------------------------------
+
 // class Popup_Base {
 
 //     constructor(css_classes) {

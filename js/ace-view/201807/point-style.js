@@ -277,12 +277,9 @@ class PointStyleModifierCanvas
         this.context_.clearRect(-0.5, -0.5, 1, 1);
         this.context_.fillStyle = this.get("background", "transparent");
         this.context_.fillRect(-0.5, -0.5, 1, 1);
-        this._rotation();
-        this._aspect();
-        this._shape();
-        this._outline();
-        this._outline_width();
-        this._fill_stroke();
+        av_toolkit.draw_point(this.context_,
+                              {S: this.get("S", "unknown"), F: this.get("F", "unknown"), O: this.get("O", "unknown"),
+                               radius: this._radius(), r: this.get_float("r", 0), a: this.get_float("a", 1), o: this.get_float("o", null), scale_inv: this.scale_inv_});
         this.context_.restore();
     }
 
@@ -295,112 +292,12 @@ class PointStyleModifierCanvas
         return {left: offs.left, top: offs.top + this.canvas_.height()};
     }
 
-    _aspect() {
-        const aspect = this.get_float("a", 1);
-        if (aspect > 0 && aspect !== 1)
-            this.context_.scale(aspect, 1);
-    }
-
-    _rotation() {
-        const rotation = this.get_float("r", 0);
-        if (rotation !== 0)
-            this.context_.rotate(rotation);
-    }
-
-    _shape() {
-        const radius = this._radius();
-        this.context_.beginPath();
-        switch (this.get("S", "unknown")[0].toLowerCase()) {
-        case "c":
-            this.context_.arc(0, 0, radius, 0, 2*Math.PI);
-            break;
-        case "b":
-        case "r":
-            this.context_.moveTo(- radius, - radius);
-            this.context_.lineTo(  radius, - radius);
-            this.context_.lineTo(  radius,   radius);
-            this.context_.lineTo(- radius,   radius);
-            this.context_.closePath();
-            break;
-        case "t":
-            const aspect = 1;
-            this.context_.moveTo(0, -radius);
-            this.context_.lineTo(-radius * COS_PI_6 * aspect, radius / 2);
-            this.context_.lineTo(radius * COS_PI_6 * aspect, radius / 2);
-            this.context_.closePath();
-            break;
-        case "u":
-        default:
-            this.context_.arc(0, 0, radius, 0.5, Math.PI);
-            this.context_.lineTo(- radius, - radius);
-            this.context_.closePath();
-            break;
-        }
-    }
-
     _radius() {
         const size = this.get_float("s", 1);
         if (size <= 0)
             return 0;
         const size_scaled = size * this.point_scale_ * this.scale_inv_;
         return size_scaled > 1 ? 0.5 : size_scaled * 0.5;
-    }
-
-    _outline() {
-        const outline = this.get("O", "unknown");
-        if (outline === "unknown") {
-            this.context_.setLineDash([this.scale_inv_ * 3, this.scale_inv_ * 6]);
-            this.context_.strokeStyle = "pink";
-        }
-        else
-            this.context_.strokeStyle = outline;
-    }
-
-    _outline_width() {
-        if (!this.get_raw("o")) {
-            this.context_.lineWidth = this.scale_inv_;
-            this.context_.setLineDash([this.scale_inv_ * 5, this.scale_inv_ * 5]);
-        }
-        else {
-            let outline_width = this.get_float("o", 1);
-            if (outline_width < 1e-5)
-                outline_width = 1e-5;
-            this.context_.lineWidth = outline_width * this.scale_inv_;
-        }
-    }
-
-    _fill_stroke() {
-        const fill = this.get("F", "unknown");
-        if (fill === "unknown") {
-            this._fill_chess("#A0A0FF", "#E0E0E0");
-        }
-        else if (fill === "transparent") {
-            this._fill_chess("#F0F0F0", "#E0E0E0");
-        }
-        else {
-            this.context_.fillStyle = fill;
-            this.context_.fill();
-            this.context_.stroke();
-        }
-    }
-
-    _fill_chess(color1, color2) {
-        this.context_.stroke();
-        this.context_.save();
-        this.context_.clip();
-        this.context_.fillStyle = color1;
-        this.context_.fillRect(-0.5, -0.5, 1, 1);
-        const step = 0.1;
-        this.context_.strokeStyle = color2;
-        this.context_.lineWidth = step;
-        this.context_.setLineDash([step, step]);
-        this.context_.beginPath();
-        for (let y = -0.5, z = 0; y < 0.5; y += step, z = z == 0 ? step : 0) {
-            this.context_.moveTo(-0.5 + z, y);
-            this.context_.lineTo(0.5, y);
-        }
-        this.context_.stroke();
-        this.context_.restore();
     }
 
     _attr_name(name) {

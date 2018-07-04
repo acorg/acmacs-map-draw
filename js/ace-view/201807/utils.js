@@ -1,5 +1,9 @@
 // ----------------------------------------------------------------------
 
+export const sqrt_3 = Math.sqrt(3);
+
+// ----------------------------------------------------------------------
+
 export function load_css(href) {
     $("head").append('<link rel="stylesheet" type="text/css" href="' + href + '">');
 }
