@@ -29,16 +29,21 @@ class TestSurface
             this._slider_values();
         });
 
+        let current_zoom = 10;
         $("div.main [name='zoom0'] input").on("input", evt => {
-            this.surface.zoom([0, 0], parseFloat(evt.currentTarget.value));
+            const new_zoom = parseFloat(evt.currentTarget.value);
+            this.surface.zoom([0, 0], current_zoom / new_zoom);
             this.draw();
             this._slider_values();
+            current_zoom = new_zoom;
         });
 
         $("div.main [name='zoom2'] input").on("input", evt => {
-            this.surface.zoom([2, 3], parseFloat(evt.currentTarget.value));
+            const new_zoom = parseFloat(evt.currentTarget.value);
+            this.surface.zoom([2, 3], current_zoom / new_zoom);
             this.draw();
             this._slider_values();
+            current_zoom = new_zoom;
         });
 
         $("div.main [name='rotate'] input").on("input", evt => {
@@ -49,6 +54,12 @@ class TestSurface
 
         $("div.main [name='pan'] input").on("input", evt => {
             // this.surface.move_to([parseFloat(evt.currentTarget.value), 0]);
+            this.draw();
+            this._slider_values();
+        });
+
+        $("div.main [name='size'] input").on("input", evt => {
+            // this.surface.resize(parseFloat(evt.currentTarget.value));
             this.draw();
             this._slider_values();
         });
@@ -68,7 +79,7 @@ class TestSurface
     }
 
     _slider_values() {
-        for (let name of ["point-scale", "zoom0", "zoom2", "rotate", "pan"])
+        for (let name of ["point-scale", "zoom0", "zoom2", "rotate", "pan", "size"])
             $(`div.main [name="${name}"] .value`).empty().append($(`div.main [name="${name}"] input`).val());
     }
 }

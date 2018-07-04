@@ -102,8 +102,8 @@ export class Surface
     viewport(new_viewport) {
         if (new_viewport) {
             if (this.viewport_) {
-                this.context.translate(this.viewport_.left(), this.viewport_.top());
-                this.context.scale(this.scale_inv_, this.scale_inv_);
+                this.context_.translate(this.viewport_.left(), this.viewport_.top());
+                this.context_.scale(this.scale_inv_, this.scale_inv_);
             }
             this.viewport_ = new Viewport(new_viewport);
             this.scale_ = this.width() / this.viewport_.width();
@@ -121,8 +121,23 @@ export class Surface
         return this.point_scale_;
     }
 
-    zoom(center, viewport_size) {
-        // this.viewport([, , viewport_size]);
+    zoom_with_mouse(evt) {
+        const scroll = evt.originalEvent.deltaX != 0 ? evt.originalEvent.deltaX : evt.originalEvent.deltaY; // depends if mouse or touchpad used
+        this.zoom(this._translate_pixel_offset(this._mouse_offset(evt)), scroll > 0 ? 1.05 : (1 / 1.05));
+    }
+
+    zoom(center, change) {
+        try {
+            const new_size = Math.max(this.viewport_.width() * change, 1);
+            if (center.left)
+                center = [center.left, center.top];
+            const left = (center[0] - this.viewport_.left()) / this.viewport_.width();
+            const top = (center[1] - this.viewport_.top()) / this.viewport_.width();
+            this.viewport([center[0] - new_size * left, center[1] - new_size * top, new_size]);
+        }
+        catch (err) {
+            console.error("av_surface::zoom", center, change, err);
+        }
     }
 
     // {S: shape, F: fill, O: outline, s: size, r: rotation, a: aspect, o: outline_width}
@@ -188,6 +203,13 @@ export class Surface
 
     _translate_pixel_offset(offset) {
         return {left: offset.left * this.scale_inv_ + this.viewport_.left(), top: offset.top * this.scale_inv_ + this.viewport.top()};
+    }
+
+    _mouse_offset(mouse_event) {
+        const border_width = parseFloat(this.canvas_.css("border-width"));
+        const offset_x = border_width + parseFloat(this.canvas_.css("padding-left"));
+        const offset_y = border_width + parseFloat(this.canvas_.css("padding-top"));
+        return {left: mouse_event.offsetX - offset_x, top: mouse_event.offsetY - offset_y};
     }
 
     grid(args={line_color: "#CCCCCC", line_width: 1, step: 1}) {
