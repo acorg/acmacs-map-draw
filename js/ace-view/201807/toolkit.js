@@ -94,7 +94,7 @@ export function draw_shape(context, shape, radius)
     }
 }
 
-// {S: shape, F: fill, O: outline, radius: , r: rotation, a: aspect, o: outline_width, scale_inv:, transparent_as_chess: true}
+// {S: shape, F: fill, O: outline, radius: , r: rotation, a: aspect, o: outline_width, scale_inv:, style_modifier: true}
 export function draw_point(context, args, preserve_context=true)
 {
     if (preserve_context)
@@ -104,27 +104,32 @@ export function draw_point(context, args, preserve_context=true)
             context.rotate(args.r);
         if (args.a && args.a > 0 && args.a !== 1)
             context.scale(args.a, 1);
-        draw_shape(context, args.S || "u", args.radius);
-        if (!args.O || args.O === "unknown") {
+        draw_shape(context, args.S || (args.style_modifier ? "u" : "c"), args.radius);
+        const outline = args.style_modifier ? (!args.O || args.O === "unknown" ? null : args.O) : (args.O || "black");
+        if (!outline) {
             context.setLineDash([args.scale_inv * 3, args.scale_inv * 6]);
             context.strokeStyle = "pink";
         }
         else
-            context.strokeStyle = args.O;
-        if (!args.o) {
+            context.strokeStyle = outline;
+        const outline_width = args.style_modifier ? args.o || null : args.o || 1;
+        if (outline_width === null) {
             context.lineWidth = args.scale_inv;
             context.setLineDash([args.scale_inv * 5, args.scale_inv * 5]);
         }
         else
-            context.lineWidth = (args.o < 1e-5 ? 1e-5 : args.o) * args.scale_inv;
+            context.lineWidth = (outline_width < 1e-5 ? 1e-5 : outline_width) * args.scale_inv;
         switch (args.F) {
         case null:
         case undefined:
         case "unknown":
-            _fill_chess(context, "#A0A0FF", "#E0E0E0", args.radius);
+            if (args.style_modifier)
+                _fill_chess(context, "#A0A0FF", "#E0E0E0", args.radius);
+            else
+                context.stroke();
             break;
         case "transparent":
-            if (args.transparent_as_chess)
+            if (args.style_modifier)
                 _fill_chess(context, "#F0F0F0", "#E0E0E0", args.radius);
             else
                 context.stroke();
