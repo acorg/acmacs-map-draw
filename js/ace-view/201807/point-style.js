@@ -1,10 +1,17 @@
-import * as acv_toolkit from "./toolkit.js";
-import * as acv_utils from "./utils.js";
+import * as av_toolkit from "./toolkit.js";
+import * as av_utils from "./utils.js";
 
-acv_utils.load_css("/js/ad/map-draw/ace-view/201807/point-style.css");
+av_utils.load_css("/js/ad/map-draw/ace-view/201807/point-style.css");
 
 // ----------------------------------------------------------------------
 
+// canvas attributes:
+// aw_s - Shape
+// aw_f - Fill
+// aw_o - Outline
+// av_o - outline width
+// av_a - aspect
+// av_r - rotation
 // {canvas: <canvas>, onchange: callback}
 export function point_style_modifier(args) {
     if (!args.canvas || !args.canvas.is("canvas"))
@@ -22,7 +29,7 @@ class PointStyleModifier
     constructor(args) {
         this.canvas_ = args.modifier_canvas;
         this.canvas_.draw();
-        this.canvas_.on("click", evt => acv_utils.forward_event(evt, () => this.show_dialog()));
+        this.canvas_.on("click", evt => av_utils.forward_event(evt, () => this.show_dialog()));
     }
 
     show_dialog() {
@@ -35,9 +42,9 @@ class PointStyleModifier
 // ----------------------------------------------------------------------
 
 const PointStyleModifierDialog_html = "\
-<div class='a-point-style-modifier-dialog a-window-shadow'>\
+<div class='av201807-point-style-modifier-dialog av201807-window-shadow'>\
   <table>\
-    <tr class='a-title'>\
+    <tr class='title'>\
       <td>Fill</td>\
       <td>Outline</td>\
       <td title='Size'>S</td>\
@@ -46,22 +53,27 @@ const PointStyleModifierDialog_html = "\
       <td title='Rotation'>R</td>\
     </tr>\
     <tr>\
-      <td name='fill'></td>\
-      <td name='outline'></td>\
-      <td><div class='a-point-style-slider-vertical'><input type='range' name='size' value='0' min='-3' max='9' list='point-style-input-tickmarks'></div></td>\
-      <td><div class='a-point-style-slider-vertical'><input type='range' name='outline_width' value='0' min='-3' max='19' list='point-style-input-tickmarks'></div></td>\
-      <td><div class='a-point-style-slider-vertical'><input type='range' name='aspect' value='1' min='0.1' max='1' step='0.1', list='point-style-input-tickmarks-aspect'></div></td>\
-      <td><div class='a-point-style-slider-vertical'><input type='range' name='rotation' value='0' min='-180' max='180' step='15' list='point-style-input-tickmarks-angle'></div></td>\
+      <td name='F'></td>\
+      <td name='O'></td>\
+      <td><div class='av-point-style-slider-vertical'><input type='range' name='s' value='0' min='-3' max='9' list='point-style-input-tickmarks'></div></td>\
+      <td><div class='av-point-style-slider-vertical'><input type='range' name='o' value='0' min='-3' max='19' list='point-style-input-tickmarks'></div></td>\
+      <td><div class='av-point-style-slider-vertical'><input type='range' name='a' value='1' min='0.1' max='1' step='0.1', list='point-style-input-tickmarks-aspect'></div></td>\
+      <td><div class='av-point-style-slider-vertical'><input type='range' name='r' value='0' min='-180' max='180' step='15' list='point-style-input-tickmarks-angle'></div></td>\
     </tr>\
     <tr>\
-      <td colspan='2' class='a-shape'><div class='a-label'>Shape:</div><div class='a-shape' name='circle' title='circle'></div><div class='a-shape' name='box' title='box'></div><div class='a-shape' name='triangle' title='triangle'></div></td>\
-      <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='size'></span></td>\
-      <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='outline_width'></span></td>\
-      <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='aspect'></span></td>\
-      <td class='a-point-style-slider-value'><span class='a-point-style-slider-value' name='rotation'></span></td>\
+      <td colspan='2' class='shape'>\
+        <div class='label'>Shape:</div>\
+        <div class='shape' name='circle' title='circle'></div>\
+        <div class='shape' name='box' title='box'></div>\
+        <div class='shape' name='triangle' title='triangle'></div>\
+      </td>\
+      <td class='av-point-style-slider-value'><span class='av-point-style-slider-value' name='s'></span></td>\
+      <td class='av-point-style-slider-value'><span class='av-point-style-slider-value' name='o'></span></td>\
+      <td class='av-point-style-slider-value'><span class='av-point-style-slider-value' name='a'></span></td>\
+      <td class='av-point-style-slider-value'><span class='av-point-style-slider-value' name='r'></span></td>\
     </tr>\
   </table>\
-  <div class='a-reset-button' title='undo all changes'><div></div></div>\
+  <div class='reset-button' title='undo all changes'><div></div></div>\
   <datalist id='point-style-input-tickmarks'></datalist>\
   <datalist id='point-style-input-tickmarks-angle'></datalist>\
   <datalist id='point-style-input-tickmarks-aspect'></datalist>\
@@ -82,7 +94,7 @@ class PointStyleModifierDialog
         modifier_canvas.draw();
         this._setup();
         this.div_.css(modifier_canvas.bottom_left_absolute());
-        this.modal_ = new acv_toolkit.Modal({element: this.div_, z_index: 900, dismiss: () => this.hide()});
+        this.modal_ = new av_toolkit.Modal({element: this.div_, z_index: 900, dismiss: () => this.hide()});
         this.div_.show();
     }
 
@@ -94,26 +106,26 @@ class PointStyleModifierDialog
     _make() {
         this.div_ = $(PointStyleModifierDialog_html).appendTo("body").hide().css({position: "absolute"});
 
-        const td_fill = this.div_.find('td[name="fill"]');
-        const td_outline = this.div_.find('td[name="outline"]');
-        const colors = ["#000000", "white", "transparent", "#ff0000", "#00ff00", "#0000ff", "#ffa500", "#6495ed"].concat(acv_toolkit.sAnaColors);
+        const td_fill = this.div_.find('td[name="F"]');
+        const td_outline = this.div_.find('td[name="O"]');
+        const colors = ["#000000", "white", "transparent", "#ff0000", "#00ff00", "#0000ff", "#ffa500", "#6495ed"].concat(av_toolkit.sAnaColors);
         colors.forEach(color => {
             if (color === "white") {
-                td_fill.append(`<div class="a-fill-color a-white" name="${color}" title="fill ${color}"></div>`);
-                td_outline.append(`<div class="a-outline-color a-white" name="${color}" style="background-color: #E0E0E0; border: 3px solid ${color}" title="${color} outline"></div>`);
+                td_fill.append(`<div class="fill-color white" name="${color}" title="fill ${color}"></div>`);
+                td_outline.append(`<div class="outline-color white" name="${color}" style="background-color: #E0E0E0; border: 3px solid ${color}" title="${color} outline"></div>`);
             }
             else if (color === "transparent") {
-                td_fill.append(`<div class="a-fill-color a-transparent" name="${color}" title="fill ${color}"></div>`);
-                td_outline.append(`<div class="a-outline-color a-transparent" name="${color}" title="${color} outline"></div>`);
+                td_fill.append(`<div class="fill-color transparent" name="${color}" title="fill ${color}"></div>`);
+                td_outline.append(`<div class="outline-color transparent" name="${color}" title="${color} outline"></div>`);
             }
             else {
-                td_fill.append(`<div class="a-fill-color" name="${color}" style="background-color: ${color}" title="fill ${color}"></div>`);
-                td_outline.append(`<div class="a-outline-color" name="${color}" style="border: 3px solid ${color}" title="outline ${color}"></div>`);
+                td_fill.append(`<div class="fill-color" name="${color}" style="background-color: ${color}" title="fill ${color}"></div>`);
+                td_outline.append(`<div class="outline-color" name="${color}" style="border: 3px solid ${color}" title="outline ${color}"></div>`);
             }
         });
-        this.div_.find("div.a-fill-color").on("click", evt => acv_utils.forward_event(evt, () => this._fill(evt.currentTarget.getAttribute("name"))));
-        this.div_.find("div.a-outline-color").on("click", evt => acv_utils.forward_event(evt, evt => this._outline(evt.currentTarget.getAttribute("name"))));
-        this.div_.find("div.a-shape").on("click", evt => acv_utils.forward_event(evt, evt => this._shape(evt.currentTarget.getAttribute("name"))));
+        this.div_.find("div.fill-color").on("click", evt => av_utils.forward_event(evt, () => this._fill(evt.currentTarget.getAttribute("name"))));
+        this.div_.find("div.outline-color").on("click", evt => av_utils.forward_event(evt, evt => this._outline(evt.currentTarget.getAttribute("name"))));
+        this.div_.find("div.shape").on("click", evt => av_utils.forward_event(evt, evt => this._shape(evt.currentTarget.getAttribute("name"))));
 
         const tickmarks = this.div_.find("datalist#point-style-input-tickmarks").empty();
         for (let i = -20; i <= 20; i += 2)
@@ -125,44 +137,36 @@ class PointStyleModifierDialog
         for (let aspect = 0; aspect <= 1; aspect += 0.2)
             tickmarks_aspect.append(`<option value='${aspect}'>`);
 
-        this.div_.find("input[name='size']").on("input", evt => this._size_from_slider(parseFloat(evt.currentTarget.value)));
-        this.div_.find("input[name='outline_width']").on("input", evt => this._outline_width_from_slider(parseFloat(evt.currentTarget.value)));
-        this.div_.find("input[name='rotation']").on("input", evt => this._rotation_from_slider(parseFloat(evt.currentTarget.value)));
-        this.div_.find("input[name='aspect']").on("input", evt => this._aspect_from_slider(parseFloat(evt.currentTarget.value)));
+        this.div_.find("input[name='s']").on("input", evt => this._size_from_slider(parseFloat(evt.currentTarget.value)));
+        this.div_.find("input[name='o']").on("input", evt => this._outline_width_from_slider(parseFloat(evt.currentTarget.value)));
+        this.div_.find("input[name='r']").on("input", evt => this._rotation_from_slider(parseFloat(evt.currentTarget.value)));
+        this.div_.find("input[name='a']").on("input", evt => this._aspect_from_slider(parseFloat(evt.currentTarget.value)));
 
-        this.div_.find("div.a-reset-button").on("click", evt => acv_utils.forward_event(evt, () => this._undo()));
+        this.div_.find("div.reset-button").on("click", evt => av_utils.forward_event(evt, () => this._undo()));
     }
 
     _setup(save=true) {
-        if (save) {
-            this.saved_data_ = {
-                fill: this.modifier_canvas_.get("fill", null),
-                outline: this.modifier_canvas_.get("outline", null),
-                outline_width: this.modifier_canvas_.get("outline_width", null),
-                shape: this.modifier_canvas_.get("shape", null),
-                rotation: this.modifier_canvas_.get("rotation", null),
-                aspect: this.modifier_canvas_.get("aspect", null)
-            };
-        }
-        this._size_to_slider(parseFloat(this.modifier_canvas_.get("size", 1)));
-        this._outline_width_to_slider(parseFloat(this.modifier_canvas_.get("outline_width", 1)));
-        this._rotation_to_slider(parseFloat(this.modifier_canvas_.get("rotation", 0)));
-        this._aspect_to_slider(parseFloat(this.modifier_canvas_.get("aspect", 1)));
+        if (save)
+            this.saved_data_ = ["S", "F", "O", "o", "s", "r", "a"].reduce((data, name) => { data[name] = this.modifier_canvas_.get(name, null); return data; }, {});
+        this._size_to_slider(parseFloat(this.modifier_canvas_.get("s", 1)));
+        this._outline_width_to_slider(parseFloat(this.modifier_canvas_.get("o", 1)));
+        this._rotation_to_slider(parseFloat(this.modifier_canvas_.get("r", 0)));
+        this._aspect_to_slider(parseFloat(this.modifier_canvas_.get("a", 1)));
     }
 
     _fill(color) {
         if (this.modifier_canvas_)
-            this.modifier_canvas_.set("fill", color, true);
+            this.modifier_canvas_.set("F", color, true);
     }
 
     _outline(color) {
         if (this.modifier_canvas_)
-            this.modifier_canvas_.set("outline", color, true);
+            this.modifier_canvas_.set("O", color, true);
     }
 
     _shape(shape) {
         if (this.modifier_canvas_)
-            this.modifier_canvas_.set("shape", shape, true);
+            this.modifier_canvas_.set("S", shape, true);
     }
 
     _size_from_slider(value) {
@@ -174,13 +178,13 @@ class PointStyleModifierDialog
             value = 0.1;
         else
             ++value;
-        this.div_.find("span[name='size']").empty().append(value);
+        this.div_.find("span[name='s']").empty().append(value);
         if (this.modifier_canvas_)
-            this.modifier_canvas_.set("size", value, true);
+            this.modifier_canvas_.set("s", value, true);
     }
 
     _size_to_slider(value) {
-        const slider = this.div_.find("input[name='size']");
+        const slider = this.div_.find("input[name='s']");
         if (value >= 1)
             slider.val(value - 1);
         else if (value < 1 && value >= 0.7)
@@ -189,7 +193,7 @@ class PointStyleModifierDialog
             slider.val(-2);
         else
             slider.val(-3);
-        this.div_.find("span[name='size']").empty().append(value);
+        this.div_.find("span[name='s']").empty().append(value);
     }
 
     _outline_width_from_slider(value) {
@@ -201,43 +205,43 @@ class PointStyleModifierDialog
         else {
             ++value;
         }
-        this.div_.find("span[name='outline_width']").empty().append(value);
+        this.div_.find("span[name='o']").empty().append(value);
         if (this.modifier_canvas_)
-            this.modifier_canvas_.set("outline_width", value, true);
+            this.modifier_canvas_.set("o", value, true);
     }
 
     _outline_width_to_slider(value) {
-        const slider = this.div_.find("input[name='outline_width']");
+        const slider = this.div_.find("input[name='o']");
         if (value >= 1)
             slider.val(value - 1);
         else if (value < 0.01)
             slider.val(-3);
         else
             slider.val(Math.log10(value));
-        this.div_.find("span[name='outline_width']").empty().append(value);
+        this.div_.find("span[name='o']").empty().append(value);
     }
 
     _rotation_from_slider(value) {
-        this.div_.find("span[name='rotation']").empty().append(value);
+        this.div_.find("span[name='r']").empty().append(value);
         if (this.modifier_canvas_)
-            this.modifier_canvas_.set("rotation", value * DegreesToRadians, true);
+            this.modifier_canvas_.set("r", value * DegreesToRadians, true);
     }
 
     _rotation_to_slider(value) {
         const degrees = value / DegreesToRadians;
-        this.div_.find("input[name='rotation']").val(degrees);
-        this.div_.find("span[name='rotation']").empty().append(degrees.toFixed(0));
+        this.div_.find("input[name='r']").val(degrees);
+        this.div_.find("span[name='r']").empty().append(degrees.toFixed(0));
     }
 
     _aspect_from_slider(value) {
-        this.div_.find("span[name='aspect']").empty().append(value.toFixed(1));
+        this.div_.find("span[name='a']").empty().append(value.toFixed(1));
         if (this.modifier_canvas_)
-            this.modifier_canvas_.set("aspect", value, true);
+            this.modifier_canvas_.set("a", value, true);
     }
 
     _aspect_to_slider(value) {
-        this.div_.find("input[name='aspect']").val(value);
-        this.div_.find("span[name='aspect']").empty().append(value.toFixed(1));
+        this.div_.find("input[name='a']").val(value);
+        this.div_.find("span[name='a']").empty().append(value.toFixed(1));
     }
 
     _undo() {
@@ -292,13 +296,13 @@ class PointStyleModifierCanvas
     }
 
     _aspect() {
-        const aspect = this.get_float("aspect", 1);
+        const aspect = this.get_float("a", 1);
         if (aspect > 0 && aspect !== 1)
             this.context_.scale(aspect, 1);
     }
 
     _rotation() {
-        const rotation = this.get_float("rotation", 0);
+        const rotation = this.get_float("r", 0);
         if (rotation !== 0)
             this.context_.rotate(rotation);
     }
@@ -306,7 +310,7 @@ class PointStyleModifierCanvas
     _shape() {
         const radius = this._radius();
         this.context_.beginPath();
-        switch (this.get("shape", "unknown")[0].toLowerCase()) {
+        switch (this.get("S", "unknown")[0].toLowerCase()) {
         case "c":
             this.context_.arc(0, 0, radius, 0, 2*Math.PI);
             break;
@@ -335,7 +339,7 @@ class PointStyleModifierCanvas
     }
 
     _radius() {
-        const size = this.get_float("size", 1);
+        const size = this.get_float("s", 1);
         if (size <= 0)
             return 0;
         const size_scaled = size * this.point_scale_ * this.scale_inv_;
@@ -343,7 +347,7 @@ class PointStyleModifierCanvas
     }
 
     _outline() {
-        const outline = this.get("outline", "unknown");
+        const outline = this.get("O", "unknown");
         if (outline === "unknown") {
             this.context_.setLineDash([this.scale_inv_ * 3, this.scale_inv_ * 6]);
             this.context_.strokeStyle = "pink";
@@ -353,12 +357,12 @@ class PointStyleModifierCanvas
     }
 
     _outline_width() {
-        if (!this.get_raw("outline_width")) {
+        if (!this.get_raw("o")) {
             this.context_.lineWidth = this.scale_inv_;
             this.context_.setLineDash([this.scale_inv_ * 5, this.scale_inv_ * 5]);
         }
         else {
-            let outline_width = this.get_float("outline_width", 1);
+            let outline_width = this.get_float("o", 1);
             if (outline_width < 1e-5)
                 outline_width = 1e-5;
             this.context_.lineWidth = outline_width * this.scale_inv_;
@@ -366,7 +370,7 @@ class PointStyleModifierCanvas
     }
 
     _fill_stroke() {
-        const fill = this.get("fill", "unknown");
+        const fill = this.get("F", "unknown");
         if (fill === "unknown") {
             this._fill_chess("#A0A0FF", "#E0E0E0");
         }
@@ -399,8 +403,11 @@ class PointStyleModifierCanvas
         this.context_.restore();
     }
 
+    _attr_name(name) {
+        return (name[0].toLowerCase() === name[0] ? "av_" : "aw_") + name;
+    }
     get_raw(name) {
-        return this.canvas_.attr("acv_" + name);
+        return this.canvas_.attr(this._attr_name(name));
     }
 
     get(name, dflt) {
@@ -413,7 +420,7 @@ class PointStyleModifierCanvas
     }
 
     set(name, value, draw) {
-        this.canvas_.attr("acv_" + name, value);
+        this.canvas_.attr(this._attr_name(name), value);
         if (draw)
             this.draw();
         if (this.onchange_)

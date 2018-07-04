@@ -1,8 +1,8 @@
-.a-point-style-modifier-dialog {
+.av201807-point-style-modifier-dialog {
     background-color: white;
 }
 
-.a-point-style-modifier-dialog > div.a-reset-button {
+.av201807-point-style-modifier-dialog > div.reset-button {
     position: absolute;
     top: 5px;
     right: 0px;
@@ -10,7 +10,7 @@
     height: 20px;
 }
 
-.a-point-style-modifier-dialog > div.a-reset-button > div {
+.av201807-point-style-modifier-dialog > div.reset-button > div {
     position: absolute;
     top: 0;
     left: 0;
@@ -21,7 +21,7 @@
     transform: rotate(-45deg);
 }
 
-.a-point-style-modifier-dialog > div.a-reset-button > div:after {
+.av201807-point-style-modifier-dialog > div.reset-button > div:after {
     content: "";
     position: absolute;
     border: 0 solid transparent;
@@ -34,62 +34,62 @@
     transform: scaleY(-1) rotate(135deg);
 }
 
-.a-point-style-modifier-dialog table {
+.av201807-point-style-modifier-dialog table {
     margin: 0.7em;
     border-collapse: separate;
     border-spacing: 0.5em 0;
 }
 
-.a-point-style-modifier-dialog tr.a-title td {
+.av201807-point-style-modifier-dialog tr.title td {
     text-align: center;
     font-size: 0.8em;
 }
 
-.a-point-style-modifier-dialog td[name="fill"] {
+.av201807-point-style-modifier-dialog td[name="F"] {
     width: 60px;
 }
 
-.a-point-style-modifier-dialog td[name="outline"] {
+.av201807-point-style-modifier-dialog td[name="O"] {
     width: 60px;
 }
 
-.a-point-style-modifier-dialog div.a-fill-color {
+.av201807-point-style-modifier-dialog div.fill-color {
     width: 13px;
     height: 13px;
     margin: 3px;
     float: left;
 }
 
-.a-point-style-modifier-dialog div.a-fill-color.a-white {
+.av201807-point-style-modifier-dialog div.fill-color.white {
     width: 7px;
     height: 7px;
     border: 3px dashed #E0E0E0;
 }
 
-.a-point-style-modifier-dialog div.a-fill-color.a-transparent {
+.av201807-point-style-modifier-dialog div.fill-color.transparent {
     background-image: repeating-linear-gradient(to top left, white , #D0D0D0 4px);
 }
 
-.a-point-style-modifier-dialog div.a-outline-color {
+.av201807-point-style-modifier-dialog div.outline-color {
     width: 7px;
     height: 7px;
     margin: 3px;
     float: left;
 }
 
-.a-point-style-modifier-dialog div.a-outline-color.a-transparent {
+.av201807-point-style-modifier-dialog div.outline-color.transparent {
     background-color: transparent;
     border: 3px dashed #D0D0D0;
 }
 
-.a-point-style-slider-vertical {
+.av201807-point-style-modifier-dialog .av-point-style-slider-vertical {
     display: inline-block;
     width: 20px;
     height: 150px;
     padding: 0;
 }
 
-.a-point-style-slider-vertical input {
+.av201807-point-style-modifier-dialog .av-point-style-slider-vertical input {
     width: 150px;
     height: 20px;
     margin: 0;
@@ -97,36 +97,36 @@
     transform: rotate(-90deg);
 }
 
-td.a-point-style-slider-value {
+.av201807-point-style-modifier-dialog td.av-point-style-slider-value {
     text-align: center;
 }
 
-span.a-point-style-slider-value {
+.av201807-point-style-modifier-dialog span.av-point-style-slider-value {
     font-size: 0.8em;
 }
 
-.a-point-style-modifier-dialog td.a-shape div {
+.av201807-point-style-modifier-dialog td.shape div {
     float: left;
     margin-top: 5px;
     margin-bottom: 5px;
 }
 
-.a-point-style-modifier-dialog td.a-shape div.a-label {
+.av201807-point-style-modifier-dialog td.shape div.label {
     font-size: 0.8em;
 }
 
-.a-point-style-modifier-dialog td.a-shape div.a-shape {
+.av201807-point-style-modifier-dialog td.shape div.shape {
     width: 16px;
     height: 16px;
     background: #808080;
     margin-left: 12px;
 }
 
-.a-point-style-modifier-dialog td.a-shape div.a-shape[name="circle"] {
+.av201807-point-style-modifier-dialog td.shape div.shape[name="circle"] {
     border-radius: 8px;
 }
 
-.a-point-style-modifier-dialog td.a-shape div.a-shape[name="triangle"] {
+.av201807-point-style-modifier-dialog td.shape div.shape[name="triangle"] {
     width: 0;
     height: 0;
     border-left: 8px solid transparent;
