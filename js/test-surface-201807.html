@@ -9,12 +9,24 @@
       body { margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
       h3 { margin-left: 1em; }
       div.main { margin: 2em; }
+      div.slider-vertical { position: relative; display: inline-block; width: 20px; height: 300px; padding: 0; text-align: center; }
+      div.slider-vertical input { width: 300px; height: 20px; margin: 0; transform-origin: 150px 150px; transform: rotate(-90deg); }
+      div.slider-vertical span.value { position: absolute; top: 325px; left: 0; }
     </style>
   </head>
   <body>
     <h3>Test Surface 201807</h3>
     <div class="main">
-      <canvas width="500" height="500" style="outline: 1px solid #008B8B;"></canvas>
+      <table>
+        <tr>
+          <td>
+            <canvas width="500" height="500" style="outline: 1px solid #008B8B;"></canvas>
+          </td>
+          <td>
+            <div class='slider-vertical' name="point-scale"><span class='title'>S</span><input type="range" value="1" min="0" max="50" step="0.1"></input><span class="value">333</span></div>
+          </td>
+        </tr>
+      </table>
     </div>
   </body>
 </html>

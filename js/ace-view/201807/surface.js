@@ -115,6 +115,12 @@ export class Surface
         return this.viewport_;
     }
 
+    point_scale(new_scale) {
+        if (new_scale !== undefined)
+            this.point_scale_ = new_scale;
+        return this.point_scale_;
+    }
+
     // {S: shape, F: fill, O: outline, s: size, r: rotation, a: aspect, o: outline_width}
     point(coord, args, point_no=0, hit_map=true) {
         const transformed = this.transformation_.transform(coord);

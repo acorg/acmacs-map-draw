@@ -94,7 +94,7 @@ export function draw_shape(context, shape, radius)
     }
 }
 
-// {S: shape, F: fill, O: outline, radius: , r: rotation, a: aspect, o: outline_width, scale_inv: }
+// {S: shape, F: fill, O: outline, radius: , r: rotation, a: aspect, o: outline_width, scale_inv:, transparent_as_chess: true}
 export function draw_point(context, args, preserve_context=true)
 {
     if (preserve_context)
@@ -121,10 +121,13 @@ export function draw_point(context, args, preserve_context=true)
         case null:
         case undefined:
         case "unknown":
-            _fill_chess(context, "#A0A0FF", "#E0E0E0");
+            _fill_chess(context, "#A0A0FF", "#E0E0E0", args.radius);
             break;
         case "transparent":
-            _fill_chess(context, "#F0F0F0", "#E0E0E0");
+            if (args.transparent_as_chess)
+                _fill_chess(context, "#F0F0F0", "#E0E0E0", args.radius);
+            else
+                context.stroke();
             break;
         default:
             context.fillStyle = args.F;
@@ -140,21 +143,21 @@ export function draw_point(context, args, preserve_context=true)
         context.restore();
 }
 
-function _fill_chess(context, color1, color2)
+function _fill_chess(context, color1, color2, radius)
 {
     context.stroke();
     context.save();
     context.clip();
     context.fillStyle = color1;
-    context.fillRect(-0.5, -0.5, 1, 1);
+    context.fillRect(-radius, -radius, radius * 2, radius * 2);
     const step = 0.1;
     context.strokeStyle = color2;
     context.lineWidth = step;
     context.setLineDash([step, step]);
     context.beginPath();
-    for (let y = -0.5, z = 0; y < 0.5; y += step, z = z == 0 ? step : 0) {
-        context.moveTo(-0.5 + z, y);
-        context.lineTo(0.5, y);
+    for (let y = -radius, z = 0; y < radius; y += step, z = z == 0 ? step : 0) {
+        context.moveTo(-radius + z, y);
+        context.lineTo(radius, y);
     }
     context.stroke();
     context.restore();
