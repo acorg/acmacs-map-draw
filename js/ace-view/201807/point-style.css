@@ -1,0 +1,136 @@
+.a-point-style-modifier-dialog {
+    background-color: white;
+}
+
+.a-point-style-modifier-dialog > div.a-reset-button {
+    position: absolute;
+    top: 5px;
+    right: 0px;
+    width: 20px;
+    height: 20px;
+}
+
+.a-point-style-modifier-dialog > div.a-reset-button > div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-bottom: 9px solid transparent;
+    border-left: 9px solid black;
+    transform: rotate(-45deg);
+}
+
+.a-point-style-modifier-dialog > div.a-reset-button > div:after {
+    content: "";
+    position: absolute;
+    border: 0 solid transparent;
+    border-top: 3px solid black;
+    border-radius: 20px 0 0 0;
+    top: 6px;
+    left: -10px;
+    width: 12px;
+    height: 12px;
+    transform: scaleY(-1) rotate(135deg);
+}
+
+.a-point-style-modifier-dialog table {
+    margin: 0.7em;
+    border-collapse: separate;
+    border-spacing: 0.5em 0;
+}
+
+.a-point-style-modifier-dialog tr.a-title td {
+    text-align: center;
+    font-size: 0.8em;
+}
+
+.a-point-style-modifier-dialog td[name="fill"] {
+    width: 60px;
+}
+
+.a-point-style-modifier-dialog td[name="outline"] {
+    width: 60px;
+}
+
+.a-point-style-modifier-dialog div.a-fill-color {
+    width: 13px;
+    height: 13px;
+    margin: 3px;
+    float: left;
+}
+
+.a-point-style-modifier-dialog div.a-fill-color.a-white {
+    width: 7px;
+    height: 7px;
+    border: 3px dashed #E0E0E0;
+}
+
+.a-point-style-modifier-dialog div.a-fill-color.a-transparent {
+    background-image: repeating-linear-gradient(to top left, white , #D0D0D0 4px);
+}
+
+.a-point-style-modifier-dialog div.a-outline-color {
+    width: 7px;
+    height: 7px;
+    margin: 3px;
+    float: left;
+}
+
+.a-point-style-modifier-dialog div.a-outline-color.a-transparent {
+    background-color: transparent;
+    border: 3px dashed #D0D0D0;
+}
+
+.a-point-style-slider-vertical {
+    display: inline-block;
+    width: 20px;
+    height: 150px;
+    padding: 0;
+}
+
+.a-point-style-slider-vertical input {
+    width: 150px;
+    height: 20px;
+    margin: 0;
+    transform-origin: 75px 75px;
+    transform: rotate(-90deg);
+}
+
+td.a-point-style-slider-value {
+    text-align: center;
+}
+
+span.a-point-style-slider-value {
+    font-size: 0.8em;
+}
+
+.a-point-style-modifier-dialog td.a-shape div {
+    float: left;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.a-point-style-modifier-dialog td.a-shape div.a-label {
+    font-size: 0.8em;
+}
+
+.a-point-style-modifier-dialog td.a-shape div.a-shape {
+    width: 16px;
+    height: 16px;
+    background: #808080;
+    margin-left: 12px;
+}
+
+.a-point-style-modifier-dialog td.a-shape div.a-shape[name="circle"] {
+    border-radius: 8px;
+}
+
+.a-point-style-modifier-dialog td.a-shape div.a-shape[name="triangle"] {
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 16px solid #808080;
+    background: transparent;
+}

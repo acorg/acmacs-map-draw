@@ -164,7 +164,7 @@ export class AntigenicMapWidget
     constructor(div, data, options={}) { // options: {view_mode: {mode: "table-series"}, coloring: "default", title_fields: [], api: object_providing_external_api}
         this.div = $(div);
         this.options = Object.assign({}, window.amw201805.options, options);
-        acv_utils.load_css('/js/ad/map-draw/ace-view-1/ace-view.css');
+        acv_utils.load_css('/js/ad/map-draw/ace-view/201805/ace-view.css');
         this.div.addClass("amw201805").attr("amw201805_id", window.amw201805.new_id()).append(AntigenicMapWidget_content_html);
         this.canvas = this.div.find("canvas");
         if (!this.options.canvas_size || !this.options.canvas_size.width || !this.options.canvas_size.height) {
@@ -1893,7 +1893,7 @@ class ViewDialog
         }
 
         const td_coloring = table.find("td.coloring");
-        td_coloring.append("<a href='default'>default</a>");
+        td_coloring.append("<a href='default'>original</a>");
         if (this.widget.features["clades"]) {
             td_coloring.append("<a href='clade'>by clade</a>");
             if (this.widget.options.api.get_sequences)
@@ -1908,7 +1908,7 @@ class ViewDialog
 
         const td_mode = table.find("td.mode");
         td_mode.append("<a href='projection'>all</a>");
-        td_mode.append("<a href='selection'>selection</a>");
+        td_mode.append("<a href='selection'>search</a>");
         if (this.widget.features["time-series"])
             td_mode.append("<a href='time-series'>time series</a>");
         if (this.widget.features["table-series"])
@@ -2122,7 +2122,7 @@ class ViewDialog
         button_download_chart.off("click");
         if (this.widget.group_sets_) {
             button_download_chart.show().on("click", evt => acv_utils.forward_event(evt, evt => {
-                const data = {"  version": "acmacs-ace-v1", "?created": `ace-view-1 GroupSeries on ${new Date()}`, c: Object.assign({}, this.widget.data.c, {group_sets: this.widget.group_sets_})};
+                const data = {"  version": "acmacs-ace-v1", "?created": `ace-view/201805 GroupSeries on ${new Date()}`, c: Object.assign({}, this.widget.data.c, {group_sets: this.widget.group_sets_})};
                 acv_utils.download_blob({data: data, blob_type: "application/json", filename: "chart-with-group-series-sets.ace"});
             }));
         }

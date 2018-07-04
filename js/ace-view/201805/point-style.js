@@ -1,7 +1,7 @@
 import * as acv_toolkit from "./toolkit.js";
 import * as acv_utils from "./utils.js";
 
-acv_utils.load_css("/js/ad/map-draw/ace-view-1/point-style.css");
+acv_utils.load_css("/js/ad/map-draw/ace-view/201805/point-style.css");
 
 // ----------------------------------------------------------------------
 

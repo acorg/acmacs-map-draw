@@ -1,6 +1,6 @@
 import * as acv_utils from "./utils.js";
 
-acv_utils.load_css("/js/ad/map-draw/ace-view-1/toolkit.css");
+acv_utils.load_css("/js/ad/map-draw/ace-view/201805/toolkit.css");
 
 // ----------------------------------------------------------------------
 

@@ -123,7 +123,7 @@ static const char* sHtml = R"(
    <title>%s</title>
    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
    <script type="module">
-     import * as mod from "/js/ad/map-draw/ace-view-1/apache-mod-acmacs.js";
+     import * as mod from "/js/ad/map-draw/ace-view/201805/apache-mod-acmacs.js";
      $(document).ready(() => mod.show_antigenic_map_widget({parent: $("#map1"), view_mode: {mode: "%s"}, coloring: "%s", uri: "%s"}));
    </script>
    <style>body { margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }</style>

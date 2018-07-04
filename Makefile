@@ -65,7 +65,7 @@ install: check-acmacsd-root install-headers install-acmacs-map-draw-lib $(TARGET
 	ln -sf $(abspath $(DIST))/chart-* $(AD_BIN)
 	ln -sf $(abspath $(DIST))/geographic-* $(AD_BIN)
 	ln -sf $(abspath $(DIST))/mod_acmacs.so $(AD_LIB)
-	mkdir -p $(AD_SHARE)/js/map-draw; ln -sf $(shell pwd)/js/* $(AD_SHARE)/js/map-draw; rm $(AD_SHARE)/js/map-draw/test*
+	mkdir -p $(AD_SHARE)/js/map-draw; ln -sf $(shell pwd)/js/* $(AD_SHARE)/js/map-draw; rm $(AD_SHARE)/js/map-draw/test* $(AD_SHARE)/js/map-draw/obsolete
 
 install-acmacs-map-draw-lib: $(ACMACS_MAP_DRAW_LIB)
 	$(call install_lib,$(ACMACS_MAP_DRAW_LIB))
