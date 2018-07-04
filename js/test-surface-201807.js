@@ -30,13 +30,13 @@ class TestSurface
         });
 
         $("div.main [name='zoom0'] input").on("input", evt => {
-            // this.surface.zoom([0, 0], parseFloat(evt.currentTarget.value));
+            this.surface.zoom([0, 0], parseFloat(evt.currentTarget.value));
             this.draw();
             this._slider_values();
         });
 
         $("div.main [name='zoom2'] input").on("input", evt => {
-            // this.surface.zoom([2, 3], parseFloat(evt.currentTarget.value));
+            this.surface.zoom([2, 3], parseFloat(evt.currentTarget.value));
             this.draw();
             this._slider_values();
         });

@@ -121,6 +121,10 @@ export class Surface
         return this.point_scale_;
     }
 
+    zoom(center, viewport_size) {
+        // this.viewport([, , viewport_size]);
+    }
+
     // {S: shape, F: fill, O: outline, s: size, r: rotation, a: aspect, o: outline_width}
     point(coord, args, point_no=0, hit_map=true) {
         const transformed = this.transformation_.transform(coord);
