@@ -95,9 +95,10 @@ export function draw_shape(context, shape, radius)
 }
 
 // {S: shape, F: fill, O: outline, radius: , r: rotation, a: aspect, o: outline_width, scale_inv: }
-export function draw_point(context, args)
+export function draw_point(context, args, preserve_context=true)
 {
-    context.save();
+    if (preserve_context)
+        context.save();
     try {
         if (args.r)
             context.rotate(args.r);
@@ -135,7 +136,8 @@ export function draw_point(context, args)
     catch (err) {
         console.error("av_toolkit::draw_point", e);
     }
-    context.restore();
+    if (preserve_context)
+        context.restore();
 }
 
 function _fill_chess(context, color1, color2)

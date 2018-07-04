@@ -20,7 +20,7 @@ export class Transformation
     }
 
     transform(coord) {
-        return coord.length ? [coord[0] * this.transformation[0] + coord[1] * this.transformation[2], coord[0] * this.transformation[1] + coord[1] * this.transformation[3]] : [];
+        return coord.length ? [coord[0] * this.transformation_[0] + coord[1] * this.transformation_[2], coord[0] * this.transformation_[1] + coord[1] * this.transformation_[3]] : [];
     }
 }
 
@@ -84,7 +84,9 @@ export class Surface
     constructor(canvas) {
         this.canvas_ = canvas;
         this.context_ = this.canvas_[0].getContext('2d', {alpha: false});
+        this.transformation_ = new Transformation();
         this.viewport(new Viewport());
+        this.point_scale_ = 5;
         this.reset();
     }
 
@@ -106,10 +108,76 @@ export class Surface
             this.viewport_ = new Viewport(new_viewport);
             this.scale_ = this.width() / this.viewport_.width();
             this.scale_inv_ = 1 / this.scale_;
+            this.scale_inv_2_ = this.scale_inv_ * this.scale_inv_;
             this.context_.scale(this.scale_, this.scale_);
             this.context_.translate(- this.viewport_.left(), - this.viewport_.top());
         }
         return this.viewport_;
+    }
+
+    // {S: shape, F: fill, O: outline, s: size, r: rotation, a: aspect, o: outline_width}
+    point(coord, args, point_no=0, hit_map=true) {
+        const transformed = this.transformation_.transform(coord);
+        this.context_.save();
+        try {
+            this.context_.translate.apply(this.context_, transformed);
+            const size = (args.s === undefined ? 1 : args.s) * this.point_scale_ * this.scale_inv_;
+            av_toolkit.draw_point(this.context_, Object.assign({radius: size / 2, scale_inv: this.scale_inv_}, args), false);
+            if (hit_map)
+                this._add_to_hit_map(point_no, coord, size, args.S || "c");
+        }
+        catch (err) {
+            console.error("av_surface::point", err);
+        }
+        this.context_.restore();
+    }
+
+    _add_to_hit_map(point_no, coord, size, shape) {
+        if (!this.hit_map_)
+            this.hit_map_ = [];
+        shape = shape[0].toLowerCase();
+        switch (shape) {
+        case "b":
+        case "r":
+        case "t":
+            size = size * 0.5 * this.scale_inv_;
+            break;
+        case "c":
+        default:
+            size = size * size * 0.25 * this.scale_inv_2_;
+            shape = "c";
+            break;
+        }
+        this.hit_map_[point_no] = {c: coord, s: size, S: shape};
+    }
+
+    find_points_at_pixel_offset(offset, drawing_order) {
+        let result = [];
+        const scaled_offset = this._translate_pixel_offset(offset);
+        drawing_order.forEach(point_no => {
+            const point_data = this.hit_map_[point_no];
+            switch (point_data.S) {
+            case "c":
+                if (((scaled_offset.left - point_data.c[0])**2 + (scaled_offset.top - point_data.c[1])**2) <= point_data.s)
+                    result.push(point_no);
+                break;
+            case "b":
+            case "r":
+                if (Math.abs(scaled_offset.left - point_data.c[0]) <= point_data.s && Math.abs(scaled_offset.top - point_data.c[1]) <= point_data.s)
+                    result.push(point_no);
+                break;
+            case "t":
+                if (Math.abs(scaled_offset.left - point_data.c[0]) <= point_data.s && Math.abs(scaled_offset.top - point_data.c[1]) <= point_data.s)
+                    result.push(point_no);
+                break;
+            }
+        });
+        result.reverse();
+        return result;
+    }
+
+    _translate_pixel_offset(offset) {
+        return {left: offset.left * this.scale_inv_ + this.viewport_.left(), top: offset.top * this.scale_inv_ + this.viewport.top()};
     }
 
     grid(args={line_color: "#CCCCCC", line_width: 1, step: 1}) {
