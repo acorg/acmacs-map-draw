@@ -40,6 +40,18 @@ class TestSurface
             this.draw();
             this._slider_values();
         });
+
+        $("div.main [name='rotate'] input").on("input", evt => {
+            // this.surface.rotate([0, 0], parseFloat(evt.currentTarget.value));
+            this.draw();
+            this._slider_values();
+        });
+
+        $("div.main [name='pan'] input").on("input", evt => {
+            // this.surface.move_to([parseFloat(evt.currentTarget.value), 0]);
+            this.draw();
+            this._slider_values();
+        });
     }
 
     points() {
@@ -56,7 +68,7 @@ class TestSurface
     }
 
     _slider_values() {
-        for (let name of ["point-scale", "zoom0", "zoom2"])
+        for (let name of ["point-scale", "zoom0", "zoom2", "rotate", "pan"])
             $(`div.main [name="${name}"] .value`).empty().append($(`div.main [name="${name}"] input`).val());
     }
 }
