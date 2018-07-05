@@ -133,6 +133,10 @@ export class Surface
         return this.point_scale_;
     }
 
+    point_rescale(multiply_by) {
+        this.point_scale_ *= multiply_by;
+    }
+
     zoom_with_mouse(evt) {
         const scroll = evt.originalEvent.deltaX != 0 ? evt.originalEvent.deltaX : evt.originalEvent.deltaY; // depends if mouse or touchpad used
         this.zoom(this._translate_pixel_offset(this._mouse_offset(evt)), scroll > 0 ? 1.05 : (1 / 1.05));

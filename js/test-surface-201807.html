@@ -9,6 +9,7 @@
       body { margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
       h3 { margin-left: 1em; }
       div.main { margin: 2em; }
+      div.main canvas { min-height: 200px; min-width: 200px; }
       div.slider-vertical { margin-left: 1em; position: relative; display: inline-block; width: 20px; height: 300px; padding: 0; text-align: center; }
       div.slider-vertical input { width: 300px; height: 20px; margin: 0; transform-origin: 150px 150px; transform: rotate(-90deg); }
       div.slider-vertical span.value { position: absolute; top: 325px; left: 0; }
@@ -16,6 +17,7 @@
   </head>
   <body>
     <h3>Test Surface 201807</h3>
+    <p>Shift-Wheel - change point size, Alt-Wheel - zoom</p>
     <div class="main">
       <table>
         <tr>
@@ -28,6 +30,11 @@
             <div class='slider-vertical' name="zoom2"><span class='title'>Z2</span><input type="range" value="10" min="1" max="30" step="0.1"></input><span class="value">Z</span></div>
             <div class='slider-vertical' name="rotate"><span class='title'>R</span><input type="range" value="0" min="-4" max="4" step="0.1"></input><span class="value">R</span></div>
             <div class='slider-vertical' name="pan"><span class='title'>P</span><input type="range" value="0" min="-4" max="4" step="0.1"></input><span class="value">P</span></div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div name="point-list"></div>
           </td>
         </tr>
       </table>

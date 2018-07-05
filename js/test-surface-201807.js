@@ -1,4 +1,5 @@
 import * as av_surface from "/js/ad/map-draw/ace-view/201807/surface.js";
+import * as av_utils from "/js/ad/map-draw/ace-view/201807/utils.js";
 
 function main()
 {
@@ -33,10 +34,22 @@ class TestSurface
             window.clearTimeout(mousemove_timeout_id);
             mousemove_timeout_id = window.setTimeout(me => {
                 const points = this.surface.find_points_at_pixel_offset(this.surface.mouse_offset(evt), this.drawing_order_);
-                console.log("hovered", points);
+                $("div.main div[name='point-list']").empty().append(points.map(pn => "" + pn).join());
             }, 500, evt);
         });
         this.surface.canvas_.on("mouseleave", evt => window.clearTimeout(mousemove_timeout_id));
+
+        this.surface.canvas_.on("wheel DOMMouseScroll", evt => av_utils.forward_event(evt, evt => {
+            if (evt.shiftKey) { // Shift-Wheel -> point_scale
+                const scroll = evt.originalEvent.deltaX != 0 ? evt.originalEvent.deltaX : evt.originalEvent.deltaY; // depends if mouse or touchpad used
+                this.surface.point_rescale(scroll > 0 ? 1.1 : (1 / 1.1));
+                this.draw();
+            }
+            else if (evt.altKey) { // Alt-Wheel -> zoom
+                this.surface.zoom_with_mouse(evt);
+                this.draw();
+            }
+        }));
 
         this._slider_values();
         $("div.main [name='point-scale'] input").on("input", evt => {
