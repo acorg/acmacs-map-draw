@@ -34,6 +34,32 @@ export class Transformation
         this.transformation_[1] = r1;
     }
 
+    flip(x, y) {
+        const inv = this._inverse();
+        this._flip_transformed(x * inv[0] + y * inv[2], x * inv[1] + y * inv[3]);
+    }
+
+    _flip_transformed(x, y) {
+        const x2y2 = x * x - y * y, xy = 2 * x * y;
+        const r0 = x2y2 * this.transformation_[0] + xy * this.transformation_[2];
+        const r1 = x2y2 * this.transformation_[1] + xy * this.transformation_[3];
+        this.transformation_[2] = xy * this.transformation_[0] + -x2y2 * this.transformation_[2];
+        this.transformation_[3] = xy * this.transformation_[1] + -x2y2 * this.transformation_[3];
+        this.transformation_[0] = r0;
+        this.transformation_[1] = r1;
+    }
+
+    _inverse() {
+        const deter = this._determinant();
+        if (deter === 0)
+            return this.transformation_; // singular
+        return [this.transformation_[3] / deter, - this.transformation_[1] / deter, -this.transformation_[2] / deter, this.transformation_[0] / deter];
+
+    }
+
+    _determinant() {
+        return this.transformation_[0] * this.transformation_[3] - this.transformation_[1] * this.transformation_[2];
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -112,6 +138,22 @@ export class Surface
         return this.canvas_.width();
     }
 
+    point_scale_with_mouse(evt) {
+        this.point_scale_ *= this._mouse_wheel_delta(evt) > 0 ? 1.05 : (1 / 1.05);
+    }
+
+    zoom_with_mouse(evt) {
+        this.zoom(this._translate_pixel_offset(this._mouse_offset(evt)), this._mouse_wheel_delta(evt) > 0 ? 1.05 : (1 / 1.05));
+    }
+
+    rotate_with_mouse(evt) {
+        this.rotate(this._mouse_wheel_delta(evt) > 0 ? 0.05 : -0.05);
+    }
+
+    _mouse_wheel_delta(evt) {
+        return evt.originalEvent.deltaX != 0 ? evt.originalEvent.deltaX : evt.originalEvent.deltaY;
+    }
+
     viewport(new_viewport) {
         if (new_viewport) {
             if (this.viewport_) {
@@ -133,20 +175,6 @@ export class Surface
         return this.point_scale_;
     }
 
-    point_rescale(multiply_by) {
-        this.point_scale_ *= multiply_by;
-    }
-
-    zoom_with_mouse(evt) {
-        const scroll = evt.originalEvent.deltaX != 0 ? evt.originalEvent.deltaX : evt.originalEvent.deltaY; // depends if mouse or touchpad used
-        this.zoom(this._translate_pixel_offset(this._mouse_offset(evt)), scroll > 0 ? 1.05 : (1 / 1.05));
-    }
-
-    rotate_with_mouse(evt) {
-        const value = evt.originalEvent.deltaX != 0 ? evt.originalEvent.deltaX : evt.originalEvent.deltaY;
-        this.rotate(value > 0 ? 0.1 : -0.1);
-    }
-
     zoom(center, change) {
         try {
             const new_size = Math.max(this.viewport_.width() * change, 1);
@@ -163,6 +191,14 @@ export class Surface
 
     rotate(angle) {
         this.transformation_.rotate(angle);
+    }
+
+    flip_ew() {
+        this.transformation_.flip(0, 1);
+    }
+
+    flip_ns() {
+        this.transformation_.flip(1, 0);
     }
 
     add_resizer(callback) {

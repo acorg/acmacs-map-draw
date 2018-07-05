@@ -41,8 +41,7 @@ class TestSurface
 
         this.surface.canvas_.on("wheel DOMMouseScroll", evt => av_utils.forward_event(evt, evt => {
             if (evt.shiftKey) { // Shift-Wheel -> point_scale
-                const scroll = evt.originalEvent.deltaX != 0 ? evt.originalEvent.deltaX : evt.originalEvent.deltaY; // depends if mouse or touchpad used
-                this.surface.point_rescale(scroll > 0 ? 1.1 : (1 / 1.1));
+                this.surface.point_scale_with_mouse(evt);
                 this.draw();
             }
             else if (evt.altKey) { // Alt-Wheel -> zoom
@@ -55,38 +54,15 @@ class TestSurface
             }
         }));
 
+        this.surface.canvas_.on("contextmenu", evt => { if (evt.ctrlKey) av_utils.forward_event(evt); }); // block context menu on ctrl-click (but allow on the right-click)
+        this.surface.canvas_.on("click", evt => av_utils.forward_event(evt, evt => {
+            if (evt.ctrlKey) { // Ctrl-click -> flip
+                this.surface.flip_ew(evt);
+                this.draw();
+            }
+        }));
+
         this._slider_values();
-        // $("div.main [name='point-scale'] input").on("input", evt => {
-        //     this.surface.point_scale(5 * parseFloat(evt.currentTarget.value));
-        //     this.draw();
-        //     this._slider_values();
-        // });
-
-        // let current_zoom = 10;
-        // $("div.main [name='zoom0'] input").on("input", evt => {
-        //     const new_zoom = parseFloat(evt.currentTarget.value);
-        //     this.surface.zoom([0, 0], current_zoom / new_zoom);
-        //     this.draw();
-        //     this._slider_values();
-        //     current_zoom = new_zoom;
-        // });
-
-        // $("div.main [name='zoom2'] input").on("input", evt => {
-        //     const new_zoom = parseFloat(evt.currentTarget.value);
-        //     this.surface.zoom([2, 3], current_zoom / new_zoom);
-        //     this.draw();
-        //     this._slider_values();
-        //     current_zoom = new_zoom;
-        // });
-
-        let current_rotation = 0;
-        $("div.main [name='rotate'] input").on("input", evt => {
-            const angle = parseFloat(evt.currentTarget.value) - current_rotation;
-            this.surface.rotate(angle);
-            this.draw();
-            this._slider_values();
-            current_rotation = parseFloat(evt.currentTarget.value);
-        });
 
         let current_x = 0;
         $("div.main [name='pan'] input").on("input", evt => {
