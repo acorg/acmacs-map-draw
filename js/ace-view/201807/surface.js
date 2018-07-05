@@ -121,7 +121,6 @@ export class Surface
             this.viewport_ = new Viewport(new_viewport);
             this.scale_ = this.width() / this.viewport_.width();
             this.scale_inv_ = 1 / this.scale_;
-            this.scale_inv_2_ = this.scale_inv_ * this.scale_inv_;
             this.context_.scale(this.scale_, this.scale_);
             this.context_.translate(- this.viewport_.left(), - this.viewport_.top());
         }
@@ -196,24 +195,19 @@ export class Surface
     _add_to_hit_map(point_no, coord, size, shape) {
         if (!this.hit_map_)
             this.hit_map_ = [];
-        shape = shape[0].toLowerCase();
-        let hovered;
-        switch (shape) {
+        switch (shape[0].toLowerCase()) {
         case "b":
         case "r":
-            size = size * 0.5 * this.scale_inv_;
-            hovered = hit_map_box_hovered;
+            this.hit_map_[point_no] = {c: coord, s: size * 0.5, h: hit_map_box_hovered};
             break;
         case "t":
-            hovered = hit_map_triangle_hovered;
+            this.hit_map_[point_no] = {c: coord, s: size * 0.5, h: hit_map_triangle_hovered};
             break;
         case "c":
         default:
-            hovered = hit_map_circle_hovered;
-            size = size * size * 0.25 * this.scale_inv_2_;
+            this.hit_map_[point_no] = {c: coord, s: size * size * 0.25, h: hit_map_circle_hovered};
             break;
         }
-        this.hit_map_[point_no] = {c: coord, s: size, h: hovered};
     }
 
     find_points_at_pixel_offset(offset, drawing_order) {
