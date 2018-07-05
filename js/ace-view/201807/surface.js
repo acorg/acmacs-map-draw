@@ -184,7 +184,7 @@ export class Surface
             const size = (args.s === undefined ? 1 : args.s) * this.point_scale_ * this.scale_inv_;
             draw_point(this.context_, Object.assign({radius: size / 2, scale_inv: this.scale_inv_}, args), false);
             if (hit_map)
-                this._add_to_hit_map(point_no, coord, size, args.S || "c");
+                this._add_to_hit_map(point_no, transformed, size, args.S || "c");
         }
         catch (err) {
             console.error("av_surface::point", err);
