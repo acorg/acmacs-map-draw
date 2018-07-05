@@ -1,4 +1,5 @@
 import * as av_toolkit from "./toolkit.js";
+import * as av_surface from "./surface.js";
 import * as av_utils from "./utils.js";
 
 av_utils.load_css("/js/ad/map-draw/ace-view/201807/point-style.css");
@@ -277,7 +278,7 @@ class PointStyleModifierCanvas
         this.context_.clearRect(-0.5, -0.5, 1, 1);
         this.context_.fillStyle = this.get("background", "transparent");
         this.context_.fillRect(-0.5, -0.5, 1, 1);
-        av_toolkit.draw_point(this.context_,
+        av_surface.draw_point(this.context_,
                               {S: this.get("S", "unknown"), F: this.get("F", "unknown"), O: this.get("O", "unknown"),
                                radius: this._radius(), r: this.get_float("r", 0), a: this.get_float("a", 1), o: this.get_float("o", null), scale_inv: this.scale_inv_});
         this.context_.restore();

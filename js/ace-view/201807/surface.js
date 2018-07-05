@@ -183,7 +183,7 @@ export class Surface
         try {
             this.context_.translate.apply(this.context_, transformed);
             const size = (args.s === undefined ? 1 : args.s) * this.point_scale_ * this.scale_inv_;
-            av_toolkit.draw_point(this.context_, Object.assign({radius: size / 2, scale_inv: this.scale_inv_}, args), false);
+            draw_point(this.context_, Object.assign({radius: size / 2, scale_inv: this.scale_inv_}, args), false);
             if (hit_map)
                 this._add_to_hit_map(point_no, coord, size, args.S || "c");
         }
@@ -197,41 +197,30 @@ export class Surface
         if (!this.hit_map_)
             this.hit_map_ = [];
         shape = shape[0].toLowerCase();
+        let hovered;
         switch (shape) {
         case "b":
         case "r":
-        case "t":
             size = size * 0.5 * this.scale_inv_;
+            hovered = hit_map_box_hovered;
+            break;
+        case "t":
+            hovered = hit_map_triangle_hovered;
             break;
         case "c":
         default:
+            hovered = hit_map_circle_hovered;
             size = size * size * 0.25 * this.scale_inv_2_;
-            shape = "c";
             break;
         }
-        this.hit_map_[point_no] = {c: coord, s: size, S: shape};
+        this.hit_map_[point_no] = {c: coord, s: size, h: hovered};
     }
 
     find_points_at_pixel_offset(offset, drawing_order) {
-        let result = [];
         const scaled_offset = this._translate_pixel_offset(offset);
-        drawing_order.forEach(point_no => {
+        const result = drawing_order.filter(point_no => {
             const point_data = this.hit_map_[point_no];
-            switch (point_data.S) {
-            case "c":
-                if (((scaled_offset.left - point_data.c[0])**2 + (scaled_offset.top - point_data.c[1])**2) <= point_data.s)
-                    result.push(point_no);
-                break;
-            case "b":
-            case "r":
-                if (Math.abs(scaled_offset.left - point_data.c[0]) <= point_data.s && Math.abs(scaled_offset.top - point_data.c[1]) <= point_data.s)
-                    result.push(point_no);
-                break;
-            case "t":
-                if (Math.abs(scaled_offset.left - point_data.c[0]) <= point_data.s && Math.abs(scaled_offset.top - point_data.c[1]) <= point_data.s)
-                    result.push(point_no);
-                break;
-            }
+            return point_data.h(scaled_offset, point_data.c, point_data.s);
         });
         result.reverse();
         return result;
@@ -273,6 +262,146 @@ export class Surface
     }
 }
 
+// ----------------------------------------------------------------------
+
+function draw_circle(context, radius)
+{
+    context.arc(0, 0, radius, 0, 2*Math.PI);
+}
+
+function draw_box(context, radius)
+{
+    context.moveTo(- radius, - radius);
+    context.lineTo(  radius, - radius);
+    context.lineTo(  radius,   radius);
+    context.lineTo(- radius,   radius);
+    context.closePath();
+}
+
+function draw_triangle(context, radius)
+{
+    const side = radius * av_utils.sqrt_3;
+    context.moveTo(0, -radius);
+    context.lineTo(- side / 2, radius / 2);
+    context.lineTo(  side / 2, radius / 2);
+    context.closePath();
+}
+
+function draw_unknown(context, radius)
+{
+    context.arc(0, 0, radius, 0.5, Math.PI);
+    context.lineTo(- radius, - radius);
+    context.closePath();
+}
+
+function draw_shape(context, shape, radius)
+{
+    context.beginPath();
+    switch (shape[0].toLowerCase()) {
+    case "c":
+        draw_circle(context, radius);
+        break;
+    case "b":
+    case "r":
+        draw_box(context, radius);
+        break;
+    case "t":
+        draw_triangle(context, radius);
+        break;
+    case "u":
+    default:
+        draw_unknown(context, radius);
+        break;
+    }
+}
+
+// {S: shape, F: fill, O: outline, radius: , r: rotation, a: aspect, o: outline_width, scale_inv:, style_modifier: true}
+export function draw_point(context, args, preserve_context=true)
+{
+    if (preserve_context)
+        context.save();
+    try {
+        if (args.r)
+            context.rotate(args.r);
+        if (args.a && args.a > 0 && args.a !== 1)
+            context.scale(args.a, 1);
+        draw_shape(context, args.S || (args.style_modifier ? "u" : "c"), args.radius);
+        const outline = args.style_modifier ? (!args.O || args.O === "unknown" ? null : args.O) : (args.O || "black");
+        if (!outline) {
+            context.setLineDash([args.scale_inv * 3, args.scale_inv * 6]);
+            context.strokeStyle = "pink";
+        }
+        else
+            context.strokeStyle = outline;
+        const outline_width = args.style_modifier ? args.o || null : args.o || 1;
+        if (outline_width === null) {
+            context.lineWidth = args.scale_inv;
+            context.setLineDash([args.scale_inv * 5, args.scale_inv * 5]);
+        }
+        else
+            context.lineWidth = (outline_width < 1e-5 ? 1e-5 : outline_width) * args.scale_inv;
+        switch (args.F) {
+        case null:
+        case undefined:
+        case "unknown":
+            if (args.style_modifier)
+                _fill_chess(context, "#A0A0FF", "#E0E0E0", args.radius);
+            else
+                context.stroke();
+            break;
+        case "transparent":
+            if (args.style_modifier)
+                _fill_chess(context, "#F0F0F0", "#E0E0E0", args.radius);
+            else
+                context.stroke();
+            break;
+        default:
+            context.fillStyle = args.F;
+            context.fill();
+            context.stroke();
+            break;
+        }
+    }
+    catch (err) {
+        console.error("av_toolkit::draw_point", e);
+    }
+    if (preserve_context)
+        context.restore();
+}
+
+function _fill_chess(context, color1, color2, radius)
+{
+    context.stroke();
+    context.save();
+    context.clip();
+    context.fillStyle = color1;
+    context.fillRect(-radius, -radius, radius * 2, radius * 2);
+    const step = 0.1;
+    context.strokeStyle = color2;
+    context.lineWidth = step;
+    context.setLineDash([step, step]);
+    context.beginPath();
+    for (let y = -radius, z = 0; y < radius; y += step, z = z == 0 ? step : 0) {
+        context.moveTo(-radius + z, y);
+        context.lineTo(radius, y);
+    }
+    context.stroke();
+    context.restore();
+}
+
+// ----------------------------------------------------------------------
+
+function hit_map_circle_hovered(scaled_offset, coord, size) {
+    return ((scaled_offset.left - coord[0])**2 + (scaled_offset.top - coord[1])**2) <= size;
+}
+
+function hit_map_box_hovered(scaled_offset, coord, size) {
+    return Math.abs(scaled_offset.left - coord[0]) <= size && Math.abs(scaled_offset.top - coord[1]) <= size;
+}
+
+function hit_map_triangle_hovered(scaled_offset, coord, size) {
+    return Math.abs(scaled_offset.left - coord[0]) <= size && Math.abs(scaled_offset.top - coord[1]) <= size;
+}
 
 // ----------------------------------------------------------------------
 /// Local Variables:
