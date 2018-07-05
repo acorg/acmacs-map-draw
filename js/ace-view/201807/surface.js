@@ -227,7 +227,7 @@ export class Surface
     }
 
     _translate_pixel_offset(offset) {
-        return {left: offset.left * this.scale_inv_ + this.viewport_.left(), top: offset.top * this.scale_inv_ + this.viewport.top()};
+        return {left: offset.left * this.scale_inv_ + this.viewport_.left(), top: offset.top * this.scale_inv_ + this.viewport_.top()};
     }
 
     _mouse_offset(mouse_event) {
@@ -260,6 +260,14 @@ export class Surface
     border(args={line_color: "#A0A0A0", line_width: 1}) {
         this.canvas_.css("border", "" + args.line_width + "px solid " + args.line_color);
     }
+
+    mouse_offset(mouse_event) {
+        const border_width = Number.parseFloat(this.canvas_.css("border-width") || "0");
+        const offset_x = border_width + parseFloat(this.canvas_.css("padding-left") || "0");
+        const offset_y = border_width + parseFloat(this.canvas_.css("padding-top") || "0");
+        return {left: mouse_event.offsetX - offset_x, top: mouse_event.offsetY - offset_y};
+    };
+
 }
 
 // ----------------------------------------------------------------------
@@ -402,6 +410,8 @@ function hit_map_box_hovered(scaled_offset, coord, size) {
 function hit_map_triangle_hovered(scaled_offset, coord, size) {
     return Math.abs(scaled_offset.left - coord[0]) <= size && Math.abs(scaled_offset.top - coord[1]) <= size;
 }
+
+// ----------------------------------------------------------------------
 
 // ----------------------------------------------------------------------
 /// Local Variables:

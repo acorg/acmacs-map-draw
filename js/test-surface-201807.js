@@ -1,4 +1,4 @@
-import * as mod from "/js/ad/map-draw/ace-view/201807/surface.js";
+import * as av_surface from "/js/ad/map-draw/ace-view/201807/surface.js";
 
 function main()
 {
@@ -8,7 +8,7 @@ function main()
 class TestSurface
 {
     constructor() {
-        this.surface = new mod.Surface($("div.main canvas"));
+        this.surface = new av_surface.Surface($("div.main canvas"));
         this.bind();
         this.draw();
     }
@@ -27,6 +27,16 @@ class TestSurface
             this.draw();
             this._slider_values();
         });
+
+        let mousemove_timeout_id = undefined;
+        this.surface.canvas_.on("mousemove", evt => {
+            window.clearTimeout(mousemove_timeout_id);
+            mousemove_timeout_id = window.setTimeout(me => {
+                const points = this.surface.find_points_at_pixel_offset(this.surface.mouse_offset(evt), this.drawing_order_);
+                console.log("hovered", points);
+            }, 500, evt);
+        });
+        this.surface.canvas_.on("mouseleave", evt => window.clearTimeout(mousemove_timeout_id));
 
         this._slider_values();
         $("div.main [name='point-scale'] input").on("input", evt => {
@@ -81,6 +91,7 @@ class TestSurface
         this.surface.point([-0.8, 1.3], {S: "t", s: 1, F: "magenta", o: 3}, 6, true);
         this.surface.point([0.8, -1.3], {S: "t", s: 1, F: "transparent", O: "black", o: 1}, 7, true);
         this.surface.point([-2.5, 2.1], {S: "c", s: 2, F: "green", o: 1, a: 0.7, r: 0.5}, 8, true);
+        this.drawing_order_ = [0, 1, 2, 3, 4, 5, 6, 7, 8];
     }
 
     _slider_values() {
