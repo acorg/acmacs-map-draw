@@ -129,6 +129,65 @@ export class Surface
         this.reset();
     }
 
+    // --------------------------------------------------
+
+    // {S: shape, F: fill, O: outline, s: size, r: rotation, a: aspect, o: outline_width}
+    point(coord, args, point_no=0, hit_map=true) {
+        const transformed = this.transformation_.transform(coord);
+        this.context_.save();
+        try {
+            this.context_.translate.apply(this.context_, transformed);
+            const size = (args.s === undefined ? 1 : args.s) * this.point_scale_ * this.scale_inv_;
+            draw_point(this.context_, Object.assign({radius: size / 2, scale_inv: this.scale_inv_}, args), false);
+            if (hit_map)
+                this._add_to_hit_map(point_no, transformed, size, args.S || "c");
+        }
+        catch (err) {
+            console.error("av_surface::point", err);
+        }
+        this.context_.restore();
+    }
+
+    // {start:, end:, color: "black", width: 1}
+    line(args) {
+        this.context_.save();
+        try {
+            this.context_.strokeStyle = args.color || "black";
+            this.context_.lineWidth = (args.width === undefined ? 1 : args.width) * this.scale_inv_;
+            this.context_.beginPath();
+            this.context_.moveTo.apply(this.context_, args.start);
+            this.context_.lineTo.apply(this.context_, args.end);
+            this.context_.stroke();
+        }
+        catch (err) {
+            console.error("surface::line", err);
+        }
+        this.context_.restore();
+    }
+
+    // {start:, end:, color: "black", width: 1, head_width: 5, head_color: "black", head_filled: true}
+    // draw-arrow.cc:50
+    arrow(args) {
+    }
+
+    // {center:, radius:, outline: "black", width: 1, fill: "transparent", aspect: 1, rotation: 0}
+    circle(args) {
+    }
+
+    // {center:, radius:, start: 0, end: Math.PI / 2, outline: "black", width: 1, radius_width:, radius_color: "black", radius_dashed: true, fill: "transparent", aspect: 1, rotation: 0}
+    sector(args) {
+    }
+
+    // {origin:, text:, color: "black", size: 12, rotation: 0}
+    text(args) {
+    }
+
+    // {text:, size: 12}
+    text_size(args) {
+    }
+
+    // --------------------------------------------------
+
     reset() {
         this.context_.fillStyle = "#F8F8F8";
         this.context_.fillRect(0, 0, this.canvas_.width(), this.canvas_.height()); // clear canvas, otherwise chrome makes it black
@@ -220,22 +279,7 @@ export class Surface
         this.viewport(new Viewport(this.viewport_).move_relative(x * this.scale_inv_, y * this.scale_inv_));
     }
 
-    // {S: shape, F: fill, O: outline, s: size, r: rotation, a: aspect, o: outline_width}
-    point(coord, args, point_no=0, hit_map=true) {
-        const transformed = this.transformation_.transform(coord);
-        this.context_.save();
-        try {
-            this.context_.translate.apply(this.context_, transformed);
-            const size = (args.s === undefined ? 1 : args.s) * this.point_scale_ * this.scale_inv_;
-            draw_point(this.context_, Object.assign({radius: size / 2, scale_inv: this.scale_inv_}, args), false);
-            if (hit_map)
-                this._add_to_hit_map(point_no, transformed, size, args.S || "c");
-        }
-        catch (err) {
-            console.error("av_surface::point", err);
-        }
-        this.context_.restore();
-    }
+    // --------------------------------------------------
 
     _add_to_hit_map(point_no, coord, size, shape) {
         if (!this.hit_map_)
@@ -410,7 +454,7 @@ export function draw_point(context, args, preserve_context=true)
         }
     }
     catch (err) {
-        console.error("av_toolkit::draw_point", e);
+        console.error("av_toolkit::draw_point", err);
     }
     if (preserve_context)
         context.restore();

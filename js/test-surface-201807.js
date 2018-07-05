@@ -20,6 +20,7 @@ class TestSurface
         this.surface.grid();
         this.surface.border();
         this.points();
+        this.lines();
     }
 
     bind() {
@@ -98,6 +99,11 @@ class TestSurface
         this.surface.point([0.8, -1.3], {S: "t", s: 1, F: "transparent", O: "black", o: 1}, 7, true);
         this.surface.point([-2.5, 2.1], {S: "c", s: 2, F: "green", o: 1, a: 0.7, r: 0.5}, 8, true);
         this.drawing_order_ = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    }
+
+    lines() {
+        this.surface.line({start: [0, 0], end: [4, -3], color: "cyan"});
+        this.surface.line({start: [0, 0.5], end: [-4, 3], color: "rgba(255, 0, 255, 0.5)", width: 10});
     }
 
     // _slider_values() {
