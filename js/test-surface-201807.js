@@ -46,10 +46,13 @@ class TestSurface
             current_zoom = new_zoom;
         });
 
+        let current_rotation = 0;
         $("div.main [name='rotate'] input").on("input", evt => {
-            // this.surface.rotate([0, 0], parseFloat(evt.currentTarget.value));
+            const angle = parseFloat(evt.currentTarget.value) - current_rotation;
+            this.surface.rotate(angle);
             this.draw();
             this._slider_values();
+            current_rotation = parseFloat(evt.currentTarget.value);
         });
 
         $("div.main [name='pan'] input").on("input", evt => {

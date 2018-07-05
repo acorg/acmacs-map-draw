@@ -22,6 +22,18 @@ export class Transformation
     transform(coord) {
         return coord.length ? [coord[0] * this.transformation_[0] + coord[1] * this.transformation_[2], coord[0] * this.transformation_[1] + coord[1] * this.transformation_[3]] : [];
     }
+
+    rotate(angle) {
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        const r0 = cos * this.transformation_[0] + -sin * this.transformation_[2];
+        const r1 = cos * this.transformation_[1] + -sin * this.transformation_[3];
+        this.transformation_[2] = sin * this.transformation_[0] +  cos * this.transformation_[2];
+        this.transformation_[3] = sin * this.transformation_[1] +  cos * this.transformation_[3];
+        this.transformation_[0] = r0;
+        this.transformation_[1] = r1;
+    }
+
 }
 
 // ----------------------------------------------------------------------
@@ -138,6 +150,10 @@ export class Surface
         catch (err) {
             console.error("av_surface::zoom", center, change, err);
         }
+    }
+
+    rotate(angle) {
+        this.transformation_.rotate(angle);
     }
 
     // {S: shape, F: fill, O: outline, s: size, r: rotation, a: aspect, o: outline_width}
