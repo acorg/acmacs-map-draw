@@ -55,14 +55,16 @@ class TestSurface
             current_rotation = parseFloat(evt.currentTarget.value);
         });
 
+        let current_x = 0;
         $("div.main [name='pan'] input").on("input", evt => {
-            // this.surface.move_to([parseFloat(evt.currentTarget.value), 0]);
+            this.surface.move_relative([current_x - parseFloat(evt.currentTarget.value), 0]);
             this.draw();
             this._slider_values();
+            current_x = parseFloat(evt.currentTarget.value);
         });
 
         $("div.main [name='size'] input").on("input", evt => {
-            // this.surface.resize(parseFloat(evt.currentTarget.value));
+            this.surface.resize(parseFloat(evt.currentTarget.value));
             this.draw();
             this._slider_values();
         });

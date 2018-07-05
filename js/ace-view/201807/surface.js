@@ -48,7 +48,7 @@ export class Viewport
                 this.viewport_ = vp.slice(0);
         }
         else if (vp instanceof Viewport)
-            this.viewport_ = vp.viewport_;
+            this.viewport_ = vp.viewport_.slice(0);
         if (!this.viewport_)
             this.viewport_ = [-5, -5, 10, 10];
     }
@@ -62,6 +62,7 @@ export class Viewport
             this.viewport_[0] += x;
             this.viewport_[1] += y;
         }
+        return this;
     }
 
     rect() {
@@ -119,6 +120,7 @@ export class Surface
             }
             this.viewport_ = new Viewport(new_viewport);
             this.scale_ = this.width() / this.viewport_.width();
+            console.log("viewport scale", this.scale_);
             this.scale_inv_ = 1 / this.scale_;
             this.scale_inv_2_ = this.scale_inv_ * this.scale_inv_;
             this.context_.scale(this.scale_, this.scale_);
@@ -154,6 +156,18 @@ export class Surface
 
     rotate(angle) {
         this.transformation_.rotate(angle);
+    }
+
+    resize(new_size) {
+        const viewport = this.viewport_;
+        delete this.viewport_;
+        if (new_size)
+            this.canvas_.prop({width: new_size, height: new_size});
+        this.viewport(viewport);
+    }
+
+    move_relative(delta) {
+        this.viewport(new Viewport(this.viewport_).move_relative(delta));
     }
 
     // {S: shape, F: fill, O: outline, s: size, r: rotation, a: aspect, o: outline_width}
