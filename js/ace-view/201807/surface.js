@@ -216,8 +216,8 @@ export class Surface
         this.viewport(viewport);
     }
 
-    move_relative(delta) {
-        this.viewport(new Viewport(this.viewport_).move_relative(delta));
+    move_relative(x, y) {
+        this.viewport(new Viewport(this.viewport_).move_relative(x * this.scale_inv_, y * this.scale_inv_));
     }
 
     // {S: shape, F: fill, O: outline, s: size, r: rotation, a: aspect, o: outline_width}

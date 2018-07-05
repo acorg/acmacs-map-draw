@@ -26,7 +26,7 @@ class TestSurface
         this.surface.add_resizer(width_diff => {
             this.surface.resize(width_diff);
             this.draw();
-            this._slider_values();
+            // this._slider_values();
         });
 
         let mousemove_timeout_id = undefined;
@@ -62,15 +62,28 @@ class TestSurface
             }
         }));
 
-        this._slider_values();
+        this.surface.canvas_.on("mousedown", evt => av_utils.forward_event(evt, evt => {
+            if (evt.altKey) {   // Alt-Drag - pan
+                let mousedown_pos = {left: evt.clientX, top: evt.clientY};
+                document.onmouseup = () => { document.onmouseup = document.onmousemove = null; };
+                document.onmousemove = evt => {
+                    this.surface.move_relative(mousedown_pos.left - evt.clientX, mousedown_pos.top - evt.clientY);
+                    mousedown_pos = {left: evt.clientX, top: evt.clientY};
+                    this.draw();
+                };
+            }
+        }));
 
-        let current_x = 0;
-        $("div.main [name='pan'] input").on("input", evt => {
-            this.surface.move_relative([current_x - parseFloat(evt.currentTarget.value), 0]);
-            this.draw();
-            this._slider_values();
-            current_x = parseFloat(evt.currentTarget.value);
-        });
+
+        // this._slider_values();
+
+        // let current_x = 0;
+        // $("div.main [name='pan'] input").on("input", evt => {
+        //     this.surface.move_relative([current_x - parseFloat(evt.currentTarget.value), 0]);
+        //     this.draw();
+        //     this._slider_values();
+        //     current_x = parseFloat(evt.currentTarget.value);
+        // });
     }
 
     points() {
@@ -87,10 +100,10 @@ class TestSurface
         this.drawing_order_ = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
     }
 
-    _slider_values() {
-        for (let name of ["point-scale", "zoom0", "zoom2", "rotate", "pan", "size"])
-            $(`div.main [name="${name}"] .value`).empty().append($(`div.main [name="${name}"] input`).val());
-    }
+    // _slider_values() {
+    //     for (let name of ["point-scale", "zoom0", "zoom2", "rotate", "pan", "size"])
+    //         $(`div.main [name="${name}"] .value`).empty().append($(`div.main [name="${name}"] input`).val());
+    // }
 }
 
 // ----------------------------------------------------------------------
