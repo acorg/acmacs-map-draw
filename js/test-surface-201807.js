@@ -49,31 +49,35 @@ class TestSurface
                 this.surface.zoom_with_mouse(evt);
                 this.draw();
             }
+            else if (evt.ctrlKey) { // Ctrl-Wheel -> rotate
+                this.surface.rotate_with_mouse(evt);
+                this.draw();
+            }
         }));
 
         this._slider_values();
-        $("div.main [name='point-scale'] input").on("input", evt => {
-            this.surface.point_scale(5 * parseFloat(evt.currentTarget.value));
-            this.draw();
-            this._slider_values();
-        });
+        // $("div.main [name='point-scale'] input").on("input", evt => {
+        //     this.surface.point_scale(5 * parseFloat(evt.currentTarget.value));
+        //     this.draw();
+        //     this._slider_values();
+        // });
 
-        let current_zoom = 10;
-        $("div.main [name='zoom0'] input").on("input", evt => {
-            const new_zoom = parseFloat(evt.currentTarget.value);
-            this.surface.zoom([0, 0], current_zoom / new_zoom);
-            this.draw();
-            this._slider_values();
-            current_zoom = new_zoom;
-        });
+        // let current_zoom = 10;
+        // $("div.main [name='zoom0'] input").on("input", evt => {
+        //     const new_zoom = parseFloat(evt.currentTarget.value);
+        //     this.surface.zoom([0, 0], current_zoom / new_zoom);
+        //     this.draw();
+        //     this._slider_values();
+        //     current_zoom = new_zoom;
+        // });
 
-        $("div.main [name='zoom2'] input").on("input", evt => {
-            const new_zoom = parseFloat(evt.currentTarget.value);
-            this.surface.zoom([2, 3], current_zoom / new_zoom);
-            this.draw();
-            this._slider_values();
-            current_zoom = new_zoom;
-        });
+        // $("div.main [name='zoom2'] input").on("input", evt => {
+        //     const new_zoom = parseFloat(evt.currentTarget.value);
+        //     this.surface.zoom([2, 3], current_zoom / new_zoom);
+        //     this.draw();
+        //     this._slider_values();
+        //     current_zoom = new_zoom;
+        // });
 
         let current_rotation = 0;
         $("div.main [name='rotate'] input").on("input", evt => {

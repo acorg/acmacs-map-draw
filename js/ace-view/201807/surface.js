@@ -142,6 +142,11 @@ export class Surface
         this.zoom(this._translate_pixel_offset(this._mouse_offset(evt)), scroll > 0 ? 1.05 : (1 / 1.05));
     }
 
+    rotate_with_mouse(evt) {
+        const value = evt.originalEvent.deltaX != 0 ? evt.originalEvent.deltaX : evt.originalEvent.deltaY;
+        this.rotate(value > 0 ? 0.1 : -0.1);
+    }
+
     zoom(center, change) {
         try {
             const new_size = Math.max(this.viewport_.width() * change, 1);
