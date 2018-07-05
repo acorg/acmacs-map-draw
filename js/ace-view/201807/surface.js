@@ -120,7 +120,6 @@ export class Surface
             }
             this.viewport_ = new Viewport(new_viewport);
             this.scale_ = this.width() / this.viewport_.width();
-            console.log("viewport scale", this.scale_);
             this.scale_inv_ = 1 / this.scale_;
             this.scale_inv_2_ = this.scale_inv_ * this.scale_inv_;
             this.context_.scale(this.scale_, this.scale_);
@@ -156,6 +155,13 @@ export class Surface
 
     rotate(angle) {
         this.transformation_.rotate(angle);
+    }
+
+    add_resizer(callback) {
+        if (this.canvas_.parent().css("position") === "static")
+            this.canvas_.parent().css("position", "relative");
+        $("<div class='av-window-resizer'></div>").appendTo(this.canvas_.parent())
+            .on("mousedown", evt => av_toolkit.drag(evt, pos_diff => callback(this.width() + pos_diff.left)));
     }
 
     resize(new_size) {

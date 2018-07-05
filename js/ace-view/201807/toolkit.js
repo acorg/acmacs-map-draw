@@ -170,6 +170,21 @@ function _fill_chess(context, color1, color2, radius)
 
 // ----------------------------------------------------------------------
 
+export function drag(evt, callback) {
+    let mouse_pos = {left: evt.clientX, top: evt.clientY};
+    document.onmouseup = () => {
+        $("body").removeClass("av-unselectable");
+        document.onmouseup = document.onmousemove = null;
+    };
+    document.onmousemove = evt2 => {
+        $("body").addClass("av-unselectable");
+        callback({left: evt2.clientX - mouse_pos.left, top: evt2.clientY - mouse_pos.top});
+        mouse_pos = {left: evt2.clientX, top: evt2.clientY};
+    };
+}
+
+// ----------------------------------------------------------------------
+
 // class Popup_Base {
 
 //     constructor(css_classes) {

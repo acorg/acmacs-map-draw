@@ -4,6 +4,23 @@
 
 /* ---------------------------------------------------------------------- */
 
+.av-unselectable {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.av-window-resizer {
+    position: absolute;
+    right: -2px;
+    bottom: 0;
+    z-index: 1;
+    width: 0.5em;
+    height: 0.5em;
+    border-right: 2px solid #B0B0B0;
+    border-bottom: 2px solid #B0B0B0;
+    cursor: nwse-resize;
+}
 
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */

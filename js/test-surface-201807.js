@@ -22,6 +22,12 @@ class TestSurface
     }
 
     bind() {
+        this.surface.add_resizer(width_diff => {
+            this.surface.resize(width_diff);
+            this.draw();
+            this._slider_values();
+        });
+
         this._slider_values();
         $("div.main [name='point-scale'] input").on("input", evt => {
             this.surface.point_scale(5 * parseFloat(evt.currentTarget.value));
@@ -61,12 +67,6 @@ class TestSurface
             this.draw();
             this._slider_values();
             current_x = parseFloat(evt.currentTarget.value);
-        });
-
-        $("div.main [name='size'] input").on("input", evt => {
-            this.surface.resize(parseFloat(evt.currentTarget.value));
-            this.draw();
-            this._slider_values();
         });
     }
 
