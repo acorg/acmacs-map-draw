@@ -104,6 +104,10 @@ class TestSurface
     lines() {
         this.surface.line({start: [0, 0], end: [4, -3], color: "cyan"});
         this.surface.line({start: [0, 0.5], end: [-4, 3], color: "rgba(255, 0, 255, 0.5)", width: 10});
+        this.surface.arrow({start: [0, 0], end: [-4, -3]});
+        this.surface.arrow({start: [-4, -2], end: [-2, 4]});
+        this.surface.arrow({start: [-2, -4], end: [-4, 2]});
+        this.surface.arrow({start: [-2, 4], end: [4, -2], head_width: 20, head_filled: false, head_color: "magenta"});
     }
 
     // _slider_values() {

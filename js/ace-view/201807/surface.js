@@ -1,6 +1,8 @@
 import * as av_toolkit from "./toolkit.js";
 import * as av_utils from "./utils.js";
 
+const PI_2 = Math.PI / 2;
+
 // 3D links
 // https://stackoverflow.com/questions/35518381/how-to-shade-the-circle-in-canvas
 // http://www.bitstorm.it/blog/en/2011/05/3d-sphere-html5-canvas/
@@ -168,6 +170,11 @@ export class Surface
     // {start:, end:, color: "black", width: 1, head_width: 5, head_color: "black", head_filled: true}
     // draw-arrow.cc:50
     arrow(args) {
+        const x_eq = args.start[0] === args.end[0];
+        const sign2 = x_eq ? (args.start[1] < args.end[1] ? 1 : -1) : (args.start[0] > args.end[0] ? 1 : -1);
+        const angle = x_eq ? - PI_2 : Math.atan((args.end[1] - args.start[1]) / (args.end[0] - args.start[0]));
+        const end = this._arrow_head(args.end, angle, sign2, args.head_color || "black", args.head_width || 5, args.head_filled === undefined ? true : args.head_filled);
+        this.line({start: args.start, end: end, color: args.color || "black", width: args.width || 1});
     }
 
     // {center:, radius:, outline: "black", width: 1, fill: "transparent", aspect: 1, rotation: 0}
@@ -277,6 +284,61 @@ export class Surface
 
     move_relative(x, y) {
         this.viewport(new Viewport(this.viewport_).move_relative(x * this.scale_inv_, y * this.scale_inv_));
+    }
+
+    // --------------------------------------------------
+
+    _arrow_head(end, angle, sign, color, head_width, head_filled) {
+        const ARROW_WIDTH_TO_LENGTH_RATIO = 2.0;
+        const arrow_width = head_width * this.scale_inv_;
+        const arrow_length = arrow_width * ARROW_WIDTH_TO_LENGTH_RATIO;
+        const line_attachment_point = [end[0] + sign * arrow_length * Math.cos(angle), end[1] + sign * arrow_length * Math.sin(angle)];
+        const arrow_base_1 = [line_attachment_point[0] + sign * arrow_width * Math.cos(angle + PI_2) * 0.5, line_attachment_point[1] + sign * arrow_width * Math.sin(angle + PI_2) * 0.5];
+        const arrow_base_2 = [line_attachment_point[0] + sign * arrow_width * Math.cos(angle - PI_2) * 0.5, line_attachment_point[1] + sign * arrow_width * Math.sin(angle - PI_2) * 0.5];
+        const path = [end, arrow_base_1, arrow_base_2];
+        if (head_filled)
+            this._path_fill(path, color);
+        else
+            this._path_outline(path, color, 1, true, "butt");
+        return line_attachment_point;
+    }
+
+    _path_fill(path, color) {
+        this.context_.save();
+        try {
+            this.context_.beginPath();
+            this.context_.moveTo.apply(this.context_, path[0]);
+            for (let path_entry of path)
+                this.context_.lineTo.apply(this.context_, path_entry);
+            this.context_.closePath();
+            this.context_.fillStyle = color;
+            this.context_.fill();
+        }
+        catch (err) {
+            console.error("surface::_path_fill", err);
+        }
+        this.context_.restore();
+    }
+
+    _path_outline(path, color, width, close, line_cap) {
+        this.context_.save();
+        try {
+            this.context_.beginPath();
+            this.context_.moveTo.apply(this.context_, path[0]);
+            for (let path_entry of path)
+                this.context_.lineTo.apply(this.context_, path_entry);
+            if (close)
+                this.context_.closePath();
+            this.context_.lineCap = line_cap;
+            this.context_.lineJoin = "mitter";
+            this.context_.lineWidth = width * this.scale_inv_;
+            this.context_.strokeStyle = color;
+            this.context_.stroke();
+        }
+        catch (err) {
+            console.error("surface::_path_outline", err);
+        }
+        this.context_.restore();
     }
 
     // --------------------------------------------------
