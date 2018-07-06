@@ -154,12 +154,7 @@ export class Surface
     line(args) {
         this.context_.save();
         try {
-            this.context_.strokeStyle = args.color || "black";
-            this.context_.lineWidth = (args.width === undefined ? 1 : args.width) * this.scale_inv_;
-            this.context_.beginPath();
-            this.context_.moveTo.apply(this.context_, args.start);
-            this.context_.lineTo.apply(this.context_, args.end);
-            this.context_.stroke();
+            this._line(this.transformation_.transform(args.start), this.transformation_.transform(args.end), args.color || "black", args.width === undefined ? 1 : args.width);
         }
         catch (err) {
             console.error("surface::line", err);
@@ -170,11 +165,20 @@ export class Surface
     // {start:, end:, color: "black", width: 1, head_width: 5, head_color: "black", head_filled: true}
     // draw-arrow.cc:50
     arrow(args) {
-        const x_eq = args.start[0] === args.end[0];
-        const sign2 = x_eq ? (args.start[1] < args.end[1] ? 1 : -1) : (args.start[0] > args.end[0] ? 1 : -1);
-        const angle = x_eq ? - PI_2 : Math.atan((args.end[1] - args.start[1]) / (args.end[0] - args.start[0]));
-        const end = this._arrow_head(args.end, angle, sign2, args.head_color || "black", args.head_width || 5, args.head_filled === undefined ? true : args.head_filled);
-        this.line({start: args.start, end: end, color: args.color || "black", width: args.width || 1});
+        this.context_.save();
+        try {
+            const start = this.transformation_.transform(args.start);
+            const end = this.transformation_.transform(args.end);
+            const x_eq = start[0] === end[0];
+            const sign2 = x_eq ? (start[1] < end[1] ? 1 : -1) : (start[0] > end[0] ? 1 : -1);
+            const angle = x_eq ? - PI_2 : Math.atan((end[1] - start[1]) / (end[0] - start[0]));
+            const line_end = this._arrow_head(end, angle, sign2, args.head_color || "black", args.head_width || 5, args.head_filled === undefined ? true : args.head_filled);
+            this._line(start, line_end, args.color || "black", args.width === undefined ? 1 : args.width);
+        }
+        catch (err) {
+            console.error("surface::line", err);
+        }
+        this.context_.restore();
     }
 
     // {center:, radius:, outline: "black", width: 1, fill: "transparent", aspect: 1, rotation: 0}
@@ -287,6 +291,15 @@ export class Surface
     }
 
     // --------------------------------------------------
+
+    _line(start, end, color, width) {
+        this.context_.strokeStyle = color;
+        this.context_.lineWidth = width * this.scale_inv_;
+        this.context_.beginPath();
+        this.context_.moveTo.apply(this.context_, start);
+        this.context_.lineTo.apply(this.context_, end);
+        this.context_.stroke();
+    }
 
     _arrow_head(end, angle, sign, color, head_width, head_filled) {
         const ARROW_WIDTH_TO_LENGTH_RATIO = 2.0;
