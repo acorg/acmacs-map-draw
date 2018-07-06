@@ -68,8 +68,7 @@ export class AntigenicMapWidget
             this.loading_message_.remove();
             delete this.loading_message_;
         }
-        console.log("draw_data", data);
-        this.viewer_.start();
+        this.viewer_.start(data);
         this.viewer_.draw();
     }
 
@@ -123,8 +122,12 @@ class MapViewer
         this.surface_ = new av_surface.Surface(canvas);
     }
 
-    start() {
+    start(data) {
         this.surface_.add_resizer(width_diff => { this.surface_.resize(width_diff); this.draw(); });
+        this._make_coloring_modes(data);
+        this._make_viewing_modes(data);
+        this.coloring("original");
+        this.viewing("all");
     }
 
     draw() {
@@ -138,6 +141,141 @@ class MapViewer
 
     resize(new_size) {
         this.surface_.resize(new_size);
+    }
+
+    coloring(mode_name, redraw=false) {
+        this.coloring_ = this.coloring_modes_.find(mode => mode.name() === mode_name) || this.coloring_modes_.find(mode => mode.name() === "original");
+        if (redraw)
+            this.draw();
+    }
+
+    viewing(mode_name, redraw=false) {
+        this.viewing_ = this.viewing_modes_.find(mode => mode.name() === mode_name) || this.viewing_modes_.find(mode => mode.name() === "all");
+        if (redraw)
+            this.draw();
+    }
+
+    _make_coloring_modes(data) {
+        const chart = data.c;
+        this.coloring_modes_ = [new ColoringOriginal(chart)];
+        if (chart.a.some(antigen => antigen.c && antigen.c.length > 0))
+            this.coloring_modes_.push(new ColoringByClade(chart.a));
+        this.coloring_modes_.push(new ColoringByAAatPos(chart.a));
+        if (chart.a.some(antigen => antigen.C))
+            this.coloring_modes_.push(new ColoringByGeography(chart.a));
+    }
+
+    _make_viewing_modes(data) {
+        const chart = data.c;
+        this.viewing_modes_ = [new ViewAll(chart), new ViewSearch(chart)];
+        if (chart.t.L && chart.t.L.length > 1)
+            this.viewing_modes_.push(new ViewTableSeries(chart));
+        if (chart.a.reduce((with_dates, antigen) => with_dates + (antigen.D ? 1 : 0), 0) > (chart.a.length * 0.25))
+            this.viewing_modes_.push(new ViewTimeSeries(chart));
+        this.viewing_modes_.push(new ViewGroups(chart));
+    }
+}
+
+// ----------------------------------------------------------------------
+
+class ColoringOriginal
+{
+    constructor(chart) {
+        this.chart_ = chart;
+    }
+
+    name() {
+        return "original";
+    }
+}
+
+class ColoringByClade
+{
+    constructor(antigens) {
+        this.antigens_ = antigens;
+    }
+
+    name() {
+        return "by clade";
+    }
+}
+
+class ColoringByAAatPos
+{
+    constructor(antigens) {
+        this.antigens_ = antigens;
+    }
+
+    name() {
+        return "by AA at pos";
+    }
+}
+
+class ColoringByGeography
+{
+    constructor(antigens) {
+        this.antigens_ = antigens;
+    }
+
+    name() {
+        return "by geography";
+    }
+}
+
+// ----------------------------------------------------------------------
+
+class ViewAll
+{
+    constructor(chart) {
+        this.chart_ = chart;
+    }
+
+    name() {
+        return "all";
+    }
+}
+
+class ViewSearch
+{
+    constructor(chart) {
+        this.chart_ = chart;
+    }
+
+    name() {
+        return "search";
+    }
+}
+
+class ViewTimeSeries
+{
+    constructor(chart) {
+        this.chart_ = chart;
+    }
+
+    name() {
+        return "time series";
+    }
+}
+
+class ViewTableSeries
+{
+    constructor(chart) {
+        this.chart_ = chart;
+    }
+
+    name() {
+        return "table series";
+    }
+}
+
+class ViewGroups
+{
+    constructor(chart) {
+        this.chart_ = chart;
+    }
+
+    name() {
+        return "groups";
     }
 }
 
