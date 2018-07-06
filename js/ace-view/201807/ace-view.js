@@ -188,10 +188,22 @@ class MapViewer
 
 // ----------------------------------------------------------------------
 
+class StyleAce
+{
+    constructor(plot_spec) {
+        this.plot_spec_ = plot_spec;
+    }
+
+    point(point_no) {
+        return this.plot_spec_.P[this.plot_spec_.p[point_no]];
+    }
+}
+
 class ColoringBase
 {
     constructor(chart) {
         this.chart_ = chart;
+        this.style = new StyleAce(chart.p);
     }
 
     drawing_order(drawing_order) {
@@ -238,7 +250,7 @@ class ViewingBase
 
     draw(surface, coloring) {
         for (let point_no of coloring.drawing_order(this.drawing_order())) {
-            this.map_viewer_.surface_.point(this.layout_[point_no], {S: "c", s: 1, F: "pink", O: "black", o: 1}, point_no, true);
+            this.map_viewer_.surface_.point(this.layout_[point_no], coloring.style.point(point_no), point_no, true);
         }
 
         // const drawing_order_background = this.drawing_order_background();
