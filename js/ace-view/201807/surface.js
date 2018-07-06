@@ -37,6 +37,11 @@ export class Transformation
         this.transformation_[1] = r1;
     }
 
+    angle() {
+        const p10 = this.transform([1, 0]);
+        return Math.atan2(p10[1], p10[0]);
+    }
+
     flip(x, y) {
         const inv = this._inverse();
         this._flip_transformed(x * inv[0] + y * inv[2], x * inv[1] + y * inv[3]);
@@ -186,13 +191,12 @@ export class Surface
     circle(args) {
         this.context_.save();
         try {
+            this.context_.translate.apply(this.context_, this.transformation_.transform(args.center));
+            this.context_.rotate((args.rotation || 0) + this.transformation_.angle());
             this.context_.beginPath();
-            if (args.rotation)
-                this.context_.rotate(args.rotation);
             if (args.aspect && args.aspect > 0 && args.aspect !== 1)
                 this.context_.scale(args.aspect, 1);
-            const center = this.transformation_.transform(args.center);
-            this.context_.arc(center[0], center[1], args.radius, 0, PI_mul_2);
+            this.context_.arc(0, 0, args.radius, 0, PI_mul_2);
             this.context_.strokeStyle = args.color || "black";
             this.context_.fillStyle = args.fill;
             this.context_.lineWidth = args.width * this.scale_inv_;
@@ -205,10 +209,35 @@ export class Surface
         this.context_.restore();
     }
 
-    // {center:, radius:, start: 0, end: Math.PI / 2, outline: "black", width: 1, radius_width:, radius_color: "black", radius_dashed: true, fill: "transparent", aspect: 1, rotation: 0}
+    // {center:, radius:, start: 0, end: Math.PI / 2, outline: "black", width: 1, radius_width: 1, radius_color: "black", radius_dashed: true, fill: "transparent"}
     sector(args) {
         this.context_.save();
         try {
+            this.context_.translate.apply(this.context_, this.transformation_.transform(args.center));
+            this.context_.rotate((args.rotation || 0) + this.transformation_.angle());
+
+            this.context_.beginPath();
+            this.context_.arc(0, 0, args.radius, args.start, args.end);
+            this.context_.strokeStyle = args.color || "black";
+            this.context_.lineWidth = (args.width === undefined ? 1 : args.width) * this.scale_inv_;
+            this.context_.stroke();
+
+            this.context_.beginPath();
+            this.context_.rotate(args.end);
+            this.context_.moveTo(args.radius, 0);
+            this.context_.lineTo(0, 0);
+            this.context_.rotate(args.start - args.end);
+            this.context_.lineTo(args.radius, 0);
+            this.context_.lineWidth = (args.radius_width === undefined ? 1 : args.radius_width) * this.scale_inv_;
+            this.context_.strokeStyle = args.radius_color || "black";
+            if (args.radius_dashed === undefined || args.radius_dashed)
+                this.context_.setLineDash([this.scale_inv_ * 6, this.scale_inv_ * 6]);
+            this.context_.stroke();
+            this.context_.rotate(-args.start);
+
+            this.context_.arc(0, 0, args.radius, args.start, args.end);
+            this.context_.fillStyle = args.fill;
+            this.context_.fill();
         }
         catch (err) {
             console.error("surface::line", err);

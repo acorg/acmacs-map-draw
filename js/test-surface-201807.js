@@ -109,7 +109,8 @@ class TestSurface
         this.surface.arrow({start: [-2, -4], end: [-4, 2]});
         this.surface.arrow({start: [-2, 4], end: [4, -2], head_width: 20, head_filled: false, head_color: "magenta"});
 
-        this.surface.circle({center: [-2, -3], radius: 1, fill: "rgba(0, 0, 255, 0.5)", aspect: 1.3});
+        this.surface.circle({center: [-2, -3], radius: 1, fill: "rgba(0, 0, 255, 0.5)", aspect: 1.3, rotation: 0.2});
+        this.surface.sector({center: [2, 2], start: 0.2, end: 0.2 + Math.PI / 4, radius: 2, fill: "rgba(255, 0, 255, 0.5)", aspect: 1, rotation: 0, width: 4});
     }
 
     // _slider_values() {
