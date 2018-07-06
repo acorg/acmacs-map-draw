@@ -26,6 +26,10 @@ export class Transformation
         return coord.length ? [coord[0] * this.transformation_[0] + coord[1] * this.transformation_[2], coord[0] * this.transformation_[1] + coord[1] * this.transformation_[3]] : [];
     }
 
+    transform_layout(layout) {
+        return layout.map(coord => this.transform(coord));
+    }
+
     rotate(angle) {
         const cos = Math.cos(angle);
         const sin = Math.sin(angle);
@@ -302,6 +306,10 @@ export class Surface
 
     _mouse_wheel_delta(evt) {
         return evt.originalEvent.deltaX != 0 ? evt.originalEvent.deltaX : evt.originalEvent.deltaY;
+    }
+
+    transformation(new_transformation) {
+        this.transformation_ = new Transformation(new_transformation);
     }
 
     viewport(new_viewport) {

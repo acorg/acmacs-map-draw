@@ -128,15 +128,18 @@ class MapViewer
         this._make_viewing_modes(data);
         this.coloring("original");
         this.viewing("all");
+        this.projection(0);
     }
 
     draw() {
+        // av_toolkit.mouse_popup_hide();
         this.surface_.reset();
         this.surface_.grid();
         this.surface_.border();
-
-        // this.points();
-        // this.lines();
+        this.viewing_.draw(this.surface_, this.coloring_);
+        // this.update_view_dialog();
+        // this.title();
+        // this.resize_title();
     }
 
     resize(new_size) {
@@ -151,72 +154,74 @@ class MapViewer
 
     viewing(mode_name, redraw=false) {
         this.viewing_ = this.viewing_modes_.find(mode => mode.name() === mode_name) || this.viewing_modes_.find(mode => mode.name() === "all");
+        if (this.projection_no_ !== undefined)
+            this.viewing_.projection(this.projection_no_);
         if (redraw)
             this.draw();
+    }
+
+    projection(projection_no) {
+        this.projection_no_ = projection_no;
+        this.viewing_.projection(this.projection_no_);
     }
 
     _make_coloring_modes(data) {
         const chart = data.c;
         this.coloring_modes_ = [new ColoringOriginal(chart)];
         if (chart.a.some(antigen => antigen.c && antigen.c.length > 0))
-            this.coloring_modes_.push(new ColoringByClade(chart.a));
-        this.coloring_modes_.push(new ColoringByAAatPos(chart.a));
+            this.coloring_modes_.push(new ColoringByClade(chart));
+        this.coloring_modes_.push(new ColoringByAAatPos(chart));
         if (chart.a.some(antigen => antigen.C))
-            this.coloring_modes_.push(new ColoringByGeography(chart.a));
+            this.coloring_modes_.push(new ColoringByGeography(chart));
     }
 
     _make_viewing_modes(data) {
         const chart = data.c;
-        this.viewing_modes_ = [new ViewAll(chart), new ViewSearch(chart)];
+        this.viewing_modes_ = [new ViewAll(this, chart), new ViewSearch(this, chart)];
         if (chart.t.L && chart.t.L.length > 1)
-            this.viewing_modes_.push(new ViewTableSeries(chart));
+            this.viewing_modes_.push(new ViewTableSeries(this, chart));
         if (chart.a.reduce((with_dates, antigen) => with_dates + (antigen.D ? 1 : 0), 0) > (chart.a.length * 0.25))
-            this.viewing_modes_.push(new ViewTimeSeries(chart));
-        this.viewing_modes_.push(new ViewGroups(chart));
+            this.viewing_modes_.push(new ViewTimeSeries(this, chart));
+        this.viewing_modes_.push(new ViewGroups(this, chart));
     }
 }
 
 // ----------------------------------------------------------------------
 
-class ColoringOriginal
+class ColoringBase
 {
     constructor(chart) {
         this.chart_ = chart;
     }
 
+    drawing_order(drawing_order) {
+        return drawing_order;
+    }
+}
+
+class ColoringOriginal extends ColoringBase
+{
     name() {
         return "original";
     }
 }
 
-class ColoringByClade
+class ColoringByClade extends ColoringBase
 {
-    constructor(antigens) {
-        this.antigens_ = antigens;
-    }
-
     name() {
         return "by clade";
     }
 }
 
-class ColoringByAAatPos
+class ColoringByAAatPos extends ColoringBase
 {
-    constructor(antigens) {
-        this.antigens_ = antigens;
-    }
-
     name() {
         return "by AA at pos";
     }
 }
 
-class ColoringByGeography
+class ColoringByGeography extends ColoringBase
 {
-    constructor(antigens) {
-        this.antigens_ = antigens;
-    }
-
     name() {
         return "by geography";
     }
@@ -224,56 +229,98 @@ class ColoringByGeography
 
 // ----------------------------------------------------------------------
 
-class ViewAll
+class ViewingBase
 {
-    constructor(chart) {
+    constructor(map_viewer, chart) {
+        this.map_viewer_ = map_viewer;
         this.chart_ = chart;
     }
 
+    draw(surface, coloring) {
+        for (let point_no of coloring.drawing_order(this.drawing_order())) {
+            this.map_viewer_.surface_.point(this.layout_[point_no], {S: "c", s: 1, F: "pink", O: "black", o: 1}, point_no, true);
+        }
+
+        // const drawing_order_background = this.drawing_order_background();
+        // if (drawing_order_background && drawing_order_background.length)
+        //     surface.points({drawing_order: this.widget.coloring.drawing_order(drawing_order_background, {background: true}),
+        //                             layout: chart.P[this.projection_no()].l,
+        //                             transformation: new ace_surface.Transformation(chart.P[this.projection_no()].t),
+        //                             styles: this.styles(),
+        //                             point_scale: this.point_scale(),
+        //                             show_as_background: this.show_as_background()});
+        // surface.points({drawing_order: this.widget.coloring.drawing_order(this.drawing_order()),
+        //                             layout: chart.P[this.projection_no()].l,
+        //                             transformation: new ace_surface.Transformation(chart.P[this.projection_no()].t),
+        //                             styles: this.styles(),
+        //                             point_scale: this.point_scale()});
+    }
+
+    projection(projection_no) {
+        if (projection_no < this.chart_.P.length) {
+            this.projection_no_ = projection_no;
+            this.layout_ = this.chart_.P[this.projection_no_].l;
+            this.map_viewer_.surface_.transformation(this.chart_.P[this.projection_no_].t);
+            this.map_viewer_.surface_.viewport(this._calculate_viewport());
+        }
+        else {
+            console.log("invalid projection_no", projection_no);
+        }
+    }
+
+    _calculate_viewport() {
+        const transformed_layout = this.map_viewer_.surface_.transformation_.transform_layout(this.layout_);
+        const corners = transformed_layout.reduce((target, coord) => {
+            if (coord.length)
+                return [[Math.min(target[0][0], coord[0]), Math.min(target[0][1], coord[1])], [Math.max(target[1][0], coord[0]), Math.max(target[1][1], coord[1])]];
+            else
+                return target;
+        }, [[1e10, 1e10], [-1e10, -1e10]]);
+        const size = [corners[1][0] - corners[0][0], corners[1][1] - corners[0][1]];
+        const whole_size = Math.ceil(Math.max(size[0], size[1]));
+        const to_whole = [(whole_size - size[0]) / 2, (whole_size - size[1]) / 2];
+        return [corners[0][0] - to_whole[0], corners[0][1] - to_whole[1], whole_size, whole_size];
+    }
+
+
+}
+
+// ----------------------------------------------------------------------
+
+class ViewAll extends ViewingBase
+{
     name() {
         return "all";
     }
+
+    drawing_order(coloring) {
+        return this.chart_.p.d || av_utils.array_of_indexes(this.layout_.length);
+    }
 }
 
-class ViewSearch
+class ViewSearch extends ViewingBase
 {
-    constructor(chart) {
-        this.chart_ = chart;
-    }
-
     name() {
         return "search";
     }
 }
 
-class ViewTimeSeries
+class ViewTimeSeries extends ViewingBase
 {
-    constructor(chart) {
-        this.chart_ = chart;
-    }
-
     name() {
         return "time series";
     }
 }
 
-class ViewTableSeries
+class ViewTableSeries extends ViewingBase
 {
-    constructor(chart) {
-        this.chart_ = chart;
-    }
-
     name() {
         return "table series";
     }
 }
 
-class ViewGroups
+class ViewGroups extends ViewingBase
 {
-    constructor(chart) {
-        this.chart_ = chart;
-    }
-
     name() {
         return "groups";
     }
