@@ -36,7 +36,8 @@
 
 static void register_hooks(apr_pool_t *pool);
 static int acmacs_handler(request_rec *r);
-static void make_html(request_rec *r, const char* view_mode, const char* coloring);
+static void make_html201805(request_rec *r, const char* view_mode, const char* coloring);
+static void make_html201807(request_rec *r, const char* view_mode, const char* coloring);
 static void make_ace(request_rec *r);
 static int process_post_request(request_rec *r);
 static void command_download_pdf(request_rec *r, const rjson::object& args);
@@ -90,10 +91,15 @@ static int acmacs_handler(request_rec *r) {
 
     try {
         int rc = OK;
-        if (acv == "html") {
+        if (acv == "html" || acv == "html201805") {
             const char* view_mode = apr_table_get(GET, "view-mode");
             const char* coloring = apr_table_get(GET, "coloring");
-            make_html(r, view_mode ? view_mode : "best-projection", coloring ? coloring : "default");
+            make_html201805(r, view_mode ? view_mode : "best-projection", coloring ? coloring : "default");
+        }
+        else if (acv == "html201807") {
+            // const char* view_mode = apr_table_get(GET, "view-mode");
+            // const char* coloring = apr_table_get(GET, "coloring");
+            make_html201807(r, "all", "original");
         }
         else if (acv == "ace") {
             make_ace(r);
@@ -115,7 +121,35 @@ static int acmacs_handler(request_rec *r) {
 
 // ----------------------------------------------------------------------
 
-static const char* sHtml = R"(
+static const char* sHtml201807 = R"(
+<!DOCTYPE html>
+<html>
+  <head>
+   <meta charset="utf-8" />
+   <title>%s</title>
+   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+   <script type="module">
+     import * as mod from "/js/ad/map-draw/ace-view/201807/apache-mod-acmacs.js";
+     $(document).ready(() => mod.show_antigenic_map_widget({parent: $("#map1"), view_mode: {mode: "%s"}, coloring: "%s", uri: "%s"}));
+   </script>
+   <style>body { margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }</style>
+  </head>
+  <body>
+    <div id="map1"></div>
+  </body>
+</html>
+)";
+
+void make_html201807(request_rec *r, const char* view_mode, const char* coloring)
+{
+    ap_set_content_type(r, "text/html");
+    ap_rprintf(r, sHtml201807, r->filename, view_mode, coloring, r->uri);
+
+} // make_html201807
+
+// ----------------------------------------------------------------------
+
+static const char* sHtml201805 = R"(
 <!DOCTYPE html>
 <html>
   <head>
@@ -134,13 +168,13 @@ static const char* sHtml = R"(
 </html>
 )";
 
-void make_html(request_rec *r, const char* view_mode, const char* coloring)
+void make_html201805(request_rec *r, const char* view_mode, const char* coloring)
 {
     // ap_log_rerror(AP_WARN, r, "uri: %s", r->uri);
     // ap_log_rerror(AP_WARN, r, "path_info: %s", r->path_info);
 
     ap_set_content_type(r, "text/html");
-    ap_rprintf(r, sHtml, r->filename, view_mode, coloring, r->uri);
+    ap_rprintf(r, sHtml201805, r->filename, view_mode, coloring, r->uri);
 
 } // make_html
 

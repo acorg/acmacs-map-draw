@@ -281,8 +281,7 @@ export class Surface
     // --------------------------------------------------
 
     reset() {
-        this.context_.fillStyle = "#F8F8F8";
-        this.context_.fillRect(0, 0, this.canvas_.width(), this.canvas_.height()); // clear canvas, otherwise chrome makes it black
+        this.background({color: "#FBFBFB"});
     }
 
     width() {

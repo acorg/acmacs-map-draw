@@ -13,12 +13,12 @@
 .av-window-resizer {
     position: absolute;
     right: -2px;
-    bottom: 0;
+    bottom: 1px;
     z-index: 1;
-    width: 0.5em;
-    height: 0.5em;
-    border-right: 2px solid #B0B0B0;
-    border-bottom: 2px solid #B0B0B0;
+    width: 1em;
+    height: 1em;
+    border-right: 5px solid #B0B0B0;
+    border-bottom: 5px solid #B0B0B0;
     cursor: nwse-resize;
 }
 

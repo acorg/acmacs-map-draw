@@ -1,0 +1,97 @@
+.amw201807 {
+    display: block;
+    margin: 0;
+    padding: 0.5em 0.7em;
+    width: auto;
+    height: auto;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* ---------------------------------------------------------------------- */
+
+.amw201807 td.av-canvas > div {
+    background-color: #F0F0F0;
+}
+
+.amw201807 .av-loading-message {
+    position: absolute;
+    font-size: 1.5em;
+    z-index: 1;
+    text-align: center;
+}
+
+/* ---------------------------------------------------------------------- */
+/* title */
+/* ---------------------------------------------------------------------- */
+
+.amw201807 .av-title > .av-left {
+    float: left;
+    position: relative;
+}
+
+.amw201807 .av-title .av-left > * {
+    float: left;
+}
+
+.amw201807 .av-title * {
+    vertical-align: bottom;
+    height: 1em;
+}
+
+.amw201807 .av-title > .av-title-title {
+    float: left;
+    white-space: nowrap;
+    overflow: auto;
+    text-align: center;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+.amw201807 .av-title > .av-title-title > span {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    user-select: text;
+}
+
+.amw201807 .av-title .av-right {
+    float: right;
+}
+
+.amw201807 .av-title .av-right > * {
+    float: left;
+}
+
+.amw201807 .av-title .av-arrow {
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1.2em;
+    position: relative;
+    bottom: 0.2em;
+}
+
+.amw201807 .av-title .av-arrow:hover {
+    color: #00A000;
+}
+
+.amw201807 .av-title .av-left-arrow {
+    display: none;
+    padding-right: 3px;
+}
+
+.amw201807 .av-title .av-right-arrow {
+    display: none;
+    padding-left: 3px;
+}
+
+.amw201807 .av-title .av-burger {
+    cursor: context-menu;
+    padding-left: 3px;
+    position: relative;
+    bottom: 0.2em;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Local Variables: */
+/* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */
+/* End: */
