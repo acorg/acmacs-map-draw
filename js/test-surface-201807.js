@@ -111,6 +111,11 @@ class TestSurface
 
         this.surface.circle({center: [-2, -3], radius: 1, fill: "rgba(0, 0, 255, 0.5)", aspect: 1.3, rotation: 0.2});
         this.surface.sector({center: [2, 2], start: 0.2, end: 0.2 + Math.PI / 4, radius: 2, fill: "rgba(255, 0, 255, 0.5)", aspect: 1, rotation: 0, width: 4});
+
+        const text1 = {origin: [-4, 4], text: "Abyrvalg", color: "red", size: 16, rotation: 0};
+        this.surface.text(text1);
+        const text_width = this.surface.text_width({text: text1.text, size: text1.size});
+        this.surface.text(Object.assign({}, text1, {origin: [text1.origin[0] + text_width, text1.origin[1]], color: "#008000"}));
     }
 
     // _slider_values() {

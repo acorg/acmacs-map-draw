@@ -182,7 +182,7 @@ export class Surface
             this._line(start, line_end, args.color || "black", args.width === undefined ? 1 : args.width);
         }
         catch (err) {
-            console.error("surface::line", err);
+            console.error("surface::arrow", err);
         }
         this.context_.restore();
     }
@@ -204,7 +204,7 @@ export class Surface
             this.context_.stroke();
         }
         catch (err) {
-            console.error("surface::line", err);
+            console.error("surface::circle", err);
         }
         this.context_.restore();
     }
@@ -240,24 +240,42 @@ export class Surface
             this.context_.fill();
         }
         catch (err) {
-            console.error("surface::line", err);
+            console.error("surface::sector", err);
         }
         this.context_.restore();
     }
 
-    // {origin:, text:, color: "black", size: 12, rotation: 0}
+    // {origin:, text:, color: "black", size: 16, rotation: 0}
     text(args) {
         this.context_.save();
         try {
+            this.context_.translate.apply(this.context_, this.transformation_.transform(args.origin));
+            if (args.rotation)
+                this.context_.rotate(args.rotation);
+            this.context_.beginPath();
+            this.context_.font = "1px sans-serif";
+            const scale = (args.size === undefined ? 16 : args.size) * this.scale_inv_;
+            this.context_.scale(scale, scale);
+            this.context_.fillStyle = args.color || "black";
+            this.context_.fillText(args.text, 0, 0);
         }
         catch (err) {
-            console.error("surface::line", err);
+            console.error("surface::text", err);
         }
         this.context_.restore();
     }
 
-    // {text:, size: 12}
-    text_size(args) {
+    // {text:, size: 16}
+    text_width(args) {
+        this.context_.save();
+        try {
+            this.context_.font = "1px sans-serif";
+            return this.context_.measureText(args.text).width * (args.size === undefined ? 16 : args.size) * this.scale_inv_;
+        }
+        catch (err) {
+            console.error("surface::text_width", err);
+        }
+        this.context_.restore();
     }
 
     // --------------------------------------------------
