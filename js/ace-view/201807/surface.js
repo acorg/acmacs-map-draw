@@ -1,7 +1,8 @@
 import * as av_toolkit from "./toolkit.js";
 import * as av_utils from "./utils.js";
 
-const PI_2 = Math.PI / 2;
+const PI_div_2 = Math.PI / 2;
+const PI_mul_2 = Math.PI * 2;
 
 // 3D links
 // https://stackoverflow.com/questions/35518381/how-to-shade-the-circle-in-canvas
@@ -171,7 +172,7 @@ export class Surface
             const end = this.transformation_.transform(args.end);
             const x_eq = start[0] === end[0];
             const sign2 = x_eq ? (start[1] < end[1] ? 1 : -1) : (start[0] > end[0] ? 1 : -1);
-            const angle = x_eq ? - PI_2 : Math.atan((end[1] - start[1]) / (end[0] - start[0]));
+            const angle = x_eq ? - PI_div_2 : Math.atan((end[1] - start[1]) / (end[0] - start[0]));
             const line_end = this._arrow_head(end, angle, sign2, args.head_color || "black", args.head_width || 5, args.head_filled === undefined ? true : args.head_filled);
             this._line(start, line_end, args.color || "black", args.width === undefined ? 1 : args.width);
         }
@@ -183,14 +184,47 @@ export class Surface
 
     // {center:, radius:, outline: "black", width: 1, fill: "transparent", aspect: 1, rotation: 0}
     circle(args) {
+        this.context_.save();
+        try {
+            this.context_.beginPath();
+            if (args.rotation)
+                this.context_.rotate(args.rotation);
+            if (args.aspect && args.aspect > 0 && args.aspect !== 1)
+                this.context_.scale(args.aspect, 1);
+            const center = this.transformation_.transform(args.center);
+            this.context_.arc(center[0], center[1], args.radius, 0, PI_mul_2);
+            this.context_.strokeStyle = args.color || "black";
+            this.context_.fillStyle = args.fill;
+            this.context_.lineWidth = args.width * this.scale_inv_;
+            this.context_.fill();
+            this.context_.stroke();
+        }
+        catch (err) {
+            console.error("surface::line", err);
+        }
+        this.context_.restore();
     }
 
     // {center:, radius:, start: 0, end: Math.PI / 2, outline: "black", width: 1, radius_width:, radius_color: "black", radius_dashed: true, fill: "transparent", aspect: 1, rotation: 0}
     sector(args) {
+        this.context_.save();
+        try {
+        }
+        catch (err) {
+            console.error("surface::line", err);
+        }
+        this.context_.restore();
     }
 
     // {origin:, text:, color: "black", size: 12, rotation: 0}
     text(args) {
+        this.context_.save();
+        try {
+        }
+        catch (err) {
+            console.error("surface::line", err);
+        }
+        this.context_.restore();
     }
 
     // {text:, size: 12}
@@ -306,8 +340,8 @@ export class Surface
         const arrow_width = head_width * this.scale_inv_;
         const arrow_length = arrow_width * ARROW_WIDTH_TO_LENGTH_RATIO;
         const line_attachment_point = [end[0] + sign * arrow_length * Math.cos(angle), end[1] + sign * arrow_length * Math.sin(angle)];
-        const arrow_base_1 = [line_attachment_point[0] + sign * arrow_width * Math.cos(angle + PI_2) * 0.5, line_attachment_point[1] + sign * arrow_width * Math.sin(angle + PI_2) * 0.5];
-        const arrow_base_2 = [line_attachment_point[0] + sign * arrow_width * Math.cos(angle - PI_2) * 0.5, line_attachment_point[1] + sign * arrow_width * Math.sin(angle - PI_2) * 0.5];
+        const arrow_base_1 = [line_attachment_point[0] + sign * arrow_width * Math.cos(angle + PI_div_2) * 0.5, line_attachment_point[1] + sign * arrow_width * Math.sin(angle + PI_div_2) * 0.5];
+        const arrow_base_2 = [line_attachment_point[0] + sign * arrow_width * Math.cos(angle - PI_div_2) * 0.5, line_attachment_point[1] + sign * arrow_width * Math.sin(angle - PI_div_2) * 0.5];
         const path = [end, arrow_base_1, arrow_base_2];
         if (head_filled)
             this._path_fill(path, color);
@@ -430,11 +464,6 @@ export class Surface
 
 // ----------------------------------------------------------------------
 
-function draw_circle(context, radius)
-{
-    context.arc(0, 0, radius, 0, 2*Math.PI);
-}
-
 function draw_box(context, radius)
 {
     context.moveTo(- radius, - radius);
@@ -465,7 +494,7 @@ function draw_shape(context, shape, radius)
     context.beginPath();
     switch (shape[0].toLowerCase()) {
     case "c":
-        draw_circle(context, radius);
+        context.arc(0, 0, radius, 0, PI_mul_2);
         break;
     case "b":
     case "r":
