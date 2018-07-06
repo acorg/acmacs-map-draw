@@ -57,7 +57,7 @@ export class AntigenicMapWidget
         this.div_ = $(div);
         this.options_ = Object.assign({}, AntigenicMapWidget_default_options, options);
         this.div_.addClass("amw201807").attr("amw201805_id", new_id()).append(AntigenicMapWidget_content_html);
-        this.viewer_ = new MapViewer(this.div_.find("canvas"));
+        this.viewer_ = new MapViewer(this, this.div_.find("canvas"));
         this._viewer_size();
         this._bind();
         this._load_and_draw(data);
@@ -118,17 +118,18 @@ export class AntigenicMapWidget
 
 class MapViewer
 {
-    constructor(canvas) {
+    constructor(widget, canvas) {
+        this.widget_ = widget;
         this.surface_ = new av_surface.Surface(canvas);
     }
 
     start(data) {
-        this.surface_.add_resizer(width_diff => { this.surface_.resize(width_diff); this.draw(); });
         this._make_coloring_modes(data);
         this._make_viewing_modes(data);
         this.coloring("original");
         this.viewing("all");
         this.projection(0);
+        this._bind();
     }
 
     draw() {
@@ -163,6 +164,55 @@ class MapViewer
     projection(projection_no) {
         this.projection_no_ = projection_no;
         this.viewing_.projection(this.projection_no_);
+    }
+
+    _drawing_order() {
+        return this.coloring_.drawing_order(this.viewing_.drawing_order());
+    }
+
+    _bind() {
+        this.surface_.add_resizer(width_diff => { this.surface_.resize(width_diff); this.draw(); });
+
+        let mousemove_timeout_id = undefined;
+        this.surface_.canvas_.on("mousemove", evt => {
+            window.clearTimeout(mousemove_timeout_id);
+            mousemove_timeout_id = window.setTimeout(me => this._show_point_info(this.surface_.find_points_at_pixel_offset(this.surface_.mouse_offset(evt), this._drawing_order())), this.widget_.options_.point_info_on_hover_delay, evt);
+        });
+        this.surface_.canvas_.on("mouseleave", evt => window.clearTimeout(mousemove_timeout_id));
+
+        this.surface_.canvas_.on("wheel DOMMouseScroll", evt => av_utils.forward_event(evt, evt => {
+            if (evt.shiftKey) // Shift-Wheel -> point_scale
+                this.surface_.point_scale_with_mouse(evt);
+            else if (evt.altKey) // Alt-Wheel -> zoom
+                this.surface_.zoom_with_mouse(evt);
+            else if (evt.ctrlKey) // Ctrl-Wheel -> rotate
+                this.surface_.rotate_with_mouse(evt);
+            this.draw();
+        }));
+
+        this.surface_.canvas_.on("contextmenu", evt => { if (evt.ctrlKey) av_utils.forward_event(evt); }); // block context menu on ctrl-click (but allow on the right-click)
+        this.surface_.canvas_.on("click", evt => av_utils.forward_event(evt, evt => {
+            if (evt.ctrlKey) { // Ctrl-click -> flip
+                this.surface_.flip_ew(evt);
+                this.draw();
+            }
+        }));
+
+        this.surface_.canvas_.on("mousedown", evt => av_utils.forward_event(evt, evt => {
+            if (evt.altKey) {   // Alt-Drag - pan
+                let mousedown_pos = {left: evt.clientX, top: evt.clientY};
+                document.onmouseup = () => { document.onmouseup = document.onmousemove = null; };
+                document.onmousemove = evt => {
+                    this.surface_.move_relative(mousedown_pos.left - evt.clientX, mousedown_pos.top - evt.clientY);
+                    mousedown_pos = {left: evt.clientX, top: evt.clientY};
+                    this.draw();
+                };
+            }
+        }));
+    }
+
+    _show_point_info(points) {
+        console.log("hovered points", points);
     }
 
     _make_coloring_modes(data) {
