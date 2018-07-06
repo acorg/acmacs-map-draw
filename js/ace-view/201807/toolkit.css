@@ -23,6 +23,40 @@
 }
 
 /* ---------------------------------------------------------------------- */
+
+#amw201807-mouse-popup {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 800;
+    background: #FFFFF0;
+    color: blue;
+    padding: 0;
+}
+
+#amw201807-mouse-popup ul.point-info-on-hover {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#amw201807-mouse-popup ul.point-info-on-hover li {
+    font-size: 1em;
+    font-weight: bold;
+    margin: 0.5em;
+    white-space: nowrap;
+}
+
+#amw201807-mouse-popup ul.point-info-on-hover a:link {
+    color: blue;
+}
+
+#amw201807-mouse-popup ul.point-info-on-hover a:visited {
+    color: blue;
+}
+
+/* ---------------------------------------------------------------------- */
 /* Local Variables: */
 /* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */
 /* End: */

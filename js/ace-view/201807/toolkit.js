@@ -61,76 +61,76 @@ export function drag(evt, callback) {
 
 // ----------------------------------------------------------------------
 
-// class Popup_Base {
+class Popup_Base {
 
-//     constructor(css_classes) {
-//         this.css_classes = css_classes;
-//     }
+    constructor(css_classes) {
+        this.css_classes = css_classes;
+    }
 
-//     destroy() {
-//         this.find_element().remove();
-//     }
+    destroy() {
+        this.find_element().remove();
+    }
 
-//     find_or_create() {
-//         let elt = this.find_element();
-//         if (elt.length === 0) {
-//             elt = this.create_element();
-//             if (this.css_classes)
-//                 elt.addClass(this.css_classes);
-//         }
-//         return elt;
-//     }
+    find_or_create() {
+        let elt = this.find_element();
+        if (elt.length === 0) {
+            elt = this.create_element();
+            if (this.css_classes)
+                elt.addClass(this.css_classes);
+        }
+        return elt;
+    }
 
-//     show(contents, parent, offsets_to_parent) {
-//         this.hide();
-//         const popup = this.find_or_create();
-//         popup.empty();
-//         if (typeof(contents) === "function")
-//             contents(popup);
-//         else
-//             popup.append(contents);
-//         popup.css({left: offsets_to_parent.left + parent.offset().left, top: offsets_to_parent.top + parent.offset().top}).show();
-//         return this;
-//     }
+    show(contents, parent, offsets_to_parent) {
+        this.hide();
+        const popup = this.find_or_create();
+        popup.empty();
+        if (typeof(contents) === "function")
+            contents(popup);
+        else
+            popup.append(contents);
+        popup.css({left: offsets_to_parent.left + parent.offset().left, top: offsets_to_parent.top + parent.offset().top}).show();
+        return this;
+    }
 
-//     // show_ul(text_rows, parent, offsets_to_parent) {
-//     //     this.show($("<ul></ul>").append(text_rows.map(text => "<li>" + text + "</li>").join("")), parent, offsets_to_parent);
-//     // }
+    // show_ul(text_rows, parent, offsets_to_parent) {
+    //     this.show($("<ul></ul>").append(text_rows.map(text => "<li>" + text + "</li>").join("")), parent, offsets_to_parent);
+    // }
 
-//     classes(classes) {
-//         if (classes)
-//             this.find_or_create().addClass(classes);
-//         return this;
-//     }
+    classes(classes) {
+        if (classes)
+            this.find_or_create().addClass(classes);
+        return this;
+    }
 
-//     hide() {
-//         this.find_element().hide();
-//     }
-// }
+    hide() {
+        this.find_element().hide();
+    }
+}
 
-// // ----------------------------------------------------------------------
+// ----------------------------------------------------------------------
 
-// const MousePopup_id = "amw201805-mouse-popup";
+const MousePopup_id = "amw201807-mouse-popup";
 
-// class MousePopup extends Popup_Base {
+class MousePopup extends Popup_Base {
 
-//     find_element() {
-//         return $("#" + MousePopup_id);
-//     }
+    find_element() {
+        return $("#" + MousePopup_id);
+    }
 
-//     create_element() {
-//         return $("<div id='" + MousePopup_id + "'></div>").appendTo($("body"));
-//     }
-// }
+    create_element() {
+        return $("<div id='" + MousePopup_id + "'></div>").appendTo($("body"));
+    }
+}
 
-// // returns popup div
-// export function mouse_popup_show(contents, parent, offsets_to_parent, classes="a-window-shadow") {
-//     return new MousePopup().classes(classes).show(contents, parent, offsets_to_parent).find_element();
-// }
+// returns popup div
+export function mouse_popup_show(contents, parent, offsets_to_parent, classes="av201807-window-shadow") {
+    return new MousePopup().classes(classes).show(contents, parent, offsets_to_parent).find_element();
+}
 
-// export function mouse_popup_hide() {
-//     return $("#" + MousePopup_id).hide();
-// }
+export function mouse_popup_hide() {
+    return $("#" + MousePopup_id).hide();
+}
 
 // // ----------------------------------------------------------------------
 

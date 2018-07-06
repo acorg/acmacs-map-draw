@@ -297,7 +297,7 @@ export class Surface
     }
 
     zoom_with_mouse(evt) {
-        this.zoom(this._translate_pixel_offset(this._mouse_offset(evt)), this._mouse_wheel_delta(evt) > 0 ? 1.05 : (1 / 1.05));
+        this.zoom(this._translate_pixel_offset(this.mouse_offset(evt)), this._mouse_wheel_delta(evt) > 0 ? 1.05 : (1 / 1.05));
     }
 
     rotate_with_mouse(evt) {
@@ -376,6 +376,13 @@ export class Surface
 
     move_relative(x, y) {
         this.viewport(new Viewport(this.viewport_).move_relative(x * this.scale_inv_, y * this.scale_inv_));
+    }
+
+    mouse_offset(mouse_event) {
+        const border_width = Number.parseFloat(this.canvas_.css("border-width") || "0");
+        const offset_x = border_width + parseFloat(this.canvas_.css("padding-left") || "0");
+        const offset_y = border_width + parseFloat(this.canvas_.css("padding-top") || "0");
+        return {left: mouse_event.offsetX - offset_x, top: mouse_event.offsetY - offset_y};
     }
 
     // --------------------------------------------------
@@ -476,13 +483,6 @@ export class Surface
         return {left: offset.left * this.scale_inv_ + this.viewport_.left(), top: offset.top * this.scale_inv_ + this.viewport_.top()};
     }
 
-    _mouse_offset(mouse_event) {
-        const border_width = parseFloat(this.canvas_.css("border-width"));
-        const offset_x = border_width + parseFloat(this.canvas_.css("padding-left"));
-        const offset_y = border_width + parseFloat(this.canvas_.css("padding-top"));
-        return {left: mouse_event.offsetX - offset_x, top: mouse_event.offsetY - offset_y};
-    }
-
     grid(args={line_color: "#CCCCCC", line_width: 1, step: 1}) {
         this.context_.beginPath();
         for (var x = this.viewport_.left() + args.step; x < this.viewport_.right(); x += args.step) {
@@ -506,13 +506,6 @@ export class Surface
     border(args={line_color: "#A0A0A0", line_width: 1}) {
         this.canvas_.css("border", "" + args.line_width + "px solid " + args.line_color);
     }
-
-    mouse_offset(mouse_event) {
-        const border_width = Number.parseFloat(this.canvas_.css("border-width") || "0");
-        const offset_x = border_width + parseFloat(this.canvas_.css("padding-left") || "0");
-        const offset_y = border_width + parseFloat(this.canvas_.css("padding-top") || "0");
-        return {left: mouse_event.offsetX - offset_x, top: mouse_event.offsetY - offset_y};
-    };
 
 }
 
