@@ -117,6 +117,13 @@ export class AntigenicMapWidget
         }
     }
 
+    view_dialog(func, args) {
+        if (this.view_dialog_)
+            return this.view_dialog_[func](args);
+        else
+            return undefined;
+    }
+
     _load_and_draw(data) {
         const loaded = data => this.draw_data(data);
         const failed = deffered => {
@@ -254,6 +261,10 @@ const ViewDialog_html = "\
   <tr>\
     <td class='av-label'>Coloring</td><td class='coloring'></td>\
   </tr>\
+  <tr class='coloring-aa-pos'>\
+    <td class='av-label'>Positions</td>\
+    <td class='coloring-aa-pos'><input type='text'></input><a href='coloring-aa-pos-hint'>hint</a></td>\
+  </tr>\
   <tr class='coloring-legend'>\
     <td class='av-label'>Legend</td>\
     <td class='coloring-legend'></td>\
@@ -261,10 +272,6 @@ const ViewDialog_html = "\
 </table>\
 ";
 
-//   <tr class='coloring-aa-pos'>\
-//     <td class='a-label'>Positions</td>\
-//     <td class='coloring-aa-pos'><input type='text'></input><a href='coloring-aa-pos-hint'>hint</a></td>\
-//   </tr>\
 //   <tr>\
 //     <td class='a-label'>Mode</td>\
 //     <td class='mode'></td>\
@@ -365,6 +372,18 @@ class ViewDialog
         this._coloring_chooser(table.find(".coloring"));
     }
 
+    coloring_changed() {
+        this._show_aa_at_pos();
+    }
+
+    viewing_changed() {
+    }
+
+    aa_at_pos_changed() {
+        this._show_aa_at_pos();
+        this._show_legend();
+    }
+
     position() {
         this.window_.position(this.canvas_);
     }
@@ -410,6 +429,7 @@ class ViewDialog
         for (let coloring_mode of this.widget_.viewer_.coloring_modes_)
             selector.add(coloring_mode.name());
         selector.current(this.widget_.viewer_.coloring_.name());
+        this._show_aa_at_pos();
         this._show_legend();
     }
 
@@ -427,6 +447,15 @@ class ViewDialog
         else {
             this.content_.find("tr.coloring-legend").hide();
         }
+    }
+
+    _show_aa_at_pos() {
+        const tr = this.content_.find("tr.coloring-aa-pos");
+        if (this.widget_.viewer_.coloring_ instanceof ColoringByAAatPos) {
+            tr.show();
+        }
+        else
+            tr.hide();
     }
 }
 
@@ -515,6 +544,7 @@ class MapViewer
         this.coloring_.start_using();
         if (redraw)
             this.draw();
+        this.widget_.view_dialog("coloring_changed");
     }
 
     viewing(mode_name, redraw=false) {
@@ -523,6 +553,7 @@ class MapViewer
             this.viewing_.projection(this.projection_no_);
         if (redraw)
             this.draw();
+        this.widget_.view_dialog("viewing_changed");
     }
 
     projection(projection_no, redraw=false) {
@@ -851,9 +882,8 @@ class ColoringByAAatPos extends ColoringBase
     }
 
     _sequences_received(data) {
-        console.log("_sequences_received", data);
         this.sequences_ = data;
-        // this.widget_.update_view_dialog();
+        this.widget_.view_dialog("aa_at_pos_changed");
     }
 }
 

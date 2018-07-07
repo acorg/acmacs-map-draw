@@ -165,6 +165,37 @@
     font-family: monospace;
 }
 
+.av201807-view-dialog .av-view-dialog tr.coloring-aa-pos > td.coloring-aa-pos > a {
+    /* text-decoration: none; */
+    margin-left: 1em;
+}
+
+/*
+.coloring-aa-pos-hint > .a-content {
+    margin-top: 1em;
+}
+
+.coloring-aa-pos-hint > .a-content > a {
+    text-decoration: none;
+    margin: 0 0 0.5em 1em;
+}
+
+.coloring-aa-pos-hint > .a-content > table td.a-pos {
+    text-align: right;
+    padding-right: 0.2em;
+}
+
+.coloring-aa-pos-hint > .a-content > table td.a-aa {
+    text-align: center;
+    padding-left: 0.3em;
+    border-left: thin solid grey;
+}
+
+.coloring-aa-pos-hint > .a-content > table td.a-count {
+    text-align: right;
+    padding-right: 0.3em;
+}
+*/
 
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */
