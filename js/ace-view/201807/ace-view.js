@@ -598,7 +598,7 @@ class ColoringBase
     }
 
     drawing_order(drawing_order) {
-        return drawing_order;
+        return drawing_order || av_utils.array_of_indexes(this.chart_.a.length + this.chart_.s.length);
     }
 
     // {reset_sera: false}
@@ -681,16 +681,16 @@ class ColoringByClade extends ColoringBase
     }
 
     drawing_order(drawing_order) {
-        return drawing_order;
+        // order: sera, not sequenced, sequenced without clade, clade with max number of antigens, ..., clade with fewer antigens
+        return super.drawing_order(drawing_order).slice(0).sort((p1, p2) => this.point_rank_[p1] - this.point_rank_[p2]);
     }
 
     _make_antigens_by_clade(args) {
-        const drawing_order = av_utils.array_of_indexes(this.chart_.a.length + this.chart_.s.length);
         const clade_sorting_key = clade => (clade === "GLY" || clade === "NO-GLY" || clade === "SEQUENCED") ? 0 : clade.length;
         this.clade_to_number_of_antigens_ = {};
         if (args && args.set_clade_for_antigen)
             this.clade_for_antigen_ = Array.apply(null, {length: this.chart_.a.length}).map(() => "");
-        drawing_order.filter(no => no < this.chart_.a.length).forEach(antigen_no => {
+        super.drawing_order().filter(no => no < this.chart_.a.length).forEach(antigen_no => {
             const clades = (this.chart_.a[antigen_no].c || []).sort((a, b) => clade_sorting_key(b) - clade_sorting_key(a));
             let clade = clades.length > 0 ? clades[0] : "";
             if (clade === "GLY" || clade === "NO-GLY")
