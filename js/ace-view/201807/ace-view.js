@@ -88,9 +88,33 @@ export class AntigenicMapWidget
             this.loading_message_.remove();
             delete this.loading_message_;
         }
-        this.viewer_.start(data);
+        this.chart_ = data.c;
+        this.viewer_.start();
         this.viewer_.draw();
         this.title_.update();
+    }
+
+    async sequences() {
+        if (this.sequences_ === undefined) {
+            this.sequences_ = "loading, please wait";
+            return this.options_.api.get_sequences().then(
+                data => {
+                    this.sequences_ = data.sequences;
+                    return new Promise(resolve => resolve(this.sequences_));
+                },
+                error => {
+                    this.sequences_ = "Error: " + error;
+                    return new Promise((_, reject) => reject(error));
+                });
+        }
+        else {
+            return new Promise((resolve, reject) => {
+                if (typeof(this.sequences_) === "string" && this.sequences_.substr(0, 6) === "Error:")
+                    reject(this.sequences_);
+                else
+                    resolve(this.sequences_);
+            });
+        }
     }
 
     _load_and_draw(data) {
@@ -455,9 +479,9 @@ class MapViewer
         this.surface_ = new av_surface.Surface(canvas);
     }
 
-    start(data) {
-        this._make_coloring_modes(data);
-        this._make_viewing_modes(data);
+    start() {
+        this._make_coloring_modes();
+        this._make_viewing_modes();
         this.coloring("original");
         this.viewing("all");
         this.projection(0);
@@ -488,6 +512,7 @@ class MapViewer
 
     coloring(mode_name, redraw=false) {
         this.coloring_ = this.coloring_modes_.find(mode => mode.name() === mode_name) || this.coloring_modes_.find(mode => mode.name() === "original");
+        this.coloring_.start_using();
         if (redraw)
             this.draw();
     }
@@ -586,18 +611,18 @@ class MapViewer
         av_toolkit.mouse_popup_hide();
     }
 
-    _make_coloring_modes(data) {
-        const chart = data.c;
-        this.coloring_modes_ = [new ColoringOriginal(chart)];
+    _make_coloring_modes() {
+        const chart = this.widget_.chart_;
+        this.coloring_modes_ = [new ColoringOriginal(this.widget_)];
         if (chart.a.some(antigen => antigen.c && antigen.c.length > 0))
-            this.coloring_modes_.push(new ColoringByClade(chart));
-        this.coloring_modes_.push(new ColoringByAAatPos(chart));
+            this.coloring_modes_.push(new ColoringByClade(this.widget_));
+        this.coloring_modes_.push(new ColoringByAAatPos(this.widget_));
         if (chart.a.some(antigen => antigen.C))
-            this.coloring_modes_.push(new ColoringByGeography(chart));
+            this.coloring_modes_.push(new ColoringByGeography(this.widget_));
     }
 
-    _make_viewing_modes(data) {
-        const chart = data.c;
+    _make_viewing_modes() {
+        const chart = this.widget_.chart_;
         this.viewing_modes_ = [new ViewAll(this, chart), new ViewSearch(this, chart)];
         if (chart.t.L && chart.t.L.length > 1)
             this.viewing_modes_.push(new ViewTableSeries(this, chart));
@@ -611,8 +636,9 @@ class MapViewer
 
 class ColoringBase
 {
-    constructor(chart) {
-        this.chart_ = chart;
+    constructor(widget) {
+        this.widget_ = widget;
+        this.chart_ = widget.chart_;
     }
 
     drawing_order(drawing_order) {
@@ -621,6 +647,13 @@ class ColoringBase
 
     legend() {
         return null;
+    }
+
+    start_using() {
+    }
+
+    point_style(point_no) {
+        return this.styles_[point_no];
     }
 
     // {reset_sera: false}
@@ -688,18 +721,15 @@ const sCladeColors = {
 
 class ColoringByClade extends ColoringBase
 {
-    constructor(chart) {
-        super(chart);
-        this._make_antigens_by_clade({set_clade_for_antigen: true});
-        this._make_styles();
-    }
-
     name() {
         return "by clade";
     }
 
-    point_style(point_no) {
-        return this.styles_[point_no];
+    start_using() {
+        if (!this.styles_) {
+            this._make_antigens_by_clade({set_clade_for_antigen: true});
+            this._make_styles();
+        }
     }
 
     drawing_order(drawing_order) {
@@ -753,12 +783,77 @@ class ColoringByClade extends ColoringBase
 
 class ColoringByAAatPos extends ColoringBase
 {
-    constructor(chart) {
-        super(chart);
-    }
-
     name() {
         return "by AA at pos";
+    }
+
+    start_using() {
+        if (!this.styles_) {
+            this._make_styles({set_point_rank: true});
+            this.widget_.sequences().then(data => this._sequences_received(data)).catch(error => console.log("Coloring_AAPos::constructor sequences error", error));
+        }
+    }
+
+    drawing_order(original_drawing_order) {
+        // order: sera, not sequenced, "clade" with max number of antigens, ..., "clade" with fewer antigens
+        original_drawing_order = super.drawing_order(original_drawing_order);
+        if (!this.point_rank_)
+            return original_drawing_order;
+        const drawing_order = original_drawing_order.slice(0).sort((p1, p2) => this.point_rank_[p1] - this.point_rank_[p2]);
+        this._make_legend(drawing_order);
+        return drawing_order;
+    }
+
+    legend() {
+        if (this.sequences_) {
+            if (this.legend_)
+                return this.legend_;
+            else
+                return [{name: "type space separated positions and press Enter"}];
+        }
+        else
+            return [{name: "loading, please wait"}];
+    }
+
+    _make_legend(drawing_order) {
+        const aa_count = this.antigen_aa_.reduce((count, entry) => {
+            if (drawing_order.includes(entry.no))
+                count[entry.aa] = (count[entry.aa] || 0) + 1;
+            return count;
+        }, {});
+        this.legend_ = this.aa_order_.map((aa, index) => aa_count[aa] ? {name: aa, count: aa_count[aa], color: av_toolkit.ana_colors(index)} : null).filter(elt => !!elt);
+    }
+
+    _make_styles(args) {
+        this._reset_styles();
+        this.legend_ = null;
+        if (this.sequences_ && this.positions_ && this.positions_.length) {
+            this.antigen_aa_  = Object.entries(this.sequences_.antigens).map(entry => { return {no: parseInt(entry[0]), aa: this.positions_.map(pos => entry[1][pos - 1]).join("")}; });
+            const aa_count = this.antigen_aa_.reduce((count, entry) => { count[entry.aa] = (count[entry.aa] || 0) + 1; return count; }, {});
+            this.aa_order_ = Object.keys(aa_count).sort((e1, e2) => aa_count[e2] - aa_count[e1]);
+            if (args && args.set_point_rank)
+                this.point_rank_ = Array.apply(null, {length: this.widget.data.c.a.length}).map(() => -1).concat(Array.apply(null, {length: this.widget.data.c.s.length}).map(() => -2));
+            this.antigen_aa_.forEach(entry => {
+                const aa_index = this.aa_order_.indexOf(entry.aa);
+                this.styles_[entry.no].F = av_toolkit.ana_colors(aa_index);
+                this.styles_[entry.no].O = "black";
+                if (args && args.set_point_rank)
+                    this.point_rank_[entry.no] = aa_index;
+            });
+        }
+    }
+
+    _reset_styles() {
+        this.styles_ = this.all_styles({reset_sera: true});
+        this.chart_.a.forEach((antigen, antigen_no) => {
+            this.styles_[antigen_no].F = this.styles_[antigen_no].O = av_toolkit.sLIGHTGREY;
+        });
+    }
+
+    _sequences_received(data) {
+        console.log("_sequences_received", data);
+        this.sequences_ = data;
+        // this.widget_.update_view_dialog();
     }
 }
 
@@ -800,18 +895,15 @@ const continent_name_for_legend = {
 
 class ColoringByGeography extends ColoringBase
 {
-    constructor(chart) {
-        super(chart);
-        this.styles_ = this.all_styles({reset_sera: true});
-        this._make_continent_count({set_styles: true});
-    }
-
     name() {
         return "by geography";
     }
 
-    point_style(point_no) {
-        return this.styles_[point_no];
+    start_using() {
+        if (!this.styles_) {
+            this.styles_ = this.all_styles({reset_sera: true});
+            this._make_continent_count({set_styles: true});
+        }
     }
 
     drawing_order(original_drawing_order) {
