@@ -378,7 +378,7 @@ class ViewDialog
     _coloring_chooser(section) {
         section.empty();
         const onchange = value => {
-            console.log("_coloring_chooser onchange", value);
+            // console.log("_coloring_chooser onchange", value);
             this.widget_.viewer_.coloring(value, true);
         };
         const selector = this.selector_use_select_ ? new SelectorSelect(section, onchange) : new SelectorButtons(section, onchange);
@@ -591,26 +591,33 @@ class MapViewer
 
 // ----------------------------------------------------------------------
 
-class StyleAce
-{
-    constructor(plot_spec) {
-        this.plot_spec_ = plot_spec;
-    }
-
-    point(point_no) {
-        return this.plot_spec_.P[this.plot_spec_.p[point_no]];
-    }
-}
-
 class ColoringBase
 {
     constructor(chart) {
         this.chart_ = chart;
-        this.style = new StyleAce(chart.p);
     }
 
     drawing_order(drawing_order) {
         return drawing_order;
+    }
+
+    // {reset_sera: false}
+    all_styles(args={}) {
+        const egg_passage = (style, index) => {
+            if (index < this.chart_.a.length && (!style.a || style.a === 1) && this.chart_.a[index].S && this.chart_.a[index].S.indexOf("E") >= 0)
+                style.a = 0.75;
+            if (index < this.chart_.a.length && (!style.r || style.r === 0) && this.chart_.a[index].R && this.chart_.a[index].R.length)
+                style.r = Math.PI / 6;
+            return style;
+        };
+        let all_styles = this.chart_.p.p.map(style_no => Object.assign({}, this.chart_.p.P[style_no])).map(egg_passage);
+        if (args.reset_sera) {
+            this.chart_.s.forEach((serum, serum_no) => {
+                delete all_styles[serum_no + this.chart_.a.length].F;
+                all_styles[serum_no + this.chart_.a.length].O = av_toolkit.sGREY;
+            });
+        }
+        return all_styles;
     }
 }
 
@@ -619,17 +626,111 @@ class ColoringOriginal extends ColoringBase
     name() {
         return "original";
     }
-}
 
-class ColoringByClade extends ColoringBase
-{
-    name() {
-        return "by clade";
+    point_style(point_no) {
+        const plot_spec = this.chart_.p;
+        return plot_spec.P[plot_spec.p[point_no]];
     }
 }
 
+// ----------------------------------------------------------------------
+
+const sCladeColors = {
+    "3C3": "#6495ed",
+    "3C3A": "#00ff00",
+    "3C3B": "#0000ff",
+    "3C2A": "#ff0000",
+    "3C2A1": "#8b0000",
+    "3C2A1A": "#8b0000",
+    "3C2A1B": "#8b0000",
+    "3C2A2": "#8b4040",
+    "3C2A3": "#8b4000",
+    "3C2A4": "#8b0040",
+    "6B1": "#0000ff",
+    "6B2": "#ff0000",
+    "1": "#0000ff",
+    "1A": "#6495ed",
+    "1B": "#ff0000",
+    "DEL2017": "#de8244",
+    "TRIPLEDEL2017": "#bf3eff",
+    "Y2": "#6495ed",
+    "Y3": "#ff0000",
+    "SEQUENCED": "#ffa500",
+    "NO-GLY": "#ffa500",
+    // "GLY": "#ff00a5",
+    "GLY": "#ffa500",
+    "": av_toolkit.sGREY,
+    undefined: av_toolkit.sGREY,
+    null: av_toolkit.sGREY
+};
+
+class ColoringByClade extends ColoringBase
+{
+    constructor(chart) {
+        super(chart);
+        this._make_antigens_by_clade({set_clade_for_antigen: true});
+        this._make_styles();
+    }
+
+    name() {
+        return "by clade";
+    }
+
+    point_style(point_no) {
+        return this.styles_[point_no];
+    }
+
+    drawing_order(drawing_order) {
+        return drawing_order;
+    }
+
+    _make_antigens_by_clade(args) {
+        const drawing_order = av_utils.array_of_indexes(this.chart_.a.length + this.chart_.s.length);
+        const clade_sorting_key = clade => (clade === "GLY" || clade === "NO-GLY" || clade === "SEQUENCED") ? 0 : clade.length;
+        this.clade_to_number_of_antigens_ = {};
+        if (args && args.set_clade_for_antigen)
+            this.clade_for_antigen_ = Array.apply(null, {length: this.chart_.a.length}).map(() => "");
+        drawing_order.filter(no => no < this.chart_.a.length).forEach(antigen_no => {
+            const clades = (this.chart_.a[antigen_no].c || []).sort((a, b) => clade_sorting_key(b) - clade_sorting_key(a));
+            let clade = clades.length > 0 ? clades[0] : "";
+            if (clade === "GLY" || clade === "NO-GLY")
+                clade = "SEQUENCED";
+            this.clade_to_number_of_antigens_[clade] = (this.clade_to_number_of_antigens_[clade] || 0) + 1;
+            if (args && args.set_clade_for_antigen)
+                this.clade_for_antigen_[antigen_no] = clade;
+        });
+        this.clade_order_ = Object.keys(this.clade_to_number_of_antigens_).sort((a, b) => this._clade_rank(a) - this._clade_rank(b));
+        if (args && args.set_clade_for_antigen)
+            this.point_rank_ = this.clade_for_antigen_.map(clade => this.clade_order_.indexOf(clade)).concat(Array.apply(null, {length: this.chart_.s.length}).map(() => -2));
+    }
+
+    _clade_rank(clade) {
+        // order: not sequenced, sequenced without clade, clade with max number of antigens, ..., clade with fewer antigens
+        if (clade === "")
+            return -1e7;
+        if (clade === "GLY" || clade === "NO-GLY" || clade === "SEQUENCED")
+            return -1e6;
+        return - this.clade_to_number_of_antigens_[clade];
+    }
+
+    _make_styles() {
+        this.styles_ = this.all_styles({reset_sera: true});
+        this.clade_for_antigen_.forEach((clade, antigen_no) => {
+            this.styles_[antigen_no].F = sCladeColors[clade];
+            // this.styles_[antigen_no].O = "white";
+        });
+    }
+
+}
+
+// ----------------------------------------------------------------------
+
 class ColoringByAAatPos extends ColoringBase
 {
+    constructor(chart) {
+        super(chart);
+    }
+
     name() {
         return "by AA at pos";
     }
@@ -637,6 +738,10 @@ class ColoringByAAatPos extends ColoringBase
 
 class ColoringByGeography extends ColoringBase
 {
+    constructor(chart) {
+        super(chart);
+    }
+
     name() {
         return "by geography";
     }
@@ -653,7 +758,7 @@ class ViewingBase
 
     draw(surface, coloring) {
         for (let point_no of coloring.drawing_order(this.drawing_order())) {
-            this.map_viewer_.surface_.point(this.layout_[point_no], coloring.style.point(point_no), point_no, true);
+            this.map_viewer_.surface_.point(this.layout_[point_no], coloring.point_style(point_no), point_no, true);
         }
 
         // const drawing_order_background = this.drawing_order_background();
