@@ -92,6 +92,33 @@
 }
 
 /* ---------------------------------------------------------------------- */
+/* title_box */
+/* ---------------------------------------------------------------------- */
+
+.av201807-title-mouse-popup {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.av201807-title-mouse-popup > li {
+    margin: 0.5em;
+    white-space: nowrap;
+}
+
+.av201807-title-mouse-popup > li .av-scrollable {
+    white-space: nowrap;
+    overflow: auto;
+    max-height: 9.5em;
+}
+
+.av201807-title-mouse-popup > li .av-sequenced {
+    list-style-type: none;
+    margin-left: 1em;
+    padding: 0;
+}
+
+/* ---------------------------------------------------------------------- */
 /* Local Variables: */
 /* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */
 /* End: */

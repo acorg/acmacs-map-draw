@@ -76,7 +76,7 @@ export class AntigenicMapWidget
         this.div_ = $(div);
         this.options_ = Object.assign({}, AntigenicMapWidget_default_options, options);
         this.div_.addClass("amw201807").attr("amw201805_id", new_id()).append(AntigenicMapWidget_content_html);
-        this.title_ = new AntigenicMapTitle(this, this.div_.find(".av-title-title > span"));
+        this.title_ = new AntigenicMapTitle(this, this.div_.find(".av-title"));
         this.viewer_ = new MapViewer(this, this.div_.find("canvas"));
         this._viewer_size();
         this._make_burger_menu();
@@ -151,19 +151,66 @@ class AntigenicMapTitle
     }
 
     update() {
-        this.div_.empty().append(this.widget_.viewer_.viewing_.title({title_fields: this.widget_.options_.title_fields}));
+        const viewing = this.widget_.viewer_.viewing_;
+        this._span().empty().append(viewing.title({title_fields: this.widget_.options_.title_fields}));
         this.resize();
-        // this.popup_on_hovering_title(this.view_mode.title_box());
+        this.popup_on_hovering_title(viewing.title_box());
     }
 
     resize() {
-        const title_element = this.div_.parent();
-        const title_parent = title_element.parent();
-        const title_left = title_parent.find("> .av-left");
+        const title_element = this.div_.find("> .av-title-title");
+        const title_left = this.div_.find("> .av-left");
         const title_left_width = title_left.is(":visible") ? title_left.outerWidth(true) : 0;
-        const title_right = title_parent.find("> .av-right");
+        const title_right = this.div_.find("> .av-right");
         const title_right_width = title_right.is(":visible") ? title_right.outerWidth(true) : 0;
         title_element.css("width", this.widget_.viewer_.surface_.width() - title_left_width - title_right_width - (title_element.outerWidth(true) - title_element.width()));
+    }
+
+    popup_on_hovering_title(content) {
+        if (content) {
+            const title = this._span().off("mouseenter mouseleave");
+            const delay = this.widget_.options_.point_info_on_hover_delay;
+            let popup_events = false;
+            const hide_popup = () => {
+                av_toolkit.mouse_popup_hide().off("mouseenter mouseleave");
+                popup_events = false;
+            };
+            const mouse_leave = () => {
+                window.clearTimeout(this.mouse_popup_timeout_id);
+                this.mouse_popup_timeout_id = window.setTimeout(hide_popup, delay);
+            };
+            title.on("mouseenter", evt => {
+                window.clearTimeout(this.mouse_popup_timeout_id);
+                this.mouse_popup_timeout_id = window.setTimeout(() => {
+                    const popup_element = av_toolkit.mouse_popup_show(content, title, {left: 30, top: title.outerHeight()});
+                    if (!popup_events) {
+                        popup_element.on("mouseenter", () => window.clearTimeout(this.mouse_popup_timeout_id));
+                        popup_element.on("mouseleave", mouse_leave);
+                        popup_events = true;
+                    }
+                }, delay);
+            });
+            title.on("mouseleave", mouse_leave);
+        }
+    }
+
+    arrows(left_callback, right_callback) {
+        const left_arrow = this.div_.find(".av-left-arrow");
+        left_arrow.off("click");
+        if (left_callback)
+            left_arrow.show().on("click", left_callback);
+        else
+            left_arrow.hide();
+        const right_arrow = this.div_.find(".av-right-arrow");
+        right_arrow.off("click");
+        if (right_callback)
+            right_arrow.show().on("click", right_callback);
+        else
+            right_arrow.hide();
+    }
+
+    _span() {
+        return this.div_.find("> .av-title-title > span");
     }
 }
 
@@ -435,6 +482,68 @@ class ViewingBase
      // {title_fields:}
     title(args) {
         return "$$title";
+    }
+
+    title_box() {
+        const box_name = chart => chart.i.N ? `<li>${chart.i.N}</li>` : "";
+        const box_virus = entry => `<li>${entry.v || ""} ${entry.V || ""} ${entry.A || ""} ${entry.r || ""}</li>`;
+        const box_lab = entry => entry.l ? `<li>Lab: ${entry.l}</li>` : "";
+        const box_antigens = chart => `<li>Antigens: ${chart.a.length}</li><li>Sera: ${chart.s.length}</li>`;
+        const box_date = chart => chart.i.S && chart.i.S.length > 0 ? `<li>Dates: ${chart.i.S[0].D} - ${chart.i.S[chart.i.S.length - 1].D}</li>` : (chart.i.D ? `<li>Date: ${chart.i.D}</li>` : "");
+
+        const box_tables = chart => {
+            let result = "";
+            if (chart.i.S && chart.i.S.length > 0) {
+                const tables = chart.i.S.map(s_entry => s_entry.D || JSON.stringify(s_entry)).join("</li><li>");
+                result = `<li>Tables: ${chart.i.S.length}<ol class='av-scrollable av-tables'><li>${tables}</li></ol></li>`;
+            }
+            else if (chart.t.L && chart.t.L.length > 0) {
+                result = `<li>Layers: ${chart.t.L.length}</li>`;
+            }
+            return result;
+        };
+
+        const box_projections = chart => {
+            let result = "";
+            if (chart.P && chart.P.length > 0) {
+                const stresses = chart.P.map(p_entry => p_entry.s ? p_entry.s.toFixed(4) : "<unknown stress>").join("</li><li>");
+                result = `<li>Projections: ${chart.P.length}<ol class='av-scrollable av-stresses'><li>${stresses}</li></ol></li>`;
+            }
+            return result;
+        };
+
+        const box_sequenced = chart => {
+            let clades = {}, sequenced = 0;
+            chart.a.forEach(antigen => {
+                if (antigen.c && antigen.c.length) {
+                    antigen.c.forEach(clade => { clades[clade] = (clades[clade] || 0) + 1; });
+                    ++sequenced;
+                }
+            });
+            let clades_li = "";
+            for (let cl in clades)
+                clades_li += `<li>${cl}: ${clades[cl]}</li>`;
+            return `<li>Sequenced: ${sequenced} <ul class='av-scrollable av-sequenced'>${clades_li}</ul></li>`;
+        };
+
+        let title_box = $("<ul class='av201807-title-mouse-popup'></ul>");
+        if (this.chart_.i) {
+            title_box.append(box_name(this.chart_));
+            if (this.chart_.i.S && this.chart_.i.S.length > 0) {
+                title_box.append(box_virus(this.chart_.i.S[0]));
+                title_box.append(box_lab(this.chart_.i.S[0]));
+            }
+            else {
+                title_box.append(box_virus(this.chart_.i));
+                title_box.append(box_lab(this.chart_.i));
+            }
+            title_box.append(box_antigens(this.chart_));
+            title_box.append(box_date(this.chart_));
+            title_box.append(box_sequenced(this.chart_));
+            title_box.append(box_tables(this.chart_));
+            title_box.append(box_projections(this.chart_));
+        }
+        return title_box;
     }
 }
 
