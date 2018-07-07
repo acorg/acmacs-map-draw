@@ -222,21 +222,106 @@ class AntigenicMapTitle
 
 // ----------------------------------------------------------------------
 
+const ViewDialog_html = "\
+<table class='av-view-dialog'>\
+  <tr>\
+    <td class='av-label'>Projection</td><td class='projection-chooser'></td>\
+  </tr>\
+  <tr>\
+    <td class='av-label'>Coloring</td><td class='coloring'></td>\
+  </tr>\
+</table>\
+";
+
+//   <tr class='coloring-aa-pos'>\
+//     <td class='a-label'>Positions</td>\
+//     <td class='coloring-aa-pos'><input type='text'></input><a href='coloring-aa-pos-hint'>hint</a></td>\
+//   </tr>\
+//   <tr class='coloring-legend'>\
+//     <td class='a-label'>Legend</td>\
+//     <td class='coloring-legend'></td>\
+//   </tr>\
+//   <tr>\
+//     <td class='a-label'>Mode</td>\
+//     <td class='mode'></td>\
+//   </tr>\
+//   <tr class='time-series-period'>\
+//     <td class='a-label'>Period</td>\
+//     <td class='period'>\
+//       <a href='month'>month</a>\
+//       <a href='season'>winter/summer</a>\
+//       <a href='year'>year</a>\
+//     </td>\
+//   </tr>\
+//   <tr class='group-series'>\
+//     <td class='a-label'>Group Sets</td>\
+//     <td class='group-series'>\
+//       <div class='a-sets'>\
+//         <p class='a-hint'>please drop here group description file or click below to upload</p>\
+//       </div>\
+//       <div class='a-buttons'>\
+//         <a href='upload' title='upload and apply group definition'>upload</a>\
+//         <a href='download' title='download sample group definition for this chart'>download sample</a>\
+//         <a href='download-chart' title='download chart in the .ace format with the embedded group data'>download chart</a>\
+//       </div>\
+//     </td>\
+//   </tr>\
+//   <tr class='group-series-combined'>\
+//     <td class='a-label'>Groups</td>\
+//     <td class='group-series-combined'>\
+//       <div class='a-buttons'>\
+//         <a href='exclusive'>exclusive</a>\
+//         <a href='combined'>combined</a>\
+//       </div>\
+//       <table class='a-groups'>\
+//       </table>\
+//     </td>\
+//   </tr>\
+//   <tr class='shading'>\
+//     <td class='a-label'>Shading</td>\
+//     <td class='shading'>\
+//       <a href='hide'>legacy</a>\
+//       <a href='shade'>shade</a>\
+//       <a href='grey'>grey</a>\
+//     </td>\
+//   </tr>\
+//   <tr class='selection'>\
+//     <td class='a-label'>RegEx</td>\
+//     <td class='regex'>\
+//       <input type='text'></input>\
+//       <select name='selection-mode'>\
+//         <option value='antigens'>antigens only</option>\
+//         <option value='sera'>sera only</option>\
+//         <option value='antigens+sera'>antigens and sera</option>\
+//       </select>\
+//     </td>\
+//   <tr class='selection-results'>\
+//     <td class='a-label'></td>\
+//     <td class='selection-results'>\
+//       <p class='a-message'>please enter regular expression above and press enter</p>\
+//       <table></table>\
+//     </td>\
+//   </tr>\
+// </table>\
+// ";
+
 class ViewDialog
 {
     constructor(args) {
         this.widget_ = args.widget;
+        this.chart_ = args.chart;
         this.canvas_ = this.widget_.viewer_.surface_.canvas_;
+        this.selector_use_select_ = true;
         this.window_ = new av_toolkit.MovableWindow({
             title: "View",
             parent: this.canvas_,
-            classes: "view-dialog-movable",
+            classes: "av201807-view-dialog",
             content_css: {width: "auto", height: "auto"},
             on_destroy: () => this.destroy()
         });
         this.content_ = this.window_.content();
         if (this.content_.find("table.view-dialog").length === 0)
-            this.populate({content: this.content_, chart: args.chart});
+            this.populate();
         this.on_destroy = args.on_destroy;
     }
 
@@ -245,11 +330,101 @@ class ViewDialog
             this.on_destroy();
     }
 
-    populate(args) {
+    populate() {
+        const table = $(ViewDialog_html).appendTo(this.content_);
+        this._projection_chooser(table.find(".projection-chooser"));
+        this._selector_toggle(table.find(".projection-chooser"));
+        this._repopulate(table);
+    }
+
+    _repopulate(table) {
+        this._coloring_chooser(table.find(".coloring"));
     }
 
     position() {
         this.window_.position(this.canvas_);
+    }
+
+    _projection_chooser(section) {
+        if (this.chart_.P.length === 0)
+            section.append("<div class='av-error'>None</div>");
+        else if (this.chart_.P.length === 1)
+            section.append(`<div>${this._projection_title(this.chart_.P[0])}</div>`);
+        else {
+            const entries = this.chart_.P.map((prj, index) => `<option value="${index}">${this._projection_title(prj, index)}</option>`).join();
+            const select = $(`<select>${entries}</select>`).appendTo(section);
+            select.on("change", evt => av_utils.forward_event(evt, evt => this.widget_.viewer_.projection(parseInt(evt.currentTarget.value), true)));
+        }
+    }
+
+    _projection_title(projection, index) {
+        return av_utils.join_collapse([
+            index === undefined ? null : "" + (index + 1) + ".",
+            projection.s.toFixed(4),
+            "&ge;" + (projection.m || "none"),
+            projection.C ? "forced-col-bases" : null,
+            projection.c
+        ]);
+    }
+
+    _selector_toggle(section) {
+        const checkbox = $(`<input type='checkbox' checked='{this.selector_use_select_}'></input>`).appendTo(section);
+        checkbox.on("change", evt => av_utils.forward_event(evt, evt => {
+            this.selector_use_select_ = evt.currentTarget.checked;
+            this._repopulate(this.content_.find("table"));
+        }));
+    }
+
+    _coloring_chooser(section) {
+        section.empty();
+        const onchange = value => {
+            console.log("_coloring_chooser onchange", value);
+            this.widget_.viewer_.coloring(value, true);
+        };
+        const selector = this.selector_use_select_ ? new SelectorSelect(section, onchange) : new SelectorButtons(section, onchange);
+        for (let coloring_mode of this.widget_.viewer_.coloring_modes_)
+            selector.add(coloring_mode.name());
+        selector.current(this.widget_.viewer_.coloring_.name());
+    }
+}
+
+// ----------------------------------------------------------------------
+
+class SelectorSelect
+{
+    constructor(section, onchange) {
+        this.select_ = $("<select></select>").appendTo(section);
+        this.select_.on("change", evt => av_utils.forward_event(evt, evt => onchange(evt.currentTarget.value)));
+    }
+
+    add(name) {
+        this.select_.append(`<option value="${name}">${name}</option>`);
+    }
+
+    current(name) {
+        this.select_.val(name);
+    }
+}
+
+class SelectorButtons
+{
+    constructor(section, onchange) {
+        this.section_ = section;
+        this.onchange_ = onchange;
+    }
+
+    add(name) {
+        $(`<a href="${name}">${name}</a>`).appendTo(this.section_).on("click", evt => av_utils.forward_event(evt, () => {
+            if (!evt.currentTarget.matches(".av-current")) {
+                this.current(name);
+                this.onchange_(name);
+            }
+        }));
+    }
+
+    current(name) {
+        this.section_.find("a").removeClass("av-current");
+        this.section_.find(`a[href="${name}"]`).addClass("av-current");
     }
 }
 
@@ -307,9 +482,11 @@ class MapViewer
             this.draw();
     }
 
-    projection(projection_no) {
+    projection(projection_no, redraw=false) {
         this.projection_no_ = projection_no;
         this.viewing_.projection(this.projection_no_);
+        if (redraw)
+            this.draw();
     }
 
     _drawing_order() {

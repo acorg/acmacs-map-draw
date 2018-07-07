@@ -119,6 +119,36 @@
 }
 
 /* ---------------------------------------------------------------------- */
+/* view-dialog */
+/* ---------------------------------------------------------------------- */
+
+.av201807-view-dialog {
+    background-color: #F8F8F8;
+}
+
+.av201807-view-dialog .av-view-dialog .projection-chooser > input {
+    margin-left: 1em;
+}
+
+.av201807-view-dialog .av-view-dialog td.av-label {
+    padding-right: 1em;
+    vertical-align: top;
+ }
+
+.av201807-view-dialog .av-view-dialog td a {
+    padding-right: 1em;
+    text-decoration: none;
+}
+
+.av201807-view-dialog .av-view-dialog td a.av-current {
+    cursor: default;
+    font-weight: bold;
+    color: black;
+    text-decoration: none;
+}
+
+
+/* ---------------------------------------------------------------------- */
 /* Local Variables: */
 /* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */
 /* End: */
