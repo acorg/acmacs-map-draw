@@ -43,9 +43,6 @@ export class Modal
 
 // ----------------------------------------------------------------------
 
-
-// ----------------------------------------------------------------------
-
 export function drag(evt, callback) {
     let mouse_pos = {left: evt.clientX, top: evt.clientY};
     document.onmouseup = () => {
@@ -132,7 +129,49 @@ export function mouse_popup_hide() {
     return $("#" + MousePopup_id).hide();
 }
 
-// // ----------------------------------------------------------------------
+// ----------------------------------------------------------------------
+
+export class BurgerMenu
+{
+    // {trigger: $("#trigger"), menu: $("#menu"), callback: item => console.log("burger-menu", item)}
+    constructor(args) {
+        this.menu_ = args.menu.addClass("amw201807 av-burger-menu av201807-window-shadow");
+        this.menu_.find("ul").addClass("av201807-window-shadow");
+        this.menu_.find("li[menu]").on("click", evt => av_utils.forward_event(evt, () => this.clicked(evt.currentTarget)));
+        this.menu_.find("li:has(>ul)").append("<div class='av-burger-menu-arrow'>&#9654</div>");
+        this.callback_ = args.callback;
+        this.trigger_ = args.trigger.addClass("amw201807 av-burger-menu-trigger");
+        this.trigger_.on("click", evt => av_utils.forward_event(evt, () => this.show()));
+    }
+
+    destroy() {
+        this.trigger_.off("click");
+        this.menu_.find("li[menu]").off("click");
+    }
+
+    show() {
+        this.modal_support_ = new Modal({element: this.menu_, z_index: 1000, dismiss: () => this.hide()});
+        const trigger_pos = this.trigger_.position();
+        this.menu_.show().css({left: trigger_pos.left, top: trigger_pos.top + this.trigger_.height()});
+        this.menu_.find("> li > ul").css("left", this.menu_.width());
+    }
+
+    hide() {
+        this.menu_.hide();
+        this.modal_support_.destroy();
+        delete this.modal_support_;
+    }
+
+    clicked(target) {
+        if (!target.matches(".av-menu-disabled") && target.matches("[menu]")) {
+            this.hide();
+            if (this.callback_)
+                this.callback_(target.getAttribute("menu"));
+        }
+    }
+}
+
+// ----------------------------------------------------------------------
 
 // export class Popup extends Popup_Base {
 
