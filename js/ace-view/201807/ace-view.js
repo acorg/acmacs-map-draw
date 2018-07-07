@@ -57,16 +57,16 @@ const AntigenicMapWidget_burger_menu_html = "\
       <li>\
         Download\
         <ul>\
-          <li menu='download_pdf'>PDF</li>\
+          <li class='av-menu-disabled' menu='download_pdf'>PDF</li>\
           <li class='av-menu-separator'></li>\
           <li class='av-menu-disabled' menu='download_ace'>ace</li>\
-          <li menu='download_save'>Lispmds Save</li>\
+          <li class='av-menu-disabled' menu='download_save'>Lispmds Save</li>\
         </ul>\
       </li>\
-      <li menu='table'>Table</li>\
-      <li menu='raw'>Raw</li>\
+      <li class='av-menu-disabled' menu='table'>Table</li>\
+      <li class='av-menu-disabled' menu='raw'>Raw</li>\
       <li class='av-menu-separator'></li>\
-      <li menu='help'>Help</li>\
+      <li class='av-menu-disabled' menu='help'>Help</li>\
     </ul>\
 ";
 
@@ -76,6 +76,7 @@ export class AntigenicMapWidget
         this.div_ = $(div);
         this.options_ = Object.assign({}, AntigenicMapWidget_default_options, options);
         this.div_.addClass("amw201807").attr("amw201805_id", new_id()).append(AntigenicMapWidget_content_html);
+        this.title_ = new AntigenicMapTitle(this, this.div_.find(".av-title-title > span"));
         this.viewer_ = new MapViewer(this, this.div_.find("canvas"));
         this._viewer_size();
         this._make_burger_menu();
@@ -89,6 +90,7 @@ export class AntigenicMapWidget
         }
         this.viewer_.start(data);
         this.viewer_.draw();
+        this.title_.update();
     }
 
     _load_and_draw(data) {
@@ -117,7 +119,10 @@ export class AntigenicMapWidget
 
     _make_burger_menu() {
         this.burger_menu_ = new av_toolkit.BurgerMenu({menu: $(AntigenicMapWidget_burger_menu_html).appendTo("body"), trigger: this.div_.find(".av-burger"), callback: item => {
-            console.log("burger-menu", item);
+            if (item === "view") {
+            }
+            else
+                console.log("burger-menu", item);
         }});
     }
 
@@ -133,6 +138,32 @@ export class AntigenicMapWidget
             this.viewer_.resize(this.options_.canvas_size);
         else
             this.viewer_.resize(Math.max(Math.min($(window).width() - 100, $(window).height()) - 60, 200));
+    }
+}
+
+// ----------------------------------------------------------------------
+
+class AntigenicMapTitle
+{
+    constructor(widget, element) {
+        this.widget_ = widget;
+        this.div_ = element;
+    }
+
+    update() {
+        this.div_.empty().append(this.widget_.viewer_.viewing_.title({title_fields: this.widget_.options_.title_fields}));
+        this.resize();
+        // this.popup_on_hovering_title(this.view_mode.title_box());
+    }
+
+    resize() {
+        const title_element = this.div_.parent();
+        const title_parent = title_element.parent();
+        const title_left = title_parent.find("> .av-left");
+        const title_left_width = title_left.is(":visible") ? title_left.outerWidth(true) : 0;
+        const title_right = title_parent.find("> .av-right");
+        const title_right_width = title_right.is(":visible") ? title_right.outerWidth(true) : 0;
+        title_element.css("width", this.widget_.viewer_.surface_.width() - title_left_width - title_right_width - (title_element.outerWidth(true) - title_element.width()));
     }
 }
 
@@ -160,13 +191,14 @@ class MapViewer
         this.surface_.grid();
         this.surface_.border();
         this.viewing_.draw(this.surface_, this.coloring_);
-        // this.update_view_dialog();
-        // this.title();
-        // this.resize_title();
+        // this.widget_.update_view_dialog();
     }
 
-    resize(new_size) {
-        this.surface_.resize(new_size);
+    resize(width_diff) {
+        this.surface_.resize(width_diff);
+        this.widget_.title_.resize();
+        if (this.viewing_)
+            this.draw();
     }
 
     coloring(mode_name, redraw=false) {
@@ -193,7 +225,7 @@ class MapViewer
     }
 
     _bind() {
-        this.surface_.add_resizer(width_diff => { this.surface_.resize(width_diff); this.draw(); });
+        this.surface_.add_resizer(width_diff => this.resize(width_diff));
 
         let mousemove_timeout_id = undefined;
         this.surface_.canvas_.on("mousemove", evt => {
@@ -400,7 +432,10 @@ class ViewingBase
         return [corners[0][0] - to_whole[0], corners[0][1] - to_whole[1], whole_size, whole_size];
     }
 
-
+     // {title_fields:}
+    title(args) {
+        return "$$title";
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -414,6 +449,28 @@ class ViewAll extends ViewingBase
     drawing_order(coloring) {
         return this.chart_.p.d || av_utils.array_of_indexes(this.layout_.length);
     }
+
+     // {title_fields:}
+    title(args) {
+        const makers = this.title_field_makers();
+        return av_utils.join_collapse(args.title_fields.map(field => makers[field](this.chart_, this.projection_no_)));
+    }
+
+    title_field_makers() {
+        return {
+            stress: (chart, projection_no) => { let stress = chart.P[projection_no].s; return stress ? stress.toFixed(4) : ""; },
+            min_col_basis: (chart, projection_no) => { let mcb = chart.P[projection_no].m; return mcb ? ">=" + mcb : ">=none"; },
+            name: (chart, projection_no) => chart.i.N,
+            date: (chart, projection_no) => chart.i.S ? (chart.i.S[0].D + "-" + chart.i.S[chart.i.S.length - 1].D) : (chart.i.D),
+            tables: (chart, projection_no) => chart.i.S ? `(${chart.i.S.length} tables)` : "",
+            antigens: (chart, projection_no) => "A:" + chart.a.length,
+            sera: (chart, projection_no) => "S:" + chart.s.length,
+            lab: (chart, projection_no) => chart.i.S ? chart.i.S[0].l : chart.i.l,
+            virus_type: (chart, projection_no) => chart.i.S ? chart.i.S[0].V : chart.i.V,
+            assay: (chart, projection_no) => chart.i.S ? chart.i.S[0].A : chart.i.A
+        };
+    }
+
 }
 
 class ViewSearch extends ViewingBase
