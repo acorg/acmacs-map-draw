@@ -130,6 +130,11 @@
     margin-left: 1em;
 }
 
+.av201807-view-dialog table.av-view-dialog {
+    border-collapse: separate;
+    border-spacing: 1em;
+}
+
 .av201807-view-dialog .av-view-dialog td.av-label {
     padding-right: 1em;
     vertical-align: top;
