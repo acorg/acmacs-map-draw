@@ -230,16 +230,16 @@ const ViewDialog_html = "\
   <tr>\
     <td class='av-label'>Coloring</td><td class='coloring'></td>\
   </tr>\
+  <tr class='coloring-legend'>\
+    <td class='av-label'>Legend</td>\
+    <td class='coloring-legend'></td>\
+  </tr>\
 </table>\
 ";
 
 //   <tr class='coloring-aa-pos'>\
 //     <td class='a-label'>Positions</td>\
 //     <td class='coloring-aa-pos'><input type='text'></input><a href='coloring-aa-pos-hint'>hint</a></td>\
-//   </tr>\
-//   <tr class='coloring-legend'>\
-//     <td class='a-label'>Legend</td>\
-//     <td class='coloring-legend'></td>\
 //   </tr>\
 //   <tr>\
 //     <td class='a-label'>Mode</td>\
@@ -380,11 +380,29 @@ class ViewDialog
         const onchange = value => {
             // console.log("_coloring_chooser onchange", value);
             this.widget_.viewer_.coloring(value, true);
+            this._show_legend();
         };
         const selector = this.selector_use_select_ ? new SelectorSelect(section, onchange) : new SelectorButtons(section, onchange);
         for (let coloring_mode of this.widget_.viewer_.coloring_modes_)
             selector.add(coloring_mode.name());
         selector.current(this.widget_.viewer_.coloring_.name());
+        this._show_legend();
+    }
+
+    _show_legend() {
+        const legend = this.widget_.viewer_.coloring_.legend();
+        if (legend) {
+            const td_legend = this.content_.find("tr.coloring-legend").show().find("td.coloring-legend");
+            td_legend.append("<table class='av-legend'><tr class='av-names'></tr><tr class='av-colors'></tr></table>");
+            legend.map(entry => {
+                td_legend.find("tr.av-names").append(`<td>${entry.name}</td>`);
+                if (entry.color !== undefined && entry.color !== null)
+                    td_legend.find("tr.av-colors").append(`<td><span class="av-color" style="background-color: ${entry.color}">__</span>${entry.count || ""}</td>`);
+            });
+        }
+        else {
+            this.content_.find("tr.coloring-legend").hide();
+        }
     }
 }
 
@@ -601,6 +619,10 @@ class ColoringBase
         return drawing_order || av_utils.array_of_indexes(this.chart_.a.length + this.chart_.s.length);
     }
 
+    legend() {
+        return null;
+    }
+
     // {reset_sera: false}
     all_styles(args={}) {
         const egg_passage = (style, index) => {
@@ -683,6 +705,10 @@ class ColoringByClade extends ColoringBase
     drawing_order(drawing_order) {
         // order: sera, not sequenced, sequenced without clade, clade with max number of antigens, ..., clade with fewer antigens
         return super.drawing_order(drawing_order).slice(0).sort((p1, p2) => this.point_rank_[p1] - this.point_rank_[p2]);
+    }
+
+    legend() {
+        return this.clade_order_.filter(clade => !!clade).map(clade => { return {name: clade, count: this.clade_to_number_of_antigens_[clade], color: sCladeColors[clade]}; });
     }
 
     _make_antigens_by_clade(args) {

@@ -147,6 +147,24 @@
     text-decoration: none;
 }
 
+.av201807-view-dialog .av-view-dialog tr.coloring-legend > td.coloring-legend > table {
+}
+
+.av201807-view-dialog .av-view-dialog tr.coloring-legend > td.coloring-legend > table td {
+    text-align: center;
+    padding-right: 1em;
+}
+
+.av201807-view-dialog .av-view-dialog tr.coloring-legend > td.coloring-legend > table tr.av-colors td {
+    white-space: nowrap;
+}
+
+.av201807-view-dialog .av-view-dialog tr.coloring-legend > td.coloring-legend > table tr.av-colors .av-color {
+    color: transparent;
+    margin-right: 0.3em;
+    font-family: monospace;
+}
+
 
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */
