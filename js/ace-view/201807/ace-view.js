@@ -392,7 +392,7 @@ class ViewDialog
     _show_legend() {
         const legend = this.widget_.viewer_.coloring_.legend();
         if (legend) {
-            const td_legend = this.content_.find("tr.coloring-legend").show().find("td.coloring-legend");
+            const td_legend = this.content_.find("tr.coloring-legend").show().find("td.coloring-legend").empty();
             td_legend.append("<table class='av-legend'><tr class='av-names'></tr><tr class='av-colors'></tr></table>");
             legend.map(entry => {
                 td_legend.find("tr.av-names").append(`<td>${entry.name}</td>`);
@@ -762,14 +762,83 @@ class ColoringByAAatPos extends ColoringBase
     }
 }
 
+// ----------------------------------------------------------------------
+
+const continent_colors = {
+    "EUROPE":            "#00ff00",
+    "CENTRAL-AMERICA":   "#aaf9ff",
+    "MIDDLE-EAST":       "#8000ff",
+    "NORTH-AMERICA":     "#00008b",
+    "AFRICA":            "#ff7f00",
+    "ASIA":              "#ff0000",
+    "RUSSIA":            "#b03060",
+    "AUSTRALIA-OCEANIA": "#ff69b4",
+    "SOUTH-AMERICA":     "#40e0d0",
+    "ANTARCTICA":        "#7f7f7f",
+    "UNKNOWN":           "#7f7f7f",
+    "":                  "#7f7f7f",
+    null:                "#7f7f7f",
+    undefined:           "#7f7f7f"
+};
+
+const continent_name_for_legend = {
+    "EUROPE":            "Europe",
+    "CENTRAL-AMERICA":   "C-America",
+    "MIDDLE-EAST":       "MiddleEast",
+    "NORTH-AMERICA":     "N-America",
+    "AFRICA":            "Africa",
+    "ASIA":              "Asia",
+    "RUSSIA":            "Russia",
+    "AUSTRALIA-OCEANIA": "Australia",
+    "SOUTH-AMERICA":     "S-America",
+    "ANTARCTICA":        "Antarctica",
+    "UNKNOWN":           "unknown",
+    "":                  "unknown",
+    null:                "unknown",
+    undefined:           "unknown"
+};
+
 class ColoringByGeography extends ColoringBase
 {
     constructor(chart) {
         super(chart);
+        this.styles_ = this.all_styles({reset_sera: true});
+        this._make_continent_count({set_styles: true});
     }
 
     name() {
         return "by geography";
+    }
+
+    point_style(point_no) {
+        return this.styles_[point_no];
+    }
+
+    drawing_order(original_drawing_order) {
+        // order: sera, most popular continent, ..., lest popular continent
+        const continent_order = this.continent_count_.map(entry => entry.name);
+        const ranks = Array.apply(null, {length: this.chart_.a.length}).map((_, ag_no) => continent_order.indexOf(this.chart_.a[ag_no].C) + 10).concat(Array.apply(null, {length: this.chart_.s.length}).map(_ => 0));
+        const drawing_order = super.drawing_order(original_drawing_order).slice(0).sort((p1, p2) => ranks[p1] - ranks[p2]);
+        this._make_continent_count({drawing_order: drawing_order});
+        return drawing_order;
+    }
+
+    legend() {
+        return this.continent_count_.map(entry => Object.assign({}, entry, {name: continent_name_for_legend[entry.name] || entry.name}));
+    }
+
+    _make_continent_count(args={}) {
+        let continent_count = {};
+        const drawing_order = args.drawing_order || super.drawing_order();
+        drawing_order.filter(no => no < this.chart_.a.length).forEach(antigen_no => {
+            const continent = this.chart_.a[antigen_no].C;
+            if (args.set_styles)
+                this.styles_[antigen_no].F = continent_colors[continent];
+            continent_count[continent] = (continent_count[continent] || 0) + 1;
+        });
+        this.continent_count_ = Object.keys(continent_count)
+            .map(continent => { return {name: continent, count: continent_count[continent], color: continent_colors[continent]}; })
+            .sort((e1, e2) => e2.count - e1.count);
     }
 }
 
