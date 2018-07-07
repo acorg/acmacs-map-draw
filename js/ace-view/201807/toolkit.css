@@ -12,8 +12,8 @@
 
 .av-window-resizer {
     position: absolute;
-    right: -2px;
-    bottom: 1px;
+    right: 0;
+    bottom: 0;
     z-index: 1;
     width: 1em;
     height: 1em;
@@ -130,6 +130,118 @@
 
 .av201807-burger-menu > li:hover > ul {
     display: block;
+}
+
+/* ---------------------------------------------------------------------- */
+
+.amw201807-movable-window {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: white;
+    z-index: 700;
+    padding: 0 1.5em 1.5em 1.5em;
+}
+
+.amw201807-movable-window .av-window-title {
+    display: grid;
+    grid-template-columns: 1em auto 1em;
+    /* background-color: #EEE; */
+    padding-top: 1.5em;
+    cursor: move;
+}
+
+.amw201807-movable-window .av-window-title:hover {
+    /* background-color: #EEF; */
+}
+
+.amw201807-movable-window.av-error {
+    background-color: #FEE;
+}
+
+.amw201807-movable-window.av-error .av-window-title {
+    color: magenta;
+}
+
+.amw201807-movable-window.av-error p {
+    width: 30em;
+    white-space: normal;
+}
+
+.amw201807-movable-window .av-title {
+    grid-column-start: 2;
+    grid-column-end: 3;
+    font-weight: bold;
+    /* text-align: center; */
+    cursor: move;
+    font-size: 1.3em;
+    text-align: left;
+}
+
+.amw201807-movable-window .av-close {
+    cursor: pointer;
+    text-align: center;
+    font-size: 1.3em;
+    position: relative;
+    top: -0.3em;
+}
+
+.amw201807-movable-window .av-close:hover {
+    color: red;
+}
+
+.amw201807-movable-window .av-close.av-left {
+    grid-column-start: 1;
+    grid-column-end: 2;
+}
+
+.amw201807-movable-window .av-close.av-right {
+    grid-column-start: 3;
+    grid-column-end: 4;
+}
+
+.amw201807-movable-window .av-content {
+    white-space: nowrap;
+    overflow: auto;
+    width: 100%;
+    min-width: 10em;
+    min-height: 10em;
+}
+
+.amw201807-movable-window.av-json-data .av-content {
+    height: 40em;
+    width: 30em;
+}
+
+/* ---------------------------------------------------------------------- */
+
+pre.json-highlight {
+    padding: 0.5em;
+    margin: 0;
+}
+
+pre.json-highlight .json-syntax-key {
+    color: blue;
+}
+
+pre.json-highlight .json-syntax-string {
+    color: darkcyan;
+}
+
+pre.json-highlight .json-syntax-number {
+    color: darkorange;
+}
+
+pre.json-highlight .json-syntax-boolean {
+    color: brown;
+}
+
+pre.json-highlight .json-syntax-null {
+    color: magenta;
+}
+
+pre.json-highlight .json-syntax-object-id {
+    color: green;
 }
 
 /* ---------------------------------------------------------------------- */

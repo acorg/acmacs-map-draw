@@ -120,6 +120,12 @@ export class AntigenicMapWidget
     _make_burger_menu() {
         this.burger_menu_ = new av_toolkit.BurgerMenu({menu: $(AntigenicMapWidget_burger_menu_html).appendTo("body"), trigger: this.div_.find(".av-burger"), callback: item => {
             if (item === "view") {
+                if (this.viewer_.viewing_) {
+                if (!this.view_dialog_)
+                    this.view_dialog_ = new ViewDialog({widget: this, chart: this.viewer_.viewing_.chart_, on_destroy: () => delete this.view_dialog_});
+                else
+                    this.view_dialog_.position();
+                }
             }
             else
                 console.log("burger-menu", item);
@@ -216,6 +222,39 @@ class AntigenicMapTitle
 
 // ----------------------------------------------------------------------
 
+class ViewDialog
+{
+    constructor(args) {
+        this.widget_ = args.widget;
+        this.canvas_ = this.widget_.viewer_.surface_.canvas_;
+        this.window_ = new av_toolkit.MovableWindow({
+            title: "View",
+            parent: this.canvas_,
+            classes: "view-dialog-movable",
+            content_css: {width: "auto", height: "auto"},
+            on_destroy: () => this.destroy()
+        });
+        this.content_ = this.window_.content();
+        if (this.content_.find("table.view-dialog").length === 0)
+            this.populate({content: this.content_, chart: args.chart});
+        this.on_destroy = args.on_destroy;
+    }
+
+    destroy() {
+        if (this.on_destroy)
+            this.on_destroy();
+    }
+
+    populate(args) {
+    }
+
+    position() {
+        this.window_.position(this.canvas_);
+    }
+}
+
+// ----------------------------------------------------------------------
+
 class MapViewer
 {
     constructor(widget, canvas) {
@@ -230,6 +269,7 @@ class MapViewer
         this.viewing("all");
         this.projection(0);
         this._bind();
+        window.setTimeout(() => this._size_parent(), 10);
     }
 
     draw() {
@@ -246,6 +286,11 @@ class MapViewer
         this.widget_.title_.resize();
         if (this.viewing_)
             this.draw();
+        this._size_parent();
+    }
+
+    _size_parent() {
+        this.surface_.canvas_.parent().css({width: this.surface_.canvas_.outerWidth(), height: this.surface_.canvas_.outerHeight()});
     }
 
     coloring(mode_name, redraw=false) {
