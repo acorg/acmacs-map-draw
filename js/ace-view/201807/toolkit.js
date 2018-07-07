@@ -135,12 +135,12 @@ export class BurgerMenu
 {
     // {trigger: $("#trigger"), menu: $("#menu"), callback: item => console.log("burger-menu", item)}
     constructor(args) {
-        this.menu_ = args.menu.addClass("amw201807 av-burger-menu av201807-window-shadow");
+        this.menu_ = args.menu.addClass("av201807-burger-menu av201807-window-shadow");
         this.menu_.find("ul").addClass("av201807-window-shadow");
         this.menu_.find("li[menu]").on("click", evt => av_utils.forward_event(evt, () => this.clicked(evt.currentTarget)));
         this.menu_.find("li:has(>ul)").append("<div class='av-burger-menu-arrow'>&#9654</div>");
         this.callback_ = args.callback;
-        this.trigger_ = args.trigger.addClass("amw201807 av-burger-menu-trigger");
+        this.trigger_ = args.trigger.addClass("av201807-burger-menu-trigger");
         this.trigger_.on("click", evt => av_utils.forward_event(evt, () => this.show()));
     }
 

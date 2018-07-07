@@ -51,6 +51,25 @@ const AntigenicMapWidget_content_html = `\
 </table>\
 `;
 
+const AntigenicMapWidget_burger_menu_html = "\
+    <ul>\
+      <li menu='view'>View ...</li>\
+      <li>\
+        Download\
+        <ul>\
+          <li menu='download_pdf'>PDF</li>\
+          <li class='av-menu-separator'></li>\
+          <li class='av-menu-disabled' menu='download_ace'>ace</li>\
+          <li menu='download_save'>Lispmds Save</li>\
+        </ul>\
+      </li>\
+      <li menu='table'>Table</li>\
+      <li menu='raw'>Raw</li>\
+      <li class='av-menu-separator'></li>\
+      <li menu='help'>Help</li>\
+    </ul>\
+";
+
 export class AntigenicMapWidget
 {
     constructor(div, data, options={}) { // options: {view_mode: {mode: "table-series"}, coloring: "original", title_fields: [], api: object_providing_external_api}
@@ -59,7 +78,7 @@ export class AntigenicMapWidget
         this.div_.addClass("amw201807").attr("amw201805_id", new_id()).append(AntigenicMapWidget_content_html);
         this.viewer_ = new MapViewer(this, this.div_.find("canvas"));
         this._viewer_size();
-        this._bind();
+        this._make_burger_menu();
         this._load_and_draw(data);
     }
 
@@ -96,7 +115,10 @@ export class AntigenicMapWidget
         }
     }
 
-    _bind() {
+    _make_burger_menu() {
+        this.burger_menu_ = new av_toolkit.BurgerMenu({menu: $(AntigenicMapWidget_burger_menu_html).appendTo("body"), trigger: this.div_.find(".av-burger"), callback: item => {
+            console.log("burger-menu", item);
+        }});
     }
 
     _loading_message() {

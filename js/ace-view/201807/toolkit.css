@@ -58,11 +58,11 @@
 
 /* ---------------------------------------------------------------------- */
 
-.amw201807.av-burger-menu-trigger {
+.av201807-burger-menu-trigger {
     cursor: context-menu;
 }
 
-.amw201807.av-burger-menu {
+.av201807-burger-menu {
     display: none;
     position: absolute;
     left: 0;
@@ -76,14 +76,14 @@
     white-space: nowrap;
 }
 
-.amw201807.av-burger-menu li {
+.av201807-burger-menu li {
     position: relative;
     height: 2em;
     line-height: 2em;
     padding: 0 1.5em;
 }
 
-.amw201807.av-burger-menu li .av-burger-menu-arrow {
+.av201807-burger-menu li .av-burger-menu-arrow {
     float: right;
     position: relative;
     left: 1.3em;
@@ -91,27 +91,27 @@
     color: #C0C0C0;
 }
 
-.amw201807.av-burger-menu li:hover {
+.av201807-burger-menu li:hover {
     background-color: #F0F0F0;
     cursor: pointer;
 }
 
-.amw201807.av-burger-menu li.av-menu-disabled {
+.av201807-burger-menu li.av-menu-disabled {
     color: grey;
     cursor: default;
 }
 
-.amw201807.av-burger-menu li.av-menu-separator {
+.av201807-burger-menu li.av-menu-separator {
     cursor: default;
     height: 0;
     border-bottom: 2px solid #C0C0C0;
 }
 
-.amw201807.av-burger-menu li.av-menu-disabled:hover {
+.av201807-burger-menu li.av-menu-disabled:hover {
     background-color: white;
 }
 
-.amw201807.av-burger-menu ul {
+.av201807-burger-menu ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -119,7 +119,7 @@
     white-space: nowrap;
 }
 
-.amw201807.av-burger-menu > li > ul {
+.av201807-burger-menu > li > ul {
     display: none;
     position: absolute;
     top: 0;
@@ -128,7 +128,7 @@
     z-index: 1;
 }
 
-.amw201807.av-burger-menu > li:hover > ul {
+.av201807-burger-menu > li:hover > ul {
     display: block;
 }
 
