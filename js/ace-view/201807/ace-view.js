@@ -993,12 +993,16 @@ class ColoringByAAatPos extends ColoringBase
     }
 
     _make_legend(drawing_order) {
-        const aa_count = this.antigen_aa_.reduce((count, entry) => {
-            if (drawing_order.includes(entry.no))
-                count[entry.aa] = (count[entry.aa] || 0) + 1;
-            return count;
-        }, {});
-        this.legend_ = this.aa_order_.map((aa, index) => aa_count[aa] ? {name: aa, count: aa_count[aa], color: av_toolkit.ana_colors(index)} : null).filter(elt => !!elt);
+        if (this.antigen_aa_) {
+            const aa_count = this.antigen_aa_.reduce((count, entry) => {
+                if (drawing_order.includes(entry.no))
+                    count[entry.aa] = (count[entry.aa] || 0) + 1;
+                return count;
+            }, {});
+            this.legend_ = this.aa_order_.map((aa, index) => aa_count[aa] ? {name: aa, count: aa_count[aa], color: av_toolkit.ana_colors(index)} : null).filter(elt => !!elt);
+        }
+        else
+            this.legend_ = null;
     }
 
     _make_styles(args={}) {
@@ -1093,8 +1097,9 @@ class ColoringByGeography extends ColoringBase
     }
 
     update_for_drawing_level(drawing_level) {
-        console.warn("update_for_drawing_level");
-        // this._make_continent_count();
+        if (drawing_level.type === "foreground") {
+            this.widget_.view_dialog("_show_legend");
+        }
     }
 
     legend() {
