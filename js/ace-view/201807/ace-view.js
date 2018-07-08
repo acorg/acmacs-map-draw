@@ -280,36 +280,34 @@ const ViewDialog_html = "\
   <tr class='time-series-period'>\
     <td class='av-label'>Period</td><td class='time-series-period'></td>\
   </tr>\
+  <tr class='group-series'>\
+    <td class='av-label'>Group Sets</td>\
+    <td class='group-series'>\
+      <div class='av-sets'><p class='av-hint'>please drop here group description file or click below to upload</p></div>\
+      <div class='av-buttons'>\
+        <a href='upload' title='upload and apply group definition'>upload</a>\
+        <a href='download' title='download sample group definition for this chart'>download sample</a>\
+        <a href='download-chart' title='download chart in the .ace format with the embedded group data'>download chart</a>\
+      </div>\
+    </td>\
+  </tr>\
+  <tr class='group-series-combined'>\
+    <td class='av-label'>Groups</td>\
+    <td class='group-series-combined'>\
+      <div class='av-buttons'>\
+        <a href='exclusive'>exclusive</a>\
+        <a href='combined'>combined</a>\
+      </div>\
+      <table class='av-groups'>\
+      </table>\
+    </td>\
+  </tr>\
   <tr class='shading'>\
     <td class='av-label'>Shading</td><td class='shading'></td>\
   </tr>\
 </table>\
 ";
 
-//   <tr class='group-series'>\
-//     <td class='a-label'>Group Sets</td>\
-//     <td class='group-series'>\
-//       <div class='a-sets'>\
-//         <p class='a-hint'>please drop here group description file or click below to upload</p>\
-//       </div>\
-//       <div class='a-buttons'>\
-//         <a href='upload' title='upload and apply group definition'>upload</a>\
-//         <a href='download' title='download sample group definition for this chart'>download sample</a>\
-//         <a href='download-chart' title='download chart in the .ace format with the embedded group data'>download chart</a>\
-//       </div>\
-//     </td>\
-//   </tr>\
-//   <tr class='group-series-combined'>\
-//     <td class='a-label'>Groups</td>\
-//     <td class='group-series-combined'>\
-//       <div class='a-buttons'>\
-//         <a href='exclusive'>exclusive</a>\
-//         <a href='combined'>combined</a>\
-//       </div>\
-//       <table class='a-groups'>\
-//       </table>\
-//     </td>\
-//   </tr>\
 //   <tr class='selection'>\
 //     <td class='a-label'>RegEx</td>\
 //     <td class='regex'>\
@@ -336,7 +334,7 @@ class ViewDialog
         this.widget_ = args.widget;
         this.chart_ = args.chart;
         this.canvas_ = this.widget_.viewer_.surface_.canvas_;
-        this.selector_use_select_ = true;
+        this.selector_use_select_ = false;
         this.window_ = new av_toolkit.MovableWindow({
             title: "View",
             parent: this.canvas_,
@@ -375,6 +373,7 @@ class ViewDialog
 
     viewing_changed() {
         this._show_period();
+        this._show_groups();
         this._show_shading();
     }
 
@@ -442,6 +441,7 @@ class ViewDialog
             selector.add(viewing_mode.name());
         selector.current(this.widget_.viewer_.viewing_.name());
         this._show_period();
+        this._show_groups();
         this._show_shading();
     }
 
@@ -569,6 +569,20 @@ class ViewDialog
             tr.show();
         else
             tr.hide();
+    }
+
+    _show_groups() {
+        const tr_groups = this.content_.find("tr.group-series");
+        const tr_groups_combined = this.content_.find("tr.group-series-combined");
+        const viewing = this.widget_.viewer_.viewing_;
+        if (viewing instanceof ViewGroups) {
+            tr_groups.show();
+            tr_groups_combined.hide();
+        }
+        else {
+            tr_groups.hide();
+            tr_groups_combined.hide();
+        }
     }
 }
 
@@ -1530,16 +1544,94 @@ class ViewTableSeries extends ViewingSeries
     }
 }
 
-class ViewGroups extends ViewingBase
+class ViewGroups extends ViewingSeries
 {
+    constructor(map_viewer, chart) {
+        super(map_viewer, chart);
+        this.pages_exclusive_ = ["*no-groups*"];
+        this.groups_combined_ = [];
+        this.combined_mode("exclusive");
+    }
+
     name() {
         return "groups";
+    }
+
+    on_entry() {
+        if (this.page_no_ === undefined)
+            this.set_page(this._initial_page_no());
+        else
+            this._update_title();
+    }
+
+    set_page(page_no, redraw) {
+        if (this.combined_mode() === "exclusive")
+            super.set_page(page_no, redraw);
+        else
+            super.set_page(0, redraw);
+    }
+
+    combined_mode(new_mode) {
+        if (typeof(new_mode) === "string") {
+            this.combined_mode_ = new_mode;
+            if (new_mode === "exclusive") {
+                this.pages_ = this.pages_exclusive_;
+            }
+            else {
+                this.pages_ = ["Multiple groups"];
+            }
+        }
+        return this.combined_mode_;
+    }
+
+    _initial_page_no() {
+        return 0;
     }
 
     _shading_changed() {
         this._make_drawing_levels();
     }
 
+    _make_drawing_levels() {
+        this.drawing_levels_ = [{drawing_order: this.combined_mode() === "exclusive" ? this._make_drawing_order_exclusive() : this._make_drawing_order_combined(), type: "foreground", style_modifier: style => style}];
+        if (this.shading() !== "legacy") {
+            const drawing_order = this.drawing_levels_[0].drawing_order;
+            this.drawing_levels_.unshift({drawing_order: av_utils.array_of_indexes(this.chart().a.length + this.chart().s.length).filter(index => !drawing_order.includes(index)),
+                                          style_modifier: sStyleModifiers[this.shading()]});
+        }
+    }
+
+    _make_drawing_order_exclusive() {
+        const drawing_order = [];
+        if (this.groups_ && this.groups_[this.page_no])
+            this._update_drawing_order_(drawing_order, this.groups_[this.page_no]);
+        return drawing_order;
+    }
+
+    _make_drawing_order_combined() {
+        const drawing_order = [];
+        this.groups_combined_.forEach(group => this._update_drawing_order_(drawing_order, group));
+        return drawing_order;
+    }
+
+    _update_drawing_order_(drawing_order, group) {
+        const add_member = point_no => {
+            const index = drawing_order.indexOf(point_no);
+            if (index >= 0)
+                drawing_order.splice(index, 1);
+            drawing_order.push(point_no);
+        };
+        group = this._find_group(group);
+        group.members.forEach(add_member);
+        if (group.root !== undefined)
+            add_member(group.root);
+    }
+
+    _find_group(group) {
+        if (typeof(group) === "string")
+            group = this.groups_.find(grp => grp.N === group);
+        return group;
+    }
 }
 
 // ----------------------------------------------------------------------
