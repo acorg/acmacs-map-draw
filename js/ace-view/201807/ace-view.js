@@ -262,20 +262,17 @@ const ViewDialog_html = "\
     <td class='av-label'>Coloring</td><td class='coloring'></td>\
   </tr>\
   <tr class='coloring-aa-pos'>\
-    <td class='av-label'>Positions</td>\
-    <td class='coloring-aa-pos'><input type='text'></input><a href='coloring-aa-pos-hint'>hint</a></td>\
+    <td class='av-label'>Positions</td><td class='coloring-aa-pos'><input type='text'></input><a href='coloring-aa-pos-hint'>hint</a></td>\
   </tr>\
   <tr class='coloring-legend'>\
-    <td class='av-label'>Legend</td>\
-    <td class='coloring-legend'></td>\
+    <td class='av-label'>Legend</td><td class='coloring-legend'></td>\
+  </tr>\
+  <tr>\
+    <td class='a-label'>View</td><td class='mode'></td>\
   </tr>\
 </table>\
 ";
 
-//   <tr>\
-//     <td class='a-label'>Mode</td>\
-//     <td class='mode'></td>\
-//   </tr>\
 //   <tr class='time-series-period'>\
 //     <td class='a-label'>Period</td>\
 //     <td class='period'>\
@@ -370,6 +367,7 @@ class ViewDialog
 
     _repopulate(table) {
         this._coloring_chooser(table.find(".coloring"));
+        this._view_mode_chooser(table.find(".mode"));
     }
 
     coloring_changed() {
@@ -431,6 +429,17 @@ class ViewDialog
         selector.current(this.widget_.viewer_.coloring_.name());
         this._show_aa_at_pos();
         this._show_legend();
+    }
+
+    _view_mode_chooser(section) {
+        section.empty();
+        const onchange = value => {
+            this.widget_.viewer_.viewing(value, true);
+        };
+        const selector = this.selector_use_select_ ? new SelectorSelect(section, onchange) : new SelectorButtons(section, onchange);
+        for (let viewing_mode of this.widget_.viewer_.viewing_modes_)
+            selector.add(viewing_mode.name());
+        selector.current(this.widget_.viewer_.viewing_.name());
     }
 
     _show_legend() {
@@ -739,6 +748,9 @@ class ColoringBase
         return drawing_order || av_utils.array_of_indexes(this.chart_.a.length + this.chart_.s.length);
     }
 
+    update_for_drawing_level(drawing_level) {
+    }
+
     legend() {
         return null;
     }
@@ -831,6 +843,11 @@ class ColoringByClade extends ColoringBase
         return super.drawing_order(drawing_order).slice(0).sort((p1, p2) => this.point_rank_[p1] - this.point_rank_[p2]);
     }
 
+    update_for_drawing_level(drawing_level) {
+        console.warn("update_for_drawing_level");
+        // this._make_antigens_by_clade();
+    }
+
     legend() {
         return this.clade_order_.filter(clade => !!clade).map(clade => { return {name: clade, count: this.clade_to_number_of_antigens_[clade], color: sCladeColors[clade]}; });
     }
@@ -870,7 +887,6 @@ class ColoringByClade extends ColoringBase
             // this.styles_[antigen_no].O = "white";
         });
     }
-
 }
 
 // ----------------------------------------------------------------------
@@ -896,6 +912,11 @@ class ColoringByAAatPos extends ColoringBase
         const drawing_order = original_drawing_order.slice(0).sort((p1, p2) => this.point_rank_[p1] - this.point_rank_[p2]);
         this._make_legend(drawing_order);
         return drawing_order;
+    }
+
+    update_for_drawing_level(drawing_level) {
+        console.warn("update_for_drawing_level");
+        // this._make_legend();
     }
 
     legend() {
@@ -1021,6 +1042,11 @@ class ColoringByGeography extends ColoringBase
         return drawing_order;
     }
 
+    update_for_drawing_level(drawing_level) {
+        console.warn("update_for_drawing_level");
+        // this._make_continent_count();
+    }
+
     legend() {
         return this.continent_count_.map(entry => Object.assign({}, entry, {name: continent_name_for_legend[entry.name] || entry.name}));
     }
@@ -1047,11 +1073,15 @@ class ViewingBase
     constructor(map_viewer, chart) {
         this.map_viewer_ = map_viewer;
         this.chart_ = chart;
+        this.shading_ = "shade";
     }
 
     draw(surface, coloring) {
-        for (let point_no of coloring.drawing_order(this.drawing_order())) {
-            this.map_viewer_.surface_.point(this.layout_[point_no], coloring.point_style(point_no), point_no, true);
+        for (let drawing_level of this.drawing_levels()) {
+            for (let point_no of coloring.drawing_order(drawing_level.drawing_order)) {
+                this.map_viewer_.surface_.point(this.layout_[point_no], drawing_level.style_modifier(coloring.point_style(point_no)), point_no, true);
+            }
+            coloring.update_for_drawing_level(drawing_level);
         }
 
         // const drawing_order_background = this.drawing_order_background();
@@ -1083,6 +1113,10 @@ class ViewingBase
 
     chart() {
         return this.chart_;
+    }
+
+    chart_drawing_order() {
+        return this.chart_.p.d || av_utils.array_of_indexes(this.layout_.length);
     }
 
     _calculate_viewport() {
@@ -1169,14 +1203,53 @@ class ViewingBase
 
 // ----------------------------------------------------------------------
 
+// https://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
+function shadeColor2(color, percent) {
+    const f = parseInt(color.slice(1), 16),
+          t = percent < 0 ? 0 : 255,
+          p = percent < 0 ? percent * -1 : percent,
+          R = f >> 16,
+          G = f >> 8 & 0x00FF,
+          B = f & 0x0000FF;
+    return "#"+(0x1000000+(Math.round((t-R)*p)+R)*0x10000+(Math.round((t-G)*p)+G)*0x100+(Math.round((t-B)*p)+B)).toString(16).slice(1);
+}
+
+// the same as shadeColor2 but optimized for positive percent
+function paleColor2(color, percent) {
+    const f = parseInt(color.slice(1), 16),
+          R = f >> 16,
+          G = f >> 8 & 0x00FF,
+          B = f & 0x0000FF;
+    return "#"+(0x1000000+(Math.round((255-R)*percent)+R)*0x10000+(Math.round((255-G)*percent)+G)*0x100+(Math.round((255-B)*percent)+B)).toString(16).slice(1);
+}
+
+function style_modifier_shade(style) {
+    const shade = 0.8;
+    return Object.assign({}, style, {
+        F: (style.F && paleColor2(style.F, shade)) || "transparent",
+        O: (style.O && paleColor2(style.O, shade)) || paleColor2("#000000", shade)
+    });
+}
+
+function style_modifier_grey(style) {
+    const grey = av_toolkit.sLIGHTGREY;
+    return Object.assign({}, style, {F: (style.F && grey) || "transparent", O: grey});
+}
+
+const sStyleModifiers = {shade: style_modifier_shade, grey: style_modifier_grey};
+
+// ----------------------------------------------------------------------
+
 class ViewAll extends ViewingBase
 {
     name() {
         return "all";
     }
 
-    drawing_order(coloring) {
-        return this.chart_.p.d || av_utils.array_of_indexes(this.layout_.length);
+    drawing_levels() {
+        return [
+            {drawing_order: this.chart_drawing_order(), style_modifier: style => style}
+        ];
     }
 
      // {title_fields:}
@@ -1209,17 +1282,111 @@ class ViewSearch extends ViewingBase
     }
 }
 
-class ViewTimeSeries extends ViewingBase
+class ViewingSeries extends ViewingBase
+{
+    title() {
+        return this.pages_[this.page_no_];
+    }
+
+    set_page(page_no, redraw) {
+        if (page_no >= 0 && page_no < this.pages_.length) {
+            this.page_no_ = page_no;
+            this._make_drawing_levels();
+            // this.widget.show_title_arrows(this.page_no_ > 0 ? () => this.set_page(this.page_no_ - 1, true) : null, this.page_no_ < (this.pages_.length - 1) ? () => this.set_page(this.page_no_ + 1, true) : null);
+            if (redraw)
+                this.map_viewer_.draw();
+        }
+    }
+
+    drawing_levels() {
+        return this.drawing_levels_;
+    }
+
+    current_page() {
+        return this.page_no_;
+    }
+}
+
+class ViewTimeSeries extends ViewingSeries
 {
     name() {
         return "time series";
     }
 }
 
-class ViewTableSeries extends ViewingBase
+class ViewTableSeries extends ViewingSeries
 {
+    constructor(map_viewer, chart) {
+        super(map_viewer, chart);
+        this._make_pages();
+        this.set_page(this.pages_.length - 1);
+    }
+
     name() {
         return "table series";
+    }
+
+    _make_pages() {
+        const number_of_layers = this.chart_.t.L.length;
+        const make_name = (source, index) => {
+            if (source && source.D)
+                return `${source.D} (${index + 1}/${number_of_layers})`;
+            else
+                return `Table ${index + 1}/${number_of_layers}`;
+        };
+        const sources = this.chart_.i.S || this.chart_.t.L;
+        this.pages_ = sources.map(make_name);
+    }
+
+    _make_drawing_levels() {
+        const page_period_name = this.pages_[this.page_no_];
+        const in_page = antigen => this._antigen_period_name(antigen) === page_period_name;
+        const antigens = this.chart().a;
+        const chart_drawing_order = this.chart_drawing_order();
+        this.drawing_levels_ = [];
+        if (this.shading_ === "hide") {
+            const drawing_order = [];
+            for (let point_no of chart_drawing_order) {
+                if (point_no >= antigens.length || (antigens[point_no].S && antigens[point_no].S.indexOf("R") >= 0 && !in_page(antigens[point_no])))
+                    drawing_order.push(point_no);
+            }
+            for (let point_no of chart_drawing_order) {
+                if (point_no < antigens.length && in_page(antigens[point_no]))
+                    drawing_order.push(point_no);
+            }
+            this.drawing_levels_.push({drawing_order: drawing_order, style_modifier: style => style});
+        }
+        else {
+            const drawing_order = [], drawing_order_background = [];
+            for (let point_no of chart_drawing_order) {
+                if (point_no < antigens.length && in_page(antigens[point_no]))
+                    drawing_order.push(point_no);
+                else
+                    drawing_order_background.push(point_no);
+            }
+            this.drawing_levels_.push({drawing_order: drawing_order_background, style_modifier: sStyleModifiers[this.shading_]});
+            this.drawing_levels_.push({drawing_order: drawing_order, style_modifier: style => style});
+        }
+    }
+
+    _antigen_period_name(antigen) {
+        switch (this.period_) {
+        case "year":
+            return antigen.D && antigen.D.substr(0, 4);
+        case "season":
+            const season = (year, month) => {
+                if (month <= 4)
+                    return `${year - 1} Nov - ${year} Apr`;
+                else if (month <= 10)
+                    return `${year} May - Oct`;
+                else
+                    return `${year} Nov - ${year + 1} Apr`;
+            };
+            return antigen.D && season(parseInt(antigen.D.substr(0, 4)), parseInt(antigen.D.substr(5, 2)));
+        case "month":
+        default:
+            return antigen.D && antigen.D.substr(0, 7);
+        }
     }
 }
 
