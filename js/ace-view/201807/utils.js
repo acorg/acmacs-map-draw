@@ -230,11 +230,11 @@ export function upload_json(args) {
         }
         if (args.drop_area) {
             args.drop_area.off("dragenter dragover dragleave drop");
-            args.drop_area.on("dragenter dragover", evt => forward_event(evt, evt => args.drop_area.addClass("a-drop-area")));
-            args.drop_area.on("dragleave", evt => forward_event(evt, evt => args.drop_area.removeClass("a-drop-area")));
+            args.drop_area.on("dragenter dragover", evt => forward_event(evt, evt => args.drop_area.addClass("av-drop-area")));
+            args.drop_area.on("dragleave", evt => forward_event(evt, evt => args.drop_area.removeClass("av-drop-area")));
             args.drop_area.on("drop", evt => forward_event(evt, evt => {
                 upload(evt.originalEvent.dataTransfer.files[0]);
-                args.drop_area.removeClass("a-drop-area");
+                args.drop_area.removeClass("av-drop-area");
             }));
         }
     });

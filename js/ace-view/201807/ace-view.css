@@ -175,6 +175,16 @@
     margin-left: 1em;
 }
 
+.av201807-view-dialog tr.group-series > td.group-series > .av-buttons {
+    margin-top: 1em;
+}
+
+.av201807-view-dialog .av-drop-area {
+    border: 2px dashed #008000;
+    border-radius: 20px;
+    cursor: copy;
+}
+
 .av201807-coloring-aa-pos-hint > .av-content {
     margin-top: 1em;
 }
@@ -199,6 +209,8 @@
     text-align: right;
     padding-right: 0.3em;
 }
+
+
 
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */
