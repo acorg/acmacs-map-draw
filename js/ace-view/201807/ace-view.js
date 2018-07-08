@@ -590,7 +590,6 @@ class ViewDialog
     }
 
     _show_group_series_data() {
-        console.warn("_show_group_series_data");
         const viewing = this.widget_.viewer_.viewing_;
         this._make_exclusive_combined();
         if (!viewing.group_sets_ && this.chart_.group_sets)
@@ -1801,8 +1800,8 @@ class ViewGroups extends ViewingSeries
 
     _make_drawing_order_exclusive() {
         const drawing_order = [];
-        if (this.groups_ && this.groups_[this.page_no])
-            this._update_drawing_order_(drawing_order, this.groups_[this.page_no]);
+        if (this.groups_ && this.groups_[this.page_no_])
+            this._update_drawing_order_(drawing_order, this.groups_[this.page_no_]);
         return drawing_order;
     }
 
