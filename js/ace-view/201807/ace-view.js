@@ -94,6 +94,11 @@ export class AntigenicMapWidget
         this.title_.update();
     }
 
+    update_title(left_arrow, right_arrow) {
+        this.title_.arrows(left_arrow, right_arrow);
+        this.title_.update();
+    }
+
     async sequences() {
         if (this.sequences_ === undefined) {
             this.sequences_ = "loading, please wait";
@@ -189,9 +194,11 @@ class AntigenicMapTitle
 
     update() {
         const viewing = this.widget_.viewer_.viewing_;
-        this._span().empty().append(viewing.title({title_fields: this.widget_.options_.title_fields}));
-        this.resize();
-        this.popup_on_hovering_title(viewing.title_box());
+        if (viewing) {
+            this._span().empty().append(viewing.title({title_fields: this.widget_.options_.title_fields}));
+            this.resize();
+            this.popup_on_hovering_title(viewing.title_box());
+        }
     }
 
     resize() {
@@ -620,9 +627,12 @@ class MapViewer
     }
 
     viewing(mode_name, redraw=false) {
+        if (this.viewing_)
+            this.viewing_.on_exit();
         this.viewing_ = this.viewing_modes_.find(mode => mode.name() === mode_name) || this.viewing_modes_.find(mode => mode.name() === "all");
         if (this.projection_no_ !== undefined)
             this.viewing_.projection(this.projection_no_);
+        this.viewing_.on_entry();
         if (redraw)
             this.draw();
         this.widget_.view_dialog("viewing_changed");
@@ -636,7 +646,7 @@ class MapViewer
     }
 
     _drawing_order() {
-        return this.coloring_.drawing_order(this.viewing_.drawing_order());
+        return this.coloring_.drawing_order(this.viewing_.drawing_order_foreground());
     }
 
     _bind() {
@@ -1083,20 +1093,6 @@ class ViewingBase
             }
             coloring.update_for_drawing_level(drawing_level);
         }
-
-        // const drawing_order_background = this.drawing_order_background();
-        // if (drawing_order_background && drawing_order_background.length)
-        //     surface.points({drawing_order: this.widget.coloring.drawing_order(drawing_order_background, {background: true}),
-        //                             layout: chart.P[this.projection_no()].l,
-        //                             transformation: new ace_surface.Transformation(chart.P[this.projection_no()].t),
-        //                             styles: this.styles(),
-        //                             point_scale: this.point_scale(),
-        //                             show_as_background: this.show_as_background()});
-        // surface.points({drawing_order: this.widget.coloring.drawing_order(this.drawing_order()),
-        //                             layout: chart.P[this.projection_no()].l,
-        //                             transformation: new ace_surface.Transformation(chart.P[this.projection_no()].t),
-        //                             styles: this.styles(),
-        //                             point_scale: this.point_scale()});
     }
 
     projection(projection_no) {
@@ -1117,6 +1113,12 @@ class ViewingBase
 
     chart_drawing_order() {
         return this.chart_.p.d || av_utils.array_of_indexes(this.layout_.length);
+    }
+
+    on_exit() {
+    }
+
+    on_entry() {
     }
 
     _calculate_viewport() {
@@ -1252,10 +1254,18 @@ class ViewAll extends ViewingBase
         ];
     }
 
+    drawing_order_foreground() {
+        return this.chart_drawing_order();
+    }
+
+    on_entry() {
+        this.map_viewer_.widget_.update_title();
+    }
+
      // {title_fields:}
     title(args) {
         const makers = this.title_field_makers();
-        return av_utils.join_collapse(args.title_fields.map(field => makers[field](this.chart_, this.projection_no_)));
+        return this.projection_no_ !== undefined ? av_utils.join_collapse(args.title_fields.map(field => makers[field](this.chart_, this.projection_no_))) : "";
     }
 
     title_field_makers() {
@@ -1290,9 +1300,10 @@ class ViewingSeries extends ViewingBase
 
     set_page(page_no, redraw) {
         if (page_no >= 0 && page_no < this.pages_.length) {
+            console.log("set_page", page_no);
             this.page_no_ = page_no;
             this._make_drawing_levels();
-            // this.widget.show_title_arrows(this.page_no_ > 0 ? () => this.set_page(this.page_no_ - 1, true) : null, this.page_no_ < (this.pages_.length - 1) ? () => this.set_page(this.page_no_ + 1, true) : null);
+            this._update_title();
             if (redraw)
                 this.map_viewer_.draw();
         }
@@ -1302,8 +1313,17 @@ class ViewingSeries extends ViewingBase
         return this.drawing_levels_;
     }
 
+    drawing_order_foreground() {
+        return this.drawing_levels_[this.drawing_levels_.length - 1].drawing_order;
+    }
+
     current_page() {
         return this.page_no_;
+    }
+
+    _update_title() {
+        this.map_viewer_.widget_.update_title(this.page_no_ > 0 ? () => this.set_page(this.page_no_ - 1, true) : null,
+                                              this.page_no_ < (this.pages_.length - 1) ? () => this.set_page(this.page_no_ + 1, true) : null);
     }
 }
 
@@ -1319,11 +1339,17 @@ class ViewTableSeries extends ViewingSeries
     constructor(map_viewer, chart) {
         super(map_viewer, chart);
         this._make_pages();
-        this.set_page(this.pages_.length - 1);
     }
 
     name() {
         return "table series";
+    }
+
+    on_entry() {
+        if (this.page_no_ === undefined)
+            this.set_page(this.pages_.length - 1);
+        else
+            this._update_title();
     }
 
     _make_pages() {
