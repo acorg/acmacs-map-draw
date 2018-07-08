@@ -451,12 +451,77 @@ class ViewDialog
 
     _show_aa_at_pos() {
         const tr = this.content_.find("tr.coloring-aa-pos");
+        const input = tr.find("input").off("keypress");
+        const hint = tr.find("a").off("click");
         if (this.widget_.viewer_.coloring_ instanceof ColoringByAAatPos) {
+            input.on("keypress", evt => {
+                if (evt.charCode === 13) {
+                    if (this.widget_.viewer_.coloring_.set_positions(evt.currentTarget.value.split(/[^0-9]/).filter(entry => !!entry))) {
+                        this.widget_.viewer_.draw();
+                        this._show_legend();
+                    }
+                }
+            });
+            hint.on("click", evt => av_utils.forward_event(evt, evt => this._aa_positions_hint($(evt.currentTarget))));
+            const positions = this.widget_.viewer_.coloring_.positions();
+            if (positions && positions.length)
+                input.val(positions.join(" "));
             tr.show();
+            window.setTimeout(() => input.focus(), 10);
         }
         else
             tr.hide();
     }
+
+    _aa_positions_hint(parent) {
+        const movable_window = new av_toolkit.MovableWindow({
+            title: "AA positions", parent: parent,
+            classes: "coloring-aa-pos-hint",
+            content_css: {width: "auto", height: "auto"}
+        });
+        const content = movable_window.content().empty();
+        const compare_shannon = (e1, e2) => e2[1].shannon - e1[1].shannon;
+        const compare_position = (e1, e2) => e1[0] - e2[0];
+        let sort_by = "shannon";
+        const make_table = tbl => {
+            tbl.empty();
+            Object.entries(this.widget.sequences_.per_pos).sort(sort_by === "shannon" ? compare_shannon : compare_position).forEach(entry => {
+                let [pos, sh_count] = entry;
+                if (Object.keys(sh_count.aa_count).length > 1) {
+                    const row = $(`<tr><td class='a-pos'>${pos}</td></tr>`).appendTo(tbl);
+                    const aa_order = Object.keys(sh_count.aa_count).sort((aa1, aa2) => sh_count.aa_count[aa2] - sh_count.aa_count[aa1]);
+                    aa_order.forEach(aa => {
+                        row.append(`<td class='a-aa'>${aa}</td><td class='a-count'>${sh_count.aa_count[aa]}</td>`);
+                    });
+                }
+            });
+        };
+        const fill = () => {
+            const sort_by_button = $("<a href='sort-by'></a>").appendTo(content);
+            const sort_by_text = () => { sort_by_button.empty().append(sort_by === "shannon" ? "re-sort by position" : "re-sort by shannon index"); };
+            const tbl = $("<table class='a-position-hint''></table>").appendTo(content);
+            sort_by_button.on("click", evt => acv_utils.forward_event(evt, evt => {
+                sort_by = sort_by === "shannon" ? "position" : "shannon";
+                make_table(tbl);
+                sort_by_text();
+            }));
+            console.log("per_pos", this.widget.sequences_.per_pos);
+            sort_by_text();
+            make_table(tbl);
+            window.setTimeout(() => {
+                if (content.height() > 300)
+                    content.css("height", "300px");
+            }, 10);
+        };
+        const wait_fill = () => {
+            if (this.widget.sequences_ && typeof(this.widget.sequences_) !== "string")
+                fill();
+            else
+                window.setTimeout(wait_fill, 100);
+        };
+        wait_fill();
+    }
+
 }
 
 // ----------------------------------------------------------------------
@@ -524,7 +589,6 @@ class MapViewer
         this.surface_.grid();
         this.surface_.border();
         this.viewing_.draw(this.surface_, this.coloring_);
-        // this.widget_.update_view_dialog();
     }
 
     resize(width_diff) {
@@ -846,6 +910,19 @@ class ColoringByAAatPos extends ColoringBase
             return [{name: "loading, please wait"}];
     }
 
+    positions() {
+        return this.positions_;
+    }
+
+    set_positions(positions) {
+        const update = positions !== this.positions_;
+        if (update) {
+            this.positions_ = positions;
+            this._make_styles({set_point_rank: true});
+        }
+        return update;
+    }
+
     _make_legend(drawing_order) {
         const aa_count = this.antigen_aa_.reduce((count, entry) => {
             if (drawing_order.includes(entry.no))
@@ -855,20 +932,20 @@ class ColoringByAAatPos extends ColoringBase
         this.legend_ = this.aa_order_.map((aa, index) => aa_count[aa] ? {name: aa, count: aa_count[aa], color: av_toolkit.ana_colors(index)} : null).filter(elt => !!elt);
     }
 
-    _make_styles(args) {
+    _make_styles(args={}) {
         this._reset_styles();
         this.legend_ = null;
         if (this.sequences_ && this.positions_ && this.positions_.length) {
             this.antigen_aa_  = Object.entries(this.sequences_.antigens).map(entry => { return {no: parseInt(entry[0]), aa: this.positions_.map(pos => entry[1][pos - 1]).join("")}; });
             const aa_count = this.antigen_aa_.reduce((count, entry) => { count[entry.aa] = (count[entry.aa] || 0) + 1; return count; }, {});
             this.aa_order_ = Object.keys(aa_count).sort((e1, e2) => aa_count[e2] - aa_count[e1]);
-            if (args && args.set_point_rank)
-                this.point_rank_ = Array.apply(null, {length: this.widget.data.c.a.length}).map(() => -1).concat(Array.apply(null, {length: this.widget.data.c.s.length}).map(() => -2));
+            if (args.set_point_rank)
+                this.point_rank_ = Array.apply(null, {length: this.chart_.a.length}).map(() => -1).concat(Array.apply(null, {length: this.chart_.s.length}).map(() => -2));
             this.antigen_aa_.forEach(entry => {
                 const aa_index = this.aa_order_.indexOf(entry.aa);
                 this.styles_[entry.no].F = av_toolkit.ana_colors(aa_index);
                 this.styles_[entry.no].O = "black";
-                if (args && args.set_point_rank)
+                if (args.set_point_rank)
                     this.point_rank_[entry.no] = aa_index;
             });
         }
