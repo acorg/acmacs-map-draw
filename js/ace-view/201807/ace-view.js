@@ -476,7 +476,7 @@ class ViewDialog
     _aa_positions_hint(parent) {
         const movable_window = new av_toolkit.MovableWindow({
             title: "AA positions", parent: parent,
-            classes: "coloring-aa-pos-hint",
+            classes: "av201807-coloring-aa-pos-hint",
             content_css: {width: "auto", height: "auto"}
         });
         const content = movable_window.content().empty();
@@ -485,13 +485,13 @@ class ViewDialog
         let sort_by = "shannon";
         const make_table = tbl => {
             tbl.empty();
-            Object.entries(this.widget.sequences_.per_pos).sort(sort_by === "shannon" ? compare_shannon : compare_position).forEach(entry => {
+            Object.entries(this.widget_.sequences_.per_pos).sort(sort_by === "shannon" ? compare_shannon : compare_position).forEach(entry => {
                 let [pos, sh_count] = entry;
                 if (Object.keys(sh_count.aa_count).length > 1) {
-                    const row = $(`<tr><td class='a-pos'>${pos}</td></tr>`).appendTo(tbl);
+                    const row = $(`<tr><td class='av-pos'>${pos}</td></tr>`).appendTo(tbl);
                     const aa_order = Object.keys(sh_count.aa_count).sort((aa1, aa2) => sh_count.aa_count[aa2] - sh_count.aa_count[aa1]);
                     aa_order.forEach(aa => {
-                        row.append(`<td class='a-aa'>${aa}</td><td class='a-count'>${sh_count.aa_count[aa]}</td>`);
+                        row.append(`<td class='av-aa'>${aa}</td><td class='av-count'>${sh_count.aa_count[aa]}</td>`);
                     });
                 }
             });
@@ -499,13 +499,12 @@ class ViewDialog
         const fill = () => {
             const sort_by_button = $("<a href='sort-by'></a>").appendTo(content);
             const sort_by_text = () => { sort_by_button.empty().append(sort_by === "shannon" ? "re-sort by position" : "re-sort by shannon index"); };
-            const tbl = $("<table class='a-position-hint''></table>").appendTo(content);
-            sort_by_button.on("click", evt => acv_utils.forward_event(evt, evt => {
+            const tbl = $("<table class='av-position-hint''></table>").appendTo(content);
+            sort_by_button.on("click", evt => av_utils.forward_event(evt, evt => {
                 sort_by = sort_by === "shannon" ? "position" : "shannon";
                 make_table(tbl);
                 sort_by_text();
             }));
-            console.log("per_pos", this.widget.sequences_.per_pos);
             sort_by_text();
             make_table(tbl);
             window.setTimeout(() => {
@@ -514,7 +513,7 @@ class ViewDialog
             }, 10);
         };
         const wait_fill = () => {
-            if (this.widget.sequences_ && typeof(this.widget.sequences_) !== "string")
+            if (this.widget_.sequences_ && typeof(this.widget_.sequences_) !== "string")
                 fill();
             else
                 window.setTimeout(wait_fill, 100);

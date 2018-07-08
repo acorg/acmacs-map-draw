@@ -175,32 +175,30 @@
     margin-left: 1em;
 }
 
-/*
-.coloring-aa-pos-hint > .a-content {
+.av201807-coloring-aa-pos-hint > .av-content {
     margin-top: 1em;
 }
 
-.coloring-aa-pos-hint > .a-content > a {
+.av201807-coloring-aa-pos-hint > .av-content > a {
     text-decoration: none;
     margin: 0 0 0.5em 1em;
 }
 
-.coloring-aa-pos-hint > .a-content > table td.a-pos {
+.av201807-coloring-aa-pos-hint > .av-content > table td.av-pos {
     text-align: right;
     padding-right: 0.2em;
 }
 
-.coloring-aa-pos-hint > .a-content > table td.a-aa {
+.av201807-coloring-aa-pos-hint > .av-content > table td.av-aa {
     text-align: center;
     padding-left: 0.3em;
     border-left: thin solid grey;
 }
 
-.coloring-aa-pos-hint > .a-content > table td.a-count {
+.av201807-coloring-aa-pos-hint > .av-content > table td.av-count {
     text-align: right;
     padding-right: 0.3em;
 }
-*/
 
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */
