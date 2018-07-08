@@ -838,7 +838,7 @@ class MapViewer
         this.surface_.reset();
         this.surface_.grid();
         this.surface_.border();
-        this.viewing_.draw(this.surface_, this.coloring_);
+        this.viewing_.draw(this.coloring_);
     }
 
     resize(width_diff) {
@@ -1333,7 +1333,7 @@ class ViewingBase
         this.shading_ = "shade";
     }
 
-    draw(surface, coloring) {
+    draw(coloring) {
         for (let drawing_level of this.drawing_levels()) {
             for (let point_no of coloring.drawing_order(drawing_level.drawing_order)) {
                 this.map_viewer_.surface_.point(this.layout_[point_no], drawing_level.style_modifier(coloring.point_style(point_no)), point_no, true);
@@ -1745,6 +1745,11 @@ class ViewGroups extends ViewingSeries
         return "groups";
     }
 
+    draw(coloring) {
+        super.draw(coloring);
+        this._draw_root_connecting_lines();
+    }
+
     on_entry() {
         if (this.page_no_ === undefined)
             this.set_page(this._initial_page_no());
@@ -1829,6 +1834,26 @@ class ViewGroups extends ViewingSeries
             group = this.groups_.find(grp => grp.N === group);
         return group;
     }
+
+    _draw_root_connecting_lines() {
+        if (this.combined_mode() === "exclusive")
+            this._draw_root_connecting_line(this.groups_ && this.groups_[this.page_no_]);
+        else
+            this.groups_combined_.forEach(group => this._draw_root_connecting_line(group));
+    }
+
+    _draw_root_connecting_line(group) {
+        group = this._find_group(group);
+        if (group && group.root !== undefined) {
+            const line_color = group.line_color || this.gs_line_color_;
+            const line_width = group.line_width || this.gs_line_width_;
+            const drawing_order = this.drawing_levels_[this.drawing_levels_.length - 1].drawing_order;
+            group.members.filter(point_no => drawing_order.includes(point_no))
+                .filter(point_no => point_no !== group.root)
+                .forEach(point_no => this.map_viewer_.surface_.line({start: this.layout_[point_no], end: this.layout_[group.root], color: line_color, width: line_width}));
+        }
+    }
+
 }
 
 // ----------------------------------------------------------------------
