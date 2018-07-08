@@ -275,7 +275,10 @@ const ViewDialog_html = "\
     <td class='av-label'>Legend</td><td class='coloring-legend'></td>\
   </tr>\
   <tr>\
-    <td class='a-label'>View</td><td class='mode'></td>\
+    <td class='av-label'>View</td><td class='mode'></td>\
+  </tr>\
+  <tr class='shading'>\
+    <td class='av-label'>Shading</td><td class='shading'></td>\
   </tr>\
 </table>\
 ";
@@ -310,14 +313,6 @@ const ViewDialog_html = "\
 //       </div>\
 //       <table class='a-groups'>\
 //       </table>\
-//     </td>\
-//   </tr>\
-//   <tr class='shading'>\
-//     <td class='a-label'>Shading</td>\
-//     <td class='shading'>\
-//       <a href='hide'>legacy</a>\
-//       <a href='shade'>shade</a>\
-//       <a href='grey'>grey</a>\
 //     </td>\
 //   </tr>\
 //   <tr class='selection'>\
@@ -373,8 +368,9 @@ class ViewDialog
     }
 
     _repopulate(table) {
-        this._coloring_chooser(table.find(".coloring"));
-        this._view_mode_chooser(table.find(".mode"));
+        this._coloring_chooser(table.find("td.coloring"));
+        this._view_mode_chooser(table.find("td.mode"));
+        this._shading_chooser(table.find("td.shading"));
     }
 
     coloring_changed() {
@@ -382,6 +378,7 @@ class ViewDialog
     }
 
     viewing_changed() {
+        this._show_shading();
     }
 
     aa_at_pos_changed() {
@@ -447,6 +444,17 @@ class ViewDialog
         for (let viewing_mode of this.widget_.viewer_.viewing_modes_)
             selector.add(viewing_mode.name());
         selector.current(this.widget_.viewer_.viewing_.name());
+        this._show_shading();
+    }
+
+    _shading_chooser(section) {
+        section.empty();
+        const onchange = value => this.widget_.viewer_.viewing_.shading(value);
+        const selector = this.selector_use_select_ ? new SelectorSelect(section, onchange) : new SelectorButtons(section, onchange);
+        selector.add("shade");
+        selector.add("grey");
+        selector.add("legacy");
+        selector.current(this.widget_.viewer_.viewing_.shading());
     }
 
     _show_legend() {
@@ -537,6 +545,15 @@ class ViewDialog
         wait_fill();
     }
 
+    _show_shading() {
+        const tr = this.content_.find("tr.shading");
+        const viewing = this.widget_.viewer_.viewing_;
+        if (viewing instanceof ViewSearch || viewing instanceof ViewTableSeries || viewing instanceof ViewTimeSeries || viewing instanceof ViewGroups) {
+            tr.show();
+        }
+        else
+            tr.hide();
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -1107,6 +1124,15 @@ class ViewingBase
         }
     }
 
+    shading(new_shading) {
+        if (new_shading !== undefined) {
+            this.shading_ = new_shading;
+            this._shading_changed();
+            this.map_viewer_.draw();
+        }
+        return this.shading_;
+    }
+
     chart() {
         return this.chart_;
     }
@@ -1119,6 +1145,9 @@ class ViewingBase
     }
 
     on_entry() {
+    }
+
+    _shading_changed() {
     }
 
     _calculate_viewport() {
@@ -1290,6 +1319,10 @@ class ViewSearch extends ViewingBase
     name() {
         return "search";
     }
+
+    _shading_changed() {
+    }
+
 }
 
 class ViewingSeries extends ViewingBase
@@ -1345,6 +1378,10 @@ class ViewTimeSeries extends ViewingSeries
         return this.pages_.length - 1;
     }
 
+    _shading_changed() {
+        this._make_drawing_levels();
+    }
+
     _make_pages() {
         let periods = new Set();
         for (let antigen of this.chart().a) {
@@ -1361,7 +1398,7 @@ class ViewTimeSeries extends ViewingSeries
         const in_page = antigen => this._antigen_period_name(antigen) === page_period_name;
         const antigens = this.chart().a;
         const chart_drawing_order = this.chart_drawing_order();
-        if (this.shading_ === "hide") {
+        if (this.shading() === "legacy") {
             const drawing_order = [];
             for (let point_no of chart_drawing_order) {
                 if (point_no >= antigens.length || (antigens[point_no].S && antigens[point_no].S.indexOf("R") >= 0 && !in_page(antigens[point_no])))
@@ -1381,7 +1418,7 @@ class ViewTimeSeries extends ViewingSeries
                 else
                     drawing_order_background.push(point_no);
             }
-            this.drawing_levels_.push({drawing_order: drawing_order_background, style_modifier: sStyleModifiers[this.shading_]});
+            this.drawing_levels_.push({drawing_order: drawing_order_background, style_modifier: sStyleModifiers[this.shading()]});
             this.drawing_levels_.push({drawing_order: drawing_order_foreground, style_modifier: style => style});
         }
     }
@@ -1417,6 +1454,10 @@ class ViewTableSeries extends ViewingSeries
         return this.pages_.length - 1;
     }
 
+    _shading_changed() {
+        this._make_drawing_levels();
+    }
+
     _make_pages() {
         const number_of_layers = this.chart_.t.L.length;
         const make_name = (source, index) => {
@@ -1440,8 +1481,8 @@ class ViewTableSeries extends ViewingSeries
             else
                 layer.some(entry => !!entry["" + (point_no - antigens.length)]);
         };
-        if (this.shading_ !== "hide")
-            this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => !point_in_layer(point_no)), style_modifier: sStyleModifiers[this.shading_]});
+        if (this.shading() !== "legacy")
+            this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => !point_in_layer(point_no)), style_modifier: sStyleModifiers[this.shading()]});
         this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => point_in_layer(point_no)), style_modifier: style => style});
     }
 }
@@ -1451,6 +1492,11 @@ class ViewGroups extends ViewingBase
     name() {
         return "groups";
     }
+
+    _shading_changed() {
+        this._make_drawing_levels();
+    }
+
 }
 
 // ----------------------------------------------------------------------
