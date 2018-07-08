@@ -1298,9 +1298,17 @@ class ViewingSeries extends ViewingBase
         return this.pages_[this.page_no_];
     }
 
+    on_entry() {
+        if (!this.pages_)
+            this._make_pages();
+        if (this.page_no_ === undefined)
+            this.set_page(this._initial_page_no());
+        else
+            this._update_title();
+    }
+
     set_page(page_no, redraw) {
         if (page_no >= 0 && page_no < this.pages_.length) {
-            console.log("set_page", page_no);
             this.page_no_ = page_no;
             this._make_drawing_levels();
             this._update_title();
@@ -1332,44 +1340,27 @@ class ViewTimeSeries extends ViewingSeries
     name() {
         return "time series";
     }
-}
 
-class ViewTableSeries extends ViewingSeries
-{
-    constructor(map_viewer, chart) {
-        super(map_viewer, chart);
-        this._make_pages();
-    }
-
-    name() {
-        return "table series";
-    }
-
-    on_entry() {
-        if (this.page_no_ === undefined)
-            this.set_page(this.pages_.length - 1);
-        else
-            this._update_title();
+    _initial_page_no() {
+        return this.pages_.length - 1;
     }
 
     _make_pages() {
-        const number_of_layers = this.chart_.t.L.length;
-        const make_name = (source, index) => {
-            if (source && source.D)
-                return `${source.D} (${index + 1}/${number_of_layers})`;
-            else
-                return `Table ${index + 1}/${number_of_layers}`;
-        };
-        const sources = this.chart_.i.S || this.chart_.t.L;
-        this.pages_ = sources.map(make_name);
+        let periods = new Set();
+        for (let antigen of this.chart().a) {
+            const period_name = this._antigen_period_name(antigen);
+            if (period_name)
+                periods.add(period_name);
+        }
+        this.pages_ = [...periods].sort();
     }
 
     _make_drawing_levels() {
+        this.drawing_levels_ = [];
         const page_period_name = this.pages_[this.page_no_];
         const in_page = antigen => this._antigen_period_name(antigen) === page_period_name;
         const antigens = this.chart().a;
         const chart_drawing_order = this.chart_drawing_order();
-        this.drawing_levels_ = [];
         if (this.shading_ === "hide") {
             const drawing_order = [];
             for (let point_no of chart_drawing_order) {
@@ -1383,15 +1374,15 @@ class ViewTableSeries extends ViewingSeries
             this.drawing_levels_.push({drawing_order: drawing_order, style_modifier: style => style});
         }
         else {
-            const drawing_order = [], drawing_order_background = [];
+            const drawing_order_foreground = [], drawing_order_background = [];
             for (let point_no of chart_drawing_order) {
                 if (point_no < antigens.length && in_page(antigens[point_no]))
-                    drawing_order.push(point_no);
+                    drawing_order_foreground.push(point_no);
                 else
                     drawing_order_background.push(point_no);
             }
             this.drawing_levels_.push({drawing_order: drawing_order_background, style_modifier: sStyleModifiers[this.shading_]});
-            this.drawing_levels_.push({drawing_order: drawing_order, style_modifier: style => style});
+            this.drawing_levels_.push({drawing_order: drawing_order_foreground, style_modifier: style => style});
         }
     }
 
@@ -1413,6 +1404,45 @@ class ViewTableSeries extends ViewingSeries
         default:
             return antigen.D && antigen.D.substr(0, 7);
         }
+    }
+}
+
+class ViewTableSeries extends ViewingSeries
+{
+    name() {
+        return "table series";
+    }
+
+    _initial_page_no() {
+        return this.pages_.length - 1;
+    }
+
+    _make_pages() {
+        const number_of_layers = this.chart_.t.L.length;
+        const make_name = (source, index) => {
+            if (source && source.D)
+                return `${source.D} (${index + 1}/${number_of_layers})`;
+            else
+                return `Table ${index + 1}/${number_of_layers}`;
+        };
+        const sources = this.chart_.i.S || this.chart_.t.L;
+        this.pages_ = sources.map(make_name);
+    }
+
+    _make_drawing_levels() {
+        this.drawing_levels_ = [];
+        const antigens = this.chart().a;
+        const chart_drawing_order = this.chart_drawing_order();
+        const layer = this.chart().t.L[this.page_no_];
+        const point_in_layer = point_no => {
+            if (point_no < antigens.length)
+                return Object.keys(layer[point_no]).length > 0;
+            else
+                layer.some(entry => !!entry["" + (point_no - antigens.length)]);
+        };
+        if (this.shading_ !== "hide")
+            this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => !point_in_layer(point_no)), style_modifier: sStyleModifiers[this.shading_]});
+        this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => point_in_layer(point_no)), style_modifier: style => style});
     }
 }
 
