@@ -277,20 +277,15 @@ const ViewDialog_html = "\
   <tr>\
     <td class='av-label'>View</td><td class='mode'></td>\
   </tr>\
+  <tr class='time-series-period'>\
+    <td class='av-label'>Period</td><td class='time-series-period'></td>\
+  </tr>\
   <tr class='shading'>\
     <td class='av-label'>Shading</td><td class='shading'></td>\
   </tr>\
 </table>\
 ";
 
-//   <tr class='time-series-period'>\
-//     <td class='a-label'>Period</td>\
-//     <td class='period'>\
-//       <a href='month'>month</a>\
-//       <a href='season'>winter/summer</a>\
-//       <a href='year'>year</a>\
-//     </td>\
-//   </tr>\
 //   <tr class='group-series'>\
 //     <td class='a-label'>Group Sets</td>\
 //     <td class='group-series'>\
@@ -370,6 +365,7 @@ class ViewDialog
     _repopulate(table) {
         this._coloring_chooser(table.find("td.coloring"));
         this._view_mode_chooser(table.find("td.mode"));
+        this._period_chooser(table.find("td.time-series-period"));
         this._shading_chooser(table.find("td.shading"));
     }
 
@@ -378,6 +374,7 @@ class ViewDialog
     }
 
     viewing_changed() {
+        this._show_period();
         this._show_shading();
     }
 
@@ -444,6 +441,7 @@ class ViewDialog
         for (let viewing_mode of this.widget_.viewer_.viewing_modes_)
             selector.add(viewing_mode.name());
         selector.current(this.widget_.viewer_.viewing_.name());
+        this._show_period();
         this._show_shading();
     }
 
@@ -455,6 +453,16 @@ class ViewDialog
         selector.add("grey");
         selector.add("legacy");
         selector.current(this.widget_.viewer_.viewing_.shading());
+    }
+
+    _period_chooser(section) {
+        section.empty();
+        const onchange = value => this.widget_.viewer_.viewing_.period(value);
+        const selector = this.selector_use_select_ ? new SelectorSelect(section, onchange) : new SelectorButtons(section, onchange);
+        selector.add("month");
+        selector.add("winter/summer");
+        selector.add("year");
+        // selector.current(this.widget_.viewer_.viewing_.period());
     }
 
     _show_legend() {
@@ -545,12 +553,20 @@ class ViewDialog
         wait_fill();
     }
 
+    _show_period() {
+        const tr = this.content_.find("tr.time-series-period");
+        const viewing = this.widget_.viewer_.viewing_;
+        if (viewing instanceof ViewTimeSeries)
+            tr.show();
+        else
+            tr.hide();
+    }
+
     _show_shading() {
         const tr = this.content_.find("tr.shading");
         const viewing = this.widget_.viewer_.viewing_;
-        if (viewing instanceof ViewSearch || viewing instanceof ViewTableSeries || viewing instanceof ViewTimeSeries || viewing instanceof ViewGroups) {
+        if (viewing instanceof ViewSearch || viewing instanceof ViewTableSeries || viewing instanceof ViewTimeSeries || viewing instanceof ViewGroups)
             tr.show();
-        }
         else
             tr.hide();
     }
@@ -1370,8 +1386,22 @@ class ViewingSeries extends ViewingBase
 
 class ViewTimeSeries extends ViewingSeries
 {
+    constructor(map_viewer, chart) {
+        super(map_viewer, chart);
+        this.period_ = "month";
+    }
+
     name() {
         return "time series";
+    }
+
+    period(new_period) {
+        if (new_period !== undefined) {
+            this.period_ = new_period;
+            this._make_pages();
+            this.set_page(this._initial_page_no(), true);
+        }
+        return this.period_;
     }
 
     _initial_page_no() {
@@ -1428,6 +1458,7 @@ class ViewTimeSeries extends ViewingSeries
         case "year":
             return antigen.D && antigen.D.substr(0, 4);
         case "season":
+        case "winter/summer":
             const season = (year, month) => {
                 if (month <= 4)
                     return `${year - 1} Nov - ${year} Apr`;
