@@ -887,30 +887,34 @@ class ColoringByClade extends ColoringBase
     }
 
     update_for_drawing_level(drawing_level) {
-        console.warn("update_for_drawing_level");
-        // this._make_antigens_by_clade();
+        if (drawing_level.type === "foreground") {
+            this._make_antigens_by_clade({drawing_order: drawing_level.drawing_order});
+            this.widget_.view_dialog("_show_legend");
+        }
     }
 
     legend() {
         return this.clade_order_.filter(clade => !!clade).map(clade => { return {name: clade, count: this.clade_to_number_of_antigens_[clade], color: sCladeColors[clade]}; });
     }
 
-    _make_antigens_by_clade(args) {
+    // {set_clade_for_antigen: false, drawing_order: []}
+    _make_antigens_by_clade(args={}) {
         const clade_sorting_key = clade => (clade === "GLY" || clade === "NO-GLY" || clade === "SEQUENCED") ? 0 : clade.length;
         this.clade_to_number_of_antigens_ = {};
-        if (args && args.set_clade_for_antigen)
+        if (args.set_clade_for_antigen)
             this.clade_for_antigen_ = Array.apply(null, {length: this.chart_.a.length}).map(() => "");
-        super.drawing_order().filter(no => no < this.chart_.a.length).forEach(antigen_no => {
+        const drawing_order = args.drawing_order || super.drawing_order();
+        drawing_order.filter(no => no < this.chart_.a.length).forEach(antigen_no => {
             const clades = (this.chart_.a[antigen_no].c || []).sort((a, b) => clade_sorting_key(b) - clade_sorting_key(a));
             let clade = clades.length > 0 ? clades[0] : "";
             if (clade === "GLY" || clade === "NO-GLY")
                 clade = "SEQUENCED";
             this.clade_to_number_of_antigens_[clade] = (this.clade_to_number_of_antigens_[clade] || 0) + 1;
-            if (args && args.set_clade_for_antigen)
+            if (args.set_clade_for_antigen)
                 this.clade_for_antigen_[antigen_no] = clade;
         });
         this.clade_order_ = Object.keys(this.clade_to_number_of_antigens_).sort((a, b) => this._clade_rank(a) - this._clade_rank(b));
-        if (args && args.set_clade_for_antigen)
+        if (args.set_clade_for_antigen)
             this.point_rank_ = this.clade_for_antigen_.map(clade => this.clade_order_.indexOf(clade)).concat(Array.apply(null, {length: this.chart_.s.length}).map(() => -2));
     }
 
@@ -958,8 +962,10 @@ class ColoringByAAatPos extends ColoringBase
     }
 
     update_for_drawing_level(drawing_level) {
-        console.warn("update_for_drawing_level");
-        // this._make_legend();
+        if (drawing_level.type === "foreground") {
+            this._make_legend(drawing_level.drawing_order);
+            this.widget_.view_dialog("_show_legend");
+        }
     }
 
     legend() {
@@ -1017,7 +1023,8 @@ class ColoringByAAatPos extends ColoringBase
     _reset_styles() {
         this.styles_ = this.all_styles({reset_sera: true});
         this.chart_.a.forEach((antigen, antigen_no) => {
-            this.styles_[antigen_no].F = this.styles_[antigen_no].O = av_toolkit.sLIGHTGREY;
+            this.styles_[antigen_no].F = av_toolkit.sLIGHTGREY;
+            this.styles_[antigen_no].O = av_toolkit.sGREY;
         });
     }
 
@@ -1295,7 +1302,7 @@ class ViewAll extends ViewingBase
 
     drawing_levels() {
         return [
-            {drawing_order: this.chart_drawing_order(), style_modifier: style => style}
+            {drawing_order: this.chart_drawing_order(), style_modifier: style => style, type: "foreground"}
         ];
     }
 
@@ -1438,7 +1445,7 @@ class ViewTimeSeries extends ViewingSeries
                 if (point_no < antigens.length && in_page(antigens[point_no]))
                     drawing_order.push(point_no);
             }
-            this.drawing_levels_.push({drawing_order: drawing_order, style_modifier: style => style});
+            this.drawing_levels_.push({drawing_order: drawing_order, style_modifier: style => style, type: "foreground"});
         }
         else {
             const drawing_order_foreground = [], drawing_order_background = [];
@@ -1449,7 +1456,7 @@ class ViewTimeSeries extends ViewingSeries
                     drawing_order_background.push(point_no);
             }
             this.drawing_levels_.push({drawing_order: drawing_order_background, style_modifier: sStyleModifiers[this.shading()]});
-            this.drawing_levels_.push({drawing_order: drawing_order_foreground, style_modifier: style => style});
+            this.drawing_levels_.push({drawing_order: drawing_order_foreground, style_modifier: style => style, type: "foreground"});
         }
     }
 
@@ -1514,7 +1521,7 @@ class ViewTableSeries extends ViewingSeries
         };
         if (this.shading() !== "legacy")
             this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => !point_in_layer(point_no)), style_modifier: sStyleModifiers[this.shading()]});
-        this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => point_in_layer(point_no)), style_modifier: style => style});
+        this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => point_in_layer(point_no)), style_modifier: style => style, type: "foreground"});
     }
 }
 
