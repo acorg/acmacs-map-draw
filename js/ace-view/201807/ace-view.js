@@ -1737,8 +1737,10 @@ class ViewGroups extends ViewingSeries
                     group_sets.append(`<a href='${gs.N}'>${gs.N}</a>`);
 
                 const switch_current_set = set_no => {
-                    this.groups_combined_ = [];
-                    this.current_set_no_ = set_no;
+                    if (this.current_set_no_ !== set_no) {
+                        this.current_set_no_ = set_no;
+                        this.groups_combined_ = [];
+                    }
                     $(group_sets.find("a")[this.current_set_no_]).addClass("av-current");
                     const gs = this.group_sets_[this.current_set_no_];
                     this._populate_table_groups(gs, tr_groups_combined);
