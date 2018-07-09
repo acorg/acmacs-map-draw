@@ -99,30 +99,9 @@ export class AntigenicMapWidget
         this.title_.update();
     }
 
-    async sequences() {
-        if (this.sequences_ === undefined) {
-            this.sequences_ = "loading, please wait";
-            return this.options_.api.get_sequences().then(
-                data => {
-                    this.sequences_ = data.sequences;
-                    return new Promise(resolve => resolve(this.sequences_));
-                },
-                error => {
-                    this.sequences_ = "Error: " + error;
-                    return new Promise((_, reject) => reject(error));
-                });
-        }
-        else {
-            return new Promise((resolve, reject) => {
-                if (typeof(this.sequences_) === "string" && this.sequences_.substr(0, 6) === "Error:")
-                    reject(this.sequences_);
-                else
-                    resolve(this.sequences_);
-            });
-        }
-    }
-
     view_dialog(func, args) {
+        console.warn("widget view_dialog", func);
+        console.trace();
         if (this.view_dialog_)
             return this.view_dialog_[func](args);
         else
@@ -268,19 +247,19 @@ const ViewDialog_html = "\
   <tr>\
     <td class='av-label'>Coloring</td><td class='coloring'></td>\
   </tr>\
-  <tr class='coloring-aa-pos'>\
+  <tr class='coloring-aa-pos av-initially-hidden'>\
     <td class='av-label'>Positions</td><td class='coloring-aa-pos'><input type='text'></input><a href='coloring-aa-pos-hint'>hint</a></td>\
   </tr>\
-  <tr class='coloring-legend'>\
+  <tr class='coloring-legend av-initially-hidden'>\
     <td class='av-label'>Legend</td><td class='coloring-legend'></td>\
   </tr>\
   <tr>\
     <td class='av-label'>View</td><td class='mode'></td>\
   </tr>\
-  <tr class='time-series-period'>\
+  <tr class='time-series-period av-initially-hidden'>\
     <td class='av-label'>Period</td><td class='time-series-period'></td>\
   </tr>\
-  <tr class='group-series'>\
+  <tr class='group-series av-initially-hidden'>\
     <td class='av-label'>Group Sets</td>\
     <td class='group-series'>\
       <div class='av-sets'><p class='av-hint'>please drop here group description file or click below to upload</p></div>\
@@ -291,7 +270,7 @@ const ViewDialog_html = "\
       </div>\
     </td>\
   </tr>\
-  <tr class='group-series-combined'>\
+  <tr class='group-series-combined av-initially-hidden'>\
     <td class='av-label'>Groups</td>\
     <td class='group-series-combined'>\
       <div class='av-buttons'>\
@@ -302,7 +281,7 @@ const ViewDialog_html = "\
       </table>\
     </td>\
   </tr>\
-  <tr class='shading'>\
+  <tr class='shading av-initially-hidden'>\
     <td class='av-label'>Shading</td><td class='shading'></td>\
   </tr>\
 </table>\
@@ -343,8 +322,8 @@ class ViewDialog
             on_destroy: () => this.destroy()
         });
         this.content_ = this.window_.content();
-        if (this.content_.find("table.view-dialog").length === 0)
-            this.populate();
+        this.populate();
+        this.coloring_legend_ = new ViewDialogColoringLegend(this.section("coloring-legend"));
         this.on_destroy = args.on_destroy;
     }
 
@@ -353,59 +332,20 @@ class ViewDialog
             this.on_destroy();
     }
 
+    position() {
+        this.window_.position(this.canvas_);
+    }
+
     populate() {
         const table = $(ViewDialog_html).appendTo(this.content_);
+        table.find(".av-initially-hidden").hide();
         this._projection_chooser(table.find(".projection-chooser"));
         this._selector_toggle(table.find(".projection-chooser"));
         this._repopulate(table);
     }
 
-    _repopulate(table) {
-        this._coloring_chooser(table.find("td.coloring"));
-        this._view_mode_chooser(table.find("td.mode"));
-        this._period_chooser(table.find("td.time-series-period"));
-        this._shading_chooser(table.find("td.shading"));
-    }
-
-    coloring_changed() {
-        this._show_aa_at_pos();
-    }
-
-    viewing_changed() {
-        this._show_period();
-        this._show_groups();
-        this._show_shading();
-    }
-
-    aa_at_pos_changed() {
-        this._show_aa_at_pos();
-        this._show_legend();
-    }
-
-    position() {
-        this.window_.position(this.canvas_);
-    }
-
-    _projection_chooser(section) {
-        if (this.chart_.P.length === 0)
-            section.append("<div class='av-error'>None</div>");
-        else if (this.chart_.P.length === 1)
-            section.append(`<div>${this._projection_title(this.chart_.P[0])}</div>`);
-        else {
-            const entries = this.chart_.P.map((prj, index) => `<option value="${index}">${this._projection_title(prj, index)}</option>`).join();
-            const select = $(`<select>${entries}</select>`).appendTo(section);
-            select.on("change", evt => av_utils.forward_event(evt, evt => this.widget_.viewer_.projection(parseInt(evt.currentTarget.value), true)));
-        }
-    }
-
-    _projection_title(projection, index) {
-        return av_utils.join_collapse([
-            index === undefined ? null : "" + (index + 1) + ".",
-            projection.s.toFixed(4),
-            "&ge;" + (projection.m || "none"),
-            projection.C ? "forced-col-bases" : null,
-            projection.c
-        ]);
+    section(name) {
+        return this.content_.find("table tr." + name);
     }
 
     _selector_toggle(section) {
@@ -416,26 +356,54 @@ class ViewDialog
         }));
     }
 
+    _repopulate(table) {
+        this._coloring_chooser(table.find("td.coloring"));
+        this._view_mode_chooser(table.find("td.mode"));
+//        this._period_chooser(table.find("td.time-series-period"));
+//        this._shading_chooser(table.find("td.shading"));
+    }
+
+// viewing_changed() {
+//     this._show_period();
+//     this._show_groups();
+//     this._show_shading();
+// }
+
+    _projection_chooser(section) {
+
+        const projection_title = (projection, index) => {
+            return av_utils.join_collapse([
+                index === undefined ? null : "" + (index + 1) + ".",
+                projection.s.toFixed(4),
+                "&ge;" + (projection.m || "none"),
+                projection.C ? "forced-col-bases" : null,
+                projection.c
+            ]);
+        }
+
+        if (this.chart_.P.length === 0)
+            section.append("<div class='av-error'>None</div>");
+        else if (this.chart_.P.length === 1)
+            section.append(`<div>${projection_title(this.chart_.P[0])}</div>`);
+        else {
+            const entries = this.chart_.P.map((prj, index) => `<option value="${index}">${projection_title(prj, index)}</option>`).join();
+            const select = $(`<select>${entries}</select>`).appendTo(section);
+            select.on("change", evt => av_utils.forward_event(evt, evt => this.widget_.viewer_.projection(parseInt(evt.currentTarget.value), true)));
+        }
+    }
+
     _coloring_chooser(section) {
         section.empty();
-        const onchange = value => {
-            // console.log("_coloring_chooser onchange", value);
-            this.widget_.viewer_.coloring(value, true);
-            this._show_legend();
-        };
+        const onchange = value => this.widget_.viewer_.coloring(value, true);
         const selector = this.selector_use_select_ ? new SelectorSelect(section, onchange) : new SelectorButtons(section, onchange);
         for (let coloring_mode of this.widget_.viewer_.coloring_modes_)
             selector.add(coloring_mode.name());
         selector.current(this.widget_.viewer_.coloring_.name());
-        this._show_aa_at_pos();
-        this._show_legend();
     }
 
     _view_mode_chooser(section) {
         section.empty();
-        const onchange = value => {
-            this.widget_.viewer_.viewing(value, true);
-        };
+        const onchange = value => this.widget_.viewer_.viewing(value, true);
         const selector = this.selector_use_select_ ? new SelectorSelect(section, onchange) : new SelectorButtons(section, onchange);
         for (let viewing_mode of this.widget_.viewer_.viewing_modes_)
             selector.add(viewing_mode.name());
@@ -445,17 +413,19 @@ class ViewDialog
         this._show_shading();
     }
 
-    _shading_chooser(section) {
-        section.empty();
-        const onchange = value => this.widget_.viewer_.viewing_.shading(value);
-        const selector = this.selector_use_select_ ? new SelectorSelect(section, onchange) : new SelectorButtons(section, onchange);
-        selector.add("shade");
-        selector.add("grey");
-        selector.add("legacy");
-        selector.current(this.widget_.viewer_.viewing_.shading());
-    }
+//    _shading_chooser(section) {
+//        console.warn("_shading_chooser");
+//        section.empty();
+//        const onchange = value => this.widget_.viewer_.viewing_.shading(value);
+//        const selector = this.selector_use_select_ ? new SelectorSelect(section, onchange) : new SelectorButtons(section, onchange);
+//        selector.add("shade");
+//        selector.add("grey");
+//        selector.add("legacy");
+//        selector.current(this.widget_.viewer_.viewing_.shading());
+//    }
 
     _period_chooser(section) {
+        console.warn("_period_chooser");
         section.empty();
         const onchange = value => this.widget_.viewer_.viewing_.period(value);
         const selector = this.selector_use_select_ ? new SelectorSelect(section, onchange) : new SelectorButtons(section, onchange);
@@ -465,95 +435,8 @@ class ViewDialog
         // selector.current(this.widget_.viewer_.viewing_.period());
     }
 
-    _show_legend() {
-        const legend = this.widget_.viewer_.coloring_.legend();
-        if (legend) {
-            const td_legend = this.content_.find("tr.coloring-legend").show().find("td.coloring-legend").empty();
-            td_legend.append("<table class='av-legend'><tr class='av-names'></tr><tr class='av-colors'></tr></table>");
-            legend.map(entry => {
-                td_legend.find("tr.av-names").append(`<td>${entry.name}</td>`);
-                if (entry.color !== undefined && entry.color !== null)
-                    td_legend.find("tr.av-colors").append(`<td><span class="av-color" style="background-color: ${entry.color}">__</span>${entry.count || ""}</td>`);
-            });
-        }
-        else {
-            this.content_.find("tr.coloring-legend").hide();
-        }
-    }
-
-    _show_aa_at_pos() {
-        const tr = this.content_.find("tr.coloring-aa-pos");
-        const input = tr.find("input").off("keypress");
-        const hint = tr.find("a").off("click");
-        if (this.widget_.viewer_.coloring_ instanceof ColoringByAAatPos) {
-            input.on("keypress", evt => {
-                if (evt.charCode === 13) {
-                    if (this.widget_.viewer_.coloring_.set_positions(evt.currentTarget.value.split(/[^0-9]/).filter(entry => !!entry))) {
-                        this.widget_.viewer_.draw();
-                        this._show_legend();
-                    }
-                }
-            });
-            hint.on("click", evt => av_utils.forward_event(evt, evt => this._aa_positions_hint($(evt.currentTarget))));
-            const positions = this.widget_.viewer_.coloring_.positions();
-            if (positions && positions.length)
-                input.val(positions.join(" "));
-            tr.show();
-            window.setTimeout(() => input.focus(), 10);
-        }
-        else
-            tr.hide();
-    }
-
-    _aa_positions_hint(parent) {
-        const movable_window = new av_toolkit.MovableWindow({
-            title: "AA positions", parent: parent,
-            classes: "av201807-coloring-aa-pos-hint",
-            content_css: {width: "auto", height: "auto"}
-        });
-        const content = movable_window.content().empty();
-        const compare_shannon = (e1, e2) => e2[1].shannon - e1[1].shannon;
-        const compare_position = (e1, e2) => e1[0] - e2[0];
-        let sort_by = "shannon";
-        const make_table = tbl => {
-            tbl.empty();
-            Object.entries(this.widget_.sequences_.per_pos).sort(sort_by === "shannon" ? compare_shannon : compare_position).forEach(entry => {
-                let [pos, sh_count] = entry;
-                if (Object.keys(sh_count.aa_count).length > 1) {
-                    const row = $(`<tr><td class='av-pos'>${pos}</td></tr>`).appendTo(tbl);
-                    const aa_order = Object.keys(sh_count.aa_count).sort((aa1, aa2) => sh_count.aa_count[aa2] - sh_count.aa_count[aa1]);
-                    aa_order.forEach(aa => {
-                        row.append(`<td class='av-aa'>${aa}</td><td class='av-count'>${sh_count.aa_count[aa]}</td>`);
-                    });
-                }
-            });
-        };
-        const fill = () => {
-            const sort_by_button = $("<a href='sort-by'></a>").appendTo(content);
-            const sort_by_text = () => { sort_by_button.empty().append(sort_by === "shannon" ? "re-sort by position" : "re-sort by shannon index"); };
-            const tbl = $("<table class='av-position-hint''></table>").appendTo(content);
-            sort_by_button.on("click", evt => av_utils.forward_event(evt, evt => {
-                sort_by = sort_by === "shannon" ? "position" : "shannon";
-                make_table(tbl);
-                sort_by_text();
-            }));
-            sort_by_text();
-            make_table(tbl);
-            window.setTimeout(() => {
-                if (content.height() > 300)
-                    content.css("height", "300px");
-            }, 10);
-        };
-        const wait_fill = () => {
-            if (this.widget_.sequences_ && typeof(this.widget_.sequences_) !== "string")
-                fill();
-            else
-                window.setTimeout(wait_fill, 100);
-        };
-        wait_fill();
-    }
-
     _show_period() {
+        console.warn("_show_period");
         const tr = this.content_.find("tr.time-series-period");
         const viewing = this.widget_.viewer_.viewing_;
         if (viewing instanceof ViewTimeSeries)
@@ -563,6 +446,7 @@ class ViewDialog
     }
 
     _show_shading() {
+        console.warn("_show_shading");
         const tr = this.content_.find("tr.shading");
         const viewing = this.widget_.viewer_.viewing_;
         if (viewing instanceof ViewSearch || viewing instanceof ViewTableSeries || viewing instanceof ViewTimeSeries || viewing instanceof ViewGroups)
@@ -572,6 +456,7 @@ class ViewDialog
     }
 
     _show_groups() {
+        console.warn("_show_groups");
         const tr_groups = this.content_.find("tr.group-series");
         const tr_groups_combined = this.content_.find("tr.group-series-combined");
         const viewing = this.widget_.viewer_.viewing_;
@@ -590,6 +475,7 @@ class ViewDialog
     }
 
     _show_group_series_data() {
+        console.warn("_show_group_series_data");
         const viewing = this.widget_.viewer_.viewing_;
         this._make_exclusive_combined();
         if (!viewing.group_sets_ && this.chart_.group_sets)
@@ -624,6 +510,7 @@ class ViewDialog
     }
 
     _make_exclusive_combined() {
+        console.warn("_make_exclusive_combined");
         const viewing = this.widget_.viewer_.viewing_;
         const tr_group_series_combined = this.content_.find("table.av-view-dialog tr.group-series-combined");
         tr_group_series_combined.find(".av-buttons a").off("click");
@@ -659,6 +546,7 @@ class ViewDialog
     }
 
     _populate_table_groups(group_set) {
+        console.warn("_populate_table_groups");
         const viewing = this.widget_.viewer_.viewing_;
         const group_html = group_set.groups.map(group => {
             return `<tr><td class="av-checkbox"><input type="checkbox" name="${group.N}"></input></td><td class="av-name">${group.N}</td></tr>`;
@@ -674,12 +562,14 @@ class ViewDialog
     }
 
     _make_uploader(args) {
+        console.warn("_make_uploader");
         av_utils.upload_json(args)
             .then(data => { this._show_group_series_uploaded_data(data); this._make_uploader(args); })
             .catch(err => { av_toolkit.movable_window_with_error(err, args.button); this._make_uploader(args); });
     }
 
     _make_downloader(tr_group_series) {
+        console.warn("_make_downloader");
         const viewing = this.widget_.viewer_.viewing_;
         const button_download_sample = tr_group_series.find("a[href='download']");
         button_download_sample.off("click");
@@ -706,6 +596,7 @@ class ViewDialog
     }
 
     _show_group_series_uploaded_data(data) {
+        console.warn("_show_group_series_uploaded_data");
         try {
             this._check_group_sets(data);
             this._match_groups(data);
@@ -718,6 +609,7 @@ class ViewDialog
     }
 
     _match_groups(data) {
+        console.warn("_match_groups");
         const point_to_point_ar = data.a.map((elt, no) => [no, this.chart_.a.findIndex(antigen => av_utils.objects_equal(elt, antigen, ["?no", "no", "C", "S", "c"]))])
               .concat(data.s.map((elt, no) => [no + data.a.length, this.chart_.a.length + this.chart_.s.findIndex(antigen => av_utils.objects_equal(elt, antigen, ["?no", "no", "S"]))]));
         const point_to_point = point_to_point_ar.reduce((obj, entry) => { obj[entry[0]] = entry[1]; return obj; }, {});
@@ -732,6 +624,7 @@ class ViewDialog
     }
 
     _check_group_sets(data) {
+        console.warn("_check_group_sets");
         if (data["  version"] !== "group-series-set-v1")
             throw "Ivalid \"  version\" of the uploaded data";
         if (!data.a || !Array.isArray(data.a) || data.a.length === 0 || !data.s || !Array.isArray(data.s) || data.s.length === 0)
@@ -770,6 +663,34 @@ class ViewDialog
                     throw "invalid \"line_width\" in group " + group.N;
             });
         });
+    }
+
+} // class ViewDialog
+
+// ----------------------------------------------------------------------
+
+class ViewDialogColoringLegend
+{
+    constructor(section) {
+        this.section_ = section;
+    }
+
+    show() {
+        this.section_.show();
+    }
+
+    hide() {
+        this.section_.hide();
+    }
+
+    populate(legend) {
+        const td_legend = this.section_.find("td.coloring-legend").empty();
+        td_legend.append("<table class='av-legend'><tr class='av-names'></tr><tr class='av-colors'></tr></table>");
+        for (let entry of legend) {
+            td_legend.find("tr.av-names").append(`<td>${entry.name}</td>`);
+            if (entry.color !== undefined && entry.color !== null)
+                td_legend.find("tr.av-colors").append(`<td><span class="av-color" style="background-color: ${entry.color}">__</span>${entry.count || ""}</td>`);
+        }
     }
 
 }
@@ -854,23 +775,25 @@ class MapViewer
     }
 
     coloring(mode_name, redraw=false) {
+        if (this.coloring_)
+            this.coloring_.on_exit(this.widget_.view_dialog_);
         this.coloring_ = this.coloring_modes_.find(mode => mode.name() === mode_name) || this.coloring_modes_.find(mode => mode.name() === "original");
-        this.coloring_.start_using();
+        this.coloring_.on_entry(this.widget_.view_dialog_);
         if (redraw)
             this.draw();
-        this.widget_.view_dialog("coloring_changed");
+// this.widget_.view_dialog("coloring_changed");
     }
 
     viewing(mode_name, redraw=false) {
         if (this.viewing_)
-            this.viewing_.on_exit();
+            this.viewing_.on_exit(this.widget_.view_dialog_);
         this.viewing_ = this.viewing_modes_.find(mode => mode.name() === mode_name) || this.viewing_modes_.find(mode => mode.name() === "all");
         if (this.projection_no_ !== undefined)
             this.viewing_.projection(this.projection_no_);
-        this.viewing_.on_entry();
+        this.viewing_.on_entry(this.widget_.view_dialog_);
         if (redraw)
             this.draw();
-        this.widget_.view_dialog("viewing_changed");
+// this.widget_.view_dialog("viewing_changed");
     }
 
     projection(projection_no, redraw=false) {
@@ -1000,7 +923,10 @@ class ColoringBase
         return null;
     }
 
-    start_using() {
+    on_entry(view_dialog) {
+    }
+
+    on_exit(view_dialog) {
     }
 
     point_style(point_no) {
@@ -1076,11 +1002,21 @@ class ColoringByClade extends ColoringBase
         return "by clade";
     }
 
-    start_using() {
+    on_entry(view_dialog) {
+        super.on_entry(view_dialog);
         if (!this.styles_) {
             this._make_antigens_by_clade({set_clade_for_antigen: true});
             this._make_styles();
         }
+        if (view_dialog) {
+            view_dialog.coloring_legend_.show();
+        }
+    }
+
+    on_exit(view_dialog) {
+        super.on_exit(view_dialog);
+        if (view_dialog)
+            view_dialog.coloring_legend_.hide();
     }
 
     drawing_order(drawing_order) {
@@ -1091,7 +1027,7 @@ class ColoringByClade extends ColoringBase
     update_for_drawing_level(drawing_level) {
         if (drawing_level.type === "foreground") {
             this._make_antigens_by_clade({drawing_order: drawing_level.drawing_order});
-            this.widget_.view_dialog("_show_legend");
+            this.widget_.view_dialog_ && this.widget_.view_dialog_.coloring_legend_.populate(this.legend());
         }
     }
 
@@ -1146,10 +1082,22 @@ class ColoringByAAatPos extends ColoringBase
         return "by AA at pos";
     }
 
-    start_using() {
+    on_entry(view_dialog) {
+        super.on_entry(view_dialog);
         if (!this.styles_) {
             this._make_styles({set_point_rank: true});
-            this.widget_.sequences().then(data => this._sequences_received(data)).catch(error => console.log("Coloring_AAPos::constructor sequences error", error));
+            this.sequences().then(data => this._sequences_received(data)).catch(error => console.log("Coloring_AAPos::constructor sequences error", error));
+        }
+        if (view_dialog) {
+            view_dialog.coloring_legend_.show();
+        }
+    }
+
+    on_exit(view_dialog) {
+        super.on_exit(view_dialog);
+        if (view_dialog) {
+            view_dialog.coloring_legend_.hide();
+            this.section_aa_at_pos_.hide();
         }
     }
 
@@ -1166,7 +1114,7 @@ class ColoringByAAatPos extends ColoringBase
     update_for_drawing_level(drawing_level) {
         if (drawing_level.type === "foreground") {
             this._make_legend(drawing_level.drawing_order);
-            this.widget_.view_dialog("_show_legend");
+            this.widget_.view_dialog_ && this.widget_.view_dialog_.coloring_legend_.populate(this.legend());
         }
     }
 
@@ -1178,11 +1126,7 @@ class ColoringByAAatPos extends ColoringBase
                 return [{name: "type space separated positions and press Enter"}];
         }
         else
-            return [{name: "loading, please wait"}];
-    }
-
-    positions() {
-        return this.positions_;
+            return [{name: "loading sequences, please wait"}];
     }
 
     set_positions(positions) {
@@ -1192,6 +1136,26 @@ class ColoringByAAatPos extends ColoringBase
             this._make_styles({set_point_rank: true});
         }
         return update;
+    }
+
+    async sequences() {
+        if (this.sequences_ === undefined) {
+            this.sequences_ = "loading, please wait";
+            return this.widget_.options_.api.get_sequences().then(
+                data => new Promise(resolve => resolve(data.sequences)),
+                error => {
+                    this.sequences_ = "Error: " + error;
+                    return new Promise((_, reject) => reject(error));
+                });
+        }
+        else {
+            return new Promise((resolve, reject) => {
+                if (typeof(this.sequences_) === "string" && this.sequences_.substr(0, 6) === "Error:")
+                    reject(this.sequences_);
+                else
+                    resolve(this.sequences_);
+            });
+        }
     }
 
     _make_legend(drawing_order) {
@@ -1236,8 +1200,76 @@ class ColoringByAAatPos extends ColoringBase
 
     _sequences_received(data) {
         this.sequences_ = data;
-        this.widget_.view_dialog("aa_at_pos_changed");
+        if (this.widget_.view_dialog_) {
+            this.section_aa_at_pos_ = this.widget_.view_dialog_.section("coloring-aa-pos").show();
+            this._section_aa_at_pos_populate();
+        }
     }
+
+    _section_aa_at_pos_populate() {
+        const input = this.section_aa_at_pos_.find("input")
+              .off("keypress")
+              .on("keypress", evt => {
+                  if (evt.charCode === 13) {
+                      if (this.set_positions(evt.currentTarget.value.split(/[^0-9]/).filter(entry => !!entry)))
+                          this.widget_.viewer_.draw();
+                  }
+              })
+              .val(this.positions_ ? this.positions_.join(" ") : "");
+        window.setTimeout(() => input.focus(), 10);
+        this.section_aa_at_pos_.find("a")
+           .off("click")
+           .on("click", evt => av_utils.forward_event(evt, evt => this._aa_positions_hint($(evt.currentTarget))));
+    }
+
+   _aa_positions_hint(parent) {
+       const movable_window = new av_toolkit.MovableWindow({
+           title: "AA positions", parent: parent,
+           classes: "av201807-coloring-aa-pos-hint",
+           content_css: {width: "auto", height: "auto"}
+       });
+       const content = movable_window.content().empty();
+       const compare_shannon = (e1, e2) => e2[1].shannon - e1[1].shannon;
+       const compare_position = (e1, e2) => e1[0] - e2[0];
+       let sort_by = "shannon";
+       const make_table = tbl => {
+           tbl.empty();
+           Object.entries(this.sequences_.per_pos).sort(sort_by === "shannon" ? compare_shannon : compare_position).forEach(entry => {
+               let [pos, sh_count] = entry;
+               if (Object.keys(sh_count.aa_count).length > 1) {
+                   const row = $(`<tr><td class='av-pos'>${pos}</td></tr>`).appendTo(tbl);
+                   const aa_order = Object.keys(sh_count.aa_count).sort((aa1, aa2) => sh_count.aa_count[aa2] - sh_count.aa_count[aa1]);
+                   aa_order.forEach(aa => {
+                       row.append(`<td class='av-aa'>${aa}</td><td class='av-count'>${sh_count.aa_count[aa]}</td>`);
+                   });
+               }
+           });
+       };
+       const fill = () => {
+           const sort_by_button = $("<a href='sort-by'></a>").appendTo(content);
+           const sort_by_text = () => { sort_by_button.empty().append(sort_by === "shannon" ? "re-sort by position" : "re-sort by shannon index"); };
+           const tbl = $("<table class='av-position-hint''></table>").appendTo(content);
+           sort_by_button.on("click", evt => av_utils.forward_event(evt, evt => {
+               sort_by = sort_by === "shannon" ? "position" : "shannon";
+               make_table(tbl);
+               sort_by_text();
+           }));
+           sort_by_text();
+           make_table(tbl);
+           window.setTimeout(() => {
+               if (content.height() > 300)
+                   content.css("height", "300px");
+           }, 10);
+       };
+       const wait_fill = () => {
+           if (this.sequences_ && typeof(this.sequences_) !== "string")
+               fill();
+           else
+               window.setTimeout(wait_fill, 100);
+       };
+       wait_fill();
+   }
+
 }
 
 // ----------------------------------------------------------------------
@@ -1282,11 +1314,21 @@ class ColoringByGeography extends ColoringBase
         return "by geography";
     }
 
-    start_using() {
+    on_entry(view_dialog) {
+        super.on_entry(view_dialog);
         if (!this.styles_) {
             this.styles_ = this.all_styles({reset_sera: true});
             this._make_continent_count({set_styles: true});
         }
+        if (view_dialog) {
+            view_dialog.coloring_legend_.show();
+        }
+    }
+
+    on_exit(view_dialog) {
+        super.on_exit(view_dialog);
+        if (view_dialog)
+            view_dialog.coloring_legend_.hide();
     }
 
     drawing_order(original_drawing_order) {
@@ -1299,9 +1341,8 @@ class ColoringByGeography extends ColoringBase
     }
 
     update_for_drawing_level(drawing_level) {
-        if (drawing_level.type === "foreground") {
-            this.widget_.view_dialog("_show_legend");
-        }
+        if (drawing_level.type === "foreground")
+            this.widget_.view_dialog_ && this.widget_.view_dialog_.coloring_legend_.populate(this.legend());
     }
 
     legend() {
@@ -1371,10 +1412,10 @@ class ViewingBase
         return this.chart_.p.d || av_utils.array_of_indexes(this.layout_.length);
     }
 
-    on_exit() {
+    on_exit(view_dialog) {
     }
 
-    on_entry() {
+    on_entry(view_dialog) {
     }
 
     _shading_changed() {
@@ -1517,7 +1558,7 @@ class ViewAll extends ViewingBase
         return this.chart_drawing_order();
     }
 
-    on_entry() {
+    on_entry(view_dialog) {
         this.map_viewer_.widget_.update_title();
     }
 
@@ -1561,7 +1602,7 @@ class ViewingSeries extends ViewingBase
         return this.pages_[this.page_no_];
     }
 
-    on_entry() {
+    on_entry(view_dialog) {
         if (!this.pages_)
             this._make_pages();
         if (this.page_no_ === undefined)
@@ -1750,7 +1791,7 @@ class ViewGroups extends ViewingSeries
         this._draw_root_connecting_lines();
     }
 
-    on_entry() {
+    on_entry(view_dialog) {
         if (this.page_no_ === undefined)
             this.set_page(this._initial_page_no());
         else
