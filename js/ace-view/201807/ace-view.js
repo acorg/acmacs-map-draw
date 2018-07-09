@@ -278,28 +278,25 @@ const ViewDialog_html = "\
   <tr class='shading av-initially-hidden'>\
     <td class='av-label'>Shading</td><td class='shading'></td>\
   </tr>\
+  <tr class='selection av-initially-hidden'>\
+    <td class='a-label'>RegEx</td>\
+    <td class='regex'>\
+      <input type='text'></input>\
+      <select name='selection-mode'>\
+        <option value='antigens'>antigens only</option>\
+        <option value='sera'>sera only</option>\
+        <option value='antigens+sera'>antigens and sera</option>\
+      </select>\
+    </td>\
+  <tr class='selection-results av-initially-hidden'>\
+    <td class='a-label'></td>\
+    <td class='selection-results'>\
+      <p class='a-message'>please enter regular expression above and press enter</p>\
+      <table></table>\
+    </td>\
+  </tr>\
 </table>\
 ";
-
-//   <tr class='selection'>\
-//     <td class='a-label'>RegEx</td>\
-//     <td class='regex'>\
-//       <input type='text'></input>\
-//       <select name='selection-mode'>\
-//         <option value='antigens'>antigens only</option>\
-//         <option value='sera'>sera only</option>\
-//         <option value='antigens+sera'>antigens and sera</option>\
-//       </select>\
-//     </td>\
-//   <tr class='selection-results'>\
-//     <td class='a-label'></td>\
-//     <td class='selection-results'>\
-//       <p class='a-message'>please enter regular expression above and press enter</p>\
-//       <table></table>\
-//     </td>\
-//   </tr>\
-// </table>\
-// ";
 
 class ViewDialog
 {
@@ -512,7 +509,6 @@ class MapViewer
         this.coloring_.on_entry(this.widget_.view_dialog_);
         if (redraw)
             this.draw();
-// this.widget_.view_dialog("coloring_changed");
     }
 
     viewing(mode_name, redraw=false) {
@@ -524,7 +520,6 @@ class MapViewer
         this.viewing_.on_entry(this.widget_.view_dialog_);
         if (redraw)
             this.draw();
-// this.widget_.view_dialog("viewing_changed");
     }
 
     projection(projection_no, redraw=false) {
@@ -598,7 +593,8 @@ class MapViewer
             const popup = av_toolkit.mouse_popup_show(mouse_popup_text, this.surface_.canvas_, {left: mouse_offset.left + options.mouse_popup_offset.left, top: mouse_offset.top + options.mouse_popup_offset.top});
                 if (options.point_on_click) {
                     popup.find("a").on("click", evt => {
-                        console.log("point infor from hidb");
+                        console.log("point info from hidb");
+// jopa
                         // av_utils.forward_event(evt, evt => show_antigen_serum_info_from_hidb($(evt.target), this.data.c, this.canvas, this.options.point_on_click));
                         // window.setTimeout(av_toolkit.mouse_popup_hide, this.options.point_info_on_hover_delay);
                     });
