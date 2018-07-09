@@ -1654,7 +1654,7 @@ class ViewGroups extends ViewingSeries
         this.drawing_levels_ = [{drawing_order: this.combined_mode() === "exclusive" ? this._make_drawing_order_exclusive() : this._make_drawing_order_combined(), type: "foreground", style_modifier: style => style}];
         if (shading !== "legacy") {
             const drawing_order = this.drawing_levels_[0].drawing_order;
-            this.drawing_levels_.unshift({drawing_order: av_utils.array_of_indexes(this.chart().a.length + this.chart().s.length).filter(index => !drawing_order.includes(index)),
+            this.drawing_levels_.unshift({drawing_order: av_utils.array_of_indexes(this.chart_.a.length + this.chart_.s.length).filter(index => !drawing_order.includes(index)),
                                           style_modifier: sStyleModifiers[shading]});
         }
     }
@@ -1720,10 +1720,9 @@ class ViewGroups extends ViewingSeries
     }
 
     _show_group_series_data(tr_groups, tr_groups_combined) {
+        if (!this.group_sets_ && this.chart_.group_sets)
+            this.group_sets_ = this.chart_.group_sets;
         this._make_exclusive_combined(tr_groups_combined);
-        const chart = this.map_viewer_.widget_.chart_;
-        if (!this.group_sets_ && chart.group_sets)
-            this.group_sets_ = chart.group_sets;
         if (this.group_sets_) {
             const group_sets = tr_groups.find(".av-sets").empty();
             if (this.group_sets_.length === 1) {
@@ -1812,14 +1811,13 @@ class ViewGroups extends ViewingSeries
     }
 
     _make_downloader(tr_group_series) {
-        const chart = this.map_viewer_.widget_.chart_;
         const button_download_sample = tr_group_series.find("a[href='download']");
         button_download_sample.off("click");
         button_download_sample.on("click", evt => av_utils.forward_event(evt, evt => {
             const data = {
                 "  version": "group-series-set-v1",
-                "a": chart.a.map((antigen, ag_no) => Object.assign({"?no": ag_no}, antigen)),
-                "s": chart.s.map((serum, sr_no) => Object.assign({"?no": sr_no + chart.a.length}, serum)),
+                "a": this.chart_.a.map((antigen, ag_no) => Object.assign({"?no": ag_no}, antigen)),
+                "s": this.chart_.s.map((serum, sr_no) => Object.assign({"?no": sr_no + this.chart_.a.length}, serum)),
                 "group_sets": [{N: "set-1", line_color: "black", line_width: 1, groups: [{"N": "gr-1", line_color: "black", line_width: 1, root: 0, members: [0, 1, 2]}, {"N": "gr-2", root: 3, members: [3, 4, 5]}]}]
             };
             av_utils.download_blob({data: data, blob_type: "application/json", filename: "group-series-sets.json"});
@@ -1850,9 +1848,8 @@ class ViewGroups extends ViewingSeries
     }
 
     _match_groups(data) {
-        const chart = this.map_viewer_.widget_.chart_;
-        const point_to_point_ar = data.a.map((elt, no) => [no, chart.a.findIndex(antigen => av_utils.objects_equal(elt, antigen, ["?no", "no", "C", "S", "c"]))])
-              .concat(data.s.map((elt, no) => [no + data.a.length, chart.a.length + chart.s.findIndex(antigen => av_utils.objects_equal(elt, antigen, ["?no", "no", "S"]))]));
+        const point_to_point_ar = data.a.map((elt, no) => [no, this.chart_.a.findIndex(antigen => av_utils.objects_equal(elt, antigen, ["?no", "no", "C", "S", "c"]))])
+              .concat(data.s.map((elt, no) => [no + data.a.length, this.chart_.a.length + this.chart_.s.findIndex(antigen => av_utils.objects_equal(elt, antigen, ["?no", "no", "S"]))]));
         const point_to_point = point_to_point_ar.reduce((obj, entry) => { obj[entry[0]] = entry[1]; return obj; }, {});
         for (let gs of data.group_sets) {
             for (let grp of gs.groups) {
