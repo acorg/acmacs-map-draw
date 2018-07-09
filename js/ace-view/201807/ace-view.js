@@ -1639,7 +1639,7 @@ class ViewGroups extends ViewingSeries
         this.gs_line_width_ = group_set.line_width || 1;
         this.pages_exclusive_ = this.groups_.map(gr => gr.N);
         this.combined_mode(this.combined_mode());
-        this.set_page(this.current_page() || 0, true);
+        this.set_page(this._initial_page_no(), true);
     }
 
     _initial_page_no() {
