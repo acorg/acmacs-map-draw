@@ -1766,12 +1766,12 @@ class ViewGroups extends ViewingSeries
             button_exclusive.off("click").on("click", evt => av_utils.forward_event(evt, evt => {
                 this.combined_mode("exclusive");
                 this.set_page(0, true);
-                this._make_exclusive_combined();
+                this._make_exclusive_combined(tr_groups_combined);
             }));
             button_combined.off("click").on("click", evt => av_utils.forward_event(evt, evt => {
                 this.combined_mode("combined");
                 this.set_page(0, true);
-                this._make_exclusive_combined();
+                this._make_exclusive_combined(tr_groups_combined);
             }));
             if (this.combined_mode() === "exclusive") {
                 button_exclusive.addClass("av-current");
