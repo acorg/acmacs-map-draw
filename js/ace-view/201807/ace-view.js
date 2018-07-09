@@ -359,11 +359,9 @@ class ViewDialog
     _repopulate(table) {
         this._coloring_chooser(table.find("td.coloring"));
         this._view_mode_chooser(table.find("td.mode"));
-//        this._period_chooser(table.find("td.time-series-period"));
     }
 
 // viewing_changed() {
-//     this._show_period();
 //     this._show_groups();
 // }
 
@@ -406,29 +404,7 @@ class ViewDialog
         for (let viewing_mode of this.widget_.viewer_.viewing_modes_)
             selector.add(viewing_mode.name());
         selector.current(this.widget_.viewer_.viewing_.name());
-        this._show_period();
-        this._show_groups();
-    }
-
-    _period_chooser(section) {
-        console.warn("_period_chooser");
-        section.empty();
-        const onchange = value => this.widget_.viewer_.viewing_.period(value);
-        const selector = this.selector_use_select_ ? new SelectorSelect(section, onchange) : new SelectorButtons(section, onchange);
-        selector.add("month");
-        selector.add("winter/summer");
-        selector.add("year");
-        // selector.current(this.widget_.viewer_.viewing_.period());
-    }
-
-    _show_period() {
-        console.warn("_show_period");
-        const tr = this.content_.find("tr.time-series-period");
-        const viewing = this.widget_.viewer_.viewing_;
-        if (viewing instanceof ViewTimeSeries)
-            tr.show();
-        else
-            tr.hide();
+//        this._show_groups();
     }
 
     _show_groups() {
@@ -1553,6 +1529,8 @@ class ViewAll extends ViewingBase
 
 }
 
+// ----------------------------------------------------------------------
+
 class ViewSearch extends ViewingBase
 {
     name() {
@@ -1560,6 +1538,8 @@ class ViewSearch extends ViewingBase
     }
 
 }
+
+// ----------------------------------------------------------------------
 
 class ViewingSeries extends ViewingBase
 {
@@ -1616,6 +1596,8 @@ class ViewingSeries extends ViewingBase
     }
 }
 
+// ----------------------------------------------------------------------
+
 class ViewTimeSeries extends ViewingSeries
 {
     constructor(map_viewer, chart) {
@@ -1634,6 +1616,16 @@ class ViewTimeSeries extends ViewingSeries
             this.set_page(this._initial_page_no(), true);
         }
         return this.period_;
+    }
+
+    on_exit(view_dialog) {
+        super.on_exit(view_dialog);
+        view_dialog && view_dialog.section("time-series-period").hide();
+    }
+
+    on_entry(view_dialog) {
+        super.on_entry(view_dialog);
+        view_dialog && this._period_chooser_populate(view_dialog.section("time-series-period"));
     }
 
     _initial_page_no() {
@@ -1705,7 +1697,21 @@ class ViewTimeSeries extends ViewingSeries
             return antigen.D && antigen.D.substr(0, 7);
         }
     }
+
+    _period_chooser_populate(section) {
+        const td = section.find("td.time-series-period");
+        td.empty();
+        const onchange = value => this.period(value);
+        const selector = this.selector_use_select_ ? new SelectorSelect(td, onchange) : new SelectorButtons(td, onchange);
+        selector.add("month");
+        selector.add("winter/summer");
+        selector.add("year");
+        selector.current(this.period_);
+        section.show();
+    }
 }
+
+// ----------------------------------------------------------------------
 
 class ViewTableSeries extends ViewingSeries
 {
@@ -1749,6 +1755,8 @@ class ViewTableSeries extends ViewingSeries
         this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => point_in_layer(point_no)), style_modifier: style => style, type: "foreground"});
     }
 }
+
+// ----------------------------------------------------------------------
 
 class ViewGroups extends ViewingSeries
 {
