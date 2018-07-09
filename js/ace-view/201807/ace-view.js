@@ -1662,17 +1662,18 @@ class ViewGroups extends ViewingSeries
     _make_drawing_order_exclusive() {
         const drawing_order = [];
         if (this.groups_ && this.groups_[this.page_no_])
-            this._update_drawing_order_(drawing_order, this.groups_[this.page_no_]);
+            this._update_drawing_order(drawing_order, this.groups_[this.page_no_]);
         return drawing_order;
     }
 
     _make_drawing_order_combined() {
         const drawing_order = [];
-        this.groups_combined_.forEach(group => this._update_drawing_order_(drawing_order, group));
+        for (let group of this.groups_combined_)
+            this._update_drawing_order(drawing_order, group);
         return drawing_order;
     }
 
-    _update_drawing_order_(drawing_order, group) {
+    _update_drawing_order(drawing_order, group) {
         const add_member = point_no => {
             const index = drawing_order.indexOf(point_no);
             if (index >= 0)
@@ -1737,6 +1738,7 @@ class ViewGroups extends ViewingSeries
                     group_sets.append(`<a href='${gs.N}'>${gs.N}</a>`);
 
                 const switch_current_set = set_no => {
+                    this.groups_combined_ = [];
                     this.current_set_no_ = set_no;
                     $(group_sets.find("a")[this.current_set_no_]).addClass("av-current");
                     const gs = this.group_sets_[this.current_set_no_];
@@ -1796,9 +1798,9 @@ class ViewGroups extends ViewingSeries
         const tbl = tr_groups_combined.find("table.av-groups").empty().append(group_html);
         tbl.find("input").on("change", evt => av_utils.forward_event(evt, evt => {
             if (evt.currentTarget.checked)
-                this.add_combined_group(evt.currentTarget.name);
+                this._add_combined_group(evt.currentTarget.name);
             else
-                this.remove_combined_group(evt.currentTarget.name);
+                this._remove_combined_group(evt.currentTarget.name);
         }));
         this.groups_combined_.forEach(group_name => tbl.find(`input[name="${group_name}"]`).prop("checked", true));
     }
@@ -1901,6 +1903,21 @@ class ViewGroups extends ViewingSeries
                     throw "invalid \"line_width\" in group " + group.N;
             });
         });
+    }
+
+    _add_combined_group(group) {
+        if (!this.groups_combined_.includes(group)) {
+            this.groups_combined_.push(group);
+            this.set_page(this.page_no_, true);
+        }
+    }
+
+    _remove_combined_group(group) {
+        const index = this.groups_combined_.indexOf(group);
+        if (index >= 0) {
+            this.groups_combined_.splice(index, 1);
+            this.set_page(this.page_no_, true);
+        }
     }
 
 } // class ViewGroups
