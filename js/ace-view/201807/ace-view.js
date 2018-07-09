@@ -689,6 +689,10 @@ class ColoringOriginal extends ColoringBase
         const plot_spec = this.chart_.p;
         return plot_spec.P[plot_spec.p[point_no]];
     }
+
+    styles() {
+        return this.chart_.p;
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -765,6 +769,10 @@ class ColoringByClade extends ColoringBase
 
     legend() {
         return this.clade_order_.filter(clade => !!clade).map(clade => { return {name: clade, count: this.clade_to_number_of_antigens_[clade], color: sCladeColors[clade]}; });
+    }
+
+    styles() {
+        return this._styles_;
     }
 
     // {set_clade_for_antigen: false, drawing_order: []}
@@ -867,6 +875,10 @@ class ColoringByAAatPos extends ColoringBase
         }
         else
             return [{name: "loading sequences, please wait"}];
+    }
+
+    styles() {
+        return this._styles_;
     }
 
     set_positions(positions) {
@@ -1093,6 +1105,10 @@ class ColoringByGeography extends ColoringBase
 
     legend() {
         return this.continent_count_.map(entry => Object.assign({}, entry, {name: continent_name_for_legend[entry.name] || entry.name}));
+    }
+
+    styles() {
+        return this._styles_;
     }
 
     _make_continent_count(args={}) {
@@ -1332,10 +1348,8 @@ class ViewSearch extends ViewingBase
 {
     constructor(map_viewer, chart) {
         super(map_viewer, chart);
-        this.selected_antigens_ = [];
-        this.selected_sera_ = [];
         this.shading_ = new Shading(this);
-        this.drawing_order_foreground_ = [];
+        this._reset();
     }
 
     name() {
@@ -1353,6 +1367,7 @@ class ViewSearch extends ViewingBase
         super.on_entry(view_dialog);
         this.search_section_ = view_dialog.section("search").show();
         this.search_results_section_ = view_dialog.section("search-results").show();
+        this._bind();
         this.shading_.show(view_dialog && view_dialog.section("shading"));
         this.map_viewer_.widget_.update_title();
     }
@@ -1361,6 +1376,7 @@ class ViewSearch extends ViewingBase
         super.view_dialog_shown(view_dialog);
         this.search_section_.show();
         this.search_results_section_.show();
+        this._bind();
         this.shading_.show(view_dialog.section("shading"));
     }
 
@@ -1377,7 +1393,7 @@ class ViewSearch extends ViewingBase
 
     drawing_levels() {
         return [
-            {drawing_order: this._drawing_order_background(), style_modifier: sStyleModifiers[this.shading_.shading_]},
+            {drawing_order: this.drawing_order_background_, style_modifier: sStyleModifiers[this.shading_.shading_]},
             {drawing_order: this.drawing_order_foreground_, style_modifier: style => style, type: "foreground"}
         ];
     }
@@ -1386,8 +1402,149 @@ class ViewSearch extends ViewingBase
         return this.drawing_order_foreground_;
     }
 
-    _drawing_order_background() {
-        return this.chart_drawing_order().filter(point_no => !this.drawing_order_foreground_.includes(point_no));
+    _make_drawing_order() {
+        this.drawing_order_foreground_ = this.selected_sera_.concat(this.selected_antigens_);
+        this.drawing_order_background_ = this.chart_drawing_order().filter(point_no => !this.drawing_order_foreground_.includes(point_no));
+    }
+
+    _bind() {
+        const input = this.search_section_.find("td.regex input").val("");
+        const search_results = this.search_results_section_.find("td.search-results");
+        const filter = () => {
+            if (input.val() === "") {
+                search_results.find(".av-message").show();
+                this._reset(search_results.find("table"));
+                this.map_viewer_.draw();
+            }
+            else {
+                search_results.find(".av-message").hide();
+                this._filter(input.val());
+            }
+        };
+        input.off("keypress").on("keypress", evt => { if (evt.charCode === 13) filter(); }).focus();
+        filter();
+    }
+
+    _reset() {
+        this.search_results_section_ && this.search_results_section_.find("td.search-results").empty();
+        this.selected_antigens_ = [];
+        this.selected_sera_ = [];
+        this._make_drawing_order();
+    }
+
+    _filter(text) {
+        const table = this.search_results_section_.find("td.search-results table").empty();
+        this._match_antigens(text);
+        this._match_sera(text);
+        if (this.selected_antigens_.length || this.selected_sera_.length) {
+            if (this.selected_antigens_.length)
+                this._add_many(table, this.selected_antigens_, "" + this.selected_antigens_.length + " antigens");
+            if (this.selected_sera_.length)
+                this._add_many(table, this.selected_sera_, "" + this.selected_sera_.length + " sera");
+            if ((this.selected_antigens_.length + this.selected_sera_.length) < 100) {
+                if (this.selected_antigens_.length) {
+                    this._add_separator(table);
+                    this.selected_antigens_.forEach(no => this._add(table, no, this.antigens_match_, 0));
+                }
+                if (this.selected_sera_.length) {
+                    this._add_separator(table);
+                    this.selected_sera_.forEach(no => this._add(table, no, this.sera_match_, this.chart_.a.length));
+                }
+            }
+        }
+        else {
+            table.append("<tr><td class='av-message'>nothing matched</td></tr>");
+        }
+        this._make_drawing_order();
+        this.map_viewer_.draw();
+    }
+
+    _match_antigens(regex) {
+        if (!this.antigens_match_)
+            this.antigens_match_ = this.chart_.a.map(ag => av_utils.join_collapse([ag.N, ag.R, av_utils.join_collapse(ag.a), ag.P, av_utils.join_collapse(ag.l)]));
+        this._match(regex, this.antigens_match_, this.selected_antigens_, 0);
+    }
+
+    _match_sera(regex) {
+        if (!this.sera_match_)
+            this.sera_match_ = this.chart_.s.map(sr => av_utils.join_collapse([sr.N, sr.R, av_utils.join_collapse(sr.a), sr.I, sr.s]));
+        this._match(regex, this.sera_match_, this.selected_sera_, this.chart_.a.length);
+    }
+
+    _match(regex, match_data, result, base) {
+        const re = new RegExp(regex, "i");
+        result.splice(0);
+        match_data.forEach((ag, no) => {
+            if (ag.search(re) >= 0)
+                result.push(no + base);
+        });
+    }
+
+    _add_many(table, indexes, label) {
+        const attrs = indexes.reduce((attrs, index) => {
+            const style = this._style(index);
+            attrs.S[style.S || "C"] = true;
+            attrs.F[style.F || "transparent"] = true;
+            attrs.O[style.O || "black"] = true;
+            attrs.o[style.o || 1] = true;
+            attrs.a[style.a || 1] = true;
+            attrs.r[style.r || 0] = true;
+            attrs.s[style.s || 0] = true;
+            return attrs;
+        }, {S: {}, F: {}, O: {}, o: {}, a: {}, r: {}, s: {}});
+        const canvas = $("<canvas></canvas>");
+        const canvas_access = new av_point_style.PointStyleModifierCanvasAccess(canvas);
+        Object.entries(attrs).forEach(entry => {
+            const keys = Object.keys(entry[1]);
+            if (keys.length === 1)
+                canvas_access.set(entry[0], keys[0]);
+        });
+        const tr = $(`<tr class='av-many'><td class='av-plot-spec'></td><td class='av-label'>${label}</td></tr>`).appendTo(table);
+        tr.find("td.av-plot-spec").append(canvas);
+        av_point_style.point_style_modifier({canvas: canvas, onchange: data => this._style_modified(data, indexes)});
+    }
+
+    _add(table, index, collection, base) {
+        const style = this._style(index);
+        const canvas = $("<canvas></canvas>");
+        const canvas_access = new av_point_style.PointStyleModifierCanvasAccess(canvas);
+        canvas_access.set("S", style.S || "C");
+        canvas_access.set("s", style.s || 1);
+        canvas_access.set("F", style.F || "transparent");
+        canvas_access.set("O", style.O || "black");
+        canvas_access.set("o", style.o || 1);
+        canvas_access.set("a", style.a || 1);
+        canvas_access.set("r", style.r || 0);
+        const tr = $(`<tr class='a-many'><td class='av-plot-spec'></td><td class='av-label'>${collection[index - base]}</td></tr>`).appendTo(table);
+        tr.find("td.av-plot-spec").append(canvas);
+        av_point_style.point_style_modifier({canvas: canvas, onchange: data => this._style_modified(data, [index])});
+    }
+
+    _add_separator(table) {
+        table.append("<tr class='a-separator'><td colspan='2'></td></tr>");
+    }
+
+    _style(index) {
+        const default_styles = this.map_viewer_.coloring_.styles();
+        return this._get_style(default_styles, index);
+    }
+
+    _get_style(styles, index) {
+        if (styles.P && styles.p) {
+            return styles.P[styles.p[index]];
+        }
+        else {
+            console.warn("_style", index, styles);
+            jopa;
+        }
+    }
+
+    _style_modified(data, indexes) {
+        console.log("_style_modified", data, indexes);
+        // const key_mapping = {fill: "F", outline: "O", outline_width: "o", aspect: "a", rotation: "r", shape: "S", size: "s"};
+        // // console.log("_style_modified", data, indexes, this.styles_.styles[indexes[0]]);
+        // indexes.forEach(index => this.styles_.styles[index][key_mapping[data.name]] = data.value);
+        // this.map_viewer_.draw();
     }
 }
 

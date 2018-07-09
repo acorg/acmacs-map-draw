@@ -258,11 +258,39 @@ class PointStyleModifierDialog
 
 const COS_PI_6 = Math.cos(Math.PI / 6);
 
-class PointStyleModifierCanvas
+export class PointStyleModifierCanvasAccess
+{
+    constructor(canvas) {
+        this.canvas_ = canvas;
+    }
+
+    _attr_name(name) {
+        return (name[0].toLowerCase() === name[0] ? "av_" : "aw_") + name;
+    }
+
+    get_raw(name) {
+        return this.canvas_.attr(this._attr_name(name));
+    }
+
+    get(name, dflt) {
+        return this.get_raw(name) || dflt;
+    }
+
+    get_float(name, dflt) {
+        const value = parseFloat(this.get_raw(name));
+        return isNaN(value) ? dflt : value;
+    }
+
+    set(name, value) {
+        this.canvas_.attr(this._attr_name(name), value);
+    }
+}
+
+class PointStyleModifierCanvas extends PointStyleModifierCanvasAccess
 {
     // {canvas: $(<canvas>), onchange: callback({canvas:, name:, value:}), point_scale: 5}
     constructor(args) {
-        this.canvas_ = args.canvas;
+        super(args.canvas);
         this.canvas_.prop({width: this.canvas_.width(), height: this.canvas_.height()});
         this.context_ = this.canvas_[0].getContext('2d', {alpha: false});
         this.point_scale_ = args.point_scale || 5;
@@ -301,29 +329,14 @@ class PointStyleModifierCanvas
         return size_scaled > 1 ? 0.5 : size_scaled * 0.5;
     }
 
-    _attr_name(name) {
-        return (name[0].toLowerCase() === name[0] ? "av_" : "aw_") + name;
-    }
-    get_raw(name) {
-        return this.canvas_.attr(this._attr_name(name));
-    }
-
-    get(name, dflt) {
-        return this.get_raw(name) || dflt;
-    }
-
-    get_float(name, dflt) {
-        const value = parseFloat(this.get_raw(name));
-        return isNaN(value) ? dflt : value;
-    }
-
     set(name, value, draw) {
-        this.canvas_.attr(this._attr_name(name), value);
+        super.set(name, value);
         if (draw)
             this.draw();
         if (this.onchange_)
             this.onchange_({canvas: this.canvas_, name: name, value: value});
     }
+
 }
 
 // ----------------------------------------------------------------------
