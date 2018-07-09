@@ -99,15 +99,6 @@ export class AntigenicMapWidget
         this.title_.update();
     }
 
-    view_dialog(func, args) {
-        console.warn("widget view_dialog", func);
-        console.trace();
-        if (this.view_dialog_)
-            return this.view_dialog_[func](args);
-        else
-            return undefined;
-    }
-
     _load_and_draw(data) {
         const loaded = data => this.draw_data(data);
         const failed = deffered => {
@@ -136,10 +127,13 @@ export class AntigenicMapWidget
         this.burger_menu_ = new av_toolkit.BurgerMenu({menu: $(AntigenicMapWidget_burger_menu_html).appendTo("body"), trigger: this.div_.find(".av-burger"), callback: item => {
             if (item === "view") {
                 if (this.viewer_.viewing_) {
-                if (!this.view_dialog_)
-                    this.view_dialog_ = new ViewDialog({widget: this, chart: this.viewer_.viewing_.chart_, on_destroy: () => delete this.view_dialog_});
-                else
-                    this.view_dialog_.position();
+                    if (!this.view_dialog_) {
+                        this.view_dialog_ = new ViewDialog({widget: this, chart: this.viewer_.viewing_.chart_, on_destroy: () => delete this.view_dialog_});
+                        this.viewer_.coloring_.view_dialog_shown(this.view_dialog_);
+                        this.viewer_.viewing_.view_dialog_shown(this.view_dialog_);
+                    }
+                    else
+                        this.view_dialog_.position();
                 }
             }
             else
@@ -881,6 +875,9 @@ class ColoringBase
     on_exit(view_dialog) {
     }
 
+    view_dialog_shown(view_dialog) {
+    }
+
     point_style(point_no) {
         return this.styles_[point_no];
     }
@@ -971,6 +968,12 @@ class ColoringByClade extends ColoringBase
             view_dialog.coloring_legend_.hide();
     }
 
+    view_dialog_shown(view_dialog) {
+        super.view_dialog_shown(view_dialog);
+        view_dialog.coloring_legend_.populate(this.legend());
+        view_dialog.coloring_legend_.show();
+    }
+
     drawing_order(drawing_order) {
         // order: sera, not sequenced, sequenced without clade, clade with max number of antigens, ..., clade with fewer antigens
         return super.drawing_order(drawing_order).slice(0).sort((p1, p2) => this.point_rank_[p1] - this.point_rank_[p2]);
@@ -1036,13 +1039,11 @@ class ColoringByAAatPos extends ColoringBase
 
     on_entry(view_dialog) {
         super.on_entry(view_dialog);
-        if (!this.styles_) {
+        if (!this.styles_)
             this._make_styles({set_point_rank: true});
-            this.sequences().then(data => this._sequences_received(data)).catch(error => console.log("Coloring_AAPos::constructor sequences error", error));
-        }
-        if (view_dialog) {
+        this.sequences().then(data => this._sequences_received(data)).catch(error => console.log("Coloring_AAPos::constructor sequences error", error));
+        if (view_dialog)
             view_dialog.coloring_legend_.show();
-        }
     }
 
     on_exit(view_dialog) {
@@ -1050,6 +1051,16 @@ class ColoringByAAatPos extends ColoringBase
         if (view_dialog) {
             view_dialog.coloring_legend_.hide();
             this.section_aa_at_pos_.hide();
+        }
+    }
+
+    view_dialog_shown(view_dialog) {
+        super.view_dialog_shown(view_dialog);
+        view_dialog.coloring_legend_.populate(this.legend());
+        view_dialog.coloring_legend_.show();
+        if (this.sequences_) {
+            this.section_aa_at_pos_ = view_dialog.section("coloring-aa-pos").show();
+            this._section_aa_at_pos_populate();
         }
     }
 
@@ -1283,6 +1294,12 @@ class ColoringByGeography extends ColoringBase
             view_dialog.coloring_legend_.hide();
     }
 
+    view_dialog_shown(view_dialog) {
+        super.view_dialog_shown(view_dialog);
+        view_dialog.coloring_legend_.populate(this.legend());
+        view_dialog.coloring_legend_.show();
+    }
+
     drawing_order(original_drawing_order) {
         // order: sera, most popular continent, ..., lest popular continent
         const continent_order = this.continent_count_.map(entry => entry.name);
@@ -1358,6 +1375,9 @@ class ViewingBase
     }
 
     on_entry(view_dialog) {
+    }
+
+    view_dialog_shown(view_dialog) {
     }
 
     _calculate_viewport() {
