@@ -360,13 +360,11 @@ class ViewDialog
         this._coloring_chooser(table.find("td.coloring"));
         this._view_mode_chooser(table.find("td.mode"));
 //        this._period_chooser(table.find("td.time-series-period"));
-//        this._shading_chooser(table.find("td.shading"));
     }
 
 // viewing_changed() {
 //     this._show_period();
 //     this._show_groups();
-//     this._show_shading();
 // }
 
     _projection_chooser(section) {
@@ -410,19 +408,7 @@ class ViewDialog
         selector.current(this.widget_.viewer_.viewing_.name());
         this._show_period();
         this._show_groups();
-        this._show_shading();
     }
-
-//    _shading_chooser(section) {
-//        console.warn("_shading_chooser");
-//        section.empty();
-//        const onchange = value => this.widget_.viewer_.viewing_.shading(value);
-//        const selector = this.selector_use_select_ ? new SelectorSelect(section, onchange) : new SelectorButtons(section, onchange);
-//        selector.add("shade");
-//        selector.add("grey");
-//        selector.add("legacy");
-//        selector.current(this.widget_.viewer_.viewing_.shading());
-//    }
 
     _period_chooser(section) {
         console.warn("_period_chooser");
@@ -440,16 +426,6 @@ class ViewDialog
         const tr = this.content_.find("tr.time-series-period");
         const viewing = this.widget_.viewer_.viewing_;
         if (viewing instanceof ViewTimeSeries)
-            tr.show();
-        else
-            tr.hide();
-    }
-
-    _show_shading() {
-        console.warn("_show_shading");
-        const tr = this.content_.find("tr.shading");
-        const viewing = this.widget_.viewer_.viewing_;
-        if (viewing instanceof ViewSearch || viewing instanceof ViewTableSeries || viewing instanceof ViewTimeSeries || viewing instanceof ViewGroups)
             tr.show();
         else
             tr.hide();
@@ -1371,7 +1347,6 @@ class ViewingBase
     constructor(map_viewer, chart) {
         this.map_viewer_ = map_viewer;
         this.chart_ = chart;
-        this.shading_ = "shade";
     }
 
     draw(coloring) {
@@ -1395,15 +1370,6 @@ class ViewingBase
         }
     }
 
-    shading(new_shading) {
-        if (new_shading !== undefined) {
-            this.shading_ = new_shading;
-            this._shading_changed();
-            this.map_viewer_.draw();
-        }
-        return this.shading_;
-    }
-
     chart() {
         return this.chart_;
     }
@@ -1416,9 +1382,6 @@ class ViewingBase
     }
 
     on_entry(view_dialog) {
-    }
-
-    _shading_changed() {
     }
 
     _calculate_viewport() {
@@ -1538,7 +1501,12 @@ function style_modifier_grey(style) {
     return Object.assign({}, style, {F: (style.F && grey) || "transparent", O: grey});
 }
 
-const sStyleModifiers = {shade: style_modifier_shade, grey: style_modifier_grey};
+function style_modifier_legacy(style) {
+    console.error("style_modifier_legacy");
+    return style;
+}
+
+const sStyleModifiers = {shade: style_modifier_shade, grey: style_modifier_grey, legacy: style_modifier_legacy};
 
 // ----------------------------------------------------------------------
 
@@ -1591,30 +1559,39 @@ class ViewSearch extends ViewingBase
         return "search";
     }
 
-    _shading_changed() {
-    }
-
 }
 
 class ViewingSeries extends ViewingBase
 {
+    constructor(map_viewer, chart) {
+        super(map_viewer, chart);
+        this.shading_ = new Shading(this);
+    }
+
     title() {
         return this.pages_[this.page_no_];
     }
 
+    on_exit(view_dialog) {
+        super.on_exit(view_dialog);
+        this.shading_.hide();
+    }
+
     on_entry(view_dialog) {
+        super.on_entry(view_dialog);
         if (!this.pages_)
             this._make_pages();
         if (this.page_no_ === undefined)
             this.set_page(this._initial_page_no());
         else
             this._update_title();
+        this.shading_.show(view_dialog && view_dialog.section("shading"));
     }
 
     set_page(page_no, redraw) {
         if (page_no >= 0 && page_no < this.pages_.length) {
             this.page_no_ = page_no;
-            this._make_drawing_levels();
+            this._make_drawing_levels(this.shading_.shading_);
             this._update_title();
             if (redraw)
                 this.map_viewer_.draw();
@@ -1663,8 +1640,8 @@ class ViewTimeSeries extends ViewingSeries
         return this.pages_.length - 1;
     }
 
-    _shading_changed() {
-        this._make_drawing_levels();
+    _shading_changed(shading) {
+        this._make_drawing_levels(shading);
     }
 
     _make_pages() {
@@ -1677,13 +1654,13 @@ class ViewTimeSeries extends ViewingSeries
         this.pages_ = [...periods].sort();
     }
 
-    _make_drawing_levels() {
+    _make_drawing_levels(shading) {
         this.drawing_levels_ = [];
         const page_period_name = this.pages_[this.page_no_];
         const in_page = antigen => this._antigen_period_name(antigen) === page_period_name;
         const antigens = this.chart().a;
         const chart_drawing_order = this.chart_drawing_order();
-        if (this.shading() === "legacy") {
+        if (shading === "legacy") {
             const drawing_order = [];
             for (let point_no of chart_drawing_order) {
                 if (point_no >= antigens.length || (antigens[point_no].S && antigens[point_no].S.indexOf("R") >= 0 && !in_page(antigens[point_no])))
@@ -1703,7 +1680,7 @@ class ViewTimeSeries extends ViewingSeries
                 else
                     drawing_order_background.push(point_no);
             }
-            this.drawing_levels_.push({drawing_order: drawing_order_background, style_modifier: sStyleModifiers[this.shading()]});
+            this.drawing_levels_.push({drawing_order: drawing_order_background, style_modifier: sStyleModifiers[shading]});
             this.drawing_levels_.push({drawing_order: drawing_order_foreground, style_modifier: style => style, type: "foreground"});
         }
     }
@@ -1740,8 +1717,8 @@ class ViewTableSeries extends ViewingSeries
         return this.pages_.length - 1;
     }
 
-    _shading_changed() {
-        this._make_drawing_levels();
+    _shading_changed(shading) {
+        this._make_drawing_levels(shading);
     }
 
     _make_pages() {
@@ -1756,7 +1733,7 @@ class ViewTableSeries extends ViewingSeries
         this.pages_ = sources.map(make_name);
     }
 
-    _make_drawing_levels() {
+    _make_drawing_levels(shading) {
         this.drawing_levels_ = [];
         const antigens = this.chart().a;
         const chart_drawing_order = this.chart_drawing_order();
@@ -1767,8 +1744,8 @@ class ViewTableSeries extends ViewingSeries
             else
                 layer.some(entry => !!entry["" + (point_no - antigens.length)]);
         };
-        if (this.shading() !== "legacy")
-            this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => !point_in_layer(point_no)), style_modifier: sStyleModifiers[this.shading()]});
+        if (shading !== "legacy")
+            this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => !point_in_layer(point_no)), style_modifier: sStyleModifiers[shading]});
         this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => point_in_layer(point_no)), style_modifier: style => style, type: "foreground"});
     }
 }
@@ -1792,6 +1769,7 @@ class ViewGroups extends ViewingSeries
     }
 
     on_entry(view_dialog) {
+        super.on_entry(view_dialog);
         if (this.page_no_ === undefined)
             this.set_page(this._initial_page_no());
         else
@@ -1831,16 +1809,16 @@ class ViewGroups extends ViewingSeries
         return 0;
     }
 
-    _shading_changed() {
-        this._make_drawing_levels();
+    _shading_changed(shading) {
+        this._make_drawing_levels(shading);
     }
 
-    _make_drawing_levels() {
+    _make_drawing_levels(shading) {
         this.drawing_levels_ = [{drawing_order: this.combined_mode() === "exclusive" ? this._make_drawing_order_exclusive() : this._make_drawing_order_combined(), type: "foreground", style_modifier: style => style}];
-        if (this.shading() !== "legacy") {
+        if (shading !== "legacy") {
             const drawing_order = this.drawing_levels_[0].drawing_order;
             this.drawing_levels_.unshift({drawing_order: av_utils.array_of_indexes(this.chart().a.length + this.chart().s.length).filter(index => !drawing_order.includes(index)),
-                                          style_modifier: sStyleModifiers[this.shading()]});
+                                          style_modifier: sStyleModifiers[shading]});
         }
     }
 
@@ -1895,6 +1873,48 @@ class ViewGroups extends ViewingSeries
         }
     }
 
+}
+
+// ----------------------------------------------------------------------
+
+class Shading
+{
+    constructor(viewing) {
+        this.viewing_ = viewing;
+        this.shading_ = "shade";
+    }
+
+    hide() {
+        this.section_ && this.section_.hide();
+    }
+
+    show(section) {
+        if (section) {
+            this.section_ = section;
+            this._populate();
+            this.section_.show();
+        }
+    }
+
+    shading(new_shading) {
+        if (new_shading !== undefined) {
+            this.shading_ = new_shading;
+            this.viewing_._shading_changed(new_shading);
+            this.viewing_.map_viewer_.draw();
+        }
+        return this.shading_;
+    }
+
+    _populate() {
+        const td = this.section_.find("td.shading");
+        td.empty();
+        const onchange = value => this.shading(value);
+        const selector = this.selector_use_select_ ? new SelectorSelect(td, onchange) : new SelectorButtons(td, onchange);
+        selector.add("shade");
+        selector.add("grey");
+        selector.add("legacy");
+        selector.current(this.shading_);
+    }
 }
 
 // ----------------------------------------------------------------------
