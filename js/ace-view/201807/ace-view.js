@@ -278,20 +278,16 @@ const ViewDialog_html = "\
   <tr class='shading av-initially-hidden'>\
     <td class='av-label'>Shading</td><td class='shading'></td>\
   </tr>\
-  <tr class='selection av-initially-hidden'>\
-    <td class='a-label'>RegEx</td>\
+  <tr class='search av-initially-hidden'>\
+    <td class='av-label'>RegEx</td>\
     <td class='regex'>\
       <input type='text'></input>\
-      <select name='selection-mode'>\
-        <option value='antigens'>antigens only</option>\
-        <option value='sera'>sera only</option>\
-        <option value='antigens+sera'>antigens and sera</option>\
-      </select>\
+      <!-- <select name='search-mode'><option value='antigens'>antigens only</option><option value='sera'>sera only</option><option value='antigens+sera'>antigens and sera</option></select> -->\
     </td>\
-  <tr class='selection-results av-initially-hidden'>\
-    <td class='a-label'></td>\
-    <td class='selection-results'>\
-      <p class='a-message'>please enter regular expression above and press enter</p>\
+  <tr class='search-results av-initially-hidden'>\
+    <td class='av-label'></td>\
+    <td class='search-results'>\
+      <p class='av-message'>please enter regular expression above and press enter</p>\
       <table></table>\
     </td>\
   </tr>\
@@ -1334,10 +1330,65 @@ class ViewAll extends ViewingBase
 
 class ViewSearch extends ViewingBase
 {
+    constructor(map_viewer, chart) {
+        super(map_viewer, chart);
+        this.selected_antigens_ = [];
+        this.selected_sera_ = [];
+        this.shading_ = new Shading(this);
+        this.drawing_order_foreground_ = [];
+    }
+
     name() {
         return "search";
     }
 
+    on_exit(view_dialog) {
+        super.on_exit(view_dialog);
+        this.shading_.hide();
+        this.search_section_.hide();
+        this.search_results_section_.hide();
+    }
+
+    on_entry(view_dialog) {
+        super.on_entry(view_dialog);
+        this.search_section_ = view_dialog.section("search").show();
+        this.search_results_section_ = view_dialog.section("search-results").show();
+        this.shading_.show(view_dialog && view_dialog.section("shading"));
+        this.map_viewer_.widget_.update_title();
+    }
+
+    view_dialog_shown(view_dialog) {
+        super.view_dialog_shown(view_dialog);
+        this.search_section_.show();
+        this.search_results_section_.show();
+        this.shading_.show(view_dialog.section("shading"));
+    }
+
+    _shading_changed(shading) {
+    }
+
+    title(args) {
+        if (this.selected_antigens_.length || this.selected_sera_.length) {
+            return `${this.selected_antigens_.length} antigens and ${this.selected_sera_.length} sera selected`;
+        }
+        else
+            return "no matches";
+    }
+
+    drawing_levels() {
+        return [
+            {drawing_order: this._drawing_order_background(), style_modifier: sStyleModifiers[this.shading_.shading_]},
+            {drawing_order: this.drawing_order_foreground_, style_modifier: style => style, type: "foreground"}
+        ];
+    }
+
+    drawing_order_foreground() {
+        return this.drawing_order_foreground_;
+    }
+
+    _drawing_order_background() {
+        return this.chart_drawing_order().filter(point_no => !this.drawing_order_foreground_.includes(point_no));
+    }
 }
 
 // ----------------------------------------------------------------------

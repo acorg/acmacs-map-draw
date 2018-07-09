@@ -241,7 +241,30 @@
     padding-right: 0.5em;
 }
 
+/* search */
 
+.av201807-view-dialog .av-view-dialog tr.search-results .av-message {
+    margin: 0;
+    color: #808080;
+}
+
+.av201807-view-dialog .av-view-dialog tr.search-results td.search-results table {
+    border-collapse: collapse;
+}
+
+.av201807-view-dialog .av-view-dialog tr.search-results td.search-results td.av-label {
+    vertical-align: middle;
+    padding-left: 1em;
+}
+
+.av201807-view-dialog .av-view-dialog tr.search-results td.search-results table tr.av-separator td {
+    border-top: 1px solid black;
+}
+
+.av201807-view-dialog .av-view-dialog tr.search-results canvas {
+    width: 30px;
+    height: 30px;
+}
 
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */
