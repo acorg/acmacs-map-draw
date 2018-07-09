@@ -1588,6 +1588,11 @@ class ViewingSeries extends ViewingBase
         this.shading_.show(view_dialog && view_dialog.section("shading"));
     }
 
+    view_dialog_shown(view_dialog) {
+        super.view_dialog_shown(view_dialog);
+        this.shading_.show(view_dialog.section("shading"));
+    }
+
     set_page(page_no, redraw) {
         if (page_no >= 0 && page_no < this.pages_.length) {
             this.page_no_ = page_no;
@@ -1646,6 +1651,11 @@ class ViewTimeSeries extends ViewingSeries
     on_entry(view_dialog) {
         super.on_entry(view_dialog);
         view_dialog && this._period_chooser_populate(view_dialog.section("time-series-period"));
+    }
+
+    view_dialog_shown(view_dialog) {
+        super.view_dialog_shown(view_dialog);
+        this._period_chooser_populate(view_dialog.section("time-series-period"));
     }
 
     _initial_page_no() {
@@ -1803,6 +1813,10 @@ class ViewGroups extends ViewingSeries
         else
             this._update_title();
     }
+
+    // view_dialog_shown(view_dialog) {
+    //     super.view_dialog_shown(view_dialog);
+    // }
 
     set_page(page_no, redraw) {
         if (this.combined_mode() === "exclusive")
