@@ -1735,19 +1735,23 @@ class ViewGroups extends ViewingSeries
             else {
                 for (let gs of this.group_sets_)
                     group_sets.append(`<a href='${gs.N}'>${gs.N}</a>`);
+
+                const switch_current_set = set_no => {
+                    this.current_set_no_ = set_no;
+                    $(group_sets.find("a")[this.current_set_no_]).addClass("av-current");
+                    const gs = this.group_sets_[this.current_set_no_];
+                    this._populate_table_groups(gs, tr_groups_combined);
+                    this._make_pages(gs);
+                };
+
                 group_sets.find("a").on("click", evt => av_utils.forward_event(evt, evt => {
                     const target = $(evt.currentTarget);
                     if (!target.hasClass("av-current")) {
                         group_sets.find("a").removeClass("av-current");
-                        target.addClass("av-current");
-                        const gs = this.group_sets_[this.group_sets_.findIndex(gs => gs.N === evt.currentTarget.getAttribute("href"))];
-                        this._populate_table_groups(gs, tr_groups_combined);
-                        this._make_pages(gs);
+                        switch_current_set(this.group_sets_.findIndex(gs => gs.N === evt.currentTarget.getAttribute("href")));
                     }
                 }));
-                $(group_sets.find("a")[0]).addClass("av-current");
-                this._populate_table_groups(this.group_sets_[0], tr_groups_combined);
-                this._make_pages(this.group_sets_[0]);
+                switch_current_set(this.current_set_no_ || 0);
             }
         }
     }
