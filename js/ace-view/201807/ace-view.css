@@ -210,6 +210,37 @@
     padding-right: 0.3em;
 }
 
+/* group series */
+
+.av201807-view-dialog .av-view-dialog tr.group-series .av-hint {
+    margin: 0;
+    font-size: 0.8em;
+    color: #C0C0C0;
+}
+
+.av201807-view-dialog .av-view-dialog tr.group-series > td.group-series > .av-buttons {
+    margin-top: 1em;
+}
+
+.av201807-view-dialog .av-view-dialog tr.group-series > td.group-series > .av-buttons > a {
+    text-decoration: none;
+}
+
+.av201807-view-dialog .av-view-dialog .av-drop-area {
+    border: 2px dashed #008000;
+    border-radius: 20px;
+    cursor: copy;
+}
+
+.av201807-view-dialog .av-view-dialog tr.group-series-combined table.av-groups {
+    margin-top: 0.5em;
+    border-collapse: collapse;
+}
+
+.av201807-view-dialog .av-view-dialog tr.group-series-combined table.av-groups td.av-checkbox {
+    padding-right: 0.5em;
+}
+
 
 
 /* ---------------------------------------------------------------------- */

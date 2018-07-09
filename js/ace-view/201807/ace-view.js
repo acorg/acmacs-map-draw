@@ -355,10 +355,6 @@ class ViewDialog
         this._view_mode_chooser(table.find("td.mode"));
     }
 
-// viewing_changed() {
-//     this._show_groups();
-// }
-
     _projection_chooser(section) {
 
         const projection_title = (projection, index) => {
@@ -398,217 +394,6 @@ class ViewDialog
         for (let viewing_mode of this.widget_.viewer_.viewing_modes_)
             selector.add(viewing_mode.name());
         selector.current(this.widget_.viewer_.viewing_.name());
-//        this._show_groups();
-    }
-
-    _show_groups() {
-        console.warn("_show_groups");
-        const tr_groups = this.content_.find("tr.group-series");
-        const tr_groups_combined = this.content_.find("tr.group-series-combined");
-        const viewing = this.widget_.viewer_.viewing_;
-        if (viewing instanceof ViewGroups) {
-            tr_groups.show();
-            this._show_group_series_data();
-            this._make_uploader({button: tr_groups.find("a[href='upload']"), drop_area: this.content_.find("table.av-view-dialog")});
-            this._make_downloader(tr_groups);
-
-            tr_groups_combined.hide();
-        }
-        else {
-            tr_groups.hide();
-            tr_groups_combined.hide();
-        }
-    }
-
-    _show_group_series_data() {
-        console.warn("_show_group_series_data");
-        const viewing = this.widget_.viewer_.viewing_;
-        this._make_exclusive_combined();
-        if (!viewing.group_sets_ && this.chart_.group_sets)
-            viewing.group_sets_ = this.chart_.group_sets;
-        if (viewing.group_sets_) {
-            const group_sets = this.content_.find("table.av-view-dialog tr.group-series .av-sets").empty();
-            if (viewing.group_sets_.length === 1) {
-                const gs = viewing.group_sets_[0];
-                group_sets.append(`<a class='av-current' href='${gs.N}'>${gs.N}</a>`);
-                group_sets.find("a").on("click", evt => av_utils.forward_event(evt));
-                this._populate_table_groups(gs);
-                viewing._make_pages(gs);
-            }
-            else {
-                for (let gs of viewing.group_sets_)
-                    group_sets.append(`<a href='${gs.N}'>${gs.N}</a>`);
-                group_sets.find("a").on("click", evt => av_utils.forward_event(evt, evt => {
-                    const target = $(evt.currentTarget);
-                    if (!target.hasClass("av-current")) {
-                        group_sets.find("a").removeClass("av-current");
-                        target.addClass("av-current");
-                        const gs = viewing.group_sets_[viewing.group_sets_.findIndex(gs => gs.N === evt.currentTarget.getAttribute("href"))];
-                        this._populate_table_groups(gs);
-                        viewing._make_pages(gs);
-                    }
-                }));
-                $(group_sets.find("a")[0]).addClass("av-current");
-                this._populate_table_groups(viewing.group_sets_[0]);
-                viewing._make_pages(viewing.group_sets_[0]);
-            }
-        }
-    }
-
-    _make_exclusive_combined() {
-        console.warn("_make_exclusive_combined");
-        const viewing = this.widget_.viewer_.viewing_;
-        const tr_group_series_combined = this.content_.find("table.av-view-dialog tr.group-series-combined");
-        tr_group_series_combined.find(".av-buttons a").off("click");
-        if (viewing instanceof ViewGroups && viewing.group_sets_) {
-            tr_group_series_combined.show();
-            const button_exclusive = tr_group_series_combined.find(".av-buttons a[href='exclusive']");
-            const button_combined = tr_group_series_combined.find(".av-buttons a[href='combined']");
-            const table_groups = tr_group_series_combined.find("table.av-groups");
-            button_exclusive.on("click", evt => av_utils.forward_event(evt, evt => {
-                viewing.combined_mode("exclusive");
-                viewing.set_page(0, true);
-                this._make_exclusive_combined();
-            }));
-            button_combined.on("click", evt => av_utils.forward_event(evt, evt => {
-                viewing.combined_mode("combined");
-                viewing.set_page(0, true);
-                this._make_exclusive_combined();
-            }));
-            if (viewing.combined_mode() === "exclusive") {
-                button_exclusive.addClass("av-current");
-                button_combined.removeClass("av-current");
-                table_groups.hide();
-            }
-            else {
-                button_exclusive.removeClass("av-current");
-                button_combined.addClass("av-current");
-                table_groups.show();
-            }
-        }
-        else {
-            tr_group_series_combined.hide();
-        }
-    }
-
-    _populate_table_groups(group_set) {
-        console.warn("_populate_table_groups");
-        const viewing = this.widget_.viewer_.viewing_;
-        const group_html = group_set.groups.map(group => {
-            return `<tr><td class="av-checkbox"><input type="checkbox" name="${group.N}"></input></td><td class="av-name">${group.N}</td></tr>`;
-        }).join("");
-        const tbl = this.content_.find("table.a-view-dialog tr.group-series-combined table.av-groups").empty().append(group_html);
-        tbl.find("input").on("change", evt => av_utils.forward_event(evt, evt => {
-            if (evt.currentTarget.checked)
-                viewing.add_combined_group(evt.currentTarget.name);
-            else
-                viewing.remove_combined_group(evt.currentTarget.name);
-        }));
-        viewing.groups_combined_.forEach(group_name => tbl.find(`input[name="${group_name}"]`).prop("checked", true));
-    }
-
-    _make_uploader(args) {
-        console.warn("_make_uploader");
-        av_utils.upload_json(args)
-            .then(data => { this._show_group_series_uploaded_data(data); this._make_uploader(args); })
-            .catch(err => { av_toolkit.movable_window_with_error(err, args.button); this._make_uploader(args); });
-    }
-
-    _make_downloader(tr_group_series) {
-        console.warn("_make_downloader");
-        const viewing = this.widget_.viewer_.viewing_;
-        const button_download_sample = tr_group_series.find("a[href='download']");
-        button_download_sample.off("click");
-        button_download_sample.on("click", evt => av_utils.forward_event(evt, evt => {
-            const data = {
-                "  version": "group-series-set-v1",
-                "a": this.chart_.a.map((antigen, ag_no) => Object.assign({"?no": ag_no}, antigen)),
-                "s": this.chart_.s.map((serum, sr_no) => Object.assign({"?no": sr_no + this.chart_.a.length}, serum)),
-                "group_sets": [{N: "set-1", line_color: "black", line_width: 1, groups: [{"N": "gr-1", line_color: "black", line_width: 1, root: 0, members: [0, 1, 2]}, {"N": "gr-2", root: 3, members: [3, 4, 5]}]}]
-            };
-            av_utils.download_blob({data: data, blob_type: "application/json", filename: "group-series-sets.json"});
-        }));
-
-        const button_download_chart = tr_group_series.find("a[href='download-chart']");
-        button_download_chart.off("click");
-        if (viewing.group_sets_) {
-            button_download_chart.show().on("click", evt => av_utils.forward_event(evt, evt => {
-                const data = {"  version": "acmacs-ace-v1", "?created": `ace-view/201807 GroupSeries on ${new Date()}`, c: Object.assign({}, this.chart(), {group_sets: viewing.group_sets_})};
-                av_utils.download_blob({data: data, blob_type: "application/json", filename: "chart-with-group-series-sets.ace"});
-            }));
-        }
-        else
-            button_download_chart.hide();
-    }
-
-    _show_group_series_uploaded_data(data) {
-        console.warn("_show_group_series_uploaded_data");
-        try {
-            this._check_group_sets(data);
-            this._match_groups(data);
-            this._show_group_series_data();
-            this._make_downloader(this.content_.find("tr.group-series"));
-        }
-        catch (err) {
-            av_toolkit.movable_window_with_error(err, this.content_.find("table.av-view-dialog tr.group-series .av-label"));
-        }
-    }
-
-    _match_groups(data) {
-        console.warn("_match_groups");
-        const point_to_point_ar = data.a.map((elt, no) => [no, this.chart_.a.findIndex(antigen => av_utils.objects_equal(elt, antigen, ["?no", "no", "C", "S", "c"]))])
-              .concat(data.s.map((elt, no) => [no + data.a.length, this.chart_.a.length + this.chart_.s.findIndex(antigen => av_utils.objects_equal(elt, antigen, ["?no", "no", "S"]))]));
-        const point_to_point = point_to_point_ar.reduce((obj, entry) => { obj[entry[0]] = entry[1]; return obj; }, {});
-        for (let gs of data.group_sets) {
-            for (let grp of gs.groups) {
-                if (grp.root !== undefined)
-                    grp.root = point_to_point[grp.root];
-                grp.members = grp.members.map(no => point_to_point[no]);
-            }
-        }
-        this.widget_.viewer_.viewing_.group_sets_ = data.group_sets;
-    }
-
-    _check_group_sets(data) {
-        console.warn("_check_group_sets");
-        if (data["  version"] !== "group-series-set-v1")
-            throw "Ivalid \"  version\" of the uploaded data";
-        if (!data.a || !Array.isArray(data.a) || data.a.length === 0 || !data.s || !Array.isArray(data.s) || data.s.length === 0)
-            throw "Invalid or empty \"a\" or \"s\" in the uploaded data";
-        const number_of_points = data.a.length + data.s.length;
-        if (!data.group_sets || !Array.isArray(data.group_sets) || data.group_sets.length === 0)
-            throw "Invalid or empty \"group_sets\" in the uploaded data";
-        data.group_sets.forEach((group_set, group_set_no) => {
-            if (!group_set.N)
-                throw "invalid \"N\" in \"group_set\" " + group_set_no;
-            if (group_set.line_color !== undefined && typeof(group_set.line_color) !== "string")
-                throw "invalid \"line_color\" in group_set " + group_set.N;
-            if (group_set.line_width !== undefined && (typeof(group_set.line_width) !== "number" || group_set.line_width < 0))
-                throw "invalid \"line_width\" in group_set " + group_set.N;
-            if (!group_set.groups || !Array.isArray(group_set.groups) || group_set.groups.length === 0)
-                throw "invalid or empty \"groups\" in \"group_set\" " + group_set_no + " \"" + group_set.N + "\"";
-            let present_groups = {};
-            group_set.groups.forEach((group, group_no) => {
-                if (!group.N)
-                    throw `invalid "N" in "group" ${group_no} of "group_set" "${group_set.N}"`;
-                const orig_group_name = group.N;
-                for (let copy_no = 2; present_groups[group.N] !== undefined; ++copy_no)
-                    group.N = `${orig_group_name} (${copy_no})`;
-                present_groups[group.N] = true;
-                if (group.root !== undefined && (typeof(group.root) !== "number" || group.root < 0 || group.root >= number_of_points))
-                    throw `invalid "root" in group "${group.N}" of "group_set" "${group_set.N}"`;
-                if (!group.members || !Array.isArray(group.members) || group.members.length === 0)
-                    throw `invalid "members" in group "${group.N}" of "group_set" "${group_set.N}"`;
-                group.members.forEach(no => {
-                    if (typeof(no) !== "number" || no < 0 || no >= number_of_points)
-                        throw `invalid "members" element ${no} in "group" ${group_no} of "group_set" "${group_set.N}"`;
-                });
-                if (group.line_color !== undefined && typeof(group.line_color) !== "string")
-                    throw "invalid \"line_color\" in group " + group.N;
-                if (group.line_width !== undefined && (typeof(group.line_width) !== "number" || group.line_width < 0))
-                    throw "invalid \"line_width\" in group " + group.N;
-            });
-        });
     }
 
 } // class ViewDialog
@@ -1806,17 +1591,27 @@ class ViewGroups extends ViewingSeries
         this._draw_root_connecting_lines();
     }
 
+    on_exit(view_dialog) {
+        super.on_exit(view_dialog);
+        if (view_dialog) {
+            view_dialog.section("group-series").hide();
+            view_dialog.section("group-series-combined").hide();
+        }
+    }
+
     on_entry(view_dialog) {
         super.on_entry(view_dialog);
         if (this.page_no_ === undefined)
             this.set_page(this._initial_page_no());
         else
             this._update_title();
+        view_dialog && this._show_groups(view_dialog);
     }
 
-    // view_dialog_shown(view_dialog) {
-    //     super.view_dialog_shown(view_dialog);
-    // }
+    view_dialog_shown(view_dialog) {
+        super.view_dialog_shown(view_dialog);
+        this._show_groups(view_dialog);
+    }
 
     set_page(page_no, redraw) {
         if (this.combined_mode() === "exclusive")
@@ -1915,7 +1710,196 @@ class ViewGroups extends ViewingSeries
         }
     }
 
-}
+    _show_groups(view_dialog) {
+        const tr_groups = view_dialog.section("group-series").show();
+        const tr_groups_combined = view_dialog.section("group-series-combined").hide();
+        this._show_group_series_data(tr_groups, tr_groups_combined);
+        this._make_uploader({button: tr_groups.find("a[href='upload']"), drop_area: view_dialog.content_.find("table.av-view-dialog"), tr_groups: tr_groups, tr_groups_combined: tr_groups_combined});
+        this._make_downloader(tr_groups);
+    }
+
+    _show_group_series_data(tr_groups, tr_groups_combined) {
+        this._make_exclusive_combined(tr_groups_combined);
+        const chart = this.map_viewer_.widget_.chart_;
+        if (!this.group_sets_ && chart.group_sets)
+            this.group_sets_ = chart.group_sets;
+        if (this.group_sets_) {
+            const group_sets = tr_groups.find(".av-sets").empty();
+            if (this.group_sets_.length === 1) {
+                const gs = this.group_sets_[0];
+                group_sets.append(`<a class='av-current' href='${gs.N}'>${gs.N}</a>`);
+                group_sets.find("a").on("click", evt => av_utils.forward_event(evt));
+                this._populate_table_groups(gs, tr_groups_combined);
+                this._make_pages(gs);
+            }
+            else {
+                for (let gs of this.group_sets_)
+                    group_sets.append(`<a href='${gs.N}'>${gs.N}</a>`);
+                group_sets.find("a").on("click", evt => av_utils.forward_event(evt, evt => {
+                    const target = $(evt.currentTarget);
+                    if (!target.hasClass("av-current")) {
+                        group_sets.find("a").removeClass("av-current");
+                        target.addClass("av-current");
+                        const gs = this.group_sets_[this.group_sets_.findIndex(gs => gs.N === evt.currentTarget.getAttribute("href"))];
+                        this._populate_table_groups(gs, tr_groups_combined);
+                        this._make_pages(gs);
+                    }
+                }));
+                $(group_sets.find("a")[0]).addClass("av-current");
+                this._populate_table_groups(this.group_sets_[0], tr_groups_combined);
+                this._make_pages(this.group_sets_[0]);
+            }
+        }
+    }
+
+    _make_exclusive_combined(tr_groups_combined) {
+        tr_groups_combined.find(".av-buttons a").off("click");
+        if (this.group_sets_) {
+            tr_groups_combined.show();
+            const button_exclusive = tr_groups_combined.find(".av-buttons a[href='exclusive']");
+            const button_combined = tr_groups_combined.find(".av-buttons a[href='combined']");
+            const table_groups = tr_groups_combined.find("table.av-groups");
+            button_exclusive.off("click").on("click", evt => av_utils.forward_event(evt, evt => {
+                this.combined_mode("exclusive");
+                this.set_page(0, true);
+                this._make_exclusive_combined();
+            }));
+            button_combined.off("click").on("click", evt => av_utils.forward_event(evt, evt => {
+                this.combined_mode("combined");
+                this.set_page(0, true);
+                this._make_exclusive_combined();
+            }));
+            if (this.combined_mode() === "exclusive") {
+                button_exclusive.addClass("av-current");
+                button_combined.removeClass("av-current");
+                table_groups.hide();
+            }
+            else {
+                button_exclusive.removeClass("av-current");
+                button_combined.addClass("av-current");
+                table_groups.show();
+            }
+        }
+        else {
+            tr_groups_combined.hide();
+        }
+    }
+
+    _populate_table_groups(group_set, tr_groups_combined) {
+        const group_html = group_set.groups.map(group => {
+            return `<tr><td class="av-checkbox"><input type="checkbox" name="${group.N}"></input></td><td class="av-name">${group.N}</td></tr>`;
+        }).join("");
+        const tbl = tr_groups_combined.find("table.av-groups").empty().append(group_html);
+        tbl.find("input").on("change", evt => av_utils.forward_event(evt, evt => {
+            if (evt.currentTarget.checked)
+                this.add_combined_group(evt.currentTarget.name);
+            else
+                this.remove_combined_group(evt.currentTarget.name);
+        }));
+        this.groups_combined_.forEach(group_name => tbl.find(`input[name="${group_name}"]`).prop("checked", true));
+    }
+
+    _make_uploader(args) {
+        av_utils.upload_json(args)
+            .then(data => { this._show_group_series_uploaded_data(data, args.tr_groups, args.tr_groups_combined); this._make_uploader(args); })
+            .catch(err => { av_toolkit.movable_window_with_error(err, args.button); this._make_uploader(args); });
+    }
+
+    _make_downloader(tr_group_series) {
+        const chart = this.map_viewer_.widget_.chart_;
+        const button_download_sample = tr_group_series.find("a[href='download']");
+        button_download_sample.off("click");
+        button_download_sample.on("click", evt => av_utils.forward_event(evt, evt => {
+            const data = {
+                "  version": "group-series-set-v1",
+                "a": chart.a.map((antigen, ag_no) => Object.assign({"?no": ag_no}, antigen)),
+                "s": chart.s.map((serum, sr_no) => Object.assign({"?no": sr_no + chart.a.length}, serum)),
+                "group_sets": [{N: "set-1", line_color: "black", line_width: 1, groups: [{"N": "gr-1", line_color: "black", line_width: 1, root: 0, members: [0, 1, 2]}, {"N": "gr-2", root: 3, members: [3, 4, 5]}]}]
+            };
+            av_utils.download_blob({data: data, blob_type: "application/json", filename: "group-series-sets.json"});
+        }));
+
+        const button_download_chart = tr_group_series.find("a[href='download-chart']");
+        button_download_chart.off("click");
+        if (this.group_sets_) {
+            button_download_chart.show().on("click", evt => av_utils.forward_event(evt, evt => {
+                const data = {"  version": "acmacs-ace-v1", "?created": `ace-view/201807 GroupSeries on ${new Date()}`, c: Object.assign({}, this.chart(), {group_sets: this.group_sets_})};
+                av_utils.download_blob({data: data, blob_type: "application/json", filename: "chart-with-group-series-sets.ace"});
+            }));
+        }
+        else
+            button_download_chart.hide();
+    }
+
+    _show_group_series_uploaded_data(data, tr_groups, tr_groups_combined) {
+        try {
+            this._check_group_sets(data);
+            this._match_groups(data);
+            this._show_group_series_data(tr_groups, tr_groups_combined);
+            this._make_downloader(tr_groups);
+        }
+        catch (err) {
+            av_toolkit.movable_window_with_error(err, tr_groups.find(".av-label"));
+        }
+    }
+
+    _match_groups(data) {
+        const chart = this.map_viewer_.widget_.chart_;
+        const point_to_point_ar = data.a.map((elt, no) => [no, chart.a.findIndex(antigen => av_utils.objects_equal(elt, antigen, ["?no", "no", "C", "S", "c"]))])
+              .concat(data.s.map((elt, no) => [no + data.a.length, chart.a.length + chart.s.findIndex(antigen => av_utils.objects_equal(elt, antigen, ["?no", "no", "S"]))]));
+        const point_to_point = point_to_point_ar.reduce((obj, entry) => { obj[entry[0]] = entry[1]; return obj; }, {});
+        for (let gs of data.group_sets) {
+            for (let grp of gs.groups) {
+                if (grp.root !== undefined)
+                    grp.root = point_to_point[grp.root];
+                grp.members = grp.members.map(no => point_to_point[no]);
+            }
+        }
+        this.group_sets_ = data.group_sets;
+    }
+
+    _check_group_sets(data) {
+        if (data["  version"] !== "group-series-set-v1")
+            throw "Ivalid \"  version\" of the uploaded data";
+        if (!data.a || !Array.isArray(data.a) || data.a.length === 0 || !data.s || !Array.isArray(data.s) || data.s.length === 0)
+            throw "Invalid or empty \"a\" or \"s\" in the uploaded data";
+        const number_of_points = data.a.length + data.s.length;
+        if (!data.group_sets || !Array.isArray(data.group_sets) || data.group_sets.length === 0)
+            throw "Invalid or empty \"group_sets\" in the uploaded data";
+        data.group_sets.forEach((group_set, group_set_no) => {
+            if (!group_set.N)
+                throw "invalid \"N\" in \"group_set\" " + group_set_no;
+            if (group_set.line_color !== undefined && typeof(group_set.line_color) !== "string")
+                throw "invalid \"line_color\" in group_set " + group_set.N;
+            if (group_set.line_width !== undefined && (typeof(group_set.line_width) !== "number" || group_set.line_width < 0))
+                throw "invalid \"line_width\" in group_set " + group_set.N;
+            if (!group_set.groups || !Array.isArray(group_set.groups) || group_set.groups.length === 0)
+                throw "invalid or empty \"groups\" in \"group_set\" " + group_set_no + " \"" + group_set.N + "\"";
+            let present_groups = {};
+            group_set.groups.forEach((group, group_no) => {
+                if (!group.N)
+                    throw `invalid "N" in "group" ${group_no} of "group_set" "${group_set.N}"`;
+                const orig_group_name = group.N;
+                for (let copy_no = 2; present_groups[group.N] !== undefined; ++copy_no)
+                    group.N = `${orig_group_name} (${copy_no})`;
+                present_groups[group.N] = true;
+                if (group.root !== undefined && (typeof(group.root) !== "number" || group.root < 0 || group.root >= number_of_points))
+                    throw `invalid "root" in group "${group.N}" of "group_set" "${group_set.N}"`;
+                if (!group.members || !Array.isArray(group.members) || group.members.length === 0)
+                    throw `invalid "members" in group "${group.N}" of "group_set" "${group_set.N}"`;
+                group.members.forEach(no => {
+                    if (typeof(no) !== "number" || no < 0 || no >= number_of_points)
+                        throw `invalid "members" element ${no} in "group" ${group_no} of "group_set" "${group_set.N}"`;
+                });
+                if (group.line_color !== undefined && typeof(group.line_color) !== "string")
+                    throw "invalid \"line_color\" in group " + group.N;
+                if (group.line_width !== undefined && (typeof(group.line_width) !== "number" || group.line_width < 0))
+                    throw "invalid \"line_width\" in group " + group.N;
+            });
+        });
+    }
+
+} // class ViewGroups
 
 // ----------------------------------------------------------------------
 
