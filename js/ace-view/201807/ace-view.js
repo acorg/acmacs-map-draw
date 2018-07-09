@@ -1426,7 +1426,7 @@ class ViewSearch extends ViewingBase
     }
 
     _reset() {
-        this.search_results_section_ && this.search_results_section_.find("td.search-results").empty();
+        this.search_results_section_ && this.search_results_section_.find("td.search-results table").empty();
         this.selected_antigens_ = [];
         this.selected_sera_ = [];
         this._make_drawing_order();
@@ -1456,6 +1456,7 @@ class ViewSearch extends ViewingBase
             table.append("<tr><td class='av-message'>nothing matched</td></tr>");
         }
         this._make_drawing_order();
+        this.map_viewer_.widget_.update_title();
         this.map_viewer_.draw();
     }
 
@@ -1515,13 +1516,13 @@ class ViewSearch extends ViewingBase
         canvas_access.set("o", style.o || 1);
         canvas_access.set("a", style.a || 1);
         canvas_access.set("r", style.r || 0);
-        const tr = $(`<tr class='a-many'><td class='av-plot-spec'></td><td class='av-label'>${collection[index - base]}</td></tr>`).appendTo(table);
+        const tr = $(`<tr class='av-many'><td class='av-plot-spec'></td><td class='av-label'>${collection[index - base]}</td></tr>`).appendTo(table);
         tr.find("td.av-plot-spec").append(canvas);
         av_point_style.point_style_modifier({canvas: canvas, onchange: data => this._style_modified(data, [index])});
     }
 
     _add_separator(table) {
-        table.append("<tr class='a-separator'><td colspan='2'></td></tr>");
+        table.append("<tr class='av-separator'><td colspan='2'></td></tr>");
     }
 
     _style(index) {
