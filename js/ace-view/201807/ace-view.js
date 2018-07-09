@@ -1526,26 +1526,36 @@ class ViewSearch extends ViewingBase
     }
 
     _style(index) {
-        const default_styles = this.map_viewer_.coloring_.styles();
-        return this._get_style(default_styles, index);
+        if (this.style_set_name_ === undefined)
+            return this._get_style(this.map_viewer_.coloring_.styles(), index);
+        else
+            return this._get_style(this.style_set_[this.style_set_name_], index);
     }
 
     _get_style(styles, index) {
-        if (styles.P && styles.p) {
+        if (styles.P && styles.p)
             return styles.P[styles.p[index]];
-        }
-        else {
-            console.warn("_style", index, styles);
-            jopa;
-        }
+        else
+            return styles[index];
     }
 
     _style_modified(data, indexes) {
+        if (this.style_set_name_ === undefined)
+            this._create_style_set();
         console.log("_style_modified", data, indexes);
-        // const key_mapping = {fill: "F", outline: "O", outline_width: "o", aspect: "a", rotation: "r", shape: "S", size: "s"};
-        // // console.log("_style_modified", data, indexes, this.styles_.styles[indexes[0]]);
-        // indexes.forEach(index => this.styles_.styles[index][key_mapping[data.name]] = data.value);
-        // this.map_viewer_.draw();
+        indexes.forEach(index => this._style(index)[data.name] = data.value);
+        this.map_viewer_.draw();
+    }
+
+    _create_style_set() {
+        if (!this.style_set_)
+            this.style_set_ = {};
+        this.style_set_name_ = new Date().toLocaleString("en-CA", {hour12: false}).replace(",", "").substr(0, 16);
+        const styles = this.map_viewer_.coloring_.styles();
+        if (styles.P && styles.p)
+            this.style_set_[this.style_set_name_] = this.map_viewer_.coloring_.all_styles();
+        else
+            this.style_set_[this.style_set_name_] = styles;
     }
 }
 
