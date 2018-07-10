@@ -148,11 +148,13 @@ export class Surface
         const transformed = this.transformation_.transform(coord);
         this.context_.save();
         try {
-            this.context_.translate.apply(this.context_, transformed);
-            const size = (args.s === undefined ? 1 : args.s) * this.point_scale_ * this.scale_inv_;
-            draw_point(this.context_, Object.assign({radius: size / 2, scale_inv: this.scale_inv_}, args), false);
-            if (hit_map)
-                this._add_to_hit_map(point_no, transformed, size, args.S || "c");
+            if (transformed.length === 2) {
+                this.context_.translate.apply(this.context_, transformed);
+                const size = (args.s === undefined ? 1 : args.s) * this.point_scale_ * this.scale_inv_;
+                draw_point(this.context_, Object.assign({radius: size / 2, scale_inv: this.scale_inv_}, args), false);
+                if (hit_map)
+                    this._add_to_hit_map(point_no, transformed, size, args.S || "c");
+            }
         }
         catch (err) {
             console.error("av_surface::point", err);
@@ -473,7 +475,7 @@ export class Surface
         const scaled_offset = this._translate_pixel_offset(offset);
         const result = drawing_order.filter(point_no => {
             const point_data = this.hit_map_[point_no];
-            return point_data.h(scaled_offset, point_data.c, point_data.s);
+            return point_data && point_data.h(scaled_offset, point_data.c, point_data.s);
         });
         result.reverse();
         return result;

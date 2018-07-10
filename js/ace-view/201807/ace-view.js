@@ -12,8 +12,9 @@ const AntigenicMapWidget_right_arrow = "&#x21E8;"; // "&#x27F9;";
 const AntigenicMapWidget_burger = "&#x2630;";
 
 const AntigenicMapWidget_default_options = {
-    canvas_size: null,          // auto-size
-
+    canvas_size: null,          // number, null: auto-size
+    point_on_click: null,       // (point, invoking_node) =>
+    api: null,                  // new AntigenicMapApi()
     projection_no: 0,
     view_mode: {mode: "projection"},
     coloring: "default",
@@ -109,11 +110,11 @@ export class AntigenicMapWidget
         };
         if (typeof(data) === "string" && RegExp("(\\.ace|\\?acv=ace)$").test(data)) {
             this._loading_message();
-            $.getJSON(data).done(loaded).fail(failed);
+            $.getJSON(data).then(loaded, failed);
         }
         else if (typeof(data) === "function" && data.constructor.name === 'AsyncFunction') {
             this._loading_message();
-            data().done(loaded).fail(failed);
+            data().then(loaded, failed);
         }
         else if (typeof(data) === "object" && (data.version || data["  version"]) === "acmacs-ace-v1") {
             loaded(data);
@@ -596,11 +597,10 @@ class MapViewer
     _show_point_info(mouse_offset, points) {
         if (points.length) {
             const chart = this.viewing_.chart();
-            const options = this.widget_.options_;
 
             const full_name = point_no => point_no < chart.a.length ? av_utils.ace_antigen_full_name(chart.a[point_no], {escape: true}) : av_utils.ace_serum_full_name(chart.s[point_no - chart.a.length], {escape: true});
             const make_point_name_row = point_entry => {
-                if (options.point_on_click)
+                if (this.widget_.options_.point_on_click)
                     return `<li><a href="show-info-on-this-name" point_no="${point_entry.no}" point_name="${point_entry.name}">${point_entry.name}</a></li>`;
                 else
                     return `<li>${point_entry.name}</li>`;
@@ -608,13 +608,11 @@ class MapViewer
 
             const point_entries = points.map(point_no => { return {name: full_name(point_no), no: point_no}; });
             const mouse_popup_text = $("<ul class='point-info-on-hover'></ul>").append(point_entries.map(make_point_name_row).join(""));
-            const popup = av_toolkit.mouse_popup_show(mouse_popup_text, this.surface_.canvas_, {left: mouse_offset.left + options.mouse_popup_offset.left, top: mouse_offset.top + options.mouse_popup_offset.top});
-                if (options.point_on_click) {
+            const popup = av_toolkit.mouse_popup_show(mouse_popup_text, this.surface_.canvas_, {left: mouse_offset.left + this.widget_.options_.mouse_popup_offset.left, top: mouse_offset.top + this.widget_.options_.mouse_popup_offset.top});
+                if (this.widget_.options_.point_on_click) {
                     popup.find("a").on("click", evt => {
-                        console.log("point info from hidb");
-// jopa
-                        // av_utils.forward_event(evt, evt => show_antigen_serum_info_from_hidb($(evt.target), this.data.c, this.canvas, this.options.point_on_click));
-                        // window.setTimeout(av_toolkit.mouse_popup_hide, this.options.point_info_on_hover_delay);
+                        av_utils.forward_event(evt, evt => show_antigen_serum_info_from_hidb($(evt.target), chart, this.surface_.canvas_, this.widget_.options_.point_on_click));
+                        window.setTimeout(av_toolkit.mouse_popup_hide, this.widget_.options_.point_info_on_hover_delay);
                     });
                 }
         }
@@ -2236,6 +2234,20 @@ let sLastId = 0;
 
 function new_id() {
     return "" + (++sLastId);
+}
+
+// ----------------------------------------------------------------------
+
+function show_antigen_serum_info_from_hidb(target, chart, invoking_node, shower) {
+    if (shower) {
+        const point_no = parseInt(target.attr("point_no"));
+        const point_data = {virus_type: chart.i.V || (chart.i.S && chart.i.S.length > 0 && chart.i.S[0].V)};
+        if (point_no < chart.a.length)
+            point_data.antigen = chart.a[point_no];
+        else
+            point_data.serum = chart.s[point_no - chart.a.length];
+        shower(point_data, invoking_node);
+    }
 }
 
 // ----------------------------------------------------------------------
