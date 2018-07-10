@@ -175,12 +175,14 @@ class AntigenicMapTitle
     }
 
     resize() {
+        const title_td_border = this.div_.outerWidth(true) - this.div_.width();
         const title_element = this.div_.find("> .av-title-title");
+        const title_element_border = title_element.outerWidth(true) - title_element.width();
         const title_left = this.div_.find("> .av-left");
         const title_left_width = title_left.is(":visible") ? title_left.outerWidth(true) : 0;
         const title_right = this.div_.find("> .av-right");
         const title_right_width = title_right.is(":visible") ? title_right.outerWidth(true) : 0;
-        title_element.css("width", this.widget_.viewer_.surface_.width() - title_left_width - title_right_width - (title_element.outerWidth(true) - title_element.width()));
+        title_element.css("width", this.widget_.viewer_.surface_.width() - title_left_width - title_right_width - title_element_border - title_td_border);
     }
 
     popup_on_hovering_title(content) {

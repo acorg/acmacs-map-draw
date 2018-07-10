@@ -1,5 +1,5 @@
 .amw201807 {
-    display: block;
+    display: inline-block;
     margin: 0;
     padding: 0.5em 0.7em;
     width: auto;
@@ -9,8 +9,17 @@
 
 /* ---------------------------------------------------------------------- */
 
+.amw201807 > table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.amw201807 td.av-canvas {
+    padding: 0;
+}
+
 .amw201807 td.av-canvas > div {
-    background-color: #F0F0F0;
+    background-color: white;
 }
 
 .amw201807 .av-loading-message {
@@ -23,6 +32,15 @@
 /* ---------------------------------------------------------------------- */
 /* title */
 /* ---------------------------------------------------------------------- */
+
+.amw201807 .av-title {
+    /* background-color: #4285F4; */
+    background-color: #5a96ff;
+    color: white;
+    /* background-color: #E1ECF4; */
+    /* color: #39739d; */
+    padding: 0.5em 0.3em;
+}
 
 .amw201807 .av-title > .av-left {
     float: left;
@@ -63,7 +81,6 @@
 }
 
 .amw201807 .av-title .av-arrow {
-    font-weight: bold;
     cursor: pointer;
     font-size: 1.2em;
     position: relative;
@@ -71,7 +88,8 @@
 }
 
 .amw201807 .av-title .av-arrow:hover {
-    color: #00A000;
+    /* color: #00A000; */
+    font-weight: bold;
 }
 
 .amw201807 .av-title .av-left-arrow {
@@ -86,9 +104,10 @@
 
 .amw201807 .av-title .av-burger {
     cursor: context-menu;
-    padding-left: 3px;
+    padding-left: 0.3em;
     position: relative;
     bottom: 0.2em;
+    color: rgba(0, 0, 255, 0.75);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -123,7 +142,43 @@
 /* ---------------------------------------------------------------------- */
 
 .av201807-view-dialog {
-    background-color: #F8F8F8;
+    background-color: white; /* #F8F8F8; */
+}
+
+/* title */
+
+.av201807-view-dialog .av-window-title {
+    background-color: #497ad0;
+    color: white;
+}
+
+.av201807-view-dialog .av-window-title .av-close {
+    font-size: 2em;
+    top: 0;
+}
+
+.av201807-view-dialog .av-window-title .av-close.av-left {
+    left: 0.3em;
+}
+
+.av201807-view-dialog .av-window-title .av-close.av-right {
+    right: 0.3em;
+}
+
+.av201807-view-dialog .av-window-title .av-close:hover {
+    color: white;
+}
+
+.av201807-view-dialog .av-window-title .av-title {
+    padding: 0;
+    font-weight: normal;
+    padding: 0.5em 2em 0.5em 2em;
+}
+
+/* body */
+
+.av201807-view-dialog .av-content {
+    margin: 1em;
 }
 
 .av201807-view-dialog .av-view-dialog .projection-chooser > input {

@@ -285,7 +285,7 @@ export class Surface
     // --------------------------------------------------
 
     reset() {
-        this.background({color: "#FBFBFB"});
+        this.background({color: "white"});
     }
 
     width() {
