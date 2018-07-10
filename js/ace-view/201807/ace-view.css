@@ -298,6 +298,17 @@
 
 /* search */
 
+.av201807-view-dialog .av-view-dialog tr.search td.regex input {
+    border: none;
+    font-size: 1.1em;
+    position: relative;
+    bottom: 0.3em;
+}
+
+.av201807-view-dialog .av-view-dialog tr.search td.regex input:focus {
+    outline: none;
+}
+
 .av201807-view-dialog .av-view-dialog tr.search-results .av-message {
     margin: 0;
     color: #808080;
