@@ -2,6 +2,7 @@ import * as av_utils from "./utils.js";
 import * as av_surface from "./surface.js";
 import * as av_toolkit from "./toolkit.js";
 import * as av_point_style from "./point-style.js";
+import * as av_antigenic_table from "./antigenic-table.js";
 
 av_utils.load_css('/js/ad/map-draw/ace-view/201807/ace-view.css');
 
@@ -224,7 +225,7 @@ export class AntigenicMapWidget
     _show_table() {
         if (!this.table_viewer_) {
             if (this.chart_)
-                this.table_viewer_ = new AntigenicTable({populate: true, widget: this, parent: this.viewer_.surface_.canvas_, chart: this.chart_});
+                this.table_viewer_ = new av_antigenic_table.AntigenicTable({widget: this, parent: this.viewer_.surface_.canvas_, chart: this.chart_});
         }
         else
             this.table_viewer_.position();
@@ -1446,6 +1447,22 @@ const sStyleModifiers = {shade: style_modifier_shade, grey: style_modifier_grey,
 
 // ----------------------------------------------------------------------
 
+export function title_field_makers()
+{
+    return {
+        stress: (chart, projection_no) => { let stress = chart.P[projection_no].s; return stress ? stress.toFixed(4) : ""; },
+        min_col_basis: (chart, projection_no) => { let mcb = chart.P[projection_no].m; return mcb ? ">=" + mcb : ">=none"; },
+        name: (chart, projection_no) => chart.i.N,
+        date: (chart, projection_no) => chart.i.S ? (chart.i.S[0].D + "-" + chart.i.S[chart.i.S.length - 1].D) : (chart.i.D),
+        tables: (chart, projection_no) => chart.i.S ? `(${chart.i.S.length} tables)` : "",
+        antigens: (chart, projection_no) => "A:" + chart.a.length,
+        sera: (chart, projection_no) => "S:" + chart.s.length,
+        lab: (chart, projection_no) => chart.i.S ? chart.i.S[0].l : chart.i.l,
+        virus_type: (chart, projection_no) => chart.i.S ? chart.i.S[0].V : chart.i.V,
+        assay: (chart, projection_no) => chart.i.S ? chart.i.S[0].A : chart.i.A
+    };
+}
+
 class ViewAll extends ViewingBase
 {
     name() {
@@ -1468,25 +1485,9 @@ class ViewAll extends ViewingBase
 
      // {title_fields:}
     title(args) {
-        const makers = this.title_field_makers();
+        const makers = title_field_makers();
         return this.projection_no_ !== undefined ? av_utils.join_collapse(args.title_fields.map(field => makers[field](this.chart_, this.projection_no_))) : "";
     }
-
-    title_field_makers() {
-        return {
-            stress: (chart, projection_no) => { let stress = chart.P[projection_no].s; return stress ? stress.toFixed(4) : ""; },
-            min_col_basis: (chart, projection_no) => { let mcb = chart.P[projection_no].m; return mcb ? ">=" + mcb : ">=none"; },
-            name: (chart, projection_no) => chart.i.N,
-            date: (chart, projection_no) => chart.i.S ? (chart.i.S[0].D + "-" + chart.i.S[chart.i.S.length - 1].D) : (chart.i.D),
-            tables: (chart, projection_no) => chart.i.S ? `(${chart.i.S.length} tables)` : "",
-            antigens: (chart, projection_no) => "A:" + chart.a.length,
-            sera: (chart, projection_no) => "S:" + chart.s.length,
-            lab: (chart, projection_no) => chart.i.S ? chart.i.S[0].l : chart.i.l,
-            virus_type: (chart, projection_no) => chart.i.S ? chart.i.S[0].V : chart.i.V,
-            assay: (chart, projection_no) => chart.i.S ? chart.i.S[0].A : chart.i.A
-        };
-    }
-
 }
 
 // ----------------------------------------------------------------------
