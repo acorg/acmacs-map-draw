@@ -91,15 +91,15 @@ static int acmacs_handler(request_rec *r) {
 
     try {
         int rc = OK;
-        if (acv == "html" || acv == "html201805") {
-            const char* view_mode = apr_table_get(GET, "view-mode");
-            const char* coloring = apr_table_get(GET, "coloring");
-            make_html201805(r, view_mode ? view_mode : "best-projection", coloring ? coloring : "default");
-        }
-        else if (acv == "html201807") {
+        if (acv == "html" || acv == "html201807") {
             // const char* view_mode = apr_table_get(GET, "view-mode");
             // const char* coloring = apr_table_get(GET, "coloring");
             make_html201807(r, "all", "original");
+        }
+        else if (acv == "html201805") {
+            const char* view_mode = apr_table_get(GET, "view-mode");
+            const char* coloring = apr_table_get(GET, "coloring");
+            make_html201805(r, view_mode ? view_mode : "best-projection", coloring ? coloring : "default");
         }
         else if (acv == "ace") {
             make_ace(r);
