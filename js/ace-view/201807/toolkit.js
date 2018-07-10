@@ -190,19 +190,19 @@ export class MovableWindow {
     // {title, content, id, parent: "center", classes: "", content_css: {width:, height:}, on_destroy: function}
     constructor(args) {
         if (args.id)
-            this.div = $("body").find("#" + args.id);
-        if (!this.div || this.div.length === 0) {
-            this.div = $(MovableWindow_html).appendTo($("body"));
+            this.div_ = $("body").find("#" + args.id);
+        if (!this.div_ || this.div_.length === 0) {
+            this.div_ = $(MovableWindow_html).appendTo($("body"));
             if (args.id)
-                this.div.attr("id", args.id);
-            this.div.find(".av-close").on("click", () => this.destroy());
-            this.div.find(".av-window-title").on("mousedown", evt => this.drag(evt, pos_diff => this.drag_window(pos_diff)));
-            this.div.find(".av-window-resizer").on("mousedown", evt => this.drag(evt, pos_diff => this.resize_window(pos_diff)));
+                this.div_.attr("id", args.id);
+            this.div_.find(".av-close").on("click", () => this.destroy());
+            this.div_.find(".av-window-title").on("mousedown", evt => this.drag(evt, pos_diff => this.drag_window(pos_diff)));
+            this.div_.find(".av-window-resizer").on("mousedown", evt => this.drag(evt, pos_diff => this.resize_window(pos_diff)));
             if (args.classes)
-                this.div.addClass(args.classes);
+                this.div_.addClass(args.classes);
         }
         if (args.title)
-            this.div.find(".av-title").empty().append(args.title);
+            this.div_.find(".av-title").empty().append(args.title);
         if (args.content)
             this.content().empty().append(args.content);
         if (args.content_css)
@@ -212,30 +212,30 @@ export class MovableWindow {
     }
 
     destroy() {
-        this.div.remove();
+        this.div_.remove();
         if (this.on_destroy)
             this.on_destroy();
     }
 
     classes(classes) {
         if (classes)
-            this.div.addClass(classes);
+            this.div_.addClass(classes);
         return this;
     }
 
     content() {
-        return this.div.find(".av-content");
+        return this.div_.find(".av-content");
     }
 
     drag(evt, callback) {
         let mouse_pos = {left: evt.clientX, top: evt.clientY};
         document.onmouseup = () => {
             document.onmouseup = document.onmousemove = null;
-            this.div.find(".av-content").removeClass("av-unselectable");
+            this.div_.find(".av-content").removeClass("av-unselectable");
             $("body").removeClass("av-unselectable");
         };
         document.onmousemove = evt2 => {
-            this.div.find(".av-content").addClass("av-unselectable");
+            this.div_.find(".av-content").addClass("av-unselectable");
             $("body").addClass("av-unselectable");
             callback({left: mouse_pos.left - evt2.clientX, top: mouse_pos.top - evt2.clientY});
             mouse_pos = {left: evt2.clientX, top: evt2.clientY};
@@ -243,23 +243,23 @@ export class MovableWindow {
     }
 
     drag_window(pos_diff) {
-        this.div.css({left: this.div.offset().left - pos_diff.left, top : this.div.offset().top - pos_diff.top});
+        this.div_.css({left: this.div_.offset().left - pos_diff.left, top : this.div_.offset().top - pos_diff.top});
     }
 
     resize_window(pos_diff) {
-        const element = this.div.find(".av-content");
+        const element = this.div_.find(".av-content");
         element.css({width: element.width() - pos_diff.left, height : element.height() - pos_diff.top});
     }
 
     position(parent) {
         if (!parent || parent === "center") {
             const wind = $(window);
-            this.div.css({left: (wind.scrollLeft() + wind.width() - this.div.width()) / 2, top: (wind.scrollTop() + wind.height() - this.div.height()) / 2});
+            this.div_.css({left: (wind.scrollLeft() + wind.width() - this.div_.width()) / 2, top: (wind.scrollTop() + wind.height() - this.div_.height()) / 2});
         }
         else {
-            let offset = parent.offset();
-            offset.left += parent.outerWidth();
-            this.div.css(offset);
+            let offset = $(parent).offset();
+            offset.left += $(parent).outerWidth();
+            this.div_.css(offset);
         }
     }
 }
@@ -267,7 +267,8 @@ export class MovableWindow {
 // ----------------------------------------------------------------------
 
 export function movable_window_with_json(data, invoking_node, title) {
-    new MovableWindow({title: title || data.name || data.description || data._id, content: `<pre class='json-highlight'>${av_utils.json_syntax_highlight(JSON.stringify(data, undefined, 2))}</pre>`, parent: invoking_node}).classes("av-json-data");
+    const wind = new MovableWindow({title: title || data.name || data.description || data._id, content: `<pre class='json-highlight'>${av_utils.json_syntax_highlight(JSON.stringify(data, undefined, 2))}</pre>`, parent: invoking_node});
+    wind.classes("av-json-data");
 }
 
 // ----------------------------------------------------------------------
