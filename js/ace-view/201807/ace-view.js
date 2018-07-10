@@ -514,7 +514,7 @@ class MapViewer
             this.coloring_.on_exit(this.widget_.view_dialog_);
         this.coloring_ = this.coloring_modes_.find(mode => mode.name() === mode_name) || this.coloring_modes_.find(mode => mode.name() === "original");
         this.coloring_.on_entry(this.widget_.view_dialog_);
-        this.widget_.view_dialog_ && this.widget_.view_dialog_
+        this.viewing_ && this.viewing_.coloring_changed(this.coloring_);
         if (redraw)
             this.draw();
     }
@@ -948,6 +948,7 @@ class ColoringByAAatPos extends ColoringBase
         if (update) {
             this.positions_ = positions;
             this._make_styles({set_point_rank: true});
+            this.widget_.viewer_.viewing_ && this.widget_.viewer_.viewing_.coloring_changed(this);
         }
         return update;
     }
@@ -1235,6 +1236,9 @@ class ViewingBase
     view_dialog_shown(view_dialog) {
     }
 
+    coloring_changed(coloring) {
+    }
+
     _calculate_viewport() {
         const transformed_layout = this.map_viewer_.surface_.transformation_.transform_layout(this.layout_);
         const corners = transformed_layout.reduce((target, coord) => {
@@ -1441,6 +1445,10 @@ class ViewSearch extends ViewingBase
         this._bind();
         this.shading_.show(view_dialog.section("shading"));
         this.map_viewer_.widget_.update_title();
+    }
+
+    coloring_changed(coloring) {
+        this._filter(this.search_section_.find("td.regex input").val());
     }
 
     _shading_changed(shading) {
