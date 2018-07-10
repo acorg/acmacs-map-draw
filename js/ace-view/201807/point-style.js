@@ -179,7 +179,7 @@ class PointStyleModifierDialog
             value = 0.1;
         else
             ++value;
-        this.div_.find("span[name='s']").empty().append(value);
+        this.div_.find("span[name='s']").empty().append(value.toFixed(1));
         if (this.modifier_canvas_)
             this.modifier_canvas_.set("s", value, true);
     }
@@ -194,7 +194,7 @@ class PointStyleModifierDialog
             slider.val(-2);
         else
             slider.val(-3);
-        this.div_.find("span[name='s']").empty().append(value);
+        this.div_.find("span[name='s']").empty().append(value.toFixed(1));
     }
 
     _outline_width_from_slider(value) {

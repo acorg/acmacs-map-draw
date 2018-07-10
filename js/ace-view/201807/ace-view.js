@@ -337,8 +337,17 @@ class ViewDialog
         return this.content_.find("table tr." + name);
     }
 
+    coloring_modes_updated() {
+        this._coloring_chooser(this.content_.find("table td.coloring"));
+    }
+
+    coloring_mode_switched() {
+        this.coloring_chooser_selector_ && this.coloring_chooser_selector_.current(this.widget_.viewer_.coloring_.name());
+    }
+
     _selector_toggle(section) {
-        const checkbox = $(`<input type='checkbox' checked='{this.selector_use_select_}'></input>`).appendTo(section);
+        const checkbox = $("<input type='checkbox'></input>").appendTo(section);
+        checkbox.prop("checked", this.selector_use_select_);
         checkbox.on("change", evt => av_utils.forward_event(evt, evt => {
             this.selector_use_select_ = evt.currentTarget.checked;
             this._repopulate(this.content_.find("table"));
@@ -376,10 +385,10 @@ class ViewDialog
     _coloring_chooser(section) {
         section.empty();
         const onchange = value => this.widget_.viewer_.coloring(value, true);
-        const selector = this.selector_use_select_ ? new SelectorSelect(section, onchange) : new SelectorButtons(section, onchange);
+        this.coloring_chooser_selector_ = this.selector_use_select_ ? new SelectorSelect(section, onchange) : new SelectorButtons(section, onchange);
         for (let coloring_mode of this.widget_.viewer_.coloring_modes_)
-            selector.add(coloring_mode.name());
-        selector.current(this.widget_.viewer_.coloring_.name());
+            this.coloring_chooser_selector_.add(coloring_mode.name());
+        this.coloring_chooser_selector_.current(this.widget_.viewer_.coloring_.name());
     }
 
     _view_mode_chooser(section) {
@@ -505,6 +514,7 @@ class MapViewer
             this.coloring_.on_exit(this.widget_.view_dialog_);
         this.coloring_ = this.coloring_modes_.find(mode => mode.name() === mode_name) || this.coloring_modes_.find(mode => mode.name() === "original");
         this.coloring_.on_entry(this.widget_.view_dialog_);
+        this.widget_.view_dialog_ && this.widget_.view_dialog_
         if (redraw)
             this.draw();
     }
@@ -531,8 +541,10 @@ class MapViewer
     make_coloring_modified(args) {
         if (!this.coloring_modes_.find(mode => mode.name() === args.name)) {
             this.coloring_modes_.push(new ColoringModified(this.widget_, args.name, this.coloring_.styles()));
+            this.widget_.view_dialog_ && this.widget_.view_dialog_.coloring_modes_updated();
         }
         this.coloring(args.name);
+        this.widget_.view_dialog_ && this.widget_.view_dialog_.coloring_mode_switched();
     }
 
     _drawing_order() {
@@ -822,7 +834,7 @@ class ColoringByClade extends ColoringBase
     }
 
     styles() {
-        return this._styles_;
+        return this.styles_;
     }
 
     // {set_clade_for_antigen: false, drawing_order: []}
@@ -928,7 +940,7 @@ class ColoringByAAatPos extends ColoringBase
     }
 
     styles() {
-        return this._styles_;
+        return this.styles_;
     }
 
     set_positions(positions) {
@@ -1158,7 +1170,7 @@ class ColoringByGeography extends ColoringBase
     }
 
     styles() {
-        return this._styles_;
+        return this.styles_;
     }
 
     _make_continent_count(args={}) {
@@ -1583,30 +1595,12 @@ class ViewSearch extends ViewingBase
 
     _style_modified(data, indexes) {
         if (! (this.map_viewer_.coloring_ instanceof ColoringModified))
-            this.map_viewer_.make_coloring_modified({name: new Date().toLocaleString("en-CA", {hour12: false}).replace(",", "").substr(0, 16)});
+            this.map_viewer_.make_coloring_modified({name: new Date().toLocaleString("en-CA", {hour12: false}).replace(",", "")});
         const styles = this.map_viewer_.coloring_.styles();
         indexes.forEach(index => styles[index][data.name] = data.value);
         this.map_viewer_.draw();
     }
 
-    // _style_modified(data, indexes) {
-    //     if (this.style_set_name_ === undefined)
-    //         this._create_style_set();
-    //     console.log("_style_modified", data, indexes);
-    //     indexes.forEach(index => this._style(index)[data.name] = data.value);
-    //     this.map_viewer_.draw();
-    // }
-
-    // _create_style_set() {
-    //     if (!this.style_set_)
-    //         this.style_set_ = {};
-    //     this.style_set_name_ = new Date().toLocaleString("en-CA", {hour12: false}).replace(",", "").substr(0, 16);
-    //     const styles = this.map_viewer_.coloring_.styles();
-    //     if (styles.P && styles.p)
-    //         this.style_set_[this.style_set_name_] = this.map_viewer_.coloring_.all_styles();
-    //     else
-    //         this.style_set_[this.style_set_name_] = styles;
-    // }
 }
 
 // ----------------------------------------------------------------------
