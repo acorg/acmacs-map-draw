@@ -58,10 +58,19 @@ const AntigenicMapWidget_burger_menu_html = "\
       <li>\
         Download\
         <ul>\
-          <li class='av-menu-disabled' menu='download_pdf'>PDF</li>\
+          <li menu='download_pdf'>PDF</li>\
           <li class='av-menu-separator'></li>\
-          <li class='av-menu-disabled' menu='download_ace'>ace</li>\
-          <li class='av-menu-disabled' menu='download_save'>Lispmds Save</li>\
+          <li menu='download_ace'>ace</li>\
+          <li menu='download_save'>Lispmds Save</li>\
+          <li class='av-menu-separator'></li>\
+          <li menu='download_layout_plain'>Layout (plain text)</li>\
+          <li menu='download_layout_csv'>Layout (csv)</li>\
+          <li class='av-menu-separator'></li>\
+          <li menu='download_table_map_distances_plain'>Table vs. Map Distances (plain text)</li>\
+          <li menu='download_table_map_distances_csv'>Table vs. Map Distances (csv)</li>\
+          <li menu='download_error_lines'>Error lines (csv)</li>\
+          <li menu='download_distances_between_all_points_plain'>Distances Between All Points (plain text)</li>\
+          <li menu='download_distances_between_all_points_csv'>Distances Between All Points (csv)</li>\
         </ul>\
       </li>\
       <li class='av-menu-disabled' menu='table'>Table</li>\
@@ -125,18 +134,23 @@ export class AntigenicMapWidget
     }
 
     _make_burger_menu() {
+        const actions = {
+            view: () => this._show_view_dialog(),
+            download_pdf: item => this._external_api(item),
+            download_ace: item => this._external_api(item),
+            download_save: item => this._external_api(item),
+            download_layout_plain: item => this._external_api(item),
+            download_layout_csv: item => this._external_api(item),
+            download_table_map_distances_plain: item => this._external_api(item),
+            download_table_map_distances_csv: item => this._external_api(item),
+            download_error_lines: item => this._external_api(item),
+            download_distances_between_all_points_plain: item => this._external_api(item),
+            download_distances_between_all_points_csv: item => this._external_api(item)
+        };
         this.burger_menu_ = new av_toolkit.BurgerMenu({menu: $(AntigenicMapWidget_burger_menu_html).appendTo("body"), trigger: this.div_.find(".av-burger"), callback: item => {
-            if (item === "view") {
-                if (this.viewer_.viewing_) {
-                    if (!this.view_dialog_) {
-                        this.view_dialog_ = new ViewDialog({widget: this, chart: this.viewer_.viewing_.chart_, on_destroy: () => delete this.view_dialog_});
-                        this.viewer_.coloring_.view_dialog_shown(this.view_dialog_);
-                        this.viewer_.viewing_.view_dialog_shown(this.view_dialog_);
-                    }
-                    else
-                        this.view_dialog_.position();
-                }
-            }
+            const action = actions[item];
+            if (action)
+                action(item);
             else
                 console.log("burger-menu", item);
         }});
@@ -155,6 +169,39 @@ export class AntigenicMapWidget
         else
             this.viewer_.resize(Math.max(Math.min($(window).width() - 100, $(window).height()) - 60, 200));
     }
+
+    _show_view_dialog() {
+        if (this.viewer_.viewing_) {
+            if (!this.view_dialog_) {
+                this.view_dialog_ = new ViewDialog({widget: this, chart: this.viewer_.viewing_.chart_, on_destroy: () => delete this.view_dialog_});
+                this.viewer_.coloring_.view_dialog_shown(this.view_dialog_);
+                this.viewer_.viewing_.view_dialog_shown(this.view_dialog_);
+            }
+            else
+                this.view_dialog_.position();
+        }
+    }
+
+    _external_api(api_feature) {
+        switch (api_feature) {
+        case "download_pdf":
+            this.options_.api.download_pdf({
+                drawing_levels: this.viewer_.viewing_.drawing_levels(),
+                projection_no: this.viewer_.viewing_.projection_no_,
+                styles: this.viewer_.coloring_.styles(),
+                point_scale: this.viewer_.surface_.point_scale_
+            });
+            break;
+        default:
+            if (this.options_.api[api_feature])
+                this.options_.api[api_feature]();
+            else
+                console.warn("unrecognized api_feature: " + api_feature);
+            break;
+        }
+    }
+
+
 }
 
 // ----------------------------------------------------------------------
@@ -1199,7 +1246,7 @@ class ViewingBase
     draw(coloring) {
         for (let drawing_level of this.drawing_levels()) {
             for (let point_no of coloring.drawing_order(drawing_level.drawing_order)) {
-                this.map_viewer_.surface_.point(this.layout_[point_no], drawing_level.style_modifier(coloring.point_style(point_no)), point_no, true);
+                this.map_viewer_.surface_.point(this.layout_[point_no], sStyleModifiers[drawing_level.shading](coloring.point_style(point_no)), point_no, true);
             }
             coloring.update_for_drawing_level(drawing_level);
         }
@@ -1359,7 +1406,11 @@ function style_modifier_legacy(style) {
     return style;
 }
 
-const sStyleModifiers = {shade: style_modifier_shade, grey: style_modifier_grey, legacy: style_modifier_legacy};
+function style_modifier_none(style) {
+    return style;
+}
+
+const sStyleModifiers = {shade: style_modifier_shade, grey: style_modifier_grey, legacy: style_modifier_legacy, null: style_modifier_none, undefined: style_modifier_none};
 
 // ----------------------------------------------------------------------
 
@@ -1371,7 +1422,7 @@ class ViewAll extends ViewingBase
 
     drawing_levels() {
         return [
-            {drawing_order: this.chart_drawing_order(), style_modifier: style => style, type: "foreground"}
+            {drawing_order: this.chart_drawing_order(), type: "foreground"}
         ];
     }
 
@@ -1462,8 +1513,8 @@ class ViewSearch extends ViewingBase
 
     drawing_levels() {
         return [
-            {drawing_order: this.drawing_order_background_, style_modifier: sStyleModifiers[this.shading_.shading_]},
-            {drawing_order: this.drawing_order_foreground_, style_modifier: style => style, type: "foreground"}
+            {drawing_order: this.drawing_order_background_, shading: this.shading_.shading_},
+            {drawing_order: this.drawing_order_foreground_, type: "foreground"}
         ];
     }
 
@@ -1742,7 +1793,7 @@ class ViewTimeSeries extends ViewingSeries
                 if (point_no < antigens.length && in_page(antigens[point_no]))
                     drawing_order.push(point_no);
             }
-            this.drawing_levels_.push({drawing_order: drawing_order, style_modifier: style => style, type: "foreground"});
+            this.drawing_levels_.push({drawing_order: drawing_order, type: "foreground"});
         }
         else {
             const drawing_order_foreground = [], drawing_order_background = [];
@@ -1752,8 +1803,8 @@ class ViewTimeSeries extends ViewingSeries
                 else
                     drawing_order_background.push(point_no);
             }
-            this.drawing_levels_.push({drawing_order: drawing_order_background, style_modifier: sStyleModifiers[shading]});
-            this.drawing_levels_.push({drawing_order: drawing_order_foreground, style_modifier: style => style, type: "foreground"});
+            this.drawing_levels_.push({drawing_order: drawing_order_background, shading: shading});
+            this.drawing_levels_.push({drawing_order: drawing_order_foreground, type: "foreground"});
         }
     }
 
@@ -1831,8 +1882,8 @@ class ViewTableSeries extends ViewingSeries
                 layer.some(entry => !!entry["" + (point_no - antigens.length)]);
         };
         if (shading !== "legacy")
-            this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => !point_in_layer(point_no)), style_modifier: sStyleModifiers[shading]});
-        this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => point_in_layer(point_no)), style_modifier: style => style, type: "foreground"});
+            this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => !point_in_layer(point_no)), shading: shading});
+        this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => point_in_layer(point_no)), type: "foreground"});
     }
 }
 
@@ -1916,11 +1967,11 @@ class ViewGroups extends ViewingSeries
     }
 
     _make_drawing_levels(shading) {
-        this.drawing_levels_ = [{drawing_order: this.combined_mode() === "exclusive" ? this._make_drawing_order_exclusive() : this._make_drawing_order_combined(), type: "foreground", style_modifier: style => style}];
+        this.drawing_levels_ = [{drawing_order: this.combined_mode() === "exclusive" ? this._make_drawing_order_exclusive() : this._make_drawing_order_combined(), type: "foreground"}];
         if (shading !== "legacy") {
             const drawing_order = this.drawing_levels_[0].drawing_order;
             this.drawing_levels_.unshift({drawing_order: av_utils.array_of_indexes(this.chart_.a.length + this.chart_.s.length).filter(index => !drawing_order.includes(index)),
-                                          style_modifier: sStyleModifiers[shading]});
+                                          shading: shading});
         }
     }
 
