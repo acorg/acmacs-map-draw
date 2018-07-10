@@ -7,6 +7,76 @@
     /* width: 30em; */
 }
 
+/* ---------------------------------------------------------------------- */
+
+.amw201807-movable-window.av-antigenic-table .av-content .antigenic-table {
+    margin: 0.5em;
+    border-collapse: collapse;
+}
+
+.amw201807-movable-window.av-antigenic-table .av-content .antigenic-table tr.av-antigen:nth-child(odd) {
+    background-color: #F0FAFA;
+}
+
+.amw201807-movable-window.av-antigenic-table .av-content .antigenic-table .av-serum-no {
+    text-align: center;
+}
+
+.amw201807-movable-window.av-antigenic-table .av-content .antigenic-table .av-serum-name {
+    padding: 0 0.5em;
+}
+
+.amw201807-movable-window.av-antigenic-table .av-content .antigenic-table .av-antigen-no {
+    text-align: right;
+    padding-right: 0.5em;
+}
+
+.amw201807-movable-window.av-antigenic-table .av-content .antigenic-table .av-antigen-name {
+    padding-right: 0.5em;
+    max-width: 8em;
+    overflow: hidden;
+}
+
+.amw201807-movable-window.av-antigenic-table .av-content .antigenic-table .av-titer {
+    padding: 0 1em;
+}
+
+.amw201807-movable-window.av-antigenic-table .av-content .antigenic-table .av-titer-dontcare {
+    color: #A0A0A0;
+    text-align: center;
+}
+
+.amw201807-movable-window.av-antigenic-table .av-content .antigenic-table .av-titer-numeric {
+    text-align: right;
+}
+
+.amw201807-movable-window.av-antigenic-table .av-content .antigenic-table .av-titer-thresholded {
+    text-align: right;
+}
+
+.amw201807-movable-window.av-antigenic-table .av-content .antigenic-table .av-titer-less {
+    color: #707070;
+}
+
+.amw201807-movable-window.av-antigenic-table .av-content .antigenic-table .av-titer-more {
+    color: #FFA0A0;
+}
+
+.amw201807-movable-window.av-antigenic-table .av-content .antigenic-table .av-titer-dodgy {
+    text-align: right;
+}
+
+.amw201807-movable-window.av-antigenic-table .av-content .antigenic-table a:link, .amw201807-movable-window.av-antigenic-table .av-content .antigenic-table a:visited {
+    color: #000040;
+}
+
+.amw201807-movable-window.av-antigenic-table .av-content .antigenic-table tr.av-antigen.av-highlight {
+    background-color: #FFF000;
+}
+
+.amw201807-movable-window.av-antigenic-table .av-content .antigenic-table td.av-highlight {
+    background-color: #FFF000;
+}
 
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */

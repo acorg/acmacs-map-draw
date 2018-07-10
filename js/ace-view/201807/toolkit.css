@@ -183,6 +183,8 @@
     /* padding: 1em 0.5em 0 0.5em; */
     font-weight: normal;
     padding: 0.5em 2em 0.5em 2em;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .amw201807-movable-window .av-close {
