@@ -527,6 +527,14 @@ class MapViewer
             this.draw();
     }
 
+    // {name: ""}
+    make_coloring_modified(args) {
+        if (!this.coloring_modes_.find(mode => mode.name() === args.name)) {
+            this.coloring_modes_.push(new ColoringModified(this.widget_, args.name, this.coloring_.styles()));
+        }
+        this.coloring(args.name);
+    }
+
     _drawing_order() {
         return this.coloring_.drawing_order(this.viewing_.drawing_order_foreground());
     }
@@ -630,6 +638,35 @@ class MapViewer
 
 // ----------------------------------------------------------------------
 
+    // {reset_sera: false}
+function all_styles(source, args={})
+{
+    if (source.a && source.s && source.p) {
+        const egg_passage = (style, index) => {
+            if (index < source.a.length && (!style.a || style.a === 1) && source.a[index].S && source.a[index].S.indexOf("E") >= 0)
+                style.a = 0.75;
+            if (index < source.a.length && (!style.r || style.r === 0) && source.a[index].R && source.a[index].R.length)
+                style.r = Math.PI / 6;
+            return style;
+        };
+        let all_styles = source.p.p.map(style_no => Object.assign({}, source.p.P[style_no])).map(egg_passage);
+        if (args.reset_sera) {
+            source.s.forEach((serum, serum_no) => {
+                delete all_styles[serum_no + source.a.length].F;
+                all_styles[serum_no + source.a.length].O = av_toolkit.sGREY;
+            });
+        }
+        return all_styles;
+    }
+    else if (source.p && source.P) {
+        return source.p.map(style_no => Object.assign({}, source.P[style_no]));
+    }
+    else
+        return source;
+}
+
+// ----------------------------------------------------------------------
+
 class ColoringBase
 {
     constructor(widget) {
@@ -663,23 +700,11 @@ class ColoringBase
 
     // {reset_sera: false}
     all_styles(args={}) {
-        const egg_passage = (style, index) => {
-            if (index < this.chart_.a.length && (!style.a || style.a === 1) && this.chart_.a[index].S && this.chart_.a[index].S.indexOf("E") >= 0)
-                style.a = 0.75;
-            if (index < this.chart_.a.length && (!style.r || style.r === 0) && this.chart_.a[index].R && this.chart_.a[index].R.length)
-                style.r = Math.PI / 6;
-            return style;
-        };
-        let all_styles = this.chart_.p.p.map(style_no => Object.assign({}, this.chart_.p.P[style_no])).map(egg_passage);
-        if (args.reset_sera) {
-            this.chart_.s.forEach((serum, serum_no) => {
-                delete all_styles[serum_no + this.chart_.a.length].F;
-                all_styles[serum_no + this.chart_.a.length].O = av_toolkit.sGREY;
-            });
-        }
-        return all_styles;
+        return all_styles(this.chart_, args);
     }
 }
+
+// ----------------------------------------------------------------------
 
 class ColoringOriginal extends ColoringBase
 {
@@ -694,6 +719,29 @@ class ColoringOriginal extends ColoringBase
 
     styles() {
         return this.chart_.p;
+    }
+}
+
+// ----------------------------------------------------------------------
+
+class ColoringModified extends ColoringBase
+{
+    constructor(widget, name, source) {
+        super(widget);
+        this.name_ = name;
+        this.styles_ = all_styles(source);
+    }
+
+    name() {
+        return this.name_;
+    }
+
+    point_style(point_no) {
+        return this.styles_[point_no];
+    }
+
+    styles() {
+        return this.styles_;
     }
 }
 
@@ -1376,10 +1424,11 @@ class ViewSearch extends ViewingBase
 
     view_dialog_shown(view_dialog) {
         super.view_dialog_shown(view_dialog);
-        this.search_section_.show();
-        this.search_results_section_.show();
+        this.search_section_ = view_dialog.section("search").show();
+        this.search_results_section_ = view_dialog.section("search-results").show();
         this._bind();
         this.shading_.show(view_dialog.section("shading"));
+        this.map_viewer_.widget_.update_title();
     }
 
     _shading_changed(shading) {
@@ -1528,37 +1577,36 @@ class ViewSearch extends ViewingBase
     }
 
     _style(index) {
-        if (this.style_set_name_ === undefined)
-            return this._get_style(this.map_viewer_.coloring_.styles(), index);
-        else
-            return this._get_style(this.style_set_[this.style_set_name_], index);
-    }
-
-    _get_style(styles, index) {
-        if (styles.P && styles.p)
-            return styles.P[styles.p[index]];
-        else
-            return styles[index];
+        const get = styles => (styles.P && styles.p) ?  styles.P[styles.p[index]] : styles[index];
+        return get(this.map_viewer_.coloring_.styles());
     }
 
     _style_modified(data, indexes) {
-        if (this.style_set_name_ === undefined)
-            this._create_style_set();
-        console.log("_style_modified", data, indexes);
-        indexes.forEach(index => this._style(index)[data.name] = data.value);
+        if (! (this.map_viewer_.coloring_ instanceof ColoringModified))
+            this.map_viewer_.make_coloring_modified({name: new Date().toLocaleString("en-CA", {hour12: false}).replace(",", "").substr(0, 16)});
+        const styles = this.map_viewer_.coloring_.styles();
+        indexes.forEach(index => styles[index][data.name] = data.value);
         this.map_viewer_.draw();
     }
 
-    _create_style_set() {
-        if (!this.style_set_)
-            this.style_set_ = {};
-        this.style_set_name_ = new Date().toLocaleString("en-CA", {hour12: false}).replace(",", "").substr(0, 16);
-        const styles = this.map_viewer_.coloring_.styles();
-        if (styles.P && styles.p)
-            this.style_set_[this.style_set_name_] = this.map_viewer_.coloring_.all_styles();
-        else
-            this.style_set_[this.style_set_name_] = styles;
-    }
+    // _style_modified(data, indexes) {
+    //     if (this.style_set_name_ === undefined)
+    //         this._create_style_set();
+    //     console.log("_style_modified", data, indexes);
+    //     indexes.forEach(index => this._style(index)[data.name] = data.value);
+    //     this.map_viewer_.draw();
+    // }
+
+    // _create_style_set() {
+    //     if (!this.style_set_)
+    //         this.style_set_ = {};
+    //     this.style_set_name_ = new Date().toLocaleString("en-CA", {hour12: false}).replace(",", "").substr(0, 16);
+    //     const styles = this.map_viewer_.coloring_.styles();
+    //     if (styles.P && styles.p)
+    //         this.style_set_[this.style_set_name_] = this.map_viewer_.coloring_.all_styles();
+    //     else
+    //         this.style_set_[this.style_set_name_] = styles;
+    // }
 }
 
 // ----------------------------------------------------------------------
