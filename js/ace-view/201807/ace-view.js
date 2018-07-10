@@ -73,11 +73,28 @@ const AntigenicMapWidget_burger_menu_html = "\
           <li menu='download_distances_between_all_points_csv'>Distances Between All Points (csv)</li>\
         </ul>\
       </li>\
-      <li class='av-menu-disabled' menu='table'>Table</li>\
-      <li class='av-menu-disabled' menu='raw'>Raw</li>\
+      <li menu='table'>Table</li>\
+      <li menu='raw'>Raw</li>\
       <li class='av-menu-separator'></li>\
-      <li class='av-menu-disabled' menu='help'>Help</li>\
+      <li menu='help'>Help</li>\
+      <!-- <li class='av-menu-disabled' menu='help'>Help</li> -->\
     </ul>\
+";
+
+const AntigenicMapWidget_help_html = "\
+<div class='av-help'>\
+  <h3>Mouse Wheel and Drag</h3>\
+  <ul>\
+    <li>Change point size - Shift-Wheel</li>\
+    <li>Zoom - Alt/Option-Wheel</li>\
+    <li>Move map - Alt/Option-Drag</li>\
+    <li>Rotate map - Ctrl-Wheel</li>\
+  </ul>\
+  <h3>Table</h3>\
+  <p>Table view can be opened via menu. If table view is on the screen,\
+     hovering point(s) on map leads to highlighting corresponding\
+     row/column in the table, table view is auto-scrolled.</p>\
+</div>\
 ";
 
 export class AntigenicMapWidget
@@ -145,7 +162,10 @@ export class AntigenicMapWidget
             download_table_map_distances_csv: item => this._external_api(item),
             download_error_lines: item => this._external_api(item),
             download_distances_between_all_points_plain: item => this._external_api(item),
-            download_distances_between_all_points_csv: item => this._external_api(item)
+            download_distances_between_all_points_csv: item => this._external_api(item),
+            table: () => this._show_table(),
+            raw: () => console.log("chart raw data", this.chart_),
+            help: () => this._show_help()
         };
         this.burger_menu_ = new av_toolkit.BurgerMenu({menu: $(AntigenicMapWidget_burger_menu_html).appendTo("body"), trigger: this.div_.find(".av-burger"), callback: item => {
             const action = actions[item];
@@ -201,6 +221,18 @@ export class AntigenicMapWidget
         }
     }
 
+    _show_table() {
+        if (!this.table_viewer_) {
+            if (this.chart_)
+                this.table_viewer_ = new AntigenicTable({populate: true, widget: this, parent: this.viewer_.surface_.canvas_, chart: this.chart_});
+        }
+        else
+            this.table_viewer_.position();
+    }
+
+    _show_help() {
+        new av_toolkit.MovableWindow({title: "Help", content: AntigenicMapWidget_help_html, parent: this.viewer_.surface_.canvas_, id: "AntigenicMapWidget_help", classes: "av-help"});
+    }
 
 }
 

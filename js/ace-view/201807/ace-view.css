@@ -315,6 +315,22 @@
 }
 
 /* ---------------------------------------------------------------------- */
+/* help */
+
+.amw201807-movable-window.av-help .av-window-title {
+    background-color: #9d66d0;
+}
+
+.amw201807-movable-window.av-help .av-content {
+    height: 20em;
+    width: 20em;
+}
+
+.amw201807-movable-window.av-help .av-content .av-help p {
+    white-space: normal;
+}
+
+/* ---------------------------------------------------------------------- */
 /* Local Variables: */
 /* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */
 /* End: */
