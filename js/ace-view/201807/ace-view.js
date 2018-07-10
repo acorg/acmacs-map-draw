@@ -375,7 +375,7 @@ class ViewDialog
         if (this.chart_.P.length === 0)
             section.append("<div class='av-error'>None</div>");
         else if (this.chart_.P.length === 1)
-            section.append(`<div>${projection_title(this.chart_.P[0])}</div>`);
+            section.append(`<span>${projection_title(this.chart_.P[0])}</span>`);
         else {
             const entries = this.chart_.P.map((prj, index) => `<option value="${index}">${projection_title(prj, index)}</option>`).join();
             const select = $(`<select>${entries}</select>`).appendTo(section);
