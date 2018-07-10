@@ -149,6 +149,8 @@
     /* background-color: #EEE; */
     /* padding-top: 1em; */
     cursor: move;
+    background-color: #49d07a;
+    color: white;
 }
 
 .amw201807-movable-window .av-window-title:hover {
@@ -160,7 +162,8 @@
 }
 
 .amw201807-movable-window.av-error .av-window-title {
-    color: magenta;
+    background-color: #d0497a;
+    /* color: magenta; */
 }
 
 .amw201807-movable-window.av-error p {
@@ -171,34 +174,41 @@
 .amw201807-movable-window .av-window-title .av-title {
     grid-column-start: 2;
     grid-column-end: 3;
-    font-weight: bold;
     /* text-align: center; */
     cursor: move;
     font-size: 1.3em;
     text-align: left;
-    padding: 1em 0.5em 0 0.5em;
+
+    /* font-weight: bold; */
+    /* padding: 1em 0.5em 0 0.5em; */
+    font-weight: normal;
+    padding: 0.5em 2em 0.5em 2em;
 }
 
 .amw201807-movable-window .av-close {
     cursor: pointer;
     text-align: center;
-    font-size: 1.3em;
     position: relative;
-    top: -0.3em;
+    /* font-size: 1.3em; */
+    /* top: -0.3em; */
+    font-size: 2em;
+    top: 0;
 }
 
-.amw201807-movable-window .av-close:hover {
-    color: red;
-}
+/* .amw201807-movable-window .av-close:hover { */
+/*     color: red; */
+/* } */
 
 .amw201807-movable-window .av-close.av-left {
     grid-column-start: 1;
     grid-column-end: 2;
+    left: 0.3em;
 }
 
 .amw201807-movable-window .av-close.av-right {
     grid-column-start: 3;
     grid-column-end: 4;
+    right: 0.3em;
 }
 
 .amw201807-movable-window .av-content {

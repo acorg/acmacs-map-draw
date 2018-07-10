@@ -152,25 +152,7 @@
     color: white;
 }
 
-.av201807-view-dialog .av-window-title .av-close {
-    font-size: 2em;
-    top: 0;
-}
-
-.av201807-view-dialog .av-window-title .av-close.av-left {
-    left: 0.3em;
-}
-
-.av201807-view-dialog .av-window-title .av-close.av-right {
-    right: 0.3em;
-}
-
-.av201807-view-dialog .av-window-title .av-close:hover {
-    color: white;
-}
-
 .av201807-view-dialog .av-window-title .av-title {
-    padding: 0;
     font-weight: normal;
     padding: 0.5em 2em 0.5em 2em;
 }
