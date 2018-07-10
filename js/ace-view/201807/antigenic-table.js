@@ -8,12 +8,12 @@ av_utils.load_css('/js/ad/map-draw/ace-view/201807/antigenic-table.css');
 
 export class AntigenicTable
 {
-    // {widget: , parent: this.viewer_.surface_.canvas_, chart: }
+    // {widget: , parent: this.viewer_.surface_.canvas_, chart:, on_destroy: () => }
     constructor(args) {
         this.widget_ = args.widget;
         this.parent_ = args.parent;
         this.chart_ = args.chart;
-        this.populate();
+        this.populate(args.on_destroy);
         this.position();
     }
 
@@ -21,7 +21,7 @@ export class AntigenicTable
         this.window_.position(this.parent_);
     }
 
-    populate() {
+    populate(on_destroy) {
         const title_fields = ["name", "lab", "virus_type", "assay", "date"];
         const makers = av_ace_view.title_field_makers();
         const win_space = $(window).height() - (this.parent_.offset().top - $(window).scrollTop());
@@ -30,7 +30,8 @@ export class AntigenicTable
             title: av_utils.join_collapse(title_fields.map(field => makers[field](this.chart_))),
             parent: this.parent_,
             classes: "av-antigenic-table",
-            content_css: {width: "auto", height: "auto", "max-height": max_height}
+            content_css: {width: "auto", height: "auto", "max-height": max_height},
+            on_destroy: on_destroy
         });
         new AntigenicTable_populate({widget: this.widget_, content: this.window_.content(), chart: this.chart_, parent: this.parent_});
 
@@ -39,19 +40,20 @@ export class AntigenicTable
         const target_width = $(window).width() - (movable_window_content.parent().outerWidth() - movable_window_content.width()) * 1.2;
         movable_window_content.css({"max-height": "", "max-width": ""});
         movable_window_content.css({"height": Math.min(movable_window_content.height(), target_height), "width": Math.min(movable_window_content.width(), target_width)});
+        this.table_ = this.window_.content().find(".antigenic-table");
     }
 
     show_points(points) {
-        if (this.table) {
+        if (this.table_) {
             this.not_show_points();
             points.forEach((point_no, index) => {
-                if (point_no < this.chart.a.length) {
+                if (point_no < this.chart_.a.length) {
                     this.show_antigen(point_no);
                     if (index === 0)
                         this.scroll_to_antigen(point_no);
                 }
                 else {
-                    const serum_no = point_no - this.chart.a.length;
+                    const serum_no = point_no - this.chart_.a.length;
                     this.show_serum(serum_no);
                     if (index === 0)
                         this.scroll_to_serum(serum_no);
@@ -61,23 +63,23 @@ export class AntigenicTable
     }
 
     not_show_points() {
-        this.table.find("tr.av-antigen").removeClass("av-highlight");
-        this.table.find("td[serum_no]").removeClass("av-highlight");
+        this.table_.find("tr.av-antigen").removeClass("av-highlight");
+        this.table_.find("td[serum_no]").removeClass("av-highlight");
     }
 
     show_antigen(antigen_no) {
-        this.table.find(`tr.av-antigen[antigen_no='${antigen_no}']`).addClass("av-highlight");
+        this.table_.find(`tr.av-antigen[antigen_no='${antigen_no}']`).addClass("av-highlight");
     }
 
     show_serum(serum_no) {
-        this.table.find(`td[serum_no='${serum_no}']`).addClass("av-highlight");
+        this.table_.find(`td[serum_no='${serum_no}']`).addClass("av-highlight");
     }
 
     scroll_to_antigen(antigen_no) {
-        const row = this.table.find(`tr.av-antigen[antigen_no='${antigen_no}']`);
+        const row = this.table_.find(`tr.av-antigen[antigen_no='${antigen_no}']`);
         if (row.length > 0) {
             const row_top = row.position().top;
-            const scrollable = this.table.parent();
+            const scrollable = this.table_.parent();
             if (row_top < scrollable.scrollTop())
                 scrollable.animate({scrollTop: row_top, scrollLeft: 0}, 500);
             else if (row_top > (scrollable.scrollTop() + scrollable.height()))
@@ -88,10 +90,10 @@ export class AntigenicTable
     }
 
     scroll_to_serum(serum_no) {
-        const column = this.table.find(`td.av-serum-name[serum_no='${serum_no}']`);
+        const column = this.table_.find(`td.av-serum-name[serum_no='${serum_no}']`);
         if (column.length > 0) {
             const column_left = column.position().left;
-            const scrollable = this.table.parent();
+            const scrollable = this.table_.parent();
             if (column_left < scrollable.scrollLeft())
                 scrollable.animate({scrollTop: 0, scrollLeft: column_left}, 500);
             else if (column_left > (scrollable.scrollLeft() + scrollable.width()))

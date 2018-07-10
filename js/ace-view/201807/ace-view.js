@@ -225,7 +225,7 @@ export class AntigenicMapWidget
     _show_table() {
         if (!this.table_viewer_) {
             if (this.chart_)
-                this.table_viewer_ = new av_antigenic_table.AntigenicTable({widget: this, parent: this.viewer_.surface_.canvas_, chart: this.chart_});
+                this.table_viewer_ = new av_antigenic_table.AntigenicTable({widget: this, parent: this.viewer_.surface_.canvas_, chart: this.chart_, on_destroy: () => delete this.table_viewer_});
         }
         else
             this.table_viewer_.position();
@@ -695,6 +695,7 @@ class MapViewer
                         window.setTimeout(av_toolkit.mouse_popup_hide, this.widget_.options_.point_info_on_hover_delay);
                     });
                 }
+            this.widget_.table_viewer_ && this.widget_.table_viewer_.show_points(points);
         }
         else {
             this._hide_point_info();
