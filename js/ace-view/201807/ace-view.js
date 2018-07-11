@@ -605,12 +605,16 @@ class MapViewer
     viewing(mode_name, redraw=false) {
         if (this.viewing_)
             this.viewing_.on_exit(this.widget_.view_dialog_);
-        this.viewing_ = this.viewing_modes_.find(mode => mode.name() === mode_name) || this.viewing_modes_.find(mode => mode.name() === "all");
+        this.viewing_ = this.find_viewing(mode_name) || this.find_viewing("all");
         if (this.projection_no_ !== undefined)
             this.viewing_.projection(this.projection_no_);
         this.viewing_.on_entry(this.widget_.view_dialog_);
         if (redraw)
             this.draw();
+    }
+
+    find_viewing(name) {
+        return this.viewing_modes_.find(mode => mode.name() === name);
     }
 
     projection(projection_no, redraw=false) {

@@ -10,6 +10,7 @@ export class ViewGroups extends av_viewing.ViewingSeries
 {
     constructor(map_viewer, chart) {
         super(map_viewer, chart);
+        this.group_sets_ = [];
         this.pages_exclusive_ = ["*no-groups*"];
         this.groups_combined_ = [];
         this.combined_mode("exclusive");
@@ -153,10 +154,10 @@ export class ViewGroups extends av_viewing.ViewingSeries
     }
 
     _show_group_series_data(tr_groups, tr_groups_combined) {
-        if (!this.group_sets_ && this.chart_.group_sets)
+        if (this.group_sets_.length === 0 && this.chart_.group_sets)
             this.group_sets_ = this.chart_.group_sets;
         this._make_exclusive_combined(tr_groups_combined);
-        if (this.group_sets_) {
+        if (this.group_sets_.length) {
             const group_sets = tr_groups.find(".av-sets").empty();
             if (this.group_sets_.length === 1) {
                 const gs = this.group_sets_[0];
@@ -194,7 +195,7 @@ export class ViewGroups extends av_viewing.ViewingSeries
 
     _make_exclusive_combined(tr_groups_combined) {
         tr_groups_combined.find(".av-buttons a").off("click");
-        if (this.group_sets_) {
+        if (this.group_sets_.length) {
             tr_groups_combined.show();
             const button_exclusive = tr_groups_combined.find(".av-buttons a[href='exclusive']");
             const button_combined = tr_groups_combined.find(".av-buttons a[href='combined']");
@@ -260,7 +261,7 @@ export class ViewGroups extends av_viewing.ViewingSeries
 
         const button_download_chart = tr_group_series.find("a[href='download-chart']");
         button_download_chart.off("click");
-        if (this.group_sets_) {
+        if (this.group_sets_.length) {
             button_download_chart.show().on("click", evt => av_utils.forward_event(evt, evt => {
                 const data = {"  version": "acmacs-ace-v1", "?created": `ace-view/201807 GroupSeries on ${new Date()}`, c: Object.assign({}, this.chart(), {group_sets: this.group_sets_})};
                 av_utils.download_blob({data: data, blob_type: "application/json", filename: "chart-with-group-series-sets.ace"});
@@ -353,6 +354,69 @@ export class ViewGroups extends av_viewing.ViewingSeries
     }
 
 } // class ViewGroups
+
+// ----------------------------------------------------------------------
+
+var groups_editor_dialog_singleton = null;
+
+// {group_sets: [], antigens: [], sera: [], parent_element: $(<span>)}
+export function groups_editor_add_points(args) {
+    if (!groups_editor_dialog_singleton)
+        groups_editor_dialog_singleton = new GroupsEditor();
+    groups_editor_dialog_singleton.group_sets(args.group_sets);
+    groups_editor_dialog_singleton.add_antigens_sera(args);
+    groups_editor_dialog_singleton.show(args.parent_element);
+}
+
+// ----------------------------------------------------------------------
+
+const GroupsEditor_html = "\
+<div class='av201807-group-editor av201807-window-shadow'>\
+  <h3>Group Editor</h3>\
+</div>\
+";
+
+class GroupsEditor
+{
+    constructor() {
+        this.group_sets_ = [];
+        this._make();
+    }
+
+    group_sets(group_sets) {
+        if (group_sets !== undefined) {
+            this.group_sets_ = group_sets;
+            this._populate();
+        }
+        return this.group_sets_;
+    }
+
+    // {antigens: [], sera: []}
+    add_antigens_sera(args) {
+        console.warn("add_antigens_sera", args);
+    }
+
+    show(parent_element) {
+        const parent = $(parent_element);
+        const parent_offset = parent.offset();
+        const left = parent_offset.left > this.div_.width() ? parent_offset.left + parent.outerWidth() - this.div_.width() : 20;
+        this.div_.css({left: left, top: parent_offset.top + parent.outerHeight()});
+        this.modal_ = new av_toolkit.Modal({element: this.div_, z_index: 900, dismiss: () => this.hide()});
+        this.div_.show();
+    }
+
+    hide() {
+        this.modifier_canvas_ = null;
+        this.div_.hide();
+    }
+
+    _make() {
+        this.div_ = $(GroupsEditor_html).appendTo("body").hide().css({position: "absolute"});
+    }
+
+    _populate() {
+    }
+}
 
 // ----------------------------------------------------------------------
 
