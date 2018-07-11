@@ -207,19 +207,11 @@
     font-family: monospace;
 }
 
+/* coloring AA at pos */
+
 .av201807-view-dialog .av-view-dialog tr.coloring-aa-pos > td.coloring-aa-pos > a {
     /* text-decoration: none; */
     margin-left: 1em;
-}
-
-.av201807-view-dialog tr.group-series > td.group-series > .av-buttons {
-    margin-top: 1em;
-}
-
-.av201807-view-dialog .av-drop-area {
-    border: 2px dashed #008000;
-    border-radius: 20px;
-    cursor: copy;
 }
 
 .av201807-coloring-aa-pos-hint > .av-content {
@@ -247,72 +239,8 @@
     padding-right: 0.3em;
 }
 
-/* group series */
-
-.av201807-view-dialog .av-view-dialog tr.group-series .av-hint {
-    margin: 0;
-    font-size: 0.8em;
-    color: #C0C0C0;
-}
-
-.av201807-view-dialog .av-view-dialog tr.group-series > td.group-series > .av-buttons {
-    margin-top: 1em;
-}
-
-.av201807-view-dialog .av-view-dialog tr.group-series > td.group-series > .av-buttons > a {
-    text-decoration: none;
-}
-
-.av201807-view-dialog .av-view-dialog .av-drop-area {
-    border: 2px dashed #008000;
-    border-radius: 20px;
-    cursor: copy;
-}
-
-.av201807-view-dialog .av-view-dialog tr.group-series-combined table.av-groups {
-    margin-top: 0.5em;
-    border-collapse: collapse;
-}
-
-.av201807-view-dialog .av-view-dialog tr.group-series-combined table.av-groups td.av-checkbox {
-    padding-right: 0.5em;
-}
-
-/* search */
-
-.av201807-view-dialog .av-view-dialog tr.search td.regex input {
-    border: none;
-    font-size: 1.1em;
-    position: relative;
-    bottom: 0.3em;
-}
-
-.av201807-view-dialog .av-view-dialog tr.search td.regex input:focus {
-    outline: none;
-}
-
-.av201807-view-dialog .av-view-dialog tr.search-results .av-message {
-    margin: 0;
-    color: #808080;
-}
-
-.av201807-view-dialog .av-view-dialog tr.search-results td.search-results table {
-    border-collapse: collapse;
-}
-
-.av201807-view-dialog .av-view-dialog tr.search-results td.search-results td.av-label {
-    vertical-align: middle;
-    padding-left: 1em;
-}
-
-.av201807-view-dialog .av-view-dialog tr.search-results td.search-results table tr.av-separator td {
-    border-top: 1px solid black;
-}
-
-.av201807-view-dialog .av-view-dialog tr.search-results canvas {
-    width: 30px;
-    height: 30px;
-}
+/* group series: grousp.css */
+/* search: viewing.css */
 
 /* ---------------------------------------------------------------------- */
 /* help */

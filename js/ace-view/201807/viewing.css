@@ -1,0 +1,46 @@
+/* ---------------------------------------------------------------------- */
+/* search */
+
+.av201807-view-dialog .av-view-dialog tr.search td.regex input {
+    border: none;
+    font-size: 1.1em;
+    position: relative;
+    bottom: 0.3em;
+}
+
+.av201807-view-dialog .av-view-dialog tr.search td.regex .av-groups-button {
+    color: blue;
+    cursor: pointer;
+}
+
+.av201807-view-dialog .av-view-dialog tr.search td.regex input:focus {
+    outline: none;
+}
+
+.av201807-view-dialog .av-view-dialog tr.search-results .av-message {
+    margin: 0;
+    color: #808080;
+}
+
+.av201807-view-dialog .av-view-dialog tr.search-results td.search-results table {
+    border-collapse: collapse;
+}
+
+.av201807-view-dialog .av-view-dialog tr.search-results td.search-results td.av-label {
+    vertical-align: middle;
+    padding-left: 1em;
+}
+
+.av201807-view-dialog .av-view-dialog tr.search-results td.search-results table tr.av-separator td {
+    border-top: 1px solid black;
+}
+
+.av201807-view-dialog .av-view-dialog tr.search-results canvas {
+    width: 30px;
+    height: 30px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Local Variables: */
+/* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */
+/* End: */

@@ -1,6 +1,7 @@
 import * as av_utils from "./utils.js";
 import * as av_toolkit from "./toolkit.js";
 import * as av_ace_view from "./ace-view.js";
+import * as av_viewing from "./viewing.js";
 
 av_utils.load_css('/js/ad/map-draw/ace-view/201807/antigenic-table.css');
 
@@ -23,7 +24,7 @@ export class AntigenicTable
 
     populate(on_destroy) {
         const title_fields = ["name", "lab", "virus_type", "assay", "date"];
-        const makers = av_ace_view.title_field_makers();
+        const makers = av_viewing.title_field_makers();
         const win_space = $(window).height() - (this.parent_.offset().top - $(window).scrollTop());
         const max_height = Math.max(win_space - this.parent_.height() / 2 - 20, 400);
         this.window_ = new av_toolkit.MovableWindow({
