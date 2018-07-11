@@ -10,7 +10,7 @@ export class ViewGroups extends av_viewing.ViewingSeries
 {
     constructor(map_viewer, chart) {
         super(map_viewer, chart);
-        this.group_sets_ = [];
+        this.group_sets_ = chart.group_sets || [];
         this.pages_exclusive_ = ["*no-groups*"];
         this.groups_combined_ = [];
         this.combined_mode("exclusive");
@@ -154,8 +154,6 @@ export class ViewGroups extends av_viewing.ViewingSeries
     }
 
     _show_group_series_data(tr_groups, tr_groups_combined) {
-        if (this.group_sets_.length === 0 && this.chart_.group_sets)
-            this.group_sets_ = this.chart_.group_sets;
         this._make_exclusive_combined(tr_groups_combined);
         if (this.group_sets_.length) {
             const group_sets = tr_groups.find(".av-sets").empty();
@@ -372,7 +370,13 @@ export function groups_editor_add_points(args) {
 
 const GroupsEditor_html = "\
 <div class='av201807-group-editor av201807-window-shadow'>\
-  <h3>Group Editor</h3>\
+  <table>\
+    <tr class='av-sets'>\
+      <td class='av-sets'>\
+        <span class='av-sets-label'>Sets:</span><span class='av-no-sets-label'>no sets defined</span><span class='av-sets'></span><span class='av-new-set-button av-button'>new set</span>\
+      </td>\
+    </tr>\
+  </table>\
 </div>\
 ";
 
@@ -380,6 +384,7 @@ class GroupsEditor
 {
     constructor() {
         this.group_sets_ = [];
+        this.current_set_ = null;
         this._make();
     }
 
@@ -412,9 +417,73 @@ class GroupsEditor
 
     _make() {
         this.div_ = $(GroupsEditor_html).appendTo("body").hide().css({position: "absolute"});
+        this.div_.find("tr.av-sets td.av-sets .av-new-set-button").on("click", evt => av_utils.forward_event(evt, () => this._create_set()));
     }
 
     _populate() {
+        if (this.group_sets_.length) {
+            this.div_.find("tr.av-sets td.av-sets .av-no-sets-label").hide();
+            this.div_.find("tr.av-sets td.av-sets .av-sets-label").show();
+            const sets_span = this.div_.find("tr.av-sets td.av-sets span.av-sets").empty();
+            for (let group_set of this.group_sets_)
+                sets_span.append(this._set_button(group_set.N));
+            this._bind_set_buttons();
+            this._show_set(this.current_set_ ? this.current_set_.N : this.group_sets_[0].N);
+        }
+        else {
+            this.div_.find("tr.av-sets td.av-sets .av-sets-label").hide();
+            this.div_.find("tr.av-sets td.av-sets .av-no-sets-label").show();
+        }
+    }
+
+    _set_button(name) {
+        return `<span class="av-button" name="${name}">${name}</span>`;
+    }
+
+    _bind_set_buttons() {
+        this.div_.find("tr.av-sets td.av-sets span.av-sets .av-button").off("click").on("click", evt => av_utils.forward_event(evt, evt => this._show_set(evt.currentTarget.getAttribute("name"))));
+    }
+
+    _show_set(name, convert_created=true) {
+        if (convert_created)
+            this._convert_created_set();
+        this.current_set_ = this.group_sets_.find(set => set.N === name);
+        this.div_.find("tr.av-sets td.av-sets span.av-sets .av-button").removeClass("av-current");
+        this.div_.find(`tr.av-sets td.av-sets span.av-sets .av-button[name="${name}"]`).addClass("av-current");
+        console.log("_show_set", this.current_set_);
+    }
+
+    _create_set() {
+        this.div_.find("tr.av-sets td.av-sets .av-no-sets-label").hide();
+        this.div_.find("tr.av-sets td.av-sets .av-sets-label").show();
+        this._convert_created_set();
+        const name = new Date().toLocaleString("en-CA", {hour12: false}).replace(",", "");
+        const set_data = {N: name, groups: []};
+        this.group_sets_.push(set_data);
+        const input = $("<input type='text' class='av-set-name'></input>")
+              .appendTo(this.div_.find("tr.av-sets td.av-sets span.av-sets"))
+              .val(name).focus().select();
+        input.on("keypress", evt => {
+            if (evt.charCode === 13) {
+                let new_name = evt.currentTarget.value || name;
+                set_data.N = "*no-name*";
+                if (this.group_sets_.find(set => set.N === new_name)) // avoid having name duplicate
+                    new_name = name;
+                set_data.N = new_name;
+                evt.currentTarget.value = set_data.N;
+                input.select();
+            }
+        });
+        this._show_set(name, false);
+    }
+
+    _convert_created_set() {
+        const input = this.div_.find("tr.av-sets td.av-sets span.av-sets input");
+        if (input.length) {
+            input.remove();
+            this.div_.find("tr.av-sets td.av-sets span.av-sets").append(this._set_button(this.group_sets_[this.group_sets_.length - 1].N));
+            this._bind_set_buttons();
+        }
     }
 }
 

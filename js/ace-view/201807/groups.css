@@ -42,6 +42,40 @@
 /* ---------------------------------------------------------------------- */
 /* group editor popup */
 
+.av201807-group-editor {
+    background-color: white;
+    padding: 8px;
+}
+
+.av201807-group-editor tr.av-sets td.av-sets {
+    white-space: nowrap;
+}
+
+.av201807-group-editor tr.av-sets td.av-sets .av-no-sets-label {
+    color: #B0B0B0;
+}
+
+.av201807-group-editor tr.av-sets td.av-sets .av-button {
+    margin-left: 1em;
+    color: blue;
+    cursor: pointer;
+}
+
+.av201807-group-editor tr.av-sets td.av-sets .av-button.av-current {
+    cursor: default;
+    font-weight: bold;
+    color: black;
+}
+
+.av201807-group-editor tr.av-sets td.av-sets input.av-set-name {
+    margin-left: 1em;
+    width: 10em;
+}
+
+.av201807-group-editor tr.av-sets td.av-sets .av-new-set-button {
+    margin-left: 1.5em;
+}
+
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */
 /* eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer)) */
