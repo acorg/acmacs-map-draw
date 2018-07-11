@@ -668,7 +668,7 @@ export class ViewTableSeries extends ViewingSeries
             if (point_no < antigens.length)
                 return Object.keys(layer[point_no]).length > 0;
             else
-                layer.some(entry => !!entry["" + (point_no - antigens.length)]);
+                return layer.some(entry => !!entry["" + (point_no - antigens.length)]);
         };
         if (shading !== "legacy")
             this.drawing_levels_.push({drawing_order: chart_drawing_order.filter(point_no => !point_in_layer(point_no)), shading: shading});
