@@ -253,11 +253,13 @@ export class ViewSearch extends ViewingBase
 
     on_entry(view_dialog) {
         super.on_entry(view_dialog);
-        this.search_section_ = view_dialog.section("search").show();
-        this.search_results_section_ = view_dialog.section("search-results").show();
-        this._bind();
-        this.shading_.show(view_dialog && view_dialog.section("shading"));
-        this.map_viewer_.widget_.update_title();
+        if (view_dialog) {
+            this.search_section_ = view_dialog.section("search").show();
+            this.search_results_section_ = view_dialog.section("search-results").show();
+            this._bind();
+            this.shading_.show(view_dialog && view_dialog.section("shading"));
+            this.map_viewer_.widget_.update_title();
+        }
     }
 
     view_dialog_shown(view_dialog) {
