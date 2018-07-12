@@ -140,20 +140,36 @@ export function ace_serum_full_abbreviated_name(serum, options={}) {
 export function antigen_serum_abbreviated_name(name, options={}) {
     const vt = text => text.match(/^(A\(H[0-9]N[0-9]\).*|B)/) ? null : text;
     const species = text => text.substr(0, 2);
-    const loc = text => {
-        const words = text.split(" ");
-        return words.length === 1 ? capitalize(text.substr(0, 2)) : words.map(w => w.charAt(0)).join("").toUpperCase();
-    };
     const year = text => text.length === 4 ? (options.exclude_year ? null : text.substr(2, 2)) : text;
     const fields = name.split("/");
     switch (fields.length) {
     case 4:
-        return join_collapse([vt(fields[0]), loc(fields[1]), fields[2], year(fields[3])], "/");
+        return join_collapse([vt(fields[0]), location_abbreviation(fields[1]), fields[2], year(fields[3])], "/");
     case 5:
-        return join_collapse([vt(fields[0]), species(fields[1]), loc(fields[2]), fields[3], year(fields[4])], "/");
+        return join_collapse([vt(fields[0]), species(fields[1]), location_abbreviation(fields[2]), fields[3], year(fields[4])], "/");
     default:
         return name;
     }
+}
+
+const sCommonAbbreviations = {
+    ALABAMA: "AL", ALASKA: "AK", "AMERICAN SAMOA": "AS", ARIZONA: "AZ", ARKANSAS: "AR", CALIFORNIA: "CA", COLORADO: "CO",
+    CONNECTICUT: "CT", DELAWARE: "DE", FLORIDA: "FL", GEORGIA: "GA", HAWAII: "HI", IDAHO: "ID", ILLINOIS: "IL", INDIANA: "IN",
+    IOWA: "IA", KANSAS: "KS", KENTUCKY: "KY", LOUISIANA: "LA", MAINE: "ME", MARYLAND: "MD", MASSACHUSETTS: "MA", MICHIGAN: "MI",
+    MINNESOTA: "MN", MISSISSIPPI: "MS", MISSOURI: "MO", MONTANA: "MT", NEBRASKA: "NE", NEVADA: "NV", "NEW HAMPSHIRE": "NH",
+    "NEW JERSEY": "NJ", "NEW MEXICO": "NM", "NEW YORK": "NY", "NORTH CAROLINA": "NC", "NORTH DAKOTA": "ND", OHIO: "OH",
+    OKLAHOMA: "OK", OREGON: "OR", PALAU: "PW", PENNSYLVANIA: "PA", "PUERTO RICO": "PR", "RHODE ISLAND": "RI", "SOUTH CAROLINA": "SC",
+    "SOUTH DAKOTA": "SD", TENNESSEE: "TN", TEXAS: "TX", UTAH: "UT", VERMONT: "VT", "VIRGIN ISLANDS": "VI", VIRGINIA: "VA",
+    WASHINGTON: "WA", "WEST VIRGINIA": "WV", WISCONSIN: "WI", WYOMING: "WY"
+};
+
+function location_abbreviation(text) {
+    let result = sCommonAbbreviations[text];
+    if (!result) {
+        const words = text.split(" ");
+        result = words.length === 1 ? capitalize(text.substr(0, 2)) : words.map(w => w.charAt(0)).join("").toUpperCase();
+    }
+    return result;
 }
 
 // ----------------------------------------------------------------------
