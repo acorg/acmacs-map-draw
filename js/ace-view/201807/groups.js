@@ -377,7 +377,8 @@ const GroupsEditor_html = "\
     </tr>\
     <tr class='av-groups'>\
       <td class='av-sets-label'><span class='av-sets-label'>Groups</span><span class='av-no-sets-label'>No groups</span></td>\
-      <td class='av-groups av-buttons'><span class='av-groups'></span><span class='av-new-set-button av-button'>new group</span></td>\
+      <!-- <td class='av-groups av-buttons'><span class='av-groups'></span><span class='av-new-set-button av-button'>new group</span></td> -->\
+      <td class='av-groups av-buttons'><table></table></td>\
     </tr>\
   </table>\
 </div>\
@@ -394,7 +395,7 @@ class GroupsEditor
     group_sets(group_sets) {
         if (group_sets !== undefined) {
             this.group_sets_ = group_sets;
-            this._populate();
+            this._populate_sets();
         }
         return this.group_sets_;
     }
@@ -423,7 +424,7 @@ class GroupsEditor
         this.div_.find("tr.av-sets td.av-sets .av-new-set-button").on("click", evt => av_utils.forward_event(evt, () => this._create_set()));
     }
 
-    _populate() {
+    _populate_sets() {
         if (this.group_sets_.length) {
             const sets_span = this.div_.find("tr.av-sets td.av-sets span.av-sets").empty();
             for (let group_set of this.group_sets_)
@@ -478,16 +479,26 @@ class GroupsEditor
     }
 
     _populate_groups() {
-        const groups_span = this.div_.find("tr.av-groups td.av-groups span.av-groups").empty();
+        const groups_table = this.div_.find("tr.av-groups td.av-groups table").empty();
+        console.log("_populate_groups", this.current_set_.groups, groups_table.length);
         for (let group of this.current_set_.groups)
-            groups_span.append(this._set_button(group.N));
-        this._bind_group_buttons();
-        this._show_group(this.current_group_ ? this.current_group_.N : (this.current_set_.groups[0] && this.current_set_.groups[0].N));
+            groups_table.append(`<tr><td class="av-button" name="${group.N}">${group.N}</td></tr>`);
+        groups_table.append(`<tr><td class="av-button" new_group="1">new group</td></tr>`);
+        groups_table.find(".av-button[name]").off("click").on("click", evt => av_utils.forward_event(evt, evt => this._show_group(evt.currentTarget.getAttribute("name"))));
+        groups_table.find(".av-button[new_group]").off("click").on("click", evt => av_utils.forward_event(evt, evt => this._create_group()));
     }
 
-    _bind_group_buttons() {
-        this.div_.find("tr.av-groups td.av-groups span.av-groups .av-button").off("click").on("click", evt => av_utils.forward_event(evt, evt => this._show_group(evt.currentTarget.getAttribute("name"))));
-    }
+    // _populate_groups() {
+    //     const groups_span = this.div_.find("tr.av-groups td.av-groups span.av-groups").empty();
+    //     for (let group of this.current_set_.groups)
+    //         groups_span.append(this._set_button(group.N));
+    //     this._bind_group_buttons();
+    //     this._show_group(this.current_group_ ? this.current_group_.N : (this.current_set_.groups[0] && this.current_set_.groups[0].N));
+    // }
+
+    // _bind_group_buttons() {
+    //     this.div_.find("tr.av-groups td.av-groups span.av-groups .av-button").off("click").on("click", evt => av_utils.forward_event(evt, evt => this._show_group(evt.currentTarget.getAttribute("name"))));
+    // }
 
     _show_group(name) {
         if (name) {
@@ -525,6 +536,10 @@ class GroupsEditor
             this.div_.find("tr.av-sets td.av-sets span.av-sets").append(this._set_button(this.group_sets_[this.group_sets_.length - 1].N));
             this._bind_set_buttons();
         }
+    }
+
+    _create_group() {
+        console.warn("_create_group");
     }
 }
 
