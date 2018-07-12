@@ -548,7 +548,8 @@ class GroupsEditor
 
     _add_to_current_group(nos) {
         if (this.current_group_) {
-            console.log("_add_to_current_group", nos);
+            nos.filter(no => !this.current_group_.members.includes(no)).forEach(no => this.current_group_.members.push(no));
+            this._populate_group();
         }
         else
             console.error("_add_to_current_group: no current group");
