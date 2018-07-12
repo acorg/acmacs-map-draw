@@ -114,7 +114,7 @@
     width: 1em;
 }
 
-.av201807-group-editor tr.av-groups > td.av-group-members > div {
+.av201807-group-editor tr.av-groups > td.av-group-members > div.av-table {
     max-height: 15em;
     overflow: auto;
     border: 1px solid #A0A0A0;
@@ -142,9 +142,12 @@
     color: green;
 }
 
-.av201807-group-editor tr.av-groups > td.av-group-members td.av-group-member-no {
+.av201807-group-editor tr.av-groups > td td.av-group-member-no {
     text-align: right;
     padding-right: 0.5em;
+    width: 3em;
+    font-size: 0.8em;
+    color: #606060;
 }
 
 .av201807-group-editor tr.av-groups > td.av-group-members .av-serum {
@@ -153,6 +156,44 @@
 
 .av201807-group-editor tr.av-groups  > td.av-group-members .av-empty-group {
     color: #B0B0B0;
+}
+
+.av201807-group-editor tr.av-groups > td.av-selected-to-add {
+    padding-left: 1em;
+    vertical-align: top;
+}
+
+.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-table {
+    max-height: 15em;
+    overflow: auto;
+    border: 1px solid #A0A0A0;
+    padding: 5px;
+}
+
+.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-table tr {
+    cursor: pointer;
+}
+
+.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-table tr td.av-to-add {
+    color: #606060;
+}
+
+.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-table tr td.av-to-add .av-serum {
+    color: #B0B060;
+}
+
+.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-table tr td.av-to-add-selected {
+    color: black;
+    font-weight: bold;
+}
+
+.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-table tr td.av-to-add-selected .av-serum {
+    color: #808000;
+}
+
+.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-help {
+    color: #A0A0A0;
+    font-size: 0.8em;
 }
 
 /* ---------------------------------------------------------------------- */

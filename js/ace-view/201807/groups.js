@@ -379,8 +379,8 @@ const GroupsEditor_html = "\
       <td class='av-sets-label'><span class='av-sets-label'>Groups</span><span class='av-no-sets-label'>No groups</span></td>\
       <td class='av-groups av-buttons'><table></table></td>\
       <td class='av-separator'></td>\
-      <td class='av-group-members'><div><table></table></div></td>\
-      <td class='av-selected-to-add'><table></table></td>\
+      <td class='av-group-members'><div class='av-table'><table></table></div></td>\
+      <td class='av-selected-to-add'><div class='av-buttons'><span class='av-button'>add selected to this group</span></div><div class='av-table'><table></table></div><div class='av-help'>click name(s) above to (de)select</div></td>\
     </tr>\
   </table>\
 </div>\
@@ -405,7 +405,8 @@ class GroupsEditor
 
     // {antigens: [], sera: []}
     add_antigens_sera(args) {
-        console.warn("add_antigens_sera", args);
+        this.to_add_ = (args.antigens || []).concat(args.sera || []);
+        this._populate_to_add();
     }
 
     show(parent_element) {
@@ -425,6 +426,7 @@ class GroupsEditor
     _make() {
         this.div_ = $(GroupsEditor_html).appendTo("body").hide().css({position: "absolute"});
         this.div_.find("tr.av-sets td.av-sets .av-new-set-button").on("click", evt => av_utils.forward_event(evt, () => this._create_set()));
+        this.div_.find("td.av-selected-to-add").hide();
     }
 
     _populate_sets() {
@@ -512,7 +514,7 @@ class GroupsEditor
                 for (let member of this.current_group_.members) {
                     const no_class = member < this.chart_.a.length ? "av-antigen" : "av-serum";
                     const root_class = member === this.current_group_.root ? "av-group-memeber-root" : "";
-                    table.append(`<tr><td class='av-group-member-root' title='click to set root' member="${member}"><span class='${root_class}'>root</span></td><td class='av-group-member-no ${no_class}'>${member}</td><td class='av-group-member'>${this._member_name(member)}</td></tr>`);
+                    table.append(`<tr><td class='av-group-member-root' title='click to set root' member="${member}"><span class='${root_class}'>root</span></td><td class='av-group-member-no ${no_class}'>${member+1}</td><td class='av-group-member'>${this._member_name(member)}</td></tr>`);
                 }
                 table.find(".av-group-member-root[member]").on("click", evt => av_utils.forward_event(evt, evt => {
                     this.current_group_.root = parseInt(evt.currentTarget.getAttribute("member"));
@@ -523,6 +525,20 @@ class GroupsEditor
             else {
                 table.append("<tr><td class='av-empty-group'>empty</td></tr>");
             }
+        }
+    }
+
+    _populate_to_add() {
+        if (this.to_add_ && this.to_add_.length) {
+            const td = this.div_.find("td.av-selected-to-add").show();
+            const table = td.find("> div > table");
+            for (let no of this.to_add_) {
+                const no_class = no < this.chart_.a.length ? "av-antigen" : "av-serum";
+                table.append(`<tr no="${no}" title='click to (de)select'><td class='av-group-member-no ${no_class}'>${no+1}</td><td class='av-to-add av-to-add-selected'>${this._member_name(no)}</td></tr>`);
+            }
+            table.find("tr").on("click", evt => av_utils.forward_event(evt, evt => {
+                $(evt.currentTarget).find("td.av-to-add").toggleClass("av-to-add-selected");
+            }));
         }
     }
 
