@@ -93,12 +93,12 @@
     margin-left: 1.5em;
 }
 
-.av201807-group-editor tr.av-groups td.av-sets-label {
+.av201807-group-editor tr.av-groups > td {
     vertical-align: top;
 }
 
-.av201807-group-editor tr.av-groups > td.av-groups {
-    vertical-align: top;
+.av201807-group-editor tr.av-groups td.av-groups {
+    white-space: nowrap;
 }
 
 .av201807-group-editor tr.av-groups td.av-groups > table {
@@ -115,6 +115,8 @@
 }
 
 .av201807-group-editor tr.av-groups > td.av-group-members > div.av-table {
+    min-width: 19em;
+    min-height: 10em;
     max-height: 15em;
     overflow: auto;
     border: 1px solid #A0A0A0;
@@ -160,7 +162,6 @@
 
 .av201807-group-editor tr.av-groups > td.av-selected-to-add {
     padding-left: 1em;
-    vertical-align: top;
 }
 
 .av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-table {

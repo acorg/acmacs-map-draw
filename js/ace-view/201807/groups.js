@@ -489,12 +489,18 @@ class GroupsEditor
         for (let group of this.current_set_.groups)
             groups_table.append(`<tr><td class="av-button" name="${group.N}">${group.N}</td></tr>`);
         groups_table.append(`<tr><td class="av-button" make_new="1">new group</td></tr>`);
-        groups_table.find(".av-button[name]").off("click").on("click", evt => av_utils.forward_event(evt, evt => this._show_group(evt.currentTarget.getAttribute("name"))));
+        this._bind_group_buttons();
         groups_table.find(".av-button[make_new]").off("click").on("click", evt => av_utils.forward_event(evt, evt => this._create_group()));
         this._show_group(this.current_group_ ? this.current_group_.N : (this.current_set_.groups.length ? this.current_set_.groups[0].N : null));
     }
 
-    _show_group(name) {
+    _bind_group_buttons() {
+        this.div_.find("tr.av-groups td.av-groups.av-buttons .av-button[name]").off("click").on("click", evt => av_utils.forward_event(evt, evt => this._show_group(evt.currentTarget.getAttribute("name"))));
+    }
+
+    _show_group(name, convert_created=true) {
+        if (convert_created)
+            this._convert_created_group();
         if (name) {
             this.current_group_ = this.current_set_.groups.find(group => group.N === name);
             this.div_.find("tr.av-groups td.av-groups table td.av-button[name]").removeClass("av-current");
@@ -595,7 +601,34 @@ class GroupsEditor
     }
 
     _create_group() {
-        console.warn("_create_group");
+        this._convert_created_group();
+        const name = new Date().toLocaleString("en-CA", {hour12: false}).replace(",", "");
+        const group_data = {N: name, members: []};
+        this.current_set_.groups.push(group_data);
+        const tr_input = $("<tr><td><input type='text' class='av-group-name'></input><tr></td>")
+              .insertBefore(this.div_.find("tr.av-groups td.av-groups td[make_new]").parent());
+        const input = tr_input.find("input").val(name).focus().select();
+        input.on("keypress", evt => {
+            if (evt.charCode === 13) {
+                let new_name = evt.currentTarget.value || name;
+                group_data.N = "*no-name*";
+                if (this.current_set_.groups.find(group => group.N === new_name)) // avoid having name duplicate
+                    new_name = name;
+                group_data.N = new_name;
+                evt.currentTarget.value = group_data.N;
+                input.select();
+            }
+        });
+        this._show_group(name, false);
+    }
+
+    _convert_created_group() {
+        const input = this.div_.find("tr.av-groups td.av-groups input.av-group-name");
+        if (input.length) {
+            const name = this.current_set_.groups[this.current_set_.groups.length - 1].N;
+            input.parent().empty().addClass("av-button").attr("name", name).append(name);
+            this._bind_group_buttons();
+        }
     }
 }
 
