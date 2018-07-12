@@ -373,7 +373,7 @@ const GroupsEditor_html = "\
   <table>\
     <tr class='av-sets'>\
       <td class='av-sets-label'><span class='av-sets-label'>Sets</span><span class='av-no-sets-label'>No sets</span></td>\
-      <td class='av-sets av-buttons'><span class='av-sets'></span><span class='av-new-set-button av-button'>new set</span></td>\
+      <td class='av-sets av-buttons'><span class='av-sets'></span><span class='av-new-set-button av-button' make_new='1'>new set</span></td>\
     </tr>\
     <tr class='av-groups'>\
       <td class='av-sets-label'><span class='av-sets-label'>Groups</span><span class='av-no-sets-label'>No groups</span></td>\
@@ -483,9 +483,9 @@ class GroupsEditor
         console.log("_populate_groups", this.current_set_.groups, groups_table.length);
         for (let group of this.current_set_.groups)
             groups_table.append(`<tr><td class="av-button" name="${group.N}">${group.N}</td></tr>`);
-        groups_table.append(`<tr><td class="av-button" new_group="1">new group</td></tr>`);
+        groups_table.append(`<tr><td class="av-button" make_new="1">new group</td></tr>`);
         groups_table.find(".av-button[name]").off("click").on("click", evt => av_utils.forward_event(evt, evt => this._show_group(evt.currentTarget.getAttribute("name"))));
-        groups_table.find(".av-button[new_group]").off("click").on("click", evt => av_utils.forward_event(evt, evt => this._create_group()));
+        groups_table.find(".av-button[make_new]").off("click").on("click", evt => av_utils.forward_event(evt, evt => this._create_group()));
     }
 
     // _populate_groups() {

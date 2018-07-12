@@ -43,7 +43,7 @@
 /* group editor popup */
 
 .av201807-group-editor td {
-    outline: 1px solid pink;
+    /* outline: 1px solid pink; */
 }
 
 .av201807-group-editor {
@@ -52,7 +52,7 @@
 }
 
 .av201807-group-editor > table {
-    outline: 1px solid cyan;
+    /* outline: 1px solid cyan; */
     border-collapse: separate;
     border-spacing: 0 1em;
 }
@@ -61,14 +61,21 @@
     white-space: nowrap;
 }
 
+.av201807-group-editor .av-button {
+    color: blue;
+    cursor: pointer;
+}
+
+.av201807-group-editor .av-button[make_new] {
+    color: #A0A000;
+}
+
 .av201807-group-editor tr.av-sets .av-no-sets-label {
     color: #B06060;
 }
 
 .av201807-group-editor tr.av-sets td .av-button {
     margin-left: 1em;
-    color: blue;
-    cursor: pointer;
 }
 
 .av201807-group-editor tr td .av-button.av-current {
@@ -93,6 +100,10 @@
 .av201807-group-editor tr.av-groups td.av-groups > table {
     margin-left: 1em;
     border-collapse: collapse;
+}
+
+.av201807-group-editor tr.av-groups td > table .av-button {
+    padding-bottom: 0.5em;
 }
 
 /* ---------------------------------------------------------------------- */
