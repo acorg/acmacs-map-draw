@@ -373,12 +373,13 @@ const GroupsEditor_html = "\
   <table>\
     <tr class='av-sets'>\
       <td class='av-sets-label'><span class='av-sets-label'>Sets</span><span class='av-no-sets-label'>No sets</span></td>\
-      <td colspan='3' class='av-sets av-buttons'><span class='av-sets'></span><span class='av-new-set-button av-button' make_new='1'>new set</span></td>\
+      <td colspan='4' class='av-sets av-buttons'><span class='av-sets'></span><span class='av-new-set-button av-button' make_new='1'>new set</span></td>\
     </tr>\
     <tr class='av-groups'>\
       <td class='av-sets-label'><span class='av-sets-label'>Groups</span><span class='av-no-sets-label'>No groups</span></td>\
       <td class='av-groups av-buttons'><table></table></td>\
-      <td class='av-group-members'><table></table></td>\
+      <td class='av-separator'></td>\
+      <td class='av-group-members'><div><table></table></div></td>\
       <td class='av-selected-to-add'><table></table></td>\
     </tr>\
   </table>\
@@ -505,11 +506,19 @@ class GroupsEditor
     }
 
     _populate_group() {
-        const table = this.div_.find("tr.av-groups > td.av-group-members > table").empty();
+        const table = this.div_.find("tr.av-groups > td.av-group-members table").empty();
         if (this.current_group_) {
             if (this.current_group_.members && this.current_group_.members.length) {
-                for (let member of this.current_group_.members)
-                    table.append(`<tr><td class='av-group-member'>${this._member_name(member)}</td></tr>`);
+                for (let member of this.current_group_.members) {
+                    const no_class = member < this.chart_.a.length ? "av-antigen" : "av-serum";
+                    const root_class = member === this.current_group_.root ? "av-group-memeber-root" : "";
+                    table.append(`<tr><td class='av-group-member-root' title='click to set root' member="${member}"><span class='${root_class}'>root</span></td><td class='av-group-member-no ${no_class}'>${member}</td><td class='av-group-member'>${this._member_name(member)}</td></tr>`);
+                }
+                table.find(".av-group-member-root[member]").on("click", evt => av_utils.forward_event(evt, evt => {
+                    this.current_group_.root = parseInt(evt.currentTarget.getAttribute("member"));
+                    table.find(".av-group-member-root[member] > span").removeClass("av-group-memeber-root");
+                    $(evt.currentTarget).find("span").addClass("av-group-memeber-root");
+                }));
             }
             else {
                 table.append("<tr><td class='av-empty-group'>empty</td></tr>");
@@ -519,9 +528,9 @@ class GroupsEditor
 
     _member_name(index) {
         if (index < this.chart_.a.length)
-            return "AG " + av_utils.ace_antigen_full_name(this.chart_.a[index], {escape: true});
+            return "<span class='av-antigen'>" + av_utils.ace_antigen_full_abbreviated_name(this.chart_.a[index], {escape: true}) + "</span>";
         else
-            return "SR " + av_utils.ace_serum_full_name(this.chart_.s[index - this.chart_.a.length], {escape: true});
+            return "<span class='av-serum'>" + av_utils.ace_serum_full_abbreviated_name(this.chart_.s[index - this.chart_.a.length], {escape: true}) + "</span>";
     }
 
     _create_set() {

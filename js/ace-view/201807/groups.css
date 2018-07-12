@@ -110,12 +110,48 @@
     padding-bottom: 0.5em;
 }
 
-.av201807-group-editor tr.av-groups > td.av-group-members > table {
-    margin-left: 1em;
+.av201807-group-editor tr.av-groups > td.av-separator {
+    width: 1em;
+}
+
+.av201807-group-editor tr.av-groups > td.av-group-members > div {
+    max-height: 15em;
+    overflow: auto;
+    border: 1px solid #A0A0A0;
+    padding: 5px;
+}
+
+.av201807-group-editor tr.av-groups > td.av-group-members table {
     border-collapse: collapse;
 }
 
-.av201807-group-editor tr.av-groups  > td.av-group-members > table td.av-empty-group {
+.av201807-group-editor tr.av-groups > td.av-group-members table td {
+    max-width: 15em;
+    overflow: auto;
+    white-space: nowrap;
+}
+
+.av201807-group-editor tr.av-groups > td.av-group-members td.av-group-member-root {
+    font-size: 0.5em;
+    padding-right: 5px;
+    cursor: pointer;
+    color: transparent;
+}
+
+.av201807-group-editor tr.av-groups > td.av-group-members td.av-group-member-root span.av-group-memeber-root {
+    color: green;
+}
+
+.av201807-group-editor tr.av-groups > td.av-group-members td.av-group-member-no {
+    text-align: right;
+    padding-right: 0.5em;
+}
+
+.av201807-group-editor tr.av-groups > td.av-group-members .av-serum {
+    color: #808000;
+}
+
+.av201807-group-editor tr.av-groups  > td.av-group-members .av-empty-group {
     color: #B0B0B0;
 }
 
