@@ -821,7 +821,7 @@ class ColoringOriginal extends ColoringBase
 
 // ----------------------------------------------------------------------
 
-class ColoringModified extends ColoringBase
+export class ColoringModified extends ColoringBase
 {
     constructor(widget, name, source) {
         super(widget);
@@ -1286,7 +1286,7 @@ function new_id() {
 
 // ----------------------------------------------------------------------
 
-function show_antigen_serum_info_from_hidb(target, chart, invoking_node, shower) {
+export function show_antigen_serum_info_from_hidb(target, chart, invoking_node, shower) {
     if (shower) {
         const point_no = parseInt(target.attr("point_no"));
         const point_data = {virus_type: chart.i.V || (chart.i.S && chart.i.S.length > 0 && chart.i.S[0].V)};
