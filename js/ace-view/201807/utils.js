@@ -118,10 +118,20 @@ export function ace_antigen_full_name(antigen, options={}) {
     return options.escape ? escape_html(result) : result;
 }
 
+export function ace_antigen_full_abbreviated_name(antigen, options={}) {
+    const result = join_collapse([antigen_serum_abbreviated_name(antigen.N), antigen.R].concat(antigen.a, antigen.P, antigen.D && "[" + antigen.D + "]"));
+    return options.escape ? escape_html(result) : result;
+}
+
 // ----------------------------------------------------------------------
 
 export function ace_serum_full_name(serum, options={}) {
     const result = join_collapse([serum.N, serum.R].concat(serum.a, serum.I));
+    return options.escape ? escape_html(result) : result;
+}
+
+export function ace_serum_full_abbreviated_name(serum, options={}) {
+    const result = join_collapse([antigen_serum_abbreviated_name(serum.N), serum.R].concat(serum.a, serum.I));
     return options.escape ? escape_html(result) : result;
 }
 
