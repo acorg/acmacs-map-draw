@@ -440,7 +440,7 @@ export class ViewSearch extends ViewingBase
             groups_button.show().off("click").on("click", evt => av_utils.forward_event(evt, evt => {
                 const groups_viewing = this.map_viewer_.find_viewing("groups");
                 if (groups_viewing)
-                    import("./groups.js").then(av_groups => av_groups.groups_editor_add_points({group_sets: groups_viewing.group_sets_, antigens: this.selected_antigens_, sera: this.selected_sera_, parent_element: evt.currentTarget}));
+                    import("./groups.js").then(av_groups => av_groups.groups_editor_add_points({group_sets: groups_viewing.group_sets_, chart: this.chart_, antigens: this.selected_antigens_, sera: this.selected_sera_, parent_element: evt.currentTarget}));
                 else
                     console.error("ViewSearch::_handle_groups_button: no groups viewing");
             }));

@@ -97,6 +97,10 @@
     vertical-align: top;
 }
 
+.av201807-group-editor tr.av-groups > td.av-groups {
+    vertical-align: top;
+}
+
 .av201807-group-editor tr.av-groups td.av-groups > table {
     margin-left: 1em;
     border-collapse: collapse;
@@ -104,6 +108,15 @@
 
 .av201807-group-editor tr.av-groups td > table .av-button {
     padding-bottom: 0.5em;
+}
+
+.av201807-group-editor tr.av-groups > td.av-group-members > table {
+    margin-left: 1em;
+    border-collapse: collapse;
+}
+
+.av201807-group-editor tr.av-groups  > td.av-group-members > table td.av-empty-group {
+    color: #B0B0B0;
 }
 
 /* ---------------------------------------------------------------------- */

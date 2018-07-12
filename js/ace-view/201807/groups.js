@@ -357,10 +357,10 @@ export class ViewGroups extends av_viewing.ViewingSeries
 
 var groups_editor_dialog_singleton = null;
 
-// {group_sets: [], antigens: [], sera: [], parent_element: $(<span>)}
+// {group_sets: [], chart: , antigens: [], sera: [], parent_element: $(<span>)}
 export function groups_editor_add_points(args) {
     if (!groups_editor_dialog_singleton)
-        groups_editor_dialog_singleton = new GroupsEditor();
+        groups_editor_dialog_singleton = new GroupsEditor(args.chart);
     groups_editor_dialog_singleton.group_sets(args.group_sets);
     groups_editor_dialog_singleton.add_antigens_sera(args);
     groups_editor_dialog_singleton.show(args.parent_element);
@@ -373,12 +373,13 @@ const GroupsEditor_html = "\
   <table>\
     <tr class='av-sets'>\
       <td class='av-sets-label'><span class='av-sets-label'>Sets</span><span class='av-no-sets-label'>No sets</span></td>\
-      <td class='av-sets av-buttons'><span class='av-sets'></span><span class='av-new-set-button av-button' make_new='1'>new set</span></td>\
+      <td colspan='3' class='av-sets av-buttons'><span class='av-sets'></span><span class='av-new-set-button av-button' make_new='1'>new set</span></td>\
     </tr>\
     <tr class='av-groups'>\
       <td class='av-sets-label'><span class='av-sets-label'>Groups</span><span class='av-no-sets-label'>No groups</span></td>\
-      <!-- <td class='av-groups av-buttons'><span class='av-groups'></span><span class='av-new-set-button av-button'>new group</span></td> -->\
       <td class='av-groups av-buttons'><table></table></td>\
+      <td class='av-group-members'><table></table></td>\
+      <td class='av-selected-to-add'><table></table></td>\
     </tr>\
   </table>\
 </div>\
@@ -386,7 +387,8 @@ const GroupsEditor_html = "\
 
 class GroupsEditor
 {
-    constructor() {
+    constructor(chart) {
+        this.chart_ = chart;
         this.group_sets_ = [];
         this.current_set_ = null;
         this._make();
@@ -486,24 +488,40 @@ class GroupsEditor
         groups_table.append(`<tr><td class="av-button" make_new="1">new group</td></tr>`);
         groups_table.find(".av-button[name]").off("click").on("click", evt => av_utils.forward_event(evt, evt => this._show_group(evt.currentTarget.getAttribute("name"))));
         groups_table.find(".av-button[make_new]").off("click").on("click", evt => av_utils.forward_event(evt, evt => this._create_group()));
+        this._show_group(this.current_group_ ? this.current_group_.N : (this.current_set_.groups.length ? this.current_set_.groups[0].N : null));
     }
-
-    // _populate_groups() {
-    //     const groups_span = this.div_.find("tr.av-groups td.av-groups span.av-groups").empty();
-    //     for (let group of this.current_set_.groups)
-    //         groups_span.append(this._set_button(group.N));
-    //     this._bind_group_buttons();
-    //     this._show_group(this.current_group_ ? this.current_group_.N : (this.current_set_.groups[0] && this.current_set_.groups[0].N));
-    // }
-
-    // _bind_group_buttons() {
-    //     this.div_.find("tr.av-groups td.av-groups span.av-groups .av-button").off("click").on("click", evt => av_utils.forward_event(evt, evt => this._show_group(evt.currentTarget.getAttribute("name"))));
-    // }
 
     _show_group(name) {
         if (name) {
             this.current_group_ = this.current_set_.groups.find(group => group.N === name);
+            this.div_.find("tr.av-groups td.av-groups table td.av-button[name]").removeClass("av-current");
+            this.div_.find(`tr.av-groups td.av-groups table td.av-button[name="${name}"]`).addClass("av-current");
+            this._populate_group();
         }
+        else {
+            this.current_group_ = null;
+            this._populate_group();
+        }
+    }
+
+    _populate_group() {
+        const table = this.div_.find("tr.av-groups > td.av-group-members > table").empty();
+        if (this.current_group_) {
+            if (this.current_group_.members && this.current_group_.members.length) {
+                for (let member of this.current_group_.members)
+                    table.append(`<tr><td class='av-group-member'>${this._member_name(member)}</td></tr>`);
+            }
+            else {
+                table.append("<tr><td class='av-empty-group'>empty</td></tr>");
+            }
+        }
+    }
+
+    _member_name(index) {
+        if (index < this.chart_.a.length)
+            return "AG " + av_utils.ace_antigen_full_name(this.chart_.a[index], {escape: true});
+        else
+            return "SR " + av_utils.ace_serum_full_name(this.chart_.s[index - this.chart_.a.length], {escape: true});
     }
 
     _create_set() {
