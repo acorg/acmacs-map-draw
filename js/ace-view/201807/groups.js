@@ -380,7 +380,7 @@ const GroupsEditor_html = "\
       <td class='av-groups av-buttons'><table></table></td>\
       <td class='av-separator'></td>\
       <td class='av-group-members'><div class='av-table'><table></table></div></td>\
-      <td class='av-selected-to-add'><div class='av-buttons'><span class='av-button'>add selected to this group</span></div><div class='av-table'><table></table></div><div class='av-help'>click name(s) above to (de)select</div></td>\
+      <td class='av-selected-to-add'><div class='av-buttons'><span class='av-button av-add'>add selected to this group</span></div><div class='av-table'><table></table></div><div class='av-help'>click name(s) above to (de)select</div></td>\
     </tr>\
   </table>\
 </div>\
@@ -534,12 +534,24 @@ class GroupsEditor
             const table = td.find("> div > table");
             for (let no of this.to_add_) {
                 const no_class = no < this.chart_.a.length ? "av-antigen" : "av-serum";
-                table.append(`<tr no="${no}" title='click to (de)select'><td class='av-group-member-no ${no_class}'>${no+1}</td><td class='av-to-add av-to-add-selected'>${this._member_name(no)}</td></tr>`);
+                table.append(`<tr no="${no}" title='click to (de)select'><td class='av-group-member-no ${no_class}'>${no+1}</td><td class='av-to-add av-to-add-selected' no="${no}">${this._member_name(no)}</td></tr>`);
             }
             table.find("tr").on("click", evt => av_utils.forward_event(evt, evt => {
                 $(evt.currentTarget).find("td.av-to-add").toggleClass("av-to-add-selected");
             }));
+            td.find(".av-button.av-add").off("click").on("click", evt => av_utils.forward_event(evt, evt => {
+                const nos = table.find(".av-to-add-selected").map(function() { return $(this).attr("no"); }).get().map(val => parseInt(val));
+                this._add_to_current_group(nos);
+            }));
         }
+    }
+
+    _add_to_current_group(nos) {
+        if (this.current_group_) {
+            console.log("_add_to_current_group", nos);
+        }
+        else
+            console.error("_add_to_current_group: no current group");
     }
 
     _member_name(index) {
