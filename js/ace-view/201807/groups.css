@@ -47,21 +47,21 @@
     padding: 8px;
 }
 
-.av201807-group-editor tr.av-sets td.av-sets {
+.av201807-group-editor tr td.av-buttons {
     white-space: nowrap;
 }
 
-.av201807-group-editor tr.av-sets td.av-sets .av-no-sets-label {
-    color: #B0B0B0;
+.av201807-group-editor tr .av-no-sets-label {
+    color: #B06060;
 }
 
-.av201807-group-editor tr.av-sets td.av-sets .av-button {
+.av201807-group-editor tr td .av-button {
     margin-left: 1em;
     color: blue;
     cursor: pointer;
 }
 
-.av201807-group-editor tr.av-sets td.av-sets .av-button.av-current {
+.av201807-group-editor tr td .av-button.av-current {
     cursor: default;
     font-weight: bold;
     color: black;
@@ -72,7 +72,7 @@
     width: 10em;
 }
 
-.av201807-group-editor tr.av-sets td.av-sets .av-new-set-button {
+.av201807-group-editor tr td .av-new-set-button {
     margin-left: 1.5em;
 }
 

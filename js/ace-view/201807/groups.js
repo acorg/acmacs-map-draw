@@ -372,9 +372,12 @@ const GroupsEditor_html = "\
 <div class='av201807-group-editor av201807-window-shadow'>\
   <table>\
     <tr class='av-sets'>\
-      <td class='av-sets'>\
-        <span class='av-sets-label'>Sets:</span><span class='av-no-sets-label'>no sets defined</span><span class='av-sets'></span><span class='av-new-set-button av-button'>new set</span>\
-      </td>\
+      <td class='av-sets-label'><span class='av-sets-label'>Sets</span><span class='av-no-sets-label'>No sets</span></td>\
+      <td class='av-sets av-buttons'><span class='av-sets'></span><span class='av-new-set-button av-button'>new set</span></td>\
+    </tr>\
+    <tr class='av-groups'>\
+      <td class='av-sets-label'><span class='av-sets-label'>Groups</span><span class='av-no-sets-label'>No groups</span></td>\
+      <td class='av-groups av-buttons'><span class='av-groups'></span><span class='av-new-set-button av-button'>new group</span></td>\
     </tr>\
   </table>\
 </div>\
@@ -422,22 +425,41 @@ class GroupsEditor
 
     _populate() {
         if (this.group_sets_.length) {
-            this.div_.find("tr.av-sets td.av-sets .av-no-sets-label").hide();
-            this.div_.find("tr.av-sets td.av-sets .av-sets-label").show();
             const sets_span = this.div_.find("tr.av-sets td.av-sets span.av-sets").empty();
             for (let group_set of this.group_sets_)
                 sets_span.append(this._set_button(group_set.N));
             this._bind_set_buttons();
             this._show_set(this.current_set_ ? this.current_set_.N : this.group_sets_[0].N);
         }
-        else {
-            this.div_.find("tr.av-sets td.av-sets .av-sets-label").hide();
-            this.div_.find("tr.av-sets td.av-sets .av-no-sets-label").show();
-        }
+        this._sets_label();
     }
 
     _set_button(name) {
         return `<span class="av-button" name="${name}">${name}</span>`;
+    }
+
+    _sets_label() {
+        const sets_label = this.div_.find("tr.av-sets td.av-sets-label");
+        const groups = this.div_.find("tr.av-groups");
+        if (this.group_sets_.length) {
+            sets_label.find(".av-no-sets-label").hide();
+            sets_label.find(".av-sets-label").show();
+            groups.show();
+            const groups_label = this.div_.find("tr.av-groups td.av-sets-label");
+            if (this.current_set_ && this.current_set_.groups.length) {
+                groups_label.find(".av-no-sets-label").hide();
+                groups_label.find(".av-sets-label").show();
+            }
+            else {
+                groups_label.find(".av-sets-label").hide();
+                groups_label.find(".av-no-sets-label").show();
+            }
+        }
+        else {
+            sets_label.find(".av-sets-label").hide();
+            sets_label.find(".av-no-sets-label").show();
+            groups.hide();
+        }
     }
 
     _bind_set_buttons() {
@@ -450,12 +472,30 @@ class GroupsEditor
         this.current_set_ = this.group_sets_.find(set => set.N === name);
         this.div_.find("tr.av-sets td.av-sets span.av-sets .av-button").removeClass("av-current");
         this.div_.find(`tr.av-sets td.av-sets span.av-sets .av-button[name="${name}"]`).addClass("av-current");
+        this._populate_groups();
+        this._sets_label();
         console.log("_show_set", this.current_set_);
     }
 
+    _populate_groups() {
+        const groups_span = this.div_.find("tr.av-groups td.av-groups span.av-groups").empty();
+        for (let group of this.current_set_.groups)
+            groups_span.append(this._set_button(group.N));
+        this._bind_group_buttons();
+        this._show_group(this.current_group_ ? this.current_group_.N : (this.current_set_.groups[0] && this.current_set_.groups[0].N));
+    }
+
+    _bind_group_buttons() {
+        this.div_.find("tr.av-groups td.av-groups span.av-groups .av-button").off("click").on("click", evt => av_utils.forward_event(evt, evt => this._show_group(evt.currentTarget.getAttribute("name"))));
+    }
+
+    _show_group(name) {
+        if (name) {
+            this.current_group_ = this.current_set_.groups.find(group => group.N === name);
+        }
+    }
+
     _create_set() {
-        this.div_.find("tr.av-sets td.av-sets .av-no-sets-label").hide();
-        this.div_.find("tr.av-sets td.av-sets .av-sets-label").show();
         this._convert_created_set();
         const name = new Date().toLocaleString("en-CA", {hour12: false}).replace(",", "");
         const set_data = {N: name, groups: []};
@@ -475,6 +515,7 @@ class GroupsEditor
             }
         });
         this._show_set(name, false);
+        this._sets_label();
     }
 
     _convert_created_set() {
