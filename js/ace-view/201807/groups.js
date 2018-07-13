@@ -372,11 +372,11 @@ const GroupsEditor_html = "\
 <div class='av201807-group-editor av201807-window-shadow'>\
   <table>\
     <tr class='av-sets'>\
-      <td class='av-sets-label'><span class='av-sets-label'>Sets</span><span class='av-no-sets-label'>No sets</span></td>\
+      <td class='av-sets-label'><span class='av-sets-label'>Sets</span></td>\
       <td colspan='4' class='av-sets av-buttons'><span class='av-sets'></span><span class='av-new-set-button av-button' make_new='1'>new set</span></td>\
     </tr>\
     <tr class='av-groups'>\
-      <td class='av-sets-label'><span class='av-sets-label'>Groups</span><span class='av-no-sets-label'>No groups</span></td>\
+      <td class='av-sets-label'><span class='av-sets-label'>Groups</span></td>\
       <td class='av-groups av-buttons'><table></table></td>\
       <td class='av-separator'></td>\
       <td class='av-group-members'><div class='av-table'><table></table></div></td>\
@@ -441,6 +441,8 @@ class GroupsEditor
             this._bind_set_buttons();
             this._show_set(this.current_set_ ? this.current_set_.N : this.group_sets_[0].N);
         }
+        else
+            this._create_set();
         this._sets_label();
     }
 
@@ -455,15 +457,16 @@ class GroupsEditor
             sets_label.find(".av-no-sets-label").hide();
             sets_label.find(".av-sets-label").show();
             groups.show();
-            const groups_label = this.div_.find("tr.av-groups td.av-sets-label");
-            if (this.current_set_ && this.current_set_.groups.length) {
-                groups_label.find(".av-no-sets-label").hide();
-                groups_label.find(".av-sets-label").show();
-            }
-            else {
-                groups_label.find(".av-sets-label").hide();
-                groups_label.find(".av-no-sets-label").show();
-            }
+            this.div_.find("tr.av-groups > td.av-sets-label > .av-sets-label").show();
+            // const groups_label = this.div_.find("tr.av-groups td.av-sets-label");
+            // if (this.current_set_ && this.current_set_.groups.length) {
+            //     groups_label.find(".av-no-sets-label").hide();
+            //     groups_label.find(".av-sets-label").show();
+            // }
+            // else {
+            //     groups_label.find(".av-sets-label").hide();
+            //     groups_label.find(".av-no-sets-label").show();
+            // }
         }
         else {
             sets_label.find(".av-sets-label").hide();
@@ -489,13 +492,18 @@ class GroupsEditor
 
     _populate_groups() {
         const groups_table = this.div_.find("tr.av-groups td.av-groups table").empty();
-        console.log("_populate_groups", this.current_set_.groups, groups_table.length);
-        for (let group of this.current_set_.groups)
-            groups_table.append(`<tr><td class="av-button" name="${group.N}">${group.N}</td></tr>`);
-        groups_table.append(`<tr><td class="av-button" make_new="1">new group</td></tr>`);
-        this._bind_group_buttons();
+        if (this.current_set_.groups.length) {
+            for (let group of this.current_set_.groups)
+                groups_table.append(`<tr><td class="av-button" name="${group.N}">${group.N}</td></tr>`);
+            groups_table.append(`<tr><td class="av-button" make_new="1">new group</td></tr>`);
+            this._bind_group_buttons();
+            this._show_group(this.current_group_ ? this.current_group_.N : (this.current_set_.groups.length ? this.current_set_.groups[0].N : null));
+        }
+        else {
+            groups_table.append(`<tr><td class="av-button" make_new="1">new group</td></tr>`);
+            this._create_group();
+        }
         groups_table.find(".av-button[make_new]").off("click").on("click", evt => av_utils.forward_event(evt, evt => this._create_group()));
-        this._show_group(this.current_group_ ? this.current_group_.N : (this.current_set_.groups.length ? this.current_set_.groups[0].N : null));
     }
 
     _bind_group_buttons() {

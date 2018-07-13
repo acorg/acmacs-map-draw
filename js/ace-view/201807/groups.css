@@ -70,19 +70,19 @@
     color: #A0A000;
 }
 
-.av201807-group-editor tr.av-sets .av-no-sets-label {
-    color: #B06060;
+.av201807-group-editor td.av-sets-label {
+    white-space: nowrap;
 }
 
 .av201807-group-editor tr.av-sets td .av-button {
     margin-left: 1em;
 }
 
-.av201807-group-editor tr td .av-button.av-current {
-    cursor: default;
-    font-weight: bold;
-    color: black;
-}
+/* .av201807-group-editor tr td .av-button.av-current { */
+/*     cursor: default; */
+/*     font-weight: bold; */
+/*     color: black; */
+/* } */
 
 .av201807-group-editor tr.av-sets td.av-sets input.av-set-name {
     margin-left: 1em;
