@@ -188,6 +188,10 @@ export class ViewGroups extends av_viewing.ViewingSeries
                 }));
                 switch_current_set(this.current_set_no_ || 0);
             }
+            group_sets.append($("<span class='av-button'>edit groups &blacktriangledown;</span>").on("click", evt => av_utils.forward_event(evt, evt => {
+                const on_done = () => this._show_group_series_data(tr_groups, tr_groups_combined);
+                groups_editor_run({group_sets: this.group_sets_, chart: this.chart_, parent_element: evt.currentTarget, on_done: on_done});
+            })));
         }
     }
 
@@ -366,6 +370,15 @@ export function groups_editor_add_points(args) {
     groups_editor_dialog_singleton.show(args.parent_element);
 }
 
+// {group_sets: [], chart: , parent_element: $(<span>), on_done: () =>}
+export function groups_editor_run(args) {
+    if (!groups_editor_dialog_singleton)
+        groups_editor_dialog_singleton = new GroupsEditor(args.chart);
+    groups_editor_dialog_singleton.group_sets(args.group_sets);
+    groups_editor_dialog_singleton.on_done(args.on_done);
+    groups_editor_dialog_singleton.show(args.parent_element);
+}
+
 // ----------------------------------------------------------------------
 
 const GroupsEditor_html = "\
@@ -413,6 +426,10 @@ class GroupsEditor
     hide() {
         this.modifier_canvas_ = null;
         this.div_.hide();
+        if (this.on_done_) {
+            this.on_done_();
+            this.on_done_ = undefined;
+        }
     }
 
     group_sets(group_sets) {
@@ -427,6 +444,10 @@ class GroupsEditor
     add_antigens_sera(args) {
         this.to_add_ = (args.antigens || []).concat(args.sera || []);
         this._populate_to_add();
+    }
+
+    on_done(on_done) {
+        this.on_done_ = on_done;
     }
 
     _make() {

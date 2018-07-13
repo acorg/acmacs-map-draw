@@ -1,3 +1,9 @@
+.av-button {
+    color: blue;
+    cursor: pointer;
+}
+
+/* ---------------------------------------------------------------------- */
 /* view dialog */
 
 .av201807-view-dialog .av-drop-area {
@@ -80,12 +86,6 @@
     outline: none;
     border: none;
     border-bottom: 2px solid black;
-}
-
-.av201807-group-editor .av-button {
-    color: blue;
-    cursor: pointer;
-    text-align: left;
 }
 
 .av201807-group-editor .av-button[make_new] {
