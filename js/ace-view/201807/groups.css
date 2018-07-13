@@ -43,7 +43,7 @@
 /* group editor popup */
 
 .av201807-group-editor > table > tbody > tr > td {
-    outline: 1px solid pink;
+    /* outline: 1px solid pink; */
 }
 
 .av201807-group-editor {
@@ -68,11 +68,18 @@
 
 .av201807-group-editor .av-separator {
     width: 0;
+    height: 0;
     padding-left: 1em;
+    padding-top: 0.5em;
 }
 
 .av201807-group-editor input {
     width: 10em;
+    font-size: 1em;
+    /* font-weight: bold; */
+    outline: none;
+    border: none;
+    border-bottom: 2px solid black;
 }
 
 .av201807-group-editor .av-button {
@@ -102,12 +109,88 @@
 
 .av201807-group-editor td.av-groups table {
     width: 10em;
-
 }
 
-.av201807-group-editor td.av-group-members > table {
+.av201807-group-editor td.av-groups table input {
+    width: 10em;
+}
+
+/* -------------------- */
+
+.av201807-group-editor tr.av-groups > td.av-group-members > table {
     border-collapse: collapse;
 }
+
+.av201807-group-editor tr.av-groups > td.av-group-members td.av-group-member-root {
+    font-size: 0.5em;
+    padding-right: 5px;
+    cursor: pointer;
+    color: transparent;
+    vertical-align: middle;
+}
+
+.av201807-group-editor tr.av-groups > td.av-group-members td.av-group-member-root span.av-group-memeber-root {
+    color: green;
+}
+
+.av201807-group-editor tr.av-groups td.av-group-member-no {
+    text-align: right;
+    padding-right: 0.5em;
+    width: 3em;
+    font-size: 0.8em;
+    color: #606060;
+    vertical-align: middle;
+}
+
+.av201807-group-editor tr.av-groups > td.av-group-members .av-serum {
+    color: #808000;
+}
+
+.av201807-group-editor tr.av-groups  > td.av-group-members .av-empty-group {
+    color: #B0B0B0;
+}
+
+/* -------------------- */
+
+.av201807-group-editor tr.av-groups > td.av-selected-to-add {
+    padding-left: 1em;
+}
+
+.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-scrollable-table {
+    width: 19em;
+    overflow: auto;
+    border: 1px solid #A0A0A0;
+    padding: 5px;
+}
+
+.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-scrollable-table tr {
+    cursor: pointer;
+}
+
+.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-scrollable-table tr td.av-to-add {
+    color: #606060;
+}
+
+.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-scrollable-table tr td.av-to-add .av-serum {
+    color: #B0B060;
+}
+
+.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-scrollable-table tr td.av-to-add-selected {
+    color: black;
+    font-weight: bold;
+}
+
+.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-scrollable-table tr td.av-to-add-selected .av-serum {
+    color: #808000;
+}
+
+.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-help {
+    color: #A0A0A0;
+    font-size: 0.8em;
+}
+
+
+/* -------------------- */
 
 /* .av201807-group-editor tr.av-sets td.av-buttons { */
 /*     white-space: nowrap; */
@@ -200,43 +283,6 @@
 
 /* .av201807-group-editor tr.av-groups  > td.av-group-members .av-empty-group { */
 /*     color: #B0B0B0; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td.av-selected-to-add { */
-/*     padding-left: 1em; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-table { */
-/*     width: 19em; */
-/*     overflow: auto; */
-/*     border: 1px solid #A0A0A0; */
-/*     padding: 5px; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-table tr { */
-/*     cursor: pointer; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-table tr td.av-to-add { */
-/*     color: #606060; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-table tr td.av-to-add .av-serum { */
-/*     color: #B0B060; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-table tr td.av-to-add-selected { */
-/*     color: black; */
-/*     font-weight: bold; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-table tr td.av-to-add-selected .av-serum { */
-/*     color: #808000; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-help { */
-/*     color: #A0A0A0; */
-/*     font-size: 0.8em; */
 /* } */
 
 /* ---------------------------------------------------------------------- */

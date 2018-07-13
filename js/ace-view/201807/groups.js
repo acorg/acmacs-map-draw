@@ -379,11 +379,7 @@ const GroupsEditor_html = "\
     <tr class='av-groups'>\
       <td class='av-sets-label'><span class='av-sets-label'>Groups</span></td>\
       <td class='av-separator'></td>\
-      <td class='av-groups'>\
-        <table>\
-          <tr><td><span class='av-new-group-button av-button' make_new='1'>new group</span></td></tr>\
-        </table>\
-      </td>\
+      <td class='av-groups'><table></table></td>\
       <td class='av-separator'></td>\
       <td class='av-group-members'><div class='av-scrollable-table'><table></table></div></td>\
       <td class='av-separator'></td>\
@@ -444,19 +440,24 @@ class GroupsEditor
     // --------------------------------------------------
 
     _populate() {
+        this._populate_set_names();
+        this._populate_group_names();
+        this._populate_current_group();
+    }
+
+    _populate_set_names() {
         if (!this.group_sets_.length)
             this._add_new_set();
         this.current_set_no_ = this.current_set_no_ || 0;
-        const buttons = this.div_.find("tr.av-sets > td.av-sets > span.av-sets").empty();
+        const set_buttons = this.div_.find("tr.av-sets > td.av-sets > span.av-sets").empty();
         this.group_sets_.forEach((set, set_no) => {
             if (set_no === this.current_set_no_)
-                buttons.append($(`<input type="text" class="av-set-name"></input>`).val(set.N).on("change paste keyup", evt => this._current_set_name_changed(evt.currentTarget.value)));
+                set_buttons.append($(`<input type="text" class="av-set-name"></input>`).val(set.N).on("change paste keyup", evt => this._current_set_name_changed(evt.currentTarget.value)));
             else
-                buttons.append(`<span class="av-set-name av-button" set_no="${set_no}">${set.N}</span>`);
-            buttons.append(`<span class="av-separator"></span>`);
+                set_buttons.append(`<span class="av-set-name av-button" set_no="${set_no}">${set.N}</span>`);
+            set_buttons.append(`<span class="av-separator"></span>`);
         });
-        buttons.find("span.av-set-name[set_no]").on("click", evt => this._switch_set(parseInt(evt.currentTarget.getAttribute("set_no"))));
-        // this.current_group_no_ = this.current_group_no_ || 0;
+        set_buttons.find("span.av-set-name[set_no]").on("click", evt => this._switch_set(parseInt(evt.currentTarget.getAttribute("set_no"))));
     }
 
     _switch_set(set_no) {
@@ -477,11 +478,77 @@ class GroupsEditor
         return set_data;
     }
 
-
     _current_set_name_changed(name) {
-        console.log("_current_set_name_changed", name);
         if (name)
             this.group_sets_[this.current_set_no_].N = name;
+    }
+
+    // --------------------------------------------------
+
+    _populate_group_names() {
+        this.current_group_no_ = this.current_group_no_ || 0;
+        const group_table = this.div_.find("tr.av-groups > td.av-groups > table").empty();
+        this.group_sets_[this.current_set_no_].groups.forEach((group, group_no) => {
+            if (group_no === this.current_group_no_) {
+                const input = $(`<input type="text" class="av-group-name"></input>`).val(group.N).on("change paste keyup", evt => this._current_group_name_changed(evt.currentTarget.value));
+                group_table.append($("<tr></tr>").append($("<td></td>").append(input)));
+            }
+            else
+                group_table.append(`<tr><td><span class="av-group-name av-button" group_no="${group_no}">${group.N}</span></td></tr>`);
+            group_table.append(`<tr><td class="av-separator"><td></tr>`);
+        });
+        const new_group = $("<span class='av-new-group-button av-button' make_new='1'>new group</span>").on("click", evt => av_utils.forward_event(evt, () => this._create_group()));
+        group_table.append($("<tr></tr>").append($("<td></td>").append(new_group)));
+        group_table.find("span.av-group-name.av-button[group_no]").on("click", evt => this._switch_group(parseInt(evt.currentTarget.getAttribute("group_no"))));
+    }
+
+    _populate_current_group() {
+        const table = this.div_.find("tr.av-groups > td.av-group-members table").empty();
+        const group = this.group_sets_[this.current_set_no_].groups[this.current_group_no_];
+        if (group.members && group.members.length) {
+            for (let member of group.members) {
+                const no_class = member < this.chart_.a.length ? "av-antigen" : "av-serum";
+                const root_class = member === group.root ? "av-group-memeber-root" : "";
+                table.append(`<tr><td class='av-group-member-root' title='click to set root' member="${member}"><span class='${root_class}'>root</span></td><td class='av-group-member-no ${no_class}'>${member+1}</td><td class='av-group-member'>${this._member_name(member)}</td></tr>`);
+            }
+            table.find(".av-group-member-root[member]").on("click", evt => av_utils.forward_event(evt, evt => {
+                group.root = parseInt(evt.currentTarget.getAttribute("member"));
+                table.find(".av-group-member-root[member] > span").removeClass("av-group-memeber-root");
+                $(evt.currentTarget).find("span").addClass("av-group-memeber-root");
+            }));
+        }
+        else {
+            table.append("<tr><td class='av-empty-group'>empty</td></tr>");
+        }
+    }
+
+    _member_name(index) {
+        if (index < this.chart_.a.length)
+            return "<span class='av-antigen'>" + av_utils.ace_antigen_full_abbreviated_name(this.chart_.a[index], {escape: true}) + "</span>";
+        else
+            return "<span class='av-serum'>" + av_utils.ace_serum_full_abbreviated_name(this.chart_.s[index - this.chart_.a.length], {escape: true}) + "</span>";
+    }
+
+    _switch_group(group_no) {
+        this.current_group_no_ = group_no;
+        this._populate();
+    }
+
+    _create_group() {
+        this._add_new_group();
+        this._switch_group(this.group_sets_[this.current_set_no_].groups.length - 1);
+    }
+
+    _add_new_group() {
+        const name = new Date().toLocaleString("en-CA", {hour12: false}).replace(",", "");
+        const group_data = {N: name, members: []};
+        this.group_sets_[this.current_set_no_].groups.push(group_data);
+        return group_data;
+    }
+
+    _current_group_name_changed(name) {
+        if (name)
+            this.group_sets_[this.current_set_no_].groups[this.current_group_no_].N = name;
     }
 
     // --------------------------------------------------
@@ -489,7 +556,32 @@ class GroupsEditor
     _populate_to_add() {
         if (this.to_add_ && this.to_add_.length) {
             const td = this.div_.find("td.av-selected-to-add").show();
+            const table = td.find("> div.av-scrollable-table > table").empty();
+            for (let no of this.to_add_) {
+                const no_class = no < this.chart_.a.length ? "av-antigen" : "av-serum";
+                table.append(`<tr no="${no}" title='click to (de)select'><td class='av-group-member-no ${no_class}'>${no+1}</td><td class='av-to-add av-to-add-selected' no="${no}">${this._member_name(no)}</td></tr>`);
+            }
+            table.find("tr").on("click", evt => av_utils.forward_event(evt, evt => {
+                $(evt.currentTarget).find("td.av-to-add").toggleClass("av-to-add-selected");
+            }));
+            td.find(".av-button.av-add").off("click").on("click", evt => av_utils.forward_event(evt, evt => {
+                const nos = table.find(".av-to-add-selected").map(function() { return $(this).attr("no"); }).get().map(val => parseInt(val));
+                this._add_to_current_group(nos);
+            }));
+            window.setTimeout(() => { // set height of the to-add table
+                const help = td.find(".av-help");
+                const table = td.find("> div.av-scrollable-table");
+                const table_padding_height = table.outerHeight() - table.height();
+                help.css("width", table.outerWidth());
+                table.css("height", this.div_.find("td.av-group-members > div.av-scrollable-table").outerHeight() - help.outerHeight() /* - td.find(".av-buttons").outerHeight() */ - table_padding_height);
+            }, 10);
         }
+    }
+
+    _add_to_current_group(nos) {
+        const group = this.group_sets_[this.current_set_no_].groups[this.current_group_no_];
+        nos.filter(no => !group.members.includes(no)).forEach(no => group.members.push(no));
+        this._populate_current_group();
     }
 
 }
