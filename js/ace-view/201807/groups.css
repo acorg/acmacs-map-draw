@@ -115,9 +115,8 @@
 }
 
 .av201807-group-editor tr.av-groups > td.av-group-members > div.av-table {
-    min-width: 19em;
-    min-height: 10em;
-    max-height: 15em;
+    width: 19em;
+    height: 15em;
     overflow: auto;
     border: 1px solid #A0A0A0;
     padding: 5px;
@@ -165,7 +164,7 @@
 }
 
 .av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-table {
-    max-height: 15em;
+    width: 19em;
     overflow: auto;
     border: 1px solid #A0A0A0;
     padding: 5px;

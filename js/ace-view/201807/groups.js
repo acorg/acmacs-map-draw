@@ -380,7 +380,11 @@ const GroupsEditor_html = "\
       <td class='av-groups av-buttons'><table></table></td>\
       <td class='av-separator'></td>\
       <td class='av-group-members'><div class='av-table'><table></table></div></td>\
-      <td class='av-selected-to-add'><div class='av-buttons'><span class='av-button av-add'>add selected to this group</span></div><div class='av-table'><table></table></div><div class='av-help'>click name(s) above to (de)select</div></td>\
+      <td class='av-selected-to-add'>\
+        <div class='av-help'>click names below to (de)select, then click link under the table to add selected to the currently shown group</div>\
+        <div class='av-table'><table></table></div>\
+        <div class='av-buttons'><span class='av-button av-add'>add selected to the group</span></div>\
+      </td>\
     </tr>\
   </table>\
 </div>\
@@ -537,7 +541,7 @@ class GroupsEditor
     _populate_to_add() {
         if (this.to_add_ && this.to_add_.length) {
             const td = this.div_.find("td.av-selected-to-add").show();
-            const table = td.find("> div > table");
+            const table = td.find("> div.av-table > table");
             for (let no of this.to_add_) {
                 const no_class = no < this.chart_.a.length ? "av-antigen" : "av-serum";
                 table.append(`<tr no="${no}" title='click to (de)select'><td class='av-group-member-no ${no_class}'>${no+1}</td><td class='av-to-add av-to-add-selected' no="${no}">${this._member_name(no)}</td></tr>`);
@@ -549,6 +553,13 @@ class GroupsEditor
                 const nos = table.find(".av-to-add-selected").map(function() { return $(this).attr("no"); }).get().map(val => parseInt(val));
                 this._add_to_current_group(nos);
             }));
+            window.setTimeout(() => { // set height of the to-add table
+                const help = td.find(".av-help");
+                const table = td.find("> div.av-table");
+                const table_padding_height = table.outerHeight() - table.height();
+                help.css("width", table.outerWidth());
+                table.css("height", this.div_.find("td.av-group-members > div.av-table").outerHeight() - help.outerHeight() - td.find(".av-buttons").outerHeight() - table_padding_height);
+            }, 10);
         }
     }
 
