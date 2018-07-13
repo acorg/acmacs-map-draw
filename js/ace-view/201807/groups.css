@@ -66,8 +66,13 @@
     vertical-align: top;
 }
 
-.av201807-group-editor td.av-separator {
-    width: 1em;
+.av201807-group-editor .av-separator {
+    width: 0;
+    padding-left: 1em;
+}
+
+.av201807-group-editor input {
+    width: 10em;
 }
 
 .av201807-group-editor .av-button {
@@ -95,9 +100,10 @@
 
 /* -------------------- */
 
-/* .av201807-group-editor td.av-groups > table { */
-/*     border-collapse: collapse; */
-/* } */
+.av201807-group-editor td.av-groups table {
+    width: 10em;
+
+}
 
 .av201807-group-editor td.av-group-members > table {
     border-collapse: collapse;

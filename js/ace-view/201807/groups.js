@@ -402,7 +402,6 @@ class GroupsEditor
     constructor(chart) {
         this.chart_ = chart;
         this.group_sets_ = [];
-        this.current_set_ = null;
         this._make();
     }
 
@@ -423,7 +422,7 @@ class GroupsEditor
     group_sets(group_sets) {
         if (group_sets !== undefined) {
             this.group_sets_ = group_sets;
-            this._populate_sets();
+            this._populate();
         }
         return this.group_sets_;
     }
@@ -439,16 +438,60 @@ class GroupsEditor
         this.div_.find(".av-new-set-button").on("click", evt => av_utils.forward_event(evt, () => this._create_set()));
         this.div_.find(".av-new-group-button").on("click", evt => av_utils.forward_event(evt, () => this._create_group()));
         this.div_.find("td.av-selected-to-add").hide();
+        this._populate();
     }
 
-    _populate_sets() {
+    // --------------------------------------------------
+
+    _populate() {
+        if (!this.group_sets_.length)
+            this._add_new_set();
+        this.current_set_no_ = this.current_set_no_ || 0;
+        const buttons = this.div_.find("tr.av-sets > td.av-sets > span.av-sets").empty();
+        this.group_sets_.forEach((set, set_no) => {
+            if (set_no === this.current_set_no_)
+                buttons.append($(`<input type="text" class="av-set-name"></input>`).val(set.N).on("change paste keyup", evt => this._current_set_name_changed(evt.currentTarget.value)));
+            else
+                buttons.append(`<span class="av-set-name av-button" set_no="${set_no}">${set.N}</span>`);
+            buttons.append(`<span class="av-separator"></span>`);
+        });
+        buttons.find("span.av-set-name[set_no]").on("click", evt => this._switch_set(parseInt(evt.currentTarget.getAttribute("set_no"))));
+        // this.current_group_no_ = this.current_group_no_ || 0;
     }
+
+    _switch_set(set_no) {
+        this.current_set_no_ = set_no;
+        this.current_group_no_ = 0;
+        this._populate();
+    }
+
+    _create_set() {
+        this._add_new_set();
+        this._switch_set(this.group_sets_.length - 1);
+    }
+
+    _add_new_set() {
+        const name = new Date().toLocaleString("en-CA", {hour12: false}).replace(",", "");
+        const set_data = {N: name, groups: [{N: name, members: []}]};
+        this.group_sets_.push(set_data);
+        return set_data;
+    }
+
+
+    _current_set_name_changed(name) {
+        console.log("_current_set_name_changed", name);
+        if (name)
+            this.group_sets_[this.current_set_no_].N = name;
+    }
+
+    // --------------------------------------------------
 
     _populate_to_add() {
         if (this.to_add_ && this.to_add_.length) {
             const td = this.div_.find("td.av-selected-to-add").show();
         }
     }
+
 }
 
 // ----------------------------------------------------------------------
