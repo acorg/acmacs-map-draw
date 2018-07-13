@@ -142,12 +142,27 @@
     vertical-align: middle;
 }
 
-.av201807-group-editor tr.av-groups > td.av-group-members .av-serum {
-    color: #808000;
-}
-
 .av201807-group-editor tr.av-groups  > td.av-group-members .av-empty-group {
     color: #B0B0B0;
+}
+
+.av201807-group-editor tr.av-groups  > td.av-group-members .av-group-member {
+    cursor: pointer;
+}
+
+/* -------------------- */
+
+.av201807-group-editor tr.av-groups .av-serum {
+    color: #A0A000;
+}
+
+.av201807-group-editor tr.av-groups .av-selected {
+    color: black;
+    font-weight: bold;
+}
+
+.av201807-group-editor tr.av-groups .av-selected .av-serum {
+    color: #606000;
 }
 
 /* -------------------- */
@@ -171,119 +186,11 @@
     color: #606060;
 }
 
-.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-scrollable-table tr td.av-to-add .av-serum {
-    color: #B0B060;
-}
-
-.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-scrollable-table tr td.av-to-add-selected {
-    color: black;
-    font-weight: bold;
-}
-
-.av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-scrollable-table tr td.av-to-add-selected .av-serum {
-    color: #808000;
-}
-
 .av201807-group-editor tr.av-groups > td.av-selected-to-add > div.av-help {
     color: #A0A0A0;
     font-size: 0.8em;
 }
 
-
-/* -------------------- */
-
-/* .av201807-group-editor tr.av-sets td.av-buttons { */
-/*     white-space: nowrap; */
-/* } */
-
-/* .av201807-group-editor td.av-sets-label { */
-/*     white-space: nowrap; */
-/* } */
-
-/* .av201807-group-editor tr.av-sets td .av-button { */
-/*     margin-left: 1em; */
-/* } */
-
-/* .av201807-group-editor tr td .av-button.av-current { */
-/*     cursor: default; */
-/*     font-weight: bold; */
-/*     color: black; */
-/* } */
-
-/* .av201807-group-editor tr.av-sets td.av-sets input.av-set-name { */
-/*     margin-left: 1em; */
-/*     width: 10em; */
-/* } */
-
-/* .av201807-group-editor tr.av-sets td.av-sets .av-new-set-button { */
-/*     margin-left: 1.5em; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td { */
-/*     vertical-align: top; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups td.av-groups { */
-/*     white-space: nowrap; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups td.av-groups > table { */
-/*     margin-left: 1em; */
-/*     border-collapse: collapse; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups td > table .av-button { */
-/*     padding-bottom: 0.5em; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td.av-separator { */
-/*     width: 1em; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td.av-group-members > div.av-table { */
-/*     width: 19em; */
-/*     height: 15em; */
-/*     overflow: auto; */
-/*     border: 1px solid #A0A0A0; */
-/*     padding: 5px; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td.av-group-members table { */
-/*     border-collapse: collapse; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td.av-group-members table td { */
-/*     max-width: 15em; */
-/*     overflow: auto; */
-/*     white-space: nowrap; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td.av-group-members td.av-group-member-root { */
-/*     font-size: 0.5em; */
-/*     padding-right: 5px; */
-/*     cursor: pointer; */
-/*     color: transparent; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td.av-group-members td.av-group-member-root span.av-group-memeber-root { */
-/*     color: green; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td td.av-group-member-no { */
-/*     text-align: right; */
-/*     padding-right: 0.5em; */
-/*     width: 3em; */
-/*     font-size: 0.8em; */
-/*     color: #606060; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups > td.av-group-members .av-serum { */
-/*     color: #808000; */
-/* } */
-
-/* .av201807-group-editor tr.av-groups  > td.av-group-members .av-empty-group { */
-/*     color: #B0B0B0; */
-/* } */
 
 /* ---------------------------------------------------------------------- */
 /* Local Variables: */
