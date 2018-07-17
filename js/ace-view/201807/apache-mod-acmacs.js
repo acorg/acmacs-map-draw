@@ -63,6 +63,10 @@ class Api
         this._download({command: Object.assign({C: "download_distances_between_all_points", id: this.source_id, format: "csv", projection_no: 0}, args), suffix: ".map-distances.csv", blob_type: "application/octet-stream"});
     }
 
+    download_sequences_of_chart_as_fasta(args) {
+        this._download({command: Object.assign({C: "download_sequences_of_chart_as_fasta", id: this.source_id}, args), suffix: ".fasta", blob_type: "application/octet-stream"});
+    }
+
     async get_sequences() {
         return Promise.resolve(this._post_expect_json({command: {C: "sequences_of_chart", id: this.source_id}}));
     }
