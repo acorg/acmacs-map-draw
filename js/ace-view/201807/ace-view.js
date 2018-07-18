@@ -131,7 +131,7 @@ export class AntigenicMapWidget
     }
 
     _load_and_draw(data) {
-        const loaded = data => this.draw_data(data);
+        const loaded = data => { this._check_data(data); this.draw_data(data); };
         const failed = deffered => {
             const args = {source: data, statusText: deffered.statusText};
             console.error("failed to load antigenic map data from ", args);
@@ -239,6 +239,29 @@ export class AntigenicMapWidget
         new av_toolkit.MovableWindow({title: "Help", content: AntigenicMapWidget_help_html, parent: this.viewer_.surface_.canvas_, id: "AntigenicMapWidget_help", classes: "av-help"});
     }
 
+    _check_data(data) {
+        // console.log("_check_data", data);
+        if (data.c.p && data.c.p.d) {
+            // if drawing order includes all points and has no duplicates
+            const dro = data.c.p.d.slice(0).sort((a, b) => a - b);
+            let expected = 0;
+            let missing = [], duplicates = [];
+            for (let index of dro) {
+                if (index > expected) {
+                    for (let ind = expected; ind < index; ++ind)
+                        missing.push(ind);
+                }
+                else if (index < expected)
+                    duplicates.push(index);
+                expected = index + 1;
+            }
+            const total = data.c.a.length + data.c.s.length;
+            for (let ind  = dro[dro.length - 1] + 1; ind < total; ++ind)
+                missing.push(ind);
+            if (missing.length || duplicates.length)
+                console.warn("chart drawing order" + (missing.length ? (" missing: " + missing) : "") + (duplicates.length ? (" duplicates: " + duplicates) : ""));
+        }
+    }
 }
 
 // ----------------------------------------------------------------------
