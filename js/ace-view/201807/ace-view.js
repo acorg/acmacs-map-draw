@@ -248,16 +248,20 @@ export class AntigenicMapWidget
             let missing = [], duplicates = [];
             for (let index of dro) {
                 if (index > expected) {
-                    for (let ind = expected; ind < index; ++ind)
-                        missing.push(ind);
+                    for (let ind = expected; ind < index; ++ind) {
+                        if (data.c.P[0].l[ind] && data.c.P[0].l[ind].length) // not excluded
+                            missing.push(ind);
+                    }
                 }
                 else if (index < expected)
                     duplicates.push(index);
                 expected = index + 1;
             }
             const total = data.c.a.length + data.c.s.length;
-            for (let ind  = dro[dro.length - 1] + 1; ind < total; ++ind)
-                missing.push(ind);
+            for (let ind  = dro[dro.length - 1] + 1; ind < total; ++ind) {
+                if (data.c.P[0].l[ind] && data.c.P[0].l[ind].length) // not excluded
+                    missing.push(ind);
+            }
             if (missing.length || duplicates.length)
                 console.warn("chart drawing order" + (missing.length ? (" missing: " + missing) : "") + (duplicates.length ? (" duplicates: " + duplicates) : ""));
         }
