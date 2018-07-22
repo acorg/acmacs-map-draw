@@ -96,18 +96,19 @@ export class ViewGroups extends av_viewing.ViewingSeries
     _make_drawing_order_exclusive() {
         const drawing_order = [];
         if (this.groups_ && this.groups_[this.page_no_])
-            this._update_drawing_order(drawing_order, this.groups_[this.page_no_]);
+            this._update_drawing_order_by_original(drawing_order, this.groups_[this.page_no_]);
         return drawing_order;
     }
 
     _make_drawing_order_combined() {
         const drawing_order = [];
         for (let group of this.groups_combined_)
-            this._update_drawing_order(drawing_order, group);
+            this._update_drawing_order_by_original(drawing_order, group);
         return drawing_order;
     }
 
-    _update_drawing_order(drawing_order, group) {
+    // use order of "members" to draw group
+    _update_drawing_order_by_members(drawing_order, group) {
         const add_member = point_no => {
             const index = drawing_order.indexOf(point_no);
             if (index >= 0)
@@ -118,6 +119,24 @@ export class ViewGroups extends av_viewing.ViewingSeries
         group.members.forEach(add_member);
         if (group.root !== undefined)
             add_member(group.root);
+    }
+
+    // use order of chart plot spec draw group
+    _update_drawing_order_by_original(drawing_order, group) {
+        const chart_drawing_order = this.chart_drawing_order();
+        const add_member = point_no => {
+            const index = drawing_order.indexOf(point_no);
+            if (index >= 0)
+                drawing_order.splice(index, 1);
+            drawing_order.push(point_no);
+        };
+        group = this._find_group(group);
+        chart_drawing_order.forEach(point_no => {
+            if (group.members.includes(point_no))
+                add_member(point_no);
+            else if (group.root === point_no)
+                add_member(point_no);
+        });
     }
 
     _find_group(group) {
