@@ -28,7 +28,18 @@ export class ViewingBase
             this.projection_no_ = projection_no;
             this.layout_ = this.chart_.P[this.projection_no_].l;
             this.map_viewer_.surface_.transformation(this.chart_.P[this.projection_no_].t);
-            this.map_viewer_.surface_.viewport(this._calculate_viewport());
+            let viewport = this.map_viewer_.widget_.options_.viewport;
+            try {
+                if (viewport.length === 3)
+                    viewport = [viewport[0], viewport[1], viewport[2], viewport[2]];
+                else
+                    viewport = [viewport[0], viewport[1], viewport[2], viewport[3]];
+            }
+            catch (err) {
+                viewport = this._calculate_viewport();
+            }
+            console.log("viewport=" + viewport.slice(0, 3).join(","));
+            this.map_viewer_.surface_.viewport(viewport);
         }
         else {
             console.log("invalid projection_no", projection_no);

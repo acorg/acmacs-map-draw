@@ -103,7 +103,7 @@ const AntigenicMapWidget_help_html = "\
 
 export class AntigenicMapWidget
 {
-    constructor(div, data, options={}) { // options: {view_mode: {mode: "table-series"}, coloring: "original", title_fields: [], api: object_providing_external_api}
+    constructor(div, data, options={}) { // options: {view_mode: {mode: "table-series"}, coloring: "original", viewport: [x, y, size], title_fields: [], api: object_providing_external_api}
         this.div_ = $(div);
         this.options_ = Object.assign({}, AntigenicMapWidget_default_options, options);
         this.div_.addClass("amw201807").attr("amw201805_id", new_id()).append(AntigenicMapWidget_content_html);

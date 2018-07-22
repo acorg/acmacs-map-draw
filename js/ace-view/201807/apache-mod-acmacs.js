@@ -3,11 +3,12 @@ import * as av_utils from "./utils.js";
 
 // ----------------------------------------------------------------------
 
-// args: {parent:, uri:, view_mode:, coloring:, }
+// args: {parent:, uri:, view_mode:, coloring:, viewport:}
 export function show_antigenic_map_widget(args) {
     const widget_options = {
         view_mode: {mode: args.view_mode || "all"},
         coloring: args.coloring || "original",
+        viewport: args.viewport ? args.viewport.split(",").map(elt => parseFloat(elt)) : undefined,
         canvas_size: args.canvas_size,
         api: new Api({uri: args.uri}),
         on_data_load_failure: args.on_data_load_failure || (uri => console.error("failed to load antigenic map data from ", uri))

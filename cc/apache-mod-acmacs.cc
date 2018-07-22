@@ -37,7 +37,7 @@
 static void register_hooks(apr_pool_t *pool);
 static int acmacs_handler(request_rec *r);
 static void make_html201805(request_rec *r, const char* view_mode, const char* coloring);
-static void make_html201807(request_rec *r, const char* view_mode, const char* coloring);
+static void make_html201807(request_rec *r, const char* view_mode, const char* coloring, const char* viewport);
 static void make_ace(request_rec *r);
 static int process_post_request(request_rec *r);
 static void command_download_pdf(request_rec *r, const rjson::object& args);
@@ -95,7 +95,8 @@ static int acmacs_handler(request_rec *r) {
         if (acv == "html" || acv == "html201807") {
             // const char* view_mode = apr_table_get(GET, "view-mode");
             // const char* coloring = apr_table_get(GET, "coloring");
-            make_html201807(r, "all", "original");
+            const char* viewport = apr_table_get(GET, "viewport");
+            make_html201807(r, "all", "original", viewport);
         }
         else if (acv == "html201805") {
             const char* view_mode = apr_table_get(GET, "view-mode");
@@ -131,7 +132,7 @@ static const char* sHtml201807 = R"(
    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
    <script type="module">
      import * as mod from "/js/ad/map-draw/ace-view/201807/apache-mod-acmacs.js";
-     $(document).ready(() => mod.show_antigenic_map_widget({parent: $("#map1"), view_mode: {mode: "%s"}, coloring: "%s", uri: "%s"}));
+     $(document).ready(() => mod.show_antigenic_map_widget({parent: $("#map1"), view_mode: {mode: "%s"}, coloring: "%s", viewport: "%s", uri: "%s"}));
    </script>
    <style>body { margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #F8F8F8; }</style>
   </head>
@@ -141,10 +142,10 @@ static const char* sHtml201807 = R"(
 </html>
 )";
 
-void make_html201807(request_rec *r, const char* view_mode, const char* coloring)
+void make_html201807(request_rec *r, const char* view_mode, const char* coloring, const char* viewport)
 {
     ap_set_content_type(r, "text/html");
-    ap_rprintf(r, sHtml201807, r->filename, view_mode, coloring, r->uri);
+    ap_rprintf(r, sHtml201807, r->filename, view_mode, coloring, viewport ? viewport : "", r->uri);
 
 } // make_html201807
 
