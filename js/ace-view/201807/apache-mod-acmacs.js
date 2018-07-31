@@ -68,6 +68,10 @@ class Api
         this._download({command: Object.assign({C: "download_sequences_of_chart_as_fasta", id: this.source_id}, args), suffix: ".fasta", blob_type: "application/octet-stream"});
     }
 
+    download_layout_sequences_as_csv(args) {
+        this._download({command: Object.assign({C: "download_layout_sequences_as_csv", id: this.source_id}, args), suffix: ".layout-sequences.csv", blob_type: "application/octet-stream"});
+    }
+
     async get_sequences() {
         return Promise.resolve(this._post_expect_json({command: {C: "sequences_of_chart", id: this.source_id}}));
     }

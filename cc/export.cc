@@ -8,7 +8,7 @@
 
 // ----------------------------------------------------------------------
 
-void export_layout_sequences_into_csv(std::string filename, const acmacs::chart::Chart& chart, size_t projection_no)
+std::string export_layout_sequences_into_csv(std::string filename, const acmacs::chart::Chart& chart, size_t projection_no)
 {
     auto antigens = chart.antigens();
     auto sera = chart.sera();
@@ -88,7 +88,10 @@ void export_layout_sequences_into_csv(std::string filename, const acmacs::chart:
         writer.new_row();
     }
 
-    acmacs::file::write(filename, writer);
+    if (!filename.empty())
+        acmacs::file::write(filename, writer);
+
+    return writer;
 
 } // export_layout_sequences_into_csv
 

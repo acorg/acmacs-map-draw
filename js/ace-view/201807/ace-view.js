@@ -75,6 +75,7 @@ const AntigenicMapWidget_burger_menu_html = "\
           <li menu='download_distances_between_all_points_csv'>Distances Between All Points (csv)</li>\
           <li class='av-menu-separator'></li>\
           <li menu='download_sequences_of_chart_as_fasta'>Sequences of antigens in the chart (nucs, fasta)</li>\
+          <li menu='download_layout_sequences_as_csv'>Layout, sequences, location information (amino-acids, csv)</li>\
         </ul>\
       </li>\
       <li menu='table'>Table</li>\
@@ -168,6 +169,7 @@ export class AntigenicMapWidget
             download_distances_between_all_points_plain: item => this._external_api(item),
             download_distances_between_all_points_csv: item => this._external_api(item),
             download_sequences_of_chart_as_fasta: item => this._external_api(item),
+            download_layout_sequences_as_csv: item => this._external_api(item),
             table: () => this._show_table(),
             raw: () => console.log("chart raw data", this.chart_),
             help: () => this._show_help()

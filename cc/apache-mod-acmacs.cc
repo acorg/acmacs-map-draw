@@ -33,6 +33,7 @@
 #include "acmacs-chart-2/factory-export.hh"
 #include "acmacs-chart-2/lispmds-export.hh"
 #include "acmacs-map-draw/draw.hh"
+#include "acmacs-map-draw/export.hh"
 
 static void register_hooks(apr_pool_t *pool);
 static int acmacs_handler(request_rec *r);
@@ -49,6 +50,7 @@ static void command_download_distances_between_all_points(request_rec *r, const 
 static void command_download_error_lines(request_rec *r, const rjson::object& args);
 static void command_sequences_of_chart(request_rec *r, const rjson::object& args);
 static void command_download_sequences_of_chart_as_fasta(request_rec *r, const rjson::object& args);
+static void command_download_layout_sequences_as_csv(request_rec *r, const rjson::object& args);
 
 // ----------------------------------------------------------------------
 
@@ -235,6 +237,8 @@ int process_post_request(request_rec* r)
             command_sequences_of_chart(r, data);
         else if (command == "download_sequences_of_chart_as_fasta")
             command_download_sequences_of_chart_as_fasta(r, data);
+        else if (command == "download_layout_sequences_as_csv")
+            command_download_layout_sequences_as_csv(r, data);
         else
             std::cerr << "ERROR: mod_acmacs: unrecognized command in the post request: " << source_data << '\n';
     }
@@ -384,6 +388,24 @@ void command_download_sequences_of_chart_as_fasta(request_rec *r, const rjson::o
     }
 
 } // command_download_sequences_of_chart_as_fasta
+
+// ----------------------------------------------------------------------
+
+void command_download_layout_sequences_as_csv(request_rec *r, const rjson::object& args)
+{
+    try {
+        auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+        const auto data = export_layout_sequences_into_csv(std::string{}, *chart, args.get_or_default("projection_no", 0UL));
+        const auto compressed = acmacs::file::gzip_compress(data);
+        ap_set_content_type(r, "application/octet-stream");
+        r->content_encoding = "gzip";
+        ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
+    }
+    catch (std::exception& err) {
+        std::cerr << "ERROR: command_download_layout_sequences_as_csv: " << err.what() << '\n';
+    }
+
+} // command_download_layout_sequences_as_csv
 
 // ----------------------------------------------------------------------
 
