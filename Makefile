@@ -13,6 +13,7 @@ TARGETS = \
     $(DIST)/map-procrustes \
     $(DIST)/geographic-draw \
     $(DIST)/chart-vaccines \
+    $(DIST)/chart-layout-sequences \
     $(DIST)/mod_acmacs.so
 
 # $(ACMACS_MAP_DRAW_PY_LIB)
