@@ -267,6 +267,10 @@ export class AntigenicMapWidget
             if (missing.length || duplicates.length)
                 console.warn("chart drawing order" + (missing.length ? (" missing: " + missing) : "") + (duplicates.length ? (" duplicates: " + duplicates) : ""));
         }
+        if (!data.c.P || data.c.P.length === 0) {
+            console.error("chart has no projections", data);
+            throw "chart has no projections";
+        }
     }
 }
 
