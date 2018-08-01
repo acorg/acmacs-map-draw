@@ -40,11 +40,19 @@ std::string export_layout_sequences_into_csv(std::string filename, const acmacs:
     writer.new_row();
 
     auto add_location_data = [&writer, &locdb](std::string name) {
-        const auto location = locdb.find(virus_name::location(name));
-        writer.add_field(location.country());
-        writer.add_field(locdb.continent_of_country(location.country()));
-        writer.add_field(std::to_string(location.latitude()));
-        writer.add_field(std::to_string(location.longitude()));
+        try {
+            const auto location = locdb.find(virus_name::location(name));
+            writer.add_field(location.country());
+            writer.add_field(locdb.continent_of_country(location.country()));
+            writer.add_field(std::to_string(location.latitude()));
+            writer.add_field(std::to_string(location.longitude()));
+        }
+        catch (LocationNotFound& /*err*/) {
+            std::cerr << "WARNING: LocationNotFound: \"" << virus_name::location(name) << "\" of \"" << name << "\"\n";
+        }
+        catch (virus_name::Unrecognized& /*err*/) {
+            std::cerr << "WARNING: cannot parse name to find location: \"" << name << "\"\n";
+        }
     };
 
     for (auto [ag_no, antigen] : acmacs::enumerate(*antigens)) {
