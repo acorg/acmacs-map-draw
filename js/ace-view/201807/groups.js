@@ -305,14 +305,16 @@ export class ViewGroups extends av_viewing.ViewingSeries
     }
 
     _match_groups(data) {
-        const point_to_point_ar = data.a.map((elt, no) => [no, this.chart_.a.findIndex(antigen => av_utils.objects_equal(elt, antigen, ["?no", "no", "C", "S", "c"]))])
-              .concat(data.s.map((elt, no) => [no + data.a.length, this.chart_.a.length + this.chart_.s.findIndex(antigen => av_utils.objects_equal(elt, antigen, ["?no", "no", "S"]))]));
-        const point_to_point = point_to_point_ar.reduce((obj, entry) => { obj[entry[0]] = entry[1]; return obj; }, {});
-        for (let gs of data.group_sets) {
-            for (let grp of gs.groups) {
-                if (grp.root !== undefined)
-                    grp.root = point_to_point[grp.root];
-                grp.members = grp.members.map(no => point_to_point[no]);
+        if (data.a) {
+            const point_to_point_ar = data.a.map((elt, no) => [no, this.chart_.a.findIndex(antigen => av_utils.objects_equal(elt, antigen, ["?no", "no", "C", "S", "c"]))])
+                  .concat(data.s.map((elt, no) => [no + data.a.length, this.chart_.a.length + this.chart_.s.findIndex(antigen => av_utils.objects_equal(elt, antigen, ["?no", "no", "S"]))]));
+            const point_to_point = point_to_point_ar.reduce((obj, entry) => { obj[entry[0]] = entry[1]; return obj; }, {});
+            for (let gs of data.group_sets) {
+                for (let grp of gs.groups) {
+                    if (grp.root !== undefined)
+                        grp.root = point_to_point[grp.root];
+                    grp.members = grp.members.map(no => point_to_point[no]);
+                }
             }
         }
         this.group_sets_ = data.group_sets;
@@ -321,9 +323,13 @@ export class ViewGroups extends av_viewing.ViewingSeries
     _check_group_sets(data) {
         if (data["  version"] !== "group-series-set-v1")
             throw "Ivalid \"  version\" of the uploaded data";
-        if (!data.a || !Array.isArray(data.a) || data.a.length === 0 || !data.s || !Array.isArray(data.s) || data.s.length === 0)
+        let number_of_points;
+        if (!data.a && !data.s) // use the ones from chart
+            number_of_points = this.chart_.a.length + this.chart_.s.length;
+        else if (!data.a || !Array.isArray(data.a) || data.a.length === 0 || !data.s || !Array.isArray(data.s) || data.s.length === 0)
             throw "Invalid or empty \"a\" or \"s\" in the uploaded data";
-        const number_of_points = data.a.length + data.s.length;
+        else
+            number_of_points = data.a.length + data.s.length;
         if (!data.group_sets || !Array.isArray(data.group_sets) || data.group_sets.length === 0)
             throw "Invalid or empty \"group_sets\" in the uploaded data";
         data.group_sets.forEach((group_set, group_set_no) => {
