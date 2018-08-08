@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "acmacs-base/time-series.hh"
 #include "acmacs-map-draw/time-series.hh"
 
