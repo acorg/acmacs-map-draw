@@ -24,17 +24,17 @@ void test_time_series()
 
     // MonthlyTimeSeries mts0;
     // std::cout << "MonthlyTimeSeries0: " << mts0 << std::endl;
-    MonthlyTimeSeries mts1{Date::months_ago(6), Date::today()};
+    MonthlyTimeSeries mts1{Date::today().months_ago(6), Date::today()};
     std::cout << "MonthlyTimeSeries1: " << mts1 << std::endl;
     for (auto it = mts1.begin(); it != mts1.end(); ++it)
         std::cout << "  " << *it << std::endl;
 
-    YearlyTimeSeries yts1{Date::years_ago(6), Date::today()};
+    YearlyTimeSeries yts1{Date::today().years_ago(6), Date::today()};
     std::cout << "YearlyTimeSeries1: " << yts1 << std::endl;
     for (auto it = yts1.begin(); it != yts1.end(); ++it)
         std::cout << "  " << *it << std::endl;
 
-    WeeklyTimeSeries wts1{Date::weeks_ago(20), Date::today()};
+    WeeklyTimeSeries wts1{Date::today().weeks_ago(20), Date::today()};
     std::cout << "WeeklyTimeSeries1: " << wts1 << std::endl;
     for (auto it = wts1.begin(); it != wts1.end(); ++it)
         std::cout << "  " << *it << std::endl;
