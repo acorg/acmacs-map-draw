@@ -114,8 +114,11 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
                 tag = clade_data.front();
             }
             else if (clade_data.size() > 1) {
-                if (std::find(clade_data.begin(), clade_data.end(), "3C2A1") != clade_data.end()) {
-                    tag = "3C2A1"; // 3C2A1 has higher priority over 3C2A
+                if (std::find(clade_data.begin(), clade_data.end(), "2A1") != clade_data.end()) {
+                    tag = "2A1"; // 2A1 has higher priority over 3C.2A
+                }
+                else if (std::find(clade_data.begin(), clade_data.end(), "2A2") != clade_data.end()) {
+                    tag = "2A2"; // 2A2 has higher priority over 3C.2A
                 }
                 else {
                     std::cerr << "DEBUG: multi-clades: " << clade_data << '\n';
