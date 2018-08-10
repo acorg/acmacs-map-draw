@@ -205,8 +205,8 @@ static const char* const SETTINGS_HELP_MODS = R"(
            "weight": "bold", "slant": "italic", "font_family": "monospace"},
  "report": false, "report_names_threshold": 10}
 
-{"N": "amino-acids", "pos": [159], "?colors": ["#FF0000", "#0000FF"],
-  "?X_color": "grey25", "color_set": "ana|google", "outline": "black", "outline_width": 1.0,
+{"N": "amino-acids", "pos": [159], "?colors": {"K": "#FF0000", "R": "#0000FF", "X": "grey25"},
+  "color_set": "ana|google", "outline": "black", "outline_width": 1.0,
   "aspect": 1.0, "rotation": 0.0, "size": 1.0, "order": "raise|lower",
   "legend": {"count": true},
   "centroid": false,

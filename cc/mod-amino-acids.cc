@@ -40,11 +40,12 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::array& aPos, bool
     std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
     std::sort(std::begin(aa_sorted), std::end(aa_sorted), [&aa_indices](const auto& n1, const auto& n2) -> bool { return aa_indices.find(n1)->second.size() > aa_indices.find(n2)->second.size(); });
     std::map<std::string, Color> color_for_aa;
+    make_color_for_aa(color_for_aa, aa_sorted);
     for (auto [index, aa]: acmacs::enumerate(aa_sorted)) {
         const auto& indices_for_aa = aa_indices.find(aa)->second;
         auto styl = style();
         if (auto ca = color_for_aa.find(aa); ca == color_for_aa.end())
-            styl.fill = color_for_aa[aa] = fill_color(index, aa);
+            throw unrecognized_mod{"cannot find color for AA: " + aa + ", \"colors\" in the settings is not complete?"};
         else
             styl.fill = ca->second;
         aChartDraw.modify(indices_for_aa, styl, drawing_order());
@@ -88,6 +89,30 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::array& aPos, bool
 
 // ----------------------------------------------------------------------
 
+void ModAminoAcids::make_color_for_aa(std::map<std::string, Color>& color_for_aa, const std::vector<std::string>& aa_sorted)
+{
+    if (auto [colors_present, colors] = args().get_object_if("colors"); colors_present) {
+        std::vector<std::string> aa_without_colors;
+        for (const auto& aa : aa_sorted) {
+            if (auto [color_present, color] = colors.get_value_if(aa); color_present) {
+                color_for_aa[aa] = Color(color);
+            }
+            else
+                aa_without_colors.push_back(aa);
+        }
+        if (!aa_without_colors.empty())
+            throw unrecognized_mod{"the following AAs has no colors defined in settings \"colors\": " + acmacs::to_string(aa_without_colors)};
+    }
+    else {
+        for (auto [index, aa]: acmacs::enumerate(aa_sorted)) {
+            color_for_aa[aa] = fill_color_default(index, aa);
+        }
+    }
+
+} // ModAminoAcids::make_color_for_aa
+
+// ----------------------------------------------------------------------
+
 void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::object& aGroup, bool aVerbose)
 {
     const rjson::array& pos_aa = aGroup["pos_aa"];
@@ -113,21 +138,15 @@ void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::object& aGroup,
 
 // ----------------------------------------------------------------------
 
-Color ModAminoAcids::fill_color(size_t aIndex, std::string aAA)
+Color ModAminoAcids::fill_color_default(size_t aIndex, std::string aAA)
 {
     if (aAA == "X") {
         ++mIndexDiff;
         return Color(args().get_or_default("X_color", "grey25"));
     }
     if (mColors.empty()) {
-        if (auto [colors_present, colors] = args().get_array_if("colors"); colors_present) {
-            mColors.resize(colors.size());
-            std::transform(std::begin(colors), std::end(colors), mColors.begin(), [](const auto& src) -> std::string_view { return src; });
-        }
-        else {
-            const auto ct = args().get_or_default("color_set", "ana");
-            mColors = Color::distinct(ct == "google" ? Color::distinct_t::GoogleMaps : Color::distinct_t::Ana);
-        }
+        const auto ct = args().get_or_default("color_set", "ana");
+        mColors = Color::distinct(ct == "google" ? Color::distinct_t::GoogleMaps : Color::distinct_t::Ana);
     }
     const auto index = aIndex - mIndexDiff;
     if (index < mColors.size())
@@ -135,7 +154,7 @@ Color ModAminoAcids::fill_color(size_t aIndex, std::string aAA)
     else
         throw unrecognized_mod{"too few distinct colors in mod: " + args().to_json()};
 
-} // ModAminoAcids::fill_color
+} // ModAminoAcids::fill_color_default
 
 // ----------------------------------------------------------------------
 
