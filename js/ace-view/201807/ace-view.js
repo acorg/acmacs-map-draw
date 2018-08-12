@@ -881,7 +881,7 @@ export class ColoringModified extends ColoringBase
 // ----------------------------------------------------------------------
 
 const sCladeColors = {
-    "3C3": "#6495ed",
+    "3C.3": "#6495ed",
     "3C.3A": "#00ff00",
     "3C.3B": "#0000ff",
     "3C.2A": "#ff0000",
@@ -907,6 +907,21 @@ const sCladeColors = {
     "": av_toolkit.sGREY,
     undefined: av_toolkit.sGREY,
     null: av_toolkit.sGREY
+};
+
+// if antigen is in multiple clades, choose one with the highest rank
+// default rank is a clade name length
+const sCladeRank = {
+    "3C.3": 5,
+    "3C.3A": 6,
+    "3C.3B": 7,
+    "3C.2A": 8,
+    "2A1": 9,
+    "2A1A": 10,
+    "2A1B": 11,
+    "2A2": 12,
+    "2A3": 13,
+    "2A4": 14
 };
 
 class ColoringByClade extends ColoringBase
@@ -960,7 +975,7 @@ class ColoringByClade extends ColoringBase
 
     // {set_clade_for_antigen: false, drawing_order: []}
     _make_antigens_by_clade(args={}) {
-        const clade_sorting_key = clade => (clade === "GLY" || clade === "NO-GLY" || clade === "SEQUENCED") ? 0 : clade.length;
+        const clade_sorting_key = clade => (clade === "GLY" || clade === "NO-GLY" || clade === "SEQUENCED") ? 0 : (sCladeRank[clade] || clade.length);
         this.clade_to_number_of_antigens_ = {};
         if (args.set_clade_for_antigen)
             this.clade_for_antigen_ = Array.apply(null, {length: this.chart_.a.length}).map(() => "");
