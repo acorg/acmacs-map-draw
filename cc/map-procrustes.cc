@@ -5,6 +5,7 @@ using namespace std::string_literals;
 
 #include "acmacs-base/argc-argv.hh"
 #include "acmacs-base/read-file.hh"
+#include "acmacs-base/string-split.hh"
 #include "acmacs-base/quicklook.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-map-draw/draw.hh"
@@ -27,6 +28,7 @@ int main(int argc, char* const argv[])
                 {"--subset", "all", "all, antigens, sera"},
                 {"--report", false, "report common antigens/sera"},
                 {"--clade", false},
+                {"--viewport", "", "\"rel\" array of viewport, e.g. 2,2,-4"},
                 {"--open", false},
                 {"--db-dir", ""},
                 {"--time", false, "report time of loading chart"},
@@ -51,6 +53,8 @@ int main(int argc, char* const argv[])
 
 int draw(const argc_argv& args)
 {
+    using namespace rjson::literals;
+
     // const bool verbose = args["-v"] || args["--verbose"];
     const auto report = do_report_time(args["--time"]);
     // setup_dbs(args["--db-dir"], verbose);
@@ -61,19 +65,25 @@ int draw(const argc_argv& args)
     ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, report)), p1);
 
     std::string secondary_chart = (args.number_of_arguments() > 1 && !string::ends_with(std::string_view(args[1]), ".pdf")) ? args[1] : args[0];
-    const rjson::object pc{{{"N", rjson::string{"procrustes_arrows"}},
+    const rjson::object pc{{{"N", "procrustes_arrows"_rj},
                             {"chart", rjson::string{secondary_chart}},
                             {"projection", rjson::integer{p2}},
                             {"subset", rjson::string{args["--subset"]}},
                             {"threshold", rjson::number{threshold}},
                             {"report", rjson::boolean{report_common}}}};
 
+    rjson::object viewport{{{"N", "viewport"_rj}, {"rel", rjson::array{0, 0, 0}}}};
+    if (args["--viewport"]) {
+        const auto values = acmacs::string::split_into_double(args["--viewport"].str());
+        viewport.set_field("rel", rjson::array(rjson::array::use_iterator, values.begin(), values.end()));
+    }
+
     auto settings = settings_default();
     settings.update(settings_builtin_mods());
     if (args["--clade"])
-        settings.set_field("apply", rjson::array{"size_reset", "all_grey", "egg", "clades", "vaccines", "title", pc});
+        settings.set_field("apply", rjson::array{viewport, "size_reset", "all_grey", "egg", "clades", "vaccines", "title", pc});
     else
-        settings.set_field("apply", rjson::array{"title", pc});
+        settings.set_field("apply", rjson::array{viewport, "title", pc});
 
     try {
         apply_mods(chart_draw, settings["apply"], settings);
