@@ -43,6 +43,7 @@ class SelectAntigensSera
               // Timeit ti("filter_name_in " + aName + ": ", mVerbose ? report_time::Yes : report_time::No);
             acmacs::chart::Indexes result(indexes.size());
             const auto by_name = aAgSr->find_by_name(aName);
+            // std::cerr << "DEBUG: SelectAntigensSera::filter_name_in \"" << aName << "\": " << by_name << '\n';
             const auto end = std::set_intersection(indexes.begin(), indexes.end(), by_name.begin(), by_name.end(), result.begin());
             indexes.erase(std::copy(result.begin(), end, indexes.begin()), indexes.end());
         }
