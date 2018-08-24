@@ -27,56 +27,58 @@ inline std::ostream& operator << (std::ostream& out, const Mods& aMods)
 
 void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, const rjson::value& aLabelData)
 {
-    auto& label = aChartDraw.add_label(aIndex + aBaseIndex);
-    try { label.color(Color(aLabelData["color"])); } catch (rjson::field_not_found&) {}
-    try { label.size(aLabelData["size"]); } catch (rjson::field_not_found&) {}
-    try { label.weight(aLabelData["weight"].str()); } catch (rjson::field_not_found&) {}
-    try { label.slant(aLabelData["slant"].str()); } catch (rjson::field_not_found&) {}
-    try { label.font_family(aLabelData["font_family"].str()); } catch (rjson::field_not_found&) {}
+    if (aChartDraw.point_has_coordinates(aIndex + aBaseIndex)) {
+        auto& label = aChartDraw.add_label(aIndex + aBaseIndex);
+        try { label.color(Color(aLabelData["color"])); } catch (rjson::field_not_found&) {}
+        try { label.size(aLabelData["size"]); } catch (rjson::field_not_found&) {}
+        try { label.weight(aLabelData["weight"].str()); } catch (rjson::field_not_found&) {}
+        try { label.slant(aLabelData["slant"].str()); } catch (rjson::field_not_found&) {}
+        try { label.font_family(aLabelData["font_family"].str()); } catch (rjson::field_not_found&) {}
 
-    try {
-        const rjson::array& offset = aLabelData["offset"];
-        label.offset({offset[0], offset[1]});
-    }
-    catch (std::exception&) {
-    }
-
-    try {
-        label.display_name(aLabelData["display_name"].strv());
-    }
-    catch (rjson::field_not_found&) {
         try {
-            const auto name_type = aLabelData["name_type"].strv();
-            if (aBaseIndex == 0) { // antigen
-                auto antigen = aChartDraw.chart().antigen(aIndex);
-                std::string name;
-                if (name_type == "abbreviated")
-                    name = antigen->abbreviated_name();
-                else if (name_type == "abbreviated_name_with_passage_type" || name_type == "abbreviated_with_passage_type")
-                    name = antigen->abbreviated_name_with_passage_type();
-                else if (name_type == "abbreviated_location_with_passage_type")
-                    name = antigen->abbreviated_location_with_passage_type();
-                else {
-                    if (name_type != "full")
-                        std::cerr << "WARNING: unrecognized \"name_type\" for label for antigen " << aIndex << '\n';
-                    name = antigen->full_name();
-                }
-                label.display_name(name);
-            }
-            else {      // serum
-                auto serum = aChartDraw.chart().serum(aIndex);
-                if (name_type == "abbreviated")
-                    label.display_name(serum->abbreviated_name());
-                else if (name_type == "abbreviated_name_with_serum_id")
-                    label.display_name(serum->abbreviated_name_with_serum_id());
-                else {
-                    if (name_type != "full")
-                        std::cerr << "WARNING: unrecognized \"name_type\" for label for serum " << aIndex << '\n';
-                    label.display_name(serum->full_name());
-                }
-            }
+            const rjson::array& offset = aLabelData["offset"];
+            label.offset({offset[0], offset[1]});
+        }
+        catch (std::exception&) {
+        }
+
+        try {
+            label.display_name(aLabelData["display_name"].strv());
         }
         catch (rjson::field_not_found&) {
+            try {
+                const auto name_type = aLabelData["name_type"].strv();
+                if (aBaseIndex == 0) { // antigen
+                    auto antigen = aChartDraw.chart().antigen(aIndex);
+                    std::string name;
+                    if (name_type == "abbreviated")
+                        name = antigen->abbreviated_name();
+                    else if (name_type == "abbreviated_name_with_passage_type" || name_type == "abbreviated_with_passage_type")
+                        name = antigen->abbreviated_name_with_passage_type();
+                    else if (name_type == "abbreviated_location_with_passage_type")
+                        name = antigen->abbreviated_location_with_passage_type();
+                    else {
+                        if (name_type != "full")
+                            std::cerr << "WARNING: unrecognized \"name_type\" for label for antigen " << aIndex << '\n';
+                        name = antigen->full_name();
+                    }
+                    label.display_name(name);
+                }
+                else {      // serum
+                    auto serum = aChartDraw.chart().serum(aIndex);
+                    if (name_type == "abbreviated")
+                        label.display_name(serum->abbreviated_name());
+                    else if (name_type == "abbreviated_name_with_serum_id")
+                        label.display_name(serum->abbreviated_name_with_serum_id());
+                    else {
+                        if (name_type != "full")
+                            std::cerr << "WARNING: unrecognized \"name_type\" for label for serum " << aIndex << '\n';
+                        label.display_name(serum->full_name());
+                    }
+                }
+            }
+            catch (rjson::field_not_found&) {
+            }
         }
     }
 

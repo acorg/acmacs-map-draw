@@ -33,6 +33,7 @@ class ChartSelectInterface
     std::shared_ptr<acmacs::chart::Layout> layout() const { return projection().layout(); }
     const acmacs::Transformation transformation() const { return projection().transformation(); }
     std::shared_ptr<acmacs::chart::Layout> transformed_layout() const { return projection().transformed_layout(); }
+    bool point_has_coordinates(size_t point_no) const { return projection().layout()->point_has_coordinates(point_no); }
 
     const acmacs::chart::PlotSpecModify& plot_spec() const { return *mPlotSpec; }
     acmacs::chart::PlotSpecModify& plot_spec() { return *mPlotSpec; }
