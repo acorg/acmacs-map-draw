@@ -645,7 +645,7 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const
         name = ptr_obj->get_or_default("N", "");
         if (name.empty()) {
             if (ptr_obj->exists("?N"))
-                name = "?";     // no "N" but "?N" present, avoid warning about commented out mode
+                name = "?"; // no "N" but "?N" present, avoid warning about commented out mode
         }
         args.update(*ptr_obj);
     }
@@ -658,9 +658,14 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const
 
     auto get_referenced_mod = [&aSettingsMods](std::string aName) -> const rjson::array& {
         try {
-            return aSettingsMods[aName];
+            if (!aName.empty() && aName[0] == '*')
+                return aSettingsMods[aName.substr(1)];
+            else
+                return aSettingsMods[aName];
         }
         catch (rjson::field_not_found&) {
+            if (!aName.empty() && aName[0] == '*') // optional mod
+                return rjson::sEmptyArray;
             throw unrecognized_mod{"mod not found: " + aName};
         }
         catch (std::bad_variant_access&) {
@@ -738,17 +743,17 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const
         result.emplace_back(new ModProcrustesArrows(args));
     }
     else if (name == "comment") {
-          // comment mod silently ignored
+        // comment mod silently ignored
     }
     else if (name.empty()) {
         std::cerr << "WARNING: mod ignored (no \"N\"): " << args << '\n';
     }
     else if (name.front() == '?' || name.back() == '?') {
-          // commented out
+        // commented out
     }
     else {
-        for (const auto& submod_desc: get_referenced_mod(name)) {
-            for (auto&& submod: factory(submod_desc, aSettingsMods, args)) {
+        for (const auto& submod_desc : get_referenced_mod(name)) {
+            for (auto&& submod : factory(submod_desc, aSettingsMods, args)) {
                 result.push_back(std::move(submod));
             }
         }
