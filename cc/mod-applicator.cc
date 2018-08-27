@@ -104,6 +104,14 @@ void Mod::add_labels(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, const rjson::value& aLegendData)
 {
     const std::string label = aLegendData.get_or_default("label", "use \"label\" in \"legend\"");
+    if (aLegendData.get_or_default("replace", false)) {
+        // std::cerr << "DEBUG: add_legend replace " << label << '\n';
+        // std::cerr << "DEBUG: " << aChartDraw.legend_point_label().lines() << '\n';
+        if (aLegendData.get_or_default("count", false))
+            aChartDraw.legend_point_label().remove_line(label + " (" + std::to_string(aIndices.size()) + ")");
+        else
+            aChartDraw.legend_point_label().remove_line(label);
+    }
     add_legend(aChartDraw, aIndices, aStyle, label, aLegendData);
 
 } // Mod::add_legend

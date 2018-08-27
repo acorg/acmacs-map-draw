@@ -118,6 +118,7 @@ namespace map_elements
             Line(Color aOutline, Color aFill, std::string aLabel) : outline(aOutline), fill(aFill), label(aLabel) {}
             Color outline, fill;
             std::string label;
+            friend inline std::ostream& operator<<(std::ostream& out, const Line& line) { return out << "(LegendPointLabel line \"" << line.label << "\" " << line.fill << ' ' << line.outline << ')'; }
         };
 
         LegendPointLabel();
@@ -127,13 +128,16 @@ namespace map_elements
 
         void offset(acmacs::Location2D aOrigin) { mOrigin = aOrigin; }
         void add_line(Color outline, Color fill, std::string label) { mLines.emplace_back(outline, fill, label); }
+        void remove_line(std::string label) { mLines.erase(std::remove_if(mLines.begin(), mLines.end(), [&label](const auto& elt) { return elt.label == label; }), mLines.end()); }
         void label_size(double aLabelSize) { mLabelSize = aLabelSize; }
         void point_size(double aPointSize) { mPointSize = aPointSize; }
         void background(Color aBackground) { mBackground = aBackground; }
         void border_color(Color aBorderColor) { mBorderColor = aBorderColor; }
         void border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; }
 
-     private:
+        const auto& lines() const { return mLines; }
+
+      private:
         acmacs::Location2D mOrigin;
         Color mBackground;
         Color mBorderColor;

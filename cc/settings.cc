@@ -189,7 +189,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
            "name_type": "full|abbreviated|abbreviated_with_passage_type",
            "color": "black", "size": 12.0, "offset": [0, 1],
            "weight": "bold", "slant": "italic", "font_family": "monospace"},
- "legend": {"show": true, "label": "<TEXT>", "count": true},
+ "legend": {"show": true, "label": "<TEXT>", "count": true, "replace": false},
  "report": false, "report_names_threshold": 10}
 
 {"N": "sera", "select": {<select>},
