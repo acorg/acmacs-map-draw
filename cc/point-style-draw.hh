@@ -6,7 +6,7 @@
 // ----------------------------------------------------------------------
 
 namespace acmacs::surface { class Surface; }
-namespace rjson { class object; }
+namespace rjson { inline namespace v1 { class object; } }
 
 // ----------------------------------------------------------------------
 
