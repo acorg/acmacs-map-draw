@@ -25,7 +25,7 @@ static inline acmacs::chart::CommonAntigensSera::match_level_t make_match_level(
 
 // ----------------------------------------------------------------------
 
-void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
+void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/)
 {
     const auto verbose = args().get_or_default("report", false);
     const auto scaling = args().get_or_default("scaling", false) ? acmacs::chart::procrustes_scaling_t::yes : acmacs::chart::procrustes_scaling_t::no;

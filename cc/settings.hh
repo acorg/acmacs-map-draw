@@ -4,8 +4,8 @@
 
 // ----------------------------------------------------------------------
 
-rjson::value settings_default();
-rjson::value settings_builtin_mods();
+rjson::v1::value settings_default();
+rjson::v1::value settings_builtin_mods();
 
 const char* settings_help_mods();
 const char* settings_help_select();

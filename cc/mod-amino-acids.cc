@@ -7,7 +7,7 @@
 
 // ----------------------------------------------------------------------
 
-void ModAminoAcids::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
+void ModAminoAcids::apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/)
 {
     const auto verbose = args().get_or_default("report", false);
     try {
@@ -31,7 +31,7 @@ void ModAminoAcids::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*
 
 // ----------------------------------------------------------------------
 
-void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::array& aPos, bool aVerbose)
+void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::v1::array& aPos, bool aVerbose)
 {
     const auto& seqdb = seqdb::get(seqdb::ignore_errors::no, do_report_time(aVerbose));
     const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), {std::begin(aPos), std::end(aPos)}, aVerbose ? seqdb::report::yes : seqdb::report::no);
@@ -49,7 +49,7 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::array& aPos, bool
         else
             styl.fill = ca->second;
         aChartDraw.modify(indices_for_aa, styl, drawing_order());
-        try { add_legend(aChartDraw, indices_for_aa, styl, aa, args()["legend"]); } catch (rjson::field_not_found&) {}
+        try { add_legend(aChartDraw, indices_for_aa, styl, aa, args()["legend"]); } catch (rjson::v1::field_not_found&) {}
         if (aVerbose)
             std::cerr << "INFO: amino-acids at " << aPos << ": " << aa << ' ' << indices_for_aa.size() << '\n';
     }
@@ -113,9 +113,9 @@ void ModAminoAcids::make_color_for_aa(std::map<std::string, Color>& color_for_aa
 
 // ----------------------------------------------------------------------
 
-void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::object& aGroup, bool aVerbose)
+void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::v1::object& aGroup, bool aVerbose)
 {
-    const rjson::array& pos_aa = aGroup["pos_aa"];
+    const rjson::v1::array& pos_aa = aGroup["pos_aa"];
     std::vector<size_t> positions(pos_aa.size());
     std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(positions), [](const auto& src) { return std::stoul(src.str()); });
     std::string target_aas(pos_aa.size(), ' ');
@@ -126,7 +126,7 @@ void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::object& aGroup,
         auto styl = style();
         styl = point_style_from_json(aGroup);
         aChartDraw.modify(aap->second, styl, drawing_order());
-        try { add_legend(aChartDraw, aap->second, styl, string::join(" ", std::begin(pos_aa), std::end(pos_aa)), args()["legend"]); } catch (rjson::field_not_found&) {}
+        try { add_legend(aChartDraw, aap->second, styl, string::join(" ", std::begin(pos_aa), std::end(pos_aa)), args()["legend"]); } catch (rjson::v1::field_not_found&) {}
         if (aVerbose)
             std::cerr << "INFO: amino-acids group " << pos_aa << ": " << ' ' << aap->second.size() << '\n';
     }

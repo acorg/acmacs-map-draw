@@ -22,18 +22,18 @@ SelectAntigensSera::~SelectAntigensSera()
 
 // ----------------------------------------------------------------------
 
-class SelectorVisitor : public rjson::value_visitor_base<acmacs::chart::Indexes>
+class SelectorVisitor : public rjson::v1::value_visitor_base<acmacs::chart::Indexes>
 {
  public:
     SelectorVisitor(const ChartSelectInterface& aChartSelectInterface, SelectAntigensSera& aSelect) : mChartSelectInterface{aChartSelectInterface}, mSelect{aSelect} {}
-    using rjson::value_visitor_base<acmacs::chart::Indexes>::operator();
+    using rjson::v1::value_visitor_base<acmacs::chart::Indexes>::operator();
 
-    acmacs::chart::Indexes operator()(const rjson::string& aValue) override
+    acmacs::chart::Indexes operator()(const rjson::v1::string& aValue) override
         {
-            return mSelect.command(mChartSelectInterface, {{aValue, rjson::boolean{true}}});
+            return mSelect.command(mChartSelectInterface, {{aValue, rjson::v1::boolean{true}}});
         }
 
-    acmacs::chart::Indexes operator()(const rjson::object& aValue) override
+    acmacs::chart::Indexes operator()(const rjson::v1::object& aValue) override
         {
             return mSelect.command(mChartSelectInterface, aValue);
         }
@@ -46,7 +46,7 @@ class SelectorVisitor : public rjson::value_visitor_base<acmacs::chart::Indexes>
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector)
+acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aChartSelectInterface, const rjson::v1::value& aSelector)
 {
     try {
         return std::visit(SelectorVisitor{aChartSelectInterface, *this}, aSelector);
@@ -60,7 +60,7 @@ acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aC
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChartSelectInterface, const rjson::object& aSelector)
+acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChartSelectInterface, const rjson::v1::object& aSelector)
 {
       // std::cout << "DEBUG: antigens command: " << aSelector << '\n';
     auto antigens = aChartSelectInterface.chart().antigens();
@@ -99,7 +99,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
                 throw std::exception{};
         }
         else if (key == "date_range") {
-            const rjson::array& dr = value;
+            const rjson::v1::array& dr = value;
             antigens->filter_date_range(indexes, dr[0], dr[1]);
         }
         else if (key == "older_than_days") {
@@ -122,7 +122,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             indexes.erase_except(value);
         }
         else if (key == "indexes") {
-            const rjson::array& to_keep_v = value;
+            const rjson::v1::array& to_keep_v = value;
             acmacs::chart::Indexes to_keep(to_keep_v.size());
             std::transform(to_keep_v.begin(), to_keep_v.end(), to_keep.begin(), [](const auto& v) -> size_t { return v; });
             indexes.erase(std::remove_if(indexes.begin(), indexes.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indexes.end());
@@ -143,7 +143,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             filter_clade(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(value)));
         }
         else if (key == "amino_acid") {
-            const rjson::object& data_v = value;
+            const rjson::v1::object& data_v = value;
             filter_amino_acid_at_pos(aChartSelectInterface, indexes, data_v["aa"].strv()[0], data_v["pos"]);
         }
         else if (key == "outlier") {
@@ -170,14 +170,14 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             }
         }
         else if (key == "in_rectangle") {
-            // const auto& c1 = value.get_field<rjson::array>("c1");
-            // const auto& c2 = value.get_field<rjson::array>("c2");
+            // const auto& c1 = value.get_field<rjson::v1::array>("c1");
+            // const auto& c2 = value.get_field<rjson::v1::array>("c2");
             const auto& c1 = value["c1"];
             const auto& c2 = value["c2"];
             filter_rectangle(aChartSelectInterface, indexes, {c1[0], c1[1], c2[0], c2[1]});
         }
         else if (key == "in_circle") {
-            // const auto& center = value.get_field<rjson::array>("center");
+            // const auto& center = value.get_field<rjson::v1::array>("center");
             // const auto radius = value.get_field_number("radius");
             const auto& center = value["center"];
             const double radius = value["radius"];
@@ -383,7 +383,7 @@ void SelectAntigens::filter_vaccine(const ChartSelectInterface& aChartSelectInte
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSelectInterface, const rjson::object& aSelector)
+acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSelectInterface, const rjson::v1::object& aSelector)
 {
     const auto& sera = aChartSelectInterface.chart().sera();
     auto indexes = sera->all_indexes();
@@ -401,7 +401,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
             indexes.erase_except(value);
         }
         else if (key == "indexes") {
-            const rjson::array& to_keep_v = value;
+            const rjson::v1::array& to_keep_v = value;
             acmacs::chart::Indexes to_keep(to_keep_v.size());
             std::transform(to_keep_v.begin(), to_keep_v.end(), to_keep.begin(), [](const auto& v) -> size_t { return v; });
             indexes.erase(std::remove_if(indexes.begin(), indexes.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indexes.end());
@@ -430,7 +430,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
             filter_rectangle(aChartSelectInterface, indexes, {c1[0], c1[1], c2[0], c2[1]});
         }
         else if (key == "in_circle") {
-            // const auto& center = value.get_field<rjson::array>("center");
+            // const auto& center = value.get_field<rjson::v1::array>("center");
             // const auto radius = value.get_field_number("radius");
             const auto& center = value["center"];
             const double radius = value["radius"];

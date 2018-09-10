@@ -4,7 +4,7 @@
 
 // ----------------------------------------------------------------------
 
-rjson::value geographic_settings_default();
+rjson::v1::value geographic_settings_default();
 std::string geographic_settings_default_raw();
 
 // ----------------------------------------------------------------------

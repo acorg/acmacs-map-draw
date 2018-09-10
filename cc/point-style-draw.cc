@@ -25,7 +25,7 @@ void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aS
 
 // ----------------------------------------------------------------------
 
-acmacs::PointStyle point_style_from_json(const rjson::object& aSource)
+acmacs::PointStyle point_style_from_json(const rjson::v1::object& aSource)
 {
     acmacs::PointStyle style;
     for (auto [key, value]: aSource) {
@@ -62,7 +62,7 @@ acmacs::PointStyle point_style_from_json(const rjson::object& aSource)
 
 // ----------------------------------------------------------------------
 
-PointDrawingOrder drawing_order_from_json(const rjson::object& aSource)
+PointDrawingOrder drawing_order_from_json(const rjson::v1::object& aSource)
 {
     PointDrawingOrder result{PointDrawingOrder::NoChange};
     if (aSource.get_or_default("raise_", false)) {

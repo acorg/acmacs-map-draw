@@ -14,8 +14,8 @@ using namespace std::string_literals;
 // ----------------------------------------------------------------------
 
 static int draw(const argc_argv& args);
-static GeographicMapColoring* make_coloring(const rjson::value& aSettings);
-static void set_title(map_elements::Title& aTitle, const rjson::value& aSettings, bool use_title_text);
+static GeographicMapColoring* make_coloring(const rjson::v1::value& aSettings);
+static void set_title(map_elements::Title& aTitle, const rjson::v1::value& aSettings, bool use_title_text);
 
 int main(int argc, char* const argv[])
 {
@@ -53,7 +53,7 @@ int main(int argc, char* const argv[])
 
 // ----------------------------------------------------------------------
 
-static inline std::vector<std::string> make_list(const rjson::array& aSource)
+static inline std::vector<std::string> make_list(const rjson::v1::array& aSource)
 {
     std::vector<std::string> result;
     std::transform(std::begin(aSource), std::end(aSource), std::back_inserter(result), [](const auto& entry) -> std::string { return entry.str(); });
@@ -86,7 +86,7 @@ int draw(const argc_argv& args)
         for (auto fn: aFilenames) {
             if (verbose)
                 std::cerr << "DEBUG: reading settings from " << fn << '\n';
-            settings.update(rjson::parse_file(fn, rjson::remove_comments::Yes));
+            settings.update(rjson::v1::parse_file(fn, rjson::v1::remove_comments::Yes));
         }
     };
     if (args["-s"])
@@ -134,7 +134,7 @@ int draw(const argc_argv& args)
 
 // ----------------------------------------------------------------------
 
-static inline GeographicMapColoring::TagToColor make_map(const rjson::object& aSource)
+static inline GeographicMapColoring::TagToColor make_map(const rjson::v1::object& aSource)
 {
     GeographicMapColoring::TagToColor result;
     auto rjson_to_coloring_data = [](const auto& entry) -> GeographicMapColoring::TagToColor::value_type {
@@ -147,7 +147,7 @@ static inline GeographicMapColoring::TagToColor make_map(const rjson::object& aS
     return result;
 }
 
-GeographicMapColoring* make_coloring(const rjson::value& aSettings)
+GeographicMapColoring* make_coloring(const rjson::v1::value& aSettings)
 {
     GeographicMapColoring* coloring = nullptr;
     const auto coloring_name = aSettings["coloring"].strv();
@@ -168,10 +168,10 @@ GeographicMapColoring* make_coloring(const rjson::value& aSettings)
 
 // ----------------------------------------------------------------------
 
-void set_title(map_elements::Title& aTitle, const rjson::value& aSettings, bool use_title_text)
+void set_title(map_elements::Title& aTitle, const rjson::v1::value& aSettings, bool use_title_text)
 {
     if (!use_title_text || static_cast<std::string_view>(aSettings["title_text"]) != "") {
-        const rjson::object& title_data = aSettings["title"];
+        const rjson::v1::object& title_data = aSettings["title"];
         aTitle.show(true)
                 .padding(title_data.get_or_default("padding", 10.0))
                 .background(Color(title_data.get_or_default("background", "transparent")))

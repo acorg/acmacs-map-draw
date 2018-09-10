@@ -41,16 +41,16 @@ static void make_html201805(request_rec *r, const char* view_mode, const char* c
 static void make_html201807(request_rec *r, const char* view_mode, const char* coloring, const char* viewport);
 static void make_ace(request_rec *r);
 static int process_post_request(request_rec *r);
-static void command_download_pdf(request_rec *r, const rjson::object& args);
-static void command_download_ace(request_rec *r, const rjson::object& args);
-static void command_download_save(request_rec *r, const rjson::object& args);
-static void command_download_layout(request_rec *r, const rjson::object& args);
-static void command_download_table_map_distances(request_rec *r, const rjson::object& args);
-static void command_download_distances_between_all_points(request_rec *r, const rjson::object& args);
-static void command_download_error_lines(request_rec *r, const rjson::object& args);
-static void command_sequences_of_chart(request_rec *r, const rjson::object& args);
-static void command_download_sequences_of_chart_as_fasta(request_rec *r, const rjson::object& args);
-static void command_download_layout_sequences_as_csv(request_rec *r, const rjson::object& args);
+static void command_download_pdf(request_rec *r, const rjson::v1::object& args);
+static void command_download_ace(request_rec *r, const rjson::v1::object& args);
+static void command_download_save(request_rec *r, const rjson::v1::object& args);
+static void command_download_layout(request_rec *r, const rjson::v1::object& args);
+static void command_download_table_map_distances(request_rec *r, const rjson::v1::object& args);
+static void command_download_distances_between_all_points(request_rec *r, const rjson::v1::object& args);
+static void command_download_error_lines(request_rec *r, const rjson::v1::object& args);
+static void command_sequences_of_chart(request_rec *r, const rjson::v1::object& args);
+static void command_download_sequences_of_chart_as_fasta(request_rec *r, const rjson::v1::object& args);
+static void command_download_layout_sequences_as_csv(request_rec *r, const rjson::v1::object& args);
 
 // ----------------------------------------------------------------------
 
@@ -192,7 +192,7 @@ void make_ace(request_rec* r)
     seqdb::add_clades(chart, seqdb::ignore_errors::yes, seqdb::report::yes);
 
     auto ace = acmacs::chart::export_ace_to_rjson(chart, "mod_acmacs");
-    if (const auto& group_sets = chart.extension_field("group_sets"); group_sets != rjson::null{})
+    if (const auto& group_sets = chart.extension_field("group_sets"); group_sets != rjson::v1::null{})
         ace["c"].set_field("group_sets", group_sets);
 
     ap_set_content_type(r, "application/json");
@@ -217,7 +217,7 @@ int process_post_request(request_rec* r)
             source_data.append(buffer, static_cast<size_t>(block_size));
     }
 
-    const auto data = rjson::parse_string(source_data);
+    const auto data = rjson::v1::parse_string(source_data);
     if (std::string command = data.get_or_default("C", ""); !command.empty()) {
         if (command == "download_pdf")
             command_download_pdf(r, data);
@@ -251,7 +251,7 @@ int process_post_request(request_rec* r)
 
 // ----------------------------------------------------------------------
 
-void command_download_pdf(request_rec *r, const rjson::object& args)
+void command_download_pdf(request_rec *r, const rjson::v1::object& args)
 {
     const auto projection_no = args.get_or_default("projection_no", 0UL);
     ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No)), projection_no);
@@ -266,7 +266,7 @@ void command_download_pdf(request_rec *r, const rjson::object& args)
 
 // ----------------------------------------------------------------------
 
-void command_download_ace(request_rec *r, const rjson::object& /*args*/)
+void command_download_ace(request_rec *r, const rjson::v1::object& /*args*/)
 {
     auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
     auto data = acmacs::chart::export_factory(*chart, acmacs::chart::export_format::ace, "apache-mod-acmacs", report_time::No);
@@ -277,7 +277,7 @@ void command_download_ace(request_rec *r, const rjson::object& /*args*/)
 
 // ----------------------------------------------------------------------
 
-void command_download_save(request_rec* r, const rjson::object& /*args*/)
+void command_download_save(request_rec* r, const rjson::v1::object& /*args*/)
 {
     auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
     const auto compressed = acmacs::file::gzip_compress(acmacs::chart::export_lispmds(*chart, "acmacs-api"));
@@ -289,7 +289,7 @@ void command_download_save(request_rec* r, const rjson::object& /*args*/)
 
 // ----------------------------------------------------------------------
 
-void command_download_layout(request_rec *r, const rjson::object& args)
+void command_download_layout(request_rec *r, const rjson::v1::object& args)
 {
     auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
     std::string layout;
@@ -306,7 +306,7 @@ void command_download_layout(request_rec *r, const rjson::object& args)
 
 // ----------------------------------------------------------------------
 
-void command_download_table_map_distances(request_rec *r, const rjson::object& args)
+void command_download_table_map_distances(request_rec *r, const rjson::v1::object& args)
 {
     auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
     std::string distances;
@@ -323,7 +323,7 @@ void command_download_table_map_distances(request_rec *r, const rjson::object& a
 
 // ----------------------------------------------------------------------
 
-void command_download_distances_between_all_points(request_rec *r, const rjson::object& args)
+void command_download_distances_between_all_points(request_rec *r, const rjson::v1::object& args)
 {
     auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
     std::string distances;
@@ -340,7 +340,7 @@ void command_download_distances_between_all_points(request_rec *r, const rjson::
 
 // ----------------------------------------------------------------------
 
-void command_download_error_lines(request_rec *r, const rjson::object& args)
+void command_download_error_lines(request_rec *r, const rjson::v1::object& args)
 {
     auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
     std::string error_lines;
@@ -357,7 +357,7 @@ void command_download_error_lines(request_rec *r, const rjson::object& args)
 
 // ----------------------------------------------------------------------
 
-void command_sequences_of_chart(request_rec* r, const rjson::object& /*args*/)
+void command_sequences_of_chart(request_rec* r, const rjson::v1::object& /*args*/)
 {
     try {
         auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
@@ -373,7 +373,7 @@ void command_sequences_of_chart(request_rec* r, const rjson::object& /*args*/)
 
 // ----------------------------------------------------------------------
 
-void command_download_sequences_of_chart_as_fasta(request_rec *r, const rjson::object& /*args*/)
+void command_download_sequences_of_chart_as_fasta(request_rec *r, const rjson::v1::object& /*args*/)
 {
     try {
         auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
@@ -391,7 +391,7 @@ void command_download_sequences_of_chart_as_fasta(request_rec *r, const rjson::o
 
 // ----------------------------------------------------------------------
 
-void command_download_layout_sequences_as_csv(request_rec *r, const rjson::object& args)
+void command_download_layout_sequences_as_csv(request_rec *r, const rjson::v1::object& args)
 {
     try {
         auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);

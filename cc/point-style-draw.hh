@@ -2,22 +2,22 @@
 
 #include "acmacs-base/point-style.hh"
 #include "acmacs-base/layout.hh"
+#include "acmacs-base/rjson-forward.hh"
 
 // ----------------------------------------------------------------------
 
 namespace acmacs::surface { class Surface; }
-namespace rjson { inline namespace v1 { class object; } }
 
 // ----------------------------------------------------------------------
 
-acmacs::PointStyle point_style_from_json(const rjson::object& aSource);
+acmacs::PointStyle point_style_from_json(const rjson::v1::object& aSource);
 void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aStyle, const acmacs::Coordinates& aCoord);
 
 // ----------------------------------------------------------------------
 
 enum class PointDrawingOrder { NoChange, Raise, Lower };
 
-PointDrawingOrder drawing_order_from_json(const rjson::object& aSource);
+PointDrawingOrder drawing_order_from_json(const rjson::v1::object& aSource);
 
 // ----------------------------------------------------------------------
 /// Local Variables:

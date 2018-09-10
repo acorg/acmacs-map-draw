@@ -8,7 +8,7 @@
 
 // ----------------------------------------------------------------------
 
-void ModSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
+void ModSera::apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/)
 {
     const auto verbose = args().get_or_default("report", false);
     const auto report_names_threshold = args().get_or_default("report_names_threshold", 10U);
@@ -16,9 +16,9 @@ void ModSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
         const auto indices = SelectSera(verbose, report_names_threshold).select(aChartDraw, args()["select"]);
         const auto styl = style();
         aChartDraw.modify_sera(indices, styl, drawing_order());
-        try { add_labels(aChartDraw, indices, aChartDraw.number_of_antigens(), args()["label"]); } catch (rjson::field_not_found&) {}
+        try { add_labels(aChartDraw, indices, aChartDraw.number_of_antigens(), args()["label"]); } catch (rjson::v1::field_not_found&) {}
     }
-    catch (rjson::field_not_found&) {
+    catch (rjson::v1::field_not_found&) {
         throw unrecognized_mod{"no \"select\" in \"sera\" mod: " + args().to_json() };
     }
 
@@ -49,7 +49,7 @@ void ModSerumHomologous::mark_serum(ChartDraw& aChartDraw, size_t serum_index)
 {
     if (auto [present, mark_serum] = args().get_object_if("mark_serum"); present) {
         aChartDraw.modify_serum(serum_index, point_style_from_json(mark_serum), drawing_order_from_json(mark_serum));
-        try { add_label(aChartDraw, serum_index, aChartDraw.number_of_antigens(), mark_serum["label"]); } catch (rjson::field_not_found&) {}
+        try { add_label(aChartDraw, serum_index, aChartDraw.number_of_antigens(), mark_serum["label"]); } catch (rjson::v1::field_not_found&) {}
     }
 
 } // ModSerumHomologous::mark_serum
@@ -61,7 +61,7 @@ acmacs::chart::PointIndexList ModSerumHomologous::select_mark_antigens(ChartDraw
     const auto antigen_indices = select_antigens(aChartDraw, aSerumIndex, aVerbose);
     if (auto [present, mark_antigen] = args().get_object_if("mark_antigen"); present) {
         aChartDraw.modify(antigen_indices, point_style_from_json(mark_antigen), drawing_order_from_json(mark_antigen));
-        try { add_labels(aChartDraw, antigen_indices, 0, mark_antigen["label"]); } catch (rjson::field_not_found&) {}
+        try { add_labels(aChartDraw, antigen_indices, 0, mark_antigen["label"]); } catch (rjson::v1::field_not_found&) {}
     }
     return antigen_indices;
 }
@@ -117,7 +117,7 @@ ModSerumCircle::serum_circle_radius_type ModSerumCircle::radius_type_from_string
 
 // ----------------------------------------------------------------------
 
-void ModSerumCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
+void ModSerumCircle::apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/)
 {
     const auto verbose = args().get_or_default("report", false);
     const size_t serum_index = select_mark_serum(aChartDraw, verbose);
@@ -127,7 +127,7 @@ void ModSerumCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData
 
 // ----------------------------------------------------------------------
 
-void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, serum_circle_radius_type radius_type, const rjson::object& circle_plot_spec, bool verbose) const
+void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, serum_circle_radius_type radius_type, const rjson::v1::object& circle_plot_spec, bool verbose) const
 {
     make_serum_circle(aChartDraw, serum_index, Scaled{calculate_radius(aChartDraw, serum_index, antigen_indices, radius_type, verbose)}, circle_plot_spec);
 
@@ -135,7 +135,7 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t serum_index
 
 // ----------------------------------------------------------------------
 
-void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, Scaled aRadius, const rjson::object& circle_plot_spec) const
+void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, Scaled aRadius, const rjson::v1::object& circle_plot_spec) const
 {
     auto& circle = aChartDraw.serum_circle(aSerumIndex, aRadius);
     if (!circle_plot_spec.empty()) {
@@ -192,7 +192,7 @@ double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumInde
 
 // ----------------------------------------------------------------------
 
-void ModSerumCoverage::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
+void ModSerumCoverage::apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/)
 {
     const auto verbose = args().get_or_default("report", false);
     const size_t serum_index = select_mark_serum(aChartDraw, verbose);
@@ -202,7 +202,7 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDa
 
 // ----------------------------------------------------------------------
 
-void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, const rjson::object& within_4fold, const rjson::object& outside_4fold, bool verbose)
+void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, const rjson::v1::object& within_4fold, const rjson::v1::object& outside_4fold, bool verbose)
 {
     acmacs::chart::PointIndexList within, outside;
     std::optional<size_t> antigen_index;
@@ -236,7 +236,7 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const ac
 
 // ----------------------------------------------------------------------
 
-void ModSerumCoverageCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
+void ModSerumCoverageCircle::apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/)
 {
     const auto verbose = args().get_or_default("report", false);
     const size_t serum_index = select_mark_serum(aChartDraw, verbose);
@@ -258,7 +258,7 @@ void ModSerumCoverageCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*
 
 // ----------------------------------------------------------------------
 
-void ModSerumLine::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
+void ModSerumLine::apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/)
 {
     acmacs::chart::SerumLine serum_line(aChartDraw.projection());
     std::cerr << "INFO: " << serum_line << '\n';

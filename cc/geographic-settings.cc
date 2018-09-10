@@ -72,10 +72,10 @@ static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-
 }
 )";
 
-rjson::value geographic_settings_default()
+rjson::v1::value geographic_settings_default()
 {
     try {
-        return rjson::parse_string(SETTINGS_DEFAULT, rjson::remove_comments::Yes);
+        return rjson::v1::parse_string(SETTINGS_DEFAULT, rjson::v1::remove_comments::Yes);
     }
     catch (std::exception& err) {
         std::cerr << "ERROR: parsing SETTINGS_DEFAULT: " << err.what() << '\n';

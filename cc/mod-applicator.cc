@@ -25,18 +25,18 @@ inline std::ostream& operator << (std::ostream& out, const Mods& aMods)
 
 // ----------------------------------------------------------------------
 
-void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, const rjson::value& aLabelData)
+void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, const rjson::v1::value& aLabelData)
 {
     if (aChartDraw.point_has_coordinates(aIndex + aBaseIndex)) {
         auto& label = aChartDraw.add_label(aIndex + aBaseIndex);
-        try { label.color(Color(aLabelData["color"])); } catch (rjson::field_not_found&) {}
-        try { label.size(aLabelData["size"]); } catch (rjson::field_not_found&) {}
-        try { label.weight(aLabelData["weight"].str()); } catch (rjson::field_not_found&) {}
-        try { label.slant(aLabelData["slant"].str()); } catch (rjson::field_not_found&) {}
-        try { label.font_family(aLabelData["font_family"].str()); } catch (rjson::field_not_found&) {}
+        try { label.color(Color(aLabelData["color"])); } catch (rjson::v1::field_not_found&) {}
+        try { label.size(aLabelData["size"]); } catch (rjson::v1::field_not_found&) {}
+        try { label.weight(aLabelData["weight"].str()); } catch (rjson::v1::field_not_found&) {}
+        try { label.slant(aLabelData["slant"].str()); } catch (rjson::v1::field_not_found&) {}
+        try { label.font_family(aLabelData["font_family"].str()); } catch (rjson::v1::field_not_found&) {}
 
         try {
-            const rjson::array& offset = aLabelData["offset"];
+            const rjson::v1::array& offset = aLabelData["offset"];
             label.offset({offset[0], offset[1]});
         }
         catch (std::exception&) {
@@ -45,7 +45,7 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
         try {
             label.display_name(aLabelData["display_name"].strv());
         }
-        catch (rjson::field_not_found&) {
+        catch (rjson::v1::field_not_found&) {
             try {
                 const auto name_type = aLabelData["name_type"].strv();
                 if (aBaseIndex == 0) { // antigen
@@ -77,7 +77,7 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
                     }
                 }
             }
-            catch (rjson::field_not_found&) {
+            catch (rjson::v1::field_not_found&) {
             }
         }
     }
@@ -86,7 +86,7 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
 
 // ----------------------------------------------------------------------
 
-void Mod::add_labels(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, size_t aBaseIndex, const rjson::value& aLabelData)
+void Mod::add_labels(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, size_t aBaseIndex, const rjson::v1::value& aLabelData)
 {
     if (aLabelData.get_or_default("show", true)) {
         for (auto index: aIndices)
@@ -101,7 +101,7 @@ void Mod::add_labels(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 
 // ----------------------------------------------------------------------
 
-void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, const rjson::value& aLegendData)
+void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, const rjson::v1::value& aLegendData)
 {
     const std::string label = aLegendData.get_or_default("label", "use \"label\" in \"legend\"");
     if (aLegendData.get_or_default("replace", false)) {
@@ -118,7 +118,7 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 
 // ----------------------------------------------------------------------
 
-void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData)
+void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::v1::value& aLegendData)
 {
     if (aLegendData.get_or_default("show", true) && !aIndices.empty()) {
         if (aLegendData.get_or_default("type", "") == "continent_map") {
@@ -145,14 +145,14 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 // #pragma GCC diagnostic ignored "-Wexit-time-destructors"
 // #pragma GCC diagnostic ignored "-Wglobal-constructors"
 // #endif
-// static const rjson::object factory_empty_args;
+// static const rjson::v1::object factory_empty_args;
 // #pragma GCC diagnostic pop
 
-static Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const rjson::object& aUpdate);
+static Mods factory(const rjson::v1::value& aMod, const rjson::v1::object& aSettingsMods, const rjson::v1::object& aUpdate);
 
 // ----------------------------------------------------------------------
 
-void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::object& aModData, bool aIgnoreUnrecognized)
+void apply_mods(ChartDraw& aChartDraw, const rjson::v1::array& aMods, const rjson::v1::object& aModData, bool aIgnoreUnrecognized)
 {
     const auto& mods_data_mod = aModData.get_or_empty_object("mods");
     for (const auto& mod_desc: aMods) {
@@ -178,7 +178,7 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::array& aMods, const rjson::o
 
 // ----------------------------------------------------------------------
 
-void ModAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
+void ModAntigens::apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/)
 {
     const auto verbose = args().get_or_default("report", false);
     const auto report_names_threshold = args().get_or_default("report_names_threshold", 10U);
@@ -188,10 +188,10 @@ void ModAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
           // if (verbose)
           //     std::cerr << "DEBUG ModAntigens " << indices << ' ' << args() << ' ' << styl << '\n';
         aChartDraw.modify(indices, styl, drawing_order());
-        try { add_labels(aChartDraw, indices, 0, args()["label"]); } catch (rjson::field_not_found&) {}
-        try { add_legend(aChartDraw, indices, styl, args()["legend"]); } catch (rjson::field_not_found&) {}
+        try { add_labels(aChartDraw, indices, 0, args()["label"]); } catch (rjson::v1::field_not_found&) {}
+        try { add_legend(aChartDraw, indices, styl, args()["legend"]); } catch (rjson::v1::field_not_found&) {}
     }
-    catch (rjson::field_not_found&) {
+    catch (rjson::v1::field_not_found&) {
         throw unrecognized_mod{"no \"select\" in \"antigens\" mod: " + args().to_json() };
     }
 
@@ -225,7 +225,7 @@ acmacs::Coordinates ModMoveBase::get_move_to(ChartDraw& aChartDraw, bool aVerbos
 
 // ----------------------------------------------------------------------
 
-void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
+void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/)
 {
     const auto verbose = args().get_or_default("report", false);
     try {
@@ -245,7 +245,7 @@ void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDat
             }
         }
     }
-    catch (rjson::field_not_found&) {
+    catch (rjson::v1::field_not_found&) {
         throw unrecognized_mod{"no \"select\" in \"move_antigens\" mod: " + args().to_json()};
     }
 
@@ -253,7 +253,7 @@ void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDat
 
 // ----------------------------------------------------------------------
 
-void ModMoveSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
+void ModMoveSera::apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/)
 {
     const auto verbose = args().get_or_default("report", false);
     try {
@@ -263,7 +263,7 @@ void ModMoveSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
             projection.move_point(index + aChartDraw.number_of_antigens(), move_to);
         }
     }
-    catch (rjson::field_not_found&) {
+    catch (rjson::v1::field_not_found&) {
         throw unrecognized_mod{"no \"select\" in \"move_sera\" mod: " + args().to_json() };
     }
 
@@ -276,7 +276,7 @@ class ModRotate : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+    void apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/) override
         {
             try {
                 if (auto [present, degrees_v] = args().get_value_if("degrees"); present) {
@@ -287,10 +287,10 @@ class ModRotate : public Mod
                     aChartDraw.rotate(radians_v);
                 }
                 else {
-                    throw rjson::field_not_found{};
+                    throw rjson::v1::field_not_found{};
                 }
             }
-            catch (rjson::field_not_found&) {
+            catch (rjson::v1::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};
             }
         }
@@ -304,7 +304,7 @@ class ModFlip : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+    void apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/) override
         {
             try {
                 if (auto [present, direction_v] = args().get_value_if("direction"); present) {
@@ -314,13 +314,13 @@ class ModFlip : public Mod
                     else if (direction == "ns")
                         aChartDraw.flip(1, 0);
                     else
-                        throw rjson::field_not_found{};
+                        throw rjson::v1::field_not_found{};
                 }
                 else {
-                    throw rjson::field_not_found{};
+                    throw rjson::v1::field_not_found{};
                 }
             }
-            catch (rjson::field_not_found&) {
+            catch (rjson::v1::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};
             }
         }
@@ -334,7 +334,7 @@ class ModViewport : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+    void apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/) override
         {
             try {
                 if (auto [present_abs, abs] = args().get_array_if("abs"); present_abs) {
@@ -353,10 +353,10 @@ class ModViewport : public Mod
                     aChartDraw.viewport(orig_viewport.origin + acmacs::Location2D{static_cast<double>(rel[0]), static_cast<double>(rel[1])}, new_size);
                 }
                 else {
-                    throw rjson::field_not_found{};
+                    throw rjson::v1::field_not_found{};
                 }
             }
-            catch (rjson::field_not_found&) {
+            catch (rjson::v1::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};
             }
         }
@@ -370,12 +370,12 @@ class ModBackground : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+    void apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/) override
         {
             try {
                 aChartDraw.background_color(Color(args()["color"]));
             }
-            catch (rjson::field_not_found&) {
+            catch (rjson::v1::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};
             }
         }
@@ -389,12 +389,12 @@ class ModBorder : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+    void apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/) override
         {
             try {
                 aChartDraw.border(Color(args().get_or_default("color", "black")), args().get_or_default("line_width", 1.0));
             }
-            catch (rjson::field_not_found&) {
+            catch (rjson::v1::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};
             }
         }
@@ -408,12 +408,12 @@ class ModGrid : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+    void apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/) override
         {
             try {
                 aChartDraw.grid(Color(args().get_or_default("color", "grey80")), args().get_or_default("line_width", 1.0));
             }
-            catch (rjson::field_not_found&) {
+            catch (rjson::v1::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};
             }
         }
@@ -427,12 +427,12 @@ class ModPointScale : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+    void apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/) override
         {
             try {
                 aChartDraw.scale_points(args().get_or_default("scale", 1.0), args().get_or_default("outline_scale", 1.0));
             }
-            catch (rjson::field_not_found&) {
+            catch (rjson::v1::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};
             }
         }
@@ -446,7 +446,7 @@ class ModTitle : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+    void apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/) override
         {
             try {
                 auto& title = aChartDraw.title();
@@ -484,7 +484,7 @@ class ModTitle : public Mod
                     title.show(false);
                 }
             }
-            catch (rjson::field_not_found&) {
+            catch (rjson::v1::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};
             }
         }
@@ -498,13 +498,13 @@ class ModLegend : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+    void apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/) override
         {
             try {
                 if (args().get_or_default("show", true)) {
                     auto& legend = aChartDraw.legend_point_label();
                     if (auto [data_present, data] = args().get_array_if("data"); data_present) {
-                        for (const rjson::object& line_data: data)
+                        for (const rjson::v1::object& line_data: data)
                             legend.add_line(Color(line_data.get_or_default("outline", "black")), Color(line_data.get_or_default("fill", "pink")), line_data.get_or_default("display_name", "* no display_name *"));
                     }
                     if (auto [offset_present, offset] = args().get_array_if("offset"); offset_present)
@@ -524,7 +524,7 @@ class ModLegend : public Mod
                     aChartDraw.remove_legend();
                 }
             }
-            catch (rjson::field_not_found&) {
+            catch (rjson::v1::field_not_found&) {
                 throw unrecognized_mod{"mod: " + args().to_json()};
             }
         }
@@ -538,7 +538,7 @@ class ModLine : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+    void apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/) override
         {
             const auto begins = begins_ends(aChartDraw, "from");
             const auto ends = begins_ends(aChartDraw, "to");
@@ -587,7 +587,7 @@ class ModArrow : public ModLine
  public:
     using ModLine::ModLine;
 
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+    void apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/) override
         {
             const auto begins = begins_ends(aChartDraw, "from");
             const auto ends = begins_ends(aChartDraw, "to");
@@ -612,10 +612,10 @@ class ModRectangle : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+    void apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/) override
         {
-            const rjson::array& c1 = args().one_of("c1", "corner1");
-            const rjson::array& c2 = args().one_of("c2", "corner2");
+            const rjson::v1::array& c1 = args().one_of("c1", "corner1");
+            const rjson::v1::array& c2 = args().one_of("c2", "corner2");
             auto& rectangle = aChartDraw.rectangle({c1[0], c1[1]}, {c2[0], c2[1]});
             rectangle.filled(args().get_or_default("filled", false));
             rectangle.color(Color(args().get_or_default("color", "#80FF00FF")));
@@ -631,9 +631,9 @@ class ModCircle : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
+    void apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/) override
         {
-            const rjson::array& center = args()["center"];
+            const rjson::v1::array& center = args()["center"];
             auto& circle = aChartDraw.circle({center[0], center[1]}, Scaled{args().get_or_default("size", 1.0)});
             circle.color(Color(args().get_or_default("fill", "transparent")), Color(args().get_or_default("outline", "#80FF00FF")));
             circle.outline_width(args().get_or_default("outline_width", 1.0));
@@ -645,11 +645,11 @@ class ModCircle : public Mod
 
 // ----------------------------------------------------------------------
 
-Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const rjson::object& aUpdate)
+Mods factory(const rjson::v1::value& aMod, const rjson::v1::object& aSettingsMods, const rjson::v1::object& aUpdate)
 {
     std::string name;
-    rjson::object args;
-    if (auto ptr_obj = std::get_if<rjson::object>(&aMod)) {
+    rjson::v1::object args;
+    if (auto ptr_obj = std::get_if<rjson::v1::object>(&aMod)) {
         name = ptr_obj->get_or_default("N", "");
         if (name.empty()) {
             if (ptr_obj->exists("?N"))
@@ -657,27 +657,27 @@ Mods factory(const rjson::value& aMod, const rjson::object& aSettingsMods, const
         }
         args.update(*ptr_obj);
     }
-    else if (auto ptr_str = std::get_if<rjson::string>(&aMod)) {
+    else if (auto ptr_str = std::get_if<rjson::v1::string>(&aMod)) {
         name = ptr_str->str();
     }
     args.update(aUpdate);
 
     Mods result;
 
-    auto get_referenced_mod = [&aSettingsMods](std::string aName) -> const rjson::array& {
+    auto get_referenced_mod = [&aSettingsMods](std::string aName) -> const rjson::v1::array& {
         try {
             if (!aName.empty() && aName[0] == '*')
                 return aSettingsMods[aName.substr(1)];
             else
                 return aSettingsMods[aName];
         }
-        catch (rjson::field_not_found&) {
+        catch (rjson::v1::field_not_found&) {
             if (!aName.empty() && aName[0] == '*') // optional mod
-                return rjson::sEmptyArray;
+                return rjson::v1::sEmptyArray;
             throw unrecognized_mod{"mod not found: " + aName};
         }
         catch (std::bad_variant_access&) {
-            throw unrecognized_mod{"[\"mods\"][\"" + aName + "\"] is not an array:\n\n" + aSettingsMods.to_json_pp(2, rjson::json_pp_emacs_indent::no) + "\n\n"};
+            throw unrecognized_mod{"[\"mods\"][\"" + aName + "\"] is not an array:\n\n" + aSettingsMods.to_json_pp(2, rjson::v1::json_pp_emacs_indent::no) + "\n\n"};
         }
     };
 
