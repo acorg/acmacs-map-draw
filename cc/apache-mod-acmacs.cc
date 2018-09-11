@@ -191,13 +191,24 @@ void make_ace(request_rec* r)
     antigens->set_continent();
     seqdb::add_clades(chart, seqdb::ignore_errors::yes, seqdb::report::yes);
 
-    auto ace = acmacs::chart::export_ace_to_rjson(chart, "mod_acmacs");
-    if (const auto& group_sets = chart.extension_field("group_sets"); group_sets != rjson::v1::null{})
-        ace["c"].set_field("group_sets", group_sets);
-
     ap_set_content_type(r, "application/json");
     r->content_encoding = "gzip";
-    const auto exported = ace.to_json();
+
+      // helping during rjson::v1 to rjson::v2 transition
+    auto make_ace_helper = [](auto ace, const auto& group_sets) -> std::string {
+        if constexpr (std::is_same_v<decltype(ace), rjson::v2::value>) {
+            if (!group_sets.is_null())
+                ace["c"]["group_sets"] = group_sets;
+            return rjson::to_string(ace);
+        }
+        else {
+            if (group_sets != rjson::v1::null{})
+                ace["c"].set_field("group_sets", group_sets);
+            return ace.to_json();
+        }
+    };
+
+    const auto exported = make_ace_helper(acmacs::chart::export_ace_to_rjson(chart, "mod_acmacs"), chart.extension_field("group_sets"));
     const auto compressed = acmacs::file::gzip_compress(exported);
     ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
 
