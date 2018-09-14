@@ -9,7 +9,7 @@
 
 void ModAminoAcids::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
-    const auto verbose = args().get_or_default("report", false);
+    const auto verbose = rjson::get_or(args(), "report", false);
     try {
         if (auto [pos_present, pos] = args().get_array_if("pos"); pos_present) {
             aa_pos(aChartDraw, pos, verbose);
