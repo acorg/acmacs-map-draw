@@ -25,54 +25,55 @@ void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aS
 
 // ----------------------------------------------------------------------
 
-acmacs::PointStyle point_style_from_json(const rjson::v1::object& aSource)
+acmacs::PointStyle point_style_from_json(const rjson::value& aSource)
 {
     acmacs::PointStyle style;
-    for (auto [key, value]: aSource) {
+    rjson::for_each(aSource, [&style](const rjson::object::value_type& key_value) {
+        const auto& [key, val] = key_value;
         if (key == "fill")
-            style.fill = Color(value);
+            style.fill = Color(static_cast<std::string_view>(val));
         else if (key == "fill_saturation")
-            style.fill = Color(Color::type::adjust_saturation, value);
+            style.fill = Color(Color::type::adjust_saturation, val);
         else if (key == "fill_brightness")
-            style.fill = Color(Color::type::adjust_brightness, value);
+            style.fill = Color(Color::type::adjust_brightness, val);
         else if (key == "outline")
-            style.outline = Color(value);
+            style.outline = Color(static_cast<std::string_view>(val));
         else if (key == "outline_saturation")
-            style.outline = Color(Color::type::adjust_saturation, value);
+            style.outline = Color(Color::type::adjust_saturation, val);
         else if (key == "outline_brightness")
-            style.outline = Color(Color::type::adjust_brightness, value);
+            style.outline = Color(Color::type::adjust_brightness, val);
         else if (key == "show")
-            style.shown = value;
+            style.shown = val;
         else if (key == "hide")
-            style.shown = !value;
+            style.shown = !val;
         else if (key == "shape")
-            style.shape = value.str();
+            style.shape = static_cast<std::string_view>(val);
         else if (key == "size")
-            style.size = Pixels{value};
+            style.size = Pixels{val};
         else if (key == "outline_width")
-            style.outline_width = Pixels{value};
+            style.outline_width = Pixels{val};
         else if (key == "aspect")
-            style.aspect = Aspect{value};
+            style.aspect = Aspect{val};
         else if (key == "rotation")
-            style.rotation = Rotation{value};
-    }
+            style.rotation = Rotation{val};
+    });
     return style;
 
 } // point_style_from_json
 
 // ----------------------------------------------------------------------
 
-PointDrawingOrder drawing_order_from_json(const rjson::v1::object& aSource)
+PointDrawingOrder drawing_order_from_json(const rjson::value& aSource)
 {
     PointDrawingOrder result{PointDrawingOrder::NoChange};
-    if (aSource.get_or_default("raise_", false)) {
+    if (rjson::get_or(aSource, "raise_", false)) {
         result = PointDrawingOrder::Raise;
     }
-    else if (aSource.get_or_default("lower", false)) {
+    else if (rjson::get_or(aSource, "lower", false)) {
         result = PointDrawingOrder::Lower;
     }
     else {
-        const std::string order = aSource.get_or_default("order", "");
+        const auto order = rjson::get_or(aSource, "order", "");
         if (order == "raise")
             result = PointDrawingOrder::Raise;
         else if (order == "lower")

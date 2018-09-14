@@ -7,7 +7,7 @@
 
 // ----------------------------------------------------------------------
 
-void ModAminoAcids::apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/)
+void ModAminoAcids::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
     const auto verbose = args().get_or_default("report", false);
     try {
@@ -31,7 +31,7 @@ void ModAminoAcids::apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModD
 
 // ----------------------------------------------------------------------
 
-void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::v1::array& aPos, bool aVerbose)
+void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool aVerbose)
 {
     const auto& seqdb = seqdb::get(seqdb::ignore_errors::no, do_report_time(aVerbose));
     const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), {std::begin(aPos), std::end(aPos)}, aVerbose ? seqdb::report::yes : seqdb::report::no);
@@ -113,7 +113,7 @@ void ModAminoAcids::make_color_for_aa(std::map<std::string, Color>& color_for_aa
 
 // ----------------------------------------------------------------------
 
-void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::v1::object& aGroup, bool aVerbose)
+void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, bool aVerbose)
 {
     const rjson::v1::array& pos_aa = aGroup["pos_aa"];
     std::vector<size_t> positions(pos_aa.size());

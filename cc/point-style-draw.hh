@@ -10,14 +10,14 @@ namespace acmacs::surface { class Surface; }
 
 // ----------------------------------------------------------------------
 
-acmacs::PointStyle point_style_from_json(const rjson::v1::object& aSource);
+acmacs::PointStyle point_style_from_json(const rjson::value& aSource);
 void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aStyle, const acmacs::Coordinates& aCoord);
 
 // ----------------------------------------------------------------------
 
 enum class PointDrawingOrder { NoChange, Raise, Lower };
 
-PointDrawingOrder drawing_order_from_json(const rjson::v1::object& aSource);
+PointDrawingOrder drawing_order_from_json(const rjson::value& aSource);
 
 // ----------------------------------------------------------------------
 /// Local Variables:

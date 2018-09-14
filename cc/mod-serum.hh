@@ -10,7 +10,7 @@ class ModSera : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::v1::value& aModData) override;
+    void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override;
 
 }; // class ModSera
 
@@ -38,13 +38,13 @@ class ModSerumCircle : public ModSerumHomologous
  public:
     using ModSerumHomologous::ModSerumHomologous;
 
-    void apply(ChartDraw& aChartDraw, const rjson::v1::value& aModData) override;
+    void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override;
 
     enum class serum_circle_radius_type { theoretical, empirical };
     static serum_circle_radius_type radius_type_from_string(std::string radius_type_s);
 
-    void make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, const acmacs::chart::PointIndexList& aAntigenIndices, serum_circle_radius_type radius_type, const rjson::v1::object& circle_plot_spec, bool verbose) const;
-    void make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, Scaled aRadius, const rjson::v1::object& circle_plot_spec) const;
+    void make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, const acmacs::chart::PointIndexList& aAntigenIndices, serum_circle_radius_type radius_type, const rjson::value& circle_plot_spec, bool verbose) const;
+    void make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, Scaled aRadius, const rjson::value& circle_plot_spec) const;
     double calculate_radius(ChartDraw& aChartDraw, size_t aSerumIndex, const acmacs::chart::PointIndexList& aAntigenIndices, serum_circle_radius_type radius_type, bool aVerbose) const;
 
 }; // class ModSerumCircle
@@ -56,8 +56,8 @@ class ModSerumCoverage : public ModSerumHomologous
  public:
     using ModSerumHomologous::ModSerumHomologous;
 
-    void apply(ChartDraw& aChartDraw, const rjson::v1::value& aModData) override;
-    void apply(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, const rjson::v1::object& within_4fold, const rjson::v1::object& outside_4fold, bool verbose);
+    void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override;
+    void apply(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, const rjson::value& within_4fold, const rjson::value& outside_4fold, bool verbose);
 
 }; // class ModSerumCoverage
 
@@ -68,7 +68,7 @@ class ModSerumCoverageCircle : public ModSerumHomologous
  public:
     using ModSerumHomologous::ModSerumHomologous;
 
-    void apply(ChartDraw& aChartDraw, const rjson::v1::value& aModData) override;
+    void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override;
 
 }; // class ModSerumCoverage
 
@@ -79,7 +79,7 @@ class ModSerumLine : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::v1::value& aModData) override;
+    void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override;
 
 }; // class ModSerumCoverage
 
