@@ -5,7 +5,7 @@
 #include <map>
 #include <memory>
 
-#include "acmacs-base/rjson.hh"
+#include "acmacs-base/rjson-forward.hh"
 #include "acmacs-base/timeit.hh"
 #include "acmacs-base/size.hh"
 #include "acmacs-chart-2/chart.hh"
@@ -27,8 +27,8 @@ class SelectAntigensSera
         : mVerbose{aVerbose}, mReportNamesThreshold{aReportNamesThreshold}, mReportTime{aVerbose ? report_time::Yes : report_time::No} {}
     virtual ~SelectAntigensSera();
 
-    virtual acmacs::chart::Indexes select(const ChartSelectInterface& aChartSelectInterface, const rjson::v1::value& aSelector);
-    virtual acmacs::chart::Indexes command(const ChartSelectInterface& aChartSelectInterface, const rjson::v1::object& aSelector) = 0;
+    virtual acmacs::chart::Indexes select(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector);
+    virtual acmacs::chart::Indexes command(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector) = 0;
     virtual void filter_name(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string aName) = 0;
     virtual void filter_full_name(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string aFullName) = 0;
     virtual void filter_rectangle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::Rectangle& aRectangle) = 0;
@@ -88,7 +88,7 @@ class SelectAntigens : public SelectAntigensSera
  public:
     using SelectAntigensSera::SelectAntigensSera;
 
-    acmacs::chart::Indexes command(const ChartSelectInterface& aChartSelectInterface, const rjson::v1::object& aSelector) override;
+    acmacs::chart::Indexes command(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector) override;
     void filter_sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes);
     void filter_not_sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes);
     std::map<std::string, size_t> clades(const ChartSelectInterface& aChartSelectInterface);
@@ -112,7 +112,7 @@ class SelectSera : public SelectAntigensSera
  public:
     using SelectAntigensSera::SelectAntigensSera;
 
-    acmacs::chart::Indexes command(const ChartSelectInterface& aChartSelectInterface, const rjson::v1::object& aSelector) override;
+    acmacs::chart::Indexes command(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector) override;
     void filter_name(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string aName) override { filter_name_in(aChartSelectInterface.chart().sera(), indexes, aName); }
     void filter_full_name(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string aFullName) override { filter_full_name_in(aChartSelectInterface.chart().sera(), indexes, aFullName); }
     void filter_rectangle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::Rectangle& aRectangle) override { filter_rectangle_in(indexes, aChartSelectInterface.chart().number_of_antigens(), *aChartSelectInterface.layout(), aChartSelectInterface.transformation(), aRectangle); }
