@@ -22,30 +22,6 @@ SelectAntigensSera::~SelectAntigensSera()
 
 // ----------------------------------------------------------------------
 
-// class SelectorVisitor : public rjson::v1::value_visitor_base<acmacs::chart::Indexes>
-// {
-//  public:
-//     SelectorVisitor(const ChartSelectInterface& aChartSelectInterface, SelectAntigensSera& aSelect) : mChartSelectInterface{aChartSelectInterface}, mSelect{aSelect} {}
-//     using rjson::v1::value_visitor_base<acmacs::chart::Indexes>::operator();
-
-//     acmacs::chart::Indexes operator()(const rjson::v1::string& aValue) override
-//         {
-//             return mSelect.command(mChartSelectInterface, {{aValue, rjson::v1::boolean{true}}});
-//         }
-
-//     acmacs::chart::Indexes operator()(const rjson::v1::object& aValue) override
-//         {
-//             return mSelect.command(mChartSelectInterface, aValue);
-//         }
-
-//  private:
-//     const ChartSelectInterface& mChartSelectInterface;
-//     SelectAntigensSera& mSelect;
-
-// }; // class SelectorVisitor
-
-// ----------------------------------------------------------------------
-
 acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector)
 {
     try {

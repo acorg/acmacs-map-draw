@@ -125,7 +125,7 @@ void ModSerumCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData
     const auto verbose = rjson::get_or(args(), "report", false);
     const size_t serum_index = select_mark_serum(aChartDraw, verbose);
     const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, verbose);
-    make_serum_circle(aChartDraw, serum_index, antigen_indices, radius_type_from_string(rjson::get_or(args(), "type", "empirical")), rjson::get_or(args(), "circle"), verbose);
+    make_serum_circle(aChartDraw, serum_index, antigen_indices, radius_type_from_string(rjson::get_or(args(), "type", "empirical")), args()["circle"], verbose);
 }
 
 // ----------------------------------------------------------------------
@@ -142,22 +142,22 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex
 {
     auto& circle = aChartDraw.serum_circle(aSerumIndex, aRadius);
     if (!circle_plot_spec.empty()) {
-        circle.fill(Color(circle_plot_spec.get_or_default("fill", "transparent")));
-        const auto outline = circle_plot_spec.get_or_default("outline", "pink");
-        const auto outline_width = circle_plot_spec.get_or_default("outline_width", 1.0);
+        circle.fill(Color(rjson::get_or(circle_plot_spec, "fill", "transparent")));
+        const auto outline = rjson::get_or(circle_plot_spec, "outline", "pink");
+        const auto outline_width = rjson::get_or(circle_plot_spec, "outline_width", 1.0);
         circle.outline(Color(outline), outline_width);
-        if (auto [angles_present, angles] = circle_plot_spec.get_array_if("angle_degrees"); angles_present) {
+        if (const auto& angles = circle_plot_spec["angle_degrees"]; !angles.is_null()) {
             const double pi_180 = std::acos(-1) / 180.0;
             circle.angles(static_cast<double>(angles[0]) * pi_180, static_cast<double>(angles[1]) * pi_180);
         }
-        const auto line_dash = circle_plot_spec.get_or_default("radius_line_dash", "");
+        const auto line_dash = rjson::get_or(circle_plot_spec, "radius_line_dash", "");
         if (line_dash == "dash1")
             circle.radius_line_dash1();
         else if (line_dash == "dash2")
             circle.radius_line_dash2();
         else
             circle.radius_line_no_dash();
-        circle.radius_line(Color(circle_plot_spec.get_or_default("radius_line_color", outline)), circle_plot_spec.get_or_default("radius_line_width", outline_width));
+        circle.radius_line(Color(rjson::get_or(circle_plot_spec, "radius_line_color", outline)), rjson::get_or(circle_plot_spec, "radius_line_width", outline_width));
     }
 }
 
@@ -200,7 +200,7 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDa
     const auto verbose = rjson::get_or(args(), "report", false);
     const size_t serum_index = select_mark_serum(aChartDraw, verbose);
     const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, verbose);
-    apply(aChartDraw, serum_index, antigen_indices, args().get_or_empty_object("within_4fold"), args().get_or_empty_object("outside_4fold"), verbose);
+    apply(aChartDraw, serum_index, antigen_indices, args()["within_4fold"], args()["outside_4fold"], verbose);
 }
 
 // ----------------------------------------------------------------------
@@ -246,13 +246,13 @@ void ModSerumCoverageCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*
     const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, verbose);
 
     ModSerumCoverage mod_coverage;
-    mod_coverage.apply(aChartDraw, serum_index, antigen_indices, args().get_or_empty_object("within_4fold"), args().get_or_empty_object("outside_4fold"), verbose);
+    mod_coverage.apply(aChartDraw, serum_index, antigen_indices, args()["within_4fold"], args()["outside_4fold"], verbose);
 
-    if (auto [present, data] = args().get_object_if("empirical"); present && data.get_or_default("show", true)) {
+    if (const auto& data = args()["empirical"]; !data.is_null() && rjson::get_or(data, "show", true)) {
         ModSerumCircle mod_circle;
         mod_circle.make_serum_circle(aChartDraw, serum_index, antigen_indices, ModSerumCircle::serum_circle_radius_type::empirical, data, verbose);
     }
-    if (auto [present, data] = args().get_object_if("theoretical"); present && data.get_or_default("show", true)) {
+    if (const auto& data = args()["theoretical"]; !data.is_null() && rjson::get_or(data, "show", true)) {
         ModSerumCircle mod_circle;
         mod_circle.make_serum_circle(aChartDraw, serum_index, antigen_indices, ModSerumCircle::serum_circle_radius_type::theoretical, data, verbose);
     }

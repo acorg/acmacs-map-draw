@@ -14,8 +14,8 @@ using namespace std::string_literals;
 // ----------------------------------------------------------------------
 
 static int draw(const argc_argv& args);
-static GeographicMapColoring* make_coloring(const rjson::v1::value& aSettings);
-static void set_title(map_elements::Title& aTitle, const rjson::v1::value& aSettings, bool use_title_text);
+static GeographicMapColoring* make_coloring(const rjson::value& aSettings);
+static void set_title(map_elements::Title& aTitle, const rjson::value& aSettings, bool use_title_text);
 
 int main(int argc, char* const argv[])
 {
@@ -53,10 +53,10 @@ int main(int argc, char* const argv[])
 
 // ----------------------------------------------------------------------
 
-static inline std::vector<std::string> make_list(const rjson::v1::array& aSource)
+static inline std::vector<std::string> make_list(const rjson::value& aSource)
 {
     std::vector<std::string> result;
-    std::transform(std::begin(aSource), std::end(aSource), std::back_inserter(result), [](const auto& entry) -> std::string { return entry.str(); });
+    rjson::copy(aSource, result);
     return result;
 }
 
@@ -86,7 +86,7 @@ int draw(const argc_argv& args)
         for (auto fn: aFilenames) {
             if (verbose)
                 std::cerr << "DEBUG: reading settings from " << fn << '\n';
-            settings.update(rjson::v1::parse_file(fn, rjson::v1::remove_comments::Yes));
+            settings.update(rjson::parse_file(fn, rjson::remove_comments::yes));
         }
     };
     if (args["-s"])
@@ -95,13 +95,13 @@ int draw(const argc_argv& args)
         load_settings(args["--settings"]);
       // std::cerr << "DEBUG: loaded settings\n" << settings.to_json_pp() << '\n';
 
-    const auto start_date = settings["start_date"].strv(), end_date = settings["end_date"].strv();
+    const std::string_view start_date = settings["start_date"], end_date = settings["end_date"];
     std::unique_ptr<GeographicMapColoring> coloring{make_coloring(settings)};
 
     if (args["--time-series"] == "") {
           // Single map
         std::cerr << "INFO: single map\n";
-        GeographicMapWithPointsFromHidb geographic_map(string::upper(args[0]), settings["point_size_in_pixels"], settings["point_density"], Color(settings["continent_outline_color"]), settings["continent_outline_width"]);
+        GeographicMapWithPointsFromHidb geographic_map(string::upper(args[0]), settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]);
         geographic_map.add_points_from_hidb_colored_by(*coloring, ColorOverride{}, make_list(settings["priority"]), start_date, end_date);
         set_title(geographic_map.title(), settings, true);
 
@@ -117,11 +117,11 @@ int draw(const argc_argv& args)
             throw std::runtime_error("Please provide output filename prefix for time series");
         std::unique_ptr<GeographicTimeSeriesBase> time_series;
         if (args["--time-series"] == "monthly")
-            time_series.reset(new GeographicTimeSeriesMonthly(string::upper(args[0]), start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(settings["continent_outline_color"]), settings["continent_outline_width"]));
+            time_series.reset(new GeographicTimeSeriesMonthly(string::upper(args[0]), start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]));
         else if (args["--time-series"] == "yearly")
-            time_series.reset(new GeographicTimeSeriesYearly(string::upper(args[0]), start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(settings["continent_outline_color"]), settings["continent_outline_width"]));
+            time_series.reset(new GeographicTimeSeriesYearly(string::upper(args[0]), start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]));
         else if (args["--time-series"] == "weekly")
-            time_series.reset(new GeographicTimeSeriesWeekly(string::upper(args[0]), start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(settings["continent_outline_color"]), settings["continent_outline_width"]));
+            time_series.reset(new GeographicTimeSeriesWeekly(string::upper(args[0]), start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]));
         else
             throw std::runtime_error("Unsupported time series argument: " + std::string{static_cast<std::string_view>(args["--time-series"])} + " (monthly or yearly or weekly expected)");
         set_title(time_series->title(), settings, false);
@@ -134,23 +134,23 @@ int draw(const argc_argv& args)
 
 // ----------------------------------------------------------------------
 
-static inline GeographicMapColoring::TagToColor make_map(const rjson::v1::object& aSource)
+static inline GeographicMapColoring::TagToColor make_map(const rjson::value& aSource)
 {
     GeographicMapColoring::TagToColor result;
-    auto rjson_to_coloring_data = [](const auto& entry) -> GeographicMapColoring::TagToColor::value_type {
+    auto rjson_to_coloring_data = [](const rjson::object::value_type& entry) -> GeographicMapColoring::TagToColor::value_type {
         if (!entry.first.empty() && (entry.first.front() == '?' || entry.first.back() == '?'))
-            return {entry.first.str(), {Color("pink")}}; // comment field
+            return {entry.first, {Color("pink")}}; // comment field
         else
-            return {entry.first.str(), {Color(entry.second["fill"]), Color(entry.second["outline"]), entry.second["outline_width"]}};
+            return {entry.first, {Color(static_cast<std::string_view>(entry.second["fill"])), Color(static_cast<std::string_view>(entry.second["outline"])), entry.second["outline_width"]}};
     };
-    std::transform(std::begin(aSource), std::end(aSource), std::inserter(result, result.end()), rjson_to_coloring_data);
+    rjson::transform(aSource, std::inserter(result, result.end()), rjson_to_coloring_data);
     return result;
 }
 
-GeographicMapColoring* make_coloring(const rjson::v1::value& aSettings)
+GeographicMapColoring* make_coloring(const rjson::value& aSettings)
 {
     GeographicMapColoring* coloring = nullptr;
-    const auto coloring_name = aSettings["coloring"].strv();
+    const std::string_view coloring_name = aSettings["coloring"];
     if (coloring_name == "" || coloring_name == "continent")
         coloring = new ColoringByContinent(make_map(aSettings["continent_color"]));
     else if (coloring_name == "clade")
@@ -168,23 +168,22 @@ GeographicMapColoring* make_coloring(const rjson::v1::value& aSettings)
 
 // ----------------------------------------------------------------------
 
-void set_title(map_elements::Title& aTitle, const rjson::v1::value& aSettings, bool use_title_text)
+void set_title(map_elements::Title& aTitle, const rjson::value& aSettings, bool use_title_text)
 {
     if (!use_title_text || static_cast<std::string_view>(aSettings["title_text"]) != "") {
-        const rjson::v1::object& title_data = aSettings["title"];
+        const rjson::value& title_data = aSettings["title"];
         aTitle.show(true)
-                .padding(title_data.get_or_default("padding", 10.0))
-                .background(Color(title_data.get_or_default("background", "transparent")))
-                .border_color(Color(title_data.get_or_default("border_color", "black")))
-                .border_width(title_data.get_or_default("border_width", 0.0))
-                .text_color(Color(title_data.get_or_default("text_color", "black")))
-                .text_size(title_data.get_or_default("text_size", 12.0))
+                .padding(rjson::get_or(title_data, "padding", 10.0))
+                .background(Color(rjson::get_or(title_data, "background", "transparent")))
+                .border_color(Color(rjson::get_or(title_data, "border_color", "black")))
+                .border_width(rjson::get_or(title_data, "border_width", 0.0))
+                .text_color(Color(rjson::get_or(title_data, "text_color", "black")))
+                .text_size(rjson::get_or(title_data, "text_size", 12.0))
                 ;
-        const auto& offset = title_data.get_or_empty_array("offset");
-        if (!offset.empty())
+        if (const auto& offset = title_data["offset"]; !offset.empty())
             aTitle.offset({offset[0], offset[1]});
         if (use_title_text)
-            aTitle.add_line(aSettings["title_text"].str());
+            aTitle.add_line(aSettings["title_text"]);
     }
 
 } // set_title

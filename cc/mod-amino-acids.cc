@@ -10,21 +10,15 @@
 void ModAminoAcids::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
     const auto verbose = rjson::get_or(args(), "report", false);
-    try {
-        if (auto [pos_present, pos] = args().get_array_if("pos"); pos_present) {
-            aa_pos(aChartDraw, pos, verbose);
-        }
-        else if (auto [groups_present, groups] = args().get_array_if("groups"); groups_present) {
-            for (const auto& group: groups)
-                aa_group(aChartDraw, group, verbose);
-        }
-        else {
-            std::cerr << "No pos no groups" << '\n';
-            throw std::bad_variant_access{};
-        }
+    if (const auto& pos = args()["pos"]; !pos.is_null()) {
+        aa_pos(aChartDraw, pos, verbose);
     }
-    catch (std::bad_variant_access&) {
-        throw unrecognized_mod{"expected either \"pos\":[] or \"groups\":[] mod: " + args().to_json() };
+    else if (const auto& groups = args()["groups"]; !groups.is_null()) {
+        rjson::for_each(groups, [this,&aChartDraw,verbose](const rjson::value& group) { aa_group(aChartDraw, group, verbose); });
+    }
+    else {
+        std::cerr << "No pos no groups" << '\n';
+        throw unrecognized_mod{"expected either \"pos\":[] or \"groups\":[] mod: " + rjson::to_string(args())};
     }
 
 } // ModAminoAcids::apply
@@ -34,7 +28,9 @@ void ModAminoAcids::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*
 void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool aVerbose)
 {
     const auto& seqdb = seqdb::get(seqdb::ignore_errors::no, do_report_time(aVerbose));
-    const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), {std::begin(aPos), std::end(aPos)}, aVerbose ? seqdb::report::yes : seqdb::report::no);
+    std::vector<size_t> positions;
+    rjson::copy(aPos, positions);
+    const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), positions, aVerbose ? seqdb::report::yes : seqdb::report::no);
       // aa_indices is std::map<std::string, std::vector<size_t>>
     std::vector<std::string> aa_sorted(aa_indices.size()); // most frequent aa first
     std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
@@ -49,12 +45,13 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool
         else
             styl.fill = ca->second;
         aChartDraw.modify(indices_for_aa, styl, drawing_order());
-        try { add_legend(aChartDraw, indices_for_aa, styl, aa, args()["legend"]); } catch (rjson::v1::field_not_found&) {}
+        if (const auto& legend = args()["legend"]; !legend.is_null())
+            add_legend(aChartDraw, indices_for_aa, styl, aa, legend);
         if (aVerbose)
             std::cerr << "INFO: amino-acids at " << aPos << ": " << aa << ' ' << indices_for_aa.size() << '\n';
     }
 
-    if (auto make_centroid = args().get_or_default("centroid", false); make_centroid) {
+    if (auto make_centroid = rjson::get_or(args(), "centroid", false); make_centroid) {
         auto layout = aChartDraw.projection().transformed_layout();
         for (auto [aa, indexes] : aa_indices) {
             if (indexes.size() > 1) {
@@ -91,11 +88,11 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool
 
 void ModAminoAcids::make_color_for_aa(std::map<std::string, Color>& color_for_aa, const std::vector<std::string>& aa_sorted)
 {
-    if (auto [colors_present, colors] = args().get_object_if("colors"); colors_present) {
+    if (const auto& colors = args()["colors"]; !colors.is_null()) {
         std::vector<std::string> aa_without_colors;
         for (const auto& aa : aa_sorted) {
-            if (auto [color_present, color] = colors.get_value_if(aa); color_present) {
-                color_for_aa[aa] = Color(color);
+            if (const auto& color = colors[aa]; !color.is_null()) {
+                color_for_aa[aa] = Color(static_cast<std::string_view>(color));
             }
             else
                 aa_without_colors.push_back(aa);
@@ -115,18 +112,19 @@ void ModAminoAcids::make_color_for_aa(std::map<std::string, Color>& color_for_aa
 
 void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, bool aVerbose)
 {
-    const rjson::v1::array& pos_aa = aGroup["pos_aa"];
+    const auto& pos_aa = aGroup["pos_aa"];
     std::vector<size_t> positions(pos_aa.size());
-    std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(positions), [](const auto& src) { return std::stoul(src.str()); });
+    rjson::transform(pos_aa, std::begin(positions), [](const auto& src) { return std::stoul(src.str()); });
     std::string target_aas(pos_aa.size(), ' ');
-    std::transform(std::begin(pos_aa), std::end(pos_aa), std::begin(target_aas), [](const auto& src) { return static_cast<std::string_view>(src).back(); });
+    rjson::transform(pos_aa, std::begin(target_aas), [](const auto& src) { return static_cast<std::string_view>(src).back(); });
     const auto& seqdb = seqdb::get(seqdb::ignore_errors::no, do_report_time(aVerbose));
     const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), positions, aVerbose ? seqdb::report::yes : seqdb::report::no);
     if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
         auto styl = style();
         styl = point_style_from_json(aGroup);
         aChartDraw.modify(aap->second, styl, drawing_order());
-        try { add_legend(aChartDraw, aap->second, styl, string::join(" ", std::begin(pos_aa), std::end(pos_aa)), args()["legend"]); } catch (rjson::v1::field_not_found&) {}
+        if (const auto& legend = args()["legend"]; !legend.is_null())
+            add_legend(aChartDraw, aap->second, styl, string::join(" ", std::begin(pos_aa), std::end(pos_aa)), legend);
         if (aVerbose)
             std::cerr << "INFO: amino-acids group " << pos_aa << ": " << ' ' << aap->second.size() << '\n';
     }
@@ -142,17 +140,17 @@ Color ModAminoAcids::fill_color_default(size_t aIndex, std::string aAA)
 {
     if (aAA == "X") {
         ++mIndexDiff;
-        return Color(args().get_or_default("X_color", "grey25"));
+        return Color(rjson::get_or(args(), "X_color", "grey25"));
     }
     if (mColors.empty()) {
-        const auto ct = args().get_or_default("color_set", "ana");
+        const auto ct = rjson::get_or(args(), "color_set", "ana");
         mColors = Color::distinct(ct == "google" ? Color::distinct_t::GoogleMaps : Color::distinct_t::Ana);
     }
     const auto index = aIndex - mIndexDiff;
     if (index < mColors.size())
         return mColors[index];
     else
-        throw unrecognized_mod{"too few distinct colors in mod: " + args().to_json()};
+        throw unrecognized_mod{"too few distinct colors in mod: " + rjson::to_string(args())};
 
 } // ModAminoAcids::fill_color_default
 
