@@ -87,7 +87,7 @@ int draw(const argc_argv& args)
         apply_mods(chart_draw, settings["apply"], settings);
     }
     catch (std::exception& err) {
-        throw std::runtime_error{std::string{"No \""} + err.what() + "\" in the settings:\n\n" + rjson::pretty(settings, 2, rjson::json_pp_emacs_indent::no) + "\n\n"};
+        throw std::runtime_error{"Cannot apply " + rjson::to_string(settings["apply"]) + ": " + err.what() + "\n settings:\n" + rjson::pretty(settings, 2, rjson::json_pp_emacs_indent::no) + '\n'};
     }
 
     chart_draw.calculate_viewport();

@@ -608,7 +608,13 @@ Mods factory(const rjson::value& aMod, const rjson::value& aSettingsMods, const 
     else if (aMod.is_string()) {
         name = static_cast<std::string>(aMod);
     }
-    args.update(aUpdate);
+    try {
+        args.update(aUpdate);
+    }
+    catch (std::exception& err) {
+        std::cerr << "ERROR: " << err.what() << "\n  main rjson::value: " << args << "\n  rjson::value to merge in: " << aUpdate << '\n';
+        throw;
+    }
 
     Mods result;
 
