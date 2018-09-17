@@ -102,10 +102,14 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 {
     const std::string label = rjson::get_or(aLegendData, "label", "use \"label\" in \"legend\"");
     if (const auto& replace = aLegendData["replace"]; !replace.is_null() && replace) {
-        if (const auto& count = aLegendData["count"]; !count.is_null() && count)
+        if (const auto& count = aLegendData["count"]; !count.is_null() && count) {
+            // std::cerr << "DEBUG: remove line " << label + " (" + std::to_string(aIndices.size()) + ")" << '\n';
             aChartDraw.legend_point_label().remove_line(label + " (" + std::to_string(aIndices.size()) + ")");
-        else
+        }
+        else {
+            // std::cerr << "DEBUG: add_legend remove line " << label << '\n';
             aChartDraw.legend_point_label().remove_line(label);
+        }
     }
     add_legend(aChartDraw, aIndices, aStyle, label, aLegendData);
 
@@ -115,6 +119,7 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 
 void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData)
 {
+    // std::cerr << "DEBUG: add_legend " << aLabel << '\n';
     if (const auto& show = aLegendData["show"]; (show.is_null() || show) && !aIndices.empty()) { // show is true by default
         if (rjson::get_or(aLegendData, "type", "") == "continent_map") {
             if (const auto& offset = aLegendData["offset"]; offset.size() != 2)

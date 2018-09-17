@@ -47,11 +47,12 @@ acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aC
 
 acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector)
 {
-      // std::cout << "DEBUG: antigens command: " << aSelector << '\n';
+    // std::cerr << "DEBUG: antigens command: " << aSelector << '\n';
     auto antigens = aChartSelectInterface.chart().antigens();
     auto indexes = antigens->all_indexes();
     rjson::for_each(aSelector, [this,&aChartSelectInterface,&antigens,&indexes,&aSelector](const rjson::object::value_type& key_value) {
         const auto& [key, val] = key_value;
+        // std::cerr << "DEBUG: " << key << ' ' << val << '\n';
         if (!key.empty() && (key.front() == '?' || key.back() == '?')) {
               // comment
         }
