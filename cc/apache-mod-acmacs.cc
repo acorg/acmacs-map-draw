@@ -229,7 +229,7 @@ int process_post_request(request_rec* r)
     }
 
     const auto data = rjson::parse_string(source_data);
-    if (std::string command = data["C"]; !command.empty()) {
+    if (const std::string_view command = data["C"]; !command.empty()) {
         if (command == "download_pdf")
             command_download_pdf(r, data);
         else if (command == "download_ace")
