@@ -100,7 +100,7 @@ void Mod::add_labels(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 
 void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, const rjson::value& aLegendData)
 {
-    const std::string label = rjson::get_or(aLegendData, "label", "use \"label\" in \"legend\"");
+    const std::string label(rjson::get_or(aLegendData, "label", "use \"label\" in \"legend\""));
     if (const auto& replace = aLegendData["replace"]; !replace.is_null() && replace) {
         if (const auto& count = aLegendData["count"]; !count.is_null() && count) {
             // std::cerr << "DEBUG: remove line " << label + " (" + std::to_string(aIndices.size()) + ")" << '\n';
@@ -155,7 +155,7 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::value& aMods, const rjson::v
         }
         catch (std::bad_variant_access&) {
             std::cerr << "ERROR: std::bad_variant_access: in handling mod: " << mod_desc << '\n';
-            throw unrecognized_mod{mod_desc};
+            throw unrecognized_mod(std::string(mod_desc));
         }
         catch (unrecognized_mod&) {
             if (aIgnoreUnrecognized)
@@ -413,7 +413,7 @@ class ModTitle : public Mod
         if (const auto& show = args()["show"]; show.is_null() || show) { // true by default
             title.show(true);
             if (const auto& display_name = args()["display_name"]; !display_name.is_null())
-                rjson::for_each(display_name, [&title](const rjson::value& line) { title.add_line(line); });
+                rjson::for_each(display_name, [&title](const rjson::value& line) { title.add_line(std::string(line)); });
             else
                 title.add_line(aChartDraw.chart().make_name(aChartDraw.projection_no()));
             if (const auto& offset = args()["offset"]; !offset.is_null())
@@ -431,11 +431,11 @@ class ModTitle : public Mod
             if (const auto& border_width = args()["border_width"]; !border_width.is_null())
                 title.border_width(border_width);
             if (const auto& font_weight = args()["font_weight"]; !font_weight.is_null())
-                title.weight(font_weight);
+                title.weight(std::string(font_weight));
             if (const auto& font_slant = args()["font_slant"]; !font_slant.is_null())
-                title.slant(font_slant);
+                title.slant(std::string(font_slant));
             if (const auto& font_family = args()["font_family"]; !font_family.is_null())
-                title.font_family(font_family);
+                title.font_family(std::string(font_family));
         }
         else {
             title.show(false);
@@ -458,7 +458,7 @@ class ModLegend : public Mod
             if (const auto& data = args()["data"]; !data.is_null()) {
                 rjson::for_each(data, [&legend](const rjson::value& line_data) {
                     legend.add_line(Color(rjson::get_or(line_data, "outline", "black")), Color(rjson::get_or(line_data, "fill", "pink")),
-                                    rjson::get_or(line_data, "display_name", "* no display_name *"));
+                                    std::string(rjson::get_or(line_data, "display_name", "* no display_name *")));
                 });
             }
             if (const auto& offset = args()["offset"]; !offset.is_null())

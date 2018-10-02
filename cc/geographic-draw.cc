@@ -67,7 +67,7 @@ int draw(const argc_argv& args)
     using namespace std::string_literals;
     const bool verbose = args["-v"] || args["--verbose"];
 
-    setup_dbs(args["--db-dir"], verbose);
+    setup_dbs(args["--db-dir"].str(), verbose);
 
     if (args["--init-settings"]) {
         auto write_settings = [](std::ostream& out) { out << geographic_settings_default_raw() << '\n'; };
@@ -75,7 +75,7 @@ int draw(const argc_argv& args)
             write_settings(std::cout);
         }
         else {
-            std::ofstream out(args["--init-settings"]);
+            std::ofstream out(args["--init-settings"].str());
             write_settings(out);
         }
     }
@@ -183,7 +183,7 @@ void set_title(map_elements::Title& aTitle, const rjson::value& aSettings, bool 
         if (const auto& offset = title_data["offset"]; !offset.empty())
             aTitle.offset({offset[0], offset[1]});
         if (use_title_text)
-            aTitle.add_line(aSettings["title_text"]);
+            aTitle.add_line(std::string(aSettings["title_text"]));
     }
 
 } // set_title

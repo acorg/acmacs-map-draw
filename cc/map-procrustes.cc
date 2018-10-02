@@ -62,7 +62,7 @@ int draw(const argc_argv& args)
 
     ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, report)), p1);
 
-    std::string secondary_chart = (args.number_of_arguments() > 1 && !string::ends_with(std::string_view(args[1]), ".pdf")) ? args[1] : args[0];
+    std::string secondary_chart((args.number_of_arguments() > 1 && !string::ends_with(std::string_view(args[1]), ".pdf")) ? args[1] : args[0]);
     const rjson::value pc{rjson::object{{"N", "procrustes_arrows"},
                                          {"chart", secondary_chart},
                                          {"projection", p2},

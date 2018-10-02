@@ -125,7 +125,7 @@ void ModSerumCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData
     const auto verbose = rjson::get_or(args(), "report", false);
     const size_t serum_index = select_mark_serum(aChartDraw, verbose);
     const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, verbose);
-    make_serum_circle(aChartDraw, serum_index, antigen_indices, radius_type_from_string(rjson::get_or(args(), "type", "empirical")), args()["circle"], verbose);
+    make_serum_circle(aChartDraw, serum_index, antigen_indices, radius_type_from_string(std::string(rjson::get_or(args(), "type", "empirical"))), args()["circle"], verbose);
 }
 
 // ----------------------------------------------------------------------

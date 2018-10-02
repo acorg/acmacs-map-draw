@@ -50,9 +50,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
     // std::cerr << "DEBUG: antigens command: " << aSelector << '\n';
     auto antigens = aChartSelectInterface.chart().antigens();
     auto indexes = antigens->all_indexes();
-    rjson::for_each(aSelector, [this,&aChartSelectInterface,&antigens,&indexes,&aSelector](const rjson::object::value_type& key_value) {
-        const auto& [key, val] = key_value;
-        // std::cerr << "DEBUG: " << key << ' ' << val << '\n';
+    rjson::for_each(aSelector, [this,&aChartSelectInterface,&antigens,&indexes,&aSelector](const std::string& key, const rjson::value& val) {
         if (!key.empty() && (key.front() == '?' || key.back() == '?')) {
               // comment
         }
@@ -364,8 +362,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
 {
     const auto& sera = aChartSelectInterface.chart().sera();
     auto indexes = sera->all_indexes();
-    rjson::for_each(aSelector, [this,&aChartSelectInterface,&sera,&indexes,&aSelector](const rjson::object::value_type& key_value) {
-        const auto& [key, val] = key_value;
+    rjson::for_each(aSelector, [this,&aChartSelectInterface,&sera,&indexes,&aSelector](const std::string& key, const rjson::value& val) {
         if (!key.empty() && (key.front() == '?' || key.back() == '?')) {
               // comment
         }

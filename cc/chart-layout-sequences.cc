@@ -25,7 +25,7 @@ int main(int argc, char* const argv[])
         else {
             const auto report_time = do_report_time(args["--time"]);
             auto chart = acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, report_time);
-            export_layout_sequences_into_csv(args[1], *chart, args["--projection"]);
+            export_layout_sequences_into_csv(std::string(args[1]), *chart, args["--projection"]);
         }
     }
     catch (std::exception& err) {
