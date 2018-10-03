@@ -42,9 +42,9 @@ acmacs::PointStyle point_style_from_json(const rjson::value& aSource)
         else if (key == "outline_brightness")
             style.outline = Color(Color::type::adjust_brightness, val);
         else if (key == "show")
-            style.shown = val;
+            style.shown = val.get_bool();
         else if (key == "hide")
-            style.shown = !val;
+            style.shown = !val.get_bool();
         else if (key == "shape")
             style.shape = static_cast<std::string_view>(val);
         else if (key == "size")

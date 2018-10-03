@@ -85,7 +85,7 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
 
 void Mod::add_labels(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, size_t aBaseIndex, const rjson::value& aLabelData)
 {
-    if (const auto& show = aLabelData["show"]; show.is_null() || show) { // true by default
+    if (const auto& show = aLabelData["show"]; show.is_null() || show.get_bool()) { // true by default
         for (auto index: aIndices)
             add_label(aChartDraw, index, aBaseIndex, aLabelData);
     }
@@ -101,8 +101,8 @@ void Mod::add_labels(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, const rjson::value& aLegendData)
 {
     const std::string label(rjson::get_or(aLegendData, "label", "use \"label\" in \"legend\""));
-    if (const auto& replace = aLegendData["replace"]; !replace.is_null() && replace) {
-        if (const auto& count = aLegendData["count"]; !count.is_null() && count) {
+    if (const auto& replace = aLegendData["replace"]; !replace.is_null() && replace.get_bool()) {
+        if (const auto& count = aLegendData["count"]; !count.is_null() && count.get_bool()) {
             // std::cerr << "DEBUG: remove line " << label + " (" + std::to_string(aIndices.size()) + ")" << '\n';
             aChartDraw.legend_point_label().remove_line(label + " (" + std::to_string(aIndices.size()) + ")");
         }
@@ -120,7 +120,7 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData)
 {
     // std::cerr << "DEBUG: add_legend " << aLabel << '\n';
-    if (const auto& show = aLegendData["show"]; (show.is_null() || show) && !aIndices.empty()) { // show is true by default
+    if (const auto& show = aLegendData["show"]; (show.is_null() || show.get_bool()) && !aIndices.empty()) { // show is true by default
         if (rjson::get_or(aLegendData, "type", "") == "continent_map") {
             if (const auto& offset = aLegendData["offset"]; offset.size() != 2)
                 aChartDraw.continent_map();
@@ -129,7 +129,7 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
         }
         else {
             auto& legend = aChartDraw.legend_point_label();
-            if (const auto& count = aLegendData["count"]; !count.is_null() && count)
+            if (const auto& count = aLegendData["count"]; !count.is_null() && count.get_bool())
                 aLabel += " (" + std::to_string(aIndices.size()) + ")";
             legend.add_line(*aStyle.outline, *aStyle.fill, aLabel);
         }
@@ -410,7 +410,7 @@ class ModTitle : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
     {
         auto& title = aChartDraw.title();
-        if (const auto& show = args()["show"]; show.is_null() || show) { // true by default
+        if (const auto& show = args()["show"]; show.is_null() || show.get_bool()) { // true by default
             title.show(true);
             if (const auto& display_name = args()["display_name"]; !display_name.is_null())
                 rjson::for_each(display_name, [&title](const rjson::value& line) { title.add_line(std::string(line)); });
@@ -453,7 +453,7 @@ class ModLegend : public Mod
 
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
     {
-        if (const auto& show = args()["show"]; show.is_null() || show) { // true by default
+        if (const auto& show = args()["show"]; show.is_null() || show.get_bool()) { // true by default
             auto& legend = aChartDraw.legend_point_label();
             if (const auto& data = args()["data"]; !data.is_null()) {
                 rjson::for_each(data, [&legend](const rjson::value& line_data) {
