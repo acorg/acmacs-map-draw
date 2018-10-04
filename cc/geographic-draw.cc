@@ -67,7 +67,7 @@ int draw(const argc_argv& args)
     using namespace std::string_literals;
     const bool verbose = args["-v"] || args["--verbose"];
 
-    setup_dbs(args["--db-dir"], verbose);
+    setup_dbs(std::string(args["--db-dir"]), verbose);
 
     if (args["--init-settings"]) {
         auto write_settings = [](std::ostream& out) { out << geographic_settings_default_raw() << '\n'; };
@@ -75,7 +75,7 @@ int draw(const argc_argv& args)
             write_settings(std::cout);
         }
         else {
-            std::ofstream out(args["--init-settings"]);
+            std::ofstream out(static_cast<std::string>(args["--init-settings"]));
             write_settings(out);
         }
     }

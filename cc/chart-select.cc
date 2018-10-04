@@ -50,7 +50,7 @@ int main(int argc, char* const argv[])
 int do_select(const argc_argv& args)
 {
     const bool verbose = args["-v"] || args["--verbose"];
-    setup_dbs(args["--db-dir"], verbose);
+    setup_dbs(std::string(args["--db-dir"]), verbose);
     const auto selector = rjson::v1::parse_string(args[1]);
     // const auto selector = rjson::v1::parse_string("{\"in_rectangle\":{\"c1\":[0,0],\"c2\":[1,1]}}");
     auto chart = acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No);

@@ -186,7 +186,7 @@ void make_html201805(request_rec *r, const char* view_mode, const char* coloring
 
 void make_ace(request_rec* r)
 {
-    acmacs::chart::ChartModify chart(acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No));
+    acmacs::chart::ChartModify chart(acmacs::chart::import_from_file(std::string(r->filename), acmacs::chart::Verify::None, report_time::No));
     auto antigens = chart.antigens_modify();
     antigens->set_continent();
     seqdb::add_clades(chart, seqdb::ignore_errors::yes, seqdb::report::yes);
@@ -265,7 +265,7 @@ int process_post_request(request_rec* r)
 void command_download_pdf(request_rec *r, const rjson::v1::object& args)
 {
     const auto projection_no = args.get_or_default("projection_no", 0UL);
-    ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No)), projection_no);
+    ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(std::string(r->filename), acmacs::chart::Verify::None, report_time::No)), projection_no);
     chart_draw.calculate_viewport();
 
     ap_set_content_type(r, "application/pdf");
@@ -279,7 +279,7 @@ void command_download_pdf(request_rec *r, const rjson::v1::object& args)
 
 void command_download_ace(request_rec *r, const rjson::v1::object& /*args*/)
 {
-    auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+    auto chart = acmacs::chart::import_from_file(std::string(r->filename), acmacs::chart::Verify::None, report_time::No);
     auto data = acmacs::chart::export_factory(*chart, acmacs::chart::export_format::ace, "apache-mod-acmacs", report_time::No);
     ap_set_content_type(r, "application/octet-stream");
     ap_rwrite(data.data(), static_cast<int>(data.size()), r);
@@ -290,7 +290,7 @@ void command_download_ace(request_rec *r, const rjson::v1::object& /*args*/)
 
 void command_download_save(request_rec* r, const rjson::v1::object& /*args*/)
 {
-    auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+    auto chart = acmacs::chart::import_from_file(std::string(r->filename), acmacs::chart::Verify::None, report_time::No);
     const auto compressed = acmacs::file::gzip_compress(acmacs::chart::export_lispmds(*chart, "acmacs-api"));
     ap_set_content_type(r, "application/octet-stream");
     r->content_encoding = "gzip";
@@ -302,7 +302,7 @@ void command_download_save(request_rec* r, const rjson::v1::object& /*args*/)
 
 void command_download_layout(request_rec *r, const rjson::v1::object& args)
 {
-    auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+    auto chart = acmacs::chart::import_from_file(std::string(r->filename), acmacs::chart::Verify::None, report_time::No);
     std::string layout;
     if (args.get_or_default("format", "text") == "csv")
         layout = acmacs::chart::export_layout<acmacs::DataFormatterCSV>(*chart, args.get_or_default("projection_no", 0UL));
@@ -319,7 +319,7 @@ void command_download_layout(request_rec *r, const rjson::v1::object& args)
 
 void command_download_table_map_distances(request_rec *r, const rjson::v1::object& args)
 {
-    auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+    auto chart = acmacs::chart::import_from_file(std::string(r->filename), acmacs::chart::Verify::None, report_time::No);
     std::string distances;
     if (args.get_or_default("format", "text") == "csv")
         distances = acmacs::chart::export_table_map_distances<acmacs::DataFormatterCSV>(*chart, args.get_or_default("projection_no", 0UL));
@@ -336,7 +336,7 @@ void command_download_table_map_distances(request_rec *r, const rjson::v1::objec
 
 void command_download_distances_between_all_points(request_rec *r, const rjson::v1::object& args)
 {
-    auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+    auto chart = acmacs::chart::import_from_file(std::string(r->filename), acmacs::chart::Verify::None, report_time::No);
     std::string distances;
     if (args.get_or_default("format", "text") == "csv")
         distances = acmacs::chart::export_distances_between_all_points<acmacs::DataFormatterCSV>(*chart, args.get_or_default("projection_no", 0UL));
@@ -353,7 +353,7 @@ void command_download_distances_between_all_points(request_rec *r, const rjson::
 
 void command_download_error_lines(request_rec *r, const rjson::v1::object& args)
 {
-    auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+    auto chart = acmacs::chart::import_from_file(std::string(r->filename), acmacs::chart::Verify::None, report_time::No);
     std::string error_lines;
     if (args.get_or_default("format", "text") == "csv")
         error_lines = acmacs::chart::export_error_lines<acmacs::DataFormatterCSV>(*chart, args.get_or_default("projection_no", 0UL));
@@ -371,7 +371,7 @@ void command_download_error_lines(request_rec *r, const rjson::v1::object& args)
 void command_sequences_of_chart(request_rec* r, const rjson::v1::object& /*args*/)
 {
     try {
-        auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+        auto chart = acmacs::chart::import_from_file(std::string(r->filename), acmacs::chart::Verify::None, report_time::No);
         const auto data = seqdb::sequences_of_chart_for_ace_view_1(*chart);
         ap_set_content_type(r, "application/json");
         ap_rwrite(data.data(), static_cast<int>(data.size()), r);
@@ -387,7 +387,7 @@ void command_sequences_of_chart(request_rec* r, const rjson::v1::object& /*args*
 void command_download_sequences_of_chart_as_fasta(request_rec *r, const rjson::v1::object& /*args*/)
 {
     try {
-        auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+        auto chart = acmacs::chart::import_from_file(std::string(r->filename), acmacs::chart::Verify::None, report_time::No);
         const auto fasta = seqdb::sequences_of_chart_as_fasta(*chart);
         const auto compressed = acmacs::file::gzip_compress(fasta);
         ap_set_content_type(r, "application/octet-stream");
@@ -405,7 +405,7 @@ void command_download_sequences_of_chart_as_fasta(request_rec *r, const rjson::v
 void command_download_layout_sequences_as_csv(request_rec *r, const rjson::v1::object& args)
 {
     try {
-        auto chart = acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::No);
+        auto chart = acmacs::chart::import_from_file(std::string(r->filename), acmacs::chart::Verify::None, report_time::No);
         const auto data = export_layout_sequences_into_csv(std::string{}, *chart, args.get_or_default("projection_no", 0UL));
         const auto compressed = acmacs::file::gzip_compress(data);
         ap_set_content_type(r, "application/octet-stream");

@@ -73,7 +73,7 @@ int draw(const argc_argv& args)
     else if (const auto pr2 = args["-p"]; pr2.present())
         projection_no = pr2;
 
-    setup_dbs(args["--db-dir"], verbose);
+    setup_dbs(std::string(args["--db-dir"]), verbose);
 
     ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No)), projection_no);
     if (args["--previous"])
@@ -86,7 +86,7 @@ int draw(const argc_argv& args)
             write_settings(std::cout);
         }
         else {
-            std::ofstream out(args["--init-settings"]);
+            std::ofstream out(static_cast<std::string>(args["--init-settings"]));
             write_settings(out);
         }
     }
@@ -169,15 +169,15 @@ int draw(const argc_argv& args)
         acmacs::quicklook(output, 2);
     }
     else {
-        chart_draw.draw(args[1], 800, report_time::Yes);
+        chart_draw.draw(std::string(args[1]), 800, report_time::Yes);
         if (args["--open"])
-            acmacs::quicklook(args[1], 2);
+            acmacs::quicklook(std::string(args[1]), 2);
     }
 
-    if (const std::string save_settings = args["--init-settings"]; !save_settings.empty())
+    if (const std::string save_settings(args["--init-settings"]); !save_settings.empty())
         acmacs::file::write(save_settings, settings.to_json_pp());
 
-    if (const std::string save = args["--save"]; !save.empty()) {
+    if (const std::string save(args["--save"]); !save.empty()) {
         chart_draw.save(save, args.program());
     }
 
