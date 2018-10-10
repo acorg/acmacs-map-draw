@@ -53,8 +53,6 @@ int main(int argc, char* const argv[])
 
 int draw(const argc_argv& args)
 {
-    using namespace rjson::v1::literals;
-
     // const bool verbose = args["-v"] || args["--verbose"];
     const auto report = do_report_time(args["--time"]);
     // setup_dbs(args["--db-dir"], verbose);
@@ -65,31 +63,31 @@ int draw(const argc_argv& args)
     ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, report)), p1);
 
     std::string secondary_chart((args.number_of_arguments() > 1 && !string::ends_with(std::string_view(args[1]), ".pdf")) ? args[1] : args[0]);
-    const rjson::v1::object pc{{{"N", "procrustes_arrows"_rj},
-                            {"chart", rjson::v1::string{secondary_chart}},
-                            {"projection", rjson::v1::integer{p2}},
-                            {"subset", rjson::v1::string{std::string(args["--subset"])}},
-                            {"threshold", rjson::v1::number{threshold}},
-                            {"report", rjson::v1::boolean{report_common}}}};
+    const rjson::value pc{rjson::object{{"N", "procrustes_arrows"},
+                                         {"chart", secondary_chart},
+                                         {"projection", p2},
+                                         {"subset", static_cast<std::string_view>(args["--subset"])},
+                                         {"threshold", threshold},
+                                         {"report", report_common}}};
 
-    rjson::v1::object viewport{{{"N", "viewport"_rj}, {"rel", rjson::v1::array{0, 0, 0}}}};
+    rjson::value viewport{rjson::object{{"N", "viewport"}, {"rel", rjson::array{0, 0, 0}}}};
     if (args["--viewport"]) {
         const auto values = acmacs::string::split_into_double(args["--viewport"].str());
-        viewport.set_field("rel", rjson::v1::array(rjson::v1::array::use_iterator, values.begin(), values.end()));
+        viewport["rel"] = rjson::array(values.begin(), values.end());
     }
 
     auto settings = settings_default();
     settings.update(settings_builtin_mods());
     if (args["--clade"])
-        settings.set_field("apply", rjson::v1::array{viewport, "size_reset", "all_grey", "egg", "clades", "vaccines", "title", pc});
+        settings["apply"] = rjson::array{viewport, "size_reset", "all_grey", "egg", "clades", "vaccines", "title", pc};
     else
-        settings.set_field("apply", rjson::v1::array{viewport, "title", pc});
+        settings["apply"] = rjson::array{viewport, "title", pc};
 
     try {
         apply_mods(chart_draw, settings["apply"], settings);
     }
-    catch (rjson::v1::field_not_found& err) {
-        throw std::runtime_error{std::string{"No \""} + err.what() + "\" in the settings:\n\n" + settings.to_json_pp(2, rjson::v1::json_pp_emacs_indent::no) + "\n\n"};
+    catch (std::exception& err) {
+        throw std::runtime_error{"Cannot apply " + rjson::to_string(settings["apply"]) + ": " + err.what() + "\n settings:\n" + rjson::pretty(settings, 2, rjson::json_pp_emacs_indent::no) + '\n'};
     }
 
     chart_draw.calculate_viewport();

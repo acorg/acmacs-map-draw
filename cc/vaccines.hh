@@ -1,8 +1,9 @@
 #pragma once
 
+#include "acmacs-base/sfinae.hh"
+#include "acmacs-base/point-style.hh"
 #include "hidb-5/hidb.hh"
 #include "hidb-5/vaccines.hh"
-#include "acmacs-base/point-style.hh"
 #include "acmacs-map-draw/draw.hh"
 
 // ----------------------------------------------------------------------
@@ -17,10 +18,10 @@ class VaccineMatchData
  public:
     VaccineMatchData() : mNo{0} {}
 
-    VaccineMatchData& type(std::string aType) { mType = aType; return *this; }
-    VaccineMatchData& passage(std::string aPassage) { mPassage = aPassage; return *this; }
+    template <typename S, typename = std::enable_if_t<acmacs::sfinae::is_string_v<S>>> VaccineMatchData& type(S aType) { mType = aType; return *this; }
+    template <typename S, typename = std::enable_if_t<acmacs::sfinae::is_string_v<S>>> VaccineMatchData& passage(S aPassage) { mPassage = aPassage; return *this; }
     VaccineMatchData& no(size_t aNo) { mNo = aNo; return *this; }
-    VaccineMatchData& name(std::string aName) { mName = aName; return *this; }
+    template <typename S, typename = std::enable_if_t<acmacs::sfinae::is_string_v<S>>> VaccineMatchData& name(S aName) { mName = aName; return *this; }
 
     std::string type() const { return mType; }
     std::string passage() const { return mPassage; }

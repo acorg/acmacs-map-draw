@@ -15,10 +15,10 @@ static const char* const SETTINGS_DEFAULT = R"(
 }
 )";
 
-rjson::v1::value settings_default()
+rjson::value settings_default()
 {
     try {
-        return rjson::v1::parse_string(SETTINGS_DEFAULT, rjson::v1::remove_comments::No);
+        return rjson::parse_string(SETTINGS_DEFAULT, rjson::remove_comments::no);
     }
     catch (std::exception& err) {
         std::cerr << "ERROR: parsing SETTINGS_DEFAULT: " << err.what() << '\n';
@@ -168,10 +168,10 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
 }
 )";
 
-rjson::v1::value settings_builtin_mods()
+rjson::value settings_builtin_mods()
 {
     try {
-        return rjson::v1::parse_string(SETTINGS_BUILTIN_MODS, rjson::v1::remove_comments::No);
+        return rjson::parse_string(SETTINGS_BUILTIN_MODS, rjson::remove_comments::no);
     }
     catch (std::exception& err) {
         std::cerr << "ERROR: parsing SETTINGS_BUILTIN_MODS: " << err.what() << '\n';

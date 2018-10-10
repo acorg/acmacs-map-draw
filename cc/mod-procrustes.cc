@@ -25,13 +25,13 @@ static inline acmacs::chart::CommonAntigensSera::match_level_t make_match_level(
 
 // ----------------------------------------------------------------------
 
-void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::v1::value& /*aModData*/)
+void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
-    const auto verbose = args().get_or_default("report", false);
-    const auto scaling = args().get_or_default("scaling", false) ? acmacs::chart::procrustes_scaling_t::yes : acmacs::chart::procrustes_scaling_t::no;
-    const auto secondary_projection_no = args().get_or_default("projection", 0UL);
+    const auto verbose = rjson::get_or(args(), "report", false);
+    const auto scaling = rjson::get_or(args(), "scaling", false) ? acmacs::chart::procrustes_scaling_t::yes : acmacs::chart::procrustes_scaling_t::no;
+    const auto secondary_projection_no = rjson::get_or(args(), "projection", 0UL);
 
-    const auto subset_s = args().get_or_default("subset", "all");
+    const auto subset_s = rjson::get_or(args(), "subset", "all");
     acmacs::chart::CommonAntigensSera::subset subset = acmacs::chart::CommonAntigensSera::subset::all;
     if (subset_s == "sera")
         subset = acmacs::chart::CommonAntigensSera::subset::sera;
@@ -41,11 +41,11 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::v1::value& /
         std::cerr << "WARNING: unrecognized common points subset: \"" << subset_s << "\", supported: all, antigens, sera\n";
 
     acmacs::chart::ChartP secondary_chart;
-    if (const auto [present, chart_filename] = args().get_value_if("chart"); present)
-        secondary_chart = acmacs::chart::import_from_file(chart_filename.str(), acmacs::chart::Verify::None, verbose ? report_time::Yes : report_time::No);
+    if (const auto& chart_filename = args()["chart"]; !chart_filename.is_null())
+        secondary_chart = acmacs::chart::import_from_file(chart_filename, acmacs::chart::Verify::None, verbose ? report_time::Yes : report_time::No);
     else
         secondary_chart = aChartDraw.chartp();
-    const auto match_level = make_match_level(args().get_or_default("match", ""));
+    const auto match_level = make_match_level(rjson::get_or(args(), "match", ""));
     acmacs::chart::CommonAntigensSera common(aChartDraw.chart(), *secondary_chart, match_level);
     if (verbose)
         common.report();
@@ -59,17 +59,17 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::v1::value& /
     }
     auto secondary_layout = procrustes_data.apply(*secondary_projection->layout());
     auto primary_layout = aChartDraw.projection().transformed_layout();
-    const auto arrow_config = args().get_or_empty_object("arrow");
-    const auto threshold = args().get_or_default("threshold", 0.005);
+    const auto& arrow_config = args()["arrow"];
+    const auto threshold = rjson::get_or(args(), "threshold", 0.005);
     for (size_t point_no = 0; point_no < common_points.size(); ++point_no) {
         const auto primary_coords = primary_layout->get(common_points[point_no].primary),
                 secondary_coords = secondary_layout->get(common_points[point_no].secondary);
         if (primary_coords.distance(secondary_coords) > threshold) {
             auto& arrow = aChartDraw.arrow(primary_coords, secondary_coords);
-            arrow.color(Color(arrow_config.get_or_default("color", "black")), Color(arrow_config.get_or_default("head_color", "black")));
-            arrow.line_width(arrow_config.get_or_default("line_width", 1.0));
-            arrow.arrow_head_filled(arrow_config.get_or_default("head_filled", true));
-            arrow.arrow_width(arrow_config.get_or_default("arrow_width", 5.0));
+            arrow.color(Color(rjson::get_or(arrow_config, "color", "black")), Color(rjson::get_or(arrow_config, "head_color", "black")));
+            arrow.line_width(rjson::get_or(arrow_config, "line_width", 1.0));
+            arrow.arrow_head_filled(rjson::get_or(arrow_config, "head_filled", true));
+            arrow.arrow_width(rjson::get_or(arrow_config, "arrow_width", 5.0));
         }
     }
 

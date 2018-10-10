@@ -73,20 +73,21 @@ int draw(const argc_argv& args)
     else if (const auto pr2 = args["-p"]; pr2.present())
         projection_no = pr2;
 
-    setup_dbs(std::string(args["--db-dir"]), verbose);
+    setup_dbs(args["--db-dir"].str(), verbose);
 
-    ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No)), projection_no);
+    ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No)),
+                         projection_no);
     if (args["--previous"])
         chart_draw.previous_chart(acmacs::chart::import_from_file(args["--previous"], acmacs::chart::Verify::None, do_report_time(args["--time"])));
 
     auto settings = settings_default();
     if (args["--init-settings"]) {
-        auto write_settings = [&settings](std::ostream& out) { out << settings.to_json_pp() << '\n'; };
+        auto write_settings = [&settings](std::ostream& out) { out << rjson::pretty(settings) << '\n'; };
         if (args["--init-settings"] == "-") {
             write_settings(std::cout);
         }
         else {
-            std::ofstream out(static_cast<std::string>(args["--init-settings"]));
+            std::ofstream out(args["--init-settings"].str());
             write_settings(out);
         }
     }
@@ -95,71 +96,60 @@ int draw(const argc_argv& args)
 
     bool settings_loaded = false;
     auto load_settings = [&](argc_argv::strings aFilenames) {
-        for (auto fn: aFilenames) {
+        for (auto fn : aFilenames) {
             if (verbose)
                 std::cerr << "DEBUG: reading settings from " << fn << '\n';
-            settings.update(rjson::v1::parse_file(fn, rjson::v1::remove_comments::No));
+            settings.update(rjson::parse_file(fn, rjson::remove_comments::no));
             settings_loaded = true;
         }
     };
     load_settings(args["-s"]);
     load_settings(args["--settings"]);
-      // std::cerr << "DEBUG: loaded settings\n" << settings.to_json_pp() << '\n';
+    // std::cerr << "DEBUG: loaded settings\n" << settings.to_json_pp() << '\n';
 
     if (args["--apply"] || args["--apply-from"]) {
-        const auto new_apply_value = args["--apply"] ? rjson::v1::parse_string(args["--apply"].str_view()) : rjson::v1::parse_string(acmacs::file::ifstream(args["--apply-from"]).read());
-        try {
-            const rjson::v1::array& new_apply = new_apply_value;
-            if (settings_loaded) {
-                if (auto [present, old_apply_const] = settings.get_array_if("apply"); present) {
-                    auto& old_apply = const_cast<rjson::v1::array&>(old_apply_const);
-                    for (const auto& element : new_apply)
-                        old_apply.insert(element);
-                }
-                else
-                    settings.set_field("apply", new_apply);
+        const auto new_apply = args["--apply"] ? rjson::parse_string(static_cast<std::string_view>(args["--apply"])) : rjson::parse_string(acmacs::file::ifstream(args["--apply-from"]).read());
+        if (settings_loaded) {
+            if (const auto& old_apply_const = settings["apply"]; !old_apply_const.is_null()) {
+                auto& old_apply = const_cast<rjson::value&>(old_apply_const);
+                rjson::for_each(new_apply, [&old_apply](const rjson::value& element) { old_apply.append(element); });
             }
-            else {
-                settings.set_field("apply", new_apply);
-            }
+            else
+                settings["apply"] = new_apply;
         }
-        catch (std::bad_variant_access&) {
-            throw std::runtime_error{"invalid --apply argument (json array expected): " + args["--apply"].str()};
+        else {
+            settings["apply"] = new_apply;
         }
     }
     else if (args["--clade"]) {
-        settings.set_field("apply", rjson::v1::array{"size_reset", "all_grey", "egg", "clades", "vaccines", "title"});
+        settings["apply"] = rjson::array{"size_reset", "all_grey", "egg", "clades", "vaccines", "title"};
     }
 
     if (args["--point-scale"].present()) {
-        static_cast<rjson::v1::array&>(settings["apply"]).insert(rjson::v1::object{{{"N", rjson::v1::string{"point_scale"}}, {"scale", rjson::v1::number{static_cast<double>(args["--point-scale"])}}, {"outline_scale", rjson::v1::number{1.0}}}});
+        static_cast<rjson::value&>(settings["apply"])
+            .append(rjson::object{{"N", "point_scale"}, {"scale", static_cast<double>(args["--point-scale"])}, {"outline_scale", 1.0}});
     }
 
     if (args["--flip-ew"].present()) {
-        static_cast<rjson::v1::array&>(settings["apply"]).insert(rjson::v1::object{{{"N", rjson::v1::string{"flip"}}, {"direction", rjson::v1::string{"ew"}}}});
+        static_cast<rjson::value&>(settings["apply"]).append(rjson::object{{"N", "flip"}, {"direction", "ew"}});
     }
     if (args["--flip-ns"].present()) {
-        static_cast<rjson::v1::array&>(settings["apply"]).insert(rjson::v1::object{{{"N", rjson::v1::string{"flip"}}, {"direction", rjson::v1::string{"ns"}}}});
+        static_cast<rjson::value&>(settings["apply"]).append(rjson::object{{"N", "flip"}, {"direction", "ns"}});
     }
     if (auto r_opt = args["-r"]; r_opt.present()) {
-        static_cast<rjson::v1::array&>(settings["apply"]).insert(rjson::v1::object{{{"N", rjson::v1::string{"rotate"}}, {"degrees", rjson::v1::number{static_cast<double>(r_opt)}}}});
+        static_cast<rjson::value&>(settings["apply"]).append(rjson::object{{"N", "rotate"}, {"degrees", static_cast<double>(r_opt)}});
     }
     if (args["--rotate-degrees"].present()) {
-        static_cast<rjson::v1::array&>(settings["apply"]).insert(rjson::v1::object{{{"N", rjson::v1::string{"rotate"}}, {"degrees", rjson::v1::number{static_cast<double>(args["--rotate-degrees"])}}}});
+        static_cast<rjson::value&>(settings["apply"])
+            .append(rjson::object{{"N", "rotate"}, {"degrees", static_cast<double>(args["--rotate-degrees"])}});
     }
 
     try {
-        Timeit ti("applying mods: ");
         apply_mods(chart_draw, settings["apply"], settings);
     }
-    catch (rjson::v1::field_not_found& err) {
-        throw std::runtime_error{std::string{"No \""} + err.what() + "\" in the settings:\n\n" + settings.to_json_pp(2, rjson::v1::json_pp_emacs_indent::no) + "\n\n"};
+    catch (std::exception& err) {
+        throw std::runtime_error{"Cannot apply " + rjson::to_string(settings["apply"]) + ": " + err.what() + "\n settings:\n" + rjson::pretty(settings, 2, rjson::json_pp_emacs_indent::no) + '\n'};
     }
-
-      // auto mods = rjson::v1::parse_string(R"(["all_grey", {"N": "clades", "seqdb_file": "/Users/eu/AD/data/seqdb.json.xz", "report": false}])");
-      // auto mods = rjson::v1::parse_string(R"([{"N": "clades", "seqdb_file": "/Users/eu/AD/data/seqdb.json.xz", "report": false}])");
-    // auto mods = rjson::v1::parse_string(R"(["all_red"])");
-    // apply_mods(chart_draw, mods, settings);
 
     chart_draw.calculate_viewport();
 
@@ -175,7 +165,7 @@ int draw(const argc_argv& args)
     }
 
     if (const std::string save_settings(args["--init-settings"]); !save_settings.empty())
-        acmacs::file::write(save_settings, settings.to_json_pp());
+        acmacs::file::write(save_settings, rjson::pretty(settings));
 
     if (const std::string save(args["--save"]); !save.empty()) {
         chart_draw.save(save, args.program());

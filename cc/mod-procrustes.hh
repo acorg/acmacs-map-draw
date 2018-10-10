@@ -10,7 +10,7 @@ class ModProcrustesArrows : public Mod
  public:
     using Mod::Mod;
 
-    void apply(ChartDraw& aChartDraw, const rjson::v1::value& aModData) override;
+    void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override;
 
 }; // class ModProcrustesArrows
 
