@@ -194,18 +194,18 @@ void make_ace(request_rec* r)
     ap_set_content_type(r, "application/json");
     r->content_encoding = "gzip";
 
-      // helping during rjson::v1 to rjson::v2 transition
+      //rjson::v1 helping during rjson::v1 to rjson::v2 transition
     auto make_ace_helper = [](auto ace, const auto& group_sets) -> std::string {
-        if constexpr (std::is_same_v<decltype(ace), rjson::v2::value>) {
+        //rjson::v1 if constexpr (std::is_same_v<decltype(ace), rjson::v2::value>) {
             if (!group_sets.is_null())
                 ace["c"]["group_sets"] = group_sets;
             return rjson::to_string(ace);
-        }
-        else {
-            if (group_sets != rjson::v1::null{})
-                ace["c"].set_field("group_sets", group_sets);
-            return ace.to_json();
-        }
+        //rjson::v1 }
+        //rjson::v1 else {
+        //rjson::v1     if (group_sets != rjson::v1::null{})
+        //rjson::v1         ace["c"].set_field("group_sets", group_sets);
+        //rjson::v1     return ace.to_json();
+        //rjson::v1 }
     };
 
     const auto exported = make_ace_helper(acmacs::chart::export_ace_to_rjson(chart, "mod_acmacs"), chart.extension_field("group_sets"));
