@@ -51,7 +51,7 @@ export class ViewingBase
     }
 
     chart_drawing_order() {
-        return this.chart_.p.d || av_utils.array_of_indexes(this.layout_.length);
+        return this.chart_.p.d || av_utils.array_of_indexes(this.layout_ ? this.layout_.length : 0);
     }
 
     on_exit(view_dialog) {
