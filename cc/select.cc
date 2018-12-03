@@ -136,6 +136,8 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
         else if (key == "full_name") {
             filter_full_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
+            if (const auto& no = aSelector.get("no"); !no.is_null())
+                indexes.erase_except(indexes[no]);
         }
         else if (key == "vaccine" || key == "vaccines") {
             try {
@@ -198,6 +200,9 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
         else if (key == "table") {
             filter_table(aChartSelectInterface, indexes, val);
+        }
+        else if (key == "no") {
+              // processed together with the main selector, e.g. "full_name"
         }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';

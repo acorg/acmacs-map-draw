@@ -337,7 +337,7 @@ Antigens:
   {"amino_acid": {"aa": "T", "pos": 141}},
 {"name": "SWITZERLAND/9715293/2013"},
   {"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"},
-  {"full_name": "A(H1N1)/MICHIGAN/2/2009 MDCK1"},
+  {"full_name": "A(H1N1)/MICHIGAN/2/2009 MDCK1", "no": 0},
 "vaccine",
   {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}},
 {"in_rectangle": {"c1": [0.0, 0.0], "c2": [1.0, 1.0]}}, {"in_circle": {"center": [2.0, 2.0], "radius": 5.0}}
