@@ -1,6 +1,7 @@
 #pragma once
 
 #include "acmacs-chart-2/point-index-list.hh"
+#include "acmacs-chart-2/chart.hh"
 #include "acmacs-map-draw/mod-applicator.hh"
 
 // ----------------------------------------------------------------------
@@ -25,9 +26,9 @@ class ModSerumHomologous : public Mod
     size_t select_mark_serum(ChartDraw& aChartDraw, bool aVerbose);
     size_t select_serum(ChartDraw& aChartDraw, bool aVerbose) const;
     void mark_serum(ChartDraw& aChartDraw, size_t serum_index);
-    acmacs::chart::PointIndexList select_mark_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose);
-    acmacs::chart::PointIndexList select_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const;
-    acmacs::chart::PointIndexList select_homologous_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const;
+    acmacs::chart::PointIndexList select_mark_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, acmacs::chart::find_homologous find_homologous_options, bool aVerbose);
+    acmacs::chart::PointIndexList select_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, acmacs::chart::find_homologous find_homologous_options, bool aVerbose) const;
+    acmacs::chart::PointIndexList select_homologous_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, acmacs::chart::find_homologous find_homologous_options, bool aVerbose) const;
 
 }; // class ModSerumHomologous
 

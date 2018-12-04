@@ -58,9 +58,9 @@ void ModSerumHomologous::mark_serum(ChartDraw& aChartDraw, size_t serum_index)
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::PointIndexList ModSerumHomologous::select_mark_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose)
+acmacs::chart::PointIndexList ModSerumHomologous::select_mark_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, acmacs::chart::find_homologous find_homologous_options, bool aVerbose)
 {
-    const auto antigen_indices = select_antigens(aChartDraw, aSerumIndex, aVerbose);
+    const auto antigen_indices = select_antigens(aChartDraw, aSerumIndex, find_homologous_options, aVerbose);
     if (const auto& mark_antigen = args()["mark_antigen"]; !mark_antigen.is_null()) {
         aChartDraw.modify(antigen_indices, point_style_from_json(mark_antigen), drawing_order_from_json(mark_antigen));
         if (const auto& label = mark_antigen["label"]; !label.is_null())
@@ -71,7 +71,7 @@ acmacs::chart::PointIndexList ModSerumHomologous::select_mark_antigens(ChartDraw
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::PointIndexList ModSerumHomologous::select_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const
+acmacs::chart::PointIndexList ModSerumHomologous::select_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, acmacs::chart::find_homologous find_homologous_options, bool aVerbose) const
 {
     if (const auto& antigen_select = args()["antigen"]; !antigen_select.is_null()) {
         const auto antigens = SelectAntigens(aVerbose).select(aChartDraw, antigen_select);
@@ -80,15 +80,15 @@ acmacs::chart::PointIndexList ModSerumHomologous::select_antigens(ChartDraw& aCh
         return antigens;
     }
     else {
-        return select_homologous_antigens(aChartDraw, aSerumIndex, aVerbose);
+        return select_homologous_antigens(aChartDraw, aSerumIndex, find_homologous_options, aVerbose);
     }
 }
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::PointIndexList ModSerumHomologous::select_homologous_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, bool aVerbose) const
+acmacs::chart::PointIndexList ModSerumHomologous::select_homologous_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, acmacs::chart::find_homologous find_homologous_options, bool aVerbose) const
 {
-    aChartDraw.chart().set_homologous(acmacs::chart::Chart::find_homologous_for_big_chart::yes);
+    aChartDraw.chart().set_homologous(find_homologous_options);
     const auto antigen_indexes = aChartDraw.chart().serum(aSerumIndex)->homologous_antigens();
     if (antigen_indexes.empty())
         throw unrecognized_mod{"no homologous antigens for serum, mod: " + rjson::to_string(args())};
@@ -124,7 +124,7 @@ void ModSerumCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData
 {
     const auto verbose = rjson::get_or(args(), "report", false);
     const size_t serum_index = select_mark_serum(aChartDraw, verbose);
-    const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, verbose);
+    const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, acmacs::chart::find_homologous::for_serum_circles, verbose);
     make_serum_circle(aChartDraw, serum_index, antigen_indices, radius_type_from_string(std::string(rjson::get_or(args(), "type", "empirical"))), args()["circle"], verbose);
 }
 
@@ -199,7 +199,7 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDa
 {
     const auto verbose = rjson::get_or(args(), "report", false);
     const size_t serum_index = select_mark_serum(aChartDraw, verbose);
-    const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, verbose);
+    const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, acmacs::chart::find_homologous::for_serum_circles, verbose);
     apply(aChartDraw, serum_index, antigen_indices, args()["within_4fold"], args()["outside_4fold"], verbose);
 }
 
@@ -243,7 +243,7 @@ void ModSerumCoverageCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*
 {
     const auto verbose = rjson::get_or(args(), "report", false);
     const size_t serum_index = select_mark_serum(aChartDraw, verbose);
-    const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, verbose);
+    const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, acmacs::chart::find_homologous::for_serum_circles, verbose);
 
     ModSerumCoverage mod_coverage;
     mod_coverage.apply(aChartDraw, serum_index, antigen_indices, args()["within_4fold"], args()["outside_4fold"], verbose);

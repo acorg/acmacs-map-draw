@@ -466,7 +466,7 @@ void SelectSera::filter_table(const ChartSelectInterface& aChartSelectInterface,
 void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string aClade)
 {
     const auto& chart = aChartSelectInterface.chart();
-    chart.set_homologous(acmacs::chart::Chart::find_homologous_for_big_chart::yes);
+    chart.set_homologous(acmacs::chart::find_homologous::strict);
     const auto& entries = seqdb_entries(aChartSelectInterface);
     auto homologous_not_in_clade = [&entries, aClade, &chart](auto serum_index) -> bool {
         for (auto antigen_index : chart.sera()->at(serum_index)->homologous_antigens()) {
