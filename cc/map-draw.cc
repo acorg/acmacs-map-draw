@@ -39,6 +39,7 @@ int main(int argc, char* const argv[])
                 {"--help-select", false},
                 {"--previous", ""},
                 {"--open", false},
+                {"--ql", false},
                 {"--projection", 0L},
                 {"-p", 0L, "projection"},
                 {"--db-dir", ""},
@@ -161,6 +162,8 @@ int draw(const argc_argv& args)
     else {
         chart_draw.draw(std::string(args[1]), 800, report_time::Yes);
         if (args["--open"])
+            acmacs::open(std::string(args[1]), 2);
+        else if (args["--ql"])
             acmacs::quicklook(std::string(args[1]), 2);
     }
 
