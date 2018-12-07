@@ -27,6 +27,7 @@ ACMACS_MAP_DRAW_LIB = $(DIST)/$(call shared_lib_name,$(ACMACS_MAP_DRAW_LIB_NAME)
 
 all: install
 
+CONFIGURE_BOOST = 1
 CONFIGURE_CAIRO = 1
 include $(ACMACSD_ROOT)/share/Makefile.config
 
@@ -37,7 +38,7 @@ LDLIBS = \
   $(AD_LIB)/$(call shared_lib_name,libhidb,5,0) \
   $(AD_LIB)/$(call shared_lib_name,libseqdb,2,0) \
   $(AD_LIB)/$(call shared_lib_name,libacmacsdraw,1,0) \
-  -L$(BOOST_LIB_PATH) -lboost_date_time $(CAIRO_LIBS) $(XZ_LIBS) $(CXX_LIBS)
+  $(L_BOOST) -lboost_date_time $(CAIRO_LIBS) $(XZ_LIBS) $(CXX_LIBS)
 
 # ----------------------------------------------------------------------
 
