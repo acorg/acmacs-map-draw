@@ -14,8 +14,8 @@ std::string export_layout_sequences_into_csv(std::string filename, const acmacs:
     auto sera = chart.sera();
     auto layout = chart.projection(projection_no)->layout();
     const auto number_of_dimensions = layout->number_of_dimensions();
-    const auto& seqdb = seqdb::get(seqdb::ignore_errors::no, report_time::No);
-    const auto& locdb = get_locdb(report_time::No);
+    const auto& seqdb = seqdb::get(seqdb::ignore_errors::no, report_time::no);
+    const auto& locdb = get_locdb(report_time::no);
     const auto entry_seqs = seqdb.match(*antigens, chart.info()->virus_type(acmacs::chart::Info::Compute::Yes)); // entry for each antigen
 
     acmacs::CsvWriter writer;

@@ -76,7 +76,7 @@ int draw(const argc_argv& args)
 
     setup_dbs(args["--db-dir"].str(), verbose);
 
-    ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No)),
+    ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, do_report_time(args["--time"]))),
                          projection_no);
     if (args["--previous"])
         chart_draw.previous_chart(acmacs::chart::import_from_file(args["--previous"], acmacs::chart::Verify::None, do_report_time(args["--time"])));
@@ -156,11 +156,11 @@ int draw(const argc_argv& args)
 
     if (args.number_of_arguments() < 2) {
         acmacs::file::temp output(static_cast<std::string>(fs::path(args[0]).stem()) + "--p" + std::to_string(projection_no), ".pdf");
-        chart_draw.draw(output, 800, report_time::Yes);
+        chart_draw.draw(output, 800, report_time::yes);
         acmacs::quicklook(output, 2);
     }
     else {
-        chart_draw.draw(std::string(args[1]), 800, report_time::Yes);
+        chart_draw.draw(std::string(args[1]), 800, report_time::yes);
         if (args["--open"])
             acmacs::open(std::string(args[1]), 2);
         else if (args["--ql"])

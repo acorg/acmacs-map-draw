@@ -52,7 +52,7 @@ int do_select(const argc_argv& args)
     const bool verbose = args["-v"] || args["--verbose"];
     setup_dbs(args["--db-dir"].str(), verbose);
     const auto selector = rjson::parse_string(args[1]);
-    auto chart = acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, args["--time"] ? report_time::Yes : report_time::No);
+    auto chart = acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, do_report_time(args["--time"]));
     ChartSelectInterface chart_select(std::make_shared<acmacs::chart::ChartModify>(chart), args["--projection"]);
     if (!args["-s"] && !args["--sera"]) {
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_antigens())) + 1;

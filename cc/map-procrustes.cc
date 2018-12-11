@@ -99,7 +99,7 @@ int draw(const argc_argv& args)
         output_file = args[1];
     acmacs::file::temp temp_file(".pdf");
     const std::string output = output_file.empty() ? static_cast<std::string>(temp_file) : output_file;
-    chart_draw.draw(output, 800, report_time::Yes);
+    chart_draw.draw(output, 800, report_time::yes);
 
     if (args["--open"] || output_file.empty())
         acmacs::quicklook(output, 2);

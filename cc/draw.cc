@@ -282,7 +282,7 @@ void ChartDraw::remove_serum_circles()
 
 void ChartDraw::save(std::string aFilename, std::string aProgramName)
 {
-    acmacs::chart::export_factory(chart(), aFilename, aProgramName, report_time::No);
+    acmacs::chart::export_factory(chart(), aFilename, aProgramName, report_time::no);
 
 } // ChartDraw::save
 

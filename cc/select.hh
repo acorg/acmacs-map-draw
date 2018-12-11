@@ -24,7 +24,7 @@ class SelectAntigensSera
 {
  public:
     SelectAntigensSera(bool aVerbose = false, size_t aReportNamesThreshold = 10)
-        : mVerbose{aVerbose}, mReportNamesThreshold{aReportNamesThreshold}, mReportTime{aVerbose ? report_time::Yes : report_time::No} {}
+        : mVerbose{aVerbose}, mReportNamesThreshold{aReportNamesThreshold}, mReportTime{do_report_time(aVerbose)} {}
     virtual ~SelectAntigensSera();
 
     virtual acmacs::chart::Indexes select(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector);
@@ -40,7 +40,7 @@ class SelectAntigensSera
  protected:
     template <typename AgSr> void filter_name_in(AgSr aAgSr, acmacs::chart::Indexes& indexes, std::string aName)
         {
-              // Timeit ti("filter_name_in " + aName + ": ", mVerbose ? report_time::Yes : report_time::No);
+              // Timeit ti("filter_name_in " + aName + ": ", do_report_time(mVerbose));
             acmacs::chart::Indexes result(indexes.size());
             const auto by_name = aAgSr->find_by_name(aName);
             // std::cerr << "DEBUG: SelectAntigensSera::filter_name_in \"" << aName << "\": " << by_name << '\n';

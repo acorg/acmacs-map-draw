@@ -165,7 +165,7 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex
 
 double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumIndex, const acmacs::chart::PointIndexList& aAntigenIndices, serum_circle_radius_type radius_type, bool aVerbose) const
 {
-      // Timeit it("DEBUG: serum circle radius calculation for " + std::to_string(aSerumIndex) + ' ', aVerbose ? report_time::Yes : report_time::No);
+      // Timeit it("DEBUG: serum circle radius calculation for " + std::to_string(aSerumIndex) + ' ', do_report_time(aVerbose));
     std::vector<double> radii;
     const char* radius_type_s;
     switch (radius_type) {
