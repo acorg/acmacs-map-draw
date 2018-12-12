@@ -28,6 +28,12 @@ if [[ "$(hostname)" == "i19" ]]; then
         ldd "${AD_LIB_DIR}/mod_acmacs.so"
         sudo apachectl -t
         sudo apachectl start
+        sleep 5
+        # check if server started
+        if ! curl https://notebooks.antigenic-cartography.org/eu/public/ 2>&1 | grep "Antigenic Cartography Public pages"; then
+            printf "$0: ${HOSTNAME}: apache has not started" | /usr/bin/mail -s "FAILED: $0 at ${HOSTNAME}" "eu@antigenic-cartography.org"
+            false
+        fi
     else
         echo "${AD_LIB_DIR}/mod_acmacs.so not found" >&2 && false
     fi
