@@ -2,21 +2,23 @@
 
 AD_LIB_DIR="${HOME}/AD/lib"
 
-on_error()
-{
-    (echo $PROG FAILED; echo "LOG: /scp:$HOSTNAME:$LOG") | mail -s "$(hostname) $PROG FAILED" eu@antigenic-cartography.org
-    exit 1
-}
+# on_error()
+# {
+#     (echo $PROG FAILED; echo "LOG: /scp:$HOSTNAME:$LOG") | mail -s "$(hostname) $PROG FAILED" eu@antigenic-cartography.org
+#     exit 1
+# }
+# trap on_error ERR
 
-trap on_error ERR
+trap "exit 1" ERR
 
 if [[ "$(hostname)" == "i19" ]]; then
-    LOG=/syn/eu/log/install-apache-mod-acmacs.log
-    exec > "$LOG"
-    exec 2>&1
+    # LOG=/syn/eu/log/install-apache-mod-acmacs.log
+    # exec > "$LOG"
+    # exec 2>&1
 
     MOD_DIR="/syn/eu/apache-modules"
-    AD_LIBS="mod_acmacs.so libacmacsbase.so.1 libacmacschart.so.2 libacmacsdraw.so.1 libacmacsmapdraw.so.2 liblocationdb.so.1 libseqdb.so.2 libhidb.so.5 libboost_date_time.so"
+    AD_LIBS="mod_acmacs.so libacmacsbase.so.1 libacmacschart.so.2 libacmacsdraw.so.1 libacmacsmapdraw.so.2 liblocationdb.so.1 libseqdb.so.2 libhidb.so.5"
+    # libboost_date_time.so
 
     if [[ -f "${AD_LIB_DIR}/mod_acmacs.so" ]]; then
         sudo apachectl stop
