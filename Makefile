@@ -56,6 +56,7 @@ install-acmacs-map-draw-lib: $(ACMACS_MAP_DRAW_LIB)
 
 test: install
 	test/test -v
+.PHONY: test
 
 # ----------------------------------------------------------------------
 
