@@ -23,10 +23,11 @@ if [[ "$(hostname)" == "i19" ]]; then
     if [[ -f "${AD_LIB_DIR}/mod_acmacs.so" ]]; then
         set -x
         sudo apachectl stop
+        sleep 3
         mkdir -p /syn/eu/apache-modules
         for lib in ${AD_LIBS}; do install -p -t "${MOD_DIR}" "${AD_LIB_DIR}/${lib}"; done
         sudo ldconfig
-        ldd "${AD_LIB_DIR}/mod_acmacs.so"
+        # ldd "${AD_LIB_DIR}/mod_acmacs.so"
         sudo apachectl -t
         sudo apachectl start
         sleep 5
