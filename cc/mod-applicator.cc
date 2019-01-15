@@ -565,6 +565,10 @@ class ModRectangle : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
     {
         if (const auto& c1 = rjson::one_of(args(), "c1", "corner1"), c2 = rjson::one_of(args(), "c2", "corner2"); !c1.is_null() && !c2.is_null()) {
+            // const auto transformation = aChartDraw.transformation();
+            // std::cerr << "DEBUG: transformation: " << transformation << '\n';
+            // const auto c1t = transformation.transform(acmacs::Location2D{c1[0], c1[1]}), c2t = transformation.transform(acmacs::Location2D{c2[0], c2[1]});
+            // auto& rectangle = aChartDraw.rectangle(c1t, c2t);
             auto& rectangle = aChartDraw.rectangle({c1[0], c1[1]}, {c2[0], c2[1]});
             rectangle.filled(rjson::get_or(args(), "filled", false));
             rectangle.color(Color(rjson::get_or(args(), "color", "#80FF00FF")));
