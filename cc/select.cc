@@ -1,7 +1,9 @@
 #include <chrono>
 #include <cstdlib>
+#include <cctype>
 
 #include "acmacs-base/rjson.hh"
+#include "acmacs-base/string.hh"
 #include "hidb-5/hidb.hh"
 #include "acmacs-chart-2/serum-line.hh"
 #include "acmacs-map-draw/vaccines.hh"
@@ -126,7 +128,21 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             filter_clade(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
         }
         else if (key == "amino_acid") {
-            filter_amino_acid_at_pos(aChartSelectInterface, indexes, static_cast<std::string_view>(val["aa"])[0], val["pos"]);
+            if (val.is_object()) {
+                filter_amino_acid_at_pos(aChartSelectInterface, indexes, static_cast<std::string_view>(val["aa"])[0], val["pos"]);
+            }
+            else if (val.is_array()) {
+                std::vector<std::pair<size_t,char>> pos_aa;
+                rjson::for_each(val, [&pos_aa](const rjson::value& entry) {
+                    const std::string_view text = entry;
+                    if (text.size() < 2 || text.size() > 4 || !std::isdigit(text.front()) || !std::isalpha(text.back()))
+                        throw std::exception{};
+                    pos_aa.emplace_back(std::stoul(text.substr(0, text.size() - 1)), text.back());
+                });
+                filter_amino_acid_at_pos(aChartSelectInterface, indexes, pos_aa);
+            }
+            else
+                throw std::exception{};
         }
         else if (key == "outlier") {
             filter_outlier(aChartSelectInterface, indexes, val);
@@ -289,6 +305,15 @@ void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChart
     auto not_aa_at_pos = [&entries,amino_acid, pos](auto index) -> bool { const auto& entry = entries[index]; return !entry || entry.seq().amino_acid_at(pos) != amino_acid; };
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_aa_at_pos), indexes.end());
 
+} // SelectAntigens::filter_amino_acid_at_pos
+
+// ----------------------------------------------------------------------
+
+void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const std::vector<std::pair<size_t,char>>& pos_aa)
+{
+    for (const auto& entry : pos_aa)
+        filter_amino_acid_at_pos(aChartSelectInterface, indexes, entry.second, entry.first);
+    
 } // SelectAntigens::filter_amino_acid_at_pos
 
 // ----------------------------------------------------------------------

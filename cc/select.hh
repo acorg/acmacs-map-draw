@@ -94,6 +94,7 @@ class SelectAntigens : public SelectAntigensSera
     std::map<std::string, size_t> clades(const ChartSelectInterface& aChartSelectInterface);
     void filter_clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string aClade);
     void filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, size_t pos);
+    void filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const std::vector<std::pair<size_t,char>>& pos_aa);
     void filter_outlier(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, double aUnits);
     void filter_name(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string aName) override { filter_name_in(aChartSelectInterface.chart().antigens(), indexes, aName); }
     void filter_full_name(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string aFullName) override { filter_full_name_in(aChartSelectInterface.chart().antigens(), indexes, aFullName); }
