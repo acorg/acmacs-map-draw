@@ -302,7 +302,7 @@ void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterf
 void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, size_t pos)
 {
     const auto& entries = seqdb_entries(aChartSelectInterface);
-    auto not_aa_at_pos = [&entries,amino_acid, pos](auto index) -> bool { const auto& entry = entries[index]; return !entry || entry.seq().amino_acid_at(pos) != amino_acid; };
+    auto not_aa_at_pos = [&entries,amino_acid, pos](auto index) -> bool { const auto& entry = entries[index]; return !entry || !entry.seq().aligned() || entry.seq().amino_acid_at(pos) != amino_acid; };
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_aa_at_pos), indexes.end());
 
 } // SelectAntigens::filter_amino_acid_at_pos
@@ -313,7 +313,7 @@ void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChart
 {
     for (const auto& entry : pos_aa)
         filter_amino_acid_at_pos(aChartSelectInterface, indexes, entry.second, entry.first);
-    
+
 } // SelectAntigens::filter_amino_acid_at_pos
 
 // ----------------------------------------------------------------------
