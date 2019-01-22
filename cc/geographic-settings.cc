@@ -38,11 +38,11 @@ static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-
 
     "?": "========== H3",
     "3C.3":           {"fill": "cornflowerblue",  "outline": "black", "outline_width": 0},
-    "3C.2A":          {"fill": "red",             "outline": "black", "outline_width": 0},
+    "2A":             {"fill": "red",             "outline": "black", "outline_width": 0},
     "2A1":            {"fill": "darkred",         "outline": "black", "outline_width": 0},
     "2A2":            {"fill": "#EEB422",         "outline": "black", "outline_width": 0},
-    "3C.3A":          {"fill": "green",           "outline": "black", "outline_width": 0},
-    "3C.3B":          {"fill": "blue",            "outline": "black", "outline_width": 0},
+    "3A":             {"fill": "green",           "outline": "black", "outline_width": 0},
+    "3B":             {"fill": "blue",            "outline": "black", "outline_width": 0},
 
     "?": "========== H1pdm",
     "6B1":           {"fill": "blue",            "outline": "black", "outline_width": 0},

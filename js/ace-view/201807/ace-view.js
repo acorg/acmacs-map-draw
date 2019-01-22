@@ -883,8 +883,11 @@ export class ColoringModified extends ColoringBase
 const sCladeColors = {
     "3C.3": "#6495ed",
     "3C.3A": "#00ff00",
+    "3A": "#00ff00",
     "3C.3B": "#0000ff",
+    "3B": "#0000ff",
     "3C.2A": "#ff0000",
+    "2A": "#ff0000",
     "2A1": "#8b0000",
     "2A1A": "#8b0000",
     "2A1B": "#8b0000",
@@ -914,8 +917,11 @@ const sCladeColors = {
 const sCladeRank = {
     "3C.3": 5,
     "3C.3A": 6,
+    "3A": 6,
     "3C.3B": 7,
+    "3B": 7,
     "3C.2A": 8,
+    "2A": 8,
     "2A1": 9,
     "2A1A": 10,
     "2A1B": 11,
