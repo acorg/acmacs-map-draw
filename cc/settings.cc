@@ -55,14 +55,16 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "sera", "select": "all", "size": 6.5}
     ],
     "clades": [
-      {"N": "antigens", "select": {"clade": "3C.3"},   "outline": "black", "fill": "cornflowerblue", "legend": {"label": "3C.3", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "3A"},  "outline": "black", "fill": "green", "legend": {"label": "3a", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "3B"},  "outline": "black", "fill": "blue", "legend": {"label": "3b", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "2A"},  "outline": "black", "fill": "red", "legend": {"label": "2a", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "2A1"}, "outline": "black", "fill": "darkred", "legend": {"label": "2a1", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "2A1A"}, "outline": "black", "fill": "darkred", "legend": {"label": "2a1a", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "2A1B"}, "outline": "black", "fill": "indianred", "legend": {"label": "2a1b", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "2A2"}, "outline": "black", "fill": "#EEB422", "legend": {"label": "2a2", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"sequenced": true},   "outline": "black", "fill": "yellow", "legend": {"label": "sequenced", "count": true}, "order": "raise", "report": true},
+
+      {"N": "antigens", "select": {"clade": "3C.3"}, "fill": "cornflowerblue", "outline": "black", "legend": {"label": "3C.3", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "3A"},   "fill": "green",          "outline": "black", "legend": {"label": "3a", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "3B"},   "fill": "blue",           "outline": "black", "legend": {"label": "3b", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "2A"},   "fill": "#FF0000",        "outline": "black", "legend": {"label": "2a", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "2A1"},  "fill": "#8B0000",        "outline": "black", "legend": {"label": "2a1", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "2A1A"}, "fill": "#400000",        "outline": "black", "legend": {"label": "2a1a", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "2A1B"}, "fill": "#CD5C5C",        "outline": "black", "legend": {"label": "2a1b", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "2A2"},  "fill": "#EEB422",        "outline": "black", "legend": {"label": "2a2", "count": true}, "order": "raise", "report": true},
 
       {"N": "antigens", "select": {"clade": "6B"},   "outline": "black", "fill": "cornflowerblue", "legend": {"label": "6B", "count": true}, "order": "raise", "report": true},
       {"N": "antigens", "select": {"clade": "6B1"},   "outline": "black", "fill": "blue", "legend": {"label": "6B1", "count": true}, "order": "raise", "report": true},
