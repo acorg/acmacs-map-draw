@@ -230,6 +230,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
     if (verbose() && !indexes.empty()) {
         std::cerr << "INFO: antigens selected: " << std::setfill(' ') << std::setw(4) << indexes.size() << ' ' << aSelector << '\n';
         if (report_names_threshold() >= indexes.size()) {
+            std::cerr << "  AG " << string::join(",", indexes) << '\n';
             for (auto index: indexes)
                 std::cerr << "  AG " << std::setw(5) << index << ' ' << (*antigens)[index]->full_name() << "          " << (*antigens)[index]->full_name_with_fields() << '\n';
         }
