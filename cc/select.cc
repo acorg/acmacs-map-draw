@@ -129,15 +129,18 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
         else if (key == "amino_acid") {
             if (val.is_object()) {
-                filter_amino_acid_at_pos(aChartSelectInterface, indexes, static_cast<std::string_view>(val["aa"])[0], val["pos"]);
+                filter_amino_acid_at_pos(aChartSelectInterface, indexes, static_cast<std::string_view>(val["aa"])[0], val["pos"], true);
             }
             else if (val.is_array()) {
-                std::vector<std::pair<size_t,char>> pos_aa;
+                std::vector<amino_acid_at_pos_t> pos_aa;
                 rjson::for_each(val, [&pos_aa](const rjson::value& entry) {
                     const std::string_view text = entry;
-                    if (text.size() < 2 || text.size() > 4 || !std::isdigit(text.front()) || !std::isalpha(text.back()))
+                    if (text.size() >= 2 && text.size() <= 4 && std::isdigit(text.front()) && std::isalpha(text.back()))
+                        pos_aa.emplace_back(std::stoul(text.substr(0, text.size() - 1)), text.back(), true);
+                    else if (text.size() >= 3 && text.size() <= 5 && text.front() == '!' && std::isdigit(text[1]) && std::isalpha(text.back()))
+                        pos_aa.emplace_back(std::stoul(text.substr(1, text.size() - 2)), text.back(), false);
+                    else
                         throw std::exception{};
-                    pos_aa.emplace_back(std::stoul(text.substr(0, text.size() - 1)), text.back());
                 });
                 filter_amino_acid_at_pos(aChartSelectInterface, indexes, pos_aa);
             }
@@ -299,20 +302,21 @@ void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterf
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, size_t pos)
+void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, size_t pos, bool equal)
 {
     const auto& entries = seqdb_entries(aChartSelectInterface);
-    auto not_aa_at_pos = [&entries,amino_acid, pos](auto index) -> bool { const auto& entry = entries[index]; return !entry || !entry.seq().aligned() || entry.seq().amino_acid_at(pos) != amino_acid; };
+    auto at_pos_neq = [amino_acid,pos,equal](const auto& entry) -> bool { return equal ? entry.seq().amino_acid_at(pos) != amino_acid : entry.seq().amino_acid_at(pos) == amino_acid; };
+    auto not_aa_at_pos = [&entries,&at_pos_neq](auto index) -> bool { const auto& entry = entries[index]; return !entry || !entry.seq().aligned() || at_pos_neq(entry); };
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_aa_at_pos), indexes.end());
 
 } // SelectAntigens::filter_amino_acid_at_pos
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const std::vector<std::pair<size_t,char>>& pos_aa)
+void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const std::vector<amino_acid_at_pos_t>& pos_aa)
 {
     for (const auto& entry : pos_aa)
-        filter_amino_acid_at_pos(aChartSelectInterface, indexes, entry.second, entry.first);
+        filter_amino_acid_at_pos(aChartSelectInterface, indexes, std::get<char>(entry), std::get<size_t>(entry), std::get<bool>(entry));
 
 } // SelectAntigens::filter_amino_acid_at_pos
 
