@@ -52,12 +52,12 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
     // std::cerr << "DEBUG: antigens command: " << aSelector << '\n';
     auto antigens = aChartSelectInterface.chart().antigens();
     auto indexes = antigens->all_indexes();
-    rjson::for_each(aSelector, [this,&aChartSelectInterface,&antigens,&indexes,&aSelector](const std::string& key, const rjson::value& val) {
+    rjson::for_each(aSelector, [this, &aChartSelectInterface, &antigens, &indexes, &aSelector](const std::string& key, const rjson::value& val) {
         if (!key.empty() && (key.front() == '?' || key.back() == '?')) {
-              // comment
+            // comment
         }
         else if (key == "all") {
-              // do nothing
+            // do nothing
         }
         else if (key == "reference") {
             antigens->filter_reference(indexes);
@@ -160,15 +160,12 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
         else if (key == "vaccine" || key == "vaccines") {
             try {
-                filter_vaccine(aChartSelectInterface, indexes,
-                               VaccineMatchData{}
-                               .type(rjson::get_or(val, "type", ""))
-                               .passage(rjson::get_or(val, "passage", ""))
-                               .no(rjson::get_or(val, "no", 0UL))
-                               .name(rjson::get_or(val, "name", "")));
+                filter_vaccine(
+                    aChartSelectInterface, indexes,
+                    VaccineMatchData{}.type(rjson::get_or(val, "type", "")).passage(rjson::get_or(val, "passage", "")).no(rjson::get_or(val, "no", 0UL)).name(rjson::get_or(val, "name", "")));
             }
             catch (std::bad_variant_access&) {
-                  // std::cerr << "WARNING: filter_vaccine: bad_variant_access" << '\n';
+                // std::cerr << "WARNING: filter_vaccine: bad_variant_access" << '\n';
                 filter_vaccine(aChartSelectInterface, indexes, {});
             }
         }
@@ -183,7 +180,8 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             filter_circle(aChartSelectInterface, indexes, {{center[0], center[1]}, radius});
         }
         else if (key == "relative_to_serum_line") {
-            filter_relative_to_serum_line(aChartSelectInterface, indexes, rjson::get_or(val, "distance_min", 0.0), rjson::get_or(val, "distance_max", std::numeric_limits<double>::max()), rjson::get_or(val, "direction", 0));
+            filter_relative_to_serum_line(aChartSelectInterface, indexes, rjson::get_or(val, "distance_min", 0.0), rjson::get_or(val, "distance_max", std::numeric_limits<double>::max()),
+                                          rjson::get_or(val, "direction", 0));
         }
         else if (key == "lab") {
             if (aChartSelectInterface.chart().info()->lab(acmacs::chart::Info::Compute::Yes) != string::upper(static_cast<std::string_view>(val)))
@@ -221,7 +219,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             filter_table(aChartSelectInterface, indexes, val);
         }
         else if (key == "no") {
-              // processed together with the main selector, e.g. "full_name"
+            // processed together with the main selector, e.g. "full_name"
         }
         else {
             std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
@@ -231,14 +229,18 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         std::cerr << "INFO: antigens selected: " << std::setfill(' ') << std::setw(4) << indexes.size() << ' ' << aSelector << '\n';
         if (report_names_threshold() >= indexes.size()) {
             std::cerr << "  AG " << string::join(",", indexes) << '\n';
-            const auto full_name_max = antigens->at(*std::max_element(indexes.begin(), indexes.end(), [&antigens](size_t i1, size_t i2) { return antigens->at(i1)->full_name().size() < antigens->at(i2)->full_name().size(); }))->full_name().size();
-            for (auto index: indexes) {
+            const auto full_name_max =
+                antigens
+                    ->at(*std::max_element(indexes.begin(), indexes.end(), [&antigens](size_t i1, size_t i2) { return antigens->at(i1)->full_name().size() < antigens->at(i2)->full_name().size(); }))
+                    ->full_name()
+                    .size();
+            for (auto index : indexes) {
                 const auto antigen = antigens->at(index);
                 std::cerr << "  AG " << std::setw(5) << index
-                          << ' ' << std::setw(static_cast<int>(full_name_max)) << antigen->full_name()
+                          << ' ' << std::setw(static_cast<int>(full_name_max)) << std::left << antigen->full_name()
                           << "  " << std::setw(10) << antigen->date()
-                          << "  " << std::setw(10) << antigen->passage().passage_type()
-                        // << "  " << antigen->full_name_with_fields()
+                          << ' ' << std::setw(10) << std::left << antigen->passage().passage_type()
+                          // << "  " << antigen->full_name_with_fields()
                           << '\n';
             }
         }
