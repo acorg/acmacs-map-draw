@@ -231,8 +231,16 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         std::cerr << "INFO: antigens selected: " << std::setfill(' ') << std::setw(4) << indexes.size() << ' ' << aSelector << '\n';
         if (report_names_threshold() >= indexes.size()) {
             std::cerr << "  AG " << string::join(",", indexes) << '\n';
-            for (auto index: indexes)
-                std::cerr << "  AG " << std::setw(5) << index << ' ' << (*antigens)[index]->full_name() << "          " << (*antigens)[index]->full_name_with_fields() << '\n';
+            const auto full_name_max = antigens->at(*std::max_element(indexes.begin(), indexes.end(), [&antigens](size_t i1, size_t i2) { return antigens->at(i1)->full_name().size() < antigens->at(i2)->full_name().size(); }))->full_name().size();
+            for (auto index: indexes) {
+                const auto antigen = antigens->at(index);
+                std::cerr << "  AG " << std::setw(5) << index
+                          << ' ' << std::setw(static_cast<int>(full_name_max)) << antigen->full_name()
+                          << "  " << std::setw(10) << antigen->date()
+                          << "  " << std::setw(10) << antigen->passage().passage_type()
+                        // << "  " << antigen->full_name_with_fields()
+                          << '\n';
+            }
         }
     }
 

@@ -159,6 +159,8 @@ int draw(const argc_argv& args)
         chart_draw.draw(output, 800, report_time::yes);
         acmacs::quicklook(output, 2);
     }
+    else if (args[1] == "/dev/null" || args[1] == "/") { // do not generate pdf
+    }
     else {
         chart_draw.draw(std::string(args[1]), 800, report_time::yes);
         if (args["--open"])
