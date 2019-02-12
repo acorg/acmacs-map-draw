@@ -412,8 +412,26 @@ class ModTitle : public Mod
         auto& title = aChartDraw.title();
         if (const auto& show = args()["show"]; show.is_null() || static_cast<bool>(show)) { // true by default
             title.show(true);
-            if (const auto& display_name = args()["display_name"]; !display_name.is_null())
-                rjson::for_each(display_name, [&title](const rjson::value& line) { title.add_line(std::string(line)); });
+            auto substitute_vars = [&aChartDraw](std::string source) -> std::string {
+                auto info = aChartDraw.chart().info();
+                if (const auto pos = source.find("{lab}"); pos != std::string::npos)
+                    source = string::concat(source.substr(0, pos), info->lab(acmacs::chart::Info::Compute::Yes, acmacs::chart::Info::FixLab::yes), source.substr(pos + 5));
+                if (const auto pos = source.find("{assay}"); pos != std::string::npos)
+                    source = string::concat(source.substr(0, pos), info->assay(acmacs::chart::Info::Compute::Yes), source.substr(pos + 7));
+                if (const auto pos = source.find("{virus_type}"); pos != std::string::npos)
+                    source = string::concat(source.substr(0, pos), info->virus_type(acmacs::chart::Info::Compute::Yes), source.substr(pos + 12));
+                if (const auto pos = source.find("{lineage}"); pos != std::string::npos)
+                    source = string::concat(source.substr(0, pos), aChartDraw.chart().lineage(), source.substr(pos + 9));
+                return source;
+            };
+            if (const auto& display_name = args()["display_name"]; !display_name.is_null()) {
+                if (display_name.is_array())
+                    rjson::for_each(display_name, [&title,&substitute_vars](const rjson::value& line) { title.add_line(substitute_vars(std::string(line))); });
+                else if (display_name.is_string())
+                    title.add_line(substitute_vars(std::string(display_name)));
+                else
+                    throw std::exception{};
+            }
             else
                 title.add_line(aChartDraw.chart().make_name(aChartDraw.projection_no()));
             if (const auto& offset = args()["offset"]; !offset.is_null())
