@@ -151,7 +151,21 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             filter_outlier(aChartSelectInterface, indexes, val);
         }
         else if (key == "name") {
-            filter_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
+            if (val.is_string()) {
+                filter_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
+            }
+            else if (val.is_array()) {
+                decltype(indexes) to_include;
+                rjson::for_each(val, [&to_include,&antigens](const rjson::value& entry) {
+                    const auto by_name = antigens->find_by_name(entry);
+                    to_include.extend(by_name);
+                });
+                acmacs::chart::Indexes result(indexes.size());
+                const auto end = std::set_intersection(indexes.begin(), indexes.end(), to_include.begin(), to_include.end(), result.begin());
+                indexes.erase(std::copy(result.begin(), end, indexes.begin()), indexes.end());
+            }
+            else
+                throw std::exception{};
         }
         else if (key == "full_name") {
             if (val.is_string()) {
