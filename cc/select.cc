@@ -154,9 +154,15 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             filter_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
         }
         else if (key == "full_name") {
-            filter_full_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
-            if (const auto& no = aSelector.get("no"); !no.is_null())
-                indexes.erase_except(indexes[no]);
+            if (val.is_string()) {
+                filter_full_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
+                if (const auto& no = aSelector.get("no"); !no.is_null())
+                    indexes.erase_except(indexes[no]);
+            }
+            else if (val.is_array()) {
+            }
+            else
+                throw std::exception{};
         }
         else if (key == "vaccine" || key == "vaccines") {
             try {
@@ -236,10 +242,9 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
                     .size();
             for (auto index : indexes) {
                 const auto antigen = antigens->at(index);
-                std::cerr << "  AG " << std::setw(5) << index
-                          << ' ' << std::setw(static_cast<int>(full_name_max)) << std::left << antigen->full_name()
-                          << "  " << std::setw(10) << antigen->date()
-                          << ' ' << std::setw(10) << std::left << antigen->passage().passage_type()
+                std::cerr << "  AG " << std::setw(5) << index << ' ' << std::setw(static_cast<int>(full_name_max)) << std::left << antigen->full_name() << "  " << std::setw(10) << antigen->date()
+                          << ' ' << std::setw(10) << std::left
+                          << antigen->passage().passage_type()
                           // << "  " << antigen->full_name_with_fields()
                           << '\n';
             }

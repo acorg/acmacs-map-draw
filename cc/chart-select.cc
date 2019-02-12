@@ -57,10 +57,8 @@ int do_select(const argc_argv& args)
     if (!args["-s"] && !args["--sera"]) {
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_antigens())) + 1;
         const auto indices = SelectAntigens(verbose).select(chart_select, selector);
-        if (args["--just-indexes"]) {
-            std::cout << string::join(",", indices) << '\n';
-        }
-        else {
+        std::cout << string::join(",", indices) << '\n';
+        if (!args["--just-indexes"]) {
             for (auto index : indices)
                 std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->antigen(index)->full_name() << '\n';
         }
