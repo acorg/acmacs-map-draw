@@ -420,7 +420,7 @@ class ModTitle : public Mod
                     source = string::concat(source.substr(0, pos), info->assay(acmacs::chart::Info::Compute::Yes), source.substr(pos + 7));
                 if (const auto pos = source.find("{assay_short}"); pos != std::string::npos) {
                     auto assay = info->assay(acmacs::chart::Info::Compute::Yes);
-                    if (assay == "PLAQUE REDUCTION NEUTRALISATION")
+                    if (assay == "PLAQUE REDUCTION NEUTRALISATION" || assay == "FOCUS REDUCTION")
                         assay = "NEUT";
                     source = string::concat(source.substr(0, pos), assay, source.substr(pos + 13));
                 }
