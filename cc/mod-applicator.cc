@@ -418,6 +418,12 @@ class ModTitle : public Mod
                     source = string::concat(source.substr(0, pos), info->lab(acmacs::chart::Info::Compute::Yes, acmacs::chart::Info::FixLab::yes), source.substr(pos + 5));
                 if (const auto pos = source.find("{assay}"); pos != std::string::npos)
                     source = string::concat(source.substr(0, pos), info->assay(acmacs::chart::Info::Compute::Yes), source.substr(pos + 7));
+                if (const auto pos = source.find("{assay_short}"); pos != std::string::npos) {
+                    auto assay = info->assay(acmacs::chart::Info::Compute::Yes);
+                    if (assay == "PLAQUE REDUCTION NEUTRALISATION")
+                        assay = "NEUT";
+                    source = string::concat(source.substr(0, pos), assay, source.substr(pos + 13));
+                }
                 if (const auto pos = source.find("{virus_type}"); pos != std::string::npos)
                     source = string::concat(source.substr(0, pos), info->virus_type(acmacs::chart::Info::Compute::Yes), source.substr(pos + 12));
                 if (const auto pos = source.find("{lineage}"); pos != std::string::npos)
