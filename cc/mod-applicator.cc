@@ -8,6 +8,7 @@
 #include "acmacs-map-draw/mod-serum.hh"
 #include "acmacs-map-draw/mod-procrustes.hh"
 #include "acmacs-map-draw/mod-amino-acids.hh"
+#include "acmacs-map-draw/mod-blobs.hh"
 #include "acmacs-map-draw/select.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 
@@ -734,6 +735,9 @@ Mods factory(const rjson::value& aMod, const rjson::value& aSettingsMods, const 
     }
     else if (name == "procrustes_arrows") {
         result.emplace_back(new ModProcrustesArrows(args));
+    }
+    else if (name == "blobs") {
+        result.emplace_back(new ModBlobs(args));
     }
     else if (name == "comment") {
         // comment mod silently ignored
