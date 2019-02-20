@@ -16,16 +16,18 @@ void ModBlobs::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
     const auto antigen_indexes = SelectAntigens(verbose).select(aChartDraw, select.is_null() ? rjson::value{"all"} : select);
 
     const auto blobs = projection.blobs(rjson::get_or(args(), "stress_diff", 0.5), antigen_indexes, rjson::get_or(args(), "number_of_drections", 36UL), rjson::get_or(args(), "stress_diff_precision", 1e-5));
-    auto layout = aChartDraw.projection().transformed_layout();
+    const auto layout = aChartDraw.projection().transformed_layout();
+    const auto transformation = aChartDraw.projection().transformation();
+    const auto vertical_vector_transformed = transformation.transform(acmacs::Location2D{0, -1});
+    const auto base_angle = std::acos(- vertical_vector_transformed[1] / acmacs::distance(vertical_vector_transformed, {0, 0})); // apply transformation to [0, -1] and calculate starting angle
     for (auto index : antigen_indexes) {
         const auto coords = layout->get(index);
-        const auto base_angle = 0.0; // apply transformation to [0, -1] and calculate starting angle
         const auto& data = blobs.data_for_point(index);
         auto& path = aChartDraw.path();
         path.color(Color(rjson::get_or(args(), "color", "pink")));
         path.line_width(rjson::get_or(args(), "line_width", 1.0));
         for (size_t step = 0; step < data.size(); ++step) {
-            const auto angle = base_angle + blobs.angle_step() * step;
+            const auto angle = base_angle - blobs.angle_step() * step;
             const auto cos = std::cos(-angle), sin = std::sin(-angle);
             const auto x = coords[0] + sin * data[step], y = coords[1] - cos * data[step]; // rotate [0, -data[step]] by angle
             path.add({x, y});

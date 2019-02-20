@@ -363,7 +363,7 @@ void map_elements::LineSlope::draw(acmacs::draw::DrawElements& aDrawElements, co
 void map_elements::Path::draw(acmacs::surface::Surface& /*aSurface*/, const ChartDraw& /*aChartDraw*/) const
 {
     std::cerr << ">> WARNING: map_elements::Path::draw(surface) obsolete and not implemented\n";
-    
+
 } // map_elements::Path::draw
 
 
