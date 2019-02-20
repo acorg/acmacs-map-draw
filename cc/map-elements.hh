@@ -3,7 +3,8 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include <typeinfo>
+// #include <typeinfo>
+#include <optional>
 
 #include "acmacs-base/size-scale.hh"
 #include "acmacs-base/color.hh"
@@ -234,8 +235,7 @@ namespace map_elements
     class Line : public Element
     {
      public:
-        Line()
-            : Element{"line", Elements::AfterPoints}, mLineColor{"pink"}, mLineWidth{1} {}
+        Line() : Element{"line", Elements::AfterPoints}, mLineColor{"pink"}, mLineWidth{1} {}
 
         Line& color(Color aColor) { mLineColor = aColor; return *this; }
         Line& line_width(double aLineWidth) { mLineWidth = aLineWidth; return *this; }
@@ -273,6 +273,30 @@ namespace map_elements
         bool apply_map_transformation_ = false;
 
     }; // class LineSlope
+
+// ----------------------------------------------------------------------
+
+    class Path : public Element
+    {
+     public:
+        Path() : Element{"path", Elements::AfterPoints}, mLineColor{"pink"}, mLineWidth{1} {}
+
+        void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
+        void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
+
+        Path& color(Color aColor) { mLineColor = aColor; return *this; }
+        Path& line_width(double aLineWidth) { mLineWidth = aLineWidth; return *this; }
+        Path& add(acmacs::Location2D aPoint) { mPath.push_back(aPoint); return *this; }
+        Path& close(Color aFill) { close_and_fill_ = aFill; return *this; }
+
+     protected:
+        Color mLineColor;
+        Pixels mLineWidth;
+        std::vector<acmacs::Location2D> mPath;
+        std::optional<Color> close_and_fill_;
+
+    }; // class Line
+
 
 // ----------------------------------------------------------------------
 

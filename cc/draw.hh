@@ -126,6 +126,7 @@ class ChartDraw : public ChartSelectInterface
     map_elements::Line& line(acmacs::Location2D aBegin, acmacs::Location2D aEnd);
       // map_elements::Line& line(double slope, double intercept, apply_map_transformation a_apply_map_transformation);
     map_elements::Line& line(const acmacs::LineDefinedByEquation& line, apply_map_transformation a_apply_map_transformation);
+    map_elements::Path& path();
     map_elements::Arrow& arrow(acmacs::Location2D aBegin, acmacs::Location2D aEnd);
     map_elements::Point& point(acmacs::Location2D aCenter, Pixels aSize);
     map_elements::Rectangle& rectangle(acmacs::Location2D aCorner1, acmacs::Location2D aCorner2);

@@ -230,6 +230,14 @@ map_elements::Line& ChartDraw::line(const acmacs::LineDefinedByEquation& line, a
 
 // ----------------------------------------------------------------------
 
+map_elements::Path& ChartDraw::path()
+{
+    return dynamic_cast<map_elements::Path&>(mMapElements.add("path"));
+
+} // ChartDraw::path
+
+// ----------------------------------------------------------------------
+
 map_elements::Arrow& ChartDraw::arrow(acmacs::Location2D aBegin, acmacs::Location2D aEnd)
 {
     auto& arrow = dynamic_cast<map_elements::Arrow&>(mMapElements.add("arrow"));

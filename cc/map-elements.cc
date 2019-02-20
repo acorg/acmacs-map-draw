@@ -54,6 +54,9 @@ map_elements::Element& map_elements::Elements::add(std::string aKeyword)
     else if (aKeyword == "line" || aKeyword == "line_from_to") {
         mElements.emplace_back(new LineFromTo{});
     }
+    else if (aKeyword == "path") {
+        mElements.emplace_back(new Path{});
+    }
     else if (aKeyword == "line_slope") {
         mElements.emplace_back(new LineSlope{});
     }
@@ -353,6 +356,22 @@ void map_elements::LineSlope::draw(acmacs::draw::DrawElements& aDrawElements, co
     aDrawElements.line(line_, mLineColor, mLineWidth, apply_map_transformation_);
 
 } // map_elements::Line::draw
+
+// ----------------------------------------------------------------------
+
+// obsolete
+void map_elements::Path::draw(acmacs::surface::Surface& /*aSurface*/, const ChartDraw& /*aChartDraw*/) const
+{
+    std::cerr << ">> WARNING: map_elements::Path::draw(surface) obsolete and not implemented\n";
+    
+} // map_elements::Path::draw
+
+
+void map_elements::Path::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& /*aChartDraw*/) const
+{
+    aDrawElements.path(mPath, mLineColor, mLineWidth, close_and_fill_);
+
+} // map_elements::Path::draw
 
 // ----------------------------------------------------------------------
 

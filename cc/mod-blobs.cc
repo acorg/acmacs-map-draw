@@ -21,16 +21,19 @@ void ModBlobs::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
         const auto coords = layout->get(index);
         const auto base_angle = 0.0; // apply transformation to [0, -1] and calculate starting angle
         const auto& data = blobs.data_for_point(index);
+        auto& path = aChartDraw.path();
+        path.color(Color(rjson::get_or(args(), "color", "pink")));
+        path.line_width(rjson::get_or(args(), "line_width", 1.0));
         for (size_t step = 0; step < data.size(); ++step) {
             const auto angle = base_angle + blobs.angle_step() * step;
             const auto cos = std::cos(-angle), sin = std::sin(-angle);
             const auto x = coords[0] + sin * data[step], y = coords[1] - cos * data[step]; // rotate [0, -data[step]] by angle
-            auto& line = aChartDraw.line(coords, {x, y});
-            line.color(Color(rjson::get_or(args(), "color", "pink")));
-            line.line_width(rjson::get_or(args(), "line_width", 1.0));
+            path.add({x, y});
         }
-        std::cerr << ">>> AG " << index << ' ' << aChartDraw.chart().antigen(index)->full_name() << '\n'
-                  << ">>>     " << data << '\n';
+        path.close(Color(rjson::get_or(args(), "fill", "transparent")));
+
+        // std::cerr << ">>> AG " << index << ' ' << aChartDraw.chart().antigen(index)->full_name() << '\n'
+        //           << ">>>     " << data << '\n';
     }
 
     // const auto verbose = rjson::get_or(args(), "report", false);
