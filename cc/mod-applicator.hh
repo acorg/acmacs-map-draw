@@ -85,6 +85,17 @@ class ModMoveAntigens : public ModMoveBase
 
 // ----------------------------------------------------------------------
 
+class ModMoveAntigensStress : public ModMoveBase
+{
+ public:
+    using ModMoveBase::ModMoveBase;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override;
+
+}; // class ModMoveAntigens
+
+// ----------------------------------------------------------------------
+
 class ModMoveSera : public ModMoveBase
 {
  public:

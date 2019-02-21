@@ -269,9 +269,11 @@ static const char* const SETTINGS_HELP_MODS = R"(
 {"N": "grid", "color": "grey80", "line_width": 1}
 {"N": "point_scale", "scale": 1, "outline_scale": 1}
 
-{"N": "move_antigens", "select": {"reference": true}, "?to": [5, 5], "?to_antigen": {"index": 10}, "?to_serum": {"index": 10},
+{"N": "move_antigens", "select": {"reference": true}, "?to": [5, 5], "?relative": [1, 1], "?to_antigen": {"index": 10}, "?to_serum": {"index": 10},
   "?flip_over_serum_line": 1, "report": true} // flip_over_serum_line: scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)
-{"N": "move_sera", "select": {"all": true}, "?to": [5, 5], "?to_antigen": {"index": 10}, "to_serum": {"index": 1}, "report": true}
+{"N": "move_sera", "select": {"all": true}, "?to": [5, 5], "?relative": [1, 1], "?to_antigen": {"index": 10}, "to_serum": {"index": 1}, "report": true}
+{"N": "move_antigens_stress", "select": {"reference": true}, "?to": [5, 5], "?relative": [1, 1], "?fill": "pink", "?outline": "grey", "?order": "raise", "?size": 1,
+  "report": true}
 
 {"N": "serum_circle", "serum": {"index": 0}, "?antigen": {"index": 0}, "report": true,
  "type": "empirical (default) | theoretical",

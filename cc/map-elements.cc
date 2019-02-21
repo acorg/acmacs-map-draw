@@ -429,7 +429,7 @@ void map_elements::Point::draw(acmacs::surface::Surface& aSurface, const ChartDr
 
 void map_elements::Point::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
 {
-    aDrawElements.point(mCenter, mSize, mFillColor, mOutlineColor, mOutlineWidth, mAspect, mRotation);
+    aDrawElements.point(mCenter, mSize, mFillColor, mOutlineColor, mOutlineWidth, mAspect, mRotation, mLabel);
 
 } // map_elements::Point::draw
 

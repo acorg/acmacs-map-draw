@@ -391,6 +391,7 @@ namespace map_elements
         Point& size(Pixels aSize) { mSize = aSize; return *this; }
         Point& color(Color aFillColor, Color aOutlineColor) { mFillColor = aFillColor; mOutlineColor = aOutlineColor; return *this; }
         Point& outline_width(double aOutlineWidth) { mOutlineWidth = aOutlineWidth; return *this; }
+        Point& label(std::string aLabel) { mLabel = aLabel; return *this; }
 
      private:
         acmacs::Location2D mCenter;
@@ -400,6 +401,7 @@ namespace map_elements
         Pixels mOutlineWidth;
         Aspect mAspect;
         Rotation mRotation;
+        std::string mLabel;
 
     }; // class Point
 
