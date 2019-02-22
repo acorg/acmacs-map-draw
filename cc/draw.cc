@@ -19,7 +19,6 @@ const acmacs::Viewport& ChartDraw::calculate_viewport(bool verbose)
     if (number_of_dimensions() != 2)
         throw std::runtime_error(std::to_string(number_of_dimensions()) + "D maps are not supported");
     auto layout = transformed_layout();
-    std::cerr << "DEBUG: transformed_layout " << layout->get(0) << '\n';
     const acmacs::BoundingBall bb{minimum_bounding_ball(*layout)};
     acmacs::Viewport viewport;
     viewport.set_from_center_size(bb.center(), bb.diameter());
