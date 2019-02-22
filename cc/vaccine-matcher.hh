@@ -78,7 +78,7 @@ class VaccineMatcherLabel : public VaccineMatcherBase
     template <typename S, typename = std::enable_if_t<acmacs::sfinae::is_string_v<S>>> VaccineMatcherLabel& weight(S aWeight) { for_each_mf(&LBL::weight, aWeight); return *this; }
     template <typename S, typename = std::enable_if_t<acmacs::sfinae::is_string_v<S>>> VaccineMatcherLabel& slant(S aSlant) { for_each_mf(&LBL::slant, aSlant); return *this; }
     template <typename S, typename = std::enable_if_t<acmacs::sfinae::is_string_v<S>>> VaccineMatcherLabel& font_family(S aFamily) { for_each_mf(&LBL::font_family, aFamily); return *this; }
-    VaccineMatcherLabel& offset(acmacs::Location2D loc) { for_each_mf(static_cast<LBL& (LBL::*)(acmacs::Location2D)>(&LBL::offset), loc); return *this; }
+    VaccineMatcherLabel& offset(const acmacs::PointCoordinates& loc) { for_each_mf(static_cast<LBL& (LBL::*)(const acmacs::PointCoordinates&)>(&LBL::offset), loc); return *this; }
     VaccineMatcherLabel& name_type(std::string aNameType);
 
     VaccineMatcherLabel& hide() { for_each_with_vacc([this](const auto& vacc_entry) { mChartDraw.remove_label(vacc_entry.chart_antigen_index); }, false); return *this; }

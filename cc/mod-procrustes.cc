@@ -64,7 +64,7 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
     for (size_t point_no = 0; point_no < common_points.size(); ++point_no) {
         const auto primary_coords = primary_layout->get(common_points[point_no].primary),
                 secondary_coords = secondary_layout->get(common_points[point_no].secondary);
-        if (primary_coords.distance(secondary_coords) > threshold) {
+        if (acmacs::distance(primary_coords, secondary_coords) > threshold) {
             auto& arrow = aChartDraw.arrow(primary_coords, secondary_coords);
             arrow.color(Color(rjson::get_or(arrow_config, "color", "black")), Color(rjson::get_or(arrow_config, "head_color", "black")));
             arrow.line_width(rjson::get_or(arrow_config, "line_width", 1.0));

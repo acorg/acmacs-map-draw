@@ -14,7 +14,6 @@
 namespace acmacs::chart
 {
     class Chart;
-    using Layout = acmacs::LayoutInterface;
     class PlotSpecModify;
 
 } // namespace acmacs::chart
@@ -35,13 +34,13 @@ namespace map_elements
         acmacs::draw::PointLabel& add(size_t aIndex, const acmacs::chart::Chart& aChart);
         void add_all(const acmacs::chart::Chart& aChart);
 
-          // obsolete
-        void draw(acmacs::surface::Surface& aSurface, const acmacs::chart::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const
-            {
-                std::for_each(begin(), end(), [&,this](const auto& aLabel) { this->draw(aLabel, aSurface, aLayout, aPlotSpec); });
-            }
+        // obsolete
+        void draw(acmacs::surface::Surface& aSurface, const acmacs::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const
+        {
+            std::for_each(begin(), end(), [&, this](const auto& aLabel) { this->draw(aLabel, aSurface, aLayout, aPlotSpec); });
+        }
 
-        void draw(const acmacs::draw::PointLabel& label, acmacs::surface::Surface& aSurface, const acmacs::chart::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const;
+        void draw(const acmacs::draw::PointLabel& label, acmacs::surface::Surface& aSurface, const acmacs::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const;
 
     }; // class Labels
 

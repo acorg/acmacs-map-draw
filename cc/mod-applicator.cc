@@ -193,11 +193,11 @@ void ModAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 
 // ----------------------------------------------------------------------
 
-acmacs::Coordinates ModMoveBase::get_move_to(ChartDraw& aChartDraw, bool aVerbose) const
+acmacs::PointCoordinates ModMoveBase::get_move_to(ChartDraw& aChartDraw, bool aVerbose) const
 {
-    acmacs::Coordinates move_to;
+    acmacs::PointCoordinates move_to{acmacs::PointCoordinates::with_nan_coordinates, 2};
     if (const auto& to = args()["to"]; !to.is_null()) {
-        move_to = acmacs::Coordinates{to[0], to[1]};
+        move_to = acmacs::PointCoordinates(to[0], to[1]);
     }
     else if (const auto& to_antigen = args()["to_antigen"]; !to_antigen.is_null()) {
         const auto antigens = SelectAntigens(aVerbose).select(aChartDraw, to_antigen);
@@ -236,7 +236,7 @@ void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDat
             auto layout = aChartDraw.layout();
             for (auto index : SelectAntigens(verbose).select(aChartDraw, select)) {
                 const auto coord = layout->get(index);
-                projection.move_point(index, std::vector<double>{coord[0] + static_cast<double>(relative[0]), coord[1] + static_cast<double>(relative[1])});
+                projection.move_point(index, acmacs::PointCoordinates(coord[0] + static_cast<double>(relative[0]), coord[1] + static_cast<double>(relative[1])));
             }
         }
         else {
@@ -265,10 +265,10 @@ void ModMoveAntigensStress::apply(ChartDraw& aChartDraw, const rjson::value& /*a
             auto layout = projection.layout();
             for (auto index : SelectAntigens(verbose).select(aChartDraw, select)) {
                 const auto coord = layout->get(index);
-                const std::vector<double> move_to{coord[0] + static_cast<double>(relative[0]), coord[1] + static_cast<double>(relative[1])};
+                const acmacs::PointCoordinates move_to{coord[0] + static_cast<double>(relative[0]), coord[1] + static_cast<double>(relative[1])};
                 const auto stress = projection.stress_with_moved_point(index, move_to);
                 std::cerr << "DEBUG: stress_with_moved_point " << stress << '\n';
-                auto& point = aChartDraw.point(transformation.transform(acmacs::Location2D(move_to)), Pixels{rjson::get_or(args(), "size", 1.0)});
+                auto& point = aChartDraw.point(transformation.transform(move_to), Pixels{rjson::get_or(args(), "size", 1.0)});
                 point.color(Color(rjson::get_or(args(), "fill", "transparent")), Color(rjson::get_or(args(), "outline", "black")));
                 point.outline_width(rjson::get_or(args(), "outline_width", 1.0));
                 point.label(acmacs::to_string(stress, 4) + " " + acmacs::to_string(stress - projection_stress, 4));
@@ -298,7 +298,7 @@ void ModMoveSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
             auto layout = aChartDraw.layout();
             for (auto index : SelectSera(verbose).select(aChartDraw, select)) {
                 const auto coord = layout->get(index + aChartDraw.number_of_antigens());
-                projection.move_point(index + aChartDraw.number_of_antigens(), std::vector<double>{coord[0] + static_cast<double>(relative[0]), coord[1] + static_cast<double>(relative[1])});
+                projection.move_point(index + aChartDraw.number_of_antigens(), acmacs::PointCoordinates(coord[0] + static_cast<double>(relative[0]), coord[1] + static_cast<double>(relative[1])));
             }
         }
         else {
@@ -384,7 +384,7 @@ class ModViewport : public Mod
             const auto new_size = static_cast<double>(rel[2]) + orig_viewport.size.width;
             if (new_size < 1)
                 throw unrecognized_mod{"invalid size difference in \"rel\". mod: " + rjson::to_string(args())};
-            aChartDraw.viewport(orig_viewport.origin + acmacs::Location2D{static_cast<double>(rel[0]), static_cast<double>(rel[1])}, new_size);
+            aChartDraw.viewport(orig_viewport.origin + acmacs::PointCoordinates{static_cast<double>(rel[0]), static_cast<double>(rel[1])}, new_size);
         }
         else {
             throw unrecognized_mod{"mod: " + rjson::to_string(args())};
@@ -578,9 +578,9 @@ class ModLine : public Mod
         }
 
  protected:
-   std::vector<acmacs::Location2D> begins_ends(ChartDraw& aChartDraw, std::string aPrefix) const
+   std::vector<acmacs::PointCoordinates> begins_ends(ChartDraw& aChartDraw, std::string aPrefix) const
    {
-       std::vector<acmacs::Location2D> result;
+       std::vector<acmacs::PointCoordinates> result;
        const auto verbose = rjson::get_or(args(), "report", false);
        if (const auto& from = args()[aPrefix]; !from.is_null()) {
            result.push_back({from[0], from[1]});
@@ -643,7 +643,7 @@ class ModRectangle : public Mod
         if (const auto& c1 = rjson::one_of(args(), "c1", "corner1"), c2 = rjson::one_of(args(), "c2", "corner2"); !c1.is_null() && !c2.is_null()) {
             // const auto transformation = aChartDraw.transformation();
             // std::cerr << "DEBUG: transformation: " << transformation << '\n';
-            // const auto c1t = transformation.transform(acmacs::Location2D{c1[0], c1[1]}), c2t = transformation.transform(acmacs::Location2D{c2[0], c2[1]});
+            // const auto c1t = transformation.transform(acmacs::PointCoordinates{c1[0], c1[1]}), c2t = transformation.transform(acmacs::PointCoordinates{c2[0], c2[1]});
             // auto& rectangle = aChartDraw.rectangle(c1t, c2t);
             auto& rectangle = aChartDraw.rectangle({c1[0], c1[1]}, {c2[0], c2[1]});
             rectangle.filled(rjson::get_or(args(), "filled", false));

@@ -356,7 +356,7 @@ void SelectAntigens::filter_outlier(const ChartSelectInterface& aChartSelectInte
 {
     auto layout = aChartSelectInterface.layout();
 
-    using sum_count_t = std::pair<acmacs::Coordinates, size_t>;
+    using sum_count_t = std::pair<acmacs::PointCoordinates, size_t>;
     auto sum_count_not_nan = [&layout](const auto& sum_count, size_t index) -> sum_count_t {
         const auto coord = layout->get(index);
         auto [sum, count] = sum_count;
@@ -375,7 +375,7 @@ void SelectAntigens::filter_outlier(const ChartSelectInterface& aChartSelectInte
     std::transform(indexes.begin(), indexes.end(), point_dist.begin(), [centroid=centroid,&layout](size_t index) -> point_dist_t {
         const auto coord = layout->get(index);
         if (coord.not_nan())
-            return {index, centroid.distance(coord)};
+            return {index, acmacs::distance(centroid, coord)};
         else
             return {index, 0.0}; // not an outlier!
     });

@@ -11,7 +11,7 @@ namespace acmacs::surface { class Surface; }
 // ----------------------------------------------------------------------
 
 acmacs::PointStyle point_style_from_json(const rjson::value& aSource);
-void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aStyle, const acmacs::Coordinates& aCoord);
+void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aStyle, const acmacs::PointCoordinates& aCoord);
 
 // ----------------------------------------------------------------------
 

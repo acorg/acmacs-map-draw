@@ -68,7 +68,7 @@ class ModMoveBase : public Mod
     using Mod::Mod;
 
  protected:
-    acmacs::Coordinates get_move_to(ChartDraw& aChartDraw, bool aVerbose) const;
+    acmacs::PointCoordinates get_move_to(ChartDraw& aChartDraw, bool aVerbose) const;
 
 }; // class ModMoveBase
 

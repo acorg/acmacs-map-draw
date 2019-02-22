@@ -30,9 +30,9 @@ class ChartSelectInterface
     acmacs::chart::ProjectionModify& projection() { return *mProjectionModify; }
     size_t projection_no() const { return projection().projection_no(); }
     size_t number_of_dimensions() const { return projection().number_of_dimensions(); }
-    std::shared_ptr<acmacs::chart::Layout> layout() const { return projection().layout(); }
+    std::shared_ptr<acmacs::Layout> layout() const { return projection().layout(); }
     acmacs::Transformation transformation() const { return projection().transformation(); }
-    std::shared_ptr<acmacs::chart::Layout> transformed_layout() const { return projection().transformed_layout(); }
+    std::shared_ptr<acmacs::Layout> transformed_layout() const { return projection().transformed_layout(); }
     bool point_has_coordinates(size_t point_no) const { return projection().layout()->point_has_coordinates(point_no); }
 
     const acmacs::chart::PlotSpecModify& plot_spec() const { return *mPlotSpec; }

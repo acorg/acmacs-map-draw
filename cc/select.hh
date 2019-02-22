@@ -54,17 +54,17 @@ class SelectAntigensSera
             indexes.erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return (*aAgSr)[index]->full_name() != aFullName; }), indexes.end());
         }
 
-    void filter_rectangle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::chart::Layout& aLayout, const acmacs::Transformation& aTransformation, const acmacs::Rectangle& aRectangle)
+    void filter_rectangle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::Layout& aLayout, const acmacs::Transformation& aTransformation, const acmacs::Rectangle& aRectangle)
         {
             const auto rect_transformed = aRectangle.transform(aTransformation.inverse());
-            auto not_in_rectangle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return p.size() == 2 ? !rect_transformed.within(p) : true; };
+            auto not_in_rectangle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return p.number_of_dimensions() == 2 ? !rect_transformed.within(p) : true; };
             indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_rectangle), indexes.end());
         }
 
-    void filter_circle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::chart::Layout& aLayout, const acmacs::Transformation& aTransformation, const acmacs::Circle& aCircle)
+    void filter_circle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::Layout& aLayout, const acmacs::Transformation& aTransformation, const acmacs::Circle& aCircle)
         {
             const auto circle_transformed = aCircle.transform(aTransformation.inverse());
-            auto not_in_circle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return p.size() == 2 ? !circle_transformed.within(p) : true; };
+            auto not_in_circle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return p.number_of_dimensions() == 2 ? !circle_transformed.within(p) : true; };
             indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_circle), indexes.end());
         }
 

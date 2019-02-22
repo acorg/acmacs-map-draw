@@ -19,9 +19,10 @@ const acmacs::Viewport& ChartDraw::calculate_viewport(bool verbose)
     if (number_of_dimensions() != 2)
         throw std::runtime_error(std::to_string(number_of_dimensions()) + "D maps are not supported");
     auto layout = transformed_layout();
-    std::unique_ptr<acmacs::BoundingBall> bb{minimum_bounding_ball(*layout)};
+    std::cerr << "DEBUG: transformed_layout " << layout->get(0) << '\n';
+    const acmacs::BoundingBall bb{minimum_bounding_ball(*layout)};
     acmacs::Viewport viewport;
-    viewport.set_from_center_size(bb->center(), bb->diameter());
+    viewport.set_from_center_size(bb.center(), bb.diameter());
     viewport.whole_width();
     if (verbose)
         std::cout << "[Calculated]:     " << viewport << '\n';
@@ -196,7 +197,7 @@ map_elements::SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadi
 
 // ----------------------------------------------------------------------
 
-map_elements::Line& ChartDraw::line(acmacs::Location2D aBegin, acmacs::Location2D aEnd)
+map_elements::Line& ChartDraw::line(const acmacs::PointCoordinates& aBegin, const acmacs::PointCoordinates& aEnd)
 {
     auto& line = dynamic_cast<map_elements::LineFromTo&>(mMapElements.add("line_from_to"));
     line.from_to(aBegin, aEnd);
@@ -238,7 +239,7 @@ map_elements::Path& ChartDraw::path()
 
 // ----------------------------------------------------------------------
 
-map_elements::Arrow& ChartDraw::arrow(acmacs::Location2D aBegin, acmacs::Location2D aEnd)
+map_elements::Arrow& ChartDraw::arrow(const acmacs::PointCoordinates& aBegin, const acmacs::PointCoordinates& aEnd)
 {
     auto& arrow = dynamic_cast<map_elements::Arrow&>(mMapElements.add("arrow"));
     arrow.from_to(aBegin, aEnd);
@@ -248,7 +249,7 @@ map_elements::Arrow& ChartDraw::arrow(acmacs::Location2D aBegin, acmacs::Locatio
 
 // ----------------------------------------------------------------------
 
-map_elements::Point& ChartDraw::point(acmacs::Location2D aCenter, Pixels aSize)
+map_elements::Point& ChartDraw::point(const acmacs::PointCoordinates& aCenter, Pixels aSize)
 {
     auto& point = dynamic_cast<map_elements::Point&>(mMapElements.add("point"));
     point.center(aCenter);
@@ -259,7 +260,7 @@ map_elements::Point& ChartDraw::point(acmacs::Location2D aCenter, Pixels aSize)
 
 // ----------------------------------------------------------------------
 
-map_elements::Rectangle& ChartDraw::rectangle(acmacs::Location2D aCorner1, acmacs::Location2D aCorner2)
+map_elements::Rectangle& ChartDraw::rectangle(const acmacs::PointCoordinates& aCorner1, const acmacs::PointCoordinates& aCorner2)
 {
     auto& rectangle = dynamic_cast<map_elements::Rectangle&>(mMapElements.add("rectangle"));
     rectangle.corners(aCorner1, aCorner2);
@@ -269,7 +270,7 @@ map_elements::Rectangle& ChartDraw::rectangle(acmacs::Location2D aCorner1, acmac
 
 // ----------------------------------------------------------------------
 
-map_elements::Circle& ChartDraw::circle(acmacs::Location2D aCenter, Scaled aSize)
+map_elements::Circle& ChartDraw::circle(const acmacs::PointCoordinates& aCenter, Scaled aSize)
 {
     auto& point = dynamic_cast<map_elements::Circle&>(mMapElements.add("circle"));
     point.center(aCenter);

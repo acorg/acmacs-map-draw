@@ -24,33 +24,33 @@ void ModBlobs::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
         auto& path = aChartDraw.path().color(Color(rjson::get_or(args(), "color", "pink"))).line_width(rjson::get_or(args(), "line_width", 1.0));
 
         for (size_t step = 0; step < data.size(); ++step) {
-            acmacs::Location2D vertix{coords[0] + std::cos(blobs.angle_step() * step) * data[step], coords[1] + std::sin(blobs.angle_step() * step) * data[step]};
-            // aChartDraw.line(transformation.transform(acmacs::Location2D(coords)), transformation.transform(vertix)) .color(RED).line_width(2);
+            acmacs::PointCoordinates vertix{coords[0] + std::cos(blobs.angle_step() * step) * data[step], coords[1] + std::sin(blobs.angle_step() * step) * data[step]};
+            // aChartDraw.line(transformation.transform(coords), transformation.transform(vertix)) .color(RED).line_width(2);
             path.add(transformation.transform(vertix));
         }
         path.close(Color(rjson::get_or(args(), "fill", "transparent")));
-        
-        // aChartDraw.line(acmacs::Location2D(coords), acmacs::Location2D{coords[0] + data[0], coords[1]}).color(BLUE).line_width(2);
-        // aChartDraw.line(acmacs::Location2D(coords), acmacs::Location2D{coords[0] + std::cos(blobs.angle_step()) * data[1], coords[1] + std::sin(blobs.angle_step()) * data[1]}).color(RED).line_width(2);
+
+        // aChartDraw.line(coords, acmacs::PointCoordinates(coords[0] + data[0], coords[1])).color(BLUE).line_width(2);
+        // aChartDraw.line(coords, acmacs::PointCoordinates(coords[0] + std::cos(blobs.angle_step()) * data[1], coords[1] + std::sin(blobs.angle_step()) * data[1])).color(RED).line_width(2);
         // std::cerr << "DEBUG: data[0] " << data[0] << " angle_step " << blobs.angle_step() << '\n';
 
         // auto& path = aChartDraw.path().color(Color(rjson::get_or(args(), "color", "pink"))).line_width(rjson::get_or(args(), "line_width", 1.0));
         // for (size_t step = 0; step < data.size(); ++step) {
-        //     acmacs::Location2D vertix{data[step], 0};
+        //     acmacs::PointCoordinates vertix{data[step], 0};
         //     const auto angle = blobs.angle_step() * step;
         //     const auto cos = std::cos(angle), sin = std::sin(angle);
-        //     auto v2 = transformation.transform(acmacs::Location2D{coords[0] + cos * vertix[0] - sin * vertix[1], sin * vertix[0] + cos * vertix[1]});
+        //     auto v2 = transformation.transform(acmacs::PointCoordinates{coords[0] + cos * vertix[0] - sin * vertix[1], sin * vertix[0] + cos * vertix[1]});
         //     path.add(v2);
 
-        //     auto& line = aChartDraw.line(transformation.transform(acmacs::Location2D(coords)), v2).color(CYAN).line_width(1);
-            
+        //     auto& line = aChartDraw.line(transformation.transform(coords), v2).color(CYAN).line_width(1);
+
         // }
         // path.close(Color(rjson::get_or(args(), "fill", "transparent")));
 
         // std::cerr << ">>> AG " << index << ' ' << aChartDraw.chart().antigen(index)->full_name() << '\n'
         //           << ">>>     " << data << '\n';
     }
-    
+
 } // ModBlobs::apply
 
 // ----------------------------------------------------------------------

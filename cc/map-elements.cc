@@ -118,9 +118,9 @@ map_elements::Element::~Element()
 
 // ----------------------------------------------------------------------
 
-acmacs::Location2D map_elements::Element::subsurface_origin(acmacs::surface::Surface& aSurface, acmacs::Location2D aPixelOrigin, const acmacs::Size& aScaledSubsurfaceSize) const
+acmacs::PointCoordinates map_elements::Element::subsurface_origin(acmacs::surface::Surface& aSurface, const acmacs::PointCoordinates& aPixelOrigin, const acmacs::Size& aScaledSubsurfaceSize) const
 {
-    acmacs::Location2D subsurface_origin{aSurface.convert(Pixels{aPixelOrigin.x()}).value(), aSurface.convert(Pixels{aPixelOrigin.y()}).value()};
+    acmacs::PointCoordinates subsurface_origin{aSurface.convert(Pixels{aPixelOrigin.x()}).value(), aSurface.convert(Pixels{aPixelOrigin.y()}).value()};
     const acmacs::Size& surface_size = aSurface.viewport().size;
     if (subsurface_origin.x() < 0)
         subsurface_origin.x(subsurface_origin.x() + surface_size.width - aScaledSubsurfaceSize.width);
@@ -157,7 +157,7 @@ void map_elements::BackgroundBorderGrid::draw(acmacs::draw::DrawElements& aDrawE
 // obsolete
 void map_elements::ContinentMap::draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const
 {
-    acmacs::Location2D origin = mOrigin;
+    acmacs::PointCoordinates origin = mOrigin;
     if (origin.x() < 0)
         origin.x(origin.x() + aSurface.width_in_pixels() - mWidthInParent.value());
     if (origin.y() < 0)
@@ -203,7 +203,7 @@ void map_elements::LegendPointLabel::draw(acmacs::surface::Surface& aSurface, co
 
         const acmacs::Size legend_surface_size{width + padding.width * 3 + scaled_point_size,
                                        height * (mLines.size() - 1) * mInterline + height + padding.height * 2};
-        const acmacs::Location2D legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
+        const acmacs::PointCoordinates legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
 
         acmacs::surface::Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
         const auto& legend_v = legend_surface.viewport();
@@ -264,7 +264,7 @@ void map_elements::Title::draw(acmacs::surface::Surface& aSurface) const
         const double padding = aSurface.convert(mPadding).value();
         const acmacs::Size legend_surface_size{width + padding * 2,
                     height * (mLines.size() - 1) * mInterline + height + padding * 2};
-        const acmacs::Location2D legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
+        const acmacs::PointCoordinates legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
 
         acmacs::surface::Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
         const auto& legend_v = legend_surface.viewport();
@@ -378,7 +378,7 @@ void map_elements::Path::draw(acmacs::draw::DrawElements& aDrawElements, const C
 // obsolete
 void map_elements::Rectangle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
-    const std::vector<acmacs::Location2D> path{mCorner1, {mCorner1.x(), mCorner2.y()}, mCorner2, {mCorner2.x(), mCorner1.y()}};
+    const std::vector<acmacs::PointCoordinates> path{mCorner1, {mCorner1.x(), mCorner2.y()}, mCorner2, {mCorner2.x(), mCorner1.y()}};
     if (mFilled)
         aSurface.path_fill(path.begin(), path.end(), mColor);
     else

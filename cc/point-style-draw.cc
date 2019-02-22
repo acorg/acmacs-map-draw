@@ -4,7 +4,7 @@
 
 // ----------------------------------------------------------------------
 
-void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aStyle, const acmacs::Coordinates& aCoord)
+void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aStyle, const acmacs::PointCoordinates& aCoord)
 {
       // obsolete
     if (*aStyle.shown && aCoord.not_nan()) {
