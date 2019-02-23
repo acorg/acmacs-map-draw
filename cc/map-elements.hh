@@ -255,8 +255,8 @@ namespace map_elements
         Line& from_to(const acmacs::PointCoordinates& aBegin, const acmacs::PointCoordinates& aEnd) { mBegin = aBegin; mEnd = aEnd; return *this; }
 
      protected:
-        acmacs::PointCoordinates mBegin{acmacs::PointCoordinates::with_nan_coordinates, 2};
-        acmacs::PointCoordinates mEnd{acmacs::PointCoordinates::with_nan_coordinates, 2};
+        acmacs::PointCoordinates mBegin{2};
+        acmacs::PointCoordinates mEnd{2};
 
     }; // class Line
 
@@ -338,7 +338,7 @@ namespace map_elements
         Rectangle& line_width(double aLineWidth) { mLineWidth = aLineWidth; return *this; }
 
      protected:
-        acmacs::PointCoordinates mCorner1{acmacs::PointCoordinates::with_nan_coordinates, 2}, mCorner2{acmacs::PointCoordinates::with_nan_coordinates, 2};
+        acmacs::PointCoordinates mCorner1{2}, mCorner2{2};
         Color mColor;
         bool mFilled;
         Pixels mLineWidth;
@@ -364,7 +364,7 @@ namespace map_elements
         Circle& rotation(Rotation aRotation) { mRotation = aRotation; return *this; }
 
      protected:
-        acmacs::PointCoordinates mCenter{acmacs::PointCoordinates::with_nan_coordinates, 2};
+        acmacs::PointCoordinates mCenter{2};
         Scaled mSize;
         Color mFillColor;
         Color mOutlineColor;
@@ -393,7 +393,7 @@ namespace map_elements
         Point& label(std::string aLabel) { mLabel = aLabel; return *this; }
 
      private:
-        acmacs::PointCoordinates mCenter{acmacs::PointCoordinates::with_nan_coordinates, 2};
+        acmacs::PointCoordinates mCenter{2};
         Pixels mSize;
         Color mFillColor;
         Color mOutlineColor;

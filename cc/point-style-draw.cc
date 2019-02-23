@@ -7,7 +7,7 @@
 void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aStyle, const acmacs::PointCoordinates& aCoord)
 {
       // obsolete
-    if (*aStyle.shown && aCoord.not_nan()) {
+    if (*aStyle.shown && aCoord.exists()) {
         switch (*aStyle.shape) {
           case acmacs::PointShape::Circle:
               aSurface.circle_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, *aStyle.outline, *aStyle.outline_width, *aStyle.fill);

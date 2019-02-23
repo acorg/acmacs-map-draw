@@ -195,7 +195,7 @@ void ModAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 
 acmacs::PointCoordinates ModMoveBase::get_move_to(ChartDraw& aChartDraw, bool aVerbose) const
 {
-    acmacs::PointCoordinates move_to{acmacs::PointCoordinates::with_nan_coordinates, 2};
+    acmacs::PointCoordinates move_to(2);
     if (const auto& to = args()["to"]; !to.is_null()) {
         move_to = acmacs::PointCoordinates(to[0], to[1]);
     }
