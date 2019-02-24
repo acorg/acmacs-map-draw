@@ -43,7 +43,7 @@ void ChartDraw::draw(acmacs::surface::Surface& aSurface) const
     if (mViewport.empty())
         throw std::runtime_error("Call calculate_viewport() before draw()");
 
-    acmacs::surface::Surface& rescaled_surface = aSurface.subsurface({0, 0}, Scaled{aSurface.viewport().size.width}, mViewport, true);
+    acmacs::surface::Surface& rescaled_surface = aSurface.subsurface(acmacs::PointCoordinates::zero2D, Scaled{aSurface.viewport().size.width}, mViewport, true);
     mMapElements.draw(rescaled_surface, map_elements::Elements::BeforePoints, *this);
 
     const auto layout_p = transformed_layout();
