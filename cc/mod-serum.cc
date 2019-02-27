@@ -125,8 +125,34 @@ void ModSerumCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData
     const auto verbose = rjson::get_or(args(), "report", false);
     const size_t serum_index = select_mark_serum(aChartDraw, verbose);
     const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, acmacs::chart::find_homologous::all, verbose);
-    make_serum_circle(aChartDraw, serum_index, antigen_indices, radius_type_from_string(std::string(rjson::get_or(args(), "type", "empirical"))), args()["circle"], verbose);
+    if (const auto& circle = args()["circle"]; circle.is_null()) // new spec
+        make_serum_circle(aChartDraw, serum_index, antigen_indices, args()["empirical"], args()["theoretical"], args()["fallback"], verbose);
+    else                        // old spec
+        make_serum_circle(aChartDraw, serum_index, antigen_indices, radius_type_from_string(std::string(rjson::get_or(args(), "type", "empirical"))), args()["circle"], verbose);
 }
+
+// ----------------------------------------------------------------------
+
+void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, const rjson::value& empirical_plot_spec, const rjson::value& theoretical_plot_spec, const rjson::value& fallback_plot_spec, bool verbose) const
+{
+    bool empirical_or_theoretical_shown = false;
+    if (rjson::get_or(empirical_plot_spec, "show", true)) {
+        if (const auto radius = calculate_radius(aChartDraw, serum_index, antigen_indices, serum_circle_radius_type::empirical, verbose); radius > 0) {
+            make_serum_circle(aChartDraw, serum_index, Scaled{radius}, empirical_plot_spec);
+            empirical_or_theoretical_shown = true;
+        }
+    }
+    if (rjson::get_or(theoretical_plot_spec, "show", true)) {
+        if (const auto radius = calculate_radius(aChartDraw, serum_index, antigen_indices, serum_circle_radius_type::theoretical, verbose); radius > 0) {
+            make_serum_circle(aChartDraw, serum_index, Scaled{radius}, theoretical_plot_spec);
+            empirical_or_theoretical_shown = true;
+        }
+    }
+    if (!empirical_or_theoretical_shown && rjson::get_or(fallback_plot_spec, "show", true)) {
+        make_serum_circle(aChartDraw, serum_index, Scaled{rjson::get_or(fallback_plot_spec, "radius", 3.0)}, theoretical_plot_spec);
+    }
+
+} // ModSerumCircle::make_serum_circle
 
 // ----------------------------------------------------------------------
 

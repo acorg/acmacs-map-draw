@@ -148,9 +148,9 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::value& aMods, const rjson::v
 {
     const auto& mods_data_mod = aModData["mods"];
     rjson::for_each(aMods, [&mods_data_mod,&aChartDraw,aIgnoreUnrecognized,&aModData](const rjson::value& mod_desc) {
-        Timeit ti{"INFO: Applying " + rjson::to_string(mod_desc) + ": "};
         try {
             for (const auto& mod: factory(mod_desc, mods_data_mod, {})) {
+                Timeit ti{"INFO: Applying " + rjson::to_string(mod_desc) + ": "};
                 mod->apply(aChartDraw, aModData);
             }
         }
