@@ -171,12 +171,18 @@ double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumInde
     switch (radius_type) {
       case serum_circle_radius_type::theoretical:
           std::transform(std::begin(aAntigenIndices), std::end(aAntigenIndices), std::back_inserter(radii),
-                         [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius_theoretical(antigen_index, aSerumIndex, aChartDraw.projection_no(), aVerbose); });
+                         [&](size_t antigen_index) -> double {
+                             const auto circle_data = aChartDraw.chart().serum_circle_radius_theoretical(antigen_index, aSerumIndex, aChartDraw.projection_no());
+                             return circle_data.valid() ? circle_data.radius() : -1.0;
+                         });
           radius_type_s = "theoretical";
           break;
       case serum_circle_radius_type::empirical:
           std::transform(std::begin(aAntigenIndices), std::end(aAntigenIndices), std::back_inserter(radii),
-                         [&](size_t antigen_index) -> double { return aChartDraw.chart().serum_circle_radius_empirical(antigen_index, aSerumIndex, aChartDraw.projection_no(), aVerbose); });
+                         [&](size_t antigen_index) -> double {
+                             const auto circle_data = aChartDraw.chart().serum_circle_radius_empirical(antigen_index, aSerumIndex, aChartDraw.projection_no());
+                             return circle_data.valid() ? circle_data.radius() : -1.0;
+                         });
           radius_type_s = "empirical";
           break;
     }
