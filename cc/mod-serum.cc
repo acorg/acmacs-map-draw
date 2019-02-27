@@ -171,13 +171,18 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex
         circle.fill(Color(rjson::get_or(circle_plot_spec, "fill", "transparent")));
         const auto outline = rjson::get_or(circle_plot_spec, "outline", "pink");
         const auto outline_width = rjson::get_or(circle_plot_spec, "outline_width", 1.0);
+        if (const auto outline_dash = rjson::get_or(circle_plot_spec, "outline_dash", ""); outline_dash == "dash1")
+            circle.outline_dash1();
+        else if (outline_dash == "dash2")
+            circle.outline_dash2();
+        else
+            circle.outline_no_dash();
         circle.outline(Color(outline), outline_width);
         if (const auto& angles = circle_plot_spec["angle_degrees"]; !angles.is_null()) {
             const double pi_180 = std::acos(-1) / 180.0;
             circle.angles(static_cast<double>(angles[0]) * pi_180, static_cast<double>(angles[1]) * pi_180);
         }
-        const auto line_dash = rjson::get_or(circle_plot_spec, "radius_line_dash", "");
-        if (line_dash == "dash1")
+        if (const auto line_dash = rjson::get_or(circle_plot_spec, "radius_line_dash", ""); line_dash == "dash1")
             circle.radius_line_dash1();
         else if (line_dash == "dash2")
             circle.radius_line_dash2();

@@ -210,6 +210,10 @@ namespace map_elements
         SerumCircle& radius(Scaled aRadius) { mRadius = aRadius; return *this; }
         SerumCircle& fill(Color aFill) { mFillColor = aFill; return *this; }
         SerumCircle& outline(Color aOutline, double aOutlineWidth) { mOutlineColor = aOutline; mOutlineWidth = aOutlineWidth; return *this; }
+        SerumCircle& outline_no_dash() { mOutlineDash = acmacs::surface::Dash::NoDash; return *this; }
+        SerumCircle& outline_dash1() { mOutlineDash = acmacs::surface::Dash::Dash1; return *this; }
+        SerumCircle& outline_dash2() { mOutlineDash = acmacs::surface::Dash::Dash2; return *this; }
+
         SerumCircle& radius_line(Color aRadius, double aRadiusWidth) { mRadiusColor = aRadius; mRadiusWidth = aRadiusWidth; return *this; }
         SerumCircle& angles(double aStart, double aEnd) { mStart = aStart; mEnd = aEnd; return *this; }
         SerumCircle& radius_line_no_dash() { mRadiusDash = acmacs::surface::Dash::NoDash; return *this; }
@@ -222,6 +226,7 @@ namespace map_elements
         Color mFillColor;
         Color mOutlineColor;
         Pixels mOutlineWidth;
+        acmacs::surface::Dash mOutlineDash;
         Color mRadiusColor;
         Pixels mRadiusWidth;
         acmacs::surface::Dash mRadiusDash;
