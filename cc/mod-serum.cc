@@ -149,7 +149,7 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t serum_index
         }
     }
     if (!empirical_or_theoretical_shown && rjson::get_or(fallback_plot_spec, "show", true)) {
-        make_serum_circle(aChartDraw, serum_index, Scaled{rjson::get_or(fallback_plot_spec, "radius", 3.0)}, theoretical_plot_spec);
+        make_serum_circle(aChartDraw, serum_index, Scaled{rjson::get_or(fallback_plot_spec, "radius", 3.0)}, fallback_plot_spec);
     }
 
 } // ModSerumCircle::make_serum_circle
@@ -175,6 +175,8 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex
             circle.outline_dash1();
         else if (outline_dash == "dash2")
             circle.outline_dash2();
+        else if (outline_dash == "dash3")
+            circle.outline_dash3();
         else
             circle.outline_no_dash();
         circle.outline(Color(outline), outline_width);
@@ -186,6 +188,8 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex
             circle.radius_line_dash1();
         else if (line_dash == "dash2")
             circle.radius_line_dash2();
+        else if (line_dash == "dash3")
+            circle.radius_line_dash3();
         else
             circle.radius_line_no_dash();
         circle.radius_line(Color(rjson::get_or(circle_plot_spec, "radius_line_color", outline)), rjson::get_or(circle_plot_spec, "radius_line_width", outline_width));

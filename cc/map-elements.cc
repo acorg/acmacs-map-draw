@@ -213,7 +213,7 @@ void map_elements::LegendPointLabel::draw(acmacs::surface::Surface& aSurface, co
         const double text_x = padding.width * 2 + scaled_point_size;
         double y = padding.height + height;
         for (const auto& line: mLines) {
-            legend_surface.circle_filled({point_x, y - height / 2}, mPointSize, AspectNormal, NoRotation, line.outline, Pixels{1}, line.fill);
+            legend_surface.circle_filled({point_x, y - height / 2}, mPointSize, AspectNormal, NoRotation, line.outline, Pixels{1}, acmacs::surface::Dash::NoDash, line.fill);
             legend_surface.text({text_x, y}, line.label, mLabelColor, mLabelSize, mLabelStyle);
             y += height * mInterline;
         }
@@ -309,7 +309,7 @@ void map_elements::SerumCircle::draw(acmacs::surface::Surface& aSurface, const C
         const auto& coord = transformed_layout->get(mSerumNo + aChartDraw.number_of_antigens());
         if (coord.exists()) {
             if (mStart == mEnd) {
-                aSurface.circle_filled(coord, mRadius * 2.0, AspectNormal, NoRotation, mOutlineColor, mOutlineWidth, mFillColor);
+                aSurface.circle_filled(coord, mRadius * 2.0, AspectNormal, NoRotation, mOutlineColor, mOutlineWidth, mOutlineDash, mFillColor);
             }
             else {
                 aSurface.sector_filled(coord, mRadius * 2.0, mStart, mEnd, mOutlineColor, mOutlineWidth, mRadiusColor, mRadiusWidth, mRadiusDash, mFillColor);
@@ -421,7 +421,7 @@ void map_elements::Arrow::draw(acmacs::draw::DrawElements& aDrawElements, const 
 // obsolete
 void map_elements::Point::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
-    aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, mFillColor);
+    aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, acmacs::surface::Dash::NoDash, mFillColor);
 
 } // map_elements::Point::draw
 
@@ -438,7 +438,7 @@ void map_elements::Point::draw(acmacs::draw::DrawElements& aDrawElements, const 
 // obsolete
 void map_elements::Circle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
-    aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, mFillColor);
+    aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, acmacs::surface::Dash::NoDash, mFillColor);
 
 } // map_elements::Circle::draw
 

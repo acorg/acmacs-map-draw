@@ -10,7 +10,7 @@ void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aS
     if (*aStyle.shown && aCoord.exists()) {
         switch (*aStyle.shape) {
           case acmacs::PointShape::Circle:
-              aSurface.circle_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, *aStyle.outline, *aStyle.outline_width, *aStyle.fill);
+              aSurface.circle_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, *aStyle.outline, *aStyle.outline_width, acmacs::surface::Dash::NoDash, *aStyle.fill);
               break;
           case acmacs::PointShape::Box:
               aSurface.square_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, *aStyle.outline, *aStyle.outline_width, *aStyle.fill);
