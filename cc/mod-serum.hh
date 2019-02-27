@@ -46,6 +46,8 @@ class ModSerumCircle : public ModSerumHomologous
 
     void make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, const acmacs::chart::PointIndexList& aAntigenIndices, serum_circle_radius_type radius_type, const rjson::value& circle_plot_spec, bool verbose) const;
     void make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, Scaled aRadius, const rjson::value& circle_plot_spec) const;
+
+  private:
     double calculate_radius(ChartDraw& aChartDraw, size_t aSerumIndex, const acmacs::chart::PointIndexList& aAntigenIndices, serum_circle_radius_type radius_type, bool aVerbose) const;
 
 }; // class ModSerumCircle
