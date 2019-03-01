@@ -90,8 +90,10 @@ acmacs::chart::PointIndexList ModSerumHomologous::select_homologous_antigens(Cha
 {
     aChartDraw.chart().set_homologous(find_homologous_options);
     const auto antigen_indexes = aChartDraw.chart().serum(aSerumIndex)->homologous_antigens();
-    if (antigen_indexes.empty())
+    if (antigen_indexes.empty()) {
+        std::cerr << "WARNING: no homologous antigens for serum " << aSerumIndex << '\n';
         throw unrecognized_mod{"no homologous antigens for serum, mod: " + rjson::to_string(args())};
+    }
     if (aVerbose) {
         auto antigens = aChartDraw.chart().antigens();
         std::cerr << "INFO: homologous antigens selected: " << std::setfill(' ') << std::setw(4) << antigen_indexes.size() << '\n';
