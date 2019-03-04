@@ -225,7 +225,7 @@ double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumInde
                 std::cout << "radius:" << *per_antigen.radius;
             else
                 std::cout << per_antigen.report_reason();
-            std::cout << "  AG " << per_antigen.antigen_no << ' ' << aChartDraw.chart().antigen(per_antigen.antigen_no)->full_name() << '\n';
+            std::cout << "  AG " << per_antigen.antigen_no << ' ' << aChartDraw.chart().antigen(per_antigen.antigen_no)->full_name() << " titer:" << per_antigen.titer << '\n';
         }
     }
     return circle_data.valid() ? circle_data.radius() : 0.0;
