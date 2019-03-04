@@ -18,7 +18,7 @@ void ModConnectionLines::apply(ChartDraw& aChartDraw, const rjson::value& /*aMod
     // std::cerr << "DEBUG: sera: " << serum_indexes << '\n';
 
     const Color line_color{rjson::get_or(args(), "color", "black")};
-    const double line_width{rjson::get_or(args(), "width", 1.0)};
+    const double line_width{rjson::get_or(args(), "line_width", 1.0)};
 
     auto layout = aChartDraw.layout();
     auto titers = aChartDraw.chart().titers();
