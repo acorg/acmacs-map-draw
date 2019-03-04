@@ -11,6 +11,7 @@
 #include "acmacs-map-draw/mod-blobs.hh"
 #include "acmacs-map-draw/select.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
+#include "acmacs-map-draw/mod-connection-lines.hh"
 
 // ----------------------------------------------------------------------
 
@@ -570,9 +571,9 @@ class ModLine : public Mod
             const auto ends = begins_ends(aChartDraw, "to");
             for(const auto& begin: begins) {
                 for(const auto& end: ends) {
-                    auto& line = aChartDraw.line(begin, end);
-                    line.color(Color(rjson::get_or(args(), "color", "black")));
-                    line.line_width(rjson::get_or(args(), "width", 1.0));
+                    aChartDraw.line(begin, end)
+                            .color(Color(rjson::get_or(args(), "color", "black")))
+                            .line_width(rjson::get_or(args(), "width", 1.0));
                 }
             }
         }
@@ -587,17 +588,13 @@ class ModLine : public Mod
        }
        else if (const auto& from_antigen = args()[aPrefix + "_antigen"]; !from_antigen.is_null()) {
            auto layout = aChartDraw.layout();
-           for (auto index : SelectAntigens(verbose).select(aChartDraw, from_antigen)) {
-               const auto coord = layout->get(index);
-               result.push_back({coord[0], coord[1]});
-           }
+           for (auto index : SelectAntigens(verbose).select(aChartDraw, from_antigen))
+               result.push_back(layout->get(index));
        }
        else if (const auto& from_serum = args()[aPrefix + "_serum"]; !from_serum.is_null()) {
            auto layout = aChartDraw.layout();
-           for (auto index : SelectSera(verbose).select(aChartDraw, from_serum)) {
-               const auto coord = layout->get(index + aChartDraw.number_of_antigens());
-               result.push_back({coord[0], coord[1]});
-           }
+           for (auto index : SelectSera(verbose).select(aChartDraw, from_serum))
+               result.push_back(layout->get(index + aChartDraw.number_of_antigens()));
        }
        else
            throw unrecognized_mod{"neither \"" + aPrefix + "\" nor \"" + aPrefix + "_antigen\" nor \"" + aPrefix + "_serum\" provided in mod: " + rjson::to_string(args())};
@@ -792,6 +789,9 @@ Mods factory(const rjson::value& aMod, const rjson::value& aSettingsMods, const 
     }
     else if (name == "blobs") {
         result.emplace_back(new ModBlobs(args));
+    }
+    else if (name == "connection_lines") {
+        result.emplace_back(new ModConnectionLines(args));
     }
     else if (name == "comment") {
         // comment mod silently ignored
