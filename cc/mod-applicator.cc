@@ -793,6 +793,9 @@ Mods factory(const rjson::value& aMod, const rjson::value& aSettingsMods, const 
     else if (name == "connection_lines") {
         result.emplace_back(new ModConnectionLines(args));
     }
+    else if (name == "color_by_number_of_connection_lines") {
+        result.emplace_back(new ModColorByNumberOfConnectionLines(args));
+    }
     else if (name == "comment") {
         // comment mod silently ignored
     }

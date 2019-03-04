@@ -12,7 +12,18 @@ class ModConnectionLines : public Mod
 
     void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override;
 
-}; // class ModProcrustesArrows
+}; // class ModConnectionLines
+
+// ----------------------------------------------------------------------
+
+class ModColorByNumberOfConnectionLines : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override;
+
+}; // class ModColorByNumberOfConnectionLines
 
 // ----------------------------------------------------------------------
 /// Local Variables:

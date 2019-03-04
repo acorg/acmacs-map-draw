@@ -341,7 +341,8 @@ static const char* const SETTINGS_HELP_MODS = R"(
 
 {"N": "serum_line", "color": "red", "line_width": 1}
 
-{"N": "connection_lines", "antigens": {<select>}, "sera": {<select>}, "color": "grey", "line_width": 1}
+{"N": "connection_lines", "antigens": {<select>}, "sera": {<select>}, "color": "grey", "line_width": 1},
+{"N": "color_by_number_of_connection_lines", "antigens": {<select>}, "sera": {<select>}, "start": "", "end": ""},
 
 {"N": "blobs", "select": {<select-antigens>}, "stress_diff": 0.5, "number_of_drections": 36, "stress_diff_precision": 1e-5,
  "fill": "transparent", "color": "pink", "line_width": 1, "report": false}
