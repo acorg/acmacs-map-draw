@@ -638,14 +638,22 @@ class ModRectangle : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
     {
         if (const auto& c1 = rjson::one_of(args(), "c1", "corner1"), c2 = rjson::one_of(args(), "c2", "corner2"); !c1.is_null() && !c2.is_null()) {
-            // const auto transformation = aChartDraw.transformation();
+            // auto& rectangle = aChartDraw.rectangle({c1[0], c1[1]}, {c2[0], c2[1]});
+            // rectangle.filled(rjson::get_or(args(), "filled", false));
+            // rectangle.color(Color(rjson::get_or(args(), "color", "#80FF00FF")));
+            // rectangle.line_width(rjson::get_or(args(), "line_width", 1));
+
+            const auto transformation = aChartDraw.transformation();
             // std::cerr << "DEBUG: transformation: " << transformation << '\n';
-            // const auto c1t = transformation.transform(acmacs::PointCoordinates{c1[0], c1[1]}), c2t = transformation.transform(acmacs::PointCoordinates{c2[0], c2[1]});
-            // auto& rectangle = aChartDraw.rectangle(c1t, c2t);
-            auto& rectangle = aChartDraw.rectangle({c1[0], c1[1]}, {c2[0], c2[1]});
-            rectangle.filled(rjson::get_or(args(), "filled", false));
-            rectangle.color(Color(rjson::get_or(args(), "color", "#80FF00FF")));
-            rectangle.line_width(rjson::get_or(args(), "line_width", 1));
+            const Color color{rjson::get_or(args(), "color", "#80FF00FF")};
+            aChartDraw.path()
+                    .color(color)
+                    .line_width(rjson::get_or(args(), "line_width", 1))
+                    .add(transformation.transform(acmacs::PointCoordinates{c1[0], c1[1]}))
+                    .add(transformation.transform(acmacs::PointCoordinates{c1[0], c2[1]}))
+                    .add(transformation.transform(acmacs::PointCoordinates{c2[0], c2[1]}))
+                    .add(transformation.transform(acmacs::PointCoordinates{c2[0], c1[1]}))
+                    .close(rjson::get_or(args(), "filled", false) ? color : TRANSPARENT);
         }
         else
             throw unrecognized_mod{"mod: " + rjson::to_string(args())};
@@ -663,7 +671,8 @@ class ModCircle : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
     {
         if (const auto& center = args()["center"]; !center.is_null()) {
-            auto& circle = aChartDraw.circle({center[0], center[1]}, Scaled{rjson::get_or(args(), "size", 1.0)});
+            const auto transformation = aChartDraw.transformation();
+            auto& circle = aChartDraw.circle(transformation.transform(acmacs::PointCoordinates{center[0], center[1]}), Scaled{rjson::get_or(args(), "size", 1.0)});
             circle.color(Color(rjson::get_or(args(), "fill", "transparent")), Color(rjson::get_or(args(), "outline", "#80FF00FF")));
             circle.outline_width(rjson::get_or(args(), "outline_width", 1.0));
             circle.aspect(Aspect{rjson::get_or(args(), "aspect", 1.0)});
