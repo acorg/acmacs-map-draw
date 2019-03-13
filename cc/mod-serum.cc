@@ -127,11 +127,38 @@ void ModSerumCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData
     const auto verbose = rjson::get_or(args(), "report", false);
     const size_t serum_index = select_mark_serum(aChartDraw, verbose);
     const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, acmacs::chart::find_homologous::all, verbose);
-    if (const auto& circle = args()["circle"]; circle.is_null()) // new spec
-        make_serum_circle(aChartDraw, serum_index, antigen_indices, args()["empirical"], args()["theoretical"], args()["fallback"], verbose);
+    if (const auto& circle = args()["circle"]; circle.is_null()) { // new spec
+        if (const auto& homologous_titer = args()["homologous_titer"]; !homologous_titer.is_null())
+            make_serum_circle(aChartDraw, serum_index, antigen_indices, acmacs::chart::Titer(homologous_titer), args()["empirical"], args()["theoretical"], args()["fallback"], verbose);
+        else
+            make_serum_circle(aChartDraw, serum_index, antigen_indices, args()["empirical"], args()["theoretical"], args()["fallback"], verbose);
+    }
     else                        // old spec
         make_serum_circle(aChartDraw, serum_index, antigen_indices, radius_type_from_string(std::string(rjson::get_or(args(), "type", "empirical"))), args()["circle"], verbose);
 }
+
+// ----------------------------------------------------------------------
+
+void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, acmacs::chart::Titer aHomologousTiter, const rjson::value& empirical_plot_spec, const rjson::value& theoretical_plot_spec, const rjson::value& fallback_plot_spec, bool verbose) const
+{
+    bool empirical_or_theoretical_shown = false;
+    if (rjson::get_or(empirical_plot_spec, "show", true)) {
+        if (const auto radius = calculate_radius(aChartDraw, serum_index, antigen_indices, aHomologousTiter, serum_circle_radius_type::empirical, verbose); radius > 0) {
+            make_serum_circle(aChartDraw, serum_index, Scaled{radius}, empirical_plot_spec);
+            empirical_or_theoretical_shown = true;
+        }
+    }
+    if (rjson::get_or(theoretical_plot_spec, "show", true)) {
+        if (const auto radius = calculate_radius(aChartDraw, serum_index, antigen_indices, aHomologousTiter, serum_circle_radius_type::theoretical, verbose); radius > 0) {
+            make_serum_circle(aChartDraw, serum_index, Scaled{radius}, theoretical_plot_spec);
+            empirical_or_theoretical_shown = true;
+        }
+    }
+    if (!empirical_or_theoretical_shown && rjson::get_or(fallback_plot_spec, "show", true)) {
+        make_serum_circle(aChartDraw, serum_index, Scaled{rjson::get_or(fallback_plot_spec, "radius", 3.0)}, fallback_plot_spec);
+    }
+
+} // ModSerumCircle::make_serum_circle
 
 // ----------------------------------------------------------------------
 
@@ -161,6 +188,18 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t serum_index
 void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, serum_circle_radius_type radius_type, const rjson::value& circle_plot_spec, bool verbose) const
 {
     make_serum_circle(aChartDraw, serum_index, Scaled{calculate_radius(aChartDraw, serum_index, antigen_indices, radius_type, verbose)}, circle_plot_spec);
+
+} // ModSerumCircle::make_serum_circle
+
+// ----------------------------------------------------------------------
+
+void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, const rjson::value& homologous_titer,
+                                       serum_circle_radius_type radius_type, const rjson::value& circle_plot_spec, bool verbose) const
+{
+    if (!homologous_titer.is_null())
+        make_serum_circle(aChartDraw, serum_index, Scaled{calculate_radius(aChartDraw, serum_index, antigen_indices, acmacs::chart::Titer(homologous_titer), radius_type, verbose)}, circle_plot_spec);
+    else
+        make_serum_circle(aChartDraw, serum_index, Scaled{calculate_radius(aChartDraw, serum_index, antigen_indices, radius_type, verbose)}, circle_plot_spec);
 
 } // ModSerumCircle::make_serum_circle
 
@@ -197,6 +236,33 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex
         circle.radius_line(Color(rjson::get_or(circle_plot_spec, "radius_line_color", outline)), rjson::get_or(circle_plot_spec, "radius_line_width", outline_width));
     }
 }
+
+// ----------------------------------------------------------------------
+
+double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumIndex, const acmacs::chart::PointIndexList& aAntigenIndices, acmacs::chart::Titer aHomologousTiter, serum_circle_radius_type radius_type, bool aVerbose) const
+{
+    auto get_circle_data = [&]() {
+        switch (radius_type) {
+            case serum_circle_radius_type::empirical:
+                return aChartDraw.chart().serum_circle_radius_empirical(aAntigenIndices, aHomologousTiter, aSerumIndex, aChartDraw.projection_no());
+            case serum_circle_radius_type::theoretical:
+                return aChartDraw.chart().serum_circle_radius_theoretical(aHomologousTiter, aSerumIndex, aChartDraw.projection_no());
+        }
+    };
+
+    const auto circle_data = get_circle_data();
+    if (aVerbose) {
+        std::cout << "INFO: " << (radius_type == serum_circle_radius_type::empirical ? "empirical" : "theoretical");
+        if (circle_data.valid())
+            std::cout << " serum circle radius: " << circle_data.radius();
+        else
+            std::cout << " NO serum circle radius";
+        std::cout << "\n  SR " << aSerumIndex << ' ' << aChartDraw.chart().serum(aSerumIndex)->full_name() << '\n';
+        std::cout << "  Forced homologous titer: " << aHomologousTiter << '\n';
+    }
+    return circle_data.valid() ? circle_data.radius() : 0.0;
+
+} // ModSerumCircle::calculate_radius
 
 // ----------------------------------------------------------------------
 
@@ -238,34 +304,42 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDa
     const auto verbose = rjson::get_or(args(), "report", false);
     const size_t serum_index = select_mark_serum(aChartDraw, verbose);
     const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, acmacs::chart::find_homologous::all, verbose);
-    apply(aChartDraw, serum_index, antigen_indices, args()["within_4fold"], args()["outside_4fold"], verbose);
+    apply(aChartDraw, serum_index, antigen_indices, args()["homologous_titer"], args()["within_4fold"], args()["outside_4fold"], verbose);
 }
 
 // ----------------------------------------------------------------------
 
-void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, const rjson::value& within_4fold, const rjson::value& outside_4fold, bool verbose)
+void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, const rjson::value& homologous_titer, const rjson::value& within_4fold,
+                             const rjson::value& outside_4fold, bool verbose)
 {
     acmacs::chart::PointIndexList within, outside;
     std::optional<size_t> antigen_index;
-    for (auto ai = antigen_indices.begin(); ai != antigen_indices.end() && !antigen_index; ++ai) {
-        try {
-            aChartDraw.chart().serum_coverage(*ai, serum_index, within, outside);
-            antigen_index = *ai;
-        }
-        catch (acmacs::chart::serum_coverage_error& err) {
-            std::cerr << "WARNING: cannot use homologous antigen " << *ai << ": " << err.what() << '\n';
-            within.clear();
-            outside.clear();
-        }
+    if (!homologous_titer.is_null()) {
+        aChartDraw.chart().serum_coverage(acmacs::chart::Titer(homologous_titer), serum_index, within, outside);
     }
-    if (!antigen_index)
-        throw std::runtime_error("cannot apply serum_coverage mod: no suitable antigen found?");
+    else {
+        for (auto ai = antigen_indices.begin(); ai != antigen_indices.end() && !antigen_index; ++ai) {
+            try {
+                aChartDraw.chart().serum_coverage(*ai, serum_index, within, outside);
+                antigen_index = *ai;
+            }
+            catch (acmacs::chart::serum_coverage_error& err) {
+                std::cerr << "WARNING: cannot use homologous antigen " << *ai << ": " << err.what() << '\n';
+                within.clear();
+                outside.clear();
+            }
+        }
+        if (!antigen_index)
+            throw std::runtime_error("cannot apply serum_coverage mod: no suitable antigen found?");
+    }
 
     if (verbose) {
-        std::cerr << "INFO: serum coverage\n  SR " << serum_index << ' ' << aChartDraw.chart().serum(serum_index)->full_name()
-                  << "\n  AG " << *antigen_index << ' ' << aChartDraw.chart().antigen(*antigen_index)->full_name()
-                  << "\n  within 4fold:  " << within.size()
-                  << "\n  outside 4fold: " << outside.size() << '\n';
+        std::cerr << "INFO: serum coverage\n  SR " << serum_index << ' ' << aChartDraw.chart().serum(serum_index)->full_name() << '\n';
+        if (antigen_index.has_value())
+            std::cerr << "  AG " << *antigen_index << ' ' << aChartDraw.chart().antigen(*antigen_index)->full_name() << '\n';
+        else
+            std::cerr << "  forced homologous titer: " << homologous_titer << '\n';
+        std::cerr << "  within 4fold:  " << within.size() << "\n  outside 4fold: " << outside.size() << '\n';
     }
     if (!within.empty())
         aChartDraw.modify(within, point_style_from_json(within_4fold), drawing_order_from_json(within_4fold));
@@ -284,15 +358,15 @@ void ModSerumCoverageCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*
     const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, acmacs::chart::find_homologous::all, verbose);
 
     ModSerumCoverage mod_coverage;
-    mod_coverage.apply(aChartDraw, serum_index, antigen_indices, args()["within_4fold"], args()["outside_4fold"], verbose);
+    mod_coverage.apply(aChartDraw, serum_index, antigen_indices, args()["homologous_titer"], args()["within_4fold"], args()["outside_4fold"], verbose);
 
     if (const auto& data = args()["empirical"]; !data.is_null() && rjson::get_or(data, "show", true)) {
         ModSerumCircle mod_circle;
-        mod_circle.make_serum_circle(aChartDraw, serum_index, antigen_indices, ModSerumCircle::serum_circle_radius_type::empirical, data, verbose);
+        mod_circle.make_serum_circle(aChartDraw, serum_index, antigen_indices, args()["homologous_titer"], ModSerumCircle::serum_circle_radius_type::empirical, data, verbose);
     }
     if (const auto& data = args()["theoretical"]; !data.is_null() && rjson::get_or(data, "show", true)) {
         ModSerumCircle mod_circle;
-        mod_circle.make_serum_circle(aChartDraw, serum_index, antigen_indices, ModSerumCircle::serum_circle_radius_type::theoretical, data, verbose);
+        mod_circle.make_serum_circle(aChartDraw, serum_index, antigen_indices, args()["homologous_titer"], ModSerumCircle::serum_circle_radius_type::theoretical, data, verbose);
     }
 
 } // ModSerumCoverageCircle::apply

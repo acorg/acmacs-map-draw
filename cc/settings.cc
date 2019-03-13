@@ -316,18 +316,18 @@ static const char* const SETTINGS_HELP_MODS = R"(
  "mark_serum":   {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
  "mark_antigen": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}}}
 
-{obsolete! "N": "serum_circle", "serum": {"index": 0}, "?antigen": {"index": 0}, "report": true,
+{obsolete! "N": "serum_circle", "serum": {"index": 0}, "?antigen": {"index": 0}, "?homologous_titer": "1280", "report": true,
  "type": "empirical (default) | theoretical",
  "circle": {"fill": "#C08080FF", "outline": "blue", "outline_width": 2, "angle_degrees": [0, 30], "radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1},
  "mark_serum": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
  "mark_antigen": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}}}
 
-{"N": "serum_coverage", "serum": {<select>}, "?antigen": {<select>}, "report": true,
+{"N": "serum_coverage", "serum": {<select>}, "?antigen": {<select>}, "?homologous_titer": "1280", "report": true,
  "mark_serum": {"fill": "red", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12, "weight": "bold"}},
  "within_4fold": {"outline": "pink", "outline_width": 3, "order": "raise"},
  "outside_4fold": {"fill": "grey50", "outline": "black", "order": "raise"}}
 
-{"N": "serum_coverage_circle", "serum": {<select>}, "?antigen": {<select>}, "report": true,
+{"N": "serum_coverage_circle", "serum": {<select>}, "?antigen": {<select>}, "?homologous_titer": "1280", "report": true,
  "mark_serum": {"fill": "red", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12, "weight": "bold"}},
  "empirical": {"show": true, "fill": "#C0FF8080", "outline": "red", "outline_width": 2, "angle_degrees": [0, 30], "radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1},
  "theoretical": {"show": true, "fill": "#C08080FF", "outline": "blue", "outline_width": 2, "angle_degrees": [0, 30], "radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1},
