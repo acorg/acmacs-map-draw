@@ -304,23 +304,23 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDa
     const auto verbose = rjson::get_or(args(), "report", false);
     const size_t serum_index = select_mark_serum(aChartDraw, verbose);
     const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, acmacs::chart::find_homologous::all, verbose);
-    apply(aChartDraw, serum_index, antigen_indices, args()["homologous_titer"], args()["within_4fold"], args()["outside_4fold"], verbose);
+    apply(aChartDraw, serum_index, antigen_indices, args()["homologous_titer"], rjson::get_or(args(), "fold", 2.0), args()["within_4fold"], args()["outside_4fold"], verbose);
 }
 
 // ----------------------------------------------------------------------
 
-void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, const rjson::value& homologous_titer, const rjson::value& within_4fold,
+void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, const rjson::value& homologous_titer, double fold, const rjson::value& within_4fold,
                              const rjson::value& outside_4fold, bool verbose)
 {
     acmacs::chart::PointIndexList within, outside;
     std::optional<size_t> antigen_index;
     if (!homologous_titer.is_null()) {
-        aChartDraw.chart().serum_coverage(acmacs::chart::Titer(homologous_titer), serum_index, within, outside);
+        aChartDraw.chart().serum_coverage(acmacs::chart::Titer(homologous_titer), serum_index, within, outside, fold);
     }
     else {
         for (auto ai = antigen_indices.begin(); ai != antigen_indices.end() && !antigen_index; ++ai) {
             try {
-                aChartDraw.chart().serum_coverage(*ai, serum_index, within, outside);
+                aChartDraw.chart().serum_coverage(*ai, serum_index, within, outside, fold);
                 antigen_index = *ai;
             }
             catch (acmacs::chart::serum_coverage_error& err) {
@@ -356,9 +356,10 @@ void ModSerumCoverageCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*
     const auto verbose = rjson::get_or(args(), "report", false);
     const size_t serum_index = select_mark_serum(aChartDraw, verbose);
     const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, acmacs::chart::find_homologous::all, verbose);
+    const double fold = rjson::get_or(args(), "fold", 2.0);
 
     ModSerumCoverage mod_coverage;
-    mod_coverage.apply(aChartDraw, serum_index, antigen_indices, args()["homologous_titer"], args()["within_4fold"], args()["outside_4fold"], verbose);
+    mod_coverage.apply(aChartDraw, serum_index, antigen_indices, args()["homologous_titer"], fold, args()["within_4fold"], args()["outside_4fold"], verbose);
 
     if (const auto& data = args()["empirical"]; !data.is_null() && rjson::get_or(data, "show", true)) {
         ModSerumCircle mod_circle;

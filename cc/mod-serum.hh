@@ -64,7 +64,7 @@ class ModSerumCoverage : public ModSerumHomologous
     using ModSerumHomologous::ModSerumHomologous;
 
     void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override;
-    void apply(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, const rjson::value& homologous_titer, const rjson::value& within_4fold, const rjson::value& outside_4fold, bool verbose);
+    void apply(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, const rjson::value& homologous_titer, double fold, const rjson::value& within_4fold, const rjson::value& outside_4fold, bool verbose);
 
 }; // class ModSerumCoverage
 
