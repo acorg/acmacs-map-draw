@@ -310,6 +310,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
   "report": true}
 
 {"N": "serum_circle", "serum": {"index": 0}, "?antigen": {"index": 0}, "report": true,
+ "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
  "empirical":   {"fill": "#C08080FF", "outline": "#4040FF", "outline_width": 2, "?outline_dash": "dash2", "?angle_degrees": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "show": true},
  "theoretical": {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "?outline_dash": "dash2", "?angle_degrees": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "show": true},
  "fallback":    {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "outline_dash": "dash3",  "?angle_degrees": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "radius": 3, "show": true},
