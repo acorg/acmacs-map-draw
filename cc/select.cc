@@ -47,6 +47,14 @@ acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aC
 
 // ----------------------------------------------------------------------
 
+void SelectAntigensSera::filter(acmacs::chart::Indexes& indexes, const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector, const std::string& key, const rjson::value& val)
+{
+    std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector: " << aSelector << '\n';
+
+} // SelectAntigensSera::filter
+
+// ----------------------------------------------------------------------
+
 acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector)
 {
     // std::cerr << "DEBUG: antigens command: " << aSelector << '\n';
@@ -242,7 +250,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             // processed together with the main selector, e.g. "full_name"
         }
         else {
-            std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
+            filter(indexes, aChartSelectInterface, aSelector, key, val);
         }
     });
     if (verbose() && !indexes.empty()) {
@@ -473,7 +481,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
             filter_circle(aChartSelectInterface, indexes, {{center[0], center[1]}, radius});
         }
         else {
-            std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector " << aSelector << '\n';
+            filter(indexes, aChartSelectInterface, aSelector, key, val);
         }
     });
     if (verbose()) {

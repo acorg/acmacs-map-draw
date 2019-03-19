@@ -66,11 +66,12 @@ class SelectAntigensSera
             indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_circle), indexes.end());
         }
 
+    void filter(acmacs::chart::Indexes& indexes, const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector, const std::string& key, const rjson::value& val);
+    
     bool verbose() const { return mVerbose; }
     size_t report_names_threshold() const { return mReportNamesThreshold; }
     auto timer() { return mReportTime; }
 
- protected:
     const std::vector<seqdb::SeqdbEntrySeq>& seqdb_entries(const ChartSelectInterface& aChartSelectInterface);
 
  private:
