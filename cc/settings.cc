@@ -154,8 +154,8 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
     "egg": [
       {"N": "antigens", "select": {"passage": "egg"}, "aspect": 0.75},
       {"N": "antigens", "select": {"passage": "reassortant"}, "aspect": 0.75, "rotation": 0.5},
-      {"?N": "sera", "select": {"passage": "egg"}, "aspect": 0.75},
-      {"?N": "sera", "select": {"passage": "reassortant"}, "aspect": 0.75, "rotation": 0.5}
+      {"N": "sera", "select": {"passage": "egg"}, "aspect": 0.75},
+      {"N": "sera", "select": {"passage": "reassortant"}, "aspect": 0.75, "rotation": 0.5}
     ],
     "continents": [
       {"N": "antigens", "select": {"continent": "europe"}, "fill": "green", "outline": "black", "report": true, "legend": {"label": "Europe", "count": true}},
@@ -240,7 +240,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
            "color": "black", "size": 12.0, "offset": [0, 1],
            "weight": "bold", "slant": "italic", "font_family": "monospace"},
  "legend": {"show": true, "label": "<TEXT>", "count": true, "replace": false},
- "report": false, "report_names_threshold": 10}
+ "report": false, "report_names_threshold": 30}
 
 {"N": "sera", "select": {<select>},
  "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
@@ -253,7 +253,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
            "name_type": "full|abbreviated|abbreviated_with_passage_type",
            "color": "black", "size": 12.0, "offset": [0, 1],
            "weight": "bold", "slant": "italic", "font_family": "monospace"},
- "report": false, "report_names_threshold": 10}
+ "report": false, "report_names_threshold": 30}
 
 {"N": "amino-acids", "pos": [159], "?colors": {"K": "#FF0000", "R": "#0000FF", "X": "grey25"},
   "color_set": "ana|google", "outline": "black", "outline_width": 1.0,

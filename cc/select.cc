@@ -47,11 +47,41 @@ acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aC
 
 // ----------------------------------------------------------------------
 
-void SelectAntigensSera::filter(acmacs::chart::Indexes& indexes, const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector, const std::string& key, const rjson::value& val)
+template <typename AgSr>
+void filter(const AgSr& ag_sr, acmacs::chart::Indexes& indexes, SelectAntigensSera& /*aSelectAntigensSera*/, const ChartSelectInterface& /*aChartSelectInterface*/, const rjson::value& aSelector,
+            const std::string& key, const rjson::value& val)
 {
-    std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector: " << aSelector << '\n';
+    if (key == "egg") {
+        ag_sr.filter_egg(indexes);
+    }
+    else if (key == "cell") {
+        ag_sr.filter_cell(indexes);
+    }
+    else if (key == "reassortant") {
+        ag_sr.filter_reassortant(indexes);
+    }
+    else if (key == "passage") {
+        const std::string_view passage = val;
+        if (passage == "egg")
+            ag_sr.filter_egg(indexes);
+        else if (passage == "cell")
+            ag_sr.filter_cell(indexes);
+        else if (passage == "reassortant")
+            ag_sr.filter_reassortant(indexes);
+        else
+            throw std::exception{};
+    }
+    else if (key == "country") {
+        ag_sr.filter_country(indexes, string::upper(static_cast<std::string_view>(val)));
+    }
+    else if (key == "continent") {
+        ag_sr.filter_continent(indexes, string::upper(static_cast<std::string_view>(val)));
+    }
+    else {
+        std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector: " << aSelector << '\n';
+    }
 
-} // SelectAntigensSera::filter
+} // filter
 
 // ----------------------------------------------------------------------
 
@@ -72,26 +102,6 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
         else if (key == "test") {
             antigens->filter_test(indexes);
-        }
-        else if (key == "egg") {
-            antigens->filter_egg(indexes);
-        }
-        else if (key == "cell") {
-            antigens->filter_cell(indexes);
-        }
-        else if (key == "reassortant") {
-            antigens->filter_reassortant(indexes);
-        }
-        else if (key == "passage") {
-            const std::string_view passage = val;
-            if (passage == "egg")
-                antigens->filter_egg(indexes);
-            else if (passage == "cell")
-                antigens->filter_cell(indexes);
-            else if (passage == "reassortant")
-                antigens->filter_reassortant(indexes);
-            else
-                throw std::exception{};
         }
         else if (key == "date_range") {
             antigens->filter_date_range(indexes, val[0], val[1]);
@@ -119,12 +129,6 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             acmacs::chart::Indexes to_keep(val.size());
             rjson::transform(val, to_keep.begin(), [](const rjson::value& v) -> size_t { return v; });
             indexes.erase(std::remove_if(indexes.begin(), indexes.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indexes.end());
-        }
-        else if (key == "country") {
-            antigens->filter_country(indexes, string::upper(static_cast<std::string_view>(val)));
-        }
-        else if (key == "continent") {
-            antigens->filter_continent(indexes, string::upper(static_cast<std::string_view>(val)));
         }
         else if (key == "sequenced") {
             filter_sequenced(aChartSelectInterface, indexes);
@@ -250,7 +254,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             // processed together with the main selector, e.g. "full_name"
         }
         else {
-            filter(indexes, aChartSelectInterface, aSelector, key, val);
+            filter(*antigens, indexes, *this, aChartSelectInterface, aSelector, key, val);
         }
     });
     if (verbose() && !indexes.empty()) {
@@ -481,7 +485,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
             filter_circle(aChartSelectInterface, indexes, {{center[0], center[1]}, radius});
         }
         else {
-            filter(indexes, aChartSelectInterface, aSelector, key, val);
+            filter(*sera, indexes, *this, aChartSelectInterface, aSelector, key, val);
         }
     });
     if (verbose()) {

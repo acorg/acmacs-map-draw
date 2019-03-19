@@ -11,7 +11,7 @@
 void ModSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
     const auto verbose = rjson::get_or(args(), "report", false);
-    const auto report_names_threshold = rjson::get_or(args(), "report_names_threshold", 10UL);
+    const auto report_names_threshold = rjson::get_or(args(), "report_names_threshold", 30UL);
     if (const auto& select = args()["select"]; !select.is_null()) {
         const auto indices = SelectSera(verbose, report_names_threshold).select(aChartDraw, select);
         const auto styl = style();
