@@ -152,10 +152,10 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": "sequenced", "outline": "black", "fill": "cornflowerblue", "legend": {"label": "sequenced", "count": true}, "order": "raise", "report": true}
     ],
     "egg": [
-      {"N": "antigens", "select": {"passage": "egg"}, "aspect": 0.75},
-      {"N": "antigens", "select": {"passage": "reassortant"}, "aspect": 0.75, "rotation": 0.5},
-      {"N": "sera", "select": {"passage": "egg"}, "aspect": 0.75},
-      {"N": "sera", "select": {"passage": "reassortant"}, "aspect": 0.75, "rotation": 0.5}
+      {"N": "antigens", "select": {"passage": "egg"}, "shape": "egg", "aspect": 1.0, "?aspect": 0.75},
+      {"N": "antigens", "select": {"passage": "reassortant"}, "shape": "egg", "aspect": 1.0, "rotation": 0.5},
+      {"N": "sera", "select": {"passage": "egg"}, "shape": "uglyegg", "aspect": 1.0},
+      {"N": "sera", "select": {"passage": "reassortant"}, "shape": "uglyegg", "aspect": 1.0, "rotation": 0.5}
     ],
     "continents": [
       {"N": "antigens", "select": {"continent": "europe"}, "fill": "green", "outline": "black", "report": true, "legend": {"label": "Europe", "count": true}},

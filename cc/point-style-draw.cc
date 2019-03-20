@@ -15,6 +15,9 @@ void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aS
           case acmacs::PointShape::Egg:
               aSurface.egg_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, *aStyle.outline, *aStyle.outline_width, acmacs::surface::Dash::NoDash, *aStyle.fill);
               break;
+          case acmacs::PointShape::UglyEgg:
+              aSurface.ugly_egg_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, *aStyle.outline, *aStyle.outline_width, acmacs::surface::Dash::NoDash, *aStyle.fill);
+              break;
           case acmacs::PointShape::Box:
               aSurface.square_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, *aStyle.outline, *aStyle.outline_width, *aStyle.fill);
               break;
