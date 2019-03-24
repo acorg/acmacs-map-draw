@@ -178,6 +178,8 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             }
             else
                 throw std::exception{};
+            if (rjson::get_or(aSelector, "exclude_distinct", false))
+                filter_out_distinct(aChartSelectInterface, indexes);
         }
         else if (key == "full_name") {
             if (val.is_string()) {

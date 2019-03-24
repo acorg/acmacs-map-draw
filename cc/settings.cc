@@ -401,7 +401,7 @@ Antigens:
   {"clade": "3C3a"},
   {"amino_acid": {"aa": "T", "pos": 141}},
   {"amino_acid": ["144R", "93A", "!160K"]},
-{"name": "SWITZERLAND/9715293/2013"},
+{"name": "SWITZERLAND/9715293/2013", "exclude_distinct": true},
   {"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"},
   {"full_name": "A(H1N1)/MICHIGAN/2/2009 MDCK1", "no": 0},
 "vaccine",

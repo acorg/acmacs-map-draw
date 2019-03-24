@@ -276,10 +276,10 @@ void ModMoveAntigensStress::apply(ChartDraw& aChartDraw, const rjson::value& /*a
             }
         }
         else {
-            const auto move_to = get_move_to(aChartDraw, verbose);
-            for (auto index : SelectAntigens(verbose).select(aChartDraw, select)) {
-                // projection.move_point(index, move_to);
-            }
+            // const auto move_to = get_move_to(aChartDraw, verbose);
+            // for (auto index : SelectAntigens(verbose).select(aChartDraw, select)) {
+            //     // projection.move_point(index, move_to);
+            // }
         }
     }
     else {
