@@ -545,14 +545,22 @@ function draw_shape(context, shape, radius)
     case "c":
         context.arc(0, 0, radius, 0, PI_mul_2);
         break;
+    case "e":                   // egg
+        context.scale(0.75, 1);
+        context.arc(0, 0, radius, 0, PI_mul_2);
+        break;
     case "b":
     case "r":
+        draw_box(context, radius);
+        break;
+    case "u":                   // uglyegg
+        context.scale(0.75, 1);
         draw_box(context, radius);
         break;
     case "t":
         draw_triangle(context, radius);
         break;
-    case "u":
+    // case "u":
     default:
         draw_unknown(context, radius);
         break;
