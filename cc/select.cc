@@ -77,6 +77,9 @@ void filter(const AgSr& ag_sr, acmacs::chart::Indexes& indexes, SelectAntigensSe
     else if (key == "continent") {
         ag_sr.filter_continent(indexes, string::upper(static_cast<std::string_view>(val)));
     }
+    else if (key == "exclude_distinct") {
+        // processed together with the main selector, e.g. "name"
+    }
     else {
         std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector: " << aSelector << '\n';
     }
