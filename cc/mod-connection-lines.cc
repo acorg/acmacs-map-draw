@@ -19,7 +19,7 @@ void ModConnectionLines::apply(ChartDraw& aChartDraw, const rjson::value& /*aMod
     const Color line_color{rjson::get_or(args(), "color", "black")};
     const double line_width{rjson::get_or(args(), "line_width", 1.0)};
 
-    auto layout = aChartDraw.layout();
+    auto layout = aChartDraw.transformed_layout();
     auto titers = aChartDraw.chart().titers();
     for (const auto ag_no : antigen_indexes) {
         for (const auto sr_no : serum_indexes) {
@@ -73,6 +73,40 @@ void ModColorByNumberOfConnectionLines::apply(ChartDraw& aChartDraw, const rjson
     }
 
 } // ModColorByNumberOfConnectionLines::apply
+
+// ----------------------------------------------------------------------
+
+void ModErrorLines::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
+{
+    const auto [antigen_indexes, serum_indexes] = select_antigens_sera_for_connection_lines(aChartDraw, args()["antigens"], args()["sera"]);
+
+    const Color line_color_td_more{rjson::get_or(args(), "color", "red")};
+    const Color line_color_td_less{rjson::get_or(args(), "color", "blue")};
+    const double line_width{rjson::get_or(args(), "line_width", 1.0)};
+    const auto error_lines = aChartDraw.projection().error_lines();
+
+    auto layout = aChartDraw.transformed_layout();
+    auto titers = aChartDraw.chart().titers();
+    const auto number_of_antigens = aChartDraw.chart().number_of_antigens();
+    for (const auto ag_no : antigen_indexes) {
+        for (const auto sr_no : serum_indexes) {
+            const auto p2_no = sr_no + number_of_antigens;
+            if (const auto found =
+                    std::find_if(std::begin(error_lines), std::end(error_lines), [p1_no=ag_no,p2_no](const auto& erl) { return erl.point_1 == p1_no && erl.point_2 == p2_no; });
+                found != std::end(error_lines)) {
+                if (const auto p1 = layout->get(ag_no), p2 = layout->get(p2_no); p1.exists() && p2.exists()) {
+                    //aChartDraw.line(p1, p2).color(GREY).line_width(line_width * 3);
+                    const auto v3 = (p2 - p1) / distance(p1, p2) * (- found->error_line);
+                    const auto& color = found->error_line > 0 ? line_color_td_more : line_color_td_less;
+                    aChartDraw.line(p1, p1 + v3).color(color).line_width(line_width);
+                    aChartDraw.line(p2, p2 - v3).color(color).line_width(line_width);
+                    // std::cerr << "DEBUG: " << found->point_1 << ' ' << sr_no << ' ' << found->error_line << ' ' << v3 << '\n';
+                }
+            }
+        }
+    }
+
+} // ModErrorLines::apply
 
 // ----------------------------------------------------------------------
 

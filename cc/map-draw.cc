@@ -100,7 +100,12 @@ int draw(const argc_argv& args)
         for (auto fn : aFilenames) {
             if (verbose)
                 std::cerr << "DEBUG: reading settings from " << fn << '\n';
-            settings.update(rjson::parse_file(fn, rjson::remove_comments::no));
+            try {
+                settings.update(rjson::parse_file(fn, rjson::remove_comments::no));
+            }
+            catch (std::exception& err) {
+                throw std::runtime_error(string::concat(fn, ':', err.what()));
+            }
             settings_loaded = true;
         }
     };
