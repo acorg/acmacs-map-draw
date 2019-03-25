@@ -155,7 +155,7 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": {"passage": "egg"}, "shape": "egg", "aspect": 1.0, "?aspect": 0.75},
       {"N": "antigens", "select": {"passage": "reassortant"}, "shape": "egg", "aspect": 1.0, "rotation": 0.5},
       {"N": "sera", "select": {"passage": "egg"}, "shape": "uglyegg", "aspect": 1.0},
-      {"N": "sera", "select": {"passage": "reassortant"}, "shape": "uglyegg", "aspect": 1.0, "rotation": 0.5}
+      {"N": "sera", "select": {"passage": "reassortant"}, "shape": "uglyegg", "aspect": 1.0, "rotation": 0.2}
     ],
     "continents": [
       {"N": "antigens", "select": {"continent": "europe"}, "fill": "green", "outline": "black", "report": true, "legend": {"label": "Europe", "count": true}},
@@ -413,6 +413,7 @@ Antigens:
 {"table": "20170216"}
   {"table": "MELB:HI:turkey:20170216"}
 {"relative_to_serum_line": {"distance_min": 0, "distance_max": 10000, "direction": 1}} // direction: 1, -1, 0
+{"titrated_against_sera": {<select>}}
 
 Sera:
 -----
@@ -425,6 +426,7 @@ Sera:
 {"table": "20170216"}
   {"table": "MELB:HI:turkey:20170216"}
 {"clade": "3C3a"} // by homologous antigen
+{"titrated_against_antigens": {<select>}}
 
 
 )";

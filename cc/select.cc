@@ -489,6 +489,11 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
             const double radius = val["radius"];
             filter_circle(aChartSelectInterface, indexes, {{center[0], center[1]}, radius});
         }
+        else if (key == "titrated_against_antigens") {
+            const auto antigen_indexes = SelectAntigens().command(aChartSelectInterface, val);
+            filter_titrated_against(aChartSelectInterface, indexes, antigen_indexes);
+            // std::cerr << "DEBUG: titrated_against_antigens " << antigen_indexes << ' ' << indexes << '\n';
+        }
         else {
             filter(*sera, indexes, *this, aChartSelectInterface, aSelector, key, val);
         }
@@ -530,6 +535,21 @@ void SelectAntigens::filter_table(const ChartSelectInterface& aChartSelectInterf
 
 // ----------------------------------------------------------------------
 
+void SelectAntigens::filter_relative_to_serum_line(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, double distance_min, double distance_max, int direction)
+{
+    acmacs::chart::SerumLine serum_line(aChartSelectInterface.projection());
+    auto layout = aChartSelectInterface.layout();
+
+    auto not_relative_to_line = [&serum_line, &layout, distance_min, distance_max, direction](auto antigen_no) -> bool {
+        const auto distance = serum_line.line().distance_with_direction(layout->get(antigen_no));
+        return std::abs(distance) < distance_min || std::abs(distance) > distance_max || (direction != 0 && (direction * distance) < 0);
+    };
+    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_relative_to_line), indexes.end());
+
+} // SelectAntigens::filter_relative_to_serum_line
+
+// ----------------------------------------------------------------------
+
 void SelectSera::filter_table(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aTable)
 {
     const auto& hidb = hidb::get(aChartSelectInterface.chart().info()->virus_type());
@@ -557,21 +577,15 @@ void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface,
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_relative_to_serum_line(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, double distance_min, double distance_max, int direction)
+void SelectSera::filter_titrated_against(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& serum_indexes, const acmacs::chart::Indexes& antigen_indexes)
 {
-    acmacs::chart::SerumLine serum_line(aChartSelectInterface.projection());
-    auto layout = aChartSelectInterface.layout();
-
-    auto not_relative_to_line = [&serum_line, &layout, distance_min, distance_max, direction](auto antigen_no) -> bool {
-        const auto distance = serum_line.line().distance_with_direction(layout->get(antigen_no));
-        return std::abs(distance) < distance_min || std::abs(distance) > distance_max || (direction != 0 && (direction * distance) < 0);
+    auto titers = aChartSelectInterface.chart().titers();
+    auto not_titrated = [&titers, &antigen_indexes](auto serum_no) -> bool {
+        return std::all_of(std::begin(antigen_indexes), std::end(antigen_indexes), [&titers, serum_no](auto ag_no) { return titers->titer(ag_no, serum_no).is_dont_care(); });
     };
-    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_relative_to_line), indexes.end());
+    serum_indexes.erase(std::remove_if(serum_indexes.begin(), serum_indexes.end(), not_titrated), serum_indexes.end());
 
-} // SelectAntigens::filter_relative_to_serum_line
-
-// ----------------------------------------------------------------------
-
+} // SelectSera::filter_titrated_against
 
 // ----------------------------------------------------------------------
 /// Local Variables:
