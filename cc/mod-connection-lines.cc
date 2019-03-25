@@ -96,7 +96,7 @@ void ModErrorLines::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*
                 found != std::end(error_lines)) {
                 if (const auto p1 = layout->get(ag_no), p2 = layout->get(p2_no); p1.exists() && p2.exists()) {
                     //aChartDraw.line(p1, p2).color(GREY).line_width(line_width * 3);
-                    const auto v3 = (p2 - p1) / distance(p1, p2) * (- found->error_line);
+                    const auto v3 = (p2 - p1) / distance(p1, p2) * (- found->error_line) / 2.0;
                     const auto& color = found->error_line > 0 ? line_color_td_more : line_color_td_less;
                     aChartDraw.line(p1, p1 + v3).color(color).line_width(line_width);
                     aChartDraw.line(p2, p2 - v3).color(color).line_width(line_width);
