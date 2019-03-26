@@ -21,7 +21,7 @@ struct Options : public argv
 
     option<size_t>    p1{*this, "p1", dflt{0UL}, desc{"projection number of the first chart"}};
     option<size_t>    p2{*this, "p2", dflt{0UL}, desc{"projection number of the second chart"}};
-    option<str_array> settings{*this, 's'};
+    option<str_array> settings{*this, 's', desc{"settings.json (multiple -s possible)"}};
     option<double>    threshold{*this, "threshold", dflt{0.1}, desc{"arrow threshold"}};
     option<str>       subset{*this, "subset", dflt{"all"}, desc{"all, antigens, sera"}};
     option<bool>      report{*this, "report", desc{"report common antigens/sera"}};
