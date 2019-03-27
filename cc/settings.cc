@@ -153,7 +153,7 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
     ],
     "egg": [
       {"N": "antigens", "select": {"passage": "egg"}, "shape": "egg", "aspect": 1.0, "?aspect": 0.75},
-      {"N": "antigens", "select": {"passage": "reassortant"}, "shape": "egg", "aspect": 1.0, "rotation": 0.5},
+      {"N": "antigens", "select": {"passage": "reassortant"}, "shape": "egg", "aspect": 1.0, "rotation": 0.2},
       {"N": "sera", "select": {"passage": "egg"}, "shape": "uglyegg", "aspect": 1.0},
       {"N": "sera", "select": {"passage": "reassortant"}, "shape": "uglyegg", "aspect": 1.0, "rotation": 0.2}
     ],
