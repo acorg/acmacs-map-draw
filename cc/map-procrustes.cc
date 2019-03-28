@@ -24,6 +24,7 @@ struct Options : public argv
     option<str_array> settings{*this, 's', desc{"settings.json (multiple -s possible)"}};
     option<double>    threshold{*this, "threshold", dflt{0.1}, desc{"arrow threshold"}};
     option<str>       subset{*this, "subset", dflt{"all"}, desc{"all, antigens, sera"}};
+    option<str>       subset_antigens_clade{*this, "subset-antigens-clade", desc{"for antigens from this clade only"}};
     option<bool>      report{*this, "report", desc{"report common antigens/sera"}};
     option<bool>      clade{*this, "clade", desc{"color by clade"}};
     option<str>       viewport{*this, "viewport", dflt{""}, desc{"\"rel\" array of viewport, e.g. 2,2,-4"}};
@@ -60,8 +61,16 @@ int main(int argc, char* const argv[])
             settings["apply"].append("vaccines");
         }
 
-        settings["apply"].append(
-            rjson::object{{"N", "procrustes_arrows"}, {"chart", secondary_chart}, {"projection", *opt.p2}, {"subset", *opt.subset}, {"threshold", *opt.threshold}, {"report", *opt.report}});
+        if (opt.subset_antigens_clade.has_value())
+            settings["apply"].append(rjson::object{{"N", "procrustes_arrows"},
+                                                   {"chart", secondary_chart},
+                                                   {"projection", *opt.p2},
+                                                   {"subset_antigens", rjson::object{{"clade", *opt.subset_antigens_clade}}},
+                                                   {"threshold", *opt.threshold},
+                                                   {"report", *opt.report}});
+        else
+            settings["apply"].append(
+                rjson::object{{"N", "procrustes_arrows"}, {"chart", secondary_chart}, {"projection", *opt.p2}, {"subset", *opt.subset}, {"threshold", *opt.threshold}, {"report", *opt.report}});
 
         try {
             apply_mods(chart_draw, settings["apply"], settings);

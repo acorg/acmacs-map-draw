@@ -3,6 +3,7 @@
 #include "acmacs-chart-2/procrustes.hh"
 #include "acmacs-chart-2/common.hh"
 #include "acmacs-map-draw/mod-procrustes.hh"
+#include "acmacs-map-draw/select.hh"
 
 // ----------------------------------------------------------------------
 
@@ -40,6 +41,14 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
     else if (subset_s != "all")
         std::cerr << "WARNING: unrecognized common points subset: \"" << subset_s << "\", supported: all, antigens, sera\n";
 
+    acmacs::chart::Indexes antigen_indexes, serum_indexes;
+    if (subset == acmacs::chart::CommonAntigensSera::subset::all) {
+        if (const auto& subset_antigens = args()["subset_antigens"]; !subset_antigens.is_null())
+            antigen_indexes = SelectAntigens(false, 30).select(aChartDraw, subset_antigens);
+        else if (const auto& subset_sera = args()["subset_sera"]; !subset_sera.is_null())
+            serum_indexes = SelectSera(false, 30).select(aChartDraw, subset_sera);
+    }
+
     acmacs::chart::ChartP secondary_chart;
     if (const auto& chart_filename = args()["chart"]; !chart_filename.is_null())
         secondary_chart = acmacs::chart::import_from_file(chart_filename, acmacs::chart::Verify::None, do_report_time(verbose));
@@ -49,7 +58,13 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
     acmacs::chart::CommonAntigensSera common(aChartDraw.chart(), *secondary_chart, match_level);
     if (verbose)
         common.report();
-    const auto common_points = common.points(subset);
+    std::vector<acmacs::chart::CommonAntigensSera::common_t> common_points;
+    if (!antigen_indexes.empty())
+        common_points = common.points_for_primary_antigens(antigen_indexes);
+    else if (!serum_indexes.empty())
+        common_points = common.points_for_primary_sera(serum_indexes);
+    else
+        common_points = common.points(subset);
     auto secondary_projection = secondary_chart->projection(secondary_projection_no);
     const auto procrustes_data = acmacs::chart::procrustes(aChartDraw.projection(), *secondary_projection, common_points, scaling);
     if (aChartDraw.has_title()) {
