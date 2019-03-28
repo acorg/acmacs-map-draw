@@ -549,21 +549,38 @@ void SelectSera::filter_table(const ChartSelectInterface& aChartSelectInterface,
 
 // ----------------------------------------------------------------------
 
+// via seqdb.clades_for_name
 void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string aClade)
 {
+    const auto& seqdb = seqdb::get(seqdb::ignore_errors::no, timer());
     const auto& chart = aChartSelectInterface.chart();
-    chart.set_homologous(acmacs::chart::find_homologous::strict);
-    const auto& entries = seqdb_entries(aChartSelectInterface);
-    auto homologous_not_in_clade = [&entries, aClade, &chart](auto serum_index) -> bool {
-        for (auto antigen_index : chart.sera()->at(serum_index)->homologous_antigens()) {
-            if (const auto& entry = entries[antigen_index]; entry && entry.seq().has_clade(aClade))
-                return false;
-        }
-        return true;
+
+    auto not_in_clade = [&seqdb, &aClade, &chart](auto serum_index) -> bool {
+        const auto clades = seqdb.clades_for_name(chart.sera()->at(serum_index)->name());
+        return std::find(std::begin(clades), std::end(clades), aClade) == std::end(clades);
     };
-    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), homologous_not_in_clade), indexes.end());
+    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_clade), indexes.end());
 
 } // SelectSera::filter_clade
+
+// ----------------------------------------------------------------------
+
+// via homologous antigen
+// void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string aClade)
+// {
+//     const auto& chart = aChartSelectInterface.chart();
+//     chart.set_homologous(acmacs::chart::find_homologous::strict);
+//     const auto& entries = seqdb_entries(aChartSelectInterface);
+//     auto homologous_not_in_clade = [&entries, aClade, &chart](auto serum_index) -> bool {
+//         for (auto antigen_index : chart.sera()->at(serum_index)->homologous_antigens()) {
+//             if (const auto& entry = entries[antigen_index]; entry && entry.seq().has_clade(aClade))
+//                 return false;
+//         }
+//         return true;
+//     };
+//     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), homologous_not_in_clade), indexes.end());
+
+// } // SelectSera::filter_clade
 
 // ----------------------------------------------------------------------
 

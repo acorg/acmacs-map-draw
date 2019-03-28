@@ -340,7 +340,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
  "outside_4fold": {"fill": "grey50", "outline": "black", "order": "raise"}}
 
 {"N": "procrustes_arrows", "chart": "secondary.ace", "projection": 0, "match": "auto", "?match": "auto, strict, relaxed, ignored", "scaling": false, "report": false,
- "?subset": "all, sera, antigens, reference, test",
+ "?subset": "all, sera, antigens, reference, test", "?subset_antigens": {"clade": "2a1"}, "?subset_sera": {"clade": "2a1"},
  "threshold": 0.005, "?threshold": "do not show arrows shorter than this value in units",
  "arrow": {"color": "black", "head_color": "black", "head_filled": true, "line_width": 1, "arrow_width": 5}}
 
@@ -425,7 +425,7 @@ Sera:
 {"full_name": "A(H1N1)/MICHIGAN/2/2009 CDC 2015-121"},
 {"table": "20170216"}
   {"table": "MELB:HI:turkey:20170216"}
-{"clade": "3C3a"} // by homologous antigen
+{"clade": "3C3a"} // via seqdb.clades_for_name()
 {"titrated_against_antigens": {<select>}}
 
 
