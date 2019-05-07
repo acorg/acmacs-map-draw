@@ -62,13 +62,13 @@ class SelectAntigensSera
 
     void filter_rectangle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::Layout& aLayout, const acmacs::Rectangle& aRectangle)
         {
-            const auto not_in_rectangle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return p.number_of_dimensions() == 2 ? !aRectangle.within(p) : true; };
+            const auto not_in_rectangle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return p.number_of_dimensions() == acmacs::number_of_dimensions_t{2} ? !aRectangle.within(p) : true; };
             indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_rectangle), indexes.end());
         }
 
     void filter_circle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::Layout& aLayout, const acmacs::Circle& aCircle)
         {
-            const auto not_in_circle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return p.number_of_dimensions() == 2 ? !aCircle.within(p) : true; };
+            const auto not_in_circle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return p.number_of_dimensions() == acmacs::number_of_dimensions_t{2} ? !aCircle.within(p) : true; };
             indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_circle), indexes.end());
         }
 

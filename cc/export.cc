@@ -23,9 +23,9 @@ std::string export_layout_sequences_into_csv(std::string filename, const acmacs:
     writer.add_field("AG/SR");
     writer.add_field("name");
     writer.add_field("x");
-    if (number_of_dimensions > 1) {
+    if (number_of_dimensions > acmacs::number_of_dimensions_t{1}) {
         writer.add_field("y");
-        if (number_of_dimensions > 2)
+        if (number_of_dimensions > acmacs::number_of_dimensions_t{2})
             writer.add_field("z");
     }
     writer.add_field("date");
@@ -58,7 +58,7 @@ std::string export_layout_sequences_into_csv(std::string filename, const acmacs:
     for (auto [ag_no, antigen] : acmacs::enumerate(*antigens)) {
         writer.add_field("AG");
         writer.add_field(antigen->name());
-        for (size_t dim = 0; dim < number_of_dimensions; ++dim) {
+        for (auto dim : acmacs::range(number_of_dimensions)) {
             if (const auto coord = layout->coordinate(ag_no, dim); !std::isnan(coord))
                 writer.add_field(acmacs::to_string(coord));
             else
@@ -81,7 +81,7 @@ std::string export_layout_sequences_into_csv(std::string filename, const acmacs:
     for (auto [sr_no, serum] : acmacs::enumerate(*sera)) {
         writer.add_field("SR");
         writer.add_field(serum->name());
-        for (size_t dim = 0; dim < number_of_dimensions; ++dim) {
+        for (auto dim : acmacs::range(number_of_dimensions)) {
             if (const auto coord = layout->coordinate(sr_no + number_of_antigens, dim); !std::isnan(coord))
                 writer.add_field(acmacs::to_string(coord));
             else

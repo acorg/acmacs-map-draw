@@ -29,7 +29,7 @@ class ChartSelectInterface
     const acmacs::chart::ProjectionModify& projection() const { return *mProjectionModify; }
     acmacs::chart::ProjectionModify& projection() { return *mProjectionModify; }
     size_t projection_no() const { return projection().projection_no(); }
-    size_t number_of_dimensions() const { return projection().number_of_dimensions(); }
+    acmacs::number_of_dimensions_t number_of_dimensions() const { return projection().number_of_dimensions(); }
     std::shared_ptr<acmacs::Layout> layout() const { return projection().layout(); }
     acmacs::Transformation transformation() const { return projection().transformation(); }
     std::shared_ptr<acmacs::Layout> transformed_layout() const { return projection().transformed_layout(); }

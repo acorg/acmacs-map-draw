@@ -31,13 +31,13 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool
     std::vector<size_t> positions;
     rjson::copy(aPos, positions);
     const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), positions, aVerbose ? seqdb::report::yes : seqdb::report::no);
-      // aa_indices is std::map<std::string, std::vector<size_t>>
+    // aa_indices is std::map<std::string, std::vector<size_t>>
     std::vector<std::string> aa_sorted(aa_indices.size()); // most frequent aa first
     std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
     std::sort(std::begin(aa_sorted), std::end(aa_sorted), [&aa_indices](const auto& n1, const auto& n2) -> bool { return aa_indices.find(n1)->second.size() > aa_indices.find(n2)->second.size(); });
     std::map<std::string, Color> color_for_aa;
     make_color_for_aa(color_for_aa, aa_sorted);
-    for (auto [index, aa]: acmacs::enumerate(aa_sorted)) {
+    for (auto [index, aa] : acmacs::enumerate(aa_sorted)) {
         const auto& indices_for_aa = aa_indices.find(aa)->second;
         auto styl = style();
         if (auto ca = color_for_aa.find(aa); ca == color_for_aa.end())
@@ -55,28 +55,33 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool
         auto layout = aChartDraw.projection().transformed_layout();
         for (auto [aa, indexes] : aa_indices) {
             if (indexes.size() > 1) {
-                  // coordinates, distance to centroid of all points, distance to centroid of 90% closest points
+                const auto sum_vectors = [](acmacs::PointCoordinates& sum, const auto& point) {
+                    for (auto dim : acmacs::range(std::get<0>(point).number_of_dimensions()))
+                        sum[dim] += std::get<0>(point)[dim];
+                    return sum;
+                };
+
+                // coordinates, distance to centroid of all points, distance to centroid of 90% closest points
                 using element_t = std::tuple<acmacs::PointCoordinates, double, double>;
                 std::vector<element_t> points(indexes.size(), {acmacs::PointCoordinates(layout->number_of_dimensions()), 0.0, 0.0});
                 std::transform(indexes.begin(), indexes.end(), points.begin(), [layout](auto index) -> element_t { return {layout->get(index), -1, -1}; });
-                acmacs::PointCoordinates centroid = std::accumulate(points.begin(), points.end(), acmacs::PointCoordinates(layout->number_of_dimensions(), 0.0), [](acmacs::PointCoordinates& sum, const auto& point) { for (size_t dim = 0; dim < std::get<0>(point).number_of_dimensions(); ++dim) sum[dim] += std::get<0>(point)[dim]; return sum; });
+                acmacs::PointCoordinates centroid = std::accumulate(points.begin(), points.end(), acmacs::PointCoordinates(layout->number_of_dimensions(), 0.0), sum_vectors);
                 centroid /= points.size();
                 std::for_each(points.begin(), points.end(), [&centroid](auto& point) { std::get<1>(point) = acmacs::distance(std::get<0>(point), centroid); });
                 std::sort(points.begin(), points.end(), [](const auto& p1, const auto& p2) { return std::get<1>(p1) < std::get<1>(p2); });
                 const auto radius = std::get<1>(points.back());
-                  // std::cerr << "DEBUG: min dist:" << std::get<1>(points.front()) << " max:" << radius << '\n';
+                // std::cerr << "DEBUG: min dist:" << std::get<1>(points.front()) << " max:" << radius << '\n';
 
                 const auto num_points_90 = static_cast<long>(points.size() * 0.9);
-                acmacs::PointCoordinates centroid_90 = std::accumulate(points.begin(), points.begin() + num_points_90, acmacs::PointCoordinates(layout->number_of_dimensions(), 0.0), [](acmacs::PointCoordinates& sum, const auto& point) { for (size_t dim = 0; dim < std::get<0>(point).number_of_dimensions(); ++dim) sum[dim] += std::get<0>(point)[dim]; return sum; });
+                acmacs::PointCoordinates centroid_90 = std::accumulate(points.begin(), points.begin() + num_points_90, acmacs::PointCoordinates(layout->number_of_dimensions(), 0.0), sum_vectors);
                 centroid_90 /= num_points_90;
                 std::for_each(points.begin(), points.begin() + num_points_90, [&centroid_90](auto& point) { std::get<2>(point) = acmacs::distance(std::get<0>(point), centroid_90); });
                 std::sort(points.begin(), points.begin() + num_points_90, [](const auto& p1, const auto& p2) { return std::get<2>(p1) < std::get<2>(p2); });
                 const auto radius_90 = std::get<2>(*(points.begin() + num_points_90 - 1));
 
-                  //aChartDraw.point(centroid, Pixels{10}).color(color_for_aa.find(aa)->second, GREEN);
+                // aChartDraw.point(centroid, Pixels{10}).color(color_for_aa.find(aa)->second, GREEN);
                 aChartDraw.circle(centroid, Scaled{radius * 2}).color(TRANSPARENT, color_for_aa.find(aa)->second);
                 aChartDraw.circle(centroid, Scaled{radius_90 * 2}).color(TRANSPARENT, color_for_aa.find(aa)->second);
-
             }
         }
     }

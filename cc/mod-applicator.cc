@@ -196,7 +196,7 @@ void ModAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 
 acmacs::PointCoordinates ModMoveBase::get_move_to(ChartDraw& aChartDraw, bool aVerbose) const
 {
-    acmacs::PointCoordinates move_to(2);
+    acmacs::PointCoordinates move_to(acmacs::number_of_dimensions_t{2});
     if (const auto& to = args()["to"]; !to.is_null()) {
         move_to = acmacs::PointCoordinates(to[0], to[1]);
     }
@@ -237,7 +237,7 @@ void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDat
             auto layout = aChartDraw.layout();
             for (auto index : SelectAntigens(verbose).select(aChartDraw, select)) {
                 const auto coord = layout->get(index);
-                projection.move_point(index, acmacs::PointCoordinates(coord[0] + static_cast<double>(relative[0]), coord[1] + static_cast<double>(relative[1])));
+                projection.move_point(index, acmacs::PointCoordinates(coord.x() + static_cast<double>(relative[0]), coord.y() + static_cast<double>(relative[1])));
             }
         }
         else {
@@ -266,7 +266,7 @@ void ModMoveAntigensStress::apply(ChartDraw& aChartDraw, const rjson::value& /*a
             auto layout = projection.layout();
             for (auto index : SelectAntigens(verbose).select(aChartDraw, select)) {
                 const auto coord = layout->get(index);
-                const acmacs::PointCoordinates move_to{coord[0] + static_cast<double>(relative[0]), coord[1] + static_cast<double>(relative[1])};
+                const acmacs::PointCoordinates move_to{coord.x() + static_cast<double>(relative[0]), coord.y() + static_cast<double>(relative[1])};
                 const auto stress = projection.stress_with_moved_point(index, move_to);
                 std::cerr << "DEBUG: stress_with_moved_point " << stress << '\n';
                 auto& point = aChartDraw.point(transformation.transform(move_to), Pixels{rjson::get_or(args(), "size", 1.0)});
@@ -299,7 +299,7 @@ void ModMoveSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
             auto layout = aChartDraw.layout();
             for (auto index : SelectSera(verbose).select(aChartDraw, select)) {
                 const auto coord = layout->get(index + aChartDraw.number_of_antigens());
-                projection.move_point(index + aChartDraw.number_of_antigens(), acmacs::PointCoordinates(coord[0] + static_cast<double>(relative[0]), coord[1] + static_cast<double>(relative[1])));
+                projection.move_point(index + aChartDraw.number_of_antigens(), acmacs::PointCoordinates(coord.x() + static_cast<double>(relative[0]), coord.y() + static_cast<double>(relative[1])));
             }
         }
         else {
