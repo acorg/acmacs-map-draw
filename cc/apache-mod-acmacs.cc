@@ -24,8 +24,6 @@
 #include "acmacs-base/gzip.hh"
 #include "acmacs-base/range.hh"
 #include "acmacs-base/rjson.hh"
-//#include "acmacs-base/virus-name.hh"
-// #include "locationdb/locdb.hh"
 #include "seqdb/seqdb.hh"
 #include "acmacs-chart-2/chart-modify.hh"
 #include "acmacs-chart-2/factory-import.hh"

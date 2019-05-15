@@ -1,4 +1,4 @@
-#include "acmacs-base/virus-name.hh"
+#include "acmacs-virus/virus-name.hh"
 #include "acmacs-base/csv.hh"
 #include "acmacs-base/read-file.hh"
 #include "acmacs-base/enumerate.hh"
@@ -41,7 +41,16 @@ std::string export_layout_sequences_into_csv(std::string filename, const acmacs:
 
     auto add_location_data = [&writer, &locdb](std::string name) {
         try {
-            const auto location = locdb.find_for_virus_name(name);
+            const auto find_for_virus_name = [&locdb](std::string aVirusName) {
+                try {
+                    return locdb.find(::virus_name::location(aVirusName));
+                }
+                catch (std::exception&) {
+                    return locdb.find(::virus_name::location_for_cdc_name(aVirusName));
+                }
+            };
+
+            const auto location = find_for_virus_name(name);
             writer.add_field(location.country());
             writer.add_field(locdb.continent_of_country(location.country()));
             writer.add_field(std::to_string(location.latitude()));

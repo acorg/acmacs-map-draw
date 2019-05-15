@@ -4,7 +4,7 @@
 #include <map>
 
 #include "acmacs-base/time-series.hh"
-#include "acmacs-base/virus-name.hh"
+#include "acmacs-virus/virus-name.hh"
 #include "hidb-5/hidb.hh"
 #include "seqdb/seqdb.hh"
 #include "locationdb/locdb.hh"
