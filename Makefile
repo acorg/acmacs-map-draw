@@ -74,7 +74,7 @@ $(DIST)/%: $(BUILD)/%.o | $(ACMACS_MAP_DRAW_LIB)
 
 APXS_CXX = -S CC=$(CXX) -Wc,-xc++ -Wl,-shared
 APXS_ENV = LTFLAGS="-v"
-APXS_LIBS_NAMES = acmacsbase.1 acmacschart.2 acmacsmapdraw.2 locationdb.1 seqdb.2
+APXS_LIBS_NAMES = acmacsbase.1 acmacsvirus.1 acmacschart.2 acmacsmapdraw.2 locationdb.1 seqdb.2
 ifeq ($(PLATFORM),darwin)
   APXS_LIBS = -L$(AD_LIB) $(APXS_LIBS_NAMES:%=-l%)
 else
