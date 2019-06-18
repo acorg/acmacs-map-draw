@@ -89,7 +89,7 @@ static inline std::string location_of_antigen(const hidb::Antigen& antigen)
 ColorOverride::TagColor ColoringByContinent::color(const hidb::Antigen& aAntigen) const
 {
     try {
-        auto continent = get_locdb().continent(location_of_antigen(aAntigen));
+        const std::string continent{get_locdb().continent(location_of_antigen(aAntigen))};
         return {continent, mColors.at(continent)};
     }
     catch (...) {

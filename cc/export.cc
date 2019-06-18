@@ -51,8 +51,8 @@ std::string export_layout_sequences_into_csv(std::string filename, const acmacs:
             };
 
             const auto location = find_for_virus_name(name);
-            writer.add_field(location.country());
-            writer.add_field(locdb.continent_of_country(location.country()));
+            writer.add_field(std::string{location.country()});
+            writer.add_field(std::string{locdb.continent_of_country(location.country())});
             writer.add_field(std::to_string(location.latitude()));
             writer.add_field(std::to_string(location.longitude()));
         }
