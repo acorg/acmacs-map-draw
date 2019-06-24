@@ -37,7 +37,7 @@ acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aC
                 else
                     throw std::exception{};
             },
-            aSelector);
+            aSelector.val_());
     }
     catch (std::exception& err) {
         throw std::runtime_error{"Unsupported selector value: " + rjson::to_string(aSelector) + ": " + err.what()};

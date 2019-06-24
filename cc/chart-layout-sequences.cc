@@ -11,7 +11,7 @@ int main(int argc, char* const argv[])
     int exit_code = 0;
     try {
         argc_argv args(argc, argv, {
-                {"--projection", 0L},
+                {"--projection", 0},
                 {"--time", false, "report time of loading chart"},
                 {"--verbose", false},
                 {"-h", false},

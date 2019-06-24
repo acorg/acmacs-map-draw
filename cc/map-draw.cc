@@ -40,8 +40,8 @@ int main(int argc, char* const argv[])
                 {"--previous", ""},
                 {"--open", false},
                 {"--ql", false},
-                {"--projection", 0L},
-                {"-p", 0L, "projection"},
+                {"--projection", 0},
+                {"-p", 0, "projection"},
                 {"--db-dir", ""},
                 {"--time", false, "report time of loading chart"},
                 {"--verbose", false},
@@ -155,7 +155,7 @@ int draw(const argc_argv& args)
     }
     catch (std::exception& err) {
         // throw std::runtime_error{"Cannot apply " + rjson::to_string(settings["apply"]) + ": " + err.what() + "\n settings:\n" + rjson::pretty(settings, rjson::emacs_indent::no) + '\n'};
-        throw std::runtime_error{"Cannot apply " + rjson::to_string(settings["apply"]).substr(0, 200) + ": " + err.what()}; 
+        throw std::runtime_error{"Cannot apply " + rjson::to_string(settings["apply"]).substr(0, 200) + ": " + err.what()};
     }
 
     chart_draw.calculate_viewport();
