@@ -270,7 +270,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
     });
     if (verbose() && !indexes.empty()) {
         std::cerr << "INFO: antigens selected: " << std::setfill(' ') << std::setw(4) << indexes.size() << ' ' << aSelector << '\n';
-        report_antigens(std::begin(indexes), std::end(indexes), *antigens, *aChartSelectInterface.layout(), report_names_threshold());
+        report_antigens(std::begin(indexes), std::end(indexes), aChartSelectInterface.chart(), *aChartSelectInterface.layout(), report_names_threshold());
     }
 
     return indexes;
@@ -491,7 +491,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
     });
     if (verbose()) {
         std::cerr << "Sera selected: " << std::setfill(' ') << std::setw(4) << indexes.size() << ' ' << aSelector << '\n';
-        report_sera(std::begin(indexes), std::end(indexes), *sera, report_names_threshold());
+        report_sera(std::begin(indexes), std::end(indexes), aChartSelectInterface.chart(), report_names_threshold());
     }
     return indexes;
 

@@ -52,7 +52,7 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool
             add_legend(aChartDraw, indices_for_aa, styl, aa, legend);
         if (aVerbose) {
             fmt::print(stderr, "INFO: amino-acids at {}: {} {}\n", aPos, aa, indices_for_aa.size());
-            report_antigens(std::begin(indices_for_aa), std::end(indices_for_aa), *aChartDraw.chart().antigens(), *aChartDraw.layout(), report_names_threshold);
+            report_antigens(std::begin(indices_for_aa), std::end(indices_for_aa), aChartDraw.chart(), *aChartDraw.layout(), report_names_threshold);
         }
     }
 
@@ -136,7 +136,7 @@ void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, 
             add_legend(aChartDraw, aap->second, styl, string::join(" ", positions), legend);
         if (aVerbose) {
             fmt::print(stderr, "INFO: amino-acids group {}: {}\n", pos_aa, aap->second.size());
-            report_antigens(std::begin(aap->second), std::end(aap->second), *aChartDraw.chart().antigens(), *aChartDraw.layout(), report_names_threshold);
+            report_antigens(std::begin(aap->second), std::end(aap->second), aChartDraw.chart(), *aChartDraw.layout(), report_names_threshold);
         }
     }
     else {
