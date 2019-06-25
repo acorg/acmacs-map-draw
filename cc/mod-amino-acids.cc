@@ -60,7 +60,7 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool
         auto layout = aChartDraw.projection().transformed_layout();
         for (auto [aa, indexes] : aa_indices) {
             if (indexes.size() > 1) {
-                const auto sum_vectors = [](acmacs::PointCoordinates& sum, const auto& point) {
+                const auto sum_vectors = [](acmacs::PointCoordinates sum, const auto& point) {
                     for (auto dim : acmacs::range(std::get<0>(point).number_of_dimensions()))
                         sum[dim] += std::get<0>(point)[dim];
                     return sum;
