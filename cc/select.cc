@@ -8,6 +8,7 @@
 #include "acmacs-chart-2/serum-line.hh"
 #include "acmacs-map-draw/vaccines.hh"
 #include "acmacs-map-draw/select.hh"
+#include "acmacs-map-draw/report-antigens.hh"
 
 // using namespace std::string_literals;
 
@@ -269,22 +270,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
     });
     if (verbose() && !indexes.empty()) {
         std::cerr << "INFO: antigens selected: " << std::setfill(' ') << std::setw(4) << indexes.size() << ' ' << aSelector << '\n';
-        if (report_names_threshold() >= indexes.size()) {
-            std::cerr << "  AG " << string::join(",", indexes) << '\n';
-            const auto full_name_max =
-                antigens
-                    ->at(*std::max_element(indexes.begin(), indexes.end(), [&antigens](size_t i1, size_t i2) { return antigens->at(i1)->full_name().size() < antigens->at(i2)->full_name().size(); }))
-                    ->full_name()
-                    .size();
-            for (auto index : indexes) {
-                const auto antigen = antigens->at(index);
-                std::cerr << "  AG " << std::setw(5) << index << ' ' << std::setw(static_cast<int>(full_name_max)) << std::left << antigen->full_name() << "  " << std::setw(10) << antigen->date()
-                          << ' ' << std::setw(10) << std::left
-                          << antigen->passage().passage_type()
-                          // << "  " << antigen->full_name_with_fields()
-                          << '\n';
-            }
-        }
+        report_antigens(std::begin(indexes), std::end(indexes), *antigens, *aChartSelectInterface.layout(), report_names_threshold());
     }
 
     return indexes;
@@ -505,10 +491,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
     });
     if (verbose()) {
         std::cerr << "Sera selected: " << std::setfill(' ') << std::setw(4) << indexes.size() << ' ' << aSelector << '\n';
-        if (report_names_threshold() >= indexes.size()) {
-            for (auto index: indexes)
-                std::cerr << "  SR " << std::setw(5) << index << ' ' << (*sera)[index]->full_name() << '\n';
-        }
+        report_sera(std::begin(indexes), std::end(indexes), *sera, report_names_threshold());
     }
     return indexes;
 

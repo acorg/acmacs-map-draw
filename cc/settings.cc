@@ -262,7 +262,7 @@ static const char* const SETTINGS_HELP_MODS = R"(
   "centroid": false,
   "report": false},
 {"N": "amino-acids",
-  "groups": [{"pos": ["121K", "144K"], "fill": "cornflowerblue" "?outline": "black"}],
+  "groups": [{"pos_aa": ["121K", "144K"], "fill": "cornflowerblue", "?outline": "black"}],
   "outline": "black", "outline_width": 1.0,
   "aspect": 1.0, "rotation": 0.0, "size": 1.0, "order": "raise|lower",
   "legend": {},

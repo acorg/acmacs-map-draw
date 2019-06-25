@@ -1,20 +1,23 @@
 #include <tuple>
 
 #include "acmacs-base/enumerate.hh"
+#include "acmacs-base/fmt.hh"
 #include "seqdb/seqdb.hh"
 #include "acmacs-map-draw/mod-amino-acids.hh"
 #include "acmacs-map-draw/draw.hh"
+#include "acmacs-map-draw/report-antigens.hh"
 
 // ----------------------------------------------------------------------
 
 void ModAminoAcids::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
     const auto verbose = rjson::get_or(args(), "report", false);
+    const auto report_names_threshold = rjson::get_or(args(), "report_names_threshold", 10UL);
     if (const auto& pos = args()["pos"]; !pos.is_null()) {
-        aa_pos(aChartDraw, pos, verbose);
+        aa_pos(aChartDraw, pos, verbose, report_names_threshold);
     }
     else if (const auto& groups = args()["groups"]; !groups.is_null()) {
-        rjson::for_each(groups, [this,&aChartDraw,verbose](const rjson::value& group) { aa_group(aChartDraw, group, verbose); });
+        rjson::for_each(groups, [this,&aChartDraw,verbose,report_names_threshold](const rjson::value& group) { aa_group(aChartDraw, group, verbose, report_names_threshold); });
     }
     else {
         std::cerr << "No pos no groups" << '\n';
@@ -25,7 +28,7 @@ void ModAminoAcids::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*
 
 // ----------------------------------------------------------------------
 
-void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool aVerbose)
+void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool aVerbose, size_t report_names_threshold)
 {
     const auto& seqdb = seqdb::get(seqdb::ignore_errors::no, do_report_time(aVerbose));
     std::vector<size_t> positions;
@@ -47,8 +50,10 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool
         aChartDraw.modify(indices_for_aa, styl, drawing_order());
         if (const auto& legend = args()["legend"]; !legend.is_null())
             add_legend(aChartDraw, indices_for_aa, styl, aa, legend);
-        if (aVerbose)
-            std::cerr << "INFO: amino-acids at " << aPos << ": " << aa << ' ' << indices_for_aa.size() << '\n';
+        if (aVerbose) {
+            fmt::print(stderr, "INFO: amino-acids at {}: {} {}\n", aPos, aa, indices_for_aa.size());
+            report_antigens(std::begin(indices_for_aa), std::end(indices_for_aa), *aChartDraw.chart().antigens(), *aChartDraw.layout(), report_names_threshold);
+        }
     }
 
     if (auto make_centroid = rjson::get_or(args(), "centroid", false); make_centroid) {
@@ -114,7 +119,7 @@ void ModAminoAcids::make_color_for_aa(std::map<std::string, Color>& color_for_aa
 
 // ----------------------------------------------------------------------
 
-void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, bool aVerbose)
+void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, bool aVerbose, size_t report_names_threshold)
 {
     const auto& pos_aa = aGroup["pos_aa"];
     std::vector<size_t> positions(pos_aa.size());
@@ -129,8 +134,10 @@ void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, 
         aChartDraw.modify(aap->second, styl, drawing_order());
         if (const auto& legend = args()["legend"]; !legend.is_null())
             add_legend(aChartDraw, aap->second, styl, string::join(" ", positions), legend);
-        if (aVerbose)
-            std::cerr << "INFO: amino-acids group " << pos_aa << ": " << ' ' << aap->second.size() << '\n';
+        if (aVerbose) {
+            fmt::print(stderr, "INFO: amino-acids group {}: {}\n", pos_aa, aap->second.size());
+            report_antigens(std::begin(aap->second), std::end(aap->second), *aChartDraw.chart().antigens(), *aChartDraw.layout(), report_names_threshold);
+        }
     }
     else {
         std::cerr << "WARNING: no \"" << target_aas << "\" in " << aa_indices << '\n';

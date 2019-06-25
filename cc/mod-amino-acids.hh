@@ -17,8 +17,8 @@ class ModAminoAcids : public Mod
     std::vector<Color> mColors; // colors to auto-assign (if "colors" not present)
     size_t mIndexDiff = 0;
 
-    void aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool aVerbose);
-    void aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, bool aVerbose);
+    void aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool aVerbose, size_t report_names_threshold);
+    void aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, bool aVerbose, size_t report_names_threshold);
     Color fill_color_default(size_t aIndex, std::string aAA);
     void make_color_for_aa(std::map<std::string, Color>& color_for_aa, const std::vector<std::string>& aa_sorted);
 
