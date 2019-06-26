@@ -828,7 +828,7 @@ class ColoringBase
     }
 
     point_style(point_no) {
-        return this.styles_[point_no];
+        return this.styles_ ? this.styles_[point_no] : {};
     }
 
     // {reset_sera: false}
@@ -873,7 +873,7 @@ export class ColoringModified extends ColoringBase
     }
 
     point_style(point_no) {
-        return this.styles_[point_no];
+        return this.styles_ ? this.styles_[point_no] : {};
     }
 
     styles() {
