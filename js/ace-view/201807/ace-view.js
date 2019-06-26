@@ -847,7 +847,10 @@ class ColoringOriginal extends ColoringBase
 
     point_style(point_no) {
         const plot_spec = this.chart_.p;
-        return plot_spec.P[plot_spec.p[point_no]];
+        if (plot_spec)
+            return plot_spec.P[plot_spec.p[point_no]];
+        else
+            return {};
     }
 
     styles() {
