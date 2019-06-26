@@ -833,7 +833,15 @@ class ColoringBase
 
     // {reset_sera: false}
     all_styles(args={}) {
-        return all_styles(this.chart_, args);
+        if (this.chart_.p) {
+            return all_styles(this.chart_, args);
+        }
+        else {
+            const styles = []
+            this.chart_.s.forEach((antigen, antigen_no) => {styles[antigen_no] = {O: "black", F: "green"};});
+            this.chart_.s.forEach((serum, serum_no) => {styles[serum_no + source.a.length] = {O: av_toolkit.sGREY};});
+            return styles;
+        }
     }
 }
 
