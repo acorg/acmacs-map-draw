@@ -81,7 +81,7 @@ int main(int argc, char* const argv[])
 
         chart_draw.calculate_viewport();
 
-        const std::string output_file{string::ends_with(*opt.chart2, ".pdf") ? *opt.chart2 : *opt.pdf};
+        const std::string output_file{!opt.chart2->empty() && string::ends_with(*opt.chart2, ".pdf") ? *opt.chart2 : *opt.pdf};
         acmacs::file::temp temp_file(".pdf");
         const std::string output = output_file.empty() ? static_cast<std::string>(temp_file) : output_file;
         chart_draw.draw(output, 800, report_time::yes);
