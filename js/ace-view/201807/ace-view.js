@@ -839,7 +839,7 @@ class ColoringBase
         else {
             const styles = []
             this.chart_.s.forEach((antigen, antigen_no) => {styles[antigen_no] = {O: "black", F: "green"};});
-            this.chart_.s.forEach((serum, serum_no) => {styles[serum_no + source.a.length] = {O: av_toolkit.sGREY};});
+            this.chart_.s.forEach((serum, serum_no) => {styles[serum_no + this.chart_.a.length] = {O: av_toolkit.sGREY};});
             return styles;
         }
     }
