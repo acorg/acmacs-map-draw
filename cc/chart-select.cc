@@ -1,7 +1,8 @@
 #include <string>
 #include <fstream>
 
-#include "acmacs-base/argc-argv.hh"
+#include "acmacs-base/fmt.hh"
+#include "acmacs-base/argv.hh"
 #include "acmacs-chart-2/factory-import.hh"
 
 #include "setup-dbs.hh"
@@ -12,31 +13,32 @@ using namespace std::string_literals;
 
 // ----------------------------------------------------------------------
 
-static int do_select(const argc_argv& args);
+using namespace acmacs::argv;
+struct Options : public argv
+{
+    Options(int a_argc, const char* const a_argv[], on_error on_err = on_error::exit) : argv() { parse(a_argc, a_argv, on_err); }
+
+    option<bool> sera{*this, 's', "sera", desc{"select sera"}};
+    option<bool> just_indexes{*this, "just-indexes", desc{"report just indexes, comma separated"}};
+    option<bool> verbose{*this, 'v', "verbose"};
+    option<size_t> projection{*this, "projection", dflt{0UL}};
+    option<bool> help_select{*this, "help-select"};
+
+    argument<str> chart{*this, arg_name{"chart-file"}, mandatory};
+    argument<str> command{*this, arg_name{"command-in-json-format"}, mandatory};
+};
+
+static int do_select(const Options& opt);
 
 int main(int argc, char* const argv[])
 {
     int exit_code = 1;
     try {
-        argc_argv args(argc, argv, {
-                {"-s", false, "select sera (alias for --sera)"},
-                {"--sera", false, "select sera (alias for -s)"},
-                {"--just-indexes", false, "report just indexes, comma separated"},
-                {"--projection", 0},
-                {"-h", false},
-                {"--help", false},
-                {"--help-select", false},
-                {"--db-dir", ""},
-                {"--time", false, "report time of loading chart"},
-                {"--verbose", false},
-                {"-v", false},
-            });
-        if (args["--help-select"])
+        Options opt(argc, argv);
+        if (opt.help_select)
             std::cerr << settings_help_select();
-        else if (args["-h"] || args["--help"] || args.number_of_arguments() != 2)
-            std::cerr << "Usage: " << args.program() << " [options] <chart.ace> <command-in-json-format>\n" << args.usage_options() << '\n';
         else
-            exit_code = do_select(args);
+            exit_code = do_select(opt);
     }
     catch (std::exception& err) {
         std::cerr << "ERROR: " << err.what() << '\n';
@@ -47,26 +49,26 @@ int main(int argc, char* const argv[])
 
 // ----------------------------------------------------------------------
 
-int do_select(const argc_argv& args)
+int do_select(const Options& opt)
 {
-    const bool verbose = args["-v"] || args["--verbose"];
-    setup_dbs(args["--db-dir"].str(), verbose);
-    const auto selector = rjson::parse_string(args[1]);
-    auto chart = acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, do_report_time(args["--time"]));
-    ChartSelectInterface chart_select(std::make_shared<acmacs::chart::ChartModify>(chart), args["--projection"]);
-    if (!args["-s"] && !args["--sera"]) {
+    const auto selector = rjson::parse_string(opt.command);
+    auto chart = acmacs::chart::import_from_file(opt.chart);
+    if (chart->number_of_projections() < 1 || chart->number_of_projections() < *opt.projection)
+        throw std::runtime_error(fmt::format("chart has too few projections: {}", chart->number_of_projections()));
+    ChartSelectInterface chart_select(std::make_shared<acmacs::chart::ChartModify>(chart), opt.projection);
+    if (!opt.sera) {
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_antigens())) + 1;
-        const auto indices = SelectAntigens(verbose).select(chart_select, selector);
+        const auto indices = SelectAntigens(opt.verbose).select(chart_select, selector);
         std::cout << string::join(",", indices) << '\n';
-        if (!args["--just-indexes"]) {
+        if (!opt.just_indexes) {
             for (auto index : indices)
                 std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->antigen(index)->full_name() << '\n';
         }
     }
     else {
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_sera())) + 1;
-        const auto indices = SelectSera(verbose).select(chart_select, selector);
-        if (args["--just-indexes"]) {
+        const auto indices = SelectSera(opt.verbose).select(chart_select, selector);
+        if (!opt.just_indexes) {
             std::cout << string::join(",", indices) << '\n';
         }
         else {
