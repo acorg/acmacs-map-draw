@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 
+#include "acmacs-base/fmt.hh"
 #include "acmacs-base/argv.hh"
 #include "acmacs-base/read-file.hh"
 #include "acmacs-base/string-split.hh"
@@ -76,7 +77,8 @@ int main(int argc, char* const argv[])
             apply_mods(chart_draw, settings["apply"], settings);
         }
         catch (std::exception& err) {
-            throw std::runtime_error{"Cannot apply " + rjson::to_string(settings["apply"]) + ": " + err.what() + "\n settings:\n" + rjson::pretty(settings, rjson::emacs_indent::no) + '\n'};
+            // throw std::runtime_error{"Cannot apply " + rjson::to_string(settings["apply"]) + ": " + err.what() + "\n settings:\n" + rjson::pretty(settings, rjson::emacs_indent::no) + '\n'};
+            throw std::runtime_error{fmt::format("{}", err)};
         }
 
         chart_draw.calculate_viewport();
