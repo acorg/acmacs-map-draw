@@ -9,8 +9,6 @@
 #include "settings.hh"
 #include "select.hh"
 
-using namespace std::string_literals;
-
 // ----------------------------------------------------------------------
 
 using namespace acmacs::argv;
