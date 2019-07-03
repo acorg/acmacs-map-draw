@@ -7,7 +7,7 @@
 
 void test_time_series()
 {
-    date::year_month_day frmstr = date::from_string("2017-03-06");
+    date::year_month_day frmstr{date::from_string("2017-03-06")};
     std::cout << "frmstr: " << frmstr << " ok?:" << frmstr.ok() << std::endl;
     std::cout << "frmstr 3 months before: " << date::decrement_month(frmstr, 3) << " ok?:" << frmstr.ok() << std::endl;
     date::year_month_day today = date::today();
