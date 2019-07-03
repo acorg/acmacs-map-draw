@@ -211,7 +211,7 @@ void GeographicTimeSeriesBase::draw(std::string aFilenamePrefix, TimeSeriesItera
 {
     for (; aBegin != aEnd; ++aBegin) {
         auto map = mMap;        // make a copy!
-        map.add_points_from_hidb_colored_by(aColoring, aColorOverride, aPriority, aBegin->display(), aBegin.next().display());
+        map.add_points_from_hidb_colored_by(aColoring, aColorOverride, aPriority, date::display(*aBegin), date::display(aBegin.next()));
         map.title().add_line(aBegin.text_name());
         map.draw(aFilenamePrefix + aBegin.numeric_name() + ".pdf", aImageWidth);
     }
