@@ -3,6 +3,7 @@
 
 #include "acmacs-base/log.hh"
 #include "acmacs-base/float.hh"
+#include "acmacs-base/fmt.hh"
 #include "acmacs-base/enumerate.hh"
 #include "acmacs-base/line.hh"
 #include "acmacs-chart-2/factory-export.hh"
@@ -64,9 +65,9 @@ void ChartDraw::draw(acmacs::surface::Surface& aSurface) const
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::draw(std::string aFilename, double aSize, report_time aTimer) const
+void ChartDraw::draw(std::string_view aFilename, double aSize, report_time aTimer) const
 {
-    Timeit ti("drawing map to " + aFilename + ": ", aTimer);
+    Timeit ti(fmt::format("drawing map to {}: ", aFilename), aTimer);
 
     acmacs::draw::DrawElements painter(aFilename, aSize);
     draw(painter);
@@ -288,7 +289,7 @@ void ChartDraw::remove_serum_circles()
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::save(std::string aFilename, std::string aProgramName)
+void ChartDraw::save(std::string_view aFilename, std::string_view aProgramName)
 {
     acmacs::chart::export_factory(chart(), aFilename, aProgramName, report_time::no);
 

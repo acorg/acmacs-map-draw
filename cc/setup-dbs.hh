@@ -1,10 +1,10 @@
 #pragma once
 
-#include <string>
+#include <string_view>
 
 // ----------------------------------------------------------------------
 
-void setup_dbs(std::string aDbsDir, bool aVerbose);
+void setup_dbs(std::string_view aDbsDir, bool aVerbose);
 
 // ----------------------------------------------------------------------
 /// Local Variables:

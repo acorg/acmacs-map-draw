@@ -26,7 +26,7 @@ class ChartDraw : public ChartSelectInterface
     enum class apply_map_transformation { no, yes };
 
     void draw(acmacs::surface::Surface& aSurface) const;
-    void draw(std::string aFilename, double aSize, report_time aTimer = report_time::no) const;
+    void draw(std::string_view aFilename, double aSize, report_time aTimer = report_time::no) const;
     std::string draw_json(report_time aTimer = report_time::no) const;
     std::string draw_pdf(double aSize, report_time aTimer = report_time::no) const;
     const acmacs::Viewport& calculate_viewport(bool verbose = true);
@@ -133,7 +133,7 @@ class ChartDraw : public ChartSelectInterface
     map_elements::Circle& circle(const acmacs::PointCoordinates& aCenter, Scaled aSize);
     void remove_serum_circles();
 
-    void save(std::string aFilename, std::string aProgramName);
+    void save(std::string_view aFilename, std::string_view aProgramName);
 
  private:
     acmacs::Viewport mViewport;
