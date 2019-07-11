@@ -1,9 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-using namespace std::string_literals;
 
-#include "acmacs-base/argc-argv.hh"
+#include "acmacs-base/argv.hh"
 #include "acmacs-base/read-file.hh"
 #include "acmacs-base/quicklook.hh"
 
@@ -13,7 +12,25 @@ using namespace std::string_literals;
 
 // ----------------------------------------------------------------------
 
-static int draw(const argc_argv& args);
+using namespace acmacs::argv;
+struct Options : public argv
+{
+    Options(int a_argc, const char* const a_argv[], on_error on_err = on_error::exit) : argv() { parse(a_argc, a_argv, on_err); }
+
+    option<str> db_dir{*this, "db-dir"};
+
+    option<str>       time_series{*this, "time-series", desc{"monthly, yearly, weekly (output prefix required)"}};
+    option<str_array> settings_files{*this, 's', "settings"};
+    option<str>       init_settings{*this, 'i', "init-settings"};
+    option<bool>      open{*this, "open"};
+    option<bool>      ql{*this, "ql"};
+    option<bool>      verbose{*this, 'v', "verbose"};
+
+    argument<str> subtype{*this, arg_name{"H1|H3|B"}, mandatory};
+    argument<str> output_pdf{*this, arg_name{"map.pdf"}};
+};
+
+static int draw(const Options& opt);
 static GeographicMapColoring* make_coloring(const rjson::value& aSettings);
 static void set_title(map_elements::Title& aTitle, const rjson::value& aSettings, bool use_title_text);
 
@@ -21,28 +38,8 @@ int main(int argc, char* const argv[])
 {
     int exit_code = 1;
     try {
-        argc_argv args(argc, argv, {
-                {"-h", false},
-                {"--help", false},
-                // {"--help-mods", false},
-                // {"--help-select", false},
-                {"--time-series", "", "monthly, yearly, weekly (output prefix required)"},
-                {"-s", argc_argv::strings{}},
-                {"--settings", argc_argv::strings{}},
-                {"--init-settings", ""},
-                {"--open", false},
-                {"--db-dir", ""},
-                {"-v", false},
-                {"--verbose", false},
-        });
-        // if (args["--help-mods"])
-        //     std::cerr << settings_help_mods();
-        // else if (args["--help-select"])
-        //     std::cerr << settings_help_select();
-        if (args["-h"] || args["--help"] || args.number_of_arguments() < 1 || args.number_of_arguments() > 2)
-            std::cerr << "Usage: " << args.program() << " [options] <H1|H3|B> [<map.pdf>]\n" << args.usage_options() << '\n';
-        else
-            exit_code = draw(args);
+        Options opt(argc, argv);
+        exit_code = draw(opt);
     }
     catch (std::exception& err) {
         std::cerr << "ERROR: " << err.what() << '\n';
@@ -62,70 +59,58 @@ static inline std::vector<std::string> make_list(const rjson::value& aSource)
 
 // ----------------------------------------------------------------------
 
-int draw(const argc_argv& args)
+int draw(const Options& opt)
 {
-    using namespace std::string_literals;
-    const bool verbose = args["-v"] || args["--verbose"];
+    setup_dbs(opt.db_dir, opt.verbose);
 
-    setup_dbs(args["--db-dir"].str(), verbose);
-
-    if (args["--init-settings"]) {
-        auto write_settings = [](std::ostream& out) { out << geographic_settings_default_raw() << '\n'; };
-        if (args["--init-settings"] == "-") {
-            write_settings(std::cout);
-        }
-        else {
-            std::ofstream out(args["--init-settings"].str());
-            write_settings(out);
-        }
+    if (opt.init_settings) {
+        acmacs::file::ofstream out(opt.init_settings);
+        out.stream() << geographic_settings_default_raw() << '\n';
     }
 
     auto settings = geographic_settings_default();
-
-    auto load_settings = [&](argc_argv::strings aFilenames) {
-        for (auto fn: aFilenames) {
-            if (verbose)
-                std::cerr << "DEBUG: reading settings from " << fn << '\n';
+    for (auto fn : *opt.settings_files) {
+        if (opt.verbose)
+            std::cerr << "DEBUG: reading settings from " << fn << '\n';
+        try {
             settings.update(rjson::parse_file(fn, rjson::remove_comments::yes));
         }
-    };
-    if (args["-s"])
-        load_settings(args["-s"]);
-    if (args["--settings"])
-        load_settings(args["--settings"]);
-      // std::cerr << "DEBUG: loaded settings\n" << settings.to_json_pp() << '\n';
+        catch (std::exception& err) {
+            throw std::runtime_error(string::concat(fn, ':', err.what()));
+        }
+    }
 
     const std::string_view start_date = settings["start_date"], end_date = settings["end_date"];
     std::unique_ptr<GeographicMapColoring> coloring{make_coloring(settings)};
 
-    if (args["--time-series"] == "") {
+    const auto subtype = string::upper(*opt.subtype);
+    if (!opt.time_series) {
           // Single map
         std::cerr << "INFO: single map\n";
-        GeographicMapWithPointsFromHidb geographic_map(string::upper(args[0]), settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]);
+        GeographicMapWithPointsFromHidb geographic_map(subtype, settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]);
         geographic_map.add_points_from_hidb_colored_by(*coloring, ColorOverride{}, make_list(settings["priority"]), start_date, end_date);
         set_title(geographic_map.title(), settings, true);
 
         acmacs::file::temp temp_file(".pdf");
-        const std::string output = args.number_of_arguments() > 1 ? std::string{args[1]} : static_cast<std::string>(temp_file);
+        const std::string output = opt.output_pdf ? std::string{opt.output_pdf} : static_cast<std::string>(temp_file);
         geographic_map.draw(output, settings["output_image_width"]);
-        if (args["--open"])
-            acmacs::quicklook(output, 2);
+        acmacs::open_or_quicklook(opt.open, opt.ql, output, 2);
     }
     else {
-        std::cerr << "INFO: time series " << static_cast<std::string_view>(args["--time-series"]) << '\n';
-        if (args.number_of_arguments() < 2)
+        std::cerr << "INFO: time series " << static_cast<std::string_view>(opt.time_series) << '\n';
+        if (!opt.output_pdf)
             throw std::runtime_error("Please provide output filename prefix for time series");
         std::unique_ptr<GeographicTimeSeriesBase> time_series;
-        if (args["--time-series"] == "monthly")
-            time_series.reset(new GeographicTimeSeriesMonthly(string::upper(args[0]), start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]));
-        else if (args["--time-series"] == "yearly")
-            time_series.reset(new GeographicTimeSeriesYearly(string::upper(args[0]), start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]));
-        else if (args["--time-series"] == "weekly")
-            time_series.reset(new GeographicTimeSeriesWeekly(string::upper(args[0]), start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]));
+        if (opt.time_series == "monthly")
+            time_series.reset(new GeographicTimeSeriesMonthly(subtype, start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]));
+        else if (opt.time_series == "yearly")
+            time_series.reset(new GeographicTimeSeriesYearly(subtype, start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]));
+        else if (opt.time_series == "weekly")
+            time_series.reset(new GeographicTimeSeriesWeekly(subtype, start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]));
         else
-            throw std::runtime_error("Unsupported time series argument: " + std::string{static_cast<std::string_view>(args["--time-series"])} + " (monthly or yearly or weekly expected)");
+            throw std::runtime_error(fmt::format("Unsupported time series argument: {} (monthly or yearly or weekly expected)", opt.time_series));
         set_title(time_series->title(), settings, false);
-        time_series->draw(std::string{args[1]}, *coloring, ColorOverride{}, settings["output_image_width"]);
+        time_series->draw(opt.output_pdf, *coloring, ColorOverride{}, settings["output_image_width"]);
     }
 
     return 0;

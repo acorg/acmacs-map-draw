@@ -295,8 +295,8 @@ class GeographicTimeSeriesBase
     virtual ~GeographicTimeSeriesBase();
 
     map_elements::Title& title() { return mMap.title(); }
-    virtual void draw(std::string aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const = 0;
-    void draw(std::string aFilenamePrefix, TimeSeriesIterator& aBegin, const TimeSeriesIterator& aEnd, const std::vector<std::string>& aPriority, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const;
+    virtual void draw(std::string_view aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const = 0;
+    void draw(std::string_view aFilenamePrefix, TimeSeriesIterator& aBegin, const TimeSeriesIterator& aEnd, const std::vector<std::string>& aPriority, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const;
 
  private:
     GeographicMapWithPointsFromHidb mMap;
@@ -311,7 +311,7 @@ template <typename TimeSeries> class GeographicTimeSeries : public GeographicTim
     GeographicTimeSeries(std::string aVirusType, std::string_view aStart, std::string_view aEnd, const std::vector<std::string>& aPriority, double aPointSizeInPixels, double aPointDensity, Color aOutlineColor, double aOutlineWidth)
         : GeographicTimeSeriesBase(aVirusType, aPointSizeInPixels, aPointDensity, aOutlineColor, aOutlineWidth), mTS(aStart, aEnd), mPriority(aPriority) {}
 
-    void draw(std::string aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const override
+    void draw(std::string_view aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const override
         {
             auto start = mTS.begin(), end = mTS.end();
             GeographicTimeSeriesBase::draw(aFilenamePrefix, start, end, mPriority, aColoring, aColorOverride, aImageWidth);

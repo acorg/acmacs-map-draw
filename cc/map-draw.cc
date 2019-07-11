@@ -50,33 +50,6 @@ int main(int argc, char* const argv[])
     int exit_code = 1;
     try {
         Options opt(argc, argv);
-        // argc_argv args(argc, argv, {
-        //         {"--apply", "", "json array to use as \"apply\", e.g. [\"all_grey\",\"egg\",\"clades\",\"labels\"]"},
-        //         {"--apply-from", "", "read json array to use as \"apply\" from file (or stdin if \"-\""},
-        //         {"--clade", false},
-        //         {"--point-scale", 1.0},
-        //         {"--rotate-degrees", 0.0, "counter clockwise"},
-        //         {"-r", 0.0, "rotate in degrees, counter clockwise"},
-        //         {"--flip-ew", false},
-        //         {"--flip-ns", false},
-        //         {"--settings", argc_argv::strings{}, "load settings from file"},
-        //         {"-s", argc_argv::strings{}, "load settings from file"},
-        //         {"--init-settings", "", "initialize (overwrite) settings file"},
-        //         {"--save", "", "save resulting chart with modified projection and plot spec"},
-        //         {"-h", false},
-        //         {"--help", false},
-        //         {"--help-mods", false},
-        //         {"--help-select", false},
-        //         {"--previous", ""},
-        //         {"--open", false},
-        //         {"--ql", false},
-        //         {"--projection", 0},
-        //         {"-p", 0, "projection"},
-        //         {"--db-dir", ""},
-        //         {"--time", false, "report time of loading chart"},
-        //         {"--verbose", false},
-        //         {"-v", false},
-        // });
         if (opt.help_mods)
             std::cerr << settings_help_mods();
         else if (opt.help_select)
@@ -103,14 +76,8 @@ int draw(const Options& opt)
 
     auto settings = settings_default();
     if (!opt.init_settings->empty()) {
-        auto write_settings = [&settings](std::ostream& out) { out << rjson::pretty(settings) << '\n'; };
-        if (*opt.init_settings == "-") {
-            write_settings(std::cout);
-        }
-        else {
-            std::ofstream out(*opt.init_settings);
-            write_settings(out);
-        }
+        acmacs::file::ofstream out(opt.init_settings);
+        out.stream() << rjson::pretty(settings) << '\n';
     }
 
     settings.update(settings_builtin_mods());
@@ -180,10 +147,7 @@ int draw(const Options& opt)
     }
     else {
         chart_draw.draw(opt.output_pdf, 800, report_time::yes);
-        if (opt.open)
-            acmacs::open(opt.output_pdf, 2);
-        else if (opt.ql)
-            acmacs::quicklook(opt.output_pdf, 2);
+        acmacs::open_or_quicklook(opt.open, opt.ql, opt.output_pdf, 2);
     }
 
     if (!opt.init_settings->empty())

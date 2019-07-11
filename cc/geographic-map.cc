@@ -1,5 +1,6 @@
-#include "acmacs-virus/virus-name.hh"
 #include "acmacs-base/range.hh"
+#include "acmacs-base/fmt.hh"
+#include "acmacs-virus/virus-name.hh"
 #include "acmacs-draw/surface-cairo.hh"
 #include "acmacs-draw/geographic-map.hh"
 #include "geographic-map.hh"
@@ -207,13 +208,13 @@ GeographicTimeSeriesBase::~GeographicTimeSeriesBase()
 
 // ----------------------------------------------------------------------
 
-void GeographicTimeSeriesBase::draw(std::string aFilenamePrefix, TimeSeriesIterator& aBegin, const TimeSeriesIterator& aEnd, const std::vector<std::string>& aPriority, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const
+void GeographicTimeSeriesBase::draw(std::string_view aFilenamePrefix, TimeSeriesIterator& aBegin, const TimeSeriesIterator& aEnd, const std::vector<std::string>& aPriority, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const
 {
     for (; aBegin != aEnd; ++aBegin) {
         auto map = mMap;        // make a copy!
         map.add_points_from_hidb_colored_by(aColoring, aColorOverride, aPriority, date::display(*aBegin), date::display(aBegin.next()));
         map.title().add_line(aBegin.text_name());
-        map.draw(aFilenamePrefix + aBegin.numeric_name() + ".pdf", aImageWidth);
+        map.draw(fmt::format("{}{}.pdf", aFilenamePrefix, aBegin.numeric_name()), aImageWidth);
     }
 
 } // GeographicTimeSeriesBase::draw
