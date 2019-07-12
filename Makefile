@@ -7,7 +7,6 @@ TARGETS = \
   $(DIST)/map-draw \
   $(DIST)/map-procrustes \
   $(DIST)/geographic-draw \
-  $(DIST)/chart-vaccines \
   $(DIST)/chart-layout-sequences \
   $(DIST)/mod_acmacs.so
 
