@@ -1,14 +1,15 @@
-#include "acmacs-virus/virus-name.hh"
+#include "acmacs-base/fmt.hh"
 #include "acmacs-base/csv.hh"
 #include "acmacs-base/read-file.hh"
 #include "acmacs-base/enumerate.hh"
+#include "acmacs-virus/virus-name.hh"
 #include "seqdb/seqdb.hh"
 #include "locationdb/locdb.hh"
 #include "acmacs-map-draw/export.hh"
 
 // ----------------------------------------------------------------------
 
-std::string export_layout_sequences_into_csv(std::string filename, const acmacs::chart::Chart& chart, size_t projection_no)
+std::string export_layout_sequences_into_csv(std::string_view filename, const acmacs::chart::Chart& chart, size_t projection_no)
 {
     auto antigens = chart.antigens();
     auto sera = chart.sera();
@@ -57,14 +58,15 @@ std::string export_layout_sequences_into_csv(std::string filename, const acmacs:
             writer.add_field(std::to_string(location.longitude()));
         }
         catch (LocationNotFound& /*err*/) {
-            std::cerr << "WARNING: LocationNotFound: \"" << virus_name::location(name) << "\" of \"" << name << "\"\n";
+            fmt::print(stderr, "WARNING: LocationNotFound: \"{}\" of \"{}\"\n", virus_name::location(name), name);
         }
         catch (virus_name::Unrecognized& /*err*/) {
-            std::cerr << "WARNING: cannot parse name to find location: \"" << name << "\"\n";
+            fmt::print(stderr, "WARNING: cannot parse name to find location: \"{}\"\n", name);
         }
     };
 
     for (auto [ag_no, antigen] : acmacs::enumerate(*antigens)) {
+        // fmt::print(stderr, "DEBUG: {} {}\n", ag_no, antigen->name());
         writer.add_field("AG");
         writer.add_field(antigen->name());
         for (auto dim : acmacs::range(number_of_dimensions)) {
@@ -79,7 +81,13 @@ std::string export_layout_sequences_into_csv(std::string filename, const acmacs:
         writer.add_field(antigen->passage());
         add_location_data(antigen->name());
         if (const auto& entry_seq = entry_seqs[ag_no]; entry_seq) {
-            writer.add_field(entry_seq.seq().amino_acids(true));
+            try {
+                writer.add_field(entry_seq.seq().amino_acids(true));
+            }
+            catch (std::exception& err) {
+                fmt::print(stderr, "WARNING: {} {}: {}\n", ag_no, antigen->full_name(), err);
+                writer.add_field("");
+            }
         }
         else
             writer.add_field("");

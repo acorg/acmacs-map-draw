@@ -1,32 +1,29 @@
 #include <iostream>
 
-#include "acmacs-base/argc-argv.hh"
+#include "acmacs-base/argv.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-map-draw/export.hh"
 
 // ----------------------------------------------------------------------
 
+using namespace acmacs::argv;
+struct Options : public argv
+{
+    Options(int a_argc, const char* const a_argv[], on_error on_err = on_error::exit) : argv() { parse(a_argc, a_argv, on_err); }
+
+    option<size_t>    projection{*this, 'p', "projection", dflt{0UL}};
+
+    argument<str> chart{*this, arg_name{"chart.ace"}, mandatory};
+    argument<str> output_csv{*this, arg_name{"output.csv[.xz]"}};
+};
+
 int main(int argc, char* const argv[])
 {
     int exit_code = 0;
     try {
-        argc_argv args(argc, argv, {
-                {"--projection", 0},
-                {"--time", false, "report time of loading chart"},
-                {"--verbose", false},
-                {"-h", false},
-                {"--help", false},
-                {"-v", false},
-        });
-        if (args["-h"] || args["--help"] || args.number_of_arguments() != 2) {
-            std::cerr << "Usage: " << args.program() << " [options] <chart-file> <output.csv[.xz]>\n" << args.usage_options() << '\n';
-            exit_code = 1;
-        }
-        else {
-            const auto report_time = do_report_time(args["--time"]);
-            auto chart = acmacs::chart::import_from_file(args[0], acmacs::chart::Verify::None, report_time);
-            export_layout_sequences_into_csv(std::string(args[1]), *chart, args["--projection"]);
-        }
+        Options opt(argc, argv);
+        auto chart = acmacs::chart::import_from_file(opt.chart);
+        export_layout_sequences_into_csv(opt.output_csv, *chart, opt.projection);
     }
     catch (std::exception& err) {
         std::cerr << "ERROR: " << err.what() << '\n';
