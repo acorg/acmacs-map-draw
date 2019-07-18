@@ -35,8 +35,6 @@ int main(int argc, char* const argv[])
     try {
         Options opt(argc, argv);
 
-        const auto hemi_data = acmacs::hemi::parse(acmacs::file::read(opt.hemi_data));
-
         ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart)), 0);
 
         auto settings = settings_default();
@@ -45,9 +43,16 @@ int main(int argc, char* const argv[])
             settings.update(rjson::parse_file(opt.settings->at(sett_no), rjson::remove_comments::no));
         }
 
-
-        // settings["apply"].append(
-            //     rjson::object{{"N", "procrustes_arrows"}, {"chart", secondary_chart}, {"projection", *opt.p2}, {"subset", *opt.subset}, {"threshold", *opt.threshold}, {"report", *opt.report}});
+        const auto hemi_data = acmacs::hemi::parse(acmacs::file::read(opt.hemi_data));
+        for (const auto& point_data : hemi_data.hemi_points) {
+            settings["apply"].append(rjson::object{
+                    {"N", "arrow"},
+                    {"from_antigen", rjson::object{{"index", static_cast<size_t>(point_data.point_no)}}},
+                    {"to", rjson::array{static_cast<double>(point_data.pos[0]), static_cast<double>(point_data.pos[1])}},
+                    {"width", 1.0},
+                    {"color", "blue"}
+                  });
+        }
 
         try {
             apply_mods(chart_draw, settings["apply"], settings);
