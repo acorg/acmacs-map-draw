@@ -2,25 +2,7 @@
 
 #include <vector>
 
-#include "acmacs-base/string.hh"
-
-// ----------------------------------------------------------------------
-
-namespace in_json
-{
-    inline namespace v1
-    {
-        template <typename T> struct in
-        {
-            std::string_view value;
-
-            in() = default;
-            in(std::string_view source) : value{source} {}
-            in& operator=(std::string_view source) { value = source; return *this; }
-            operator T() const { return string::from_chars<T>(value); }
-        };
-    }
-}
+#include "acmacs-base/in-json.hh"
 
 // ----------------------------------------------------------------------
 
