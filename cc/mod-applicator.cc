@@ -567,8 +567,9 @@ class ModLine : public Mod
 
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
         {
-            const auto begins = begins_ends(aChartDraw, "from");
-            const auto ends = begins_ends(aChartDraw, "to");
+            const bool transform = rjson::get_or(args(), "transform", false);
+            const auto begins = begins_ends(aChartDraw, "from", transform);
+            const auto ends = begins_ends(aChartDraw, "to", transform);
             for(const auto& begin: begins) {
                 for(const auto& end: ends) {
                     aChartDraw.line(begin, end)
@@ -579,20 +580,23 @@ class ModLine : public Mod
         }
 
  protected:
-   std::vector<acmacs::PointCoordinates> begins_ends(ChartDraw& aChartDraw, std::string aPrefix) const
+    std::vector<acmacs::PointCoordinates> begins_ends(ChartDraw& aChartDraw, std::string aPrefix, bool transform) const
    {
        std::vector<acmacs::PointCoordinates> result;
        const auto verbose = rjson::get_or(args(), "report", false);
        if (const auto& from = args()[aPrefix]; !from.is_null()) {
-           result.push_back({from[0], from[1]});
+           acmacs::PointCoordinates point{from[0], from[1]};
+           if (transform)
+               point = aChartDraw.transformation().transform(point);
+           result.push_back(std::move(point));
        }
        else if (const auto& from_antigen = args()[aPrefix + "_antigen"]; !from_antigen.is_null()) {
-           auto layout = aChartDraw.layout();
+           auto layout = aChartDraw.transformed_layout();
            for (auto index : SelectAntigens(verbose).select(aChartDraw, from_antigen))
                result.push_back(layout->get(index));
        }
        else if (const auto& from_serum = args()[aPrefix + "_serum"]; !from_serum.is_null()) {
-           auto layout = aChartDraw.layout();
+           auto layout = aChartDraw.transformed_layout();
            for (auto index : SelectSera(verbose).select(aChartDraw, from_serum))
                result.push_back(layout->get(index + aChartDraw.number_of_antigens()));
        }
@@ -612,8 +616,9 @@ class ModArrow : public ModLine
 
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
         {
-            const auto begins = begins_ends(aChartDraw, "from");
-            const auto ends = begins_ends(aChartDraw, "to");
+            const bool transform = rjson::get_or(args(), "transform", false);
+            const auto begins = begins_ends(aChartDraw, "from", transform);
+            const auto ends = begins_ends(aChartDraw, "to", transform);
             for(const auto& begin: begins) {
                 for(const auto& end: ends) {
                     auto& arrow = aChartDraw.arrow(begin, end);

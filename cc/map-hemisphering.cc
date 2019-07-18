@@ -49,6 +49,7 @@ int main(int argc, char* const argv[])
                     {"N", "arrow"},
                     {"from_antigen", rjson::object{{"index", static_cast<size_t>(point_data.point_no)}}},
                     {"to", rjson::array{static_cast<double>(point_data.pos[0]), static_cast<double>(point_data.pos[1])}},
+                    {"transform", true},
                     {"width", 1.0},
                     {"color", "blue"}
                   });
