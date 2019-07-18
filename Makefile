@@ -6,6 +6,7 @@ TARGETS = \
   $(DIST)/chart-select \
   $(DIST)/map-draw \
   $(DIST)/map-procrustes \
+  $(DIST)/map-hemisphering \
   $(DIST)/geographic-draw \
   $(DIST)/chart-layout-sequences \
   $(DIST)/mod_acmacs.so
@@ -13,8 +14,9 @@ TARGETS = \
 ACMACS_MAP_DRAW_SOURCES = \
   draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc time-series.cc \
   vaccines.cc vaccine-matcher.cc settings.cc select.cc setup-dbs.cc geographic-settings.cc \
-  mod-applicator.cc mod-serum.cc mod-procrustes.cc mod-amino-acids.cc mod-blobs.cc mod-connection-lines.cc\
-  export.cc
+  mod-applicator.cc mod-serum.cc mod-procrustes.cc mod-amino-acids.cc mod-blobs.cc mod-connection-lines.cc \
+  export.cc \
+  hemisphering-data.cc
 
 ACMACS_MAP_DRAW_PY_SOURCES = py.cc $(ACMACS_MAP_DRAW_SOURCES)
 
