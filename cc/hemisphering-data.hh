@@ -23,6 +23,7 @@ namespace acmacs::hemi
         {
           public:
             std::vector<hemi_point_t> hemi_points;
+            std::vector<hemi_point_t> trapped_points;
 
           private:
             hemi_data_t(std::string&& source) : source_{std::move(source)} {}

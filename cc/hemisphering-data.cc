@@ -69,6 +69,8 @@ namespace local
         {
             if (key_ == "hemisphering")
                 return std::make_unique<hemi_point_entry_t>(hemi_data_.hemi_points.emplace_back());
+            else if (key_ == "trapped")
+                return std::make_unique<hemi_point_entry_t>(hemi_data_.trapped_points.emplace_back());
             else
                 throw in_json::parse_error("unsupported object for key: ", key_);
         }
