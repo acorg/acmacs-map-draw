@@ -250,32 +250,38 @@ map_elements::Title::Title()
 // obsolete
 void map_elements::Title::draw(acmacs::surface::Surface& aSurface) const
 {
-      // obsolete
-    if (mShow && (mLines.size() > 1 || (!mLines.empty() && !mLines.front().empty()))) {
-        double width = 0, height = 0;
-        for (const auto& line: mLines) {
-            const acmacs::Size line_size = aSurface.text_size(line, mTextSize, mTextStyle);
-            if (line_size.width > width)
-                width = line_size.width;
-            if (line_size.height > height)
-                height = line_size.height;
-        }
+    // obsolete
+    try {
+        if (mShow && (mLines.size() > 1 || (!mLines.empty() && !mLines.front().empty()))) {
+            double width = 0, height = 0;
+            for (const auto& line : mLines) {
+                const acmacs::Size line_size = aSurface.text_size(line, mTextSize, mTextStyle);
+                if (line_size.width > width)
+                    width = line_size.width;
+                if (line_size.height > height)
+                    height = line_size.height;
+            }
 
-        const double padding = aSurface.convert(mPadding).value();
-        const acmacs::Size legend_surface_size{width + padding * 2,
-                    height * (mLines.size() - 1) * mInterline + height + padding * 2};
-        const acmacs::PointCoordinates legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
+            const double padding = aSurface.convert(mPadding).value();
+            if (std::isnan(padding))
+                throw std::runtime_error("padding is NaN");
+            const acmacs::Size legend_surface_size{width + padding * 2, height * (mLines.size() - 1) * mInterline + height + padding * 2};
+            const acmacs::PointCoordinates legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
 
-        acmacs::surface::Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
-        const auto& legend_v = legend_surface.viewport();
-        legend_surface.rectangle_filled(legend_v.origin, legend_v.size, mBackground, Pixels{0}, mBackground);
-        legend_surface.rectangle(legend_v.origin, legend_v.size, mBorderColor, mBorderWidth);
-        const double text_x = padding;
-        double y = padding + height;
-        for (const auto& line: mLines) {
-            legend_surface.text({text_x, y}, line, mTextColor, mTextSize, mTextStyle);
-            y += height * mInterline;
+            acmacs::surface::Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
+            const auto& legend_v = legend_surface.viewport();
+            legend_surface.rectangle_filled(legend_v.origin, legend_v.size, mBackground, Pixels{0}, mBackground);
+            legend_surface.rectangle(legend_v.origin, legend_v.size, mBorderColor, mBorderWidth);
+            const double text_x = padding;
+            double y = padding + height;
+            for (const auto& line : mLines) {
+                legend_surface.text({text_x, y}, line, mTextColor, mTextSize, mTextStyle);
+                y += height * mInterline;
+            }
         }
+    }
+    catch (std::exception& err) {
+        std::cerr << "ERROR: map_elements::Title::draw(Surface&): " << err.what() << " (ignored)\n";
     }
 
 } // map_elements::Title::draw
