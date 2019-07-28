@@ -1,6 +1,9 @@
+#include <cstdio>
+
 #include "acmacs-base/argv.hh"
 #include "acmacs-base/filesystem.hh"
 #include "acmacs-base/timeit.hh"
+#include "acmacs-base/string.hh"
 #include "acmacs-base/quicklook.hh"
 #include "hidb-5/hidb.hh"
 #include "seqdb/seqdb.hh"
@@ -9,7 +12,7 @@
 #include "acmacs-map-draw/settings.hh"
 #include "acmacs-map-draw/mod-applicator.hh"
 
-static void draw(ChartDraw& chart_draw, const std::vector<std::string_view>& settings_files, std::string_view output_pdf);
+static void draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<std::string_view>& settings_files, std::string_view output_pdf);
 
 // ----------------------------------------------------------------------
 
@@ -44,14 +47,20 @@ int main(int argc, char* const argv[])
             }) > 0)
             throw std::runtime_error("not all settings files exist");
 
+        const auto cmd = fmt::format("fswatch --latency=0.1 '{}'", string::join("' '", *opt.settings_files));
+        std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
+
         Timeit ti_chart(fmt::format("DEBUG: chart loading from {}: ", *opt.chart), report_time::yes);
-        ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart)), opt.projection);
+        auto chart = std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart));
         ti_chart.report();
-        hidb::get(chart_draw.chart().info()->virus_type(), report_time::yes);
+        hidb::get(chart->info()->virus_type(), report_time::yes);
         seqdb::get(seqdb::ignore_errors::no, report_time::yes);
 
-        draw(chart_draw, *opt.settings_files, opt.output_pdf);
-        draw(chart_draw, *opt.settings_files, opt.output_pdf);
+        std::array<char, 1024> buffer;
+        for (;;) {
+            draw(chart, *opt.settings_files, opt.output_pdf);
+            fgets(buffer.data(), buffer.size(), pipe.get());
+        }
     }
     catch (std::exception& err) {
         fmt::print(stderr, "ERROR: {}\n", err);
@@ -62,11 +71,12 @@ int main(int argc, char* const argv[])
 
 // ----------------------------------------------------------------------
 
-void draw(ChartDraw& chart_draw, const std::vector<std::string_view>& settings_files, std::string_view output_pdf)
+void draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<std::string_view>& settings_files, std::string_view output_pdf)
 {
     Timeit ti_chart("DEBUG: drawing: ", report_time::yes);
 
     try {
+        ChartDraw chart_draw(chart, 0);
 
         auto settings = settings_default();
         settings.update(settings_builtin_mods());
