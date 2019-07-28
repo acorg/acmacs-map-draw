@@ -5,6 +5,7 @@ TARGETS = \
   $(ACMACS_MAP_DRAW_LIB) \
   $(DIST)/chart-select \
   $(DIST)/map-draw \
+  $(DIST)/map-draw-interactive \
   $(DIST)/map-procrustes \
   $(DIST)/map-hemisphering \
   $(DIST)/geographic-draw \
