@@ -12,7 +12,7 @@
 #include "acmacs-map-draw/settings.hh"
 #include "acmacs-map-draw/mod-applicator.hh"
 
-static void draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<std::string_view>& settings_files, std::string_view output_pdf);
+static bool draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<std::string_view>& settings_files, std::string_view output_pdf);
 
 // ----------------------------------------------------------------------
 
@@ -58,7 +58,8 @@ int main(int argc, char* const argv[])
 
         std::array<char, 1024> buffer;
         for (;;) {
-            draw(chart, *opt.settings_files, opt.output_pdf);
+            if (draw(chart, *opt.settings_files, opt.output_pdf))
+                acmacs::open_or_quicklook(true, false, opt.output_pdf, 0);
             fgets(buffer.data(), buffer.size(), pipe.get());
         }
     }
@@ -71,7 +72,7 @@ int main(int argc, char* const argv[])
 
 // ----------------------------------------------------------------------
 
-void draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<std::string_view>& settings_files, std::string_view output_pdf)
+bool draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<std::string_view>& settings_files, std::string_view output_pdf)
 {
     Timeit ti_chart("DEBUG: drawing: ", report_time::yes);
 
@@ -86,11 +87,12 @@ void draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<s
         apply_mods(chart_draw, settings["apply"], settings);
         chart_draw.calculate_viewport();
         chart_draw.draw(output_pdf, 800, report_time::yes);
-        acmacs::open_or_quicklook(true, false, output_pdf, 0);
+        return true;
     }
     catch (std::exception& err) {
         fmt::print(stderr, "ERROR: {}\n", err);
     }
+    return false;
 
 } // draw
 
