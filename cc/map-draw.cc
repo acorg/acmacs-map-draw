@@ -31,8 +31,8 @@ struct Options : public argv
     option<str_array> settings_files{*this, 's'};
     option<str>       init_settings{*this, 'i', "init-settings"};
     option<str>       save{*this, "save", desc{"save resulting chart with modified projection and plot spec"}};
-    option<bool>      help_mods{*this, "help-mods"};
-    option<bool>      help_select{*this, "help-select"};
+    // option<bool>      help_mods{*this, "help-mods"};
+    // option<bool>      help_select{*this, "help-select"};
     option<str>       previous{*this, "previous"};
     option<size_t>    projection{*this, 'p', "projection", dflt{0UL}};
     option<bool>      open{*this, "open"};
@@ -50,11 +50,11 @@ int main(int argc, char* const argv[])
     int exit_code = 1;
     try {
         Options opt(argc, argv);
-        if (opt.help_mods)
-            std::cerr << settings_help_mods();
-        else if (opt.help_select)
-            std::cerr << settings_help_select();
-        else
+        // if (opt.help_mods)
+        //     std::cerr << settings_help_mods();
+        // else if (opt.help_select)
+        //     std::cerr << settings_help_select();
+        // else
             exit_code = draw(opt);
     }
     catch (std::exception& err) {

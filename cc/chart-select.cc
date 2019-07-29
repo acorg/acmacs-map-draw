@@ -20,7 +20,7 @@ struct Options : public argv
     option<bool> just_indexes{*this, "just-indexes", desc{"report just indexes, comma separated"}};
     option<bool> verbose{*this, 'v', "verbose"};
     option<size_t> projection{*this, "projection", dflt{0UL}};
-    option<bool> help_select{*this, "help-select"};
+    // option<bool> help_select{*this, "help-select"};
 
     argument<str> chart{*this, arg_name{"chart-file"}, mandatory};
     argument<str> command{*this, arg_name{"command-in-json-format"}, mandatory};
@@ -33,9 +33,9 @@ int main(int argc, char* const argv[])
     int exit_code = 1;
     try {
         Options opt(argc, argv);
-        if (opt.help_select)
-            std::cerr << settings_help_select();
-        else
+        // if (opt.help_select)
+        //     std::cerr << settings_help_select();
+        // else
             exit_code = do_select(opt);
     }
     catch (std::exception& err) {

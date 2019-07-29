@@ -12,7 +12,8 @@
 #include "acmacs-map-draw/settings.hh"
 #include "acmacs-map-draw/mod-applicator.hh"
 
-static bool draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<std::string_view>& settings_files, std::string_view output_pdf);
+static std::string draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<std::string_view>& settings_files, std::string_view output_pdf, bool name_after_mod);
+static std::string mod_name(const rjson::value& aMods);
 
 // ----------------------------------------------------------------------
 
@@ -26,9 +27,10 @@ struct Options : public argv
 
     option<str_array> settings_files{*this, 's'};
     option<size_t>    projection{*this, 'p', "projection", dflt{0UL}};
+    option<bool>      name_after_mod{*this, "name-after-mod"};
 
     argument<str> chart{*this, arg_name{"chart.ace"}, mandatory};
-    argument<str> output_pdf{*this, arg_name{"output.pdf"}, mandatory};
+    argument<str> output_pdf{*this, arg_name{"output.pdf"}};
 };
 
 int main(int argc, char* const argv[])
@@ -47,19 +49,28 @@ int main(int argc, char* const argv[])
             }) > 0)
             throw std::runtime_error("not all settings files exist");
 
+        std::string_view output_pdf;
+        if (opt.output_pdf)
+            output_pdf = opt.output_pdf;
+        else if (opt.name_after_mod) {
+            output_pdf = opt.chart->substr(0, opt.chart->rfind('.') + 1);
+        }
+        else
+            throw std::runtime_error("not output_pdf provided and no --name-after-mod");
+
         const auto cmd = fmt::format("fswatch --latency=0.1 '{}'", string::join("' '", *opt.settings_files));
         std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
 
         Timeit ti_chart(fmt::format("DEBUG: chart loading from {}: ", *opt.chart), report_time::yes);
         auto chart = std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart));
         ti_chart.report();
-        hidb::get(chart->info()->virus_type(), report_time::yes);
+        [[maybe_unused]] const auto& hidb = hidb::get(chart->info()->virus_type(), report_time::yes);
         seqdb::get(seqdb::ignore_errors::no, report_time::yes);
 
         std::array<char, 1024> buffer;
         for (;;) {
-            if (draw(chart, *opt.settings_files, opt.output_pdf))
-                acmacs::open_or_quicklook(true, false, opt.output_pdf, 0);
+            if (const auto output_name = draw(chart, *opt.settings_files, output_pdf, opt.name_after_mod); !output_name.empty())
+                acmacs::open_or_quicklook(true, false, output_name, 0);
             fgets(buffer.data(), buffer.size(), pipe.get());
         }
     }
@@ -72,7 +83,7 @@ int main(int argc, char* const argv[])
 
 // ----------------------------------------------------------------------
 
-bool draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<std::string_view>& settings_files, std::string_view output_pdf)
+std::string draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<std::string_view>& settings_files, std::string_view output_pdf, bool name_after_mod)
 {
     Timeit ti_chart("DEBUG: drawing: ", report_time::yes);
 
@@ -86,15 +97,31 @@ bool draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<s
 
         apply_mods(chart_draw, settings["apply"], settings);
         chart_draw.calculate_viewport();
-        chart_draw.draw(output_pdf, 800, report_time::yes);
-        return true;
+        std::string output{output_pdf};
+        if (name_after_mod)
+            output += mod_name(settings["apply"]) + ".pdf";
+        chart_draw.draw(output, 800, report_time::yes);
+        return output;
     }
     catch (std::exception& err) {
         fmt::print(stderr, "ERROR: {}\n", err);
     }
-    return false;
+    return std::string{};
 
 } // draw
+
+// ----------------------------------------------------------------------
+
+std::string mod_name(const rjson::value& aMods)
+{
+    std::string name;
+    rjson::for_each(aMods, [&name](const rjson::value& mod_desc) {
+        if (name.empty() && static_cast<std::string_view>(mod_desc)[0] != '?' && static_cast<std::string_view>(mod_desc)[0] != '_')
+            name = mod_desc;
+    });
+    return name;
+
+} // mod_name
 
 // ----------------------------------------------------------------------
 

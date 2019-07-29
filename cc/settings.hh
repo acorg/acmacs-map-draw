@@ -7,8 +7,8 @@
 rjson::value settings_default();
 rjson::value settings_builtin_mods();
 
-const char* settings_help_mods();
-const char* settings_help_select();
+// const char* settings_help_mods();
+// const char* settings_help_select();
 
 // ----------------------------------------------------------------------
 /// Local Variables:
