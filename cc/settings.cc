@@ -226,6 +226,8 @@ rjson::value settings_builtin_mods()
 }
 
 // ----------------------------------------------------------------------
+// see acmacs-map-draw/doc/map-draw-settings.json
+//
 
 static const char* const SETTINGS_HELP_MODS = R"(
 {"N": "antigens", "select": {<select>},
