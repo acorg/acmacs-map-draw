@@ -65,7 +65,7 @@ int main(int argc, char* const argv[])
         auto chart = std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart));
         ti_chart.report();
         [[maybe_unused]] const auto& hidb = hidb::get(chart->info()->virus_type(), report_time::yes);
-        seqdb::get(seqdb::ignore_errors::no, report_time::yes);
+        acmacs::seqdb::get();
 
         std::array<char, 1024> buffer;
         for (;;) {
