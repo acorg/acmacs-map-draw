@@ -187,7 +187,7 @@ void make_ace(request_rec* r)
     acmacs::chart::ChartModify chart(acmacs::chart::import_from_file(std::string(r->filename), acmacs::chart::Verify::None, report_time::no));
     auto antigens = chart.antigens_modify();
     antigens->set_continent();
-    seqdb::add_clades(chart);
+    acmacs::seqdb::get().add_clades(chart);
 
     ap_set_content_type(r, "application/json");
     r->content_encoding = "gzip";
@@ -370,7 +370,7 @@ void command_sequences_of_chart(request_rec* r, const rjson::value& /*args*/)
 {
     try {
         auto chart = acmacs::chart::import_from_file(std::string(r->filename), acmacs::chart::Verify::None, report_time::no);
-        const auto data = seqdb::sequences_of_chart_for_ace_view_1(*chart);
+        const auto data = acmacs::seqdb::get().sequences_of_chart_for_ace_view_1(*chart);
         ap_set_content_type(r, "application/json");
         ap_rwrite(data.data(), static_cast<int>(data.size()), r);
     }
@@ -386,7 +386,7 @@ void command_download_sequences_of_chart_as_fasta(request_rec *r, const rjson::v
 {
     try {
         auto chart = acmacs::chart::import_from_file(std::string(r->filename), acmacs::chart::Verify::None, report_time::no);
-        const auto fasta = seqdb::sequences_of_chart_as_fasta(*chart);
+        const auto fasta = acmacs::seqdb::get().sequences_of_chart_as_fasta(*chart);
         const auto compressed = acmacs::file::gzip_compress(fasta);
         ap_set_content_type(r, "application/octet-stream");
         r->content_encoding = "gzip";
