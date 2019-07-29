@@ -316,9 +316,9 @@ void SelectAntigens::filter_not_sequenced(const ChartSelectInterface& aChartSele
 
 // ----------------------------------------------------------------------
 
-std::map<std::string, size_t> SelectAntigens::clades(const ChartSelectInterface& aChartSelectInterface)
+std::map<std::string_view, size_t> SelectAntigens::clades(const ChartSelectInterface& aChartSelectInterface)
 {
-    std::map<std::string, size_t> result;
+    std::map<std::string_view, size_t> result;
     for (const auto& entry: seqdb_entries(aChartSelectInterface)) {
         if (entry) {
             for (const auto& clade: entry.seq().clades)
@@ -341,10 +341,10 @@ void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterf
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, size_t pos, bool equal)
+void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, size_t pos1, bool equal)
 {
     const auto& entries = seqdb_entries(aChartSelectInterface);
-    auto at_pos_neq = [amino_acid,pos,equal](const auto& entry) -> bool { return equal ? entry.seq().amino_acid_at(pos) != amino_acid : entry.seq().amino_acid_at(pos) == amino_acid; };
+    auto at_pos_neq = [amino_acid,pos1,equal](const auto& entry) -> bool { return equal ? entry.seq().aa_at_pos1(pos1) != amino_acid : entry.seq().aa_at_pos1(pos1) == amino_acid; };
     auto not_aa_at_pos = [&entries,&at_pos_neq](auto index) -> bool { const auto& entry = entries[index]; return !entry || at_pos_neq(entry); };
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_aa_at_pos), indexes.end());
 
@@ -352,9 +352,9 @@ void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChart
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const std::vector<amino_acid_at_pos_t>& pos_aa)
+void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const std::vector<amino_acid_at_pos_t>& pos1_aa)
 {
-    for (const auto& entry : pos_aa)
+    for (const auto& entry : pos1_aa)
         filter_amino_acid_at_pos(aChartSelectInterface, indexes, std::get<char>(entry), std::get<size_t>(entry), std::get<bool>(entry));
 
 } // SelectAntigens::filter_amino_acid_at_pos
@@ -536,11 +536,10 @@ void SelectSera::filter_table(const ChartSelectInterface& aChartSelectInterface,
 // via seqdb.clades_for_name
 void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string aClade)
 {
-    const auto& seqdb = seqdb::get(seqdb::ignore_errors::no, timer());
     const auto& chart = aChartSelectInterface.chart();
 
-    auto not_in_clade = [&seqdb, &aClade, &chart](auto serum_index) -> bool {
-        const auto clades = seqdb.clades_for_name(chart.sera()->at(serum_index)->name());
+    auto not_in_clade = [&aClade, &chart](auto serum_index) -> bool {
+        const auto clades = acmacs::seqdb::get().clades_for_name(chart.sera()->at(serum_index)->name());
         return std::find(std::begin(clades), std::end(clades), aClade) == std::end(clades);
     };
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_clade), indexes.end());

@@ -95,7 +95,7 @@ class GeographicMapColoring
         Pixels outline_width{0};
     };
 
-    using TagToColor = std::map<std::string, ColoringData>;
+    using TagToColor = std::map<std::string, ColoringData, std::less<>>;
     using TagColor = std::pair<std::string, ColoringData>;
 
     virtual ~GeographicMapColoring();
