@@ -109,7 +109,7 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
     try {
         if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.full_name()); ref) {
             const auto& clades_of_seq = ref.seq().clades;
-            std::vector<std::string> clade_data;
+            std::vector<std::string_view> clade_data;
             std::copy_if(clades_of_seq.begin(), clades_of_seq.end(), std::back_inserter(clade_data), [this](const auto& clade) { return this->mColors.find(clade) != this->mColors.end(); });
             if (clade_data.size() == 1) {
                 tag = clade_data.front();

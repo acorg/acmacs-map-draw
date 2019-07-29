@@ -331,7 +331,7 @@ std::map<std::string_view, size_t> SelectAntigens::clades(const ChartSelectInter
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string aClade)
+void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aClade)
 {
     const auto& entries = seqdb_entries(aChartSelectInterface);
     auto not_in_clade = [&entries,aClade](auto index) -> bool { const auto& entry = entries[index]; return !entry || !entry.seq().has_clade(aClade); };
@@ -534,7 +534,7 @@ void SelectSera::filter_table(const ChartSelectInterface& aChartSelectInterface,
 // ----------------------------------------------------------------------
 
 // via seqdb.clades_for_name
-void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string aClade)
+void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aClade)
 {
     const auto& chart = aChartSelectInterface.chart();
 
