@@ -2,7 +2,7 @@
 
 #include "acmacs-base/enumerate.hh"
 #include "acmacs-base/fmt.hh"
-#include "seqdb/seqdb.hh"
+#include "seqdb-3/seqdb.hh"
 #include "acmacs-map-draw/mod-amino-acids.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/report-antigens.hh"
@@ -30,7 +30,7 @@ void ModAminoAcids::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*
 
 void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool aVerbose, size_t report_names_threshold)
 {
-    const auto& seqdb = seqdb::get(seqdb::ignore_errors::no, do_report_time(aVerbose));
+    const auto& seqdb = acmacs::seqdb::get();
     std::vector<size_t> positions;
     rjson::copy(aPos, positions);
     const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), positions, aVerbose ? seqdb::report::yes : seqdb::report::no);
@@ -126,7 +126,7 @@ void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, 
     rjson::transform(pos_aa, std::begin(positions), [](const rjson::value& src) -> size_t { return std::stoul(static_cast<std::string>(src)); });
     std::string target_aas(pos_aa.size(), ' ');
     rjson::transform(pos_aa, std::begin(target_aas), [](const rjson::value& src) { return static_cast<std::string_view>(src).back(); });
-    const auto& seqdb = seqdb::get(seqdb::ignore_errors::no, do_report_time(aVerbose));
+    const auto& seqdb = acmacs::seqdb::get();
     const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), positions, aVerbose ? seqdb::report::yes : seqdb::report::no);
     if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
         auto styl = style();

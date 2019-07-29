@@ -3,7 +3,7 @@
 #include "acmacs-base/acmacsd.hh"
 #include "locationdb/locdb.hh"
 #include "hidb-5/hidb.hh"
-#include "seqdb/seqdb.hh"
+#include "seqdb-3/seqdb.hh"
 
 // ----------------------------------------------------------------------
 
@@ -13,7 +13,7 @@ void setup_dbs(std::string_view aDbsDir, bool aVerbose)
 
     locdb_setup(db_dir + "/locationdb.json.xz", aVerbose);
     hidb::setup(db_dir, {}, aVerbose);
-    seqdb::setup(db_dir + "/seqdb.json.xz", aVerbose ? seqdb::report::yes : seqdb::report::no);
+    acmacs::seqdb::setup(db_dir + "/seqdb.json.xz");
 
 } // setup_dbs
 

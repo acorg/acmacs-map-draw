@@ -10,13 +10,12 @@
 #include "acmacs-base/timeit.hh"
 #include "acmacs-base/size.hh"
 #include "acmacs-chart-2/chart.hh"
-#include "seqdb/seqdb.hh"
 #include "acmacs-map-draw/chart-select-interface.hh"
 
 // ----------------------------------------------------------------------
 
 // class LocDb;
-// namespace hidb { class HiDb; }
+namespace acmacs::seqdb { inline namespace v3 { class subset; } }
 class VaccineMatchData;
 
 // ----------------------------------------------------------------------
@@ -76,7 +75,7 @@ class SelectAntigensSera
     size_t report_names_threshold() const { return mReportNamesThreshold; }
     auto timer() { return mReportTime; }
 
-    const std::vector<seqdb::SeqdbEntrySeq>& seqdb_entries(const ChartSelectInterface& aChartSelectInterface);
+    const acmacs::seqdb::subset& seqdb_entries(const ChartSelectInterface& aChartSelectInterface);
 
  private:
     bool mVerbose;

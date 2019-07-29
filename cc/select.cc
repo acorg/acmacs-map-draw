@@ -5,6 +5,7 @@
 #include "acmacs-base/rjson.hh"
 #include "acmacs-base/string.hh"
 #include "hidb-5/hidb.hh"
+#include "seqdb-3/seqdb.hh"
 #include "acmacs-chart-2/serum-line.hh"
 #include "acmacs-map-draw/vaccines.hh"
 #include "acmacs-map-draw/select.hh"
@@ -279,15 +280,15 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
 
 // ----------------------------------------------------------------------
 
-const std::vector<seqdb::SeqdbEntrySeq>& SelectAntigensSera::seqdb_entries(const ChartSelectInterface& aChartSelectInterface)
+const acmacs::seqdb::subset& SelectAntigensSera::seqdb_entries(const ChartSelectInterface& aChartSelectInterface)
 {
-      // thread unsafe!
-    static std::map<const ChartSelectInterface*, std::vector<seqdb::SeqdbEntrySeq>> cache_seqdb_entries_for_chart;
+    // thread unsafe!
+    static std::map<const ChartSelectInterface*, acmacs::seqdb::subset> cache_seqdb_entries_for_chart;
 
     auto found = cache_seqdb_entries_for_chart.find(&aChartSelectInterface);
     if (found == cache_seqdb_entries_for_chart.end()) {
-        found = cache_seqdb_entries_for_chart.emplace(&aChartSelectInterface, decltype(cache_seqdb_entries_for_chart)::mapped_type{}).first;
-        seqdb::get(seqdb::ignore_errors::no, timer()).match(*aChartSelectInterface.chart().antigens(), found->second, aChartSelectInterface.chart().info()->virus_type(acmacs::chart::Info::Compute::Yes), seqdb::report::no);
+        found = cache_seqdb_entries_for_chart.emplace(
+            &aChartSelectInterface, acmacs::seqdb::get().match(*aChartSelectInterface.chart().antigens(), aChartSelectInterface.chart().info()->virus_type(acmacs::chart::Info::Compute::Yes))).first;
     }
     return found->second;
 
@@ -308,7 +309,7 @@ void SelectAntigens::filter_sequenced(const ChartSelectInterface& aChartSelectIn
 void SelectAntigens::filter_not_sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes)
 {
     const auto& entries = seqdb_entries(aChartSelectInterface);
-    auto sequenced = [&entries](auto index) -> bool { return entries[index]; };
+    auto sequenced = [&entries](auto index) -> bool { return static_cast<bool>(entries[index]); };
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), sequenced), indexes.end());
 
 } // SelectAntigens::filter_not_sequenced
@@ -320,7 +321,7 @@ std::map<std::string, size_t> SelectAntigens::clades(const ChartSelectInterface&
     std::map<std::string, size_t> result;
     for (const auto& entry: seqdb_entries(aChartSelectInterface)) {
         if (entry) {
-            for (const auto& clade: entry.seq().clades())
+            for (const auto& clade: entry.seq().clades)
                 ++result[clade];
         }
     }
@@ -344,7 +345,7 @@ void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChart
 {
     const auto& entries = seqdb_entries(aChartSelectInterface);
     auto at_pos_neq = [amino_acid,pos,equal](const auto& entry) -> bool { return equal ? entry.seq().amino_acid_at(pos) != amino_acid : entry.seq().amino_acid_at(pos) == amino_acid; };
-    auto not_aa_at_pos = [&entries,&at_pos_neq](auto index) -> bool { const auto& entry = entries[index]; return !entry || !entry.seq().aligned() || at_pos_neq(entry); };
+    auto not_aa_at_pos = [&entries,&at_pos_neq](auto index) -> bool { const auto& entry = entries[index]; return !entry || at_pos_neq(entry); };
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_aa_at_pos), indexes.end());
 
 } // SelectAntigens::filter_amino_acid_at_pos

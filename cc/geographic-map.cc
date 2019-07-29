@@ -3,6 +3,7 @@
 #include "acmacs-virus/virus-name.hh"
 #include "acmacs-draw/surface-cairo.hh"
 #include "acmacs-draw/geographic-map.hh"
+#include "seqdb-3/seqdb.hh"
 #include "geographic-map.hh"
 
 // ----------------------------------------------------------------------
@@ -106,9 +107,8 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
     ColoringData result(GREY50);
     std::string tag{"UNKNOWN"};
     try {
-        const auto* entry_seq = seqdb::get(seqdb::ignore_errors::no, report_time::yes).find_hi_name(aAntigen.full_name());
-        if (entry_seq) {
-            const auto& clades_of_seq = entry_seq->seq().clades();
+        if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.full_name()); ref) {
+            const auto& clades_of_seq = ref.seq().clades;
             std::vector<std::string> clade_data;
             std::copy_if(clades_of_seq.begin(), clades_of_seq.end(), std::back_inserter(clade_data), [this](const auto& clade) { return this->mColors.find(clade) != this->mColors.end(); });
             if (clade_data.size() == 1) {
@@ -218,6 +218,28 @@ void GeographicTimeSeriesBase::draw(std::string_view aFilenamePrefix, TimeSeries
     }
 
 } // GeographicTimeSeriesBase::draw
+
+// ----------------------------------------------------------------------
+
+GeographicMapColoring::TagColor ColoringByLineageAndDeletionMutants::color(const hidb::Antigen& aAntigen) const
+{
+    try {
+        if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.full_name()); ref && ref.seq().has_clade("DEL2017")) {
+            return {"VICTORIA_DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_DEL") : ColoringData{mDeletionMutantColor}};
+        }
+        else {
+            std::string lineage(aAntigen.lineage());
+            return {aAntigen.lineage(), mColors.at(lineage)};
+        }
+    }
+    catch (...) {
+        return {"UNKNOWN", {GREY50}};
+    }
+
+} // ColoringByLineageAndDeletionMutants::color
+
+// ----------------------------------------------------------------------
+
 
 // ----------------------------------------------------------------------
 /// Local Variables:

@@ -3,7 +3,7 @@
 #include "acmacs-base/read-file.hh"
 #include "acmacs-base/enumerate.hh"
 #include "acmacs-virus/virus-name.hh"
-#include "seqdb/seqdb.hh"
+#include "seqdb-3/seqdb.hh"
 #include "locationdb/locdb.hh"
 #include "acmacs-map-draw/export.hh"
 
@@ -15,7 +15,7 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
     auto sera = chart.sera();
     auto layout = chart.projection(projection_no)->layout();
     const auto number_of_dimensions = layout->number_of_dimensions();
-    const auto& seqdb = seqdb::get(seqdb::ignore_errors::no, report_time::no);
+    const auto& seqdb = acmacs::seqdb::get();
     const auto& locdb = get_locdb();
     const auto entry_seqs = seqdb.match(*antigens, chart.info()->virus_type(acmacs::chart::Info::Compute::Yes)); // entry for each antigen
 
@@ -82,7 +82,7 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
         add_location_data(antigen->name());
         if (const auto& entry_seq = entry_seqs[ag_no]; entry_seq) {
             try {
-                writer.add_field(entry_seq.seq().amino_acids(true));
+                writer.add_field(std::string{entry_seq.seq().aa_aligned()});
             }
             catch (std::exception& err) {
                 fmt::print(stderr, "WARNING: {} {}: {}\n", ag_no, antigen->full_name(), err);

@@ -6,7 +6,7 @@
 #include "acmacs-base/string.hh"
 #include "acmacs-base/quicklook.hh"
 #include "hidb-5/hidb.hh"
-#include "seqdb/seqdb.hh"
+#include "seqdb-3/seqdb.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/settings.hh"

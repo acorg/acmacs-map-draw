@@ -24,7 +24,7 @@
 #include "acmacs-base/gzip.hh"
 #include "acmacs-base/range.hh"
 #include "acmacs-base/rjson.hh"
-#include "seqdb/seqdb.hh"
+#include "seqdb-3/seqdb.hh"
 #include "acmacs-chart-2/chart-modify.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-chart-2/ace-export.hh"

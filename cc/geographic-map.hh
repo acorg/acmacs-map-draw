@@ -6,7 +6,6 @@
 #include "acmacs-base/time-series.hh"
 #include "acmacs-virus/virus-name.hh"
 #include "hidb-5/hidb.hh"
-#include "seqdb/seqdb.hh"
 #include "locationdb/locdb.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 #include "acmacs-map-draw/map-elements.hh"
@@ -168,21 +167,7 @@ class ColoringByLineageAndDeletionMutants : public GeographicMapColoring
     ColoringByLineageAndDeletionMutants(const TagToColor& aLineageColor, std::string aDeletionMutantColor = std::string{})
         : mColors(aLineageColor.begin(), aLineageColor.end()), mDeletionMutantColor{aDeletionMutantColor} {}
 
-    TagColor color(const hidb::Antigen& aAntigen) const override
-        {
-            try {
-                const auto* entry_seq = seqdb::get().find_hi_name(aAntigen.full_name());
-                if (entry_seq && entry_seq->seq().has_clade("DEL2017"))
-                    return {"VICTORIA_DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_DEL") : ColoringData{mDeletionMutantColor}};
-                else {
-                    std::string lineage(aAntigen.lineage());
-                    return {aAntigen.lineage(), mColors.at(lineage)};
-                }
-            }
-            catch (...) {
-                return {"UNKNOWN", {GREY50}};
-            }
-        }
+    TagColor color(const hidb::Antigen& aAntigen) const override;
 
  private:
     TagToColor mColors;
