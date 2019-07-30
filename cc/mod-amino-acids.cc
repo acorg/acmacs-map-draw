@@ -160,13 +160,14 @@ Color ModAminoAcids::fill_color_default(size_t aIndex, std::string aAA)
     if (index < mColors.size())
         return mColors[index];
     else
-        throw unrecognized_mod{fmt::format("too few distinct colors in mod ({}): {}", mColors.size(), rjson::to_string(args()))};
+        return mColors.back();
+    // throw unrecognized_mod{fmt::format("too few distinct colors in mod ({}): {}", mColors.size(), rjson::to_string(args()))};
 
 } // ModAminoAcids::fill_color_default
 
 // ----------------------------------------------------------------------
 
-void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& aModData)
+void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
     acmacs::chart::Indexes indexes1, indexes2;
     if (const auto& select1 = args()["select1"]; !select1.is_null())
