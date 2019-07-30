@@ -2,6 +2,9 @@
 
 #include "acmacs-base/enumerate.hh"
 #include "acmacs-base/fmt.hh"
+#include "acmacs-base/read-file.hh"
+#include "acmacs-base/filesystem.hh"
+#include "acmacs-base/quicklook.hh"
 #include "seqdb-3/compare.hh"
 #include "acmacs-map-draw/mod-amino-acids.hh"
 #include "acmacs-map-draw/draw.hh"
@@ -167,7 +170,7 @@ Color ModAminoAcids::fill_color_default(size_t aIndex, std::string aAA)
 
 // ----------------------------------------------------------------------
 
-void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
+void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& aModData)
 {
     acmacs::chart::Indexes indexes1, indexes2;
     if (const auto& select1 = args()["select1"]; !select1.is_null())
@@ -178,15 +181,29 @@ void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
         indexes2 = SelectAntigens(false, 10).select(aChartDraw, select2);
     else
         throw unrecognized_mod{fmt::format("no select2 in mod: {}", rjson::to_string(args()))};
-    // fmt::print(stderr, "DEBUG: select1: {} select2: {}\n", indexes1, indexes2);
 
     const auto& matched = aChartDraw.match_seqdb();
     auto set1 = matched.filter_by_indexes(indexes1);
-    const auto split = set1.size();
     auto set2 = matched.filter_by_indexes(indexes2);
-    set1.append(set2);
 
-    fmt::print("{}\n", acmacs::seqdb::compare_report_text(set1, split));
+    if (const auto& format = args()["format"]; !format.is_null() && static_cast<std::string>(format) == "html") {
+        const auto html = acmacs::seqdb::compare_report_html(set1, set2);
+        std::string filename{"-"};
+        if (const auto& output1 = args()["output"]; !output1.is_null()) {
+            filename = output1;
+        }
+        else if (const auto& output2 = aModData["output_pdf"]; !output2.is_null()) {
+            filename = fs::path(static_cast<std::string>(output2)).replace_extension(".html");
+        }
+        else {
+            filename = "/d/a.html";
+        }
+        acmacs::file::write(filename, html);
+        if (const auto& open = args()["open"]; open.is_null() || open)
+            acmacs::open_or_quicklook(true, false, filename, 0, 0);
+    }
+    else
+        fmt::print("{}\n\n", acmacs::seqdb::compare_report_text(set1, set2));
 
 } // ModCompareSequences::apply
 

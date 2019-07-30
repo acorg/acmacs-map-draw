@@ -131,7 +131,7 @@
 
         {"N": "compare-sequences",
          "select1": {"?": "master group select"}, "select2": {"?": "to compare group select"},
-         "format": "text|html", "output": "filename.html - if has no /, generated in the same dir as output pdf"
+         "format": "text|html", "output": "filename.html - if has no /, generated in the same dir as output pdf", "open": true
         },
 
         "==================== ====================",

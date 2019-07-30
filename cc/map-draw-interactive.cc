@@ -94,11 +94,13 @@ std::string draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::v
         for (auto sf : settings_files)
             settings.update(rjson::parse_file(sf, rjson::remove_comments::no));
 
-        apply_mods(chart_draw, settings["apply"], settings);
-        chart_draw.calculate_viewport();
         std::string output{output_pdf};
         if (name_after_mod)
             output += mod_name(settings["apply"]) + ".pdf";
+        settings["output_pdf"] = output;
+
+        apply_mods(chart_draw, settings["apply"], settings);
+        chart_draw.calculate_viewport();
         chart_draw.draw(output, 800, report_time::yes);
         return output;
     }
