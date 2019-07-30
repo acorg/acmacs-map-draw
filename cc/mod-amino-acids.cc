@@ -2,7 +2,6 @@
 
 #include "acmacs-base/enumerate.hh"
 #include "acmacs-base/fmt.hh"
-#include "seqdb-3/seqdb.hh"
 #include "acmacs-map-draw/mod-amino-acids.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/report-antigens.hh"
@@ -32,7 +31,7 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool
 {
     std::vector<size_t> positions;
     rjson::copy(aPos, positions);
-    const auto aa_indices = acmacs::seqdb::get().aa_at_pos1_for_antigens(*aChartDraw.chart().antigens(), positions);
+    const auto aa_indices = aChartDraw.aa_at_pos1_for_antigens(positions);
     // aa_indices is std::map<std::string, std::vector<size_t>>
     std::vector<std::string> aa_sorted(aa_indices.size()); // most frequent aa first
     std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
@@ -51,7 +50,7 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool
             add_legend(aChartDraw, indices_for_aa, styl, aa, legend);
         if (aVerbose) {
             fmt::print(stderr, "INFO: amino-acids at {}: {} {}\n", aPos, aa, indices_for_aa.size());
-            report_antigens(std::begin(indices_for_aa), std::end(indices_for_aa), aChartDraw.chart(), *aChartDraw.layout(), report_names_threshold);
+            report_antigens(std::begin(indices_for_aa), std::end(indices_for_aa), aChartDraw, report_names_threshold);
         }
     }
 
@@ -125,7 +124,7 @@ void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, 
     rjson::transform(pos_aa, std::begin(positions), [](const rjson::value& src) -> size_t { return std::stoul(static_cast<std::string>(src)); });
     std::string target_aas(pos_aa.size(), ' ');
     rjson::transform(pos_aa, std::begin(target_aas), [](const rjson::value& src) { return static_cast<std::string_view>(src).back(); });
-    const auto aa_indices = acmacs::seqdb::get().aa_at_pos1_for_antigens(*aChartDraw.chart().antigens(), positions);
+    const auto aa_indices = aChartDraw.aa_at_pos1_for_antigens(positions);
     if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
         auto styl = style();
         styl = point_style_from_json(aGroup);
@@ -134,7 +133,7 @@ void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, 
             add_legend(aChartDraw, aap->second, styl, string::join(" ", positions), legend);
         if (aVerbose) {
             fmt::print(stderr, "INFO: amino-acids group {}: {}\n", pos_aa, aap->second.size());
-            report_antigens(std::begin(aap->second), std::end(aap->second), aChartDraw.chart(), *aChartDraw.layout(), report_names_threshold);
+            report_antigens(std::begin(aap->second), std::end(aap->second), aChartDraw, report_names_threshold);
         }
     }
     else {

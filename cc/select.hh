@@ -15,7 +15,6 @@
 // ----------------------------------------------------------------------
 
 // class LocDb;
-namespace acmacs::seqdb { inline namespace v3 { class subset; } }
 class VaccineMatchData;
 
 // ----------------------------------------------------------------------
@@ -75,7 +74,7 @@ class SelectAntigensSera
     size_t report_names_threshold() const { return mReportNamesThreshold; }
     auto timer() { return mReportTime; }
 
-    const acmacs::seqdb::subset& seqdb_entries(const ChartSelectInterface& aChartSelectInterface);
+    // const acmacs::seqdb::subset& seqdb_entries(const ChartSelectInterface& aChartSelectInterface);
 
  private:
     bool mVerbose;

@@ -5,7 +5,6 @@
 #include "acmacs-base/rjson.hh"
 #include "acmacs-base/string.hh"
 #include "hidb-5/hidb.hh"
-#include "seqdb-3/seqdb.hh"
 #include "acmacs-chart-2/serum-line.hh"
 #include "acmacs-map-draw/vaccines.hh"
 #include "acmacs-map-draw/select.hh"
@@ -271,7 +270,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
     });
     if (verbose() && !indexes.empty()) {
         std::cerr << "INFO: antigens selected: " << std::setfill(' ') << std::setw(4) << indexes.size() << ' ' << aSelector << '\n';
-        report_antigens(std::begin(indexes), std::end(indexes), aChartSelectInterface.chart(), *aChartSelectInterface.layout(), report_names_threshold());
+        report_antigens(std::begin(indexes), std::end(indexes), aChartSelectInterface, report_names_threshold());
     }
 
     return indexes;
@@ -280,25 +279,23 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
 
 // ----------------------------------------------------------------------
 
-const acmacs::seqdb::subset& SelectAntigensSera::seqdb_entries(const ChartSelectInterface& aChartSelectInterface)
-{
-    // thread unsafe!
-    static std::map<const ChartSelectInterface*, acmacs::seqdb::subset> cache_seqdb_entries_for_chart;
+// const acmacs::seqdb::subset& SelectAntigensSera::seqdb_entries(const ChartSelectInterface& aChartSelectInterface)
+// {
+//     // thread unsafe!
+//     static std::map<const ChartSelectInterface*, acmacs::seqdb::subset> cache_seqdb_entries_for_chart;
 
-    auto found = cache_seqdb_entries_for_chart.find(&aChartSelectInterface);
-    if (found == cache_seqdb_entries_for_chart.end()) {
-        found = cache_seqdb_entries_for_chart.emplace(
-            &aChartSelectInterface, acmacs::seqdb::get().match(*aChartSelectInterface.chart().antigens(), aChartSelectInterface.chart().info()->virus_type(acmacs::chart::Info::Compute::Yes))).first;
-    }
-    return found->second;
+//     auto found = cache_seqdb_entries_for_chart.find(&aChartSelectInterface);
+//     if (found == cache_seqdb_entries_for_chart.end())
+//         found = cache_seqdb_entries_for_chart.emplace(&aChartSelectInterface, aChartSelectInterface.match_seqdb()).first;
+//     return found->second;
 
-} // SelectAntigensSera::seqdb_entries
+// } // SelectAntigensSera::seqdb_entries
 
 // ----------------------------------------------------------------------
 
 void SelectAntigens::filter_sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes)
 {
-    const auto& entries = seqdb_entries(aChartSelectInterface);
+    const auto& entries = aChartSelectInterface.match_seqdb();
     auto not_sequenced = [&entries](auto index) -> bool { return !entries[index]; };
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_sequenced), indexes.end());
 
@@ -308,7 +305,7 @@ void SelectAntigens::filter_sequenced(const ChartSelectInterface& aChartSelectIn
 
 void SelectAntigens::filter_not_sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes)
 {
-    const auto& entries = seqdb_entries(aChartSelectInterface);
+    const auto& entries = aChartSelectInterface.match_seqdb();
     auto sequenced = [&entries](auto index) -> bool { return static_cast<bool>(entries[index]); };
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), sequenced), indexes.end());
 
@@ -319,7 +316,7 @@ void SelectAntigens::filter_not_sequenced(const ChartSelectInterface& aChartSele
 std::map<std::string_view, size_t> SelectAntigens::clades(const ChartSelectInterface& aChartSelectInterface)
 {
     std::map<std::string_view, size_t> result;
-    for (const auto& entry: seqdb_entries(aChartSelectInterface)) {
+    for (const auto& entry: aChartSelectInterface.match_seqdb()) {
         if (entry) {
             for (const auto& clade: entry.seq().clades)
                 ++result[clade];
@@ -333,7 +330,7 @@ std::map<std::string_view, size_t> SelectAntigens::clades(const ChartSelectInter
 
 void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aClade)
 {
-    const auto& entries = seqdb_entries(aChartSelectInterface);
+    const auto& entries = aChartSelectInterface.match_seqdb();
     auto not_in_clade = [&entries,aClade](auto index) -> bool { const auto& entry = entries[index]; return !entry || !entry.seq().has_clade(aClade); };
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_clade), indexes.end());
 
@@ -343,7 +340,7 @@ void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterf
 
 void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, size_t pos1, bool equal)
 {
-    const auto& entries = seqdb_entries(aChartSelectInterface);
+    const auto& entries = aChartSelectInterface.match_seqdb();
     auto at_pos_neq = [amino_acid,pos1,equal](const auto& entry) -> bool { return equal ? entry.seq().aa_at_pos1(pos1) != amino_acid : entry.seq().aa_at_pos1(pos1) == amino_acid; };
     auto not_aa_at_pos = [&entries,&at_pos_neq](auto index) -> bool { const auto& entry = entries[index]; return !entry || at_pos_neq(entry); };
     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_aa_at_pos), indexes.end());
@@ -492,7 +489,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
     });
     if (verbose()) {
         std::cerr << "Sera selected: " << std::setfill(' ') << std::setw(4) << indexes.size() << ' ' << aSelector << '\n';
-        report_sera(std::begin(indexes), std::end(indexes), aChartSelectInterface.chart(), report_names_threshold());
+        report_sera(std::begin(indexes), std::end(indexes), aChartSelectInterface, report_names_threshold());
     }
     return indexes;
 
@@ -553,7 +550,7 @@ void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface,
 // {
 //     const auto& chart = aChartSelectInterface.chart();
 //     chart.set_homologous(acmacs::chart::find_homologous::strict);
-//     const auto& entries = seqdb_entries(aChartSelectInterface);
+//     const auto& entries = aChartSelectInterface.match_seqdb();
 //     auto homologous_not_in_clade = [&entries, aClade, &chart](auto serum_index) -> bool {
 //         for (auto antigen_index : chart.sera()->at(serum_index)->homologous_antigens()) {
 //             if (const auto& entry = entries[antigen_index]; entry && entry.seq().has_clade(aClade))
