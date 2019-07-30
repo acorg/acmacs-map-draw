@@ -187,7 +187,6 @@ void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& aModD
     auto set2 = matched.filter_by_indexes(indexes2);
 
     if (const auto& format = args()["format"]; !format.is_null() && static_cast<std::string>(format) == "html") {
-        const auto html = acmacs::seqdb::compare_report_html(set1, set2);
         std::string filename{"-"};
         if (const auto& output1 = args()["output"]; !output1.is_null()) {
             filename = output1;
@@ -198,7 +197,7 @@ void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& aModD
         else {
             filename = "/d/a.html";
         }
-        acmacs::file::write(filename, html);
+        acmacs::file::write(filename, acmacs::seqdb::compare_report_html(filename, set1, set2));
         if (const auto& open = args()["open"]; open.is_null() || open)
             acmacs::open_or_quicklook(true, false, filename, 0, 0);
     }
