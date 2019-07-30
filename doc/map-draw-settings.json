@@ -47,7 +47,9 @@
             {"titrated_against_antigens": "{<select>}"},
         ]
     },
+
     "==================================================": "==================================================",
+
     "colors": {
         "ana": [
             "#03569b",                  // dark blue
@@ -80,7 +82,9 @@
             "#0FBDFF",
         ]
     },
+
     "==================================================": "==================================================",
+
     "mods": [
         {"N": "antigens", "select": {<select>},
          "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
@@ -109,18 +113,28 @@
                    "weight": "bold", "slant": "italic", "font_family": "monospace"},
          "report": false, "report_names_threshold": 30},
 
+        "==================== sequences ====================",
+
         {"N": "amino-acids", "pos": [159], "?colors": {"K": "#FF0000", "R": "#0000FF", "X": "grey25"},
          "color_set": "ana|google", "outline": "black", "outline_width": 1.0,
          "aspect": 1.0, "rotation": 0.0, "size": 1.0, "order": "raise|lower",
          "legend": {"count": true},
          "centroid": false,
          "report": false},
+
         {"N": "amino-acids",
          "groups": [{"pos_aa": ["121K", "144K"], "fill": "cornflowerblue", "?outline": "black"}],
          "outline": "black", "outline_width": 1.0,
          "aspect": 1.0, "rotation": 0.0, "size": 1.0, "order": "raise|lower",
          "legend": {},
          "report": false},
+
+        {"N": "compare-sequences",
+         "select1": {"?": "master group select"}, "select2": {"?": "to compare group select"},
+         "format": "text|html", "output": "filename.html - if has no /, generated in the same dir as output pdf"
+        },
+
+        "==================== ====================",
 
         "all_grey",
         "size_reset",

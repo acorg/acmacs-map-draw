@@ -2,9 +2,11 @@
 
 #include "acmacs-base/enumerate.hh"
 #include "acmacs-base/fmt.hh"
+#include "seqdb-3/compare.hh"
 #include "acmacs-map-draw/mod-amino-acids.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/report-antigens.hh"
+#include "acmacs-map-draw/select.hh"
 
 // ----------------------------------------------------------------------
 
@@ -158,9 +160,33 @@ Color ModAminoAcids::fill_color_default(size_t aIndex, std::string aAA)
     if (index < mColors.size())
         return mColors[index];
     else
-        throw unrecognized_mod{"too few distinct colors in mod: " + rjson::to_string(args())};
+        throw unrecognized_mod{fmt::format("too few distinct colors in mod ({}): {}", mColors.size(), rjson::to_string(args()))};
 
 } // ModAminoAcids::fill_color_default
+
+// ----------------------------------------------------------------------
+
+void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& aModData)
+{
+    acmacs::chart::Indexes indexes1, indexes2;
+    if (const auto& select1 = args()["select1"]; !select1.is_null())
+        indexes1 = SelectAntigens(false, 10).select(aChartDraw, select1);
+    else
+        throw unrecognized_mod{fmt::format("no select1 in mod: {}", rjson::to_string(args()))};
+    if (const auto& select2 = args()["select2"]; !select2.is_null())
+        indexes2 = SelectAntigens(false, 10).select(aChartDraw, select2);
+    else
+        throw unrecognized_mod{fmt::format("no select2 in mod: {}", rjson::to_string(args()))};
+    // fmt::print(stderr, "DEBUG: select1: {} select2: {}\n", indexes1, indexes2);
+
+    const auto& matched = aChartDraw.match_seqdb();
+    auto set1 = matched.filter_by_indexes(indexes1);
+    auto set2 = matched.filter_by_indexes(indexes2);
+    set1.append(set2);
+
+    fmt::print("{}\n", acmacs::seqdb::compare_report_text(set1));
+
+} // ModCompareSequences::apply
 
 // ----------------------------------------------------------------------
 

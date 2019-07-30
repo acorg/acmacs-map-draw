@@ -747,6 +747,9 @@ Mods factory(const rjson::value& aMod, const rjson::value& aSettingsMods, const 
     else if (name == "amino-acids") {
         result.emplace_back(new ModAminoAcids(args));
     }
+    else if (name == "compare-sequences") {
+        result.emplace_back(new ModCompareSequences(args));
+    }
     else if (name == "rotate") {
         result.emplace_back(new ModRotate(args));
     }
