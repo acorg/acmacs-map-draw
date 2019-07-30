@@ -182,10 +182,11 @@ void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
 
     const auto& matched = aChartDraw.match_seqdb();
     auto set1 = matched.filter_by_indexes(indexes1);
+    const auto split = set1.size();
     auto set2 = matched.filter_by_indexes(indexes2);
     set1.append(set2);
 
-    fmt::print("{}\n", acmacs::seqdb::compare_report_text(set1));
+    fmt::print("{}\n", acmacs::seqdb::compare_report_text(set1, split));
 
 } // ModCompareSequences::apply
 
