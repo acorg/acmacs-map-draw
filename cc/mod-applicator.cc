@@ -481,6 +481,10 @@ class ModTitle : public Mod
                     source = string::concat(source.substr(0, pos), info->virus_type(acmacs::chart::Info::Compute::Yes), source.substr(pos + 12));
                 if (const auto pos = source.find("{lineage}"); pos != std::string::npos)
                     source = string::concat(source.substr(0, pos), aChartDraw.chart().lineage(), source.substr(pos + 9));
+                if (const auto pos = source.find("{date}"); pos != std::string::npos)
+                    source = string::concat(source.substr(0, pos), aChartDraw.chart().info()->date(acmacs::chart::Info::Compute::Yes), source.substr(pos + 6));
+                if (const auto pos = source.find("{name}"); pos != std::string::npos)
+                    source = string::concat(source.substr(0, pos), aChartDraw.chart().make_name(), source.substr(pos + 6));
                 return source;
             };
             if (const auto& display_name = args()["display_name"]; !display_name.is_null()) {

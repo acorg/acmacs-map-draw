@@ -94,7 +94,10 @@ std::string draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::v
     Timeit ti_chart("DEBUG: drawing: ", report_time::yes);
 
     try {
-        ChartDraw chart_draw(chart, 0);
+        const size_t projection_no = 0;
+        const acmacs::Layout orig_layout(*chart->projection_modify(projection_no)->layout());
+        const auto orig_transformation = chart->projection_modify(projection_no)->transformation();
+        ChartDraw chart_draw(chart, projection_no);
 
         auto settings = settings_default();
         settings.update(settings_builtin_mods());
@@ -109,6 +112,7 @@ std::string draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::v
         apply_mods(chart_draw, settings["apply"], settings);
         chart_draw.calculate_viewport();
         chart_draw.draw(output, 800, report_time::yes);
+        chart->projection_modify(projection_no)->transformation(orig_transformation);
         return output;
     }
     catch (std::exception& err) {

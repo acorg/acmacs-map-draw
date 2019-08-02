@@ -152,7 +152,7 @@
          "background": "grey97", "border_color": "black", "border_width": 0.1,
          "text_color": "black", "text_size": 12, "interline": 2,
          "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif",
-         "?display_name": ["Line 1 {lab} {assay} {assay_short} {virus_type} {lineage}", "Line 2", "Another line"]},
+         "?display_name": ["Line 1 {lab} {assay} {assay_short} {virus_type} {lineage} {date} {name}", "Line 2", "Another line"]},
 
         {"N": "line", "from": [0, 0], "to": [1, 1], "transform": false, "width": 1, "color": "red"},
         {"N": "line", "from_antigen": {<antigen-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "report": true},
