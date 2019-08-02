@@ -10,6 +10,7 @@
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/settings.hh"
 #include "acmacs-map-draw/mod-applicator.hh"
+#include "acmacs-map-draw/setup-dbs.hh"
 
 static std::string draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<std::string_view>& settings_files, std::string_view output_pdf, bool name_after_mod);
 static std::string mod_name(const rjson::value& aMods);
@@ -37,6 +38,7 @@ int main(int argc, char* const argv[])
     int exit_code = 1;
     try {
         Options opt(argc, argv);
+        setup_dbs(opt.db_dir, false);
 
         if (std::count_if(opt.settings_files->begin(), opt.settings_files->end(), [](std::string_view fn) {
                 if (!fs::exists(fn)) {
@@ -70,6 +72,11 @@ int main(int argc, char* const argv[])
         for (;;) {
             if (const auto output_name = draw(chart, *opt.settings_files, output_pdf, opt.name_after_mod); !output_name.empty())
                 acmacs::open_or_quicklook(true, false, output_name, 0);
+
+            fmt::print("\nSETTINGS:\n");
+            for (const auto& sf : *opt.settings_files)
+                fmt::print("    {}\n", sf);
+
             fgets(buffer.data(), buffer.size(), pipe.get());
         }
     }
