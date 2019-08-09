@@ -117,7 +117,7 @@
 
         {"N": "amino-acids", "pos": [159], "?colors": {"K": "#FF0000", "R": "#0000FF", "X": "grey25"},
          "color_set": "ana|google", "outline": "black", "outline_width": 1.0,
-         "aspect": 1.0, "rotation": 0.0, "size": 1.0, "order": "raise|lower",
+         "aspect": 1.0, "rotation": 0.0, "size": 8.0, "order": "raise|lower",
          "legend": {"count": true},
          "centroid": false,
          "report": false},
@@ -125,7 +125,7 @@
         {"N": "amino-acids",
          "groups": [{"pos_aa": ["121K", "144K"], "fill": "cornflowerblue", "?outline": "black"}],
          "outline": "black", "outline_width": 1.0,
-         "aspect": 1.0, "rotation": 0.0, "size": 1.0, "order": "raise|lower",
+         "aspect": 1.0, "rotation": 0.0, "size": 8.0, "order": "raise|lower",
          "legend": {},
          "report": false},
 
