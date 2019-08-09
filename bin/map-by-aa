@@ -3,13 +3,15 @@ if [[ $# -lt 2 ]]; then
     echo "Usage: $0 <pos> <ace> [pdf] [--open] [--ql]" >&2
     exit 1
 fi
+
 POS="$1"
 shift
+
 read -d '' APPLY <<EOF
-["size_reset", 
- "all_grey", 
- "egg", 
- {"N": "amino-acids", "pos": [${POS}], "outline": "black", "size": 8, "color_set": "ana", "order": "raise", "legend": {"count": true}}, 
+["size_reset",
+ "all_grey",
+ "egg",
+ {"N": "amino-acids", "pos": [${POS}], "outline": "black", "size": 8, "color_set": "ana", "order": "raise", "legend": {"count": true}},
  "vaccines"
 ]
 EOF
@@ -17,4 +19,3 @@ EOF
 # echo "APPLY: [${APPLY}]"
 
 exec map-draw --apply "${APPLY}" "$@"
-
