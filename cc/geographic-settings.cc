@@ -35,11 +35,14 @@ static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-
   "clade_color": {
     "?": "========== sequenced but not in any clade",
     "":              {"fill": "grey50",          "outline": "black", "outline_width": 0},
+    "SEQUENCED":     {"fill": "yellow",          "outline": "black", "outline_width": 0},
 
     "?": "========== H3",
     "3C.3":           {"fill": "cornflowerblue",  "outline": "black", "outline_width": 0},
     "2A":             {"fill": "red",             "outline": "black", "outline_width": 0},
-    "2A1":            {"fill": "darkred",         "outline": "black", "outline_width": 0},
+    "2A1":            {"fill": "#ffab91",         "outline": "black", "outline_width": 0},
+    "2A1A":           {"fill": "#E040FB",         "outline": "black", "outline_width": 0},
+    "2A1B":           {"fill": "#CD5C5C",         "outline": "black", "outline_width": 0},
     "2A2":            {"fill": "#EEB422",         "outline": "black", "outline_width": 0},
     "3A":             {"fill": "green",           "outline": "black", "outline_width": 0},
     "3B":             {"fill": "blue",            "outline": "black", "outline_width": 0},
