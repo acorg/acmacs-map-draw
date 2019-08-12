@@ -161,24 +161,27 @@ ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen
                     const auto report = rjson::get_or(apply_entry, "report", true);
                     bool satisfied = true;
                     std::string tag_to_use;
+                    std::string aa_report;
                     if (report)
                         fmt::print(stderr, "DEBUG: ColoringByAminoAcid {}", aAntigen.full_name());
-                    rjson::for_each(aa, [sequence,&satisfied,&tag_to_use,report](const rjson::value& aa_entry) {
+                    rjson::for_each(aa, [sequence,&satisfied,&tag_to_use,&aa_report](const rjson::value& aa_entry) {
                         const std::string_view pos_aa_s = aa_entry;
                         const auto pos = string::from_chars<size_t>(pos_aa_s.substr(0, pos_aa_s.size() - 1));
-                        if (pos < 1 || pos > sequence.size() || sequence[pos - 1] != pos_aa_s.back())
+                        if (pos < 1 || pos > sequence.size() || sequence[pos - 1] != pos_aa_s.back()) {
                             satisfied = false;
-                        else
-                            tag_to_use.append(std::string{" "} + std::string{pos_aa_s});
-                        if (report)
-                            fmt::print(stderr, " [{} : {}]", pos_aa_s, sequence[pos - 1]);
+                            aa_report.append(fmt::format(" [{}!{}]", pos_aa_s, sequence[pos - 1]));
+                        }
+                        else {
+                            tag_to_use.append(fmt::format(" {}", pos_aa_s));
+                            aa_report.append(fmt::format(" [{}={}]", pos_aa_s, sequence[pos - 1]));
+                        }
                     });
                     if (satisfied) {
                         result = rjson::get_or(apply_entry, "color", "pink");
                         tag = tag_to_use.substr(1); // remove leading space
                     }
                     if (report)
-                        fmt::print(stderr, " --> {}\n", tag);
+                        fmt::print(stderr, "{} --> {} {}\n", aa_report, tag, result.fill.to_string());
                 }
             });
         }
