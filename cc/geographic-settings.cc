@@ -9,7 +9,7 @@ static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-
     {"N": "clade", "?clade_color": {"SEQUENCED": {"fill": "yellow", "outline": "black", "outline_width": 0}}},
     {"N": "lineage", "?lineage_color": {"VICTORIA_DEL": {"fill": "#23a8d1", "outline": "black", "outline_width": 0}}},
     {"N": "lineage-deletion-mutants", "?lineage_color": {"VICTORIA_DEL": {"fill": "#23a8d1", "outline": "black", "outline_width": 0}}},
-    {"N": "amino-acid", "apply": [{"sequenced": true, "color": "red"}, {"aa": ["156G" ,"155N"], "color": "blue"}]}
+    {"N": "amino-acid", "apply": [{"sequenced": true, "color": "red"}, {"aa": ["156N" ,"155G"], "color": "blue"}], "report": false}
   ],
   "???color_override?": {"B": {"?": "B/Vic deletion mutants", "?B/DOMINICAN REPUBLIC/9932/2016": "#00FFFF"}},
   "start_date": "2017-01-01",
