@@ -88,7 +88,9 @@ class GeographicMapColoring
         ColoringData() = default;
         ColoringData(Color aFill, Color aOutline = "black", double aOutlineWidth = 0) : fill{aFill}, outline{aOutline}, outline_width{aOutlineWidth} {}
         ColoringData(std::string aFill, std::string aOutline = "black", double aOutlineWidth = 0) : fill{aFill}, outline{aOutline}, outline_width{aOutlineWidth} {}
+        ColoringData(std::string_view aFill, std::string_view aOutline = "black", double aOutlineWidth = 0) : fill{aFill}, outline{aOutline}, outline_width{aOutlineWidth} {}
         bool operator<(const ColoringData& aNother) const { return fill == aNother.fill ? (outline == aNother.outline ? outline_width < aNother.outline_width : outline < aNother.outline) : fill < aNother.fill; }
+        ColoringData& operator=(std::string_view a_fill) { fill = a_fill; return *this; }
 
         Color fill;
         Color outline{"black"};
@@ -172,6 +174,20 @@ class ColoringByLineageAndDeletionMutants : public GeographicMapColoring
  private:
     TagToColor mColors;
     std::string mDeletionMutantColor;
+
+}; // class ColoringByLineage
+
+// ----------------------------------------------------------------------
+
+class ColoringByAminoAcid : public GeographicMapColoring
+{
+ public:
+    ColoringByAminoAcid(const rjson::value& apply) : apply_(apply) {}
+
+    TagColor color(const hidb::Antigen& aAntigen) const override;
+
+ private:
+    rjson::value apply_;
 
 }; // class ColoringByLineage
 

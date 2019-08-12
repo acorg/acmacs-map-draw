@@ -132,14 +132,60 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
         }
     }
     catch (std::exception& err) {
-        std::cerr << "ERROR: ColoringByClade " << aAntigen.full_name() << ": " << err.what() << '\n';
+        fmt::print(stderr, "ERROR: ColoringByClade {}: {}\n", aAntigen.full_name(), err);
     }
     catch (...) {
+        fmt::print(stderr, "ERROR: ColoringByClade {}: unknown exception\n", aAntigen.full_name());
     }
     // std::cerr << "DEBUG: ColoringByClade " << aAntigen.full_name() << ": " << (tag == "UNKNOWN" ? "Not Sequenced" : tag) << ' ' << result.fill << '\n';
     return {tag, result};
 
 } // ColoringByClade::color
+
+// ----------------------------------------------------------------------
+
+ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen) const
+{
+    ColoringData result(GREY50);
+    std::string tag{"UNKNOWN"};
+    try {
+        if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.full_name()); ref) {
+            rjson::for_each(apply_, [sequence = ref.seq().aa_aligned(),&result,&tag](const rjson::value& apply_entry) {
+                if (rjson::get_or(apply_entry, "sequenced", false)) {
+                    result = rjson::get_or(apply_entry, "color", "pink");
+                    tag = "SEQUENCED";
+                }
+                else if (const auto& aa = apply_entry["aa"]; !aa.is_null()) {
+                    if (!aa.is_array())
+                        throw std::runtime_error("invalid \"aa\" settings value, array of strings expected");
+                    bool satisfied = true;
+                    std::string tag_to_use;
+                    rjson::for_each(aa, [sequence,&satisfied,&tag_to_use](const rjson::value& aa_entry) {
+                        const std::string_view pos_aa_s = aa_entry;
+                        const auto pos = string::from_chars<size_t>(pos_aa_s.substr(0, pos_aa_s.size() - 1));
+                        if (pos < 1 || pos > sequence.size() || sequence[pos - 1] != pos_aa_s.back())
+                            satisfied = false;
+                        else
+                            tag_to_use.append(std::string{" "} + std::string{pos_aa_s});
+                    });
+                    if (satisfied) {
+                        result = rjson::get_or(apply_entry, "color", "pink");
+                        tag = tag_to_use.substr(1); // remove leading space
+                    }
+                }
+            });
+        }
+    }
+    catch (std::exception& err) {
+        fmt::print(stderr, "ERROR: ColoringByAminoAcid {}: {}\n", aAntigen.full_name(), err);
+    }
+    catch (...) {
+        fmt::print(stderr, "ERROR: ColoringByAminoAcid {}: unknown exception\n", aAntigen.full_name());
+    }
+
+    return {tag, result};
+
+} // ColoringByAminoAcid::color
 
 // ----------------------------------------------------------------------
 
