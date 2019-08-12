@@ -1,5 +1,6 @@
 #include "acmacs-base/range.hh"
 #include "acmacs-base/fmt.hh"
+#include "acmacs-base/counter.hh"
 #include "acmacs-virus/virus-name.hh"
 #include "acmacs-draw/surface-cairo.hh"
 #include "acmacs-draw/geographic-map.hh"
@@ -149,8 +150,9 @@ ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen
     ColoringData result(GREY50);
     std::string tag{"UNKNOWN"};
     try {
+        std::string aa_report;
         if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.full_name()); ref) {
-            rjson::for_each(apply_, [sequence = ref.seq().aa_aligned(),&result,&tag,&aAntigen](const rjson::value& apply_entry) {
+            rjson::for_each(settings_["apply"], [sequence = ref.seq().aa_aligned(),&result,&tag,&aa_report](const rjson::value& apply_entry) {
                 if (rjson::get_or(apply_entry, "sequenced", false)) {
                     result = rjson::get_or(apply_entry, "color", "pink");
                     tag = "SEQUENCED";
@@ -158,12 +160,9 @@ ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen
                 else if (const auto& aa = apply_entry["aa"]; !aa.is_null()) {
                     if (!aa.is_array())
                         throw std::runtime_error("invalid \"aa\" settings value, array of strings expected");
-                    const auto report = rjson::get_or(apply_entry, "report", true);
                     bool satisfied = true;
                     std::string tag_to_use;
-                    std::string aa_report;
-                    if (report)
-                        fmt::print(stderr, "DEBUG: ColoringByAminoAcid {}", aAntigen.full_name());
+                    aa_report.append(" -");
                     rjson::for_each(aa, [sequence,&satisfied,&tag_to_use,&aa_report](const rjson::value& aa_entry) {
                         const std::string_view pos_aa_s = aa_entry;
                         const auto pos = string::from_chars<size_t>(pos_aa_s.substr(0, pos_aa_s.size() - 1));
@@ -180,11 +179,11 @@ ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen
                         result = rjson::get_or(apply_entry, "color", "pink");
                         tag = tag_to_use.substr(1); // remove leading space
                     }
-                    if (report)
-                        fmt::print(stderr, "{} --> {} {}\n", aa_report, tag, result.fill.to_string());
                 }
             });
         }
+        if (rjson::get_or(settings_, "report", false))
+            fmt::print(stderr, "DEBUG: ColoringByAminoAcid {}: {} <-- {} {}\n", aAntigen.full_name(), tag, aa_report, result.fill.to_string());
     }
     catch (std::exception& err) {
         fmt::print(stderr, "ERROR: ColoringByAminoAcid {}: {}\n", aAntigen.full_name(), err);
@@ -239,13 +238,16 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const Geog
       // std::cerr << "add_points_from_hidb_colored_by" << '\n';
     const auto& hidb = hidb::get(mVirusType);
     auto antigens = hidb.antigens()->date_range(aStartDate, aEndDate);
-    std::cerr << "INFO: dates: " << aStartDate << ".." << aEndDate << "  antigens: " << antigens.size() << std::endl;
+    fmt::print("\nINFO: dates: {}..{} antigens: {}\n", aStartDate, aEndDate, antigens.size());
     if (!aPriority.empty())
-        std::cerr << "INFO: priority: " << aPriority << " (the last in this list to be drawn on top of others)\n";
+        fmt::print("INFO: priority: {} (the last in this list to be drawn on top of others)\n", aPriority);
+
+    acmacs::Counter<std::string> tag_counter;
     for (auto antigen: antigens) {
         auto [tag, coloring_data] = aColorOverride.color(*antigen);
         if (coloring_data.fill.empty())
             std::tie(tag, coloring_data) = aColoring.color(*antigen);
+        tag_counter.count(tag);
         try {
             const auto found = std::find(std::begin(aPriority), std::end(aPriority), tag);
             mPointsAtLocation.add(location_of_antigen(*antigen), found == std::end(aPriority) ? 0 : (found - std::begin(aPriority) + 1), coloring_data);
@@ -253,6 +255,7 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const Geog
         catch (virus_name::Unrecognized&) { // thrown by location_of_antigen() -> virus_name::location()
         }
     }
+    fmt::print("INFO: tags:\n{}", tag_counter.report_sorted_max_first());
       // std::transform(mPoints.begin(), mPoints.end(), std::ostream_iterator<std::string>(std::cerr, "\n"), [](const auto& e) -> std::string { return e.first; });
 
 } // GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by

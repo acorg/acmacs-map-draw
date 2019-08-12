@@ -182,12 +182,12 @@ class ColoringByLineageAndDeletionMutants : public GeographicMapColoring
 class ColoringByAminoAcid : public GeographicMapColoring
 {
  public:
-    ColoringByAminoAcid(const rjson::value& apply) : apply_(apply) {}
+    ColoringByAminoAcid(const rjson::value& settings) : settings_(settings) {}
 
     TagColor color(const hidb::Antigen& aAntigen) const override;
 
  private:
-    rjson::value apply_;
+    rjson::value settings_;
 
 }; // class ColoringByLineage
 

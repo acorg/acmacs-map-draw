@@ -161,7 +161,7 @@ GeographicMapColoring* make_coloring(const rjson::value& aSettings)
         coloring = new ColoringByLineageAndDeletionMutants(make_map(lineage_color));
     }
     else if (coloring_name == "amino-acid") {
-        coloring = new ColoringByAminoAcid(aSettings["coloring"]["apply"]);
+        coloring = new ColoringByAminoAcid(aSettings["coloring"]);
     }
     else
         throw std::runtime_error("Unsupported coloring: " + std::string(coloring_name));
