@@ -174,11 +174,11 @@ void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& aModD
 {
     acmacs::chart::Indexes indexes1, indexes2;
     if (const auto& select1 = args()["select1"]; !select1.is_null())
-        indexes1 = SelectAntigens(false, 10).select(aChartDraw, select1);
+        indexes1 = SelectAntigens(SelectAntigens::verbose::no, 10).select(aChartDraw, select1);
     else
         throw unrecognized_mod{fmt::format("no select1 in mod: {}", rjson::to_string(args()))};
     if (const auto& select2 = args()["select2"]; !select2.is_null())
-        indexes2 = SelectAntigens(false, 10).select(aChartDraw, select2);
+        indexes2 = SelectAntigens(SelectAntigens::verbose::no, 10).select(aChartDraw, select2);
     else
         throw unrecognized_mod{fmt::format("no select2 in mod: {}", rjson::to_string(args()))};
 

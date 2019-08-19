@@ -23,9 +23,10 @@ class SelectAntigensSera
 {
  public:
     using amino_acid_at_pos_t = std::tuple<size_t, char, bool>; // pos, aa, equal/not-equal
+    enum class verbose { no, yes };
 
-    SelectAntigensSera(bool aVerbose = false, size_t aReportNamesThreshold = 10)
-        : mVerbose{aVerbose}, mReportNamesThreshold{aReportNamesThreshold}, mReportTime{do_report_time(aVerbose)} {}
+    SelectAntigensSera(verbose aVerbose = verbose::no, size_t aReportNamesThreshold = 10)
+        : mVerbose{aVerbose}, mReportNamesThreshold{aReportNamesThreshold}, mReportTime{report_time::no} {}
     virtual ~SelectAntigensSera();
 
     virtual acmacs::chart::Indexes select(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector);
@@ -72,7 +73,7 @@ class SelectAntigensSera
             indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_circle), indexes.end());
         }
 
-    bool verbose() const { return mVerbose; }
+    bool verbose() const { return mVerbose == verbose::yes; }
     size_t report_names_threshold() const { return mReportNamesThreshold; }
     auto timer() { return mReportTime; }
 
@@ -81,7 +82,7 @@ class SelectAntigensSera
     // const acmacs::seqdb::subset& seqdb_entries(const ChartSelectInterface& aChartSelectInterface);
 
  private:
-    bool mVerbose;
+    enum verbose mVerbose;
     size_t mReportNamesThreshold;
     report_time mReportTime;
 

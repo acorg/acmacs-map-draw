@@ -263,7 +263,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             filter_table(aChartSelectInterface, indexes, val);
         }
         else if (key == "titrated_against_sera") {
-            const auto serum_indexes = SelectSera().command(aChartSelectInterface, val);
+            const auto serum_indexes = SelectSera(SelectSera::verbose::yes).command(aChartSelectInterface, val);
             filter_titrated_against(aChartSelectInterface, indexes, serum_indexes);
             // std::cerr << "DEBUG: titrated_against_sera " << serum_indexes << ' ' << indexes << '\n';
         }
@@ -274,9 +274,10 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             filter(*antigens, indexes, *this, aChartSelectInterface, aSelector, key, val);
         }
     });
-    if (verbose() && !indexes.empty()) {
+    if (verbose()) {
         std::cerr << "INFO: antigens selected: " << std::setfill(' ') << std::setw(4) << indexes.size() << ' ' << aSelector << '\n';
-        report_antigens(std::begin(indexes), std::end(indexes), aChartSelectInterface, report_names_threshold());
+        if (!indexes.empty())
+            report_antigens(std::begin(indexes), std::end(indexes), aChartSelectInterface, report_names_threshold());
     }
 
     return indexes;
@@ -501,7 +502,8 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
     });
     if (verbose()) {
         std::cerr << "Sera selected: " << std::setfill(' ') << std::setw(4) << indexes.size() << ' ' << aSelector << '\n';
-        report_sera(std::begin(indexes), std::end(indexes), aChartSelectInterface, report_names_threshold());
+        if (!indexes.empty())
+            report_sera(std::begin(indexes), std::end(indexes), aChartSelectInterface, report_names_threshold());
     }
     return indexes;
 
