@@ -48,6 +48,24 @@ acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aC
 
 // ----------------------------------------------------------------------
 
+std::vector<SelectAntigensSera::amino_acid_at_pos_t> SelectAntigensSera::extract_pos_aa(const rjson::value& source)
+{
+    std::vector<amino_acid_at_pos_t> pos_aa;
+    rjson::for_each(source, [&pos_aa](const rjson::value& entry) {
+        const std::string_view text = entry;
+        if (text.size() >= 2 && text.size() <= 4 && std::isdigit(text.front()) && std::isalpha(text.back()))
+            pos_aa.emplace_back(std::stoul(text.substr(0, text.size() - 1)), text.back(), true);
+        else if (text.size() >= 3 && text.size() <= 5 && text.front() == '!' && std::isdigit(text[1]) && std::isalpha(text.back()))
+            pos_aa.emplace_back(std::stoul(text.substr(1, text.size() - 2)), text.back(), false);
+        else
+            throw std::exception{};
+    });
+    return pos_aa;
+
+} // SelectAntigensSera::extract_pos_aa
+
+// ----------------------------------------------------------------------
+
 template <typename AgSr>
 void filter(const AgSr& ag_sr, acmacs::chart::Indexes& indexes, SelectAntigensSera& /*aSelectAntigensSera*/, const ChartSelectInterface& /*aChartSelectInterface*/, const rjson::value& aSelector,
             const std::string& key, const rjson::value& val)
@@ -144,24 +162,12 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             filter_clade(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
         }
         else if (key == "amino_acid") {
-            if (val.is_object()) {
+            if (val.is_object())
                 filter_amino_acid_at_pos(aChartSelectInterface, indexes, static_cast<std::string_view>(val["aa"])[0], val["pos"], true);
-            }
-            else if (val.is_array()) {
-                std::vector<amino_acid_at_pos_t> pos_aa;
-                rjson::for_each(val, [&pos_aa](const rjson::value& entry) {
-                    const std::string_view text = entry;
-                    if (text.size() >= 2 && text.size() <= 4 && std::isdigit(text.front()) && std::isalpha(text.back()))
-                        pos_aa.emplace_back(std::stoul(text.substr(0, text.size() - 1)), text.back(), true);
-                    else if (text.size() >= 3 && text.size() <= 5 && text.front() == '!' && std::isdigit(text[1]) && std::isalpha(text.back()))
-                        pos_aa.emplace_back(std::stoul(text.substr(1, text.size() - 2)), text.back(), false);
-                    else
-                        throw std::exception{};
-                });
-                filter_amino_acid_at_pos(aChartSelectInterface, indexes, pos_aa);
-            }
+            else if (val.is_array())
+                filter_amino_acid_at_pos(aChartSelectInterface, indexes, extract_pos_aa(val));
             else
-                throw std::exception{};
+                throw std::runtime_error{"invalid \"amino_acid\" value, object or array expected"};
         }
         else if (key == "outlier") {
             filter_outlier(aChartSelectInterface, indexes, val);
@@ -453,6 +459,12 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
         else if (key == "clade") {
             filter_clade(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
         }
+        else if (key == "amino_acid") {
+            if (val.is_array())
+                filter_amino_acid_at_pos(aChartSelectInterface, indexes, extract_pos_aa(val));
+            else
+                throw std::runtime_error{"invalid \"amino_acid\" value, array expected"};
+        }
         else if (key == "country") {
             sera->filter_country(indexes, string::upper(static_cast<std::string_view>(val)));
         }
@@ -561,6 +573,29 @@ void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface,
 //     indexes.erase(std::remove_if(indexes.begin(), indexes.end(), homologous_not_in_clade), indexes.end());
 
 // } // SelectSera::filter_clade
+
+// ----------------------------------------------------------------------
+
+void SelectSera::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const std::vector<amino_acid_at_pos_t>& pos1_aa)
+{
+    const auto& chart = aChartSelectInterface.chart();
+    chart.set_homologous(acmacs::chart::find_homologous::strict);
+    auto antigens = chart.antigens();
+    auto sera = chart.sera();
+
+    auto antigen_indexes = antigens->all_indexes();
+    SelectAntigens().filter_amino_acid_at_pos(aChartSelectInterface, antigen_indexes, pos1_aa);
+
+    auto homologous_filtered_out_by_amino_acid = [&antigen_indexes, &sera](auto serum_index) -> bool {
+        for (auto antigen_index : sera->at(serum_index)->homologous_antigens()) {
+            if (antigen_indexes.contains(antigen_index))
+                return false;   // homologous antigen selected by pos1_aa, do not remove this serum from indexes
+        }
+        return true;
+    };
+    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), homologous_filtered_out_by_amino_acid), indexes.end());
+
+} // SelectSera::filter_amino_acid_at_pos
 
 // ----------------------------------------------------------------------
 
