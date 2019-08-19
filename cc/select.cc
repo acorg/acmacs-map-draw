@@ -581,7 +581,7 @@ void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface,
 void SelectSera::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const std::vector<amino_acid_at_pos_t>& pos1_aa)
 {
     const auto& chart = aChartSelectInterface.chart();
-    chart.set_homologous(acmacs::chart::find_homologous::strict);
+    chart.set_homologous(acmacs::chart::find_homologous::relaxed);
     auto antigens = chart.antigens();
     auto sera = chart.sera();
 
@@ -589,6 +589,7 @@ void SelectSera::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSele
     SelectAntigens().filter_amino_acid_at_pos(aChartSelectInterface, antigen_indexes, pos1_aa);
 
     auto homologous_filtered_out_by_amino_acid = [&antigen_indexes, &sera](auto serum_index) -> bool {
+        // fmt::print(stderr, "DEBUG: SR {} {}  HOMOL: {}\n", serum_index, sera->at(serum_index)->full_name(), sera->at(serum_index)->homologous_antigens());
         for (auto antigen_index : sera->at(serum_index)->homologous_antigens()) {
             if (antigen_indexes.contains(antigen_index))
                 return false;   // homologous antigen selected by pos1_aa, do not remove this serum from indexes
