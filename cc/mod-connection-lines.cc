@@ -80,14 +80,17 @@ void ModErrorLines::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*
 {
     const auto [antigen_indexes, serum_indexes] = select_antigens_sera_for_connection_lines(aChartDraw, args()["antigens"], args()["sera"]);
 
-    const Color line_color_td_more{rjson::get_or(args(), "color", "red")};
-    const Color line_color_td_less{rjson::get_or(args(), "color", "blue")};
+    const Color  line_color_td_more{rjson::get_or(args(), "color", "red")};
+    const Color  line_color_td_less{rjson::get_or(args(), "color", "blue")};
     const double line_width{rjson::get_or(args(), "line_width", 1.0)};
+    const bool   report{rjson::get_or(args(), "report", false)};
     const auto error_lines = aChartDraw.projection().error_lines();
 
     auto layout = aChartDraw.transformed_layout();
     auto titers = aChartDraw.chart().titers();
-    const auto number_of_antigens = aChartDraw.chart().number_of_antigens();
+    auto antigens = aChartDraw.chart().antigens();
+    auto sera = aChartDraw.chart().sera();
+    const auto number_of_antigens = antigens->size();
     for (const auto ag_no : antigen_indexes) {
         for (const auto sr_no : serum_indexes) {
             const auto p2_no = sr_no + number_of_antigens;
@@ -95,6 +98,8 @@ void ModErrorLines::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*
                     std::find_if(std::begin(error_lines), std::end(error_lines), [p1_no=ag_no,p2_no](const auto& erl) { return erl.point_1 == p1_no && erl.point_2 == p2_no; });
                 found != std::end(error_lines)) {
                 if (const auto p1 = layout->get(ag_no), p2 = layout->get(p2_no); p1.exists() && p2.exists()) {
+                    if (report)
+                        fmt::print("INFO: error line {} {} -- {} {} : {}\n", ag_no, antigens->at(ag_no)->full_name(), sr_no, sera->at(sr_no)->full_name(), found->error_line);
                     //aChartDraw.line(p1, p2).color(GREY).line_width(line_width * 3);
                     const auto v3 = (p2 - p1) / distance(p1, p2) * (- found->error_line) / 2.0;
                     const auto& color = found->error_line > 0 ? line_color_td_more : line_color_td_less;
