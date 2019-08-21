@@ -33,6 +33,7 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
     writer.add_field("reassortant");
     writer.add_field("annotations");
     writer.add_field("passage/serum_id");
+    writer.add_field("lab_id");
     writer.add_field("country");
     writer.add_field("region");
     writer.add_field("latitude");
@@ -79,6 +80,7 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
         writer.add_field(antigen->reassortant());
         writer.add_field(antigen->annotations().join());
         writer.add_field(antigen->passage());
+        writer.add_field(antigen->lab_ids().join());
         add_location_data(antigen->name());
         if (const auto& entry_seq = entry_seqs[ag_no]; entry_seq) {
             try {
@@ -108,6 +110,7 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
         writer.add_field(serum->reassortant());
         writer.add_field(serum->annotations().join());
         writer.add_field(serum->serum_id());
+        writer.add_field(""); // lab_id
         add_location_data(serum->name());
         writer.add_field(""); // sequence
         writer.new_row();
