@@ -70,11 +70,14 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": {"clade": "6B1"},   "outline": "black", "fill": "blue", "legend": {"label": "6B1", "count": true}, "order": "raise", "report": true},
       {"N": "antigens", "select": {"clade": "6B2"},   "outline": "black", "fill": "red", "legend": {"label": "6B2", "count": true}, "order": "raise", "report": true, "report_names_threshold": 10},
 
-      {"N": "antigens", "select": {"clade": "1", "subtype": "BVIC"}, "outline": "black", "fill": "blue", "legend": {"label": "1", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "1A", "subtype": "BVIC"}, "outline": "black", "fill": "cornflowerblue", "legend": {"label": "1A", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "1B", "subtype": "BVIC"}, "outline": "black", "fill": "red", "legend": {"label": "1B", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "DEL2017", "subtype": "BVIC"}, "outline": "black", "fill": "#DE8244", "legend": {"label": "Del mutants", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "subtype": "BVIC"}, "outline": "black", "fill": "#BF3EFF", "legend": {"label": "Triple del mutants", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "V1B"}, "outline": "black", "fill": "red", "legend": {"label": "V1.B", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "V1"}, "outline": "black", "fill": "blue", "legend": {"label": "V1", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "V1A"}, "outline": "black", "fill": "cornflowerblue", "legend": {"label": "V1.A", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "DEL2017"}, "outline": "black", "fill": "#DE8244", "legend": {"label": "2-Del mutants", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017"},                         "fill": "#ff85ff", "legend": {"label": "3-Del mutants", "count": true}, "outline": "black", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "amino_acid": ["133G"]}, "fill": "#ee0000", "legend": {"label": "3-Del mutants 133G", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "amino_acid": ["133R"]}, "fill": "#70ff70", "legend": {"label": "3-Del mutants 133R", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "amino_acid": ["133E"]}, "fill": "#ff80ff", "legend": {"label": "3-Del mutants 133E", "count": true}, "outline": "black", "order": "raise", "report": true},
 
       {"N": "antigens", "select": {"clade": "Y2", "subtype": "BYAM"}, "outline": "black", "fill": "cornflowerblue", "legend": {"label": "Y2", "count": true}, "order": "raise", "report": true},
       {"N": "antigens", "select": {"clade": "Y3", "subtype": "BYAM"}, "outline": "black", "fill": "red", "legend": {"label": "Y3", "count": true}, "order": "raise", "report": true}
@@ -93,11 +96,14 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": {"clade": "6B1", "younger_than_days": 183},   "outline": "black", "fill": "blue", "legend": {"label": "6B1", "count": true}, "order": "raise", "report": true},
       {"N": "antigens", "select": {"clade": "6B2", "younger_than_days": 183},   "outline": "black", "fill": "red", "legend": {"label": "6B2", "count": true}, "order": "raise", "report": true},
 
-      {"N": "antigens", "select": {"clade": "1", "younger_than_days": 183, "subtype": "BVIC"}, "outline": "black", "fill": "blue", "legend": {"label": "1", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "1A", "younger_than_days": 183, "subtype": "BVIC"}, "outline": "black", "fill": "cornflowerblue", "legend": {"label": "1A", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "1B", "younger_than_days": 183, "subtype": "BVIC"}, "outline": "black", "fill": "red", "legend": {"label": "1B", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "DEL2017", "younger_than_days": 183, "subtype": "BVIC"}, "outline": "black", "fill": "#DE8244", "legend": {"label": "Del mutants", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "younger_than_days": 183, "subtype": "BVIC"}, "outline": "black", "fill": "#BF3EFF", "legend": {"label": "Triple del mutants", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "V1B", "younger_than_days": 183}, "outline": "black", "fill": "red", "legend": {"label": "V1.B", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "V1", "younger_than_days": 183}, "outline": "black", "fill": "blue", "legend": {"label": "V1", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "V1A", "younger_than_days": 183}, "outline": "black", "fill": "cornflowerblue", "legend": {"label": "V1.A", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "DEL2017", "younger_than_days": 183}, "outline": "black", "fill": "#DE8244", "legend": {"label": "2-Del mutants", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "younger_than_days": 183},                         "fill": "#ff85ff", "legend": {"label": "3-Del mutants", "count": true}, "outline": "black", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "amino_acid": ["133G"], "younger_than_days": 183}, "fill": "#ee0000", "legend": {"label": "3-Del mutants 133G", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "amino_acid": ["133R"], "younger_than_days": 183}, "fill": "#70ff70", "legend": {"label": "3-Del mutants 133R", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "amino_acid": ["133E"], "younger_than_days": 183}, "fill": "#ff80ff", "legend": {"label": "3-Del mutants 133E", "count": true}, "outline": "black", "order": "raise", "report": true},
 
       {"N": "antigens", "select": {"clade": "Y2", "younger_than_days": 183, "subtype": "BYAM"}, "outline": "black", "fill": "cornflowerblue", "legend": {"label": "Y2", "count": true}, "order": "raise", "report": true},
       {"N": "antigens", "select": {"clade": "Y3", "younger_than_days": 183, "subtype": "BYAM"}, "outline": "black", "fill": "red", "legend": {"label": "Y3", "count": true}, "order": "raise", "report": true}
@@ -116,11 +122,14 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": {"clade": "6B1", "younger_than_days": 365},   "outline": "black", "fill": "blue", "legend": {"label": "6B1", "count": true}, "order": "raise", "report": true},
       {"N": "antigens", "select": {"clade": "6B2", "younger_than_days": 365},   "outline": "black", "fill": "red", "legend": {"label": "6B2", "count": true}, "order": "raise", "report": true},
 
-      {"N": "antigens", "select": {"clade": "1", "younger_than_days": 365, "subtype": "BVIC"}, "outline": "black", "fill": "blue", "legend": {"label": "1", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "1A", "younger_than_days": 365, "subtype": "BVIC"}, "outline": "black", "fill": "cornflowerblue", "legend": {"label": "1A", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "1B", "younger_than_days": 365, "subtype": "BVIC"}, "outline": "black", "fill": "red", "legend": {"label": "1B", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "DEL2017", "younger_than_days": 365, "subtype": "BVIC"}, "outline": "black", "fill": "#DE8244", "legend": {"label": "Del mutants", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "younger_than_days": 365, "subtype": "BVIC"}, "outline": "black", "fill": "#BF3EFF", "legend": {"label": "Triple del mutants", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "V1B", "younger_than_days": 365}, "outline": "black", "fill": "red", "legend": {"label": "V1.B", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "V1", "younger_than_days": 365}, "outline": "black", "fill": "blue", "legend": {"label": "V1", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "V1A", "younger_than_days": 365}, "outline": "black", "fill": "cornflowerblue", "legend": {"label": "V1.A", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "DEL2017", "younger_than_days": 365}, "outline": "black", "fill": "#DE8244", "legend": {"label": "2-Del mutants", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "younger_than_days": 365},                         "fill": "#ff85ff", "legend": {"label": "3-Del mutants", "count": true}, "outline": "black", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "amino_acid": ["133G"], "younger_than_days": 365}, "fill": "#ee0000", "legend": {"label": "3-Del mutants 133G", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "amino_acid": ["133R"], "younger_than_days": 365}, "fill": "#70ff70", "legend": {"label": "3-Del mutants 133R", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "amino_acid": ["133E"], "younger_than_days": 365}, "fill": "#ff80ff", "legend": {"label": "3-Del mutants 133E", "count": true}, "outline": "black", "order": "raise", "report": true},
 
       {"N": "antigens", "select": {"clade": "Y2", "younger_than_days": 365, "subtype": "BYAM"}, "outline": "black", "fill": "cornflowerblue", "legend": {"label": "Y2", "count": true}, "order": "raise", "report": true},
       {"N": "antigens", "select": {"clade": "Y3", "younger_than_days": 365, "subtype": "BYAM"}, "outline": "black", "fill": "red", "legend": {"label": "Y3", "count": true}, "order": "raise", "report": true}
@@ -139,11 +148,14 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": {"clade": "6B1"},   "outline": "#BFBFBF", "fill": "#BFBFFF", "legend": {"label": "6B1", "count": true}, "order": "raise", "report": true},
       {"N": "antigens", "select": {"clade": "6B2"},   "outline": "#BFBFBF", "fill": "#FFBFBF", "legend": {"label": "6B2", "count": true}, "order": "raise", "report": true},
 
-      {"N": "antigens", "select": {"clade": "1", "subtype": "BVIC"}, "outline": "#BFBFBF", "fill": "#BFBFFF", "legend": {"label": "1", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "1A", "subtype": "BVIC"}, "outline": "#BFBFBF", "fill": "#8F9DBF", "legend": {"label": "1A", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "1B", "subtype": "BVIC"}, "outline": "#BFBFBF", "fill": "#FFBFBF", "legend": {"label": "1B", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "DEL2017", "subtype": "BVIC"}, "outline": "#BFBFBF", "fill": "#DE8244", "legend": {"label": "Del mutants", "count": true}, "order": "raise", "report": true},
-      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "subtype": "BVIC"}, "outline": "#BFBFBF", "fill": "#BF3EFF", "legend": {"label": "Triple del mutants", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "V1B"}, "outline": "black",               "fill": "#FFBFBF", "outline": "#BFBFBF", "legend": {"label": "V1.B", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "V1"}, "outline": "black",                "fill": "#BFBFFF", "outline": "#BFBFBF", "legend": {"label": "V1", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "V1A"}, "outline": "black",               "fill": "#c2d2ed", "outline": "#BFBFBF", "legend": {"label": "V1.A", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "DEL2017"}, "outline": "black",           "fill": "#debda7", "legend": {"label": "2-Del mutants", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017"},                         "fill": "#ffdoff", "outline": "#BFBFBF", "legend": {"label": "3-Del mutants", "count": true}, "outline": "black", "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "amino_acid": ["133G"]}, "fill": "#eeb3b3", "outline": "#BFBFBF", "legend": {"label": "3-Del mutants 133G", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "amino_acid": ["133R"]}, "fill": "#d1ffd1", "outline": "#BFBFBF", "legend": {"label": "3-Del mutants 133R", "count": true}, "order": "raise", "report": true},
+      {"N": "antigens", "select": {"clade": "TRIPLEDEL2017", "amino_acid": ["133E"]}, "fill": "#ffd1ff", "outline": "#BFBFBF", "legend": {"label": "3-Del mutants 133E", "count": true}, "outline": "black", "order": "raise", "report": true},
 
       {"N": "antigens", "select": {"clade": "Y2", "subtype": "BYAM"}, "outline": "#BFBFBF", "fill": "#8F9DBF", "legend": {"label": "Y2", "count": true}, "order": "raise", "report": true},
       {"N": "antigens", "select": {"clade": "Y3", "subtype": "BYAM"}, "outline": "#BFBFBF", "fill": "#FFBFBF", "legend": {"label": "Y3", "count": true}, "order": "raise", "report": true}
