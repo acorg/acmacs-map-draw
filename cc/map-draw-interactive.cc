@@ -70,8 +70,10 @@ int main(int argc, char* const argv[])
 
         std::array<char, 1024> buffer;
         for (;;) {
-            if (const auto output_name = draw(chart, *opt.settings_files, output_pdf, opt.name_after_mod); !output_name.empty())
+            if (const auto output_name = draw(chart, *opt.settings_files, output_pdf, opt.name_after_mod); !output_name.empty()) {
                 acmacs::open_or_quicklook(true, false, output_name, 0);
+                acmacs::open_or_quicklook(true, false, "/Applications/Emacs.app", 0);
+            }
 
             fmt::print("\nSETTINGS:\n");
             for (const auto& sf : *opt.settings_files)
