@@ -76,8 +76,10 @@ int draw(const Options& opt)
             settings.update(rjson::parse_file(fn, rjson::remove_comments::yes));
         }
         catch (std::exception& err) {
-            throw std::runtime_error(string::concat(fn, ':', err.what()));
+            throw std::runtime_error(string::concat(fn, ": ", err.what()));
         }
+        // if (opt.verbose)
+        //     std::cerr << "DEBUG: reading settings DONE from " << fn << '\n';
     }
 
     const std::string_view start_date = settings["start_date"], end_date = settings["end_date"];

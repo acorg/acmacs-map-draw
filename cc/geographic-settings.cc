@@ -3,8 +3,14 @@
 // ----------------------------------------------------------------------
 
 static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-",
-  "coloring": "clade",
-  "coloring?": ["continent", "clade", "lineage", "lineage-deletion-mutants"],
+  "coloring": {"N": "clade"},
+  "coloring?": [
+    {"N": "continent", "?continent_color": {"EUROPE": {"fill": "green", "outline": "black", "outline_width": 0}}},
+    {"N": "clade", "?clade_color": {"SEQUENCED": {"fill": "yellow", "outline": "black", "outline_width": 0}}},
+    {"N": "lineage", "?lineage_color": {"VICTORIA_DEL": {"fill": "#23a8d1", "outline": "black", "outline_width": 0}}},
+    {"N": "lineage-deletion-mutants"},
+    {"N": "amino_acid", "apply": [{"sequenced": true, "color": "red"}, {"aa": ["156G" ,"155N"], "color": "blue"}]}
+  ],
   "color_override?": {"B": {"?": "B/Vic deletion mutants", "?B/DOMINICAN REPUBLIC/9932/2016": "#00FFFF"}},
   "start_date": "2017-01-01",
   "end_date": "",
