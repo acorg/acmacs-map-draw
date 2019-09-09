@@ -21,7 +21,7 @@ template <typename Iter> inline void report_antigens(Iter first, Iter last, cons
         for (; first != last; ++first) {
             const auto antigen = antigens->at(*first);
             const auto disconnected = !layout->point_has_coordinates(*first);
-            fmt::print(stderr, "  AG {:5d} {: <{}} {:10s} {: <6s}{}", *first, antigen->full_name(), full_name_max, antigen->date(),
+            fmt::print(stderr, "  AG {:5d} {: <{}} {:10s} {: <6s}{}", *first, fmt::format("\"{}\"", antigen->full_name()), full_name_max + 2, antigen->date(),
                        antigen->passage().passage_type(), disconnected ? " <disconnected>" : ""); // antigen->full_name_with_fields()
             if (titers->number_of_layers() > 1) {
                 std::vector<std::string> layers;
@@ -46,7 +46,7 @@ template <typename Iter> inline void report_sera(Iter first, Iter last, const Ch
         fmt::print(stderr, "  SR ({}) {}\n", last - first, string::join(",", first, last));
         for (; first != last; ++first) {
             const auto serum = sera->at(*first);
-            fmt::print(stderr, "  SR {:5d} {}\n", *first, serum->full_name());
+            fmt::print(stderr, "  SR {:5d} \"{}\"\n", *first, serum->full_name());
         }
     }
 }
