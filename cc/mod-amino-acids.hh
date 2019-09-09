@@ -25,6 +25,19 @@ class ModAminoAcids : public Mod
 }; // class ModAminoAcids
 
 // ----------------------------------------------------------------------
+
+class ModCompareSequences : public Mod
+{
+ public:
+    using Mod::Mod;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override;
+
+ private:
+
+}; // class ModCompareSequences
+
+// ----------------------------------------------------------------------
 /// Local Variables:
 /// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
 /// End:

@@ -2,10 +2,14 @@
 
 #include "acmacs-base/enumerate.hh"
 #include "acmacs-base/fmt.hh"
-#include "seqdb/seqdb.hh"
+#include "acmacs-base/read-file.hh"
+#include "acmacs-base/filesystem.hh"
+#include "acmacs-base/quicklook.hh"
+#include "seqdb-3/compare.hh"
 #include "acmacs-map-draw/mod-amino-acids.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/report-antigens.hh"
+#include "acmacs-map-draw/select.hh"
 
 // ----------------------------------------------------------------------
 
@@ -30,10 +34,9 @@ void ModAminoAcids::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*
 
 void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool aVerbose, size_t report_names_threshold)
 {
-    const auto& seqdb = seqdb::get(seqdb::ignore_errors::no, do_report_time(aVerbose));
     std::vector<size_t> positions;
     rjson::copy(aPos, positions);
-    const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), positions, aVerbose ? seqdb::report::yes : seqdb::report::no);
+    const auto aa_indices = aChartDraw.aa_at_pos1_for_antigens(positions);
     // aa_indices is std::map<std::string, std::vector<size_t>>
     std::vector<std::string> aa_sorted(aa_indices.size()); // most frequent aa first
     std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
@@ -52,7 +55,7 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool
             add_legend(aChartDraw, indices_for_aa, styl, aa, legend);
         if (aVerbose) {
             fmt::print(stderr, "INFO: amino-acids at {}: {} {}\n", aPos, aa, indices_for_aa.size());
-            report_antigens(std::begin(indices_for_aa), std::end(indices_for_aa), aChartDraw.chart(), *aChartDraw.layout(), report_names_threshold);
+            report_antigens(std::begin(indices_for_aa), std::end(indices_for_aa), aChartDraw, report_names_threshold);
         }
     }
 
@@ -126,8 +129,7 @@ void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, 
     rjson::transform(pos_aa, std::begin(positions), [](const rjson::value& src) -> size_t { return std::stoul(static_cast<std::string>(src)); });
     std::string target_aas(pos_aa.size(), ' ');
     rjson::transform(pos_aa, std::begin(target_aas), [](const rjson::value& src) { return static_cast<std::string_view>(src).back(); });
-    const auto& seqdb = seqdb::get(seqdb::ignore_errors::no, do_report_time(aVerbose));
-    const auto aa_indices = seqdb.aa_at_positions_for_antigens(*aChartDraw.chart().antigens(), positions, aVerbose ? seqdb::report::yes : seqdb::report::no);
+    const auto aa_indices = aChartDraw.aa_at_pos1_for_antigens(positions);
     if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
         auto styl = style();
         styl = point_style_from_json(aGroup);
@@ -136,7 +138,7 @@ void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, 
             add_legend(aChartDraw, aap->second, styl, string::join(" ", positions), legend);
         if (aVerbose) {
             fmt::print(stderr, "INFO: amino-acids group {}: {}\n", pos_aa, aap->second.size());
-            report_antigens(std::begin(aap->second), std::end(aap->second), aChartDraw.chart(), *aChartDraw.layout(), report_names_threshold);
+            report_antigens(std::begin(aap->second), std::end(aap->second), aChartDraw, report_names_threshold);
         }
     }
     else {
@@ -161,9 +163,48 @@ Color ModAminoAcids::fill_color_default(size_t aIndex, std::string aAA)
     if (index < mColors.size())
         return mColors[index];
     else
-        throw unrecognized_mod{"too few distinct colors in mod: " + rjson::to_string(args())};
+        return mColors.back();
+    // throw unrecognized_mod{fmt::format("too few distinct colors in mod ({}): {}", mColors.size(), rjson::to_string(args()))};
 
 } // ModAminoAcids::fill_color_default
+
+// ----------------------------------------------------------------------
+
+void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& aModData)
+{
+    acmacs::chart::Indexes indexes1, indexes2;
+    if (const auto& select1 = args()["select1"]; !select1.is_null())
+        indexes1 = SelectAntigens(SelectAntigens::verbose::no, 10).select(aChartDraw, select1);
+    else
+        throw unrecognized_mod{fmt::format("no select1 in mod: {}", rjson::to_string(args()))};
+    if (const auto& select2 = args()["select2"]; !select2.is_null())
+        indexes2 = SelectAntigens(SelectAntigens::verbose::no, 10).select(aChartDraw, select2);
+    else
+        throw unrecognized_mod{fmt::format("no select2 in mod: {}", rjson::to_string(args()))};
+
+    const auto& matched = aChartDraw.match_seqdb();
+    auto set1 = matched.filter_by_indexes(indexes1);
+    auto set2 = matched.filter_by_indexes(indexes2);
+
+    if (const auto& format = args()["format"]; !format.is_null() && static_cast<std::string>(format) == "html") {
+        std::string filename{"-"};
+        if (const auto& output1 = args()["output"]; !output1.is_null()) {
+            filename = output1;
+        }
+        else if (const auto& output2 = aModData["output_pdf"]; !output2.is_null()) {
+            filename = fs::path(static_cast<std::string>(output2)).replace_extension(".html");
+        }
+        else {
+            filename = "/d/a.html";
+        }
+        acmacs::file::write(filename, acmacs::seqdb::compare_report_html(filename, set1, set2));
+        if (const auto& open = args()["open"]; open.is_null() || open)
+            acmacs::open_or_quicklook(true, false, filename, 0, 0);
+    }
+    else
+        fmt::print("{}\n\n", acmacs::seqdb::compare_report_text(set1, set2));
+
+} // ModCompareSequences::apply
 
 // ----------------------------------------------------------------------
 

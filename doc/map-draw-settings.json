@@ -44,10 +44,13 @@
             {"table": "20170216"},
             {"table": "MELB:HI:turkey:20170216"},
             {"clade": "3C3a", "?": "via seqdb.clades_for_name()"},
+            {"amino_acid": ["144R", "93A", "!160K"]},
             {"titrated_against_antigens": "{<select>}"},
         ]
     },
+
     "==================================================": "==================================================",
+
     "colors": {
         "ana": [
             "#03569b",                  // dark blue
@@ -80,7 +83,9 @@
             "#0FBDFF",
         ]
     },
+
     "==================================================": "==================================================",
+
     "mods": [
         {"N": "antigens", "select": {<select>},
          "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
@@ -109,18 +114,28 @@
                    "weight": "bold", "slant": "italic", "font_family": "monospace"},
          "report": false, "report_names_threshold": 30},
 
+        "==================== sequences ====================",
+
         {"N": "amino-acids", "pos": [159], "?colors": {"K": "#FF0000", "R": "#0000FF", "X": "grey25"},
          "color_set": "ana|google", "outline": "black", "outline_width": 1.0,
-         "aspect": 1.0, "rotation": 0.0, "size": 1.0, "order": "raise|lower",
+         "aspect": 1.0, "rotation": 0.0, "size": 8.0, "order": "raise|lower",
          "legend": {"count": true},
          "centroid": false,
          "report": false},
+
         {"N": "amino-acids",
          "groups": [{"pos_aa": ["121K", "144K"], "fill": "cornflowerblue", "?outline": "black"}],
          "outline": "black", "outline_width": 1.0,
-         "aspect": 1.0, "rotation": 0.0, "size": 1.0, "order": "raise|lower",
+         "aspect": 1.0, "rotation": 0.0, "size": 8.0, "order": "raise|lower",
          "legend": {},
          "report": false},
+
+        {"N": "compare-sequences",
+         "select1": {"?": "master group select"}, "select2": {"?": "to compare group select"},
+         "format": "text|html", "output": "filename.html - if has no /, generated in the same dir as output pdf", "open": true
+        },
+
+        "==================== ====================",
 
         "all_grey",
         "size_reset",
@@ -138,7 +153,7 @@
          "background": "grey97", "border_color": "black", "border_width": 0.1,
          "text_color": "black", "text_size": 12, "interline": 2,
          "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif",
-         "?display_name": ["Line 1 {lab} {assay} {assay_short} {virus_type} {lineage}", "Line 2", "Another line"]},
+         "?display_name": ["Line 1 {lab} {assay} {assay_short} {virus_type} {lineage} {date} {name}", "Line 2", "Another line"]},
 
         {"N": "line", "from": [0, 0], "to": [1, 1], "transform": false, "width": 1, "color": "red"},
         {"N": "line", "from_antigen": {<antigen-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "report": true},
@@ -204,7 +219,7 @@
         {"N": "serum_line", "color": "red", "line_width": 1},
 
         {"N": "connection_lines", "antigens": {<select>}, "sera": {<select>}, "color": "grey", "line_width": 1},
-        {"N": "error_lines", "antigens": {<select>}, "sera": {<select>}, "line_width": 1},
+        {"N": "error_lines", "antigens": {<select>}, "sera": {<select>}, "line_width": 1, "report": false},
         {"N": "color_by_number_of_connection_lines", "antigens": {<select>}, "sera": {<select>}, "start": "", "end": ""},
 
         {"N": "blobs", "select": {<select-antigens>}, "stress_diff": 0.5, "number_of_drections": 36, "stress_diff_precision": 1e-5,

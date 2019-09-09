@@ -6,7 +6,6 @@
 #include "acmacs-base/time-series.hh"
 #include "acmacs-virus/virus-name.hh"
 #include "hidb-5/hidb.hh"
-#include "seqdb/seqdb.hh"
 #include "locationdb/locdb.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 #include "acmacs-map-draw/map-elements.hh"
@@ -89,14 +88,16 @@ class GeographicMapColoring
         ColoringData() = default;
         ColoringData(Color aFill, Color aOutline = "black", double aOutlineWidth = 0) : fill{aFill}, outline{aOutline}, outline_width{aOutlineWidth} {}
         ColoringData(std::string aFill, std::string aOutline = "black", double aOutlineWidth = 0) : fill{aFill}, outline{aOutline}, outline_width{aOutlineWidth} {}
+        ColoringData(std::string_view aFill, std::string_view aOutline = "black", double aOutlineWidth = 0) : fill{aFill}, outline{aOutline}, outline_width{aOutlineWidth} {}
         bool operator<(const ColoringData& aNother) const { return fill == aNother.fill ? (outline == aNother.outline ? outline_width < aNother.outline_width : outline < aNother.outline) : fill < aNother.fill; }
+        ColoringData& operator=(std::string_view a_fill) { fill = a_fill; return *this; }
 
         Color fill;
         Color outline{"black"};
         Pixels outline_width{0};
     };
 
-    using TagToColor = std::map<std::string, ColoringData>;
+    using TagToColor = std::map<std::string, ColoringData, std::less<>>;
     using TagColor = std::pair<std::string, ColoringData>;
 
     virtual ~GeographicMapColoring();
@@ -168,25 +169,25 @@ class ColoringByLineageAndDeletionMutants : public GeographicMapColoring
     ColoringByLineageAndDeletionMutants(const TagToColor& aLineageColor, std::string aDeletionMutantColor = std::string{})
         : mColors(aLineageColor.begin(), aLineageColor.end()), mDeletionMutantColor{aDeletionMutantColor} {}
 
-    TagColor color(const hidb::Antigen& aAntigen) const override
-        {
-            try {
-                const auto* entry_seq = seqdb::get().find_hi_name(aAntigen.full_name());
-                if (entry_seq && entry_seq->seq().has_clade("DEL2017"))
-                    return {"VICTORIA_DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_DEL") : ColoringData{mDeletionMutantColor}};
-                else {
-                    std::string lineage(aAntigen.lineage());
-                    return {aAntigen.lineage(), mColors.at(lineage)};
-                }
-            }
-            catch (...) {
-                return {"UNKNOWN", {GREY50}};
-            }
-        }
+    TagColor color(const hidb::Antigen& aAntigen) const override;
 
  private:
     TagToColor mColors;
     std::string mDeletionMutantColor;
+
+}; // class ColoringByLineage
+
+// ----------------------------------------------------------------------
+
+class ColoringByAminoAcid : public GeographicMapColoring
+{
+ public:
+    ColoringByAminoAcid(const rjson::value& settings) : settings_(settings) {}
+
+    TagColor color(const hidb::Antigen& aAntigen) const override;
+
+ private:
+    rjson::value settings_;
 
 }; // class ColoringByLineage
 

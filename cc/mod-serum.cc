@@ -10,10 +10,10 @@
 
 void ModSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
-    const auto verbose = rjson::get_or(args(), "report", false);
+    const auto report = rjson::get_or(args(), "report", false);
     const auto report_names_threshold = rjson::get_or(args(), "report_names_threshold", 30UL);
     if (const auto& select = args()["select"]; !select.is_null()) {
-        const auto indices = SelectSera(verbose, report_names_threshold).select(aChartDraw, select);
+        const auto indices = SelectSera(report ? SelectSera::verbose::yes : SelectSera::verbose::no, report_names_threshold).select(aChartDraw, select);
         const auto styl = style();
         aChartDraw.modify_sera(indices, styl, drawing_order());
         if (const auto& label = args()["label"]; !label.is_null())
@@ -38,7 +38,7 @@ size_t ModSerumHomologous::select_mark_serum(ChartDraw& aChartDraw, bool aVerbos
 
 size_t ModSerumHomologous::select_serum(ChartDraw& aChartDraw, bool aVerbose) const
 {
-    const auto sera = SelectSera(aVerbose).select(aChartDraw, args()["serum"]);
+    const auto sera = SelectSera(aVerbose ? SelectSera::verbose::yes : SelectSera::verbose::no).select(aChartDraw, args()["serum"]);
     if (sera.size() != 1)
         throw unrecognized_mod{"\"serum\" does not select single serum, mod: " + rjson::to_string(args())};
     return sera.front();
@@ -74,7 +74,7 @@ acmacs::chart::PointIndexList ModSerumHomologous::select_mark_antigens(ChartDraw
 acmacs::chart::PointIndexList ModSerumHomologous::select_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, acmacs::chart::find_homologous find_homologous_options, bool aVerbose) const
 {
     if (const auto& antigen_select = args()["antigen"]; !antigen_select.is_null()) {
-        const auto antigens = SelectAntigens(aVerbose).select(aChartDraw, antigen_select);
+        const auto antigens = SelectAntigens(aVerbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, antigen_select);
         if (antigens.empty())
             throw unrecognized_mod{"\"antigen\" does not select an antigen, mod: " + rjson::to_string(args())};
         return antigens;

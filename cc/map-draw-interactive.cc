@@ -6,11 +6,11 @@
 #include "acmacs-base/string.hh"
 #include "acmacs-base/quicklook.hh"
 #include "hidb-5/hidb.hh"
-#include "seqdb/seqdb.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/settings.hh"
 #include "acmacs-map-draw/mod-applicator.hh"
+#include "acmacs-map-draw/setup-dbs.hh"
 
 static std::string draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<std::string_view>& settings_files, std::string_view output_pdf, bool name_after_mod);
 static std::string mod_name(const rjson::value& aMods);
@@ -38,6 +38,7 @@ int main(int argc, char* const argv[])
     int exit_code = 1;
     try {
         Options opt(argc, argv);
+        setup_dbs(opt.db_dir, false);
 
         if (std::count_if(opt.settings_files->begin(), opt.settings_files->end(), [](std::string_view fn) {
                 if (!fs::exists(fn)) {
@@ -65,12 +66,17 @@ int main(int argc, char* const argv[])
         auto chart = std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart));
         ti_chart.report();
         [[maybe_unused]] const auto& hidb = hidb::get(chart->info()->virus_type(), report_time::yes);
-        seqdb::get(seqdb::ignore_errors::no, report_time::yes);
+        acmacs::seqdb::get();
 
         std::array<char, 1024> buffer;
         for (;;) {
             if (const auto output_name = draw(chart, *opt.settings_files, output_pdf, opt.name_after_mod); !output_name.empty())
                 acmacs::open_or_quicklook(true, false, output_name, 0);
+
+            fmt::print("\nSETTINGS:\n");
+            for (const auto& sf : *opt.settings_files)
+                fmt::print("    {}\n", sf);
+
             fgets(buffer.data(), buffer.size(), pipe.get());
         }
     }
@@ -88,19 +94,25 @@ std::string draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::v
     Timeit ti_chart("DEBUG: drawing: ", report_time::yes);
 
     try {
-        ChartDraw chart_draw(chart, 0);
+        const size_t projection_no = 0;
+        const acmacs::Layout orig_layout(*chart->projection_modify(projection_no)->layout());
+        const auto orig_transformation = chart->projection_modify(projection_no)->transformation();
+        ChartDraw chart_draw(chart, projection_no);
 
         auto settings = settings_default();
         settings.update(settings_builtin_mods());
         for (auto sf : settings_files)
             settings.update(rjson::parse_file(sf, rjson::remove_comments::no));
 
-        apply_mods(chart_draw, settings["apply"], settings);
-        chart_draw.calculate_viewport();
         std::string output{output_pdf};
         if (name_after_mod)
             output += mod_name(settings["apply"]) + ".pdf";
+        settings["output_pdf"] = output;
+
+        apply_mods(chart_draw, settings["apply"], settings);
+        chart_draw.calculate_viewport();
         chart_draw.draw(output, 800, report_time::yes);
+        chart->projection_modify(projection_no)->transformation(orig_transformation);
         return output;
     }
     catch (std::exception& err) {

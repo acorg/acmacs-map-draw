@@ -137,15 +137,34 @@ static inline GeographicMapColoring::TagToColor make_map(const rjson::value& aSo
 GeographicMapColoring* make_coloring(const rjson::value& aSettings)
 {
     GeographicMapColoring* coloring = nullptr;
-    const std::string_view coloring_name = aSettings["coloring"];
-    if (coloring_name == "" || coloring_name == "continent")
-        coloring = new ColoringByContinent(make_map(aSettings["continent_color"]));
-    else if (coloring_name == "clade")
-        coloring = new ColoringByClade(make_map(aSettings["clade_color"]));
-    else if (coloring_name == "lineage")
-        coloring = new ColoringByLineage(make_map(aSettings["lineage_color"]));
-    else if (coloring_name == "lineage-deletion-mutants")
-        coloring = new ColoringByLineageAndDeletionMutants(make_map(aSettings["lineage_color"]));
+    const std::string_view coloring_name = aSettings["coloring"]["N"];
+    if (coloring_name == "continent") {
+        rjson::value continent_color = aSettings["continent_color"];
+        if (const auto& continent_color_override = aSettings["coloring"]["continent_color"]; !continent_color_override.is_null())
+            continent_color.update(continent_color_override);
+        coloring = new ColoringByContinent(make_map(continent_color));
+    }
+    else if (coloring_name == "clade") {
+        rjson::value clade_color = aSettings["clade_color"];
+        if (const auto& clade_color_override = aSettings["coloring"]["clade_color"]; !clade_color_override.is_null())
+            clade_color.update(clade_color_override);
+        coloring = new ColoringByClade(make_map(clade_color));
+    }
+    else if (coloring_name == "lineage") {
+        rjson::value lineage_color = aSettings["lineage_color"];
+        if (const auto& lineage_color_override = aSettings["coloring"]["lineage_color"]; !lineage_color_override.is_null())
+            lineage_color.update(lineage_color_override);
+        coloring = new ColoringByLineage(make_map(lineage_color));
+    }
+    else if (coloring_name == "lineage-deletion-mutants") {
+        rjson::value lineage_color = aSettings["lineage_color"];
+        if (const auto& lineage_color_override = aSettings["coloring"]["lineage_color"]; !lineage_color_override.is_null())
+            lineage_color.update(lineage_color_override);
+        coloring = new ColoringByLineageAndDeletionMutants(make_map(lineage_color));
+    }
+    else if (coloring_name == "amino-acid") {
+        coloring = new ColoringByAminoAcid(aSettings["coloring"]);
+    }
     else
         throw std::runtime_error("Unsupported coloring: " + std::string(coloring_name));
     std::cerr << "INFO: coloring: " << coloring_name << '\n';

@@ -1,8 +1,10 @@
 #include "acmacs-base/range.hh"
 #include "acmacs-base/fmt.hh"
+#include "acmacs-base/counter.hh"
 #include "acmacs-virus/virus-name.hh"
 #include "acmacs-draw/surface-cairo.hh"
 #include "acmacs-draw/geographic-map.hh"
+#include "seqdb-3/seqdb.hh"
 #include "geographic-map.hh"
 
 // ----------------------------------------------------------------------
@@ -106,10 +108,10 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
     ColoringData result(GREY50);
     std::string tag{"UNKNOWN"};
     try {
-        const auto* entry_seq = seqdb::get(seqdb::ignore_errors::no, report_time::yes).find_hi_name(aAntigen.full_name());
-        if (entry_seq) {
-            const auto& clades_of_seq = entry_seq->seq().clades();
-            std::vector<std::string> clade_data;
+        if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.full_name()); ref) {
+            tag = "SEQUENCED";
+            const auto& clades_of_seq = ref.seq().clades;
+            std::vector<std::string_view> clade_data;
             std::copy_if(clades_of_seq.begin(), clades_of_seq.end(), std::back_inserter(clade_data), [this](const auto& clade) { return this->mColors.find(clade) != this->mColors.end(); });
             if (clade_data.size() == 1) {
                 tag = clade_data.front();
@@ -131,14 +133,68 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
         }
     }
     catch (std::exception& err) {
-        std::cerr << "ERROR: ColoringByClade " << aAntigen.full_name() << ": " << err.what() << '\n';
+        fmt::print(stderr, "ERROR: ColoringByClade {}: {}\n", aAntigen.full_name(), err);
     }
     catch (...) {
+        fmt::print(stderr, "ERROR: ColoringByClade {}: unknown exception\n", aAntigen.full_name());
     }
-      // std::cerr << "INFO: ColoringByClade " << aAntigen.full_name() << ": " << tag << '\n';
+    // std::cerr << "DEBUG: ColoringByClade " << aAntigen.full_name() << ": " << (tag == "UNKNOWN" ? "Not Sequenced" : tag) << ' ' << result.fill << '\n';
     return {tag, result};
 
 } // ColoringByClade::color
+
+// ----------------------------------------------------------------------
+
+ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen) const
+{
+    ColoringData result(GREY50);
+    std::string tag{"UNKNOWN"};
+    try {
+        std::string aa_report;
+        if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.full_name()); ref) {
+            rjson::for_each(settings_["apply"], [sequence = ref.seq().aa_aligned(),&result,&tag,&aa_report](const rjson::value& apply_entry) {
+                if (rjson::get_or(apply_entry, "sequenced", false)) {
+                    result = rjson::get_or(apply_entry, "color", "pink");
+                    tag = "SEQUENCED";
+                }
+                else if (const auto& aa = apply_entry["aa"]; !aa.is_null()) {
+                    if (!aa.is_array())
+                        throw std::runtime_error("invalid \"aa\" settings value, array of strings expected");
+                    bool satisfied = true;
+                    std::string tag_to_use;
+                    aa_report.append(" -");
+                    rjson::for_each(aa, [sequence,&satisfied,&tag_to_use,&aa_report](const rjson::value& aa_entry) {
+                        const std::string_view pos_aa_s = aa_entry;
+                        const auto pos = string::from_chars<size_t>(pos_aa_s.substr(0, pos_aa_s.size() - 1));
+                        if (pos < 1 || pos > sequence.size() || sequence[pos - 1] != pos_aa_s.back()) {
+                            satisfied = false;
+                            aa_report.append(fmt::format(" [{}!{}]", pos_aa_s, sequence[pos - 1]));
+                        }
+                        else {
+                            tag_to_use.append(fmt::format(" {}", pos_aa_s));
+                            aa_report.append(fmt::format(" [{}={}]", pos_aa_s, sequence[pos - 1]));
+                        }
+                    });
+                    if (satisfied) {
+                        result = rjson::get_or(apply_entry, "color", "pink");
+                        tag = tag_to_use.substr(1); // remove leading space
+                    }
+                }
+            });
+        }
+        if (rjson::get_or(settings_, "report", false))
+            fmt::print(stderr, "DEBUG: ColoringByAminoAcid {}: {} <-- {} {}\n", aAntigen.full_name(), tag, aa_report, result.fill.to_string());
+    }
+    catch (std::exception& err) {
+        fmt::print(stderr, "ERROR: ColoringByAminoAcid {}: {}\n", aAntigen.full_name(), err);
+    }
+    catch (...) {
+        fmt::print(stderr, "ERROR: ColoringByAminoAcid {}: unknown exception\n", aAntigen.full_name());
+    }
+
+    return {tag, result};
+
+} // ColoringByAminoAcid::color
 
 // ----------------------------------------------------------------------
 
@@ -182,13 +238,16 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const Geog
       // std::cerr << "add_points_from_hidb_colored_by" << '\n';
     const auto& hidb = hidb::get(mVirusType);
     auto antigens = hidb.antigens()->date_range(aStartDate, aEndDate);
-    std::cerr << "INFO: dates: " << aStartDate << ".." << aEndDate << "  antigens: " << antigens.size() << std::endl;
+    fmt::print("\nINFO: dates: {}..{} antigens: {}\n", aStartDate, aEndDate, antigens.size());
     if (!aPriority.empty())
-        std::cerr << "INFO: priority: " << aPriority << " (the last in this list to be drawn on top of others)\n";
+        fmt::print("INFO: priority: {} (the last in this list to be drawn on top of others)\n", aPriority);
+
+    acmacs::Counter<std::string> tag_counter;
     for (auto antigen: antigens) {
         auto [tag, coloring_data] = aColorOverride.color(*antigen);
         if (coloring_data.fill.empty())
             std::tie(tag, coloring_data) = aColoring.color(*antigen);
+        tag_counter.count(tag);
         try {
             const auto found = std::find(std::begin(aPriority), std::end(aPriority), tag);
             mPointsAtLocation.add(location_of_antigen(*antigen), found == std::end(aPriority) ? 0 : (found - std::begin(aPriority) + 1), coloring_data);
@@ -196,6 +255,7 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const Geog
         catch (virus_name::Unrecognized&) { // thrown by location_of_antigen() -> virus_name::location()
         }
     }
+    fmt::print("INFO: tags:\n{}", tag_counter.report_sorted_max_first());
       // std::transform(mPoints.begin(), mPoints.end(), std::ostream_iterator<std::string>(std::cerr, "\n"), [](const auto& e) -> std::string { return e.first; });
 
 } // GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by
@@ -218,6 +278,28 @@ void GeographicTimeSeriesBase::draw(std::string_view aFilenamePrefix, TimeSeries
     }
 
 } // GeographicTimeSeriesBase::draw
+
+// ----------------------------------------------------------------------
+
+GeographicMapColoring::TagColor ColoringByLineageAndDeletionMutants::color(const hidb::Antigen& aAntigen) const
+{
+    try {
+        if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.full_name()); ref && ref.seq().has_clade("DEL2017")) {
+            return {"VICTORIA_DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_DEL") : ColoringData{mDeletionMutantColor}};
+        }
+        else {
+            std::string lineage(aAntigen.lineage());
+            return {aAntigen.lineage(), mColors.at(lineage)};
+        }
+    }
+    catch (...) {
+        return {"UNKNOWN", {GREY50}};
+    }
+
+} // ColoringByLineageAndDeletionMutants::color
+
+// ----------------------------------------------------------------------
+
 
 // ----------------------------------------------------------------------
 /// Local Variables:

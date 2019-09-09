@@ -8,10 +8,10 @@ static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-
     {"N": "continent", "?continent_color": {"EUROPE": {"fill": "green", "outline": "black", "outline_width": 0}}},
     {"N": "clade", "?clade_color": {"SEQUENCED": {"fill": "yellow", "outline": "black", "outline_width": 0}}},
     {"N": "lineage", "?lineage_color": {"VICTORIA_DEL": {"fill": "#23a8d1", "outline": "black", "outline_width": 0}}},
-    {"N": "lineage-deletion-mutants"},
-    {"N": "amino_acid", "apply": [{"sequenced": true, "color": "red"}, {"aa": ["156G" ,"155N"], "color": "blue"}]}
+    {"N": "lineage-deletion-mutants", "?lineage_color": {"VICTORIA_DEL": {"fill": "#23a8d1", "outline": "black", "outline_width": 0}}},
+    {"N": "amino-acid", "apply": [{"sequenced": true, "color": "red"}, {"aa": ["156N" ,"155G"], "color": "blue"}], "report": false}
   ],
-  "color_override?": {"B": {"?": "B/Vic deletion mutants", "?B/DOMINICAN REPUBLIC/9932/2016": "#00FFFF"}},
+  "???color_override?": {"B": {"?": "B/Vic deletion mutants", "?B/DOMINICAN REPUBLIC/9932/2016": "#00FFFF"}},
   "start_date": "2017-01-01",
   "end_date": "",
   "point_size_in_pixels": 4.0,
@@ -41,11 +41,14 @@ static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-
   "clade_color": {
     "?": "========== sequenced but not in any clade",
     "":              {"fill": "grey50",          "outline": "black", "outline_width": 0},
+    "SEQUENCED":     {"fill": "yellow",          "outline": "black", "outline_width": 0},
 
     "?": "========== H3",
     "3C.3":           {"fill": "cornflowerblue",  "outline": "black", "outline_width": 0},
     "2A":             {"fill": "red",             "outline": "black", "outline_width": 0},
-    "2A1":            {"fill": "darkred",         "outline": "black", "outline_width": 0},
+    "2A1":            {"fill": "#ffab91",         "outline": "black", "outline_width": 0},
+    "2A1A":           {"fill": "#E040FB",         "outline": "black", "outline_width": 0},
+    "2A1B":           {"fill": "#CD5C5C",         "outline": "black", "outline_width": 0},
     "2A2":            {"fill": "#EEB422",         "outline": "black", "outline_width": 0},
     "3A":             {"fill": "green",           "outline": "black", "outline_width": 0},
     "3B":             {"fill": "blue",            "outline": "black", "outline_width": 0},
@@ -59,9 +62,9 @@ static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-
     "Y3":            {"fill": "red",             "outline": "black", "outline_width": 0},
 
     "?": "========== B/Vic",
-    "1":             {"fill": "blue",            "outline": "black", "outline_width": 0},
-    "1A":            {"fill": "cornflowerblue",  "outline": "black", "outline_width": 0},
-    "1B":            {"fill": "red",             "outline": "black", "outline_width": 0},
+    "V1":             {"fill": "blue",            "outline": "black", "outline_width": 0},
+    "V1A":            {"fill": "cornflowerblue",  "outline": "black", "outline_width": 0},
+    "V1B":            {"fill": "red",             "outline": "black", "outline_width": 0},
     "DEL2017":       {"fill": "#000080",         "outline": "black", "outline_width": 0},
     "TRIPLEDEL2017": {"fill": "#46f0f0",         "outline": "black", "outline_width": 0}
   },

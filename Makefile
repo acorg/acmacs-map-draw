@@ -19,8 +19,6 @@ ACMACS_MAP_DRAW_SOURCES = \
   export.cc \
   hemisphering-data.cc
 
-ACMACS_MAP_DRAW_PY_SOURCES = py.cc $(ACMACS_MAP_DRAW_SOURCES)
-
 ACMACS_MAP_DRAW_LIB_MAJOR = 2
 ACMACS_MAP_DRAW_LIB_MINOR = 0
 ACMACS_MAP_DRAW_LIB_NAME = libacmacsmapdraw
@@ -40,7 +38,7 @@ LDLIBS = \
   $(AD_LIB)/$(call shared_lib_name,libacmacsvirus,1,0) \
   $(AD_LIB)/$(call shared_lib_name,libacmacschart,2,0) \
   $(AD_LIB)/$(call shared_lib_name,libhidb,5,0) \
-  $(AD_LIB)/$(call shared_lib_name,libseqdb,2,0) \
+  $(AD_LIB)/$(call shared_lib_name,libseqdb,3,0) \
   $(AD_LIB)/$(call shared_lib_name,libacmacsdraw,1,0) \
   $(L_BOOST) -lboost_date_time $(CAIRO_LIBS) $(XZ_LIBS) $(CXX_LIBS)
 

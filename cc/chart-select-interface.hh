@@ -1,5 +1,6 @@
 #pragma once
 
+#include "seqdb-3/seqdb.hh"
 #include "acmacs-chart-2/chart-modify.hh"
 
 // ----------------------------------------------------------------------
@@ -41,11 +42,32 @@ class ChartSelectInterface
     acmacs::chart::DrawingOrder& drawing_order() { return plot_spec().drawing_order_modify(); }
     const acmacs::chart::DrawingOrder drawing_order() const { return plot_spec().drawing_order(); }
 
+    const acmacs::seqdb::subset& match_seqdb() const
+    {
+        if (!matched_seqdb_)
+            matched_seqdb_ = acmacs::seqdb::get().match(*chart().antigens(), chart().info()->virus_type(acmacs::chart::Info::Compute::Yes));
+        return *matched_seqdb_;
+    }
+
+    acmacs::seqdb::v3::Seqdb::aas_indexes_t aa_at_pos1_for_antigens(const std::vector<size_t>& aPositions1) const
+    {
+        acmacs::seqdb::v3::Seqdb::aas_indexes_t aas_indexes;
+        for (auto [ag_no, ref] : acmacs::enumerate(match_seqdb())) {
+            if (ref) {
+                std::string aa(aPositions1.size(), 'X');
+                std::transform(aPositions1.begin(), aPositions1.end(), aa.begin(), [ref = ref](size_t pos) { return ref.seq().aa_at_pos1(pos); });
+                aas_indexes[aa].push_back(ag_no);
+            }
+        }
+        return aas_indexes;
+    }
+
  private:
     acmacs::chart::ChartModifyP mChart;
     acmacs::chart::ProjectionModifyP mProjectionModify;
     acmacs::chart::PlotSpecModifyP mPlotSpec;
     acmacs::chart::ChartP mPreviousChart;
+    mutable std::optional<acmacs::seqdb::subset> matched_seqdb_;
 
 }; // class ChartSelectInterface
 

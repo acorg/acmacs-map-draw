@@ -44,9 +44,9 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
     acmacs::chart::Indexes antigen_indexes, serum_indexes;
     if (subset == acmacs::chart::CommonAntigensSera::subset::all) {
         if (const auto& subset_antigens = args()["subset_antigens"]; !subset_antigens.is_null())
-            antigen_indexes = SelectAntigens(false, 30).select(aChartDraw, subset_antigens);
+            antigen_indexes = SelectAntigens(SelectAntigens::verbose::no, 30).select(aChartDraw, subset_antigens);
         else if (const auto& subset_sera = args()["subset_sera"]; !subset_sera.is_null())
-            serum_indexes = SelectSera(false, 30).select(aChartDraw, subset_sera);
+            serum_indexes = SelectSera(SelectAntigens::verbose::no, 30).select(aChartDraw, subset_sera);
     }
 
     acmacs::chart::ChartP secondary_chart;
