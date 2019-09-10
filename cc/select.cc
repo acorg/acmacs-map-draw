@@ -262,6 +262,9 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         else if (key == "table") {
             filter_table(aChartSelectInterface, indexes, val);
         }
+        else if (key == "layer") {
+            filter_layer(aChartSelectInterface, indexes, val);
+        }
         else if (key == "titrated_against_sera") {
             const auto serum_indexes = SelectSera(SelectSera::verbose::yes).command(aChartSelectInterface, val);
             filter_titrated_against(aChartSelectInterface, indexes, serum_indexes);
@@ -533,14 +536,39 @@ void SelectAntigens::filter_table(const ChartSelectInterface& aChartSelectInterf
 
 } // SelectAntigens::filter_table
 
-// ----------------------------------------------------------------------
-
 void SelectSera::filter_table(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aTable)
 {
     const auto& hidb = hidb::get(aChartSelectInterface.chart().info()->virus_type());
     filter_table_ag_sr(hidb.sera()->find(*aChartSelectInterface.chart().sera()), indexes, aTable, hidb.tables());
 
 } // SelectSera::filter_table
+
+// ----------------------------------------------------------------------
+
+template <typename F> void filter_layer_ag_sr(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, int aLayer, F first_second)
+{
+    auto titers = aChartSelectInterface.chart().titers();
+    if (aLayer < 0)
+        aLayer = static_cast<int>(titers->number_of_layers()) + aLayer;
+    if (aLayer < 0 || aLayer > static_cast<int>(titers->number_of_layers()))
+        throw std::runtime_error(fmt::format("Invalid layer: {}", aLayer));
+
+    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), [antigens_in_layer=first_second(titers->antigens_sera_of_layer(static_cast<size_t>(aLayer)))](size_t index) {
+        return std::find(std::begin(antigens_in_layer), std::end(antigens_in_layer), index) == std::end(antigens_in_layer);
+    }), indexes.end());
+}
+
+void SelectAntigens::filter_layer(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, int aLayer)
+{
+    filter_layer_ag_sr(aChartSelectInterface, indexes, aLayer, [](const std::pair<acmacs::chart::PointIndexList, acmacs::chart::PointIndexList>& aPair) { return aPair.first; });
+
+} // SelectAntigens::filter_layer
+
+void SelectSera::filter_layer(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, int aLayer)
+{
+    filter_layer_ag_sr(aChartSelectInterface, indexes, aLayer, [](const std::pair<acmacs::chart::PointIndexList, acmacs::chart::PointIndexList>& aPair) { return aPair.second; });
+
+} // SelectSera::filter_layer
 
 // ----------------------------------------------------------------------
 
