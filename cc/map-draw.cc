@@ -98,12 +98,16 @@ int draw(const Options& opt)
 
     if (!opt.apply->empty() || !opt.apply_from->empty()) {
         const auto new_apply = !opt.apply->empty() ? rjson::parse_string(opt.apply) : rjson::parse_string(acmacs::file::ifstream(opt.apply_from).read());
+        if (opt.verbose)
+            std::cerr << "DEBUG: new apply " << new_apply << '\n';
         if (settings_loaded) {
-            if (const auto& old_apply_const = settings["apply"]; !old_apply_const.is_null()) {
-                auto& old_apply = const_cast<rjson::value&>(old_apply_const);
-                rjson::for_each(new_apply, [&old_apply](const rjson::value& element) { old_apply.append(element); });
-            }
-            else
+            // if (const auto& old_apply_const = settings["apply"]; !old_apply_const.is_null()) {
+            //     auto& old_apply = const_cast<rjson::value&>(old_apply_const);
+            //     if (opt.verbose)
+            //         std::cerr << "DEBUG: old apply " << old_apply << '\n';
+            //     rjson::for_each(new_apply, [&old_apply](const rjson::value& element) { old_apply.append(element); });
+            // }
+            // else
                 settings["apply"] = new_apply;
         }
         else {
