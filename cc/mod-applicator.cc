@@ -823,10 +823,10 @@ Mods factory(const rjson::value& aMod, const rjson::value& aSettingsMods, const 
     else if (name == "comment") {
         // comment mod silently ignored
     }
-    else if (name.empty()) {
+    else if (name.empty() && aMod["?#"].is_null()) {
         std::cerr << "WARNING: mod ignored (no \"N\"): " << args << '\n';
     }
-    else if (name.front() == '?' || name.back() == '?') {
+    else if ((name.empty() && !aMod["?#"].is_null()) || name.front() == '?' || name.back() == '?') {
         // commented out
     }
     else {
