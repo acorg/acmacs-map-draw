@@ -7,8 +7,8 @@ static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-
   "coloring?": [
     {"N": "continent", "?continent_color": {"EUROPE": {"fill": "green", "outline": "black", "outline_width": 0}}},
     {"N": "clade", "?clade_color": {"SEQUENCED": {"fill": "yellow", "outline": "black", "outline_width": 0}}},
-    {"N": "lineage", "?lineage_color": {"VICTORIA_DEL": {"fill": "#23a8d1", "outline": "black", "outline_width": 0}}},
-    {"N": "lineage-deletion-mutants", "?lineage_color": {"VICTORIA_DEL": {"fill": "#23a8d1", "outline": "black", "outline_width": 0}}},
+    {"N": "lineage", "?lineage_color": {"VICTORIA_2DEL": {"fill": "#23a8d1", "outline": "black", "outline_width": 0}, "VICTORIA_3DEL": {"fill": "#80FF00", "outline": "black", "outline_width": 0}}},
+    {"N": "lineage-deletion-mutants", "?lineage_color": {"VICTORIA_2DEL": {"fill": "#23a8d1", "outline": "black", "outline_width": 0}, "VICTORIA_3DEL": {"fill": "#80FF00", "outline": "black", "outline_width": 0}}},
     {"N": "amino-acid", "apply": [{"sequenced": true, "color": "red"}, {"aa": ["156N" ,"155G"], "color": "blue"}], "report": false}
   ],
   "???color_override?": {"B": {"?": "B/Vic deletion mutants", "?B/DOMINICAN REPUBLIC/9932/2016": "#00FFFF"}},
@@ -72,11 +72,12 @@ static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-
   "lineage_color": {
     "YAMAGATA":      {"fill": "#d10000",         "outline": "black", "outline_width": 0},
     "VICTORIA":      {"fill": "#2700b7",         "outline": "black", "outline_width": 0},
-    "VICTORIA_DEL":  {"fill": "#23a8d1",         "outline": "black", "outline_width": 0}
+    "VICTORIA_2DEL":  {"fill": "#23a8d1",         "outline": "black", "outline_width": 0},
+    "VICTORIA_3DEL":  {"fill": "#80FF00",         "outline": "black", "outline_width": 0}
   },
 
-  "?": "draw VICTORIA_DEL on top of VICTORIA",
-  "priority": ["YAMAGATA", "VICTORIA", "VICTORIA_DEL"]
+  "?": "draw VICTORIA_2DEL on top of VICTORIA",
+  "priority": ["YAMAGATA", "VICTORIA", "VICTORIA_2DEL"]
 
 }
 )";
