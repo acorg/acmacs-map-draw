@@ -73,7 +73,7 @@ static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-
     "YAMAGATA":      {"fill": "#d10000",         "outline": "black", "outline_width": 0},
     "VICTORIA":      {"fill": "#2700b7",         "outline": "black", "outline_width": 0},
     "VICTORIA_2DEL":  {"fill": "#23a8d1",         "outline": "black", "outline_width": 0},
-    "VICTORIA_3DEL":  {"fill": "#80FF00",         "outline": "black", "outline_width": 0}
+    "VICTORIA_3DEL":  {"fill": "#BF3EFF",         "outline": "black", "outline_width": 0}
   },
 
   "?": "draw VICTORIA_2DEL on top of VICTORIA",
