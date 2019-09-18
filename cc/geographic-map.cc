@@ -285,13 +285,16 @@ GeographicMapColoring::TagColor ColoringByLineageAndDeletionMutants::color(const
 {
     try {
         if (const auto ref_2del = acmacs::seqdb::get().find_hi_name(aAntigen.full_name()); ref_2del && ref_2del.seq().has_clade("DEL2017")) {
+            // fmt::print(stderr, "DEBUG: 2del {}\n", aAntigen.full_name());
             return {"VICTORIA_2DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_2DEL") : ColoringData{mDeletionMutantColor}};
         }
         else if (const auto ref_3del = acmacs::seqdb::get().find_hi_name(aAntigen.full_name()); ref_3del && ref_3del.seq().has_clade("TRIPLEDEL2017")) {
+            // fmt::print(stderr, "DEBUG: 3del {}\n", aAntigen.full_name());
             return {"VICTORIA_3DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_3DEL") : ColoringData{mDeletionMutantColor}};
         }
         else {
             std::string lineage(aAntigen.lineage());
+            // fmt::print(stderr, "DEBUG: {}  {}\n", lineage.substr(0, 3), aAntigen.full_name());
             return {aAntigen.lineage(), mColors.at(lineage)};
         }
     }
