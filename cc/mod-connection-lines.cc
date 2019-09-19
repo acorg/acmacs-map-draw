@@ -86,6 +86,12 @@ void ModErrorLines::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*
     const bool   report{rjson::get_or(args(), "report", false)};
     const auto error_lines = aChartDraw.projection().error_lines();
 
+    // if (report) {
+    //     fmt::print("INFO: antigens for error lines: {}\nINFO: sera for error lines: {}\n", antigen_indexes, serum_indexes);
+    //     for (const auto& errl : error_lines)
+    //         fmt::print("INFO: error line {} {} : {}\n", errl.point_1, errl.point_2, errl.error_line);
+    // }
+
     auto layout = aChartDraw.transformed_layout();
     auto titers = aChartDraw.chart().titers();
     auto antigens = aChartDraw.chart().antigens();
