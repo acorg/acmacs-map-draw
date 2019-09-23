@@ -832,7 +832,7 @@ Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value
     else {
         if (const auto pos = name.find("{lab}"); pos != std::string::npos) {
             auto info = aChartDraw.chart().info();
-            name = string::concat(name.substr(0, pos), info->lab(acmacs::chart::Info::Compute::Yes, acmacs::chart::Info::FixLab::yes), name.substr(pos + 5));
+            name = string::concat(name.substr(0, pos), info->lab(acmacs::chart::Info::Compute::Yes, acmacs::chart::Info::FixLab::reverse), name.substr(pos + 5));
         }
         rjson::for_each(get_referenced_mod(name), [&aChartDraw,&aSettingsMods,&args,&result](const rjson::value& submod_desc) {
             for (auto&& submod : factory(aChartDraw, submod_desc, aSettingsMods, args)) {
