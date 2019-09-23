@@ -141,7 +141,7 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 
 // ----------------------------------------------------------------------
 
-static Mods factory(const rjson::value& aMod, const rjson::value& aSettingsMods, const rjson::value& aUpdate);
+static Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value& aSettingsMods, const rjson::value& aUpdate);
 
 // ----------------------------------------------------------------------
 
@@ -150,7 +150,7 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::value& aMods, const rjson::v
     const auto& mods_data_mod = aModData["mods"];
     rjson::for_each(aMods, [&mods_data_mod,&aChartDraw,aIgnoreUnrecognized,&aModData](const rjson::value& mod_desc) {
         try {
-            for (const auto& mod: factory(mod_desc, mods_data_mod, {})) {
+            for (const auto& mod: factory(aChartDraw, mod_desc, mods_data_mod, {})) {
                 // Timeit ti{"INFO: Applying " + rjson::to_string(mod_desc) + ": "};
                 mod->apply(aChartDraw, aModData);
             }
@@ -695,7 +695,7 @@ class ModCircle : public Mod
 
 // ----------------------------------------------------------------------
 
-Mods factory(const rjson::value& aMod, const rjson::value& aSettingsMods, const rjson::value& aUpdate)
+Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value& aSettingsMods, const rjson::value& aUpdate)
 {
     std::string name;
     rjson::value args{rjson::object{}};
@@ -830,8 +830,12 @@ Mods factory(const rjson::value& aMod, const rjson::value& aSettingsMods, const 
         // commented out
     }
     else {
-        rjson::for_each(get_referenced_mod(name), [&aSettingsMods,&args,&result](const rjson::value& submod_desc) {
-            for (auto&& submod : factory(submod_desc, aSettingsMods, args)) {
+        if (const auto pos = name.find("{lab}"); pos != std::string::npos) {
+            auto info = aChartDraw.chart().info();
+            name = string::concat(name.substr(0, pos), info->lab(acmacs::chart::Info::Compute::Yes, acmacs::chart::Info::FixLab::yes), name.substr(pos + 5));
+        }
+        rjson::for_each(get_referenced_mod(name), [&aChartDraw,&aSettingsMods,&args,&result](const rjson::value& submod_desc) {
+            for (auto&& submod : factory(aChartDraw, submod_desc, aSettingsMods, args)) {
                 result.push_back(std::move(submod));
             }
         });
