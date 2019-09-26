@@ -208,7 +208,7 @@ class ColorOverride : public GeographicMapColoring
     TagColor color(const hidb::Antigen& aAntigen) const override
         {
             try {
-                return TagColor{aAntigen.name(), mColors.at(aAntigen.name())};
+                return TagColor{aAntigen.name(), mColors.at(*aAntigen.name())};
             }
             catch (...) {
                 return TagColor{"UNKNOWN", {ColorNoChange}};

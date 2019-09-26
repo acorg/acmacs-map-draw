@@ -69,7 +69,7 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
     for (auto [ag_no, antigen] : acmacs::enumerate(*antigens)) {
         // fmt::print(stderr, "DEBUG: {} {}\n", ag_no, antigen->name());
         writer.add_field("AG");
-        writer.add_field(antigen->name());
+        writer.add_field(*antigen->name());
         for (auto dim : acmacs::range(number_of_dimensions)) {
             if (const auto coord = layout->coordinate(ag_no, dim); !std::isnan(coord))
                 writer.add_field(acmacs::to_string(coord));
@@ -77,11 +77,11 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
                 writer.add_field("");
         }
         writer.add_field(antigen->date());
-        writer.add_field(antigen->reassortant());
+        writer.add_field(*antigen->reassortant());
         writer.add_field(antigen->annotations().join());
-        writer.add_field(antigen->passage());
+        writer.add_field(*antigen->passage());
         writer.add_field(antigen->lab_ids().join());
-        add_location_data(antigen->name());
+        add_location_data(*antigen->name());
         if (const auto& entry_seq = entry_seqs[ag_no]; entry_seq) {
             try {
                 writer.add_field(std::string{entry_seq.seq().aa_aligned()});
@@ -99,7 +99,7 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
     const auto number_of_antigens = antigens->size();
     for (auto [sr_no, serum] : acmacs::enumerate(*sera)) {
         writer.add_field("SR");
-        writer.add_field(serum->name());
+        writer.add_field(*serum->name());
         for (auto dim : acmacs::range(number_of_dimensions)) {
             if (const auto coord = layout->coordinate(sr_no + number_of_antigens, dim); !std::isnan(coord))
                 writer.add_field(acmacs::to_string(coord));
@@ -107,11 +107,11 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
                 writer.add_field("");
         }
         writer.add_field(""); // date
-        writer.add_field(serum->reassortant());
+        writer.add_field(*serum->reassortant());
         writer.add_field(serum->annotations().join());
         writer.add_field(serum->serum_id());
         writer.add_field(""); // lab_id
-        add_location_data(serum->name());
+        add_location_data(*serum->name());
         writer.add_field(""); // sequence
         writer.new_row();
     }

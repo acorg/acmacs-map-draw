@@ -75,7 +75,7 @@ GeographicMapColoring::~GeographicMapColoring()
 
 static inline std::string location_of_antigen(const hidb::Antigen& antigen)
 {
-    const std::string name = antigen.name();
+    const std::string name{antigen.name()};
     auto location = virus_name::location(name);
     if (location == "GEORGIA") {
         const auto& hidb = hidb::get(std::string{virus_name::virus_type(name)});

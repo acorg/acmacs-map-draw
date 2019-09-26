@@ -474,7 +474,7 @@ class ModTitle : public Mod
                 if (const auto pos = source.find("{assay_short}"); pos != std::string::npos) {
                     auto assay = info->assay(acmacs::chart::Info::Compute::Yes);
                     if (assay == "PLAQUE REDUCTION NEUTRALISATION" || assay == "FOCUS REDUCTION")
-                        assay = "NEUT";
+                        assay = acmacs::chart::Assay{"NEUT"};
                     source = string::concat(source.substr(0, pos), assay, source.substr(pos + 13));
                 }
                 if (const auto pos = source.find("{virus_type}"); pos != std::string::npos)

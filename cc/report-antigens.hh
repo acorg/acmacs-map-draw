@@ -26,7 +26,7 @@ template <typename Iter> inline void report_antigens(Iter first, Iter last, cons
             if (titers->number_of_layers() > 1) {
                 std::vector<std::string> layers;
                 for (size_t layer_no : titers->layers_with_antigen(*first))
-                    layers.push_back(info->source(layer_no)->date());
+                    layers.emplace_back(info->source(layer_no)->date());
                 fmt::print(stderr, " layers:{}", layers);
             }
             if (const auto& ref = matched_seqdb[*first]; ref)

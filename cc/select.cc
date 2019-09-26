@@ -232,7 +232,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
                 indexes.clear();
         }
         else if (key == "subtype") {
-            const std::string virus_type = aChartSelectInterface.chart().info()->virus_type(acmacs::chart::Info::Compute::Yes);
+            const std::string virus_type{aChartSelectInterface.chart().info()->virus_type(acmacs::chart::Info::Compute::Yes)};
             const std::string val_u = string::upper(static_cast<std::string_view>(val));
             if (val_u != virus_type) {
                 bool clear_indexes = true;
