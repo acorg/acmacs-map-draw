@@ -76,7 +76,7 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
             else
                 writer.add_field("");
         }
-        writer.add_field(antigen->date());
+        writer.add_field(*antigen->date());
         writer.add_field(*antigen->reassortant());
         writer.add_field(antigen->annotations().join());
         writer.add_field(*antigen->passage());
@@ -109,7 +109,7 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
         writer.add_field(""); // date
         writer.add_field(*serum->reassortant());
         writer.add_field(serum->annotations().join());
-        writer.add_field(serum->serum_id());
+        writer.add_field(*serum->serum_id());
         writer.add_field(""); // lab_id
         add_location_data(*serum->name());
         writer.add_field(""); // sequence
