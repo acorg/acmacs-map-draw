@@ -36,6 +36,19 @@ size_t ModSerumHomologous::select_mark_serum(ChartDraw& aChartDraw, bool aVerbos
 
 // ----------------------------------------------------------------------
 
+acmacs::chart::PointIndexList ModSerumHomologous::select_mark_sera(ChartDraw& aChartDraw, bool aVerbose)
+{
+    const auto serum_indexes = SelectSera(aVerbose ? SelectSera::verbose::yes : SelectSera::verbose::no).select(aChartDraw, args()["serum"]);
+    if (serum_indexes.empty())
+        std::cerr << "WARNING: no sera selected by " << args()["serum"] << '\n';
+    for (auto index : serum_indexes)
+        mark_serum(aChartDraw, index);
+    return serum_indexes;
+
+} // ModSerumHomologous::select_mark_sera
+
+// ----------------------------------------------------------------------
+
 size_t ModSerumHomologous::select_serum(ChartDraw& aChartDraw, bool aVerbose) const
 {
     const auto sera = SelectSera(aVerbose ? SelectSera::verbose::yes : SelectSera::verbose::no).select(aChartDraw, args()["serum"]);
@@ -49,7 +62,7 @@ size_t ModSerumHomologous::select_serum(ChartDraw& aChartDraw, bool aVerbose) co
 void ModSerumHomologous::mark_serum(ChartDraw& aChartDraw, size_t serum_index)
 {
     if (const auto& mark_serum = args()["mark_serum"]; !mark_serum.is_null()) {
-        aChartDraw.modify_serum(serum_index, point_style_from_json(mark_serum), drawing_order_from_json(mark_serum));
+        aChartDraw.modify_serum(serum_index, point_style_from_json(mark_serum, aChartDraw.chart().serum(serum_index)->is_egg() ? Color("#FF4040") : Color("#4040FF")), drawing_order_from_json(mark_serum));
         if (const auto& label = mark_serum["label"]; !label.is_null())
             add_label(aChartDraw, serum_index, aChartDraw.number_of_antigens(), label);
     }
@@ -140,6 +153,23 @@ void ModSerumCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData
 
 // ----------------------------------------------------------------------
 
+void ModSerumCircles::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
+{
+    const auto verbose = rjson::get_or(args(), "report", false);
+    const auto serum_indexes = select_mark_sera(aChartDraw, verbose);
+    for (auto serum_index : serum_indexes) {
+        const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, acmacs::chart::find_homologous::all, verbose);
+        const double fold = rjson::get_or(args(), "fold", 2.0);
+        if (const auto& homologous_titer = args()["homologous_titer"]; !homologous_titer.is_null())
+            make_serum_circle(aChartDraw, serum_index, antigen_indices, acmacs::chart::Titer(homologous_titer), args()["empirical"], args()["theoretical"], args()["fallback"], fold, verbose);
+        else
+            make_serum_circle(aChartDraw, serum_index, antigen_indices, args()["empirical"], args()["theoretical"], args()["fallback"], fold, verbose);
+    }
+
+} // ModSerumCircles::apply
+
+// ----------------------------------------------------------------------
+
 void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, acmacs::chart::Titer aHomologousTiter, const rjson::value& empirical_plot_spec, const rjson::value& theoretical_plot_spec, const rjson::value& fallback_plot_spec, double fold, bool verbose) const
 {
     bool empirical_or_theoretical_shown = false;
@@ -211,7 +241,13 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex
     auto& circle = aChartDraw.serum_circle(aSerumIndex, aRadius);
     if (!circle_plot_spec.empty()) {
         circle.fill(Color(rjson::get_or(circle_plot_spec, "fill", "transparent")));
-        const auto outline = rjson::get_or(circle_plot_spec, "outline", "pink");
+        auto outline = rjson::get_or(circle_plot_spec, "outline", "pink");
+        if (outline == "passage") {
+            if (aChartDraw.chart().serum(aSerumIndex)->is_egg())
+                outline = "#FF4040";
+            else
+                outline = "#4040FF";
+        }
         const auto outline_width = rjson::get_or(circle_plot_spec, "outline_width", 1.0);
         if (const auto outline_dash = rjson::get_or(circle_plot_spec, "outline_dash", ""); outline_dash == "dash1")
             circle.outline_dash1();

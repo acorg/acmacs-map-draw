@@ -796,6 +796,9 @@ Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value
     else if (name == "serum_circle") {
         result.emplace_back(new ModSerumCircle(args));
     }
+    else if (name == "serum_circles") {
+        result.emplace_back(new ModSerumCircles(args));
+    }
     else if (name == "serum_coverage") {
         result.emplace_back(new ModSerumCoverage(args));
     }
@@ -830,10 +833,11 @@ Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value
         // commented out
     }
     else {
-        if (const auto pos = name.find("{lab}"); pos != std::string::npos) {
-            auto info = aChartDraw.chart().info();
+        auto info = aChartDraw.chart().info();
+        if (const auto pos = name.find("{lab}"); pos != std::string::npos)
             name = string::concat(name.substr(0, pos), info->lab(acmacs::chart::Info::Compute::Yes, acmacs::chart::Info::FixLab::reverse), name.substr(pos + 5));
-        }
+        if (const auto pos = name.find("{assay}"); pos != std::string::npos)
+            name = string::concat(name.substr(0, pos), info->assay(acmacs::chart::Info::Compute::Yes).hi_or_neut(), name.substr(pos + 7));
         rjson::for_each(get_referenced_mod(name), [&aChartDraw,&aSettingsMods,&args,&result](const rjson::value& submod_desc) {
             for (auto&& submod : factory(aChartDraw, submod_desc, aSettingsMods, args)) {
                 result.push_back(std::move(submod));

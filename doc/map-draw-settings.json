@@ -192,6 +192,14 @@
          "mark_serum":   {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
          "mark_antigen": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}}},
 
+        {"N": "serum_circles", "serum": {"name": "may select none or multiple sera"}, "?antigen": {"index": 0}, "report": true,
+         "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
+         "empirical":   {"fill": "#C08080FF", "outline": "passage", "outline_width": 2, "?outline_dash": "dash2", "?angle_degrees": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "show": true},
+         "theoretical": {"fill": "#C08080FF", "outline": "passage", "outline_width": 2, "?outline_dash": "dash2", "?angle_degrees": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "show": true},
+         "fallback":    {"fill": "#C08080FF", "outline": "passage", "outline_width": 2, "outline_dash": "dash3",  "?angle_degrees": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "radius": 3, "show": true},
+         "mark_serum":   {"fill": "passage", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
+         "mark_antigen": {"fill": "passage", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}}},
+
         {obsolete! "N": "serum_circle", "serum": {"index": 0}, "?antigen": {"index": 0}, "?homologous_titer": "1280", "report": true,
          "type": "empirical (default) | theoretical",
          "circle": {"fill": "#C08080FF", "outline": "blue", "outline_width": 2, "angle_degrees": [0, 30], "radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1},

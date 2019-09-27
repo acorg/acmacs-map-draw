@@ -24,6 +24,7 @@ class ModSerumHomologous : public Mod
 
  protected:
     size_t select_mark_serum(ChartDraw& aChartDraw, bool aVerbose);
+    acmacs::chart::PointIndexList select_mark_sera(ChartDraw& aChartDraw, bool aVerbose);
     size_t select_serum(ChartDraw& aChartDraw, bool aVerbose) const;
     void mark_serum(ChartDraw& aChartDraw, size_t serum_index);
     acmacs::chart::PointIndexList select_mark_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, acmacs::chart::find_homologous find_homologous_options, bool aVerbose);
@@ -47,7 +48,7 @@ class ModSerumCircle : public ModSerumHomologous
     void make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, const acmacs::chart::PointIndexList& aAntigenIndices, serum_circle_radius_type radius_type, const rjson::value& circle_plot_spec, double fold, bool verbose) const;
     void make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, const acmacs::chart::PointIndexList& aAntigenIndices, const rjson::value& homologous_titer, serum_circle_radius_type radius_type, const rjson::value& circle_plot_spec, double fold, bool verbose) const;
 
-  private:
+  protected:
     void make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, const acmacs::chart::PointIndexList& antigen_indices, acmacs::chart::Titer aHomologousTiter, const rjson::value& empirical_plot_spec, const rjson::value& theoretical_plot_spec, const rjson::value& fallback_plot_spec, double fold, bool verbose) const;
     void make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, const acmacs::chart::PointIndexList& aAntigenIndices, const rjson::value& empirical_plot_spec, const rjson::value& theoretical_plot_spec, const rjson::value& fallback_plot_spec, double fold, bool verbose) const;
     void make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex, Scaled aRadius, const rjson::value& circle_plot_spec) const;
@@ -57,6 +58,16 @@ class ModSerumCircle : public ModSerumHomologous
 }; // class ModSerumCircle
 
 // ----------------------------------------------------------------------
+
+class ModSerumCircles : public ModSerumCircle
+{
+ public:
+    using ModSerumCircle::ModSerumCircle;
+
+    void apply(ChartDraw& aChartDraw, const rjson::value& aModData) override;
+};
+
+// ======================================================================
 
 class ModSerumCoverage : public ModSerumHomologous
 {

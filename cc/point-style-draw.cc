@@ -31,18 +31,26 @@ void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aS
 
 // ----------------------------------------------------------------------
 
-acmacs::PointStyle point_style_from_json(const rjson::value& aSource)
+acmacs::PointStyle point_style_from_json(const rjson::value& aSource, Color passage_color)
 {
     acmacs::PointStyle style;
-    rjson::for_each(aSource, [&style](const std::string& key, const rjson::value& val) {
-        if (key == "fill")
-            style.fill = Color(static_cast<std::string_view>(val));
+    rjson::for_each(aSource, [&style,passage_color](const std::string& key, const rjson::value& val) {
+        if (key == "fill") {
+            if (const std::string_view val_s = val; val_s == "passage")
+                style.fill = Color(passage_color);
+            else
+                style.fill = Color(val_s);
+        }
         else if (key == "fill_saturation")
             style.fill = Color(Color::type::adjust_saturation, val);
         else if (key == "fill_brightness")
             style.fill = Color(Color::type::adjust_brightness, val);
-        else if (key == "outline")
-            style.outline = Color(static_cast<std::string_view>(val));
+        else if (key == "outline") {
+            if (const std::string_view val_s = val; val_s == "passage")
+                style.outline = Color(passage_color);
+            else
+                style.outline = Color(val_s);
+        }
         else if (key == "outline_saturation")
             style.outline = Color(Color::type::adjust_saturation, val);
         else if (key == "outline_brightness")
