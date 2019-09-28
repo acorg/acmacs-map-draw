@@ -47,33 +47,33 @@ class SelectAntigensSera
     template <typename AgSr> void filter_name_in(AgSr aAgSr, acmacs::chart::Indexes& indexes, std::string aName)
         {
               // Timeit ti("filter_name_in " + aName + ": ", do_report_time(mVerbose));
-            acmacs::chart::Indexes result(indexes.size());
+            acmacs::chart::Indexes result(indexes->size());
             const auto by_name = aAgSr->find_by_name(aName);
             // std::cerr << "DEBUG: SelectAntigensSera::filter_name_in \"" << aName << "\": " << by_name << '\n';
             const auto end = std::set_intersection(indexes.begin(), indexes.end(), by_name.begin(), by_name.end(), result.begin());
-            indexes.erase(std::copy(result.begin(), end, indexes.begin()), indexes.end());
+            indexes.get().erase(std::copy(result.begin(), end, indexes.begin()), indexes.end());
         }
 
     template <typename AgSr> void filter_full_name_in(AgSr aAgSr, acmacs::chart::Indexes& indexes, std::string aFullName)
         {
-            indexes.erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return (*aAgSr)[index]->full_name() != aFullName; }), indexes.end());
+            indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return (*aAgSr)[index]->full_name() != aFullName; }), indexes.end());
         }
 
     template <typename AgSr> void filter_out_distinct_in(AgSr aAgSr, acmacs::chart::Indexes& indexes)
         {
-            indexes.erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return (*aAgSr)[index]->annotations().distinct(); }), indexes.end());
+            indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return (*aAgSr)[index]->annotations().distinct(); }), indexes.end());
         }
 
     void filter_rectangle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::Layout& aLayout, const acmacs::Rectangle& aRectangle)
         {
             const auto not_in_rectangle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return p.number_of_dimensions() == acmacs::number_of_dimensions_t{2} ? !aRectangle.within(p) : true; };
-            indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_rectangle), indexes.end());
+            indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_rectangle), indexes.end());
         }
 
     void filter_circle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::Layout& aLayout, const acmacs::Circle& aCircle)
         {
             const auto not_in_circle = [&](auto index) -> bool { const auto& p = aLayout[index + aIndexBase]; return p.number_of_dimensions() == acmacs::number_of_dimensions_t{2} ? !aCircle.within(p) : true; };
-            indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_circle), indexes.end());
+            indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_circle), indexes.end());
         }
 
     bool verbose() const { return mVerbose == verbose::yes; }

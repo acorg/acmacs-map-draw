@@ -59,9 +59,9 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
     if (verbose)
         common.report();
     std::vector<acmacs::chart::CommonAntigensSera::common_t> common_points;
-    if (!antigen_indexes.empty())
+    if (!antigen_indexes->empty())
         common_points = common.points_for_primary_antigens(antigen_indexes);
-    else if (!serum_indexes.empty())
+    else if (!serum_indexes->empty())
         common_points = common.points_for_primary_sera(serum_indexes);
     else
         common_points = common.points(subset);

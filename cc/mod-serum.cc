@@ -39,7 +39,7 @@ size_t ModSerumHomologous::select_mark_serum(ChartDraw& aChartDraw, bool aVerbos
 acmacs::chart::PointIndexList ModSerumHomologous::select_mark_sera(ChartDraw& aChartDraw, bool aVerbose)
 {
     const auto serum_indexes = SelectSera(aVerbose ? SelectSera::verbose::yes : SelectSera::verbose::no).select(aChartDraw, args()["serum"]);
-    if (serum_indexes.empty())
+    if (serum_indexes->empty())
         std::cerr << "WARNING: no sera selected by " << args()["serum"] << '\n';
     for (auto index : serum_indexes)
         mark_serum(aChartDraw, index);
@@ -52,9 +52,9 @@ acmacs::chart::PointIndexList ModSerumHomologous::select_mark_sera(ChartDraw& aC
 size_t ModSerumHomologous::select_serum(ChartDraw& aChartDraw, bool aVerbose) const
 {
     const auto sera = SelectSera(aVerbose ? SelectSera::verbose::yes : SelectSera::verbose::no).select(aChartDraw, args()["serum"]);
-    if (sera.size() != 1)
+    if (sera->size() != 1)
         throw unrecognized_mod{"\"serum\" does not select single serum, mod: " + rjson::to_string(args())};
-    return sera.front();
+    return sera->front();
 }
 
 // ----------------------------------------------------------------------
@@ -88,7 +88,7 @@ acmacs::chart::PointIndexList ModSerumHomologous::select_antigens(ChartDraw& aCh
 {
     if (const auto& antigen_select = args()["antigen"]; !antigen_select.is_null()) {
         const auto antigens = SelectAntigens(aVerbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, antigen_select);
-        if (antigens.empty())
+        if (antigens->empty())
             throw unrecognized_mod{"\"antigen\" does not select an antigen, mod: " + rjson::to_string(args())};
         return antigens;
     }
@@ -103,13 +103,13 @@ acmacs::chart::PointIndexList ModSerumHomologous::select_homologous_antigens(Cha
 {
     aChartDraw.chart().set_homologous(find_homologous_options);
     const auto antigen_indexes = aChartDraw.chart().serum(aSerumIndex)->homologous_antigens();
-    if (antigen_indexes.empty()) {
+    if (antigen_indexes->empty()) {
         std::cerr << "WARNING: no homologous antigens for serum " << aSerumIndex << '\n';
         throw unrecognized_mod{"no homologous antigens for serum, mod: " + rjson::to_string(args())};
     }
     if (aVerbose) {
         auto antigens = aChartDraw.chart().antigens();
-        std::cerr << "INFO: homologous antigens selected: " << std::setfill(' ') << std::setw(4) << antigen_indexes.size() << '\n';
+        std::cerr << "INFO: homologous antigens selected: " << std::setfill(' ') << std::setw(4) << antigen_indexes->size() << '\n';
         for (auto index: antigen_indexes)
             std::cerr << "  AG " << std::setw(5) << index << ' ' << (*antigens)[index]->full_name() << '\n';
     }
@@ -362,8 +362,8 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const ac
             }
             catch (acmacs::chart::serum_coverage_error& err) {
                 std::cerr << "WARNING: cannot use homologous antigen " << *ai << ": " << err.what() << '\n';
-                within.clear();
-                outside.clear();
+                within.get().clear();
+                outside.get().clear();
             }
         }
         if (!antigen_index)
@@ -376,11 +376,11 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const ac
             std::cerr << "  AG " << *antigen_index << ' ' << aChartDraw.chart().antigen(*antigen_index)->full_name() << '\n';
         else
             std::cerr << "  forced homologous titer: " << homologous_titer << '\n';
-        std::cerr << "  within 4fold:  " << within.size() << "\n  outside 4fold: " << outside.size() << '\n';
+        std::cerr << "  within 4fold:  " << within->size() << "\n  outside 4fold: " << outside->size() << '\n';
     }
-    if (!within.empty())
+    if (!within->empty())
         aChartDraw.modify(within, point_style_from_json(within_4fold), drawing_order_from_json(within_4fold));
-    if (!outside.empty())
+    if (!outside->empty())
         aChartDraw.modify(outside, point_style_from_json(outside_4fold), drawing_order_from_json(outside_4fold));
     mark_serum(aChartDraw, serum_index);
 

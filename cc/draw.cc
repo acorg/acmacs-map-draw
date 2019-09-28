@@ -127,7 +127,7 @@ void ChartDraw::draw(acmacs::draw::DrawElements& painter) const
         throw std::runtime_error("Call calculate_viewport() before draw()");
     painter.viewport(mViewport);
     mMapElements.draw(painter, *this);
-    auto& points = painter.points(layout(), transformation()).drawing_order(drawing_order().data()).styles(plot_spec_ptr()).labels(mLabels);
+    auto& points = painter.points(layout(), transformation()).drawing_order(*drawing_order()).styles(plot_spec_ptr()).labels(mLabels);
     if (painter.add_all_labels()) {
         add_all_labels();
         points.labels(mLabels);

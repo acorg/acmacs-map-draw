@@ -50,9 +50,9 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool
             throw unrecognized_mod{"cannot find color for AA: " + aa + ", \"colors\" in the settings is not complete?"};
         else
             styl.fill = ca->second;
-        aChartDraw.modify(indices_for_aa, styl, drawing_order());
+        aChartDraw.modify(acmacs::chart::Indexes{indices_for_aa}, styl, drawing_order());
         if (const auto& legend = args()["legend"]; !legend.is_null())
-            add_legend(aChartDraw, indices_for_aa, styl, aa, legend);
+            add_legend(aChartDraw, acmacs::chart::Indexes{indices_for_aa}, styl, aa, legend);
         if (aVerbose) {
             fmt::print(stderr, "INFO: amino-acids at {}: {} {}\n", aPos, aa, indices_for_aa.size());
             report_antigens(std::begin(indices_for_aa), std::end(indices_for_aa), aChartDraw, report_names_threshold);
@@ -133,9 +133,9 @@ void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, 
     if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
         auto styl = style();
         styl = point_style_from_json(aGroup);
-        aChartDraw.modify(aap->second, styl, drawing_order());
+        aChartDraw.modify(acmacs::chart::Indexes{aap->second}, styl, drawing_order());
         if (const auto& legend = args()["legend"]; !legend.is_null())
-            add_legend(aChartDraw, aap->second, styl, string::join(" ", positions), legend);
+            add_legend(aChartDraw, acmacs::chart::Indexes{aap->second}, styl, string::join(" ", positions), legend);
         if (aVerbose) {
             fmt::print(stderr, "INFO: amino-acids group {}: {}\n", pos_aa, aap->second.size());
             report_antigens(std::begin(aap->second), std::end(aap->second), aChartDraw, report_names_threshold);

@@ -106,7 +106,7 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
     if (const auto& replace = aLegendData["replace"]; !replace.is_null() && static_cast<bool>(replace)) {
         if (const auto& count = aLegendData["count"]; !count.is_null() && static_cast<bool>(count)) {
             // std::cerr << "DEBUG: remove line " << label + " (" + std::to_string(aIndices.size()) + ")" << '\n';
-            aChartDraw.legend_point_label().remove_line(label + " (" + std::to_string(aIndices.size()) + ")");
+            aChartDraw.legend_point_label().remove_line(label + " (" + std::to_string(aIndices->size()) + ")");
         }
         else {
             // std::cerr << "DEBUG: add_legend remove line " << label << '\n';
@@ -122,7 +122,7 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData)
 {
     // std::cerr << "DEBUG: add_legend " << aLabel << '\n';
-    if (const auto& show = aLegendData["show"]; (show.is_null() || static_cast<bool>(show)) && !aIndices.empty()) { // show is true by default
+    if (const auto& show = aLegendData["show"]; (show.is_null() || static_cast<bool>(show)) && !aIndices->empty()) { // show is true by default
         if (rjson::get_or(aLegendData, "type", "") == "continent_map") {
             if (const auto& offset = aLegendData["offset"]; offset.size() != 2)
                 aChartDraw.continent_map();
@@ -132,7 +132,7 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
         else {
             auto& legend = aChartDraw.legend_point_label();
             if (const auto& count = aLegendData["count"]; !count.is_null() && static_cast<bool>(count))
-                aLabel += " (" + std::to_string(aIndices.size()) + ")";
+                aLabel += " (" + std::to_string(aIndices->size()) + ")";
             legend.add_line(*aStyle.outline, *aStyle.fill, aLabel);
         }
     }
@@ -202,15 +202,15 @@ acmacs::PointCoordinates ModMoveBase::get_move_to(ChartDraw& aChartDraw, bool aV
     }
     else if (const auto& to_antigen = args()["to_antigen"]; !to_antigen.is_null()) {
         const auto antigens = SelectAntigens(aVerbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, to_antigen);
-        if (antigens.size() != 1)
+        if (antigens->size() != 1)
             throw unrecognized_mod{"\"to_antigen\" does not select single antigen, mod: " + rjson::to_string(args())};
-        move_to = aChartDraw.layout()->get(antigens.front());
+        move_to = aChartDraw.layout()->get(antigens->front());
     }
     else if (const auto& to_serum = args()["to_serum"]; !to_serum.is_null()) {
         const auto sera = SelectSera(aVerbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, to_serum);
-        if (sera.size() != 1)
+        if (sera->size() != 1)
             throw unrecognized_mod{"\"to_serum\" does not select single serum, mod: " + rjson::to_string(args())};
-        move_to = aChartDraw.layout()->get(sera.front() + aChartDraw.number_of_antigens());
+        move_to = aChartDraw.layout()->get(sera->front() + aChartDraw.number_of_antigens());
     }
     else
         throw unrecognized_mod{"neither of \"to\", \"to_antigen\", \"to__serum\" provided in mod: " + rjson::to_string(args())};

@@ -150,7 +150,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         else if (key == "indexes") {
             acmacs::chart::Indexes to_keep(val.size());
             rjson::transform(val, to_keep.begin(), [](const rjson::value& v) -> size_t { return v; });
-            indexes.erase(std::remove_if(indexes.begin(), indexes.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indexes.end());
+            indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indexes.end());
         }
         else if (key == "sequenced") {
             filter_sequenced(aChartSelectInterface, indexes);
@@ -182,9 +182,9 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
                     const auto by_name = antigens->find_by_name(entry);
                     to_include.extend(by_name);
                 });
-                acmacs::chart::Indexes result(indexes.size());
+                acmacs::chart::Indexes result(indexes->size());
                 const auto end = std::set_intersection(indexes.begin(), indexes.end(), to_include.begin(), to_include.end(), result.begin());
-                indexes.erase(std::copy(result.begin(), end, indexes.begin()), indexes.end());
+                indexes.get().erase(std::copy(result.begin(), end, indexes.begin()), indexes.end());
             }
             else
                 throw std::exception{};
@@ -195,7 +195,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             if (val.is_string()) {
                 filter_full_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
                 if (const auto& no = aSelector.get("no"); !no.is_null())
-                    indexes.erase_except(indexes[no]);
+                    indexes.erase_except((*indexes)[no]);
             }
             else if (val.is_array()) {
             }
@@ -229,7 +229,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
         else if (key == "lab") {
             if (aChartSelectInterface.chart().info()->lab(acmacs::chart::Info::Compute::Yes) != string::upper(static_cast<std::string_view>(val)))
-                indexes.clear();
+                indexes.get().clear();
         }
         else if (key == "subtype") {
             const std::string virus_type{aChartSelectInterface.chart().info()->virus_type(acmacs::chart::Info::Compute::Yes)};
@@ -244,7 +244,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
                     clear_indexes = !((val_u == "H1" && virus_type == "A(H1N1)") || (val_u == "H3" && virus_type == "A(H3N2)"));
                 }
                 if (clear_indexes)
-                    indexes.clear();
+                    indexes.get().clear();
             }
         }
         else if (key == "found_in_previous") {
@@ -278,8 +278,8 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
     });
     if (verbose()) {
-        std::cerr << "INFO: antigens selected: " << std::setfill(' ') << std::setw(4) << indexes.size() << ' ' << aSelector << '\n';
-        if (!indexes.empty())
+        std::cerr << "INFO: antigens selected: " << std::setfill(' ') << std::setw(4) << indexes->size() << ' ' << aSelector << '\n';
+        if (!indexes->empty())
             report_antigens(std::begin(indexes), std::end(indexes), aChartSelectInterface, report_names_threshold());
     }
 
@@ -307,7 +307,7 @@ void SelectAntigens::filter_sequenced(const ChartSelectInterface& aChartSelectIn
 {
     const auto& entries = aChartSelectInterface.match_seqdb();
     auto not_sequenced = [&entries](auto index) -> bool { return !entries[index]; };
-    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_sequenced), indexes.end());
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_sequenced), indexes.end());
 
 } // SelectAntigens::filter_sequenced
 
@@ -317,7 +317,7 @@ void SelectAntigens::filter_not_sequenced(const ChartSelectInterface& aChartSele
 {
     const auto& entries = aChartSelectInterface.match_seqdb();
     auto sequenced = [&entries](auto index) -> bool { return static_cast<bool>(entries[index]); };
-    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), sequenced), indexes.end());
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), sequenced), indexes.end());
 
 } // SelectAntigens::filter_not_sequenced
 
@@ -342,7 +342,7 @@ void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterf
 {
     const auto& entries = aChartSelectInterface.match_seqdb();
     auto not_in_clade = [&entries,aClade](auto index) -> bool { const auto& entry = entries[index]; return !entry || !entry.seq().has_clade(aClade); };
-    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_clade), indexes.end());
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_clade), indexes.end());
 
 } // SelectAntigens::filter_clade
 
@@ -353,7 +353,7 @@ void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChart
     const auto& entries = aChartSelectInterface.match_seqdb();
     auto at_pos_neq = [amino_acid,pos1,equal](const auto& entry) -> bool { return equal ? entry.seq().aa_at_pos1(pos1) != amino_acid : entry.seq().aa_at_pos1(pos1) == amino_acid; };
     auto not_aa_at_pos = [&entries,&at_pos_neq](auto index) -> bool { const auto& entry = entries[index]; return !entry || at_pos_neq(entry); };
-    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_aa_at_pos), indexes.end());
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_aa_at_pos), indexes.end());
 
 } // SelectAntigens::filter_amino_acid_at_pos
 
@@ -387,7 +387,7 @@ void SelectAntigens::filter_outlier(const ChartSelectInterface& aChartSelectInte
     // std::cerr << "centroid new: " << centroid << '\n';
 
     using point_dist_t = std::pair<size_t, double>; // point number (from indexes) and its distance to centroid
-    std::vector<point_dist_t> point_dist(indexes.size());
+    std::vector<point_dist_t> point_dist(indexes->size());
     std::transform(indexes.begin(), indexes.end(), point_dist.begin(), [centroid=centroid,&layout](size_t index) -> point_dist_t {
         const auto coord = layout->get(index);
         if (coord.exists())
@@ -402,7 +402,7 @@ void SelectAntigens::filter_outlier(const ChartSelectInterface& aChartSelectInte
         std::cout << std::setfill(' ') << std::setw(8) << point_no << ' ' << dist << '\n';
 
     auto not_outlier = [&point_dist,aUnits](size_t index) { const auto& [_, d] = *std::find_if(point_dist.begin(), point_dist.end(), [index](const auto& pd) { return pd.first == index; }); return d < aUnits; };
-    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_outlier), indexes.end());
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_outlier), indexes.end());
 
 } // SelectAntigens::filter_outlier
 
@@ -427,10 +427,10 @@ void SelectAntigens::filter_vaccine(const ChartSelectInterface& aChartSelectInte
         std::sort(vaccine_indexes.begin(), vaccine_indexes.end());
         acmacs::chart::Indexes result(vaccine_indexes.size());
         const auto end = std::set_intersection(indexes.begin(), indexes.end(), vaccine_indexes.begin(), vaccine_indexes.end(), result.begin());
-        indexes.erase(std::copy(result.begin(), end, indexes.begin()), indexes.end());
+        indexes.get().erase(std::copy(result.begin(), end, indexes.begin()), indexes.end());
     }
     else {
-        indexes.clear();
+        indexes.get().clear();
         std::cerr << "WARNING: unknown virus_type for chart: " << aChartSelectInterface.chart().make_name() << '\n';
     }
 
@@ -458,7 +458,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
         else if (key == "indexes") {
             acmacs::chart::Indexes to_keep(val.size());
             rjson::transform(val, to_keep.begin(), [](const rjson::value& v) -> size_t { return v; });
-            indexes.erase(std::remove_if(indexes.begin(), indexes.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indexes.end());
+            indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indexes.end());
         }
         else if (key == "clade") {
             filter_clade(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
@@ -504,8 +504,8 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
         }
     });
     if (verbose()) {
-        std::cerr << "Sera selected: " << std::setfill(' ') << std::setw(4) << indexes.size() << ' ' << aSelector << '\n';
-        if (!indexes.empty())
+        std::cerr << "Sera selected: " << std::setfill(' ') << std::setw(4) << indexes->size() << ' ' << aSelector << '\n';
+        if (!indexes->empty())
             report_sera(std::begin(indexes), std::end(indexes), aChartSelectInterface, report_names_threshold());
     }
     return indexes;
@@ -526,7 +526,7 @@ template <typename AgSr> void filter_table_ag_sr(const AgSr& aAgSr, acmacs::char
         }
         return true;
     };
-    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_table), indexes.end());
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_table), indexes.end());
 }
 
 void SelectAntigens::filter_table(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aTable)
@@ -553,7 +553,7 @@ template <typename F> void filter_layer_ag_sr(const ChartSelectInterface& aChart
     if (aLayer < 0 || aLayer > static_cast<int>(titers->number_of_layers()))
         throw std::runtime_error(fmt::format("Invalid layer: {}", aLayer));
 
-    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), [antigens_in_layer=first_second(titers->antigens_sera_of_layer(static_cast<size_t>(aLayer)))](size_t index) {
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [antigens_in_layer=first_second(titers->antigens_sera_of_layer(static_cast<size_t>(aLayer)))](size_t index) {
         return std::find(std::begin(antigens_in_layer), std::end(antigens_in_layer), index) == std::end(antigens_in_layer);
     }), indexes.end());
 }
@@ -581,7 +581,7 @@ void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface,
         const auto clades = acmacs::seqdb::get().clades_for_name(chart.sera()->at(serum_index)->name());
         return std::find(std::begin(clades), std::end(clades), aClade) == std::end(clades);
     };
-    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_in_clade), indexes.end());
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_clade), indexes.end());
 
 } // SelectSera::filter_clade
 
@@ -625,7 +625,7 @@ void SelectSera::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSele
         // fmt::print(stderr, "DEBUG: !!! {} SR {} {}  HOMOL: {}\n", pos1_aa, serum_index, sera->at(serum_index)->full_name(), sera->at(serum_index)->homologous_antigens());
         return true;
     };
-    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), homologous_filtered_out_by_amino_acid), indexes.end());
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), homologous_filtered_out_by_amino_acid), indexes.end());
 
 } // SelectSera::filter_amino_acid_at_pos
 
@@ -640,7 +640,7 @@ void SelectAntigens::filter_relative_to_serum_line(const ChartSelectInterface& a
         const auto distance = serum_line.line().distance_with_direction(layout->get(antigen_no));
         return std::abs(distance) < distance_min || std::abs(distance) > distance_max || (direction != 0 && (direction * distance) < 0);
     };
-    indexes.erase(std::remove_if(indexes.begin(), indexes.end(), not_relative_to_line), indexes.end());
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_relative_to_line), indexes.end());
 
 } // SelectAntigens::filter_relative_to_serum_line
 
@@ -652,7 +652,7 @@ void SelectAntigens::filter_titrated_against(const ChartSelectInterface& aChartS
     auto not_titrated = [&titers, &serum_indexes](auto antigen_no) -> bool {
         return std::all_of(std::begin(serum_indexes), std::end(serum_indexes), [&titers, antigen_no](auto sr_no) { return titers->titer(antigen_no, sr_no).is_dont_care(); });
     };
-    antigen_indexes.erase(std::remove_if(antigen_indexes.begin(), antigen_indexes.end(), not_titrated), antigen_indexes.end());
+    antigen_indexes.get().erase(std::remove_if(antigen_indexes.begin(), antigen_indexes.end(), not_titrated), antigen_indexes.end());
 
 } // SelectAntigens::filter_titrated_against
 
@@ -664,7 +664,7 @@ void SelectSera::filter_titrated_against(const ChartSelectInterface& aChartSelec
     auto not_titrated = [&titers, &antigen_indexes](auto serum_no) -> bool {
         return std::all_of(std::begin(antigen_indexes), std::end(antigen_indexes), [&titers, serum_no](auto ag_no) { return titers->titer(ag_no, serum_no).is_dont_care(); });
     };
-    serum_indexes.erase(std::remove_if(serum_indexes.begin(), serum_indexes.end(), not_titrated), serum_indexes.end());
+    serum_indexes.get().erase(std::remove_if(serum_indexes.begin(), serum_indexes.end(), not_titrated), serum_indexes.end());
 
 } // SelectSera::filter_titrated_against
 
