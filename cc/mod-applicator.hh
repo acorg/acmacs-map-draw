@@ -45,7 +45,7 @@ class Mod
  private:
     const rjson::value mArgs;  // not reference! "N" is probably wrong due to updating args in factory!
 
-    friend inline std::ostream& operator << (std::ostream& out, const Mod& aMod) { return out << aMod.args(); }
+    friend inline std::ostream& operator << (std::ostream& out, const Mod& aMod) { return out << fmt::format("{}", aMod.args()); }
 
 }; // class Mod
 

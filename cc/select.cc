@@ -100,7 +100,7 @@ void filter(const AgSr& ag_sr, acmacs::chart::Indexes& indexes, SelectAntigensSe
         // processed together with the main selector, e.g. "name"
     }
     else {
-        std::cerr << "WARNING: unrecognized key \"" << key << "\" in selector: " << aSelector << '\n';
+        fmt::print(stderr, "WARNING: unrecognized key \"{}\" in selector: {}\n", key, aSelector);
     }
 
 } // filter
@@ -278,7 +278,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
     });
     if (verbose()) {
-        std::cerr << "INFO: antigens selected: " << std::setfill(' ') << std::setw(4) << indexes->size() << ' ' << aSelector << '\n';
+        fmt::print("INFO: antigens selected: {:4d} {}\n", indexes->size(), aSelector);
         if (!indexes->empty())
             report_antigens(std::begin(indexes), std::end(indexes), aChartSelectInterface, report_names_threshold());
     }
@@ -504,7 +504,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
         }
     });
     if (verbose()) {
-        std::cerr << "Sera selected: " << std::setfill(' ') << std::setw(4) << indexes->size() << ' ' << aSelector << '\n';
+        fmt::print("INFO: sera selected: {:4d} {}\n", indexes->size(), aSelector);
         if (!indexes->empty())
             report_sera(std::begin(indexes), std::end(indexes), aChartSelectInterface, report_names_threshold());
     }

@@ -156,12 +156,12 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::value& aMods, const rjson::v
             }
         }
         catch (std::bad_variant_access&) {
-            std::cerr << "ERROR: std::bad_variant_access: in handling mod: " << mod_desc << '\n';
+            fmt::print(stderr, "ERROR: std::bad_variant_access: in handling mod: {}\n", mod_desc);
             throw unrecognized_mod(std::string(mod_desc));
         }
         catch (unrecognized_mod&) {
             if (aIgnoreUnrecognized)
-                std::cerr << "WARNING: unrecognized mod: " << mod_desc << '\n';
+                fmt::print(stderr, "WARNING: unrecognized mod: {}\n", mod_desc);
             else
                 throw;
         }
@@ -712,7 +712,7 @@ Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value
         args.update(aUpdate);
     }
     catch (std::exception& err) {
-        std::cerr << "ERROR: " << err.what() << "\n  main rjson::value: " << args << "\n  rjson::value to merge in: " << aUpdate << '\n';
+        fmt::print(stderr, "ERROR: {}\n  main rjson::value: {}\n  rjson::value to merge in: {}\n", err, args, aUpdate);
         throw;
     }
 
@@ -827,7 +827,7 @@ Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value
         // comment mod silently ignored
     }
     else if (name.empty() && aMod["?#"].is_null()) {
-        std::cerr << "WARNING: mod ignored (no \"N\"): " << args << '\n';
+        fmt::print(stderr, "WARNING: mod ignored (no \"N\"): {}\n", args);
     }
     else if ((name.empty() && !aMod["?#"].is_null()) || name.front() == '?' || name.back() == '?') {
         // commented out

@@ -110,7 +110,7 @@ int draw(const Options& opt)
         else if (opt.time_series == "weekly")
             time_series.reset(new GeographicTimeSeriesWeekly(subtype, start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]));
         else
-            throw std::runtime_error(fmt::format("Unsupported time series argument: {} (monthly or yearly or weekly expected)", opt.time_series));
+            throw std::runtime_error(fmt::format("Unsupported time series argument: {} (monthly or yearly or weekly expected)", *opt.time_series));
         set_title(time_series->title(), settings, false);
         time_series->draw(opt.output_pdf, *coloring, ColorOverride{}, settings["output_image_width"]);
     }

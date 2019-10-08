@@ -40,7 +40,7 @@ acmacs::chart::PointIndexList ModSerumHomologous::select_mark_sera(ChartDraw& aC
 {
     const auto serum_indexes = SelectSera(aVerbose ? SelectSera::verbose::yes : SelectSera::verbose::no).select(aChartDraw, args()["serum"]);
     if (serum_indexes->empty())
-        std::cerr << "WARNING: no sera selected by " << args()["serum"] << '\n';
+        fmt::print(stderr, "WARNING: no sera selected by {}\n", args()["serum"]);
     for (auto index : serum_indexes)
         mark_serum(aChartDraw, index);
     return serum_indexes;
@@ -371,12 +371,12 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const ac
     }
 
     if (verbose) {
-        std::cerr << "INFO: serum coverage\n  SR " << serum_index << ' ' << aChartDraw.chart().serum(serum_index)->full_name() << '\n';
+        fmt::print("INFO: serum coverage\n  SR {} {}\n", serum_index, aChartDraw.chart().serum(serum_index)->full_name());
         if (antigen_index.has_value())
-            std::cerr << "  AG " << *antigen_index << ' ' << aChartDraw.chart().antigen(*antigen_index)->full_name() << '\n';
+            fmt::print("  AG {} {}\n", *antigen_index, aChartDraw.chart().antigen(*antigen_index)->full_name());
         else
-            std::cerr << "  forced homologous titer: " << homologous_titer << '\n';
-        std::cerr << "  within 4fold:  " << within->size() << "\n  outside 4fold: " << outside->size() << '\n';
+            fmt::print("  forced homologous titer: {}\n", homologous_titer);
+        fmt::print("  within 4fold:  {}\n  outside 4fold: \n", within->size(), outside->size());
     }
     if (!within->empty())
         aChartDraw.modify(within, point_style_from_json(within_4fold), drawing_order_from_json(within_4fold));
