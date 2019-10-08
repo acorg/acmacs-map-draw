@@ -42,9 +42,9 @@ acmacs::PointStyle point_style_from_json(const rjson::value& aSource, Color pass
                 style.fill = Color(val_s);
         }
         else if (key == "fill_saturation")
-            style.fill = Color(Color::type::adjust_saturation, val);
+            style.fill = Color(Color::type::adjust_saturation, static_cast<double>(val));
         else if (key == "fill_brightness")
-            style.fill = Color(Color::type::adjust_brightness, val);
+            style.fill = Color(Color::type::adjust_brightness, static_cast<double>(val));
         else if (key == "outline") {
             if (const std::string_view val_s{val}; val_s == "passage")
                 style.outline = Color(passage_color);
@@ -52,9 +52,9 @@ acmacs::PointStyle point_style_from_json(const rjson::value& aSource, Color pass
                 style.outline = Color(val_s);
         }
         else if (key == "outline_saturation")
-            style.outline = Color(Color::type::adjust_saturation, val);
+            style.outline = Color(Color::type::adjust_saturation, static_cast<double>(val));
         else if (key == "outline_brightness")
-            style.outline = Color(Color::type::adjust_brightness, val);
+            style.outline = Color(Color::type::adjust_brightness, static_cast<double>(val));
         else if (key == "show")
             style.shown = static_cast<bool>(val);
         else if (key == "hide")
@@ -62,13 +62,13 @@ acmacs::PointStyle point_style_from_json(const rjson::value& aSource, Color pass
         else if (key == "shape")
             style.shape = static_cast<std::string_view>(val);
         else if (key == "size")
-            style.size = Pixels{val};
+            style.size = Pixels{static_cast<double>(val)};
         else if (key == "outline_width")
-            style.outline_width = Pixels{val};
+            style.outline_width = Pixels{static_cast<double>(val)};
         else if (key == "aspect")
-            style.aspect = Aspect{val};
+            style.aspect = Aspect{static_cast<double>(val)};
         else if (key == "rotation")
-            style.rotation = Rotation{val};
+            style.rotation = Rotation{static_cast<double>(val)};
     });
     return style;
 

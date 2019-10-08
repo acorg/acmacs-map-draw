@@ -131,7 +131,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
         else if (key == "older_than_days") {
             using namespace std::chrono_literals;
-            const int days = val;
+            const int days{val};
             const auto then = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() - 24h * days);
             char buffer[20];
             std::strftime(buffer, sizeof buffer, "%Y-%m-%d", std::localtime(&then));
@@ -139,18 +139,18 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
         else if (key == "younger_than_days") {
             using namespace std::chrono_literals;
-            const int days = val;
+            const int days{val};
             const auto then = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() - 24h * days);
             char buffer[20];
             std::strftime(buffer, sizeof buffer, "%Y-%m-%d", std::localtime(&then));
             antigens->filter_date_range(indexes, buffer, "");
         }
         else if (key == "index") {
-            indexes.erase_except(val);
+            indexes.erase_except(static_cast<size_t>(val));
         }
         else if (key == "indexes") {
             acmacs::chart::Indexes to_keep(val.size());
-            rjson::transform(val, to_keep.begin(), [](const rjson::value& v) -> size_t { return v; });
+            rjson::transform(val, to_keep.begin(), [](const rjson::value& v) -> size_t { return static_cast<size_t>(v); });
             indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indexes.end());
         }
         else if (key == "sequenced") {
@@ -164,14 +164,14 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
         else if (key == "amino_acid") {
             if (val.is_object())
-                filter_amino_acid_at_pos(aChartSelectInterface, indexes, static_cast<std::string_view>(val["aa"])[0], val["pos"], true);
+                filter_amino_acid_at_pos(aChartSelectInterface, indexes, static_cast<std::string_view>(val["aa"])[0], static_cast<size_t>(val["pos"]), true);
             else if (val.is_array())
                 filter_amino_acid_at_pos(aChartSelectInterface, indexes, extract_pos_aa(val));
             else
                 throw std::runtime_error{"invalid \"amino_acid\" value, object or array expected"};
         }
         else if (key == "outlier") {
-            filter_outlier(aChartSelectInterface, indexes, val);
+            filter_outlier(aChartSelectInterface, indexes, static_cast<double>(val));
         }
         else if (key == "name") {
             if (val.is_string()) {
@@ -196,7 +196,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             if (val.is_string()) {
                 filter_full_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
                 if (const auto& no = aSelector.get("no"); !no.is_null())
-                    indexes.erase_except((*indexes)[no]);
+                    indexes.erase_except((*indexes)[static_cast<size_t>(no)]);
             }
             else if (val.is_array()) {
             }
@@ -217,12 +217,12 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         else if (key == "in_rectangle") {
             const auto& c1 = val["c1"];
             const auto& c2 = val["c2"];
-            filter_rectangle(aChartSelectInterface, indexes, {c1[0], c1[1], c2[0], c2[1]});
+            filter_rectangle(aChartSelectInterface, indexes, {static_cast<double>(c1[0]), static_cast<double>(c1[1]), static_cast<double>(c2[0]), static_cast<double>(c2[1])});
         }
         else if (key == "in_circle") {
             const auto& center = val["center"];
-            const double radius = val["radius"];
-            filter_circle(aChartSelectInterface, indexes, {{center[0], center[1]}, radius});
+            const double radius{val["radius"]};
+            filter_circle(aChartSelectInterface, indexes, {{static_cast<double>(center[0]), static_cast<double>(center[1])}, radius});
         }
         else if (key == "relative_to_serum_line") {
             filter_relative_to_serum_line(aChartSelectInterface, indexes, rjson::get_or(val, "distance_min", 0.0), rjson::get_or(val, "distance_max", std::numeric_limits<double>::max()),
@@ -264,7 +264,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             filter_table(aChartSelectInterface, indexes, static_cast<std::string_view>(val));
         }
         else if (key == "layer") {
-            filter_layer(aChartSelectInterface, indexes, val);
+            filter_layer(aChartSelectInterface, indexes, static_cast<int>(val));
         }
         else if (key == "titrated_against_sera") {
             const auto serum_indexes = SelectSera(SelectSera::verbose::yes).command(aChartSelectInterface, val);
@@ -454,11 +454,11 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
             sera->filter_serum_id(indexes, string::upper(static_cast<std::string_view>(val)));
         }
         else if (key == "index") {
-            indexes.erase_except(val);
+            indexes.erase_except(static_cast<size_t>(val));
         }
         else if (key == "indexes") {
             acmacs::chart::Indexes to_keep(val.size());
-            rjson::transform(val, to_keep.begin(), [](const rjson::value& v) -> size_t { return v; });
+            rjson::transform(val, to_keep.begin(), [](const rjson::value& v) -> size_t { return static_cast<size_t>(v); });
             indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indexes.end());
         }
         else if (key == "clade") {
@@ -488,12 +488,12 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
         else if (key == "in_rectangle") {
             const auto& c1 = val["c1"];
             const auto& c2 = val["c2"];
-            filter_rectangle(aChartSelectInterface, indexes, {c1[0], c1[1], c2[0], c2[1]});
+            filter_rectangle(aChartSelectInterface, indexes, {static_cast<double>(c1[0]), static_cast<double>(c1[1]), static_cast<double>(c2[0]), static_cast<double>(c2[1])});
         }
         else if (key == "in_circle") {
             const auto& center = val["center"];
-            const double radius = val["radius"];
-            filter_circle(aChartSelectInterface, indexes, {{center[0], center[1]}, radius});
+            const double radius{val["radius"]};
+            filter_circle(aChartSelectInterface, indexes, {{static_cast<double>(center[0]), static_cast<double>(center[1])}, radius});
         }
         else if (key == "titrated_against_antigens") {
             const auto antigen_indexes = SelectAntigens().command(aChartSelectInterface, val);

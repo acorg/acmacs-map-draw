@@ -89,13 +89,13 @@ int draw(const Options& opt)
     if (!opt.time_series) {
           // Single map
         std::cerr << "INFO: single map\n";
-        GeographicMapWithPointsFromHidb geographic_map(subtype, settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]);
+        GeographicMapWithPointsFromHidb geographic_map(subtype, static_cast<double>(settings["point_size_in_pixels"]), static_cast<double>(settings["point_density"]), Color(static_cast<std::string_view>(settings["continent_outline_color"])), static_cast<double>(settings["continent_outline_width"]));
         geographic_map.add_points_from_hidb_colored_by(*coloring, ColorOverride{}, make_list(settings["priority"]), start_date, end_date);
         set_title(geographic_map.title(), settings, true);
 
         acmacs::file::temp temp_file(".pdf");
         const std::string output = opt.output_pdf ? std::string{opt.output_pdf} : static_cast<std::string>(temp_file);
-        geographic_map.draw(output, settings["output_image_width"]);
+        geographic_map.draw(output, static_cast<double>(settings["output_image_width"]));
         acmacs::open_or_quicklook(opt.open, opt.ql, output, 2);
     }
     else {
@@ -104,15 +104,15 @@ int draw(const Options& opt)
             throw std::runtime_error("Please provide output filename prefix for time series");
         std::unique_ptr<GeographicTimeSeriesBase> time_series;
         if (opt.time_series == "monthly")
-            time_series.reset(new GeographicTimeSeriesMonthly(subtype, start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]));
+            time_series.reset(new GeographicTimeSeriesMonthly(subtype, start_date, end_date, make_list(settings["priority"]), static_cast<double>(settings["point_size_in_pixels"]), static_cast<double>(settings["point_density"]), Color(static_cast<std::string_view>(settings["continent_outline_color"])), static_cast<double>(settings["continent_outline_width"])));
         else if (opt.time_series == "yearly")
-            time_series.reset(new GeographicTimeSeriesYearly(subtype, start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]));
+            time_series.reset(new GeographicTimeSeriesYearly(subtype, start_date, end_date, make_list(settings["priority"]), static_cast<double>(settings["point_size_in_pixels"]), static_cast<double>(settings["point_density"]), Color(static_cast<std::string_view>(settings["continent_outline_color"])), static_cast<double>(settings["continent_outline_width"])));
         else if (opt.time_series == "weekly")
-            time_series.reset(new GeographicTimeSeriesWeekly(subtype, start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"], settings["point_density"], Color(static_cast<std::string_view>(settings["continent_outline_color"])), settings["continent_outline_width"]));
+            time_series.reset(new GeographicTimeSeriesWeekly(subtype, start_date, end_date, make_list(settings["priority"]), static_cast<double>(settings["point_size_in_pixels"]), static_cast<double>(settings["point_density"]), Color(static_cast<std::string_view>(settings["continent_outline_color"])), static_cast<double>(settings["continent_outline_width"])));
         else
             throw std::runtime_error(fmt::format("Unsupported time series argument: {} (monthly or yearly or weekly expected)", *opt.time_series));
         set_title(time_series->title(), settings, false);
-        time_series->draw(opt.output_pdf, *coloring, ColorOverride{}, settings["output_image_width"]);
+        time_series->draw(opt.output_pdf, *coloring, ColorOverride{}, static_cast<double>(settings["output_image_width"]));
     }
 
     return 0;
@@ -128,7 +128,7 @@ static inline GeographicMapColoring::TagToColor make_map(const rjson::value& aSo
         if (!entry.first.empty() && (entry.first.front() == '?' || entry.first.back() == '?'))
             return {entry.first, {Color("pink")}}; // comment field
         else
-            return {entry.first, {Color(static_cast<std::string_view>(entry.second["fill"])), Color(static_cast<std::string_view>(entry.second["outline"])), entry.second["outline_width"]}};
+            return {entry.first, {Color(static_cast<std::string_view>(entry.second["fill"])), Color(static_cast<std::string_view>(entry.second["outline"])), static_cast<double>(entry.second["outline_width"])}};
     };
     rjson::transform(aSource, std::inserter(result, result.end()), rjson_to_coloring_data);
     return result;
@@ -187,7 +187,7 @@ void set_title(map_elements::Title& aTitle, const rjson::value& aSettings, bool 
                 .text_size(rjson::get_or(title_data, "text_size", 12.0))
                 ;
         if (const auto& offset = title_data["offset"]; !offset.empty())
-            aTitle.offset({offset[0], offset[1]});
+            aTitle.offset({static_cast<double>(offset[0]), static_cast<double>(offset[1])});
         if (use_title_text)
             aTitle.add_line(std::string(aSettings["title_text"]));
     }
