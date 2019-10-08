@@ -33,23 +33,23 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
     if (aChartDraw.point_has_coordinates(aIndex + aBaseIndex)) {
         auto& label = aChartDraw.add_label(aIndex + aBaseIndex);
         if (const auto& val = aLabelData["color"]; !val.is_null())
-            label.color(Color(static_cast<std::string_view>(val)));
+            label.color(Color(val.to_string_view()));
         if (const auto& val = aLabelData["size"]; !val.is_null())
             label.size(static_cast<double>(val));
         if (const auto& val = aLabelData["weight"]; !val.is_null())
-            label.weight(static_cast<std::string_view>(val));
+            label.weight(val.to_string_view());
         if (const auto& val = aLabelData["slant"]; !val.is_null())
-            label.slant(static_cast<std::string_view>(val));
+            label.slant(val.to_string_view());
         if (const auto& val = aLabelData["font_family"]; !val.is_null())
-            label.font_family(static_cast<std::string_view>(val));
+            label.font_family(val.to_string_view());
         if (const auto& offset = aLabelData["offset"]; offset.size() == 2)
             label.offset({static_cast<double>(offset[0]), static_cast<double>(offset[1])});
 
         if (const auto& display_name = aLabelData["display_name"]; !display_name.is_null()) {
-            label.display_name(static_cast<std::string_view>(display_name));
+            label.display_name(display_name.to_string_view());
         }
         else if (const auto& name_type_v = aLabelData["name_type"]; !name_type_v.is_null()) {
-            const std::string_view name_type{name_type_v};
+            const std::string_view name_type{name_type_v.to_string_view()};
             if (aBaseIndex == 0) { // antigen
                 auto antigen = aChartDraw.chart().antigen(aIndex);
                 std::string name;
@@ -348,7 +348,7 @@ class ModFlip : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
     {
         if (const auto& direction_v = args()["direction"]; !direction_v.is_null()) {
-            const std::string_view direction{direction_v};
+            const std::string_view direction{direction_v.to_string_view()};
             if (direction == "ew")
                 aChartDraw.flip(0, 1);
             else if (direction == "ns")
@@ -404,7 +404,7 @@ class ModBackground : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
     {
         if (const auto& color = args()["color"]; !color.is_null())
-            aChartDraw.background_color(Color(static_cast<std::string_view>(color)));
+            aChartDraw.background_color(Color(color.to_string_view()));
         else
             throw unrecognized_mod{"mod: " + rjson::to_string(args())};
     }
@@ -504,11 +504,11 @@ class ModTitle : public Mod
             if (const auto& text_size = args()["text_size"]; !text_size.is_null())
                 title.text_size(static_cast<double>(text_size));
             if (const auto& text_color = args()["text_color"]; !text_color.is_null())
-                title.text_color(Color(static_cast<std::string_view>(text_color)));
+                title.text_color(Color(text_color.to_string_view()));
             if (const auto& background = args()["background"]; !background.is_null())
-                title.background(Color(static_cast<std::string_view>(background)));
+                title.background(Color(background.to_string_view()));
             if (const auto& border_color = args()["border_color"]; !border_color.is_null())
-                title.border_color(Color(static_cast<std::string_view>(border_color)));
+                title.border_color(Color(border_color.to_string_view()));
             if (const auto& border_width = args()["border_width"]; !border_width.is_null())
                 title.border_width(static_cast<double>(border_width));
             if (const auto& font_weight = args()["font_weight"]; !font_weight.is_null())
@@ -549,9 +549,9 @@ class ModLegend : public Mod
             if (const auto& point_size = args()["point_size"]; !point_size.is_null())
                 legend.point_size(static_cast<double>(point_size));
             if (const auto& background = args()["background"]; !background.is_null())
-                legend.background(Color(static_cast<std::string_view>(background)));
+                legend.background(Color(background.to_string_view()));
             if (const auto& border_color = args()["border_color"]; !border_color.is_null())
-                legend.border_color(Color(static_cast<std::string_view>(border_color)));
+                legend.border_color(Color(border_color.to_string_view()));
             if (const auto& border_width = args()["border_width"]; !border_width.is_null())
                 legend.border_width(static_cast<double>(border_width));
         }

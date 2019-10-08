@@ -54,7 +54,7 @@ std::vector<SelectAntigensSera::amino_acid_at_pos_t> SelectAntigensSera::extract
 {
     std::vector<amino_acid_at_pos_t> pos_aa;
     rjson::for_each(source, [&pos_aa](const rjson::value& entry) {
-        const std::string_view text{entry};
+        const std::string_view text{entry.to_string_view()};
         if (text.size() >= 2 && text.size() <= 4 && std::isdigit(text.front()) && std::isalpha(text.back()))
             pos_aa.emplace_back(std::stoul(text.substr(0, text.size() - 1)), text.back(), true);
         else if (text.size() >= 3 && text.size() <= 5 && text.front() == '!' && std::isdigit(text[1]) && std::isalpha(text.back()))
@@ -82,7 +82,7 @@ void filter(const AgSr& ag_sr, acmacs::chart::Indexes& indexes, SelectAntigensSe
         ag_sr.filter_reassortant(indexes);
     }
     else if (key == "passage") {
-        const std::string_view passage{val};
+        const std::string_view passage{val.to_string_view()};
         if (passage == "egg")
             ag_sr.filter_egg(indexes);
         else if (passage == "cell")
@@ -93,10 +93,10 @@ void filter(const AgSr& ag_sr, acmacs::chart::Indexes& indexes, SelectAntigensSe
             throw std::exception{};
     }
     else if (key == "country") {
-        ag_sr.filter_country(indexes, string::upper(static_cast<std::string_view>(val)));
+        ag_sr.filter_country(indexes, string::upper(val.to_string_view()));
     }
     else if (key == "continent") {
-        ag_sr.filter_continent(indexes, string::upper(static_cast<std::string_view>(val)));
+        ag_sr.filter_continent(indexes, string::upper(val.to_string_view()));
     }
     else if (key == "exclude_distinct") {
         // processed together with the main selector, e.g. "name"
@@ -127,7 +127,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             antigens->filter_test(indexes);
         }
         else if (key == "date_range") {
-            antigens->filter_date_range(indexes, static_cast<std::string_view>(val[0]), static_cast<std::string_view>(val[1]));
+            antigens->filter_date_range(indexes, val[0].to_string_view(), val[1].to_string_view());
         }
         else if (key == "older_than_days") {
             using namespace std::chrono_literals;
@@ -160,11 +160,11 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             filter_not_sequenced(aChartSelectInterface, indexes);
         }
         else if (key == "clade") {
-            filter_clade(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
+            filter_clade(aChartSelectInterface, indexes, string::upper(val.to_string_view()));
         }
         else if (key == "amino_acid") {
             if (val.is_object())
-                filter_amino_acid_at_pos(aChartSelectInterface, indexes, static_cast<std::string_view>(val["aa"])[0], static_cast<size_t>(val["pos"]), true);
+                filter_amino_acid_at_pos(aChartSelectInterface, indexes, val["aa"].to_string_view()[0], static_cast<size_t>(val["pos"]), true);
             else if (val.is_array())
                 filter_amino_acid_at_pos(aChartSelectInterface, indexes, extract_pos_aa(val));
             else
@@ -175,12 +175,12 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
         else if (key == "name") {
             if (val.is_string()) {
-                filter_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
+                filter_name(aChartSelectInterface, indexes, string::upper(val.to_string_view()));
             }
             else if (val.is_array()) {
                 decltype(indexes) to_include;
                 rjson::for_each(val, [&to_include,&antigens](const rjson::value& entry) {
-                    const auto by_name = antigens->find_by_name(static_cast<std::string_view>(entry));
+                    const auto by_name = antigens->find_by_name(entry.to_string_view());
                     to_include.extend(by_name);
                 });
                 acmacs::chart::Indexes result(indexes->size());
@@ -194,7 +194,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
         else if (key == "full_name") {
             if (val.is_string()) {
-                filter_full_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
+                filter_full_name(aChartSelectInterface, indexes, string::upper(val.to_string_view()));
                 if (const auto& no = aSelector.get("no"); !no.is_null())
                     indexes.erase_except((*indexes)[static_cast<size_t>(no)]);
             }
@@ -229,12 +229,12 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
                                           rjson::get_or(val, "direction", 0));
         }
         else if (key == "lab") {
-            if (aChartSelectInterface.chart().info()->lab(acmacs::chart::Info::Compute::Yes) != string::upper(static_cast<std::string_view>(val)))
+            if (aChartSelectInterface.chart().info()->lab(acmacs::chart::Info::Compute::Yes) != string::upper(val.to_string_view()))
                 indexes.get().clear();
         }
         else if (key == "subtype") {
             const std::string virus_type{aChartSelectInterface.chart().info()->virus_type(acmacs::chart::Info::Compute::Yes)};
-            const std::string val_u = string::upper(static_cast<std::string_view>(val));
+            const std::string val_u = string::upper(val.to_string_view());
             if (val_u != virus_type) {
                 bool clear_indexes = true;
                 if (virus_type == "B") {
@@ -261,7 +261,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             antigens->filter_not_found_in(indexes, *previous_antigens);
         }
         else if (key == "table") {
-            filter_table(aChartSelectInterface, indexes, static_cast<std::string_view>(val));
+            filter_table(aChartSelectInterface, indexes, val.to_string_view());
         }
         else if (key == "layer") {
             filter_layer(aChartSelectInterface, indexes, static_cast<int>(val));
@@ -451,7 +451,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
               // do nothing
         }
         else if (key == "serum_id") {
-            sera->filter_serum_id(indexes, string::upper(static_cast<std::string_view>(val)));
+            sera->filter_serum_id(indexes, string::upper(val.to_string_view()));
         }
         else if (key == "index") {
             indexes.erase_except(static_cast<size_t>(val));
@@ -462,7 +462,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
             indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&to_keep](auto index) -> bool { return std::find(to_keep.begin(), to_keep.end(), index) == to_keep.end(); }), indexes.end());
         }
         else if (key == "clade") {
-            filter_clade(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
+            filter_clade(aChartSelectInterface, indexes, string::upper(val.to_string_view()));
         }
         else if (key == "amino_acid") {
             if (val.is_array())
@@ -471,19 +471,19 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
                 throw std::runtime_error{"invalid \"amino_acid\" value, array expected"};
         }
         else if (key == "country") {
-            sera->filter_country(indexes, string::upper(static_cast<std::string_view>(val)));
+            sera->filter_country(indexes, string::upper(val.to_string_view()));
         }
         else if (key == "continent") {
-            sera->filter_continent(indexes, string::upper(static_cast<std::string_view>(val)));
+            sera->filter_continent(indexes, string::upper(val.to_string_view()));
         }
         else if (key == "name") {
-            filter_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
+            filter_name(aChartSelectInterface, indexes, string::upper(val.to_string_view()));
         }
         else if (key == "full_name") {
-            filter_full_name(aChartSelectInterface, indexes, string::upper(static_cast<std::string_view>(val)));
+            filter_full_name(aChartSelectInterface, indexes, string::upper(val.to_string_view()));
         }
         else if (key == "table") {
-            filter_table(aChartSelectInterface, indexes, static_cast<std::string_view>(val));
+            filter_table(aChartSelectInterface, indexes, val.to_string_view());
         }
         else if (key == "in_rectangle") {
             const auto& c1 = val["c1"];

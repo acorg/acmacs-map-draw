@@ -104,7 +104,7 @@ void ModAminoAcids::make_color_for_aa(std::map<std::string, Color>& color_for_aa
         std::vector<std::string> aa_without_colors;
         for (const auto& aa : aa_sorted) {
             if (const auto& color = colors[aa]; !color.is_null()) {
-                color_for_aa[aa] = Color(static_cast<std::string_view>(color));
+                color_for_aa[aa] = Color(color.to_string_view());
             }
             else
                 aa_without_colors.push_back(aa);
@@ -128,7 +128,7 @@ void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, 
     std::vector<size_t> positions(pos_aa.size());
     rjson::transform(pos_aa, std::begin(positions), [](const rjson::value& src) -> size_t { return std::stoul(static_cast<std::string>(src)); });
     std::string target_aas(pos_aa.size(), ' ');
-    rjson::transform(pos_aa, std::begin(target_aas), [](const rjson::value& src) { return static_cast<std::string_view>(src).back(); });
+    rjson::transform(pos_aa, std::begin(target_aas), [](const rjson::value& src) { return src.to_string_view().back(); });
     const auto aa_indices = aChartDraw.aa_at_pos1_for_antigens(positions);
     if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
         auto styl = style();
