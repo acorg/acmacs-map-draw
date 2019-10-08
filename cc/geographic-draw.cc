@@ -82,7 +82,7 @@ int draw(const Options& opt)
         //     std::cerr << "DEBUG: reading settings DONE from " << fn << '\n';
     }
 
-    const std::string_view start_date = settings["start_date"], end_date = settings["end_date"];
+    const std::string_view start_date{settings["start_date"]}, end_date{settings["end_date"]};
     std::unique_ptr<GeographicMapColoring> coloring{make_coloring(settings)};
 
     const auto subtype = string::upper(*opt.subtype);
@@ -137,7 +137,7 @@ static inline GeographicMapColoring::TagToColor make_map(const rjson::value& aSo
 GeographicMapColoring* make_coloring(const rjson::value& aSettings)
 {
     GeographicMapColoring* coloring = nullptr;
-    const std::string_view coloring_name = aSettings["coloring"]["N"];
+    const std::string_view coloring_name{aSettings["coloring"]["N"]};
     if (coloring_name == "continent") {
         rjson::value continent_color = aSettings["continent_color"];
         if (const auto& continent_color_override = aSettings["coloring"]["continent_color"]; !continent_color_override.is_null())

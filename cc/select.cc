@@ -27,6 +27,8 @@ SelectAntigensSera::~SelectAntigensSera()
 
 acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector)
 {
+    fmt::print(stderr, "DEBUG: SelectAntigensSera::select\n");
+    fmt::print(stderr, "DEBUG: SelectAntigensSera::select {}\n", rjson::to_string(aSelector));
     try {
         return std::visit(
             [this, &aChartSelectInterface](const auto& val) -> acmacs::chart::Indexes {
@@ -36,12 +38,12 @@ acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aC
                 else if constexpr (std::is_same_v<T, rjson::object>)
                     return this->command(aChartSelectInterface, val);
                 else
-                    throw std::exception{};
+                    throw std::runtime_error{"(type is neither string not object)"};
             },
             aSelector.val_());
     }
     catch (std::exception& err) {
-        throw std::runtime_error{"Unsupported selector value: " + rjson::to_string(aSelector) + ": " + err.what()};
+        throw std::runtime_error{fmt::format("Unsupported selector value: {}: {}", rjson::to_string(aSelector), err)};
     }
 
 } // SelectAntigensSera::select
@@ -52,7 +54,7 @@ std::vector<SelectAntigensSera::amino_acid_at_pos_t> SelectAntigensSera::extract
 {
     std::vector<amino_acid_at_pos_t> pos_aa;
     rjson::for_each(source, [&pos_aa](const rjson::value& entry) {
-        const std::string_view text = entry;
+        const std::string_view text{entry};
         if (text.size() >= 2 && text.size() <= 4 && std::isdigit(text.front()) && std::isalpha(text.back()))
             pos_aa.emplace_back(std::stoul(text.substr(0, text.size() - 1)), text.back(), true);
         else if (text.size() >= 3 && text.size() <= 5 && text.front() == '!' && std::isdigit(text[1]) && std::isalpha(text.back()))
@@ -80,7 +82,7 @@ void filter(const AgSr& ag_sr, acmacs::chart::Indexes& indexes, SelectAntigensSe
         ag_sr.filter_reassortant(indexes);
     }
     else if (key == "passage") {
-        const std::string_view passage = val;
+        const std::string_view passage{val};
         if (passage == "egg")
             ag_sr.filter_egg(indexes);
         else if (passage == "cell")
@@ -109,7 +111,6 @@ void filter(const AgSr& ag_sr, acmacs::chart::Indexes& indexes, SelectAntigensSe
 
 acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector)
 {
-    // std::cerr << "DEBUG: antigens command: " << aSelector << '\n';
     auto antigens = aChartSelectInterface.chart().antigens();
     auto indexes = antigens->all_indexes();
     rjson::for_each(aSelector, [this, &aChartSelectInterface, &antigens, &indexes, &aSelector](const std::string& key, const rjson::value& val) {
@@ -126,7 +127,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             antigens->filter_test(indexes);
         }
         else if (key == "date_range") {
-            antigens->filter_date_range(indexes, val[0], val[1]);
+            antigens->filter_date_range(indexes, static_cast<std::string_view>(val[0]), static_cast<std::string_view>(val[1]));
         }
         else if (key == "older_than_days") {
             using namespace std::chrono_literals;
@@ -179,7 +180,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             else if (val.is_array()) {
                 decltype(indexes) to_include;
                 rjson::for_each(val, [&to_include,&antigens](const rjson::value& entry) {
-                    const auto by_name = antigens->find_by_name(entry);
+                    const auto by_name = antigens->find_by_name(static_cast<std::string_view>(entry));
                     to_include.extend(by_name);
                 });
                 acmacs::chart::Indexes result(indexes->size());
@@ -260,7 +261,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             antigens->filter_not_found_in(indexes, *previous_antigens);
         }
         else if (key == "table") {
-            filter_table(aChartSelectInterface, indexes, val);
+            filter_table(aChartSelectInterface, indexes, static_cast<std::string_view>(val));
         }
         else if (key == "layer") {
             filter_layer(aChartSelectInterface, indexes, val);
@@ -278,7 +279,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
     });
     if (verbose()) {
-        fmt::print("INFO: antigens selected: {:4d} {}\n", indexes->size(), aSelector);
+        fmt::print("INFO: antigens selected: {:4d} {}\n", indexes->size(), rjson::to_string(aSelector));
         if (!indexes->empty())
             report_antigens(std::begin(indexes), std::end(indexes), aChartSelectInterface, report_names_threshold());
     }

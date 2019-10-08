@@ -36,7 +36,7 @@ acmacs::PointStyle point_style_from_json(const rjson::value& aSource, Color pass
     acmacs::PointStyle style;
     rjson::for_each(aSource, [&style,passage_color](const std::string& key, const rjson::value& val) {
         if (key == "fill") {
-            if (const std::string_view val_s = val; val_s == "passage")
+            if (const std::string_view val_s{val}; val_s == "passage")
                 style.fill = Color(passage_color);
             else
                 style.fill = Color(val_s);
@@ -46,7 +46,7 @@ acmacs::PointStyle point_style_from_json(const rjson::value& aSource, Color pass
         else if (key == "fill_brightness")
             style.fill = Color(Color::type::adjust_brightness, val);
         else if (key == "outline") {
-            if (const std::string_view val_s = val; val_s == "passage")
+            if (const std::string_view val_s{val}; val_s == "passage")
                 style.outline = Color(passage_color);
             else
                 style.outline = Color(val_s);

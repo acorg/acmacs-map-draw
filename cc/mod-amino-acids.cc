@@ -189,7 +189,7 @@ void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& aModD
     if (const auto& format = args()["format"]; !format.is_null() && static_cast<std::string>(format) == "html") {
         std::string filename{"-"};
         if (const auto& output1 = args()["output"]; !output1.is_null()) {
-            filename = output1;
+            filename = static_cast<std::string>(output1);
         }
         else if (const auto& output2 = aModData["output_pdf"]; !output2.is_null()) {
             filename = fs::path(static_cast<std::string>(output2)).replace_extension(".html");

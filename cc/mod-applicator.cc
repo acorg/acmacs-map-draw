@@ -37,19 +37,19 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
         if (const auto& val = aLabelData["size"]; !val.is_null())
             label.size(val);
         if (const auto& val = aLabelData["weight"]; !val.is_null())
-            label.weight(val);
+            label.weight(static_cast<std::string_view>(val));
         if (const auto& val = aLabelData["slant"]; !val.is_null())
-            label.slant(val);
+            label.slant(static_cast<std::string_view>(val));
         if (const auto& val = aLabelData["font_family"]; !val.is_null())
-            label.font_family(val);
+            label.font_family(static_cast<std::string_view>(val));
         if (const auto& offset = aLabelData["offset"]; offset.size() == 2)
             label.offset({offset[0], offset[1]});
 
         if (const auto& display_name = aLabelData["display_name"]; !display_name.is_null()) {
-            label.display_name(display_name);
+            label.display_name(static_cast<std::string_view>(display_name));
         }
         else if (const auto& name_type_v = aLabelData["name_type"]; !name_type_v.is_null()) {
-            const std::string_view name_type = name_type_v;
+            const std::string_view name_type{name_type_v};
             if (aBaseIndex == 0) { // antigen
                 auto antigen = aChartDraw.chart().antigen(aIndex);
                 std::string name;
@@ -156,12 +156,12 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::value& aMods, const rjson::v
             }
         }
         catch (std::bad_variant_access&) {
-            fmt::print(stderr, "ERROR: std::bad_variant_access: in handling mod: {}\n", mod_desc);
+            fmt::print(stderr, "ERROR: std::bad_variant_access: in handling mod: {}\n", rjson::to_string(mod_desc));
             throw unrecognized_mod(std::string(mod_desc));
         }
         catch (unrecognized_mod&) {
             if (aIgnoreUnrecognized)
-                fmt::print(stderr, "WARNING: unrecognized mod: {}\n", mod_desc);
+                fmt::print(stderr, "WARNING: unrecognized mod: {}\n", rjson::to_string(mod_desc));
             else
                 throw;
         }
@@ -348,7 +348,7 @@ class ModFlip : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
     {
         if (const auto& direction_v = args()["direction"]; !direction_v.is_null()) {
-            const std::string_view direction = direction_v;
+            const std::string_view direction{direction_v};
             if (direction == "ew")
                 aChartDraw.flip(0, 1);
             else if (direction == "ns")
