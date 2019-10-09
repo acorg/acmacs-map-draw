@@ -104,7 +104,7 @@ void ModAminoAcids::make_color_for_aa(std::map<std::string, Color>& color_for_aa
         std::vector<std::string> aa_without_colors;
         for (const auto& aa : aa_sorted) {
             if (const auto& color = colors[aa]; !color.is_null()) {
-                color_for_aa[aa] = Color(color.to_string_view());
+                color_for_aa[aa] = Color(color.to<std::string_view>());
             }
             else
                 aa_without_colors.push_back(aa);
@@ -126,9 +126,9 @@ void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, 
 {
     const auto& pos_aa = aGroup["pos_aa"];
     std::vector<size_t> positions(pos_aa.size());
-    rjson::transform(pos_aa, std::begin(positions), [](const rjson::value& src) -> size_t { return std::stoul(static_cast<std::string>(src)); });
+    rjson::transform(pos_aa, std::begin(positions), [](const rjson::value& src) -> size_t { return std::stoul(src.to<std::string>()); });
     std::string target_aas(pos_aa.size(), ' ');
-    rjson::transform(pos_aa, std::begin(target_aas), [](const rjson::value& src) { return src.to_string_view().back(); });
+    rjson::transform(pos_aa, std::begin(target_aas), [](const rjson::value& src) { return src.to<std::string_view>().back(); });
     const auto aa_indices = aChartDraw.aa_at_pos1_for_antigens(positions);
     if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
         auto styl = style();
@@ -186,19 +186,19 @@ void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& aModD
     auto set1 = matched.filter_by_indexes(indexes1);
     auto set2 = matched.filter_by_indexes(indexes2);
 
-    if (const auto& format = args()["format"]; !format.is_null() && static_cast<std::string>(format) == "html") {
+    if (const auto& format = args()["format"]; !format.is_null() && format.to<std::string_view>() == "html") {
         std::string filename{"-"};
         if (const auto& output1 = args()["output"]; !output1.is_null()) {
-            filename = static_cast<std::string>(output1);
+            filename = output1.to<std::string_view>();
         }
         else if (const auto& output2 = aModData["output_pdf"]; !output2.is_null()) {
-            filename = fs::path(static_cast<std::string>(output2)).replace_extension(".html");
+            filename = fs::path(output2.to<std::string_view>()).replace_extension(".html");
         }
         else {
             filename = "/d/a.html";
         }
         acmacs::file::write(filename, acmacs::seqdb::compare_report_html(filename, set1, set2));
-        if (const auto& open = args()["open"]; open.is_null() || open)
+        if (const auto& open = args()["open"]; open.is_null() || open.to<bool>())
             acmacs::open_or_quicklook(true, false, filename, 0, 0);
     }
     else

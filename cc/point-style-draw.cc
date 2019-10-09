@@ -36,39 +36,39 @@ acmacs::PointStyle point_style_from_json(const rjson::value& aSource, Color pass
     acmacs::PointStyle style;
     rjson::for_each(aSource, [&style,passage_color](const std::string& key, const rjson::value& val) {
         if (key == "fill") {
-            if (const std::string_view val_s{val.to_string_view()}; val_s == "passage")
+            if (const std::string_view val_s{val.to<std::string_view>()}; val_s == "passage")
                 style.fill = Color(passage_color);
             else
                 style.fill = Color(val_s);
         }
         else if (key == "fill_saturation")
-            style.fill = Color(Color::type::adjust_saturation, static_cast<double>(val));
+            style.fill = Color(Color::type::adjust_saturation, val.to<double>());
         else if (key == "fill_brightness")
-            style.fill = Color(Color::type::adjust_brightness, static_cast<double>(val));
+            style.fill = Color(Color::type::adjust_brightness, val.to<double>());
         else if (key == "outline") {
-            if (const std::string_view val_s{val.to_string_view()}; val_s == "passage")
+            if (const std::string_view val_s{val.to<std::string_view>()}; val_s == "passage")
                 style.outline = Color(passage_color);
             else
                 style.outline = Color(val_s);
         }
         else if (key == "outline_saturation")
-            style.outline = Color(Color::type::adjust_saturation, static_cast<double>(val));
+            style.outline = Color(Color::type::adjust_saturation, val.to<double>());
         else if (key == "outline_brightness")
-            style.outline = Color(Color::type::adjust_brightness, static_cast<double>(val));
+            style.outline = Color(Color::type::adjust_brightness, val.to<double>());
         else if (key == "show")
-            style.shown = static_cast<bool>(val);
+            style.shown = val.to<bool>();
         else if (key == "hide")
-            style.shown = ! static_cast<bool>(val);
+            style.shown = ! val.to<bool>();
         else if (key == "shape")
-            style.shape = val.to_string_view();
+            style.shape = val.to<std::string_view>();
         else if (key == "size")
-            style.size = Pixels{static_cast<double>(val)};
+            style.size = Pixels{val.to<double>()};
         else if (key == "outline_width")
-            style.outline_width = Pixels{static_cast<double>(val)};
+            style.outline_width = Pixels{val.to<double>()};
         else if (key == "aspect")
-            style.aspect = Aspect{static_cast<double>(val)};
+            style.aspect = Aspect{val.to<double>()};
         else if (key == "rotation")
-            style.rotation = Rotation{static_cast<double>(val)};
+            style.rotation = Rotation{val.to<double>()};
     });
     return style;
 

@@ -33,23 +33,23 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
     if (aChartDraw.point_has_coordinates(aIndex + aBaseIndex)) {
         auto& label = aChartDraw.add_label(aIndex + aBaseIndex);
         if (const auto& val = aLabelData["color"]; !val.is_null())
-            label.color(Color(val.to_string_view()));
+            label.color(Color(val.to<std::string_view>()));
         if (const auto& val = aLabelData["size"]; !val.is_null())
-            label.size(static_cast<double>(val));
+            label.size(val.to<double>());
         if (const auto& val = aLabelData["weight"]; !val.is_null())
-            label.weight(val.to_string_view());
+            label.weight(val.to<std::string_view>());
         if (const auto& val = aLabelData["slant"]; !val.is_null())
-            label.slant(val.to_string_view());
+            label.slant(val.to<std::string_view>());
         if (const auto& val = aLabelData["font_family"]; !val.is_null())
-            label.font_family(val.to_string_view());
+            label.font_family(val.to<std::string_view>());
         if (const auto& offset = aLabelData["offset"]; offset.size() == 2)
-            label.offset({static_cast<double>(offset[0]), static_cast<double>(offset[1])});
+            label.offset({offset[0].to<double>(), offset[1].to<double>()});
 
         if (const auto& display_name = aLabelData["display_name"]; !display_name.is_null()) {
-            label.display_name(display_name.to_string_view());
+            label.display_name(display_name.to<std::string_view>());
         }
         else if (const auto& name_type_v = aLabelData["name_type"]; !name_type_v.is_null()) {
-            const std::string_view name_type{name_type_v.to_string_view()};
+            const std::string_view name_type{name_type_v.to<std::string_view>()};
             if (aBaseIndex == 0) { // antigen
                 auto antigen = aChartDraw.chart().antigen(aIndex);
                 std::string name;
@@ -87,7 +87,7 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
 
 void Mod::add_labels(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, size_t aBaseIndex, const rjson::value& aLabelData)
 {
-    if (const auto& show = aLabelData["show"]; show.is_null() || static_cast<bool>(show)) { // true by default
+    if (const auto& show = aLabelData["show"]; show.is_null() || show.to<bool>()) { // true by default
         for (auto index: aIndices)
             add_label(aChartDraw, index, aBaseIndex, aLabelData);
     }
@@ -103,8 +103,8 @@ void Mod::add_labels(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, const rjson::value& aLegendData)
 {
     const std::string label(rjson::get_or(aLegendData, "label", "use \"label\" in \"legend\""));
-    if (const auto& replace = aLegendData["replace"]; !replace.is_null() && static_cast<bool>(replace)) {
-        if (const auto& count = aLegendData["count"]; !count.is_null() && static_cast<bool>(count)) {
+    if (const auto& replace = aLegendData["replace"]; !replace.is_null() && replace.to<bool>()) {
+        if (const auto& count = aLegendData["count"]; !count.is_null() && count.to<bool>()) {
             // std::cerr << "DEBUG: remove line " << label + " (" + std::to_string(aIndices.size()) + ")" << '\n';
             aChartDraw.legend_point_label().remove_line(label + " (" + std::to_string(aIndices->size()) + ")");
         }
@@ -122,16 +122,16 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData)
 {
     // std::cerr << "DEBUG: add_legend " << aLabel << '\n';
-    if (const auto& show = aLegendData["show"]; (show.is_null() || static_cast<bool>(show)) && !aIndices->empty()) { // show is true by default
+    if (const auto& show = aLegendData["show"]; (show.is_null() || show.to<bool>()) && !aIndices->empty()) { // show is true by default
         if (rjson::get_or(aLegendData, "type", "") == "continent_map") {
             if (const auto& offset = aLegendData["offset"]; offset.size() != 2)
                 aChartDraw.continent_map();
             else
-                aChartDraw.continent_map({static_cast<double>(offset[0]), static_cast<double>(offset[1])}, Pixels{rjson::get_or(aLegendData, "size", 100.0)});
+                aChartDraw.continent_map({offset[0].to<double>(), offset[1].to<double>()}, Pixels{rjson::get_or(aLegendData, "size", 100.0)});
         }
         else {
             auto& legend = aChartDraw.legend_point_label();
-            if (const auto& count = aLegendData["count"]; !count.is_null() && static_cast<bool>(count))
+            if (const auto& count = aLegendData["count"]; !count.is_null() && count.to<bool>())
                 aLabel += " (" + std::to_string(aIndices->size()) + ")";
             legend.add_line(*aStyle.outline, *aStyle.fill, aLabel);
         }
@@ -156,12 +156,12 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::value& aMods, const rjson::v
             }
         }
         catch (std::bad_variant_access&) {
-            fmt::print(stderr, "ERROR: std::bad_variant_access: in handling mod: {}\n", rjson::to_string(mod_desc));
-            throw unrecognized_mod(std::string(mod_desc));
+            fmt::print(stderr, "ERROR: std::bad_variant_access: in handling mod: {}\n", mod_desc);
+            throw unrecognized_mod(mod_desc.to<std::string>());
         }
         catch (unrecognized_mod&) {
             if (aIgnoreUnrecognized)
-                fmt::print(stderr, "WARNING: unrecognized mod: {}\n", rjson::to_string(mod_desc));
+                fmt::print(stderr, "WARNING: unrecognized mod: {}\n", mod_desc);
             else
                 throw;
         }
@@ -198,7 +198,7 @@ acmacs::PointCoordinates ModMoveBase::get_move_to(ChartDraw& aChartDraw, bool aV
 {
     acmacs::PointCoordinates move_to(acmacs::number_of_dimensions_t{2});
     if (const auto& to = args()["to"]; !to.is_null()) {
-        move_to = acmacs::PointCoordinates(static_cast<double>(to[0]), static_cast<double>(to[1]));
+        move_to = acmacs::PointCoordinates(to[0].to<double>(), to[1].to<double>());
     }
     else if (const auto& to_antigen = args()["to_antigen"]; !to_antigen.is_null()) {
         const auto antigens = SelectAntigens(aVerbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, to_antigen);
@@ -237,7 +237,7 @@ void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDat
             auto layout = aChartDraw.layout();
             for (auto index : SelectAntigens(verbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, select)) {
                 const auto coord = layout->get(index);
-                projection.move_point(index, acmacs::PointCoordinates(coord.x() + static_cast<double>(relative[0]), coord.y() + static_cast<double>(relative[1])));
+                projection.move_point(index, acmacs::PointCoordinates(coord.x() + relative[0].to<double>(), coord.y() + relative[1].to<double>()));
             }
         }
         else {
@@ -266,7 +266,7 @@ void ModMoveAntigensStress::apply(ChartDraw& aChartDraw, const rjson::value& /*a
             auto layout = projection.layout();
             for (auto index : SelectAntigens(verbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, select)) {
                 const auto coord = layout->get(index);
-                const acmacs::PointCoordinates move_to{coord.x() + static_cast<double>(relative[0]), coord.y() + static_cast<double>(relative[1])};
+                const acmacs::PointCoordinates move_to{coord.x() + relative[0].to<double>(), coord.y() + relative[1].to<double>()};
                 const auto stress = projection.stress_with_moved_point(index, move_to);
                 std::cerr << "DEBUG: stress_with_moved_point " << stress << '\n';
                 auto& point = aChartDraw.point(transformation.transform(move_to), Pixels{rjson::get_or(args(), "size", 1.0)});
@@ -299,7 +299,7 @@ void ModMoveSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
             auto layout = aChartDraw.layout();
             for (auto index : SelectSera(verbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, select)) {
                 const auto coord = layout->get(index + aChartDraw.number_of_antigens());
-                projection.move_point(index + aChartDraw.number_of_antigens(), acmacs::PointCoordinates(coord.x() + static_cast<double>(relative[0]), coord.y() + static_cast<double>(relative[1])));
+                projection.move_point(index + aChartDraw.number_of_antigens(), acmacs::PointCoordinates(coord.x() + relative[0].to<double>(), coord.y() + relative[1].to<double>()));
             }
         }
         else {
@@ -326,10 +326,10 @@ class ModRotate : public Mod
     {
         if (const auto& degrees_v = args()["degrees"]; !degrees_v.is_null()) {
             const double pi_180 = std::acos(-1) / 180.0;
-            aChartDraw.rotate(static_cast<double>(degrees_v) * pi_180);
+            aChartDraw.rotate(degrees_v.to<double>() * pi_180);
         }
         else if (const auto& radians_v = args()["radians"]; !radians_v.is_null()) {
-            aChartDraw.rotate(static_cast<double>(radians_v));
+            aChartDraw.rotate(radians_v.to<double>());
         }
         else {
             throw unrecognized_mod{"mod: " + rjson::to_string(args())};
@@ -348,7 +348,7 @@ class ModFlip : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
     {
         if (const auto& direction_v = args()["direction"]; !direction_v.is_null()) {
-            const std::string_view direction{direction_v.to_string_view()};
+            const std::string_view direction{direction_v.to<std::string_view>()};
             if (direction == "ew")
                 aChartDraw.flip(0, 1);
             else if (direction == "ns")
@@ -375,17 +375,17 @@ class ModViewport : public Mod
         if (const auto& abs = args()["abs"]; !abs.is_null()) {
             if (abs.size() != 3)
                 throw unrecognized_mod{"\"abs\" must be array of 3 floats. mod: " + rjson::to_string(args())};
-            aChartDraw.viewport({static_cast<double>(abs[0]), static_cast<double>(abs[1])}, static_cast<double>(abs[2]));
+            aChartDraw.viewport({abs[0].to<double>(), abs[1].to<double>()}, abs[2].to<double>());
         }
         else if (const auto& rel = args()["rel"]; !rel.is_null()) {
             if (rel.size() != 3)
                 throw unrecognized_mod{"\"rel\" must be array of 3 floats. mod: " + rjson::to_string(args())};
             aChartDraw.calculate_viewport(false);
             const auto& orig_viewport = aChartDraw.viewport();
-            const auto new_size = static_cast<double>(rel[2]) + orig_viewport.size.width;
+            const auto new_size = rel[2].to<double>() + orig_viewport.size.width;
             if (new_size < 1)
                 throw unrecognized_mod{"invalid size difference in \"rel\". mod: " + rjson::to_string(args())};
-            aChartDraw.viewport(orig_viewport.origin + acmacs::PointCoordinates{static_cast<double>(rel[0]), static_cast<double>(rel[1])}, new_size);
+            aChartDraw.viewport(orig_viewport.origin + acmacs::PointCoordinates{rel[0].to<double>(), rel[1].to<double>()}, new_size);
         }
         else {
             throw unrecognized_mod{"mod: " + rjson::to_string(args())};
@@ -404,7 +404,7 @@ class ModBackground : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
     {
         if (const auto& color = args()["color"]; !color.is_null())
-            aChartDraw.background_color(Color(color.to_string_view()));
+            aChartDraw.background_color(Color(color.to<std::string_view>()));
         else
             throw unrecognized_mod{"mod: " + rjson::to_string(args())};
     }
@@ -463,7 +463,7 @@ class ModTitle : public Mod
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
     {
         auto& title = aChartDraw.title();
-        if (const auto& show = args()["show"]; show.is_null() || static_cast<bool>(show)) { // true by default
+        if (const auto& show = args()["show"]; show.is_null() || show.to<bool>()) { // true by default
             title.show(true);
             auto substitute_vars = [&aChartDraw](std::string source) -> std::string {
                 auto info = aChartDraw.chart().info();
@@ -489,34 +489,34 @@ class ModTitle : public Mod
             };
             if (const auto& display_name = args()["display_name"]; !display_name.is_null()) {
                 if (display_name.is_array())
-                    rjson::for_each(display_name, [&title,&substitute_vars](const rjson::value& line) { title.add_line(substitute_vars(std::string(line))); });
+                    rjson::for_each(display_name, [&title,&substitute_vars](const rjson::value& line) { title.add_line(substitute_vars(line.to<std::string>())); });
                 else if (display_name.is_string())
-                    title.add_line(substitute_vars(std::string(display_name)));
+                    title.add_line(substitute_vars(display_name.to<std::string>()));
                 else
                     throw std::exception{};
             }
             else
                 title.add_line(aChartDraw.chart().make_name(aChartDraw.projection_no()));
             if (const auto& offset = args()["offset"]; !offset.is_null())
-                title.offset({static_cast<double>(offset[0]), static_cast<double>(offset[1])});
+                title.offset({offset[0].to<double>(), offset[1].to<double>()});
             if (const auto& padding = args()["padding"]; !padding.is_null())
-                title.padding(static_cast<double>(padding));
+                title.padding(padding.to<double>());
             if (const auto& text_size = args()["text_size"]; !text_size.is_null())
-                title.text_size(static_cast<double>(text_size));
+                title.text_size(text_size.to<double>());
             if (const auto& text_color = args()["text_color"]; !text_color.is_null())
-                title.text_color(Color(text_color.to_string_view()));
+                title.text_color(Color(text_color.to<std::string_view>()));
             if (const auto& background = args()["background"]; !background.is_null())
-                title.background(Color(background.to_string_view()));
+                title.background(Color(background.to<std::string_view>()));
             if (const auto& border_color = args()["border_color"]; !border_color.is_null())
-                title.border_color(Color(border_color.to_string_view()));
+                title.border_color(Color(border_color.to<std::string_view>()));
             if (const auto& border_width = args()["border_width"]; !border_width.is_null())
-                title.border_width(static_cast<double>(border_width));
+                title.border_width(border_width.to<double>());
             if (const auto& font_weight = args()["font_weight"]; !font_weight.is_null())
-                title.weight(std::string(font_weight));
+                title.weight(font_weight.to<std::string>());
             if (const auto& font_slant = args()["font_slant"]; !font_slant.is_null())
-                title.slant(std::string(font_slant));
+                title.slant(font_slant.to<std::string>());
             if (const auto& font_family = args()["font_family"]; !font_family.is_null())
-                title.font_family(std::string(font_family));
+                title.font_family(font_family.to<std::string>());
         }
         else {
             title.show(false);
@@ -534,7 +534,7 @@ class ModLegend : public Mod
 
     void apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/) override
     {
-        if (const auto& show = args()["show"]; show.is_null() || static_cast<bool>(show)) { // true by default
+        if (const auto& show = args()["show"]; show.is_null() || show.to<bool>()) { // true by default
             auto& legend = aChartDraw.legend_point_label();
             if (const auto& data = args()["data"]; !data.is_null()) {
                 rjson::for_each(data, [&legend](const rjson::value& line_data) {
@@ -543,17 +543,17 @@ class ModLegend : public Mod
                 });
             }
             if (const auto& offset = args()["offset"]; !offset.is_null())
-                legend.offset({static_cast<double>(offset[0]), static_cast<double>(offset[1])});
+                legend.offset({offset[0].to<double>(), offset[1].to<double>()});
             if (const auto& label_size = args()["label_size"]; !label_size.is_null())
-                legend.label_size(static_cast<double>(label_size));
+                legend.label_size(label_size.to<double>());
             if (const auto& point_size = args()["point_size"]; !point_size.is_null())
-                legend.point_size(static_cast<double>(point_size));
+                legend.point_size(point_size.to<double>());
             if (const auto& background = args()["background"]; !background.is_null())
-                legend.background(Color(background.to_string_view()));
+                legend.background(Color(background.to<std::string_view>()));
             if (const auto& border_color = args()["border_color"]; !border_color.is_null())
-                legend.border_color(Color(border_color.to_string_view()));
+                legend.border_color(Color(border_color.to<std::string_view>()));
             if (const auto& border_width = args()["border_width"]; !border_width.is_null())
-                legend.border_width(static_cast<double>(border_width));
+                legend.border_width(border_width.to<double>());
         }
         else {
             aChartDraw.remove_legend();
@@ -589,7 +589,7 @@ class ModLine : public Mod
        std::vector<acmacs::PointCoordinates> result;
        const auto verbose = rjson::get_or(args(), "report", false);
        if (const auto& from = args()[aPrefix]; !from.is_null()) {
-           acmacs::PointCoordinates point{static_cast<double>(from[0]), static_cast<double>(from[1])};
+           acmacs::PointCoordinates point{from[0].to<double>(), from[1].to<double>()};
            if (transform)
                point = aChartDraw.transformation().transform(point);
            result.push_back(std::move(point));
@@ -658,10 +658,10 @@ class ModRectangle : public Mod
             aChartDraw.path()
                     .color(color)
                     .line_width(rjson::get_or(args(), "line_width", 1))
-                    .add(transformation.transform(acmacs::PointCoordinates{static_cast<double>(c1[0]), static_cast<double>(c1[1])}))
-                    .add(transformation.transform(acmacs::PointCoordinates{static_cast<double>(c1[0]), static_cast<double>(c2[1])}))
-                    .add(transformation.transform(acmacs::PointCoordinates{static_cast<double>(c2[0]), static_cast<double>(c2[1])}))
-                    .add(transformation.transform(acmacs::PointCoordinates{static_cast<double>(c2[0]), static_cast<double>(c1[1])}))
+                    .add(transformation.transform(acmacs::PointCoordinates{c1[0].to<double>(), c1[1].to<double>()}))
+                    .add(transformation.transform(acmacs::PointCoordinates{c1[0].to<double>(), c2[1].to<double>()}))
+                    .add(transformation.transform(acmacs::PointCoordinates{c2[0].to<double>(), c2[1].to<double>()}))
+                    .add(transformation.transform(acmacs::PointCoordinates{c2[0].to<double>(), c1[1].to<double>()}))
                     .close(rjson::get_or(args(), "filled", false) ? color : TRANSPARENT);
         }
         else
@@ -681,7 +681,7 @@ class ModCircle : public Mod
     {
         if (const auto& center = args()["center"]; !center.is_null()) {
             const auto transformation = aChartDraw.transformation();
-            auto& circle = aChartDraw.circle(transformation.transform(acmacs::PointCoordinates{static_cast<double>(center[0]), static_cast<double>(center[1])}), Scaled{rjson::get_or(args(), "size", 1.0)});
+            auto& circle = aChartDraw.circle(transformation.transform(acmacs::PointCoordinates{center[0].to<double>(), center[1].to<double>()}), Scaled{rjson::get_or(args(), "size", 1.0)});
             circle.color(Color(rjson::get_or(args(), "fill", "transparent")), Color(rjson::get_or(args(), "outline", "#80FF00FF")));
             circle.outline_width(rjson::get_or(args(), "outline_width", 1.0));
             circle.aspect(Aspect{rjson::get_or(args(), "aspect", 1.0)});
@@ -706,7 +706,7 @@ Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value
         args.update(aMod);
     }
     else if (aMod.is_string()) {
-        name = static_cast<std::string>(aMod);
+        name = aMod.to<std::string_view>();
     }
     try {
         args.update(aUpdate);

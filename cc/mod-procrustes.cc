@@ -51,7 +51,7 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
 
     acmacs::chart::ChartP secondary_chart;
     if (const auto& chart_filename = args()["chart"]; !chart_filename.is_null())
-        secondary_chart = acmacs::chart::import_from_file(chart_filename.to_string_view(), acmacs::chart::Verify::None, do_report_time(verbose));
+        secondary_chart = acmacs::chart::import_from_file(chart_filename.to<std::string_view>(), acmacs::chart::Verify::None, do_report_time(verbose));
     else
         secondary_chart = aChartDraw.chartp();
     const auto match_level = make_match_level(rjson::get_or(args(), "match", ""));

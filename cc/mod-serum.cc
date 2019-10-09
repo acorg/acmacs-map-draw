@@ -143,7 +143,7 @@ void ModSerumCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData
     if (const auto& circle = args()["circle"]; circle.is_null()) { // new spec
         const double fold = rjson::get_or(args(), "fold", 2.0);
         if (const auto& homologous_titer = args()["homologous_titer"]; !homologous_titer.is_null())
-            make_serum_circle(aChartDraw, serum_index, antigen_indices, acmacs::chart::Titer(homologous_titer), args()["empirical"], args()["theoretical"], args()["fallback"], fold, verbose);
+            make_serum_circle(aChartDraw, serum_index, antigen_indices, acmacs::chart::Titer(homologous_titer.to<std::string_view>()), args()["empirical"], args()["theoretical"], args()["fallback"], fold, verbose);
         else
             make_serum_circle(aChartDraw, serum_index, antigen_indices, args()["empirical"], args()["theoretical"], args()["fallback"], fold, verbose);
     }
@@ -161,7 +161,7 @@ void ModSerumCircles::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDat
         const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, acmacs::chart::find_homologous::all, verbose);
         const double fold = rjson::get_or(args(), "fold", 2.0);
         if (const auto& homologous_titer = args()["homologous_titer"]; !homologous_titer.is_null())
-            make_serum_circle(aChartDraw, serum_index, antigen_indices, acmacs::chart::Titer(homologous_titer), args()["empirical"], args()["theoretical"], args()["fallback"], fold, verbose);
+            make_serum_circle(aChartDraw, serum_index, antigen_indices, acmacs::chart::Titer(homologous_titer.to<std::string_view>()), args()["empirical"], args()["theoretical"], args()["fallback"], fold, verbose);
         else
             make_serum_circle(aChartDraw, serum_index, antigen_indices, args()["empirical"], args()["theoretical"], args()["fallback"], fold, verbose);
     }
@@ -228,7 +228,7 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t serum_index
                                        serum_circle_radius_type radius_type, const rjson::value& circle_plot_spec, double fold, bool verbose) const
 {
     if (!homologous_titer.is_null())
-        make_serum_circle(aChartDraw, serum_index, Scaled{calculate_radius(aChartDraw, serum_index, antigen_indices, acmacs::chart::Titer(homologous_titer), radius_type, fold, verbose)}, circle_plot_spec);
+        make_serum_circle(aChartDraw, serum_index, Scaled{calculate_radius(aChartDraw, serum_index, antigen_indices, acmacs::chart::Titer(homologous_titer.to<std::string_view>()), radius_type, fold, verbose)}, circle_plot_spec);
     else
         make_serum_circle(aChartDraw, serum_index, Scaled{calculate_radius(aChartDraw, serum_index, antigen_indices, radius_type, fold, verbose)}, circle_plot_spec);
 
@@ -260,7 +260,7 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex
         circle.outline(Color(outline), outline_width);
         if (const auto& angles = circle_plot_spec["angle_degrees"]; !angles.is_null()) {
             const double pi_180 = std::acos(-1) / 180.0;
-            circle.angles(static_cast<double>(angles[0]) * pi_180, static_cast<double>(angles[1]) * pi_180);
+            circle.angles(angles[0].to<double>() * pi_180, angles[1].to<double>() * pi_180);
         }
         if (const auto line_dash = rjson::get_or(circle_plot_spec, "radius_line_dash", ""); line_dash == "dash1")
             circle.radius_line_dash1();
@@ -352,7 +352,7 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const ac
     acmacs::chart::PointIndexList within, outside;
     std::optional<size_t> antigen_index;
     if (!homologous_titer.is_null()) {
-        aChartDraw.chart().serum_coverage(acmacs::chart::Titer(homologous_titer), serum_index, within, outside, fold);
+        aChartDraw.chart().serum_coverage(acmacs::chart::Titer(homologous_titer.to<std::string_view>()), serum_index, within, outside, fold);
     }
     else {
         for (auto ai = antigen_indices.begin(); ai != antigen_indices.end() && !antigen_index; ++ai) {

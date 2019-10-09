@@ -130,7 +130,7 @@ std::string mod_name(const rjson::value& aMods)
 {
     std::string name;
     rjson::for_each(aMods, [&name](const rjson::value& mod_desc) {
-        if (const std::string_view mod_desc_s{mod_desc.to_string_view()}; name.empty() && mod_desc_s[0] != '?' && mod_desc_s[0] != '_')
+        if (const std::string_view mod_desc_s{mod_desc.to<std::string_view>()}; name.empty() && mod_desc_s[0] != '?' && mod_desc_s[0] != '_')
             name = mod_desc_s;
     });
     return name;
