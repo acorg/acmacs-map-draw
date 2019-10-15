@@ -72,19 +72,19 @@ namespace local
             else if (key_ == "trapped")
                 return std::make_unique<hemi_point_entry_t>(hemi_data_.trapped_points.emplace_back());
             else
-                throw in_json::parse_error("unsupported object for key: ", key_);
+                throw in_json::parse_error(fmt::format("unsupported object for key: \"{}\"", key_));
         }
 
         void injson_put_string(std::string_view data) override
         {
             if (key_ == "  version" || key_ == " version") {
                 if (data != "grid-test-v1")
-                    throw in_json::parse_error("unsupported version: ", data);
+                    throw in_json::parse_error(fmt::format("unsupported version: {}", data));
             }
             else if (key_ == "_" || key_ == "chart")
                 ;
             else
-                throw in_json::parse_error("unsupported field: ", data);
+                throw in_json::parse_error(fmt::format("unsupported field: \"{}\": {}", key_, data));
             reset_key();
         }
 
