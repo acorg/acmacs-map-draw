@@ -1,6 +1,4 @@
 #include <chrono>
-#include <cstdlib>
-#include <cctype>
 
 #include "acmacs-base/rjson.hh"
 #include "acmacs-base/string.hh"
@@ -47,24 +45,6 @@ acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aC
     }
 
 } // SelectAntigensSera::select
-
-// ----------------------------------------------------------------------
-
-std::vector<SelectAntigensSera::amino_acid_at_pos_t> SelectAntigensSera::extract_pos_aa(const rjson::value& source)
-{
-    std::vector<amino_acid_at_pos_t> pos_aa;
-    rjson::for_each(source, [&pos_aa](const rjson::value& entry) {
-        const std::string_view text{entry.to<std::string_view>()};
-        if (text.size() >= 2 && text.size() <= 4 && std::isdigit(text.front()) && std::isalpha(text.back()))
-            pos_aa.emplace_back(std::stoul(text.substr(0, text.size() - 1)), text.back(), true);
-        else if (text.size() >= 3 && text.size() <= 5 && text.front() == '!' && std::isdigit(text[1]) && std::isalpha(text.back()))
-            pos_aa.emplace_back(std::stoul(text.substr(1, text.size() - 2)), text.back(), false);
-        else
-            throw std::exception{};
-    });
-    return pos_aa;
-
-} // SelectAntigensSera::extract_pos_aa
 
 // ----------------------------------------------------------------------
 
@@ -166,7 +146,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             if (val.is_object())
                 filter_amino_acid_at_pos(aChartSelectInterface, indexes, val["aa"].to<std::string_view>()[0], val["pos"].to<size_t>(), true);
             else if (val.is_array())
-                filter_amino_acid_at_pos(aChartSelectInterface, indexes, extract_pos_aa(val));
+                filter_amino_acid_at_pos(aChartSelectInterface, indexes, acmacs::seqdb::extract_aa_at_pos(val));
             else
                 throw std::runtime_error{"invalid \"amino_acid\" value, object or array expected"};
         }
@@ -360,7 +340,7 @@ void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChart
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const std::vector<amino_acid_at_pos_t>& pos1_aa)
+void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const std::vector<acmacs::seqdb::amino_acid_at_pos_t>& pos1_aa)
 {
     for (const auto& entry : pos1_aa)
         filter_amino_acid_at_pos(aChartSelectInterface, indexes, std::get<char>(entry), std::get<size_t>(entry), std::get<bool>(entry));
@@ -466,7 +446,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
         }
         else if (key == "amino_acid") {
             if (val.is_array())
-                filter_amino_acid_at_pos(aChartSelectInterface, indexes, extract_pos_aa(val));
+                filter_amino_acid_at_pos(aChartSelectInterface, indexes, acmacs::seqdb::extract_aa_at_pos(val));
             else
                 throw std::runtime_error{"invalid \"amino_acid\" value, array expected"};
         }
@@ -607,7 +587,7 @@ void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface,
 
 // ----------------------------------------------------------------------
 
-void SelectSera::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const std::vector<amino_acid_at_pos_t>& pos1_aa)
+void SelectSera::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::seqdb::amino_acid_at_pos_list_t& pos1_aa)
 {
     const auto& chart = aChartSelectInterface.chart();
     chart.set_homologous(acmacs::chart::find_homologous::relaxed);
