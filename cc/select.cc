@@ -267,7 +267,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             filter_layer(aChartSelectInterface, indexes, val.to<int>());
         }
         else if (key == "titrated_against_sera") {
-            const auto serum_indexes = SelectSera(SelectSera::verbose::yes).command(aChartSelectInterface, val);
+            const auto serum_indexes = SelectSera(acmacs::verbose::yes).command(aChartSelectInterface, val);
             filter_titrated_against(aChartSelectInterface, indexes, serum_indexes);
             // std::cerr << "DEBUG: titrated_against_sera " << serum_indexes << ' ' << indexes << '\n';
         }

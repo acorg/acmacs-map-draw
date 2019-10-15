@@ -125,11 +125,11 @@ std::pair<acmacs::chart::Indexes, acmacs::chart::Indexes> select_antigens_sera_f
 {
     acmacs::chart::Indexes antigen_indexes, serum_indexes;
     if (!select_antigens.is_null())
-        antigen_indexes = SelectAntigens(SelectAntigens::verbose::no, 100).select(aChartDraw, select_antigens);
+        antigen_indexes = SelectAntigens(acmacs::verbose::no, 100).select(aChartDraw, select_antigens);
     else
         antigen_indexes = aChartDraw.chart().antigens()->all_indexes();
     if (!select_sera.is_null())
-        serum_indexes = SelectSera(SelectSera::verbose::no, 100).select(aChartDraw, select_sera);
+        serum_indexes = SelectSera(acmacs::verbose::no, 100).select(aChartDraw, select_sera);
     else
         serum_indexes = aChartDraw.chart().sera()->all_indexes();
     // std::cerr << "DEBUG: antigens: " << antigen_indexes << '\n';

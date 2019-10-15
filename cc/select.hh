@@ -9,6 +9,7 @@
 #include "acmacs-base/rjson-forward.hh"
 #include "acmacs-base/timeit.hh"
 #include "acmacs-base/size.hh"
+#include "acmacs-base/debug.hh"
 #include "acmacs-chart-2/chart.hh"
 #include "acmacs-map-draw/chart-select-interface.hh"
 
@@ -23,9 +24,8 @@ class SelectAntigensSera
 {
  public:
     using amino_acid_at_pos_t = std::tuple<size_t, char, bool>; // pos, aa, equal/not-equal
-    enum class verbose { no, yes };
 
-    SelectAntigensSera(verbose aVerbose = verbose::no, size_t aReportNamesThreshold = 10)
+    SelectAntigensSera(acmacs::verbose aVerbose = acmacs::verbose::no, size_t aReportNamesThreshold = 10)
         : mVerbose{aVerbose}, mReportNamesThreshold{aReportNamesThreshold}, mReportTime{report_time::no} {}
     virtual ~SelectAntigensSera();
 
@@ -76,7 +76,7 @@ class SelectAntigensSera
             indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_circle), indexes.end());
         }
 
-    bool verbose() const { return mVerbose == verbose::yes; }
+    bool verbose() const { return mVerbose == acmacs::verbose::yes; }
     size_t report_names_threshold() const { return mReportNamesThreshold; }
     auto timer() { return mReportTime; }
 
@@ -85,7 +85,7 @@ class SelectAntigensSera
     // const acmacs::seqdb::subset& seqdb_entries(const ChartSelectInterface& aChartSelectInterface);
 
  private:
-    enum verbose mVerbose;
+    acmacs::verbose mVerbose;
     size_t mReportNamesThreshold;
     report_time mReportTime;
 

@@ -176,7 +176,7 @@ void ModAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
     const auto verbose = rjson::get_or(args(), "report", false);
     const auto report_names_threshold = rjson::get_or(args(), "report_names_threshold", 30UL);
     if (const auto& select = args()["select"]; !select.is_null()) {
-        const auto indices = SelectAntigens(verbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no, report_names_threshold).select(aChartDraw, select);
+        const auto indices = SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no, report_names_threshold).select(aChartDraw, select);
         const auto styl = style();
           // if (verbose)
           // std::cerr << "DEBUG: ModAntigens " << indices << ' ' << args() << ' ' << styl << '\n';
@@ -201,13 +201,13 @@ acmacs::PointCoordinates ModMoveBase::get_move_to(ChartDraw& aChartDraw, bool aV
         move_to = acmacs::PointCoordinates(to[0].to<double>(), to[1].to<double>());
     }
     else if (const auto& to_antigen = args()["to_antigen"]; !to_antigen.is_null()) {
-        const auto antigens = SelectAntigens(aVerbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, to_antigen);
+        const auto antigens = SelectAntigens(aVerbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, to_antigen);
         if (antigens->size() != 1)
             throw unrecognized_mod{"\"to_antigen\" does not select single antigen, mod: " + rjson::to_string(args())};
         move_to = aChartDraw.layout()->get(antigens->front());
     }
     else if (const auto& to_serum = args()["to_serum"]; !to_serum.is_null()) {
-        const auto sera = SelectSera(aVerbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, to_serum);
+        const auto sera = SelectSera(aVerbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, to_serum);
         if (sera->size() != 1)
             throw unrecognized_mod{"\"to_serum\" does not select single serum, mod: " + rjson::to_string(args())};
         move_to = aChartDraw.layout()->get(sera->front() + aChartDraw.number_of_antigens());
@@ -228,21 +228,21 @@ void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDat
         if (auto flip_scale = rjson::get_or(args(), "flip_over_serum_line", std::numeric_limits<double>::max()); flip_scale < (std::numeric_limits<double>::max() / 2)) {
             const acmacs::chart::SerumLine serum_line(projection);
             auto layout = aChartDraw.layout();
-            for (auto index : SelectAntigens(verbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, select)) {
+            for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
                 const auto flipped = serum_line.line().flip_over(layout->get(index), flip_scale);
                 projection.move_point(index, flipped);
             }
         }
         else if (auto relative = args().get("relative"); !relative.is_null()) {
             auto layout = aChartDraw.layout();
-            for (auto index : SelectAntigens(verbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, select)) {
+            for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
                 const auto coord = layout->get(index);
                 projection.move_point(index, acmacs::PointCoordinates(coord.x() + relative[0].to<double>(), coord.y() + relative[1].to<double>()));
             }
         }
         else {
             const auto move_to = get_move_to(aChartDraw, verbose);
-            for (auto index : SelectAntigens(verbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, select)) {
+            for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
                 projection.move_point(index, move_to);
             }
         }
@@ -264,7 +264,7 @@ void ModMoveAntigensStress::apply(ChartDraw& aChartDraw, const rjson::value& /*a
         const auto transformation = projection.transformation();
         if (auto relative = args().get("relative"); !relative.is_null()) {
             auto layout = projection.layout();
-            for (auto index : SelectAntigens(verbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, select)) {
+            for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
                 const auto coord = layout->get(index);
                 const acmacs::PointCoordinates move_to{coord.x() + relative[0].to<double>(), coord.y() + relative[1].to<double>()};
                 const auto stress = projection.stress_with_moved_point(index, move_to);
@@ -297,14 +297,14 @@ void ModMoveSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
         auto& projection = aChartDraw.projection();
         if (auto relative = args().get("relative"); !relative.is_null()) {
             auto layout = aChartDraw.layout();
-            for (auto index : SelectSera(verbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, select)) {
+            for (auto index : SelectSera(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
                 const auto coord = layout->get(index + aChartDraw.number_of_antigens());
                 projection.move_point(index + aChartDraw.number_of_antigens(), acmacs::PointCoordinates(coord.x() + relative[0].to<double>(), coord.y() + relative[1].to<double>()));
             }
         }
         else {
             const auto move_to = get_move_to(aChartDraw, verbose);
-            for (auto index : SelectSera(verbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, select)) {
+            for (auto index : SelectSera(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
                 projection.move_point(index + aChartDraw.number_of_antigens(), move_to);
             }
         }
@@ -596,12 +596,12 @@ class ModLine : public Mod
        }
        else if (const auto& from_antigen = args()[aPrefix + "_antigen"]; !from_antigen.is_null()) {
            auto layout = aChartDraw.transformed_layout();
-           for (auto index : SelectAntigens(verbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, from_antigen))
+           for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, from_antigen))
                result.push_back(layout->get(index));
        }
        else if (const auto& from_serum = args()[aPrefix + "_serum"]; !from_serum.is_null()) {
            auto layout = aChartDraw.transformed_layout();
-           for (auto index : SelectSera(verbose ? SelectAntigensSera::verbose::yes : SelectAntigensSera::verbose::no).select(aChartDraw, from_serum))
+           for (auto index : SelectSera(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, from_serum))
                result.push_back(layout->get(index + aChartDraw.number_of_antigens()));
        }
        else
