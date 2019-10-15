@@ -144,9 +144,9 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
         else if (key == "amino_acid") {
             if (val.is_object())
-                filter_amino_acid_at_pos(aChartSelectInterface, indexes, val["aa"].to<std::string_view>()[0], val["pos"].to<size_t>(), true);
+                filter_amino_acid_at_pos(aChartSelectInterface, indexes, val["aa"].to<std::string_view>()[0], acmacs::seqdb::pos1_t{val["pos"].to<size_t>()}, true);
             else if (val.is_array())
-                filter_amino_acid_at_pos(aChartSelectInterface, indexes, acmacs::seqdb::extract_aa_at_pos(val));
+                filter_amino_acid_at_pos(aChartSelectInterface, indexes, acmacs::seqdb::extract_aa_at_pos1(val));
             else
                 throw std::runtime_error{"invalid \"amino_acid\" value, object or array expected"};
         }
@@ -329,10 +329,10 @@ void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterf
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, size_t pos1, bool equal)
+void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, acmacs::seqdb::pos1_t pos1, bool equal)
 {
     const auto& entries = aChartSelectInterface.match_seqdb();
-    auto at_pos_neq = [amino_acid,pos1,equal](const auto& entry) -> bool { return equal ? entry.seq().aa_at_pos1(pos1) != amino_acid : entry.seq().aa_at_pos1(pos1) == amino_acid; };
+    auto at_pos_neq = [amino_acid,pos1,equal](const auto& entry) -> bool { return equal ? entry.seq().aa_at_pos1(*pos1) != amino_acid : entry.seq().aa_at_pos1(*pos1) == amino_acid; };
     auto not_aa_at_pos = [&entries,&at_pos_neq](auto index) -> bool { const auto& entry = entries[index]; return !entry || at_pos_neq(entry); };
     indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_aa_at_pos), indexes.end());
 
@@ -343,7 +343,7 @@ void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChart
 void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const std::vector<acmacs::seqdb::amino_acid_at_pos1_t>& pos1_aa)
 {
     for (const auto& entry : pos1_aa)
-        filter_amino_acid_at_pos(aChartSelectInterface, indexes, std::get<char>(entry), std::get<size_t>(entry), std::get<bool>(entry));
+        filter_amino_acid_at_pos(aChartSelectInterface, indexes, std::get<char>(entry), std::get<acmacs::seqdb::pos1_t>(entry), std::get<bool>(entry));
 
 } // SelectAntigens::filter_amino_acid_at_pos
 
@@ -446,7 +446,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
         }
         else if (key == "amino_acid") {
             if (val.is_array())
-                filter_amino_acid_at_pos(aChartSelectInterface, indexes, acmacs::seqdb::extract_aa_at_pos(val));
+                filter_amino_acid_at_pos(aChartSelectInterface, indexes, acmacs::seqdb::extract_aa_at_pos1(val));
             else
                 throw std::runtime_error{"invalid \"amino_acid\" value, array expected"};
         }
