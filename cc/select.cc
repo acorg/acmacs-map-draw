@@ -209,7 +209,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
                                           rjson::get_or(val, "direction", 0));
         }
         else if (key == "lab") {
-            if (aChartSelectInterface.chart().info()->lab(acmacs::chart::Info::Compute::Yes) != string::upper(val.to<std::string_view>()))
+            if (aChartSelectInterface.chart().info()->lab(acmacs::chart::Info::Compute::Yes) != acmacs::chart::Lab{val.to<std::string_view>()})
                 indexes.get().clear();
         }
         else if (key == "subtype") {
