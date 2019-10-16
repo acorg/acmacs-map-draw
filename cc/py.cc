@@ -5,7 +5,6 @@
 #include "locationdb/locdb.hh"
 #include "acmacs-chart-2/chart.hh"
 #include "hidb-5/hidb.hh"
-#include "seqdb/seqdb.hh"
 
 #include "draw.hh"
 #include "geographic-map.hh"
