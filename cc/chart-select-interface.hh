@@ -55,7 +55,7 @@ class ChartSelectInterface
         for (auto [ag_no, ref] : acmacs::enumerate(match_seqdb())) {
             if (ref) {
                 std::string aa(aPositions1.size(), 'X');
-                std::transform(aPositions1.begin(), aPositions1.end(), aa.begin(), [ref = ref](size_t pos) { return ref.seq().aa_at_pos1(pos); });
+                std::transform(aPositions1.begin(), aPositions1.end(), aa.begin(), [ref = ref](size_t pos) { return ref.seq().aa_at_pos(acmacs::seqdb::pos1_t{pos}); });
                 aas_indexes[aa].push_back(ag_no);
             }
         }
