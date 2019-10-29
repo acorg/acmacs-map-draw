@@ -96,11 +96,11 @@ class ModApplicator:
         # {"N": "gly", "fill": "grey50", "outline": "black"},
         # {"N": "no-gly", "fill": "grey50", "outline": "black"},
         # H3
-        {"N": "3C3",   "outline": "black"},
-        {"N": "3C2a",  "outline": "black"},
-        {"N": "3C2a1", "outline": "black"},
-        {"N": "3C3a",  "outline": "black"},
-        {"N": "3C3b",  "outline": "black"},
+        {"N": "3C.3",   "outline": "black"},
+        {"N": "3C.2A",  "outline": "black"},
+        {"N": "3C.2A1", "outline": "black"},
+        {"N": "3C.3A",  "outline": "black"},
+        {"N": "3C.3B",  "outline": "black"},
         # H1pdm
         {"N": "6B1", "outline": "black"},
         {"N": "6B2", "outline": "black"},
@@ -108,11 +108,11 @@ class ModApplicator:
         {"N": "Y2", "outline": "black"},
         {"N": "Y3", "outline": "black"},
         # B/Vic
-        {"N": "1",  "outline": "black"},
-        {"N": "1A", "outline": "black"},
-        {"N": "1B", "outline": "black"},
-        {"N": "DEL2017", "outline": "black"},
-        {"N": "TRIPLEDEL2017", "outline": "black"},
+        {"N": "V1",  "outline": "black"},
+        {"N": "V1A", "outline": "black"},
+        {"N": "V1B", "outline": "black"},
+        {"N": "2DEL2017", "outline": "black"},
+        {"N": "3DEL2017", "outline": "black"},
         ]
 
     # ----------------------------------------------------------------------
