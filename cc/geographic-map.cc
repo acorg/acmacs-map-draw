@@ -78,7 +78,7 @@ static inline std::string location_of_antigen(const hidb::Antigen& antigen)
     const std::string name{antigen.name()};
     auto location = virus_name::location(name);
     if (location == "GEORGIA") {
-        const auto& hidb = hidb::get(std::string{virus_name::virus_type(name)});
+        const auto& hidb = hidb::get(acmacs::virus::type_subtype_t{virus_name::virus_type(name)});
         if (hidb.tables()->most_recent(antigen.tables())->lab() == "CDC") {
               // std::cerr << "WARNING: GEORGIA: " << antigen->full_name() << '\n';
             location = "GEORGIA STATE"; // somehow disambiguate
@@ -236,7 +236,7 @@ void GeographicMapWithPointsFromHidb::prepare(acmacs::surface::Surface& aSurface
 void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, const std::vector<std::string>& aPriority, std::string_view aStartDate, std::string_view aEndDate)
 {
       // std::cerr << "add_points_from_hidb_colored_by" << '\n';
-    const auto& hidb = hidb::get(mVirusType);
+    const auto& hidb = hidb::get(acmacs::virus::type_subtype_t{mVirusType});
     auto antigens = hidb.antigens()->date_range(aStartDate, aEndDate);
     fmt::print("\nINFO: dates: {}..{} antigens: {}\n", aStartDate, aEndDate, antigens.size());
     if (!aPriority.empty())
@@ -293,9 +293,9 @@ GeographicMapColoring::TagColor ColoringByLineageAndDeletionMutants::color(const
             return {"VICTORIA_3DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_3DEL") : ColoringData{mDeletionMutantColor}};
         }
         else {
-            std::string lineage(aAntigen.lineage());
+            const auto lineage = aAntigen.lineage().to_string();
             // fmt::print(stderr, "DEBUG: {}  {}\n", lineage.substr(0, 3), aAntigen.full_name());
-            return {aAntigen.lineage(), mColors.at(lineage)};
+            return {lineage, mColors.at(lineage)};
         }
     }
     catch (...) {

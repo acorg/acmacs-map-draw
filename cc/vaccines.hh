@@ -60,7 +60,7 @@ class Vaccines
 
     }; // class Entry
 
-    Vaccines(const acmacs::chart::Chart& aChart, bool aVerbose = false);
+    Vaccines(const acmacs::chart::Chart& aChart);
 
     std::string report_all(const hidb::Vaccines::ReportConfig& config) const { return mVaccinesOfChart.report(config); }
     std::string report(const hidb::Vaccines::ReportConfig& config) const;

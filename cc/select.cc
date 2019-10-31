@@ -218,8 +218,8 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             if (val_u != virus_type) {
                 bool clear_indexes = true;
                 if (virus_type == "B") {
-                    const std::string lineage = aChartSelectInterface.chart().lineage();
-                    clear_indexes = !(((val_u == "BVIC" || val_u == "BV") && lineage == "VICTORIA") || ((val_u == "BYAM" || val_u == "BY") && lineage == "YAMAGATA"));
+                    const auto lineage = aChartSelectInterface.chart().lineage();
+                    clear_indexes = !(((val_u == "BVIC" || val_u == "BV") && lineage == acmacs::virus::lineage_t{"VICTORIA"}) || ((val_u == "BYAM" || val_u == "BY") && lineage == acmacs::virus::lineage_t{"YAMAGATA"}));
                 }
                 else {
                     clear_indexes = !((val_u == "H1" && virus_type == "A(H1N1)") || (val_u == "H3" && virus_type == "A(H3N2)"));
@@ -399,7 +399,7 @@ void SelectAntigens::filter_vaccine(const ChartSelectInterface& aChartSelectInte
         auto vaccines_of_chart = cache_vaccines.find(&aChartSelectInterface);
         if (vaccines_of_chart == cache_vaccines.end()) {
             Timeit ti_vaccines("Vaccines of chart: ");
-            vaccines_of_chart = cache_vaccines.emplace(&aChartSelectInterface, Vaccines{aChartSelectInterface.chart(), verbose()}).first;
+            vaccines_of_chart = cache_vaccines.emplace(&aChartSelectInterface, Vaccines{aChartSelectInterface.chart()}).first;
             if (verbose())
                 std::cerr << vaccines_of_chart->second.report(hidb::Vaccines::ReportConfig{}.indent(2)) << '\n';
         }

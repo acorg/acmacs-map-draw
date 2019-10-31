@@ -146,7 +146,7 @@ class ColoringByLineage : public GeographicMapColoring
     TagColor color(const hidb::Antigen& aAntigen) const override
         {
             try {
-                std::string lineage(aAntigen.lineage());
+                const std::string lineage{aAntigen.lineage().to_string()};
                 return {lineage, mColors.at(lineage)};
             }
             catch (...) {
