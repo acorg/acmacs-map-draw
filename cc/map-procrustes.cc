@@ -92,7 +92,7 @@ int main(int argc, char* const argv[])
             acmacs::quicklook(output, 2);
     }
     catch (std::exception& err) {
-        std::cerr << "ERROR: " << err.what() << '\n';
+        fmt::print(stderr, "ERROR {}\n", err);
         exit_code = 2;
     }
     return exit_code;
