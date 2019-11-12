@@ -842,7 +842,11 @@ Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value
             name = string::concat(name.substr(0, pos), info->lab(acmacs::chart::Info::Compute::Yes, acmacs::chart::Info::FixLab::reverse), name.substr(pos + 5));
         if (const auto pos = name.find("{assay}"); pos != std::string::npos)
             name = string::concat(name.substr(0, pos), info->assay(acmacs::chart::Info::Compute::Yes).hi_or_neut(), name.substr(pos + 7));
-        rjson::for_each(get_referenced_mod(name), [&aChartDraw,&aSettingsMods,&args,&result](const rjson::value& submod_desc) {
+        if (const auto pos = name.find("{virus_type}"); pos != std::string::npos)
+            name = string::concat(name.substr(0, pos), info->virus_type(acmacs::chart::Info::Compute::Yes), name.substr(pos + 12));
+        if (const auto pos = name.find("{lineage}"); pos != std::string::npos)
+            name = string::concat(name.substr(0, pos), aChartDraw.chart().lineage(), name.substr(pos + 9));
+        rjson::for_each(get_referenced_mod(name), [&aChartDraw, &aSettingsMods, &args, &result](const rjson::value& submod_desc) {
             for (auto&& submod : factory(aChartDraw, submod_desc, aSettingsMods, args)) {
                 result.push_back(std::move(submod));
             }
