@@ -59,6 +59,8 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
                     name = antigen->abbreviated_name_with_passage_type();
                 else if (name_type == "abbreviated_location_with_passage_type")
                     name = antigen->abbreviated_location_with_passage_type();
+                else if (name_type == "abbreviated_location_year")
+                    name = antigen->abbreviated_location_year();
                 else {
                     if (name_type != "full")
                         std::cerr << "WARNING: unrecognized \"name_type\" for label for antigen " << aIndex << '\n';
@@ -72,6 +74,8 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
                     label.display_name(serum->abbreviated_name());
                 else if (name_type == "abbreviated_name_with_serum_id")
                     label.display_name(serum->abbreviated_name_with_serum_id());
+                else if (name_type == "abbreviated_location_year")
+                    label.display_name(serum->abbreviated_location_year());
                 else {
                     if (name_type != "full")
                         std::cerr << "WARNING: unrecognized \"name_type\" for label for serum " << aIndex << '\n';
