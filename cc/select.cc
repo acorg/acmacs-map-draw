@@ -183,6 +183,9 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
             else
                 throw std::exception{};
         }
+        else if (key == "location") {
+            filter_location(aChartSelectInterface, indexes, string::upper(val.to<std::string_view>()));
+        }
         else if (key == "vaccine" || key == "vaccines") {
             try {
                 filter_vaccine(
@@ -461,6 +464,9 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
         }
         else if (key == "full_name") {
             filter_full_name(aChartSelectInterface, indexes, string::upper(val.to<std::string_view>()));
+        }
+        else if (key == "location") {
+            filter_location(aChartSelectInterface, indexes, string::upper(val.to<std::string_view>()));
         }
         else if (key == "table") {
             filter_table(aChartSelectInterface, indexes, val.to<std::string_view>());
