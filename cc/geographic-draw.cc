@@ -102,7 +102,7 @@ int draw(const Options& opt)
         std::cerr << "INFO: time series " << static_cast<std::string_view>(opt.time_series) << '\n';
         if (!opt.output_pdf)
             throw std::runtime_error("Please provide output filename prefix for time series");
-        std::unique_ptr<GeographicTimeSeriesBase> time_series;
+        std::unique_ptr<GeographicTimeSeries> time_series;
         if (opt.time_series == "monthly")
             time_series.reset(new GeographicTimeSeriesMonthly(subtype, start_date, end_date, make_list(settings["priority"]), settings["point_size_in_pixels"].to<double>(), settings["point_density"].to<double>(), Color(settings["continent_outline_color"].to<std::string_view>()), settings["continent_outline_width"].to<double>()));
         else if (opt.time_series == "yearly")

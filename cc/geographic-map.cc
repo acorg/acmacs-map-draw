@@ -262,22 +262,16 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const Geog
 
 // ----------------------------------------------------------------------
 
-GeographicTimeSeriesBase::~GeographicTimeSeriesBase()
+void GeographicTimeSeries::draw(std::string_view aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const
 {
-} // GeographicTimeSeriesBase::~GeographicTimeSeriesBase
-
-// ----------------------------------------------------------------------
-
-void GeographicTimeSeriesBase::draw(std::string_view aFilenamePrefix, TimeSeriesIterator& aBegin, const TimeSeriesIterator& aEnd, const std::vector<std::string>& aPriority, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const
-{
-    for (; aBegin != aEnd; ++aBegin) {
-        auto map = mMap;        // make a copy!
-        map.add_points_from_hidb_colored_by(aColoring, aColorOverride, aPriority, date::display(*aBegin), date::display(aBegin.next()));
-        map.title().add_line(aBegin.text_name());
-        map.draw(fmt::format("{}{}.pdf", aFilenamePrefix, aBegin.numeric_name()), aImageWidth);
+    for (const auto& slot : time_series_) {
+        auto map = map_;        // make a copy!
+        map.add_points_from_hidb_colored_by(aColoring, aColorOverride, priority_, date::display(slot.first), date::display(slot.after_last));
+        map.title().add_line(acmacs::time_series::text_name(slot));
+        map.draw(fmt::format("{}{}.pdf", aFilenamePrefix, acmacs::time_series::numeric_name(slot)), aImageWidth);
     }
 
-} // GeographicTimeSeriesBase::draw
+} // GeographicTimeSeries::draw
 
 // ----------------------------------------------------------------------
 

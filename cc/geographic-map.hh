@@ -288,45 +288,45 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
 
 // ----------------------------------------------------------------------
 
-class GeographicTimeSeriesBase
+class GeographicTimeSeries
 {
  public:
-    GeographicTimeSeriesBase(std::string aVirusType, double aPointSizeInPixels, double aPointDensity, Color aOutlineColor, double aOutlineWidth)
-        : mMap(aVirusType, aPointSizeInPixels, aPointDensity, aOutlineColor, aOutlineWidth) {}
-    virtual ~GeographicTimeSeriesBase();
+    GeographicTimeSeries(const acmacs::time_series::parameters& params, std::string aVirusType, const std::vector<std::string>& priority, double aPointSizeInPixels, double aPointDensity, Color aOutlineColor, double aOutlineWidth)
+        : map_(aVirusType, aPointSizeInPixels, aPointDensity, aOutlineColor, aOutlineWidth), time_series_{acmacs::time_series::make(params)}, priority_{priority} {}
+    virtual ~GeographicTimeSeries() = default;
 
-    map_elements::Title& title() { return mMap.title(); }
-    virtual void draw(std::string_view aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const = 0;
-    void draw(std::string_view aFilenamePrefix, TimeSeriesIterator& aBegin, const TimeSeriesIterator& aEnd, const std::vector<std::string>& aPriority, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const;
-
- private:
-    GeographicMapWithPointsFromHidb mMap;
-
-}; // class GeographicTimeSeriesBase
-
-// ----------------------------------------------------------------------
-
-template <typename TimeSeries> class GeographicTimeSeries : public GeographicTimeSeriesBase
-{
- public:
-    GeographicTimeSeries(std::string aVirusType, std::string_view aStart, std::string_view aEnd, const std::vector<std::string>& aPriority, double aPointSizeInPixels, double aPointDensity, Color aOutlineColor, double aOutlineWidth)
-        : GeographicTimeSeriesBase(aVirusType, aPointSizeInPixels, aPointDensity, aOutlineColor, aOutlineWidth), mTS(aStart, aEnd), mPriority(aPriority) {}
-
-    void draw(std::string_view aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const override
-        {
-            auto start = mTS.begin(), end = mTS.end();
-            GeographicTimeSeriesBase::draw(aFilenamePrefix, start, end, mPriority, aColoring, aColorOverride, aImageWidth);
-        }
+    map_elements::Title& title() { return map_.title(); }
+    void draw(std::string_view aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const;
 
  private:
-    TimeSeries mTS;
-    const std::vector<std::string> mPriority;
+    GeographicMapWithPointsFromHidb map_;
+    acmacs::time_series::series time_series_;
+    const std::vector<std::string> priority_;
 
 }; // class GeographicTimeSeries
 
-using GeographicTimeSeriesMonthly = GeographicTimeSeries<MonthlyTimeSeries>;
-using GeographicTimeSeriesYearly = GeographicTimeSeries<YearlyTimeSeries>;
-using GeographicTimeSeriesWeekly = GeographicTimeSeries<WeeklyTimeSeries>;
+// ----------------------------------------------------------------------
+
+class GeographicTimeSeriesMonthly : public GeographicTimeSeries
+{
+  public:
+    GeographicTimeSeriesMonthly(std::string aVirusType, std::string_view aStart, std::string_view aEnd, const std::vector<std::string>& aPriority, double aPointSizeInPixels, double aPointDensity, Color aOutlineColor, double aOutlineWidth)
+        : GeographicTimeSeries({date::from_string(aStart), date::from_string(aEnd), acmacs::time_series::interval::month}, aVirusType, aPriority, aPointSizeInPixels, aPointDensity, aOutlineColor, aOutlineWidth) {}
+};
+
+class GeographicTimeSeriesYearly : public GeographicTimeSeries
+{
+  public:
+    GeographicTimeSeriesYearly(std::string aVirusType, std::string_view aStart, std::string_view aEnd, const std::vector<std::string>& aPriority, double aPointSizeInPixels, double aPointDensity, Color aOutlineColor, double aOutlineWidth)
+        : GeographicTimeSeries({date::from_string(aStart), date::from_string(aEnd), acmacs::time_series::interval::year}, aVirusType, aPriority, aPointSizeInPixels, aPointDensity, aOutlineColor, aOutlineWidth) {}
+};
+
+class GeographicTimeSeriesWeekly : public GeographicTimeSeries
+{
+  public:
+    GeographicTimeSeriesWeekly(std::string aVirusType, std::string_view aStart, std::string_view aEnd, const std::vector<std::string>& aPriority, double aPointSizeInPixels, double aPointDensity, Color aOutlineColor, double aOutlineWidth)
+        : GeographicTimeSeries({date::from_string(aStart), date::from_string(aEnd), acmacs::time_series::interval::week}, aVirusType, aPriority, aPointSizeInPixels, aPointDensity, aOutlineColor, aOutlineWidth) {}
+};
 
 // ----------------------------------------------------------------------
 /// Local Variables:
