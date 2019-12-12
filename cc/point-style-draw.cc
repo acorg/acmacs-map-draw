@@ -34,7 +34,7 @@ void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aS
 acmacs::PointStyle point_style_from_json(const rjson::value& aSource, Color passage_color)
 {
     acmacs::PointStyle style;
-    rjson::for_each(aSource, [&style,passage_color](const std::string& key, const rjson::value& val) {
+    rjson::for_each(aSource, [&style,passage_color](std::string_view key, const rjson::value& val) {
         if (key == "fill") {
             if (const std::string_view val_s{val.to<std::string_view>()}; val_s == "passage")
                 style.fill = Color(passage_color);

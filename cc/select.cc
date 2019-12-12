@@ -50,7 +50,7 @@ acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aC
 
 template <typename AgSr>
 void filter(const AgSr& ag_sr, acmacs::chart::Indexes& indexes, SelectAntigensSera& /*aSelectAntigensSera*/, const ChartSelectInterface& /*aChartSelectInterface*/, const rjson::value& aSelector,
-            const std::string& key, const rjson::value& val)
+            std::string_view key, const rjson::value& val)
 {
     if (key == "egg") {
         ag_sr.filter_egg(indexes);
@@ -93,7 +93,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
 {
     auto antigens = aChartSelectInterface.chart().antigens();
     auto indexes = antigens->all_indexes();
-    rjson::for_each(aSelector, [this, &aChartSelectInterface, &antigens, &indexes, &aSelector](const std::string& key, const rjson::value& val) {
+    rjson::for_each(aSelector, [this, &aChartSelectInterface, &antigens, &indexes, &aSelector](std::string_view key, const rjson::value& val) {
         if (!key.empty() && (key.front() == '?' || key.back() == '?')) {
             // comment
         }
@@ -426,7 +426,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
 {
     const auto& sera = aChartSelectInterface.chart().sera();
     auto indexes = sera->all_indexes();
-    rjson::for_each(aSelector, [this,&aChartSelectInterface,&sera,&indexes,&aSelector](const std::string& key, const rjson::value& val) {
+    rjson::for_each(aSelector, [this,&aChartSelectInterface,&sera,&indexes,&aSelector](std::string_view key, const rjson::value& val) {
         if (!key.empty() && (key.front() == '?' || key.back() == '?')) {
               // comment
         }
