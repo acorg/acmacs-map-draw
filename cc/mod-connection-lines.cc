@@ -25,7 +25,7 @@ void ModConnectionLines::apply(ChartDraw& aChartDraw, const rjson::value& /*aMod
         for (const auto sr_no : serum_indexes) {
             if (const auto titer = titers->titer(ag_no, sr_no); !titer.is_dont_care()) {
                 // std::cerr << "DEBUG: " << ag_no << ' ' << sr_no << ' ' << titer << '\n';
-                if (const auto from = layout->get(ag_no), to = layout->get(sr_no + aChartDraw.number_of_antigens()); from.exists() && to.exists())
+                if (const auto from = layout->at(ag_no), to = layout->at(sr_no + aChartDraw.number_of_antigens()); from.exists() && to.exists())
                     aChartDraw.line(from, to).color(line_color).line_width(line_width);
             }
         }
@@ -103,7 +103,7 @@ void ModErrorLines::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*
             if (const auto found =
                     std::find_if(std::begin(error_lines), std::end(error_lines), [p1_no=ag_no,p2_no](const auto& erl) { return erl.point_1 == p1_no && erl.point_2 == p2_no; });
                 found != std::end(error_lines)) {
-                if (const auto p1 = layout->get(ag_no), p2 = layout->get(p2_no); p1.exists() && p2.exists()) {
+                if (const auto p1 = layout->at(ag_no), p2 = layout->at(p2_no); p1.exists() && p2.exists()) {
                     if (report)
                         fmt::print("INFO: error line {} {} -- {} {} : {}\n", ag_no, antigens->at(ag_no)->full_name(), sr_no, sera->at(sr_no)->full_name(), found->error_line);
                     //aChartDraw.line(p1, p2).color(GREY).line_width(line_width * 3);

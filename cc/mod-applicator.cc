@@ -208,13 +208,13 @@ acmacs::PointCoordinates ModMoveBase::get_move_to(ChartDraw& aChartDraw, bool aV
         const auto antigens = SelectAntigens(aVerbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, to_antigen);
         if (antigens->size() != 1)
             throw unrecognized_mod{"\"to_antigen\" does not select single antigen, mod: " + rjson::to_string(args())};
-        move_to = aChartDraw.layout()->get(antigens->front());
+        move_to = aChartDraw.layout()->at(antigens->front());
     }
     else if (const auto& to_serum = args()["to_serum"]; !to_serum.is_null()) {
         const auto sera = SelectSera(aVerbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, to_serum);
         if (sera->size() != 1)
             throw unrecognized_mod{"\"to_serum\" does not select single serum, mod: " + rjson::to_string(args())};
-        move_to = aChartDraw.layout()->get(sera->front() + aChartDraw.number_of_antigens());
+        move_to = aChartDraw.layout()->at(sera->front() + aChartDraw.number_of_antigens());
     }
     else
         throw unrecognized_mod{"neither of \"to\", \"to_antigen\", \"to__serum\" provided in mod: " + rjson::to_string(args())};
@@ -233,14 +233,14 @@ void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDat
             const acmacs::chart::SerumLine serum_line(projection);
             auto layout = aChartDraw.layout();
             for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
-                const auto flipped = serum_line.line().flip_over(layout->get(index), flip_scale);
+                const auto flipped = serum_line.line().flip_over(layout->at(index), flip_scale);
                 projection.move_point(index, flipped);
             }
         }
         else if (auto relative = args().get("relative"); !relative.is_null()) {
             auto layout = aChartDraw.layout();
             for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
-                const auto coord = layout->get(index);
+                const auto coord = layout->at(index);
                 projection.move_point(index, acmacs::PointCoordinates(coord.x() + relative[0].to<double>(), coord.y() + relative[1].to<double>()));
             }
         }
@@ -269,7 +269,7 @@ void ModMoveAntigensStress::apply(ChartDraw& aChartDraw, const rjson::value& /*a
         if (auto relative = args().get("relative"); !relative.is_null()) {
             auto layout = projection.layout();
             for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
-                const auto coord = layout->get(index);
+                const auto coord = layout->at(index);
                 const acmacs::PointCoordinates move_to{coord.x() + relative[0].to<double>(), coord.y() + relative[1].to<double>()};
                 const auto stress = projection.stress_with_moved_point(index, move_to);
                 std::cerr << "DEBUG: stress_with_moved_point " << stress << '\n';
@@ -302,7 +302,7 @@ void ModMoveSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
         if (auto relative = args().get("relative"); !relative.is_null()) {
             auto layout = aChartDraw.layout();
             for (auto index : SelectSera(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
-                const auto coord = layout->get(index + aChartDraw.number_of_antigens());
+                const auto coord = layout->at(index + aChartDraw.number_of_antigens());
                 projection.move_point(index + aChartDraw.number_of_antigens(), acmacs::PointCoordinates(coord.x() + relative[0].to<double>(), coord.y() + relative[1].to<double>()));
             }
         }
@@ -601,12 +601,12 @@ class ModLine : public Mod
        else if (const auto& from_antigen = args()[aPrefix + "_antigen"]; !from_antigen.is_null()) {
            auto layout = aChartDraw.transformed_layout();
            for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, from_antigen))
-               result.push_back(layout->get(index));
+               result.push_back(layout->at(index));
        }
        else if (const auto& from_serum = args()[aPrefix + "_serum"]; !from_serum.is_null()) {
            auto layout = aChartDraw.transformed_layout();
            for (auto index : SelectSera(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, from_serum))
-               result.push_back(layout->get(index + aChartDraw.number_of_antigens()));
+               result.push_back(layout->at(index + aChartDraw.number_of_antigens()));
        }
        else
            throw unrecognized_mod{"neither \"" + aPrefix + "\" nor \"" + aPrefix + "_antigen\" nor \"" + aPrefix + "_serum\" provided in mod: " + rjson::to_string(args())};

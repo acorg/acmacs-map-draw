@@ -72,7 +72,7 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool
                 // coordinates, distance to centroid of all points, distance to centroid of 90% closest points
                 using element_t = std::tuple<acmacs::PointCoordinates, double, double>;
                 std::vector<element_t> points(indexes.size(), {acmacs::PointCoordinates(layout->number_of_dimensions()), 0.0, 0.0});
-                std::transform(indexes.begin(), indexes.end(), points.begin(), [layout](auto index) -> element_t { return {layout->get(index), -1, -1}; });
+                std::transform(indexes.begin(), indexes.end(), points.begin(), [layout](auto index) -> element_t { return {layout->at(index), -1, -1}; });
                 acmacs::PointCoordinates centroid = std::accumulate(points.begin(), points.end(), acmacs::PointCoordinates(layout->number_of_dimensions(), 0.0), sum_vectors);
                 centroid /= points.size();
                 std::for_each(points.begin(), points.end(), [&centroid](auto& point) { std::get<1>(point) = acmacs::distance(std::get<0>(point), centroid); });

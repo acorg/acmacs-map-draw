@@ -312,7 +312,7 @@ void map_elements::SerumCircle::draw(acmacs::surface::Surface& aSurface, const C
 {
     if (mSerumNo != static_cast<size_t>(-1)) {
         auto transformed_layout = aChartDraw.transformed_layout();
-        const auto& coord = transformed_layout->get(mSerumNo + aChartDraw.number_of_antigens());
+        const auto& coord = transformed_layout->at(mSerumNo + aChartDraw.number_of_antigens());
         if (coord.exists()) {
             if (mStart == mEnd) {
                 aSurface.circle_filled(coord, mRadius * 2.0, AspectNormal, NoRotation, mOutlineColor, mOutlineWidth, mOutlineDash, mFillColor);
@@ -331,7 +331,7 @@ void map_elements::SerumCircle::draw(acmacs::surface::Surface& aSurface, const C
 
 void map_elements::SerumCircle::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const
 {
-    if (const auto& coord = aChartDraw.layout()->get(mSerumNo + aChartDraw.number_of_antigens()); coord.exists())
+    if (const auto& coord = aChartDraw.layout()->at(mSerumNo + aChartDraw.number_of_antigens()); coord.exists())
         aDrawElements.serum_circle(coord, aChartDraw.transformation(), mRadius * 2.0, mFillColor, mOutlineColor, mOutlineWidth, mOutlineDash, mRadiusColor, mRadiusWidth, mRadiusDash, mStart, mEnd);
     else
         std::cerr << ">> SerumCircle::draw(draw_elements): cannot draw serum circle, center coordinates: " << coord << '\n';

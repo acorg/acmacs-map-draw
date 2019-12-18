@@ -358,7 +358,7 @@ void SelectAntigens::filter_outlier(const ChartSelectInterface& aChartSelectInte
 
     using sum_count_t = std::pair<acmacs::PointCoordinates, size_t>;
     auto sum_count_not_empty = [&layout](const auto& sum_count, size_t index) -> sum_count_t {
-        const auto coord = layout->get(index);
+        const auto coord = layout->at(index);
         auto [sum, count] = sum_count;
         if (coord.exists()) {
             sum += coord;
@@ -373,7 +373,7 @@ void SelectAntigens::filter_outlier(const ChartSelectInterface& aChartSelectInte
     using point_dist_t = std::pair<size_t, double>; // point number (from indexes) and its distance to centroid
     std::vector<point_dist_t> point_dist(indexes->size());
     std::transform(indexes.begin(), indexes.end(), point_dist.begin(), [centroid=centroid,&layout](size_t index) -> point_dist_t {
-        const auto coord = layout->get(index);
+        const auto coord = layout->at(index);
         if (coord.exists())
             return {index, acmacs::distance(centroid, coord)};
         else
@@ -624,7 +624,7 @@ void SelectAntigens::filter_relative_to_serum_line(const ChartSelectInterface& a
     auto layout = aChartSelectInterface.layout();
 
     auto not_relative_to_line = [&serum_line, &layout, distance_min, distance_max, direction](auto antigen_no) -> bool {
-        const auto distance = serum_line.line().distance_with_direction(layout->get(antigen_no));
+        const auto distance = serum_line.line().distance_with_direction(layout->at(antigen_no));
         return std::abs(distance) < distance_min || std::abs(distance) > distance_max || (direction != 0 && (direction * distance) < 0);
     };
     indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_relative_to_line), indexes.end());

@@ -19,7 +19,7 @@ void ModBlobs::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
     const auto transformation = aChartDraw.projection().transformation();
     const auto layout = aChartDraw.projection().layout();
     for (auto index : antigen_indexes) {
-        const auto coords = layout->get(index);
+        const auto coords = layout->at(index);
         const auto& data = blobs.data_for_point(index);
         auto& path = aChartDraw.path().color(Color(rjson::get_or(args(), "color", "pink"))).line_width(rjson::get_or(args(), "line_width", 1.0));
 
