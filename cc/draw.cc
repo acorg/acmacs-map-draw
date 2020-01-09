@@ -25,13 +25,11 @@ const acmacs::Viewport& ChartDraw::calculate_viewport(bool verbose)
     viewport.set_from_center_size(bb.center(), bb.diameter());
     viewport.whole_width();
     if (verbose)
-        std::cout << "[Calculated]:     " << viewport << '\n';
+        fmt::print("[Calculated]:     {}\n", viewport);
     if (mViewport.empty())
         mViewport = viewport;
-    if (verbose) {
-        std::cout << "[Used]:           " << mViewport << '\n';
-        std::cout << "[Transformation]: " << transformation() << '\n';
-    }
+    if (verbose)
+        fmt::print("[Used]:           {}\n[Transformation]: {}\n", mViewport, transformation());
     return mViewport;
 
 } // ChartDraw::calculate_viewport
@@ -72,10 +70,7 @@ void ChartDraw::draw(std::string_view aFilename, double aSize, report_time aTime
     acmacs::draw::DrawElements painter(aFilename, aSize);
     draw(painter);
 
-    std::cerr << "\n\n";
-    std::cerr << "WARNING: switch signature page to draw-elements interface\n";
-    std::cerr << "WARNING: remove obsolete ChartDraw::draw(acmacs::surface::Surface&)\n";
-    std::cerr << "WARNING: remove obsolete acmacs-map-draw interface: map_elements::draw(acmacs::surface::Surface& ...)\n";
+    fmt::print(stderr, "\n\nWARNING: switch signature page to draw-elements interface\nWARNING: remove obsolete ChartDraw::draw(acmacs::surface::Surface&)\nWARNING: remove obsolete acmacs-map-draw interface: map_elements::draw(acmacs::surface::Surface& ...)\n");
 
     // }
     // else {
