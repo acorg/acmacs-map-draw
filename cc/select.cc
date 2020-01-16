@@ -179,6 +179,14 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
                     indexes.erase_except((*indexes)[no.to<size_t>()]);
             }
             else if (val.is_array()) {
+                decltype(indexes) to_include;
+                rjson::for_each(val, [&to_include,&antigens](const rjson::value& entry) {
+                    if (const auto by_full_name = antigens->find_by_full_name(entry.to<std::string_view>()); by_full_name.has_value())
+                        to_include.insert(*by_full_name);
+                });
+                acmacs::chart::Indexes result(indexes->size());
+                const auto end = std::set_intersection(indexes.begin(), indexes.end(), to_include.begin(), to_include.end(), result.begin());
+                indexes.get().erase(std::copy(result.begin(), end, indexes.begin()), indexes.end());
             }
             else
                 throw std::exception{};
