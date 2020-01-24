@@ -73,6 +73,11 @@ int main(int argc, char* const argv[])
             if (const auto output_name = draw(chart, *opt.settings_files, output_pdf, opt.name_after_mod); !output_name.empty()) {
                 acmacs::open_or_quicklook(true, false, output_name, 0);
                 acmacs::open_or_quicklook(true, false, "/Applications/Emacs.app", 0);
+                // for (auto sf = opt.settings_files->rbegin(); sf != opt.settings_files->rend(); ++sf) {
+                //     std::string name{*sf};
+                //     name.push_back('\0');
+                //     acmacs::run_and_detach({"emacsclient", "-n", name.data()}, 0);
+                // }
             }
 
             fmt::print("\nSETTINGS:\n");
