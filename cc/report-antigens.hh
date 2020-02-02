@@ -8,6 +8,8 @@
 
 template <typename Iter> inline void report_antigens(Iter first, Iter last, const ChartSelectInterface& aChartSelectInterface, size_t threshold = 10)
 {
+    using namespace std::string_literals;
+
     if (threshold >= static_cast<size_t>(last - first)) {
         const auto& chart = aChartSelectInterface.chart();
         const auto& matched_seqdb = aChartSelectInterface.match_seqdb();
@@ -20,9 +22,9 @@ template <typename Iter> inline void report_antigens(Iter first, Iter last, cons
             antigens->at(*std::max_element(first, last, [&antigens](size_t i1, size_t i2) { return antigens->at(i1)->full_name().size() < antigens->at(i2)->full_name().size(); }))->full_name().size();
         for (; first != last; ++first) {
             const auto antigen = antigens->at(*first);
-            const auto disconnected = !layout->point_has_coordinates(*first);
-            fmt::print(stderr, "  AG {:5d} {: <{}} {:10s} {: <6s}{}", *first, fmt::format("\"{}\"", antigen->full_name()), full_name_max + 2, antigen->date(),
-                       antigen->passage().passage_type(), disconnected ? " <disconnected>" : ""); // antigen->full_name_with_fields()
+            const auto coord = layout->at(*first);
+            fmt::print(stderr, "  AG {:5d} {: <{}} {:10s} {: <6s} {}", *first, fmt::format("\"{}\"", antigen->full_name()), full_name_max + 2, antigen->date(),
+                       antigen->passage().passage_type(), coord.exists() ? fmt::format("{:.4f}", coord) : "<disconnected>"s); // antigen->full_name_with_fields()
             if (titers->number_of_layers() > 1) {
                 std::vector<std::string> layers;
                 for (size_t layer_no : titers->layers_with_antigen(*first))
