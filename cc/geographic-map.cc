@@ -150,9 +150,10 @@ ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen
     ColoringData result(GREY50);
     std::string tag{"UNKNOWN"};
     try {
+        const auto& seqdb = acmacs::seqdb::get();
         std::string aa_report;
         if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.full_name()); ref) {
-            rjson::for_each(settings_["apply"], [sequence = ref.seq().aa_aligned(),&result,&tag,&aa_report](const rjson::value& apply_entry) {
+            rjson::for_each(settings_["apply"], [sequence = ref.aa_aligned(seqdb),&result,&tag,&aa_report](const rjson::value& apply_entry) {
                 if (rjson::get_or(apply_entry, "sequenced", false)) {
                     result = rjson::get_or(apply_entry, "color", "pink");
                     tag = "SEQUENCED";
@@ -278,11 +279,12 @@ void GeographicTimeSeries::draw(std::string_view aFilenamePrefix, const Geograph
 GeographicMapColoring::TagColor ColoringByLineageAndDeletionMutants::color(const hidb::Antigen& aAntigen) const
 {
     try {
-        if (const auto ref_2del = acmacs::seqdb::get().find_hi_name(aAntigen.full_name()); ref_2del && ref_2del.seq().has_clade("2DEL2017")) {
+        const auto& seqdb = acmacs::seqdb::get();
+        if (const auto ref_2del = acmacs::seqdb::get().find_hi_name(aAntigen.full_name()); ref_2del && ref_2del.has_clade(seqdb, "2DEL2017")) {
             // fmt::print(stderr, "DEBUG: 2del {}\n", aAntigen.full_name());
             return {"VICTORIA_2DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_2DEL") : ColoringData{mDeletionMutantColor}};
         }
-        else if (const auto ref_3del = acmacs::seqdb::get().find_hi_name(aAntigen.full_name()); ref_3del && ref_3del.seq().has_clade("3DEL2017")) {
+        else if (const auto ref_3del = acmacs::seqdb::get().find_hi_name(aAntigen.full_name()); ref_3del && ref_3del.has_clade(seqdb, "3DEL2017")) {
             // fmt::print(stderr, "DEBUG: 3del {}\n", aAntigen.full_name());
             return {"VICTORIA_3DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_3DEL") : ColoringData{mDeletionMutantColor}};
         }

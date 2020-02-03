@@ -51,11 +51,12 @@ class ChartSelectInterface
 
     acmacs::seqdb::v3::Seqdb::aas_indexes_t aa_at_pos1_for_antigens(const std::vector<size_t>& aPositions1) const
     {
+        const auto& seqdb = acmacs::seqdb::get();
         acmacs::seqdb::v3::Seqdb::aas_indexes_t aas_indexes;
         for (auto [ag_no, ref] : acmacs::enumerate(match_seqdb())) {
             if (ref) {
                 std::string aa(aPositions1.size(), 'X');
-                std::transform(aPositions1.begin(), aPositions1.end(), aa.begin(), [ref = ref](size_t pos) { return ref.seq().aa_at_pos(acmacs::seqdb::pos1_t{pos}); });
+                std::transform(aPositions1.begin(), aPositions1.end(), aa.begin(), [&seqdb, ref=ref](size_t pos) { return ref.aa_at_pos(seqdb, acmacs::seqdb::pos1_t{pos}); });
                 aas_indexes[aa].push_back(ag_no);
             }
         }

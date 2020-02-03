@@ -84,7 +84,7 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
         add_location_data(*antigen->name());
         if (const auto& entry_seq = entry_seqs[ag_no]; entry_seq) {
             try {
-                writer.add_field(std::string{entry_seq.seq().aa_aligned()});
+                writer.add_field(std::string{entry_seq.aa_aligned(seqdb)});
             }
             catch (std::exception& err) {
                 fmt::print(stderr, "WARNING: {} {}: {}\n", ag_no, antigen->full_name(), err);

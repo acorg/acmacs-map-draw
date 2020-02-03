@@ -25,8 +25,8 @@ SelectAntigensSera::~SelectAntigensSera()
 
 acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector)
 {
-    fmt::print(stderr, "DEBUG: SelectAntigensSera::select\n");
-    fmt::print(stderr, "DEBUG: SelectAntigensSera::select {}\n", rjson::to_string(aSelector));
+    // fmt::print(stderr, "DEBUG: SelectAntigensSera::select\n");
+    // fmt::print(stderr, "DEBUG: SelectAntigensSera::select {}\n", rjson::to_string(aSelector));
     try {
         return std::visit(
             [this, &aChartSelectInterface](const auto& val) -> acmacs::chart::Indexes {
@@ -333,7 +333,8 @@ std::map<std::string_view, size_t> SelectAntigens::clades(const ChartSelectInter
 void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aClade)
 {
     const auto& entries = aChartSelectInterface.match_seqdb();
-    auto not_in_clade = [&entries,aClade](auto index) -> bool { const auto& entry = entries[index]; return !entry || !entry.seq().has_clade(aClade); };
+    const auto& seqdb = acmacs::seqdb::get();
+    auto not_in_clade = [&entries,aClade,&seqdb](auto index) -> bool { const auto& entry = entries[index]; return !entry || !entry.has_clade(seqdb, aClade); };
     indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_clade), indexes.end());
 
 } // SelectAntigens::filter_clade
@@ -343,7 +344,8 @@ void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterf
 void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, acmacs::seqdb::pos1_t pos1, bool equal)
 {
     const auto& entries = aChartSelectInterface.match_seqdb();
-    auto at_pos_neq = [amino_acid,pos1,equal](const auto& entry) -> bool { return equal ? entry.seq().aa_at_pos(pos1) != amino_acid : entry.seq().aa_at_pos(pos1) == amino_acid; };
+    const auto& seqdb = acmacs::seqdb::get();
+    auto at_pos_neq = [amino_acid,pos1,equal,&seqdb](const auto& entry) -> bool { return equal ? entry.aa_at_pos(seqdb, pos1) != amino_acid : entry.aa_at_pos(seqdb, pos1) == amino_acid; };
     auto not_aa_at_pos = [&entries,&at_pos_neq](auto index) -> bool { const auto& entry = entries[index]; return !entry || at_pos_neq(entry); };
     indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_aa_at_pos), indexes.end());
 
