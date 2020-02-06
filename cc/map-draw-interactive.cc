@@ -28,6 +28,9 @@ struct Options : public argv
     option<str_array> settings_files{*this, 's'};
     option<size_t>    projection{*this, 'p', "projection", dflt{0UL}};
     option<bool>      name_after_mod{*this, "name-after-mod"};
+    option<str>       preview_pos{*this, "pos"};
+    option<str>       previous{*this, "previous"};
+    option<str>       previous_pos{*this, "previous-pos"};
 
     argument<str> chart{*this, arg_name{"chart.ace"}, mandatory};
     argument<str> output_pdf{*this, arg_name{"output.pdf"}};
@@ -68,23 +71,37 @@ int main(int argc, char* const argv[])
         [[maybe_unused]] const auto& hidb = hidb::get(chart->info()->virus_type(), report_time::yes);
         acmacs::seqdb::get();
 
+        if (opt.previous) {
+            if (opt.previous_pos)
+                acmacs::run_and_detach({"preview", "-p", opt.previous_pos->data(), opt.previous->data()}, 0);
+            else
+                acmacs::run_and_detach({"preview", opt.previous->data()}, 0);
+        }
+
         std::array<char, 1024> buffer;
         for (;;) {
             if (const auto output_name = draw(chart, *opt.settings_files, output_pdf, opt.name_after_mod); !output_name.empty()) {
-                acmacs::open_or_quicklook(true, false, output_name, 0);
-                acmacs::open_or_quicklook(true, false, "/Applications/Emacs.app", 0);
+                acmacs::run_and_detach({"tink"}, 0);
+                if (opt.preview_pos)
+                    acmacs::run_and_detach({"preview", "-p", opt.preview_pos->data(), output_name.data()}, 0);
+                else
+                    acmacs::run_and_detach({"preview", output_name.data()}, 0);
+                // acmacs::open_or_quicklook(true, false, "/Applications/Emacs.app", 0);
                 // for (auto sf = opt.settings_files->rbegin(); sf != opt.settings_files->rend(); ++sf) {
                 //     std::string name{*sf};
                 //     name.push_back('\0');
                 //     acmacs::run_and_detach({"emacsclient", "-n", name.data()}, 0);
                 // }
             }
+            else
+                acmacs::run_and_detach({"submarine"}, 0);
 
             fmt::print("\nSETTINGS:\n");
             for (const auto& sf : *opt.settings_files)
                 fmt::print("    {}\n", sf);
 
             fgets(buffer.data(), buffer.size(), pipe.get());
+            acmacs::run_and_detach({"tink"}, 0);
         }
     }
     catch (std::exception& err) {
