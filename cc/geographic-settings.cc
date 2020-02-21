@@ -45,8 +45,8 @@ static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-
 
     "?": "========== H3",
     "3C.3":           {"fill": "cornflowerblue",  "outline": "black", "outline_width": 0},
-    "3C.2A":             {"fill": "red",             "outline": "black", "outline_width": 0},
-    "3C.2A1":            {"fill": "#ffab91",         "outline": "black", "outline_width": 0},
+    "x 3C.2A":             {"fill": "red",             "outline": "black", "outline_width": 0},
+    "x 3C.2A1":            {"fill": "#ffab91",         "outline": "black", "outline_width": 0},
     "3C.2A1A":           {"fill": "#E040FB",         "outline": "black", "outline_width": 0},
     "3C.2A1B":           {"fill": "#CD5C5C",         "outline": "black", "outline_width": 0},
     "3C.2A2":            {"fill": "#EEB422",         "outline": "black", "outline_width": 0},
