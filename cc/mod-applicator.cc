@@ -656,7 +656,16 @@ class ModRectangle : public Mod
             // rectangle.color(Color(rjson::get_or(args(), "color", "#80FF00FF")));
             // rectangle.line_width(rjson::get_or(args(), "line_width", 1));
 
-            const auto transformation = aChartDraw.transformation();
+            acmacs::Transformation transformation;
+            if (rjson::get_or(args(), "transform", true))
+                transformation = aChartDraw.transformation();
+            if (const auto rotation = rjson::get_or(args(), "rotate", 0.0); !float_zero(rotation)) {
+                if (std::abs(rotation) < 3.15) // radians
+                    transformation.rotate(rotation);
+                else            // degrees
+                    transformation.rotate(RotationDegrees(rotation).value());
+            }
+
             // std::cerr << "DEBUG: transformation: " << transformation << '\n';
             const Color color{rjson::get_or(args(), "color", "#80FF00FF")};
             aChartDraw.path()
