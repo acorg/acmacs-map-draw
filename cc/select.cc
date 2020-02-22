@@ -48,6 +48,21 @@ acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aC
 
 // ----------------------------------------------------------------------
 
+void SelectAntigensSera::filter_rectangle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::Layout& aLayout, const acmacs::Rectangle& aRectangle, Rotation rotation)
+{
+    acmacs::Transformation transformation;
+    transformation.rotate(- rotation); // rectangle rotated -> layout rotated in opposite direction
+    auto layout = aLayout.transform(transformation);
+    const auto not_in_rectangle = [&layout,aIndexBase,&aRectangle](auto index) -> bool {
+        const auto& p = layout->at(index + aIndexBase);
+        return p.number_of_dimensions() == acmacs::number_of_dimensions_t{2} ? !aRectangle.within(p) : true;
+    };
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_rectangle), indexes.end());
+
+} // SelectAntigensSera::filter_rectangle_in
+
+// ----------------------------------------------------------------------
+
 template <typename AgSr>
 void filter(const AgSr& ag_sr, acmacs::chart::Indexes& indexes, SelectAntigensSera& /*aSelectAntigensSera*/, const ChartSelectInterface& /*aChartSelectInterface*/, const rjson::value& aSelector,
             std::string_view key, const rjson::value& val)
@@ -208,7 +223,8 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         else if (key == "in_rectangle") {
             const auto& c1 = val["c1"];
             const auto& c2 = val["c2"];
-            filter_rectangle(aChartSelectInterface, indexes, {c1[0].to<double>(), c1[1].to<double>(), c2[0].to<double>(), c2[1].to<double>()});
+            filter_rectangle(aChartSelectInterface, indexes, {c1[0].to<double>(), c1[1].to<double>(), c2[0].to<double>(), c2[1].to<double>()},
+                             rjson::get_or(val, "transform", true) ? transformed_t::yes : transformed_t::no, RotationRadiansOrDegrees(rjson::get_or(val, "rotate", 0.0)));
         }
         else if (key == "in_circle") {
             const auto& center = val["center"];
@@ -484,7 +500,8 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
         else if (key == "in_rectangle") {
             const auto& c1 = val["c1"];
             const auto& c2 = val["c2"];
-            filter_rectangle(aChartSelectInterface, indexes, {c1[0].to<double>(), c1[1].to<double>(), c2[0].to<double>(), c2[1].to<double>()});
+            filter_rectangle(aChartSelectInterface, indexes, {c1[0].to<double>(), c1[1].to<double>(), c2[0].to<double>(), c2[1].to<double>()},
+                             rjson::get_or(val, "transform", true) ? transformed_t::yes : transformed_t::no, RotationRadiansOrDegrees(rjson::get_or(val, "rotate", 0.0)));
         }
         else if (key == "in_circle") {
             const auto& center = val["center"];

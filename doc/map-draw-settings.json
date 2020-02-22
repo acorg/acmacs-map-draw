@@ -28,7 +28,7 @@
             {"full_name": ["A(H1N1)/MICHIGAN/2/2009 MDCK1", "A(H1N1)/NEW YORK/33/2011 MDCK2"]},
             "vaccine",
             {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}},
-            {"in_rectangle": {"c1": [0.0, 0.0], "c2": [1.0, 1.0]}}, {"in_circle": {"center": [2.0, 2.0], "radius": 5.0}},
+            {"in_rectangle": {"c1": [0.0, 0.0], "c2": [1.0, 1.0], "transform": true, "rotate": 0.0}}, {"in_circle": {"center": [2.0, 2.0], "radius": 5.0}},
             {"lab": "CDC", "?": "returns empty index list for other labs"},
             {"subtype": "H1 A(H1N1) H3 A(H3N2) B BV BVIC BY BYAM"},
             {"outlier": 1.0, "?": "threshold in units (distance from centroid of pre-selected points), must be after other select args, e.g. after 'clade'"},
@@ -172,7 +172,7 @@
         {"N": "arrow", "to_serum": {<serum-select>}, "from": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
         {"N": "arrow", "from_serum": {<serum-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
 
-        {"N": "rectangle", "c1": [-2, -1.5], "c2": [0.5, 3], "transform": true, "rotation": 0.0, "filled": true, "color": "#80FF0000", "?rotattion": "<3.15 - radians, >3.15 - degrees"},
+        {"N": "rectangle", "c1": [-2, -1.5], "c2": [0.5, 3], "transform": true, "rotate": 0.0, "filled": true, "color": "#80FF0000", "?rotate": "<3.15 - radians, >3.15 - degrees"},
         {"N": "circle", "center": [0, 0], "size": 2, "aspect": 1.0, "rotation": 0, "fill": "#80FFA500", "outline": "#80FF0000", "outline_width": 10},
 
         {"N": "rotate", "degrees": 30, "radians": 1, "?positive": "counter-clockwise"},
