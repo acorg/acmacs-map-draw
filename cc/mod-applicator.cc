@@ -237,6 +237,14 @@ void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDat
                 projection.move_point(index, flipped);
             }
         }
+        else if (const auto& flip_line = args()["flip_over_line"]; !flip_line.is_null()) {
+            const acmacs::LineDefinedByEquation line(acmacs::PointCoordinates{flip_line["from"][0].to<double>(), flip_line["from"][1].to<double>()}, acmacs::PointCoordinates{flip_line["to"][0].to<double>(), flip_line["to"][1].to<double>()});
+            auto layout = aChartDraw.layout();
+            for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
+                const auto flipped = line.flip_over(layout->at(index), 1.0);
+                projection.move_point(index, flipped);
+            }
+        }
         else if (auto relative = args().get("relative"); !relative.is_null()) {
             auto layout = aChartDraw.layout();
             for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
