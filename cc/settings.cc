@@ -50,9 +50,9 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "sera", "select": "all", "label": {"show": true}}
     ],
     "size_reset": [
-      {"N": "antigens", "select": "test", "size": 5.0},
-      {"N": "antigens", "select": "reference", "size": 8.0},
-      {"N": "sera", "select": "all", "size": 6.5}
+      {"N": "antigens", "select": "test", "size": 5.0, "outline_width": 1.0},
+      {"N": "antigens", "select": "reference", "size": 8.0, "outline_width": 1.0},
+      {"N": "sera", "select": "all", "size": 6.5, "outline_width": 1.0}
     ],
     "clades": [
       {"N": "antigens", "select": {"sequenced": true},   "outline": "black", "fill": "yellow", "legend": {"label": "sequenced", "count": true}, "order": "raise", "report": true},
