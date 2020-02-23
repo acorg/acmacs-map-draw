@@ -47,6 +47,9 @@ class SelectAntigensSera
     // layer >= 0 - from beginning, <0 - from end
     virtual void filter_layer(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, int aLayer) = 0;
 
+    virtual void filter_outline(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, Color outline) = 0;
+    virtual void filter_outline_width(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, Pixels outline_width) = 0;
+
   protected:
     template <typename AgSr> void filter_name_in(AgSr aAgSr, acmacs::chart::Indexes& indexes, std::string_view aName)
     {
@@ -82,6 +85,24 @@ class SelectAntigensSera
             return p.number_of_dimensions() == acmacs::number_of_dimensions_t{2} ? !aCircle.within(p) : true;
         };
         indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_circle), indexes.end());
+    }
+
+    void filter_outline_in(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, size_t aIndexBase, Color outline)
+    {
+        const auto& all_styles = aChartSelectInterface.plot_spec().all_styles();
+        const auto other_outline = [&all_styles,outline,aIndexBase](auto index) -> bool {
+            return *all_styles[index + aIndexBase].outline != outline;
+        };
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), other_outline), indexes.end());
+    }
+
+    void filter_outline_width_in(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, size_t aIndexBase, Pixels outline_width)
+    {
+        const auto& all_styles = aChartSelectInterface.plot_spec().all_styles();
+        const auto other_outline_width = [&all_styles,outline_width,aIndexBase](auto index) -> bool {
+            return *all_styles[index + aIndexBase].outline_width != outline_width;
+        };
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), other_outline_width), indexes.end());
     }
 
     bool verbose() const { return mVerbose == acmacs::verbose::yes; }
@@ -140,6 +161,12 @@ class SelectAntigens : public SelectAntigensSera
     void filter_out_distinct(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes) override { filter_out_distinct_in(aChartSelectInterface.chart().antigens(), indexes); }
     void filter_titrated_against(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& antigen_indexes, const acmacs::chart::Indexes& serum_indexes);
 
+    void filter_outline(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, Color outline) override { filter_outline_in(aChartSelectInterface, indexes, 0, outline); }
+    void filter_outline_width(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, Pixels outline_width) override
+    {
+        filter_outline_width_in(aChartSelectInterface, indexes, 0, outline_width);
+    }
+
 }; // class SelectAntigens
 
 // ----------------------------------------------------------------------
@@ -178,6 +205,15 @@ class SelectSera : public SelectAntigensSera
     void filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::seqdb::amino_acid_at_pos1_eq_list_t& pos1_aa);
     void filter_out_distinct(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes) override { filter_out_distinct_in(aChartSelectInterface.chart().sera(), indexes); }
     void filter_titrated_against(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& serum_indexes, const acmacs::chart::Indexes& antigen_indexes);
+
+    void filter_outline(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, Color outline) override
+    {
+        filter_outline_in(aChartSelectInterface, indexes, aChartSelectInterface.chart().number_of_antigens(), outline);
+    }
+    void filter_outline_width(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, Pixels outline_width) override
+    {
+        filter_outline_width_in(aChartSelectInterface, indexes, aChartSelectInterface.chart().number_of_antigens(), outline_width);
+    }
 
 }; // class SelectSera
 

@@ -321,6 +321,20 @@ void ModMoveSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
                 projection.move_point(index + aChartDraw.number_of_antigens(), acmacs::PointCoordinates(coord.x() + relative[0].to<double>(), coord.y() + relative[1].to<double>()));
             }
         }
+        else if (const auto& flip_line = args()["flip_over_line"]; !flip_line.is_null()) {
+            acmacs::PointCoordinates from{flip_line["from"][0].to<double>(), flip_line["from"][1].to<double>()}, to{flip_line["to"][0].to<double>(), flip_line["to"][1].to<double>()};
+            if (!rjson::get_or(flip_line, "transform", true)) {
+                const auto transformation = aChartDraw.transformation().inverse();
+                from = transformation.transform(from);
+                to = transformation.transform(to);
+            }
+            const acmacs::LineDefinedByEquation line(from, to);
+            auto layout = aChartDraw.layout();
+            for (auto index : SelectSera(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
+                const auto flipped = line.flip_over(layout->at(index + aChartDraw.number_of_antigens()), 1.0);
+                projection.move_point(index + aChartDraw.number_of_antigens(), flipped);
+            }
+        }
         else {
             const auto move_to = get_move_to(aChartDraw, verbose);
             for (auto index : SelectSera(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {

@@ -37,6 +37,7 @@
             {"layer": 0, "?": ">=0: from the beginning, <0: from end"},
             {"relative_to_serum_line": {"distance_min": 0, "distance_max": 10000, "direction": 1}, "?direction": [1, -1, 0]},
             {"titrated_against_sera": "{<select>}"},
+            {"outline": "green", "outline_width": 3},
         ],
         "sera": [
             "all",
@@ -52,6 +53,7 @@
             {"clade": "3C3a", "?": "via seqdb.clades_for_name()"},
             {"amino_acid": ["144R", "93A", "!160K"]},
             {"titrated_against_antigens": "{<select>}"},
+            {"outline": "green", "outline_width": 3},
         ]
     },
 
