@@ -767,8 +767,14 @@ Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value
             return mod;
         else if (!aName.empty() && aName[0] == '*') // optional mod
             return rjson::EmptyArray;
-        else
+        else {
+            fmt::print(stderr, "ERROR: available mods:\n");
+            rjson::for_each(aSettingsMods, [](std::string_view key, const auto&) {
+                if (key[0] != '?')
+                    fmt::print("   {}\n", key);
+            });
             throw unrecognized_mod{"mod not found: " + aName};
+        }
     };
 
     if (name == "antigens") {
