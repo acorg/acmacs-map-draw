@@ -409,6 +409,8 @@ void ModSerumCoverageCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*
         mod_circle.make_serum_circle(aChartDraw, serum_index, antigen_indices, args()["homologous_titer"], ModSerumCircle::serum_circle_radius_type::theoretical, data, fold, verbose);
     }
 
+    mark_serum(aChartDraw, serum_index); // to have serum on top of antigens
+
 } // ModSerumCoverageCircle::apply
 
 // ----------------------------------------------------------------------
