@@ -182,11 +182,11 @@ static const char* const SETTINGS_BUILTIN_MODS = R"(
       {"N": "antigens", "select": {"continent": "antarctica"}, "fill": "grey50", "outline": "black", "report": true, "legend": {"label": "Antarctica", "count": true}}
     ],
     "vaccines": [
-      {"N": "antigens", "select": {"vaccine": {"type": "previous"}}, "report": false, "outline": "black", "fill": "blue", "size": 15, "show": true, "order": "raise"},
-      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "cell"}}, "report": false, "outline": "black", "fill": "red", "size": 15, "show": true, "order": "raise"},
-      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "egg"}}, "report": false, "outline": "black", "fill": "red", "size": 15, "show": true, "order": "raise"},
-      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "reassortant"}}, "report": false, "outline": "black", "fill": "green", "size": 15, "show": true, "order": "raise"},
-      {"N": "antigens", "select": {"vaccine": {"type": "surrogate"}}, "report": false, "outline": "black", "fill": "pink", "size": 15, "show": true, "order": "raise"}
+      {"N": "antigens", "select": {"vaccine": {"type": "previous"}}, "report": true, "outline": "black", "fill": "blue", "size": 15, "show": true, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "cell"}}, "report": true, "outline": "black", "fill": "red", "size": 15, "show": true, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "egg"}}, "report": true, "outline": "black", "fill": "red", "size": 15, "show": true, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "reassortant"}}, "report": true, "outline": "black", "fill": "green", "size": 15, "show": true, "order": "raise"},
+      {"N": "antigens", "select": {"vaccine": {"type": "surrogate"}}, "report": true, "outline": "black", "fill": "pink", "size": 15, "show": true, "order": "raise"}
     ],
     "vaccines_h3_201902": [
       {"N": "antigens", "select": {"vaccine": {"type": "previous", "passage": "cell", "name": "TEXAS/50/2012"}},                 "show": true, "fill": "blue", "outline": "black", "report": false, "size": 15, "order": "raise", "label": {"offset": [0, 1], "name_type": "abbreviated_with_passage_type", "size": 12, "display_name": "TX/12"}},
