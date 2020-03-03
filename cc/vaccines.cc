@@ -49,7 +49,7 @@ std::string Vaccines::report(const hidb::Vaccines::ReportConfig& config) const
             const auto& vacc = mVaccinesOfChart[entry.vaccines_of_chart_index];
             const std::string s = vacc.report(entry.passage_type, config, entry.antigen_no);
             if (!s.empty())
-                result += std::string(config.indent_, ' ') + vacc.type() + " " + vacc.name() + " " + acmacs::to_string(*entry.style.fill) + '\n' + s;
+                result += fmt::format("{:{}c}{} {} {}\n{}", ' ', config.indent_,  vacc.type(), vacc.name(), entry.style.fill, s);
         }
     }
     return result;
