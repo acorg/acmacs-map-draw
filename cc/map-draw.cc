@@ -4,7 +4,6 @@
 #include "acmacs-base/quicklook.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-map-draw/draw.hh"
-#include "acmacs-map-draw/settings.hh"
 #include "acmacs-map-draw/mod-applicator.hh"
 #include "acmacs-map-draw/setup-dbs.hh"
 

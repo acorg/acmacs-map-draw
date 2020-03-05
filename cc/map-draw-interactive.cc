@@ -1,5 +1,6 @@
 #include <cstdio>
 
+#include "acmacs-base/acmacsd.hh"
 #include "acmacs-base/argv.hh"
 #include "acmacs-base/filesystem.hh"
 #include "acmacs-base/timeit.hh"
@@ -8,7 +9,6 @@
 #include "hidb-5/hidb.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-map-draw/draw.hh"
-#include "acmacs-map-draw/settings.hh"
 #include "acmacs-map-draw/mod-applicator.hh"
 #include "acmacs-map-draw/setup-dbs.hh"
 
@@ -115,6 +115,7 @@ int main(int argc, char* const argv[])
 
 std::string draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<std::string_view>& settings_files, std::string_view output_pdf, bool name_after_mod)
 {
+    using namespace std::string_view_literals;
     Timeit ti_chart("DEBUG: drawing: ", report_time::yes);
 
     try {
@@ -123,10 +124,15 @@ std::string draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::v
         const auto orig_transformation = chart->projection_modify(projection_no)->transformation();
         ChartDraw chart_draw(chart, projection_no);
 
-        auto settings = settings_default();
-        settings.update(settings_builtin_mods());
-        for (auto sf : settings_files)
-            settings.update(rjson::parse_file(sf, rjson::remove_comments::no));
+        rjson::value settings{rjson::object{{"apply", rjson::array{"title"}}}};
+        for (const auto& settings_file_name : {"acmacs-map-draw.json"sv}) {
+            if (const auto filename = fmt::format("{}/share/conf/{}", acmacs::acmacsd_root(), settings_file_name); fs::exists(filename))
+                settings.update(rjson::parse_file(filename, rjson::remove_comments::no));
+            else
+                fmt::print(stderr, "WARNING: cannot load \"{}\": file not found\n", filename);
+        }
+        for (auto fn : settings_files)
+            settings.update(rjson::parse_file(fn, rjson::remove_comments::no));
 
         std::string output{output_pdf};
         if (name_after_mod)

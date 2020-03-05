@@ -1,12 +1,8 @@
-#include <string>
-#include <fstream>
-
 #include "acmacs-base/fmt.hh"
 #include "acmacs-base/argv.hh"
 #include "acmacs-chart-2/factory-import.hh"
 
 #include "setup-dbs.hh"
-#include "settings.hh"
 #include "select.hh"
 
 // ----------------------------------------------------------------------
@@ -20,7 +16,6 @@ struct Options : public argv
     option<bool> just_indexes{*this, "just-indexes", desc{"report just indexes, comma separated"}};
     option<bool> verbose{*this, 'v', "verbose"};
     option<size_t> projection{*this, "projection", dflt{0UL}};
-    // option<bool> help_select{*this, "help-select"};
 
     argument<str> chart{*this, arg_name{"chart-file"}, mandatory};
     argument<str> command{*this, arg_name{"command-in-json-format"}, mandatory};
@@ -33,13 +28,10 @@ int main(int argc, char* const argv[])
     int exit_code = 1;
     try {
         Options opt(argc, argv);
-        // if (opt.help_select)
-        //     std::cerr << settings_help_select();
-        // else
-            exit_code = do_select(opt);
+        exit_code = do_select(opt);
     }
     catch (std::exception& err) {
-        std::cerr << "ERROR: " << err.what() << '\n';
+        fmt::print(stderr, "ERROR: {}\n", err);
         exit_code = 2;
     }
     return exit_code;
@@ -60,18 +52,18 @@ int do_select(const Options& opt)
         std::cout << string::join(",", indices) << '\n';
         if (!opt.just_indexes) {
             for (auto index : indices)
-                std::cout << "AG " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->antigen(index)->full_name() << '\n';
+                fmt::print("AG {:{}d} {}\n", index, num_digits, chart->antigen(index)->full_name());
         }
     }
     else {
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_sera())) + 1;
         const auto indices = SelectSera(opt.verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(chart_select, selector);
         if (!opt.just_indexes) {
-            std::cout << string::join(",", indices) << '\n';
+            fmt::print("{}\n", string::join(",", indices));
         }
         else {
             for (auto index : indices)
-                std::cout << "SR " << std::setfill(' ') << std::setw(num_digits) << index << ' ' << chart->serum(index)->full_name() << '\n';
+                fmt::print("SR {:{}d} {}\n", index, num_digits, chart->serum(index)->full_name());
         }
     }
     return 0;

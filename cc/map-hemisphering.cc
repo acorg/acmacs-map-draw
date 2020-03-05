@@ -1,7 +1,4 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-
+#include "acmacs-base/acmacsd.hh"
 #include "acmacs-base/fmt.hh"
 #include "acmacs-base/argv.hh"
 #include "acmacs-base/read-file.hh"
@@ -9,7 +6,6 @@
 #include "acmacs-base/quicklook.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-map-draw/draw.hh"
-#include "acmacs-map-draw/settings.hh"
 #include "acmacs-map-draw/mod-applicator.hh"
 #include "acmacs-map-draw/hemisphering-data.hh"
 
@@ -31,17 +27,22 @@ struct Options : public argv
 
 int main(int argc, char* const argv[])
 {
+    using namespace std::string_view_literals;
     int exit_code = 0;
     try {
         Options opt(argc, argv);
 
         ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart)), 0);
 
-        auto settings = settings_default();
-        settings.update(settings_builtin_mods());
-        for (size_t sett_no = 0; sett_no < opt.settings->size(); ++sett_no) {
-            settings.update(rjson::parse_file(opt.settings->at(sett_no), rjson::remove_comments::no));
+        rjson::value settings{rjson::object{{"apply", rjson::array{"title"}}}};
+        for (const auto& settings_file_name : {"acmacs-map-draw.json"sv}) {
+            if (const auto filename = fmt::format("{}/share/conf/{}", acmacs::acmacsd_root(), settings_file_name); fs::exists(filename))
+                settings.update(rjson::parse_file(filename, rjson::remove_comments::no));
+            else
+                fmt::print(stderr, "WARNING: cannot load \"{}\": file not found\n", filename);
         }
+        for (auto fn : *opt.settings)
+            settings.update(rjson::parse_file(fn, rjson::remove_comments::no));
 
         const auto hemi_data = acmacs::hemi::parse(acmacs::file::read(opt.hemi_data));
         for (const auto& point_data : hemi_data.hemi_points) {
@@ -76,7 +77,7 @@ int main(int argc, char* const argv[])
         }
     }
     catch (std::exception& err) {
-        std::cerr << "ERROR: " << err.what() << '\n';
+        fmt::print(stderr, "ERROR: {}\n", err);
         exit_code = 2;
     }
     return exit_code;
