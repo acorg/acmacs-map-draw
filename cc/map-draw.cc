@@ -1,7 +1,4 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-
+#include "acmacs-base/acmacsd.hh"
 #include "acmacs-base/argv.hh"
 #include "acmacs-base/read-file.hh"
 #include "acmacs-base/quicklook.hh"
@@ -29,10 +26,7 @@ struct Options : public argv
     option<bool>      flip_ew{*this, "flip-ew"};
     option<bool>      flip_ns{*this, "flip-ns"};
     option<str_array> settings_files{*this, 's'};
-    option<str>       init_settings{*this, 'i', "init-settings"};
     option<str>       save{*this, "save", desc{"save resulting chart with modified projection and plot spec"}};
-    // option<bool>      help_mods{*this, "help-mods"};
-    // option<bool>      help_select{*this, "help-select"};
     option<str>       previous{*this, "previous"};
     option<size_t>    projection{*this, 'p', "projection", dflt{0UL}};
     option<bool>      open{*this, "open"};
@@ -50,15 +44,10 @@ int main(int argc, char* const argv[])
     int exit_code = 1;
     try {
         Options opt(argc, argv);
-        // if (opt.help_mods)
-        //     std::cerr << settings_help_mods();
-        // else if (opt.help_select)
-        //     std::cerr << settings_help_select();
-        // else
-            exit_code = draw(opt);
+        exit_code = draw(opt);
     }
     catch (std::exception& err) {
-        std::cerr << "ERROR: " << err.what() << '\n';
+        fmt::print(stderr, "ERROR: {}\n", err);
         exit_code = 2;
     }
     return exit_code;
@@ -68,24 +57,26 @@ int main(int argc, char* const argv[])
 
 int draw(const Options& opt)
 {
+    using namespace std::string_view_literals;
+
     setup_dbs(opt.db_dir, opt.verbose);
 
     ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart)), opt.projection);
     if (!opt.previous->empty())
         chart_draw.previous_chart(acmacs::chart::import_from_file(opt.previous));
 
-    auto settings = settings_default();
-    if (!opt.init_settings->empty()) {
-        acmacs::file::ofstream out(opt.init_settings);
-        out.stream() << rjson::pretty(settings) << '\n';
+    rjson::value settings{rjson::object{{"apply", rjson::array{"title"}}}};
+    for (const auto& settings_file_name : {"acmacs-map-draw.json"sv}) {
+        if (const auto filename = fmt::format("{}/share/conf/{}", acmacs::acmacsd_root(), settings_file_name); fs::exists(filename))
+            settings.update(rjson::parse_file(filename, rjson::remove_comments::no));
+        else
+            fmt::print(stderr, "WARNING: cannot load \"{}\": file not found\n", filename);
     }
-
-    settings.update(settings_builtin_mods());
 
     bool settings_loaded = false;
     for (auto fn : *opt.settings_files) {
         if (opt.verbose)
-            std::cerr << "DEBUG: reading settings from " << fn << '\n';
+            fmt::print(stderr, "DEBUG: reading settings from {}\n", fn);
         try {
             settings.update(rjson::parse_file(fn, rjson::remove_comments::no));
         }
@@ -155,9 +146,6 @@ int draw(const Options& opt)
         chart_draw.draw(opt.output_pdf, 800, report_time::yes);
         acmacs::open_or_quicklook(opt.open, opt.ql, opt.output_pdf, 2);
     }
-
-    if (!opt.init_settings->empty())
-        acmacs::file::write(opt.init_settings, rjson::pretty(settings));
 
     if (!opt.save->empty())
         chart_draw.save(opt.save, opt.program_name());

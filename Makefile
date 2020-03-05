@@ -14,7 +14,7 @@ TARGETS = \
 
 ACMACS_MAP_DRAW_SOURCES = \
   draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc \
-  vaccines.cc vaccine-matcher.cc settings.cc select.cc setup-dbs.cc geographic-settings.cc \
+  vaccines.cc vaccine-matcher.cc select.cc setup-dbs.cc geographic-settings.cc \
   mod-applicator.cc mod-serum.cc mod-procrustes.cc mod-amino-acids.cc mod-blobs.cc mod-connection-lines.cc \
   export.cc \
   hemisphering-data.cc
@@ -45,6 +45,7 @@ LDLIBS = \
 # ----------------------------------------------------------------------
 
 install: install-headers install-acmacs-map-draw-lib $(TARGETS)
+	if [ ! -f $(AD_SHARE)/conf/acmacs-map-draw.json ]; then mkdir -p $(AD_SHARE)/conf; ln -sf $(abspath conf/acmacs-map-draw.json) $(AD_SHARE)/conf; fi
 	$(call symbolic_link_wildcard,$(abspath bin)/*,$(AD_BIN))
 	$(call symbolic_link_wildcard,$(DIST)/map-*,$(AD_BIN))
 	$(call symbolic_link_wildcard,$(DIST)/chart-*,$(AD_BIN))
