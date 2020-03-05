@@ -143,7 +143,7 @@ int draw(const Options& opt)
     }
     else {
         chart_draw.draw(opt.output_pdf, 800, report_time::yes);
-        acmacs::open_or_quicklook(opt.open, opt.ql, opt.output_pdf, 2);
+        acmacs::open_or_quicklook(opt.open, opt.ql, opt.output_pdf);
     }
 
     if (!opt.save->empty())
