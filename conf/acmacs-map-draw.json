@@ -96,6 +96,22 @@
         "? H1 clades": "--------------------------------------------------",
 
         "+clades-A(H1N1)": [
+            "+clades-A(H1N1)-156"
+        ],
+
+        "+clades-12m-A(H1N1)": [
+            "+clades-12m-A(H1N1)-156"
+        ],
+
+        "+clades-6m-A(H1N1)": [
+            "+clades-6m-A(H1N1)-156"
+        ],
+
+        "+clades-light-A(H1N1)": [
+            "+clades-light-A(H1N1)-156"
+        ],
+
+        "+clades-A(H1N1)-156": [
             {"N": "antigens", "select": {"amino_acid": ["155E"]},         "fill": "#ffc808", "legend": {"label": "155E", "count": true},      "outline": "black", "order": "raise"},
             {"N": "antigens", "select": {"amino_acid": ["155X"]},         "fill": "#742f32", "legend": {"label": "155X", "count": true},      "outline": "black", "order": "raise"},
             {"N": "antigens", "select": {"amino_acid": ["156D"]},         "fill": "#a2b324", "legend": {"label": "156D", "count": true},      "outline": "black", "order": "raise"},
@@ -105,7 +121,7 @@
             {"N": "antigens", "select": {"amino_acid": ["156N", "155G"]}, "fill": "#03569b", "legend": {"label": "156N 155G", "count": true}, "outline": "black", "order": "raise"}
         ],
 
-        "+clades-12m-A(H1N1)": [
+        "+clades-12m-A(H1N1)-156": [
             {"N": "antigens", "select": {"amino_acid": ["155E"],         "younger_than_days": 365}, "fill": "#ffc808", "legend": {"label": "155E", "count": true},      "outline": "black", "order": "raise"},
             {"N": "antigens", "select": {"amino_acid": ["155X"],         "younger_than_days": 365}, "fill": "#742f32", "legend": {"label": "155X", "count": true},      "outline": "black", "order": "raise"},
             {"N": "antigens", "select": {"amino_acid": ["156D"],         "younger_than_days": 365}, "fill": "#a2b324", "legend": {"label": "156D", "count": true},      "outline": "black", "order": "raise"},
@@ -115,7 +131,7 @@
             {"N": "antigens", "select": {"amino_acid": ["156N" ,"155G"], "younger_than_days": 365}, "fill": "#03569b", "legend": {"label": "156N 155G", "count": true}, "outline": "black", "order": "raise"}
         ],
 
-        "+clades-6m-A(H1N1)": [
+        "+clades-6m-A(H1N1)-156": [
             {"N": "antigens", "select": {"amino_acid": ["155E"],         "younger_than_days": 183}, "fill": "#ffc808", "legend": {"label": "155E", "count": true},      "outline": "black", "order": "raise"},
             {"N": "antigens", "select": {"amino_acid": ["155X"],         "younger_than_days": 183}, "fill": "#742f32", "legend": {"label": "155X", "count": true},      "outline": "black", "order": "raise"},
             {"N": "antigens", "select": {"amino_acid": ["156D"],         "younger_than_days": 183}, "fill": "#a2b324", "legend": {"label": "156D", "count": true},      "outline": "black", "order": "raise"},
@@ -125,7 +141,7 @@
             {"N": "antigens", "select": {"amino_acid": ["156N" ,"155G"], "younger_than_days": 183}, "fill": "#03569b", "legend": {"label": "156N 155G", "count": true}, "outline": "black", "order": "raise"}
         ],
 
-        "+clades-light-A(H1N1)": [
+        "+clades-light-A(H1N1)-156": [
             {"N": "antigens", "select": {"amino_acid": ["155E"],         "?date_range": ["2019-02", ""]}, "fill": "#ffe380", "legend": {"label": "155E", "count": true},      "outline": "#BFBFBF", "order": "raise"},
             {"N": "antigens", "select": {"amino_acid": ["155X"],         "?date_range": ["2019-02", ""]}, "fill": "#ff8085", "legend": {"label": "155X", "count": true},      "outline": "#BFBFBF", "order": "raise"},
             {"N": "antigens", "select": {"amino_acid": ["156D"],         "?date_range": ["2019-02", ""]}, "fill": "#f0ff80", "legend": {"label": "156D", "count": true},      "outline": "#BFBFBF", "order": "raise"},
@@ -133,6 +149,12 @@
             {"N": "antigens", "select": {"amino_acid": ["156K"],         "?date_range": ["2019-02", ""]}, "fill": "#ff8580", "legend": {"label": "156K", "count": true},      "outline": "#BFBFBF", "order": "raise"},
             {"N": "antigens", "select": {"amino_acid": ["156X"],         "?date_range": ["2019-02", ""]}, "fill": "#ffc380", "legend": {"label": "156X", "count": true},      "outline": "#BFBFBF", "order": "raise"},
             {"N": "antigens", "select": {"amino_acid": ["156N" ,"155G"], "?date_range": ["2019-02", ""]}, "fill": "#bfe2ff", "legend": {"label": "156N 155G", "count": true}, "outline": "#BFBFBF", "order": "raise"}
+        ],
+
+        "+clades-A(H1N1)-6B": [
+            {"N": "antigens", "select": {"clade": "6B"},    "outline": "black", "fill": "cornflowerblue", "legend": {"label": "6B", "count": true},  "order": "raise", "report": true},
+            {"N": "antigens", "select": {"clade": "6B1"},   "outline": "black", "fill": "blue",           "legend": {"label": "6B1", "count": true}, "order": "raise", "report": true},
+            {"N": "antigens", "select": {"clade": "6B2"},   "outline": "black", "fill": "red",            "legend": {"label": "6B2", "count": true}, "order": "raise", "report": true, "report_names_threshold": 10},
         ],
 
         "? H3 clades": "--------------------------------------------------",

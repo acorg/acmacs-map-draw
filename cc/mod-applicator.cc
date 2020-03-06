@@ -151,8 +151,8 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::value& aMods, const rjson::v
     const auto& mods_data_mod = aModData["mods"];
     rjson::for_each(aMods, [&mods_data_mod,&aChartDraw,aIgnoreUnrecognized,&aModData,verbose](const rjson::value& mod_desc) {
         try {
-            if (verbose == acmacs::verbose::yes)
-                fmt::print(stderr, "DEBUG: mod: {}\n", mod_desc);
+            // if (verbose == acmacs::verbose::yes)
+            //     fmt::print(stderr, "DEBUG: apply mod: {}\n", mod_desc);
             for (const auto& mod: factory(aChartDraw, mod_desc, mods_data_mod, {}, verbose)) {
                 // Timeit ti{"INFO: Applying " + rjson::to_string(mod_desc) + ": "};
                 mod->apply(aChartDraw, aModData);
