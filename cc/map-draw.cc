@@ -123,7 +123,7 @@ int draw(const Options& opt)
     }
 
     try {
-        apply_mods(chart_draw, settings["apply"], settings);
+        apply_mods(chart_draw, settings["apply"], settings, acmacs::verbose_from(opt.verbose));
     }
     catch (std::exception& err) {
         // throw std::runtime_error{"Cannot apply " + rjson::to_string(settings["apply"]) + ": " + err.what() + "\n settings:\n" + rjson::pretty(settings, rjson::emacs_indent::no) + '\n'};

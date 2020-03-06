@@ -1,6 +1,3 @@
-#include <string>
-//using namespace std::string_literals;
-
 #include "acmacs-base/rjson.hh"
 #include "acmacs-chart-2/serum-line.hh"
 #include "acmacs-map-draw/draw.hh"
@@ -145,16 +142,18 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 
 // ----------------------------------------------------------------------
 
-static Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value& aSettingsMods, const rjson::value& aUpdate);
+static Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value& aSettingsMods, const rjson::value& aUpdate, acmacs::verbose verbose);
 
 // ----------------------------------------------------------------------
 
-void apply_mods(ChartDraw& aChartDraw, const rjson::value& aMods, const rjson::value& aModData, bool aIgnoreUnrecognized)
+void apply_mods(ChartDraw& aChartDraw, const rjson::value& aMods, const rjson::value& aModData, acmacs::verbose verbose, bool aIgnoreUnrecognized)
 {
     const auto& mods_data_mod = aModData["mods"];
-    rjson::for_each(aMods, [&mods_data_mod,&aChartDraw,aIgnoreUnrecognized,&aModData](const rjson::value& mod_desc) {
+    rjson::for_each(aMods, [&mods_data_mod,&aChartDraw,aIgnoreUnrecognized,&aModData,verbose](const rjson::value& mod_desc) {
         try {
-            for (const auto& mod: factory(aChartDraw, mod_desc, mods_data_mod, {})) {
+            for (const auto& mod: factory(aChartDraw, mod_desc, mods_data_mod, {}, verbose)) {
+                if (verbose == acmacs::verbose::yes)
+                    fmt::print(stderr, "DEBUG: mod \"{}\"\n", mod_desc);
                 // Timeit ti{"INFO: Applying " + rjson::to_string(mod_desc) + ": "};
                 mod->apply(aChartDraw, aModData);
             }
@@ -180,7 +179,7 @@ void ModAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
     const auto verbose = rjson::get_or(args(), "report", false);
     const auto report_names_threshold = rjson::get_or(args(), "report_names_threshold", 30UL);
     if (const auto& select = args()["select"]; !select.is_null()) {
-        const auto indices = SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no, report_names_threshold).select(aChartDraw, select);
+        const auto indices = SelectAntigens(acmacs::verbose_from(verbose), report_names_threshold).select(aChartDraw, select);
         const auto styl = style();
           // if (verbose)
           // std::cerr << "DEBUG: ModAntigens " << indices << ' ' << args() << ' ' << styl << '\n';
@@ -205,13 +204,13 @@ acmacs::PointCoordinates ModMoveBase::get_move_to(ChartDraw& aChartDraw, bool aV
         move_to = acmacs::PointCoordinates(to[0].to<double>(), to[1].to<double>());
     }
     else if (const auto& to_antigen = args()["to_antigen"]; !to_antigen.is_null()) {
-        const auto antigens = SelectAntigens(aVerbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, to_antigen);
+        const auto antigens = SelectAntigens(acmacs::verbose_from(aVerbose)).select(aChartDraw, to_antigen);
         if (antigens->size() != 1)
             throw unrecognized_mod{"\"to_antigen\" does not select single antigen, mod: " + rjson::to_string(args())};
         move_to = aChartDraw.layout()->at(antigens->front());
     }
     else if (const auto& to_serum = args()["to_serum"]; !to_serum.is_null()) {
-        const auto sera = SelectSera(aVerbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, to_serum);
+        const auto sera = SelectSera(acmacs::verbose_from(aVerbose)).select(aChartDraw, to_serum);
         if (sera->size() != 1)
             throw unrecognized_mod{"\"to_serum\" does not select single serum, mod: " + rjson::to_string(args())};
         move_to = aChartDraw.layout()->at(sera->front() + aChartDraw.number_of_antigens());
@@ -232,7 +231,7 @@ void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDat
         if (auto flip_scale = rjson::get_or(args(), "flip_over_serum_line", std::numeric_limits<double>::max()); flip_scale < (std::numeric_limits<double>::max() / 2)) {
             const acmacs::chart::SerumLine serum_line(projection);
             auto layout = aChartDraw.layout();
-            for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
+            for (auto index : SelectAntigens(acmacs::verbose_from(verbose)).select(aChartDraw, select)) {
                 const auto flipped = serum_line.line().flip_over(layout->at(index), flip_scale);
                 projection.move_point(index, flipped);
             }
@@ -247,21 +246,21 @@ void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDat
             const acmacs::LineDefinedByEquation line(from, to);
             // fmt::print(stderr, "DEBUG: flip line ({}X + {})\n", line.slope(), line.intercept());
             auto layout = aChartDraw.layout();
-            for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
+            for (auto index : SelectAntigens(acmacs::verbose_from(verbose)).select(aChartDraw, select)) {
                 const auto flipped = line.flip_over(layout->at(index), 1.0);
                 projection.move_point(index, flipped);
             }
         }
         else if (auto relative = args().get("relative"); !relative.is_null()) {
             auto layout = aChartDraw.layout();
-            for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
+            for (auto index : SelectAntigens(acmacs::verbose_from(verbose)).select(aChartDraw, select)) {
                 const auto coord = layout->at(index);
                 projection.move_point(index, acmacs::PointCoordinates(coord.x() + relative[0].to<double>(), coord.y() + relative[1].to<double>()));
             }
         }
         else {
             const auto move_to = get_move_to(aChartDraw, verbose);
-            for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
+            for (auto index : SelectAntigens(acmacs::verbose_from(verbose)).select(aChartDraw, select)) {
                 projection.move_point(index, move_to);
             }
         }
@@ -283,7 +282,7 @@ void ModMoveAntigensStress::apply(ChartDraw& aChartDraw, const rjson::value& /*a
         const auto transformation = projection.transformation();
         if (auto relative = args().get("relative"); !relative.is_null()) {
             auto layout = projection.layout();
-            for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
+            for (auto index : SelectAntigens(acmacs::verbose_from(verbose)).select(aChartDraw, select)) {
                 const auto coord = layout->at(index);
                 const acmacs::PointCoordinates move_to{coord.x() + relative[0].to<double>(), coord.y() + relative[1].to<double>()};
                 const auto stress = projection.stress_with_moved_point(index, move_to);
@@ -316,7 +315,7 @@ void ModMoveSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
         auto& projection = aChartDraw.projection();
         if (auto relative = args().get("relative"); !relative.is_null()) {
             auto layout = aChartDraw.layout();
-            for (auto index : SelectSera(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
+            for (auto index : SelectSera(acmacs::verbose_from(verbose)).select(aChartDraw, select)) {
                 const auto coord = layout->at(index + aChartDraw.number_of_antigens());
                 projection.move_point(index + aChartDraw.number_of_antigens(), acmacs::PointCoordinates(coord.x() + relative[0].to<double>(), coord.y() + relative[1].to<double>()));
             }
@@ -330,14 +329,14 @@ void ModMoveSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
             }
             const acmacs::LineDefinedByEquation line(from, to);
             auto layout = aChartDraw.layout();
-            for (auto index : SelectSera(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
+            for (auto index : SelectSera(acmacs::verbose_from(verbose)).select(aChartDraw, select)) {
                 const auto flipped = line.flip_over(layout->at(index + aChartDraw.number_of_antigens()), 1.0);
                 projection.move_point(index + aChartDraw.number_of_antigens(), flipped);
             }
         }
         else {
             const auto move_to = get_move_to(aChartDraw, verbose);
-            for (auto index : SelectSera(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, select)) {
+            for (auto index : SelectSera(acmacs::verbose_from(verbose)).select(aChartDraw, select)) {
                 projection.move_point(index + aChartDraw.number_of_antigens(), move_to);
             }
         }
@@ -500,25 +499,17 @@ class ModTitle : public Mod
             title.show(true);
             auto substitute_vars = [&aChartDraw](std::string source) -> std::string {
                 auto info = aChartDraw.chart().info();
-                if (const auto pos = source.find("{lab}"); pos != std::string::npos)
-                    source = string::concat(source.substr(0, pos), info->lab(acmacs::chart::Info::Compute::Yes, acmacs::chart::Info::FixLab::yes), source.substr(pos + 5));
-                if (const auto pos = source.find("{assay}"); pos != std::string::npos)
-                    source = string::concat(source.substr(0, pos), info->assay(acmacs::chart::Info::Compute::Yes), source.substr(pos + 7));
-                if (const auto pos = source.find("{assay_short}"); pos != std::string::npos) {
-                    auto assay = info->assay(acmacs::chart::Info::Compute::Yes);
-                    if (assay == acmacs::chart::Assay{"PLAQUE REDUCTION NEUTRALISATION"} || assay == acmacs::chart::Assay{"FOCUS REDUCTION"})
-                        assay = acmacs::chart::Assay{"NEUT"};
-                    source = string::concat(source.substr(0, pos), assay, source.substr(pos + 13));
-                }
-                if (const auto pos = source.find("{virus_type}"); pos != std::string::npos)
-                    source = string::concat(source.substr(0, pos), info->virus_type(acmacs::chart::Info::Compute::Yes), source.substr(pos + 12));
-                if (const auto pos = source.find("{lineage}"); pos != std::string::npos)
-                    source = string::concat(source.substr(0, pos), aChartDraw.chart().lineage(), source.substr(pos + 9));
-                if (const auto pos = source.find("{date}"); pos != std::string::npos)
-                    source = string::concat(source.substr(0, pos), aChartDraw.chart().info()->date(acmacs::chart::Info::Compute::Yes), source.substr(pos + 6));
-                if (const auto pos = source.find("{name}"); pos != std::string::npos)
-                    source = string::concat(source.substr(0, pos), aChartDraw.chart().make_name(), source.substr(pos + 6));
-                return source;
+                return string::replace(source,
+                                       "{lab}", info->lab(acmacs::chart::Info::Compute::Yes, acmacs::chart::Info::FixLab::reverse),
+                                       "{assay}", info->assay(acmacs::chart::Info::Compute::Yes),
+                                       "{assay_short}", info->assay(acmacs::chart::Info::Compute::Yes).hi_or_neut(),
+                                       "{virus_type}", info->virus_type(acmacs::chart::Info::Compute::Yes),
+                                       "{lineage}", aChartDraw.chart().lineage(),
+                                       "{rbc}", info->rbc_species(acmacs::chart::Info::Compute::Yes),
+                                       "{subset}", info->subset(acmacs::chart::Info::Compute::Yes),
+                                       "{date}", info->date(acmacs::chart::Info::Compute::Yes),
+                                       "{name}", aChartDraw.chart().make_name()
+                                       );
             };
             if (const auto& display_name = args()["display_name"]; !display_name.is_null()) {
                 if (display_name.is_array())
@@ -629,12 +620,12 @@ class ModLine : public Mod
        }
        else if (const auto& from_antigen = args()[aPrefix + "_antigen"]; !from_antigen.is_null()) {
            auto layout = aChartDraw.transformed_layout();
-           for (auto index : SelectAntigens(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, from_antigen))
+           for (auto index : SelectAntigens(acmacs::verbose_from(verbose)).select(aChartDraw, from_antigen))
                result.push_back(layout->at(index));
        }
        else if (const auto& from_serum = args()[aPrefix + "_serum"]; !from_serum.is_null()) {
            auto layout = aChartDraw.transformed_layout();
-           for (auto index : SelectSera(verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, from_serum))
+           for (auto index : SelectSera(acmacs::verbose_from(verbose)).select(aChartDraw, from_serum))
                result.push_back(layout->at(index + aChartDraw.number_of_antigens()));
        }
        else
@@ -733,7 +724,7 @@ class ModCircle : public Mod
 
 // ----------------------------------------------------------------------
 
-Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value& aSettingsMods, const rjson::value& aUpdate)
+Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value& aSettingsMods, const rjson::value& aUpdate, acmacs::verbose verbose)
 {
     std::string name;
     rjson::value args{rjson::object{}};
@@ -878,16 +869,20 @@ Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value
     }
     else {
         auto info = aChartDraw.chart().info();
-        if (const auto pos = name.find("{lab}"); pos != std::string::npos)
-            name = string::concat(name.substr(0, pos), info->lab(acmacs::chart::Info::Compute::Yes, acmacs::chart::Info::FixLab::reverse), name.substr(pos + 5));
-        if (const auto pos = name.find("{assay}"); pos != std::string::npos)
-            name = string::concat(name.substr(0, pos), info->assay(acmacs::chart::Info::Compute::Yes).hi_or_neut(), name.substr(pos + 7));
-        if (const auto pos = name.find("{virus_type}"); pos != std::string::npos)
-            name = string::concat(name.substr(0, pos), info->virus_type(acmacs::chart::Info::Compute::Yes), name.substr(pos + 12));
-        if (const auto pos = name.find("{lineage}"); pos != std::string::npos)
-            name = string::concat(name.substr(0, pos), aChartDraw.chart().lineage(), name.substr(pos + 9));
-        rjson::for_each(get_referenced_mod(name), [&aChartDraw, &aSettingsMods, &args, &result](const rjson::value& submod_desc) {
-            for (auto&& submod : factory(aChartDraw, submod_desc, aSettingsMods, args)) {
+        const auto substituted = string::replace(
+            name,
+            "{lab}", info->lab(acmacs::chart::Info::Compute::Yes, acmacs::chart::Info::FixLab::reverse),
+            "{assay}", info->assay(acmacs::chart::Info::Compute::Yes).hi_or_neut(),
+            "{virus_type}", info->virus_type(acmacs::chart::Info::Compute::Yes),
+            "{lineage}", aChartDraw.chart().lineage(),
+            "{rbc}", info->rbc_species(acmacs::chart::Info::Compute::Yes),
+            "{subset}", info->subset(acmacs::chart::Info::Compute::Yes),
+            "{date}", info->date(acmacs::chart::Info::Compute::Yes)
+                                                 );
+        if (verbose == acmacs::verbose::yes && name != substituted)
+            fmt::print(stderr, "DEBUG: mod subtitution: \"{}\" --> \"{}\"\n", name, substituted);
+        rjson::for_each(get_referenced_mod(substituted), [&aChartDraw, &aSettingsMods, &args, &result, verbose](const rjson::value& submod_desc) {
+            for (auto&& submod : factory(aChartDraw, submod_desc, aSettingsMods, args, verbose)) {
                 result.push_back(std::move(submod));
             }
         });
@@ -896,9 +891,6 @@ Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value
     return result;
 
 } // factory
-
-// ----------------------------------------------------------------------
-
 
 // ----------------------------------------------------------------------
 /// Local Variables:

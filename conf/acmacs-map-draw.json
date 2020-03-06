@@ -1,32 +1,50 @@
 {
     "apply": [
-        "?clades"
+        "?+size",
+        "?+clades",
+        "?+vaccines",
+        "?+legend",
+        "+position",
+        "+title",
     ],
 
     "mods": {
-        "default_color": [
-            {"N": "antigens", "select": "test", "outline": "black", "fill": "green"},
-            {"N": "antigens", "select": "reference", "outline": "black", "fill": "transparent"},
-            {"N": "sera", "select": "all", "outline": "black", "fill": "transparent"}
+        "+clades": [
+            "+marking-reset",
+            "+all-grey",
+            "+clades-{virus_type}",
+            "*clades-{virus_type}-{assay}",
+            "*clades-{virus_type}-{lab}",
+            "*clades-{virus_type}-{assay}-{lab}"
         ],
-        "all_grey": [
-            {"N": "antigens", "select": "test", "outline": "grey80", "fill": "grey80"},
-            {"N": "antigens", "select": "reference", "outline": "grey80", "fill": "transparent"},
-            {"N": "sera", "select": "all", "outline": "grey80", "fill": "transparent"}
+
+        "+position": [
+            "*position-{lab}",
+            "*position-{lab}-{assay}",
         ],
-        "lower_reference": [
-            {"N": "antigens", "select": "reference", "order": "lower"},
-            {"N": "sera", "select": "all", "order": "lower"}
+
+        "+title": [
+            {"N": "title", "show": true, "offset": [10, 10], "padding": 10, "size": 1,
+             "background": "transparent", "border_color": "transparent", "border_width": 0.0,
+             "text_color": "black", "text_size": 12, "interline": 2,
+             "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif",
+             "?display_name": ["Line 1 {lab} {assay} {assay_short} {virus_type} {lineage} {date} {name}", "Line 2", "Another line"]},
         ],
-        "labels": [
-            {"N": "antigens", "select": "all", "label": {"show": true}},
-            {"N": "sera", "select": "all", "label": {"show": true}}
+
+        "+marking-reset": [
+            {"N": "antigens", "select": "test",      "fill": "green",       "outline": "black", "size": 5.0, "outline_width": 1.0},
+            {"N": "antigens", "select": "reference", "fill": "transparent", "outline": "black", "size": 8.0, "outline_width": 1.0},
+            {"N": "sera",     "select": "all",       "fill": "transparent", "outline": "black", "size": 6.5, "outline_width": 1.0}
         ],
-        "size_reset": [
-            {"N": "antigens", "select": "test", "size": 5.0, "outline_width": 1.0},
-            {"N": "antigens", "select": "reference", "size": 8.0, "outline_width": 1.0},
-            {"N": "sera", "select": "all", "size": 6.5, "outline_width": 1.0}
+
+        "+all-grey": [
+            {"N": "antigens", "select": "test",      "fill": "grey80",      "outline": "grey80"},
+            {"N": "antigens", "select": "reference", "fill": "transparent", "outline": "grey80", "order": "lower"},
+            {"N": "sera",     "select": "all",       "fill": "transparent", "outline": "grey80", "order": "lower"}
         ],
+
+        "? old": "======================================================================",
+
         "clades": [
             {"N": "antigens", "select": {"sequenced": true},   "outline": "black", "fill": "yellow", "legend": {"label": "sequenced", "count": true}, "order": "raise", "report": true},
 

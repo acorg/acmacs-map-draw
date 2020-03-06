@@ -25,7 +25,9 @@ struct Options : public argv
     option<bool>      report{*this, "report", desc{"report common antigens/sera"}};
     option<bool>      clade{*this, "clade", desc{"color by clade"}};
     option<str>       viewport{*this, "viewport", dflt{""}, desc{"\"rel\" array of viewport, e.g. 2,2,-4"}};
+    option<bool>      ql{*this, "ql"};
     option<bool>      open{*this, "open"};
+    option<bool>      verbose{*this, 'v', "verbose"};
 
     argument<str>     chart1{*this, arg_name{"chart"}, mandatory};
     argument<str>     chart2{*this, arg_name{"secondary-chart"}};
@@ -75,7 +77,7 @@ int main(int argc, char* const argv[])
                 rjson::object{{"N", "procrustes_arrows"}, {"chart", secondary_chart}, {"projection", *opt.p2}, {"subset", *opt.subset}, {"threshold", *opt.threshold}, {"report", *opt.report}});
 
         try {
-            apply_mods(chart_draw, settings["apply"], settings);
+            apply_mods(chart_draw, settings["apply"], settings, acmacs::verbose_from(opt.verbose));
         }
         catch (std::exception& err) {
             // throw std::runtime_error{"Cannot apply " + rjson::to_string(settings["apply"]) + ": " + err.what() + "\n settings:\n" + rjson::pretty(settings, rjson::emacs_indent::no) + '\n'};
@@ -89,8 +91,8 @@ int main(int argc, char* const argv[])
         const std::string output = output_file.empty() ? static_cast<std::string>(temp_file) : output_file;
         chart_draw.draw(output, 800, report_time::yes);
 
-        if (opt.open || output_file.empty())
-            acmacs::quicklook(output, 2);
+        if (opt.open || opt.ql || output_file.empty())
+            acmacs::open_or_quicklook(opt.open || (output_file.empty() && !opt.ql), opt.ql, output);
     }
     catch (std::exception& err) {
         fmt::print(stderr, "ERROR {}\n", err);

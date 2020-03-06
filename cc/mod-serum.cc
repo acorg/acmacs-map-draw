@@ -13,7 +13,7 @@ void ModSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
     const auto report = rjson::get_or(args(), "report", false);
     const auto report_names_threshold = rjson::get_or(args(), "report_names_threshold", 30UL);
     if (const auto& select = args()["select"]; !select.is_null()) {
-        const auto indices = SelectSera(report ? acmacs::verbose::yes : acmacs::verbose::no, report_names_threshold).select(aChartDraw, select);
+        const auto indices = SelectSera(acmacs::verbose_from(report), report_names_threshold).select(aChartDraw, select);
         const auto styl = style();
         aChartDraw.modify_sera(indices, styl, drawing_order());
         if (const auto& label = args()["label"]; !label.is_null())
@@ -38,7 +38,7 @@ size_t ModSerumHomologous::select_mark_serum(ChartDraw& aChartDraw, bool aVerbos
 
 acmacs::chart::PointIndexList ModSerumHomologous::select_mark_sera(ChartDraw& aChartDraw, bool aVerbose)
 {
-    const auto serum_indexes = SelectSera(aVerbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, args()["serum"]);
+    const auto serum_indexes = SelectSera(acmacs::verbose_from(aVerbose)).select(aChartDraw, args()["serum"]);
     if (serum_indexes->empty())
         fmt::print(stderr, "WARNING: no sera selected by {}\n", args()["serum"]);
     for (auto index : serum_indexes)
@@ -51,7 +51,7 @@ acmacs::chart::PointIndexList ModSerumHomologous::select_mark_sera(ChartDraw& aC
 
 size_t ModSerumHomologous::select_serum(ChartDraw& aChartDraw, bool aVerbose) const
 {
-    const auto sera = SelectSera(aVerbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, args()["serum"]);
+    const auto sera = SelectSera(acmacs::verbose_from(aVerbose)).select(aChartDraw, args()["serum"]);
     if (sera->size() != 1)
         throw unrecognized_mod{"\"serum\" does not select single serum, mod: " + rjson::to_string(args())};
     return sera->front();
@@ -87,7 +87,7 @@ acmacs::chart::PointIndexList ModSerumHomologous::select_mark_antigens(ChartDraw
 acmacs::chart::PointIndexList ModSerumHomologous::select_antigens(ChartDraw& aChartDraw, size_t aSerumIndex, acmacs::chart::find_homologous find_homologous_options, bool aVerbose) const
 {
     if (const auto& antigen_select = args()["antigen"]; !antigen_select.is_null()) {
-        const auto antigens = SelectAntigens(aVerbose ? acmacs::verbose::yes : acmacs::verbose::no).select(aChartDraw, antigen_select);
+        const auto antigens = SelectAntigens(acmacs::verbose_from(aVerbose)).select(aChartDraw, antigen_select);
         if (antigens->empty())
             throw unrecognized_mod{"\"antigen\" does not select an antigen, mod: " + rjson::to_string(args())};
         return antigens;

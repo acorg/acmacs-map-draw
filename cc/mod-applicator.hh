@@ -17,7 +17,7 @@ class ChartDraw;
 // aModData is an object for mod parameters and non-standard mod lookup (see settings.cc):
 //  {"mod-name": [<mods to apply>]}
 
-void apply_mods(ChartDraw& aChartDraw, const rjson::value& aMods, const rjson::value& aModData, bool aIgnoreUnrecognized = false);
+void apply_mods(ChartDraw& aChartDraw, const rjson::value& aMods, const rjson::value& aModData, acmacs::verbose verbose = acmacs::verbose::no, bool aIgnoreUnrecognized = false);
 
 class unrecognized_mod : public std::runtime_error { public: using std::runtime_error::runtime_error; };
 

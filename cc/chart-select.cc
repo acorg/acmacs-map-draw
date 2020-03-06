@@ -48,7 +48,7 @@ int do_select(const Options& opt)
     ChartSelectInterface chart_select(std::make_shared<acmacs::chart::ChartModify>(chart), opt.projection);
     if (!opt.sera) {
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_antigens())) + 1;
-        const auto indices = SelectAntigens(opt.verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(chart_select, selector);
+        const auto indices = SelectAntigens(acmacs::verbose_from(opt.verbose)).select(chart_select, selector);
         std::cout << string::join(",", indices) << '\n';
         if (!opt.just_indexes) {
             for (auto index : indices)
@@ -57,7 +57,7 @@ int do_select(const Options& opt)
     }
     else {
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_sera())) + 1;
-        const auto indices = SelectSera(opt.verbose ? acmacs::verbose::yes : acmacs::verbose::no).select(chart_select, selector);
+        const auto indices = SelectSera(acmacs::verbose_from(opt.verbose)).select(chart_select, selector);
         if (!opt.just_indexes) {
             fmt::print("{}\n", string::join(",", indices));
         }
