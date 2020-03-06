@@ -142,7 +142,7 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 
 // ----------------------------------------------------------------------
 
-static Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value& aSettingsMods, const rjson::value& aUpdate, acmacs::verbose verbose);
+static Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value& aSettingsMods, const rjson::value& aUpdate, acmacs::verbose verbose, size_t level = 0);
 
 // ----------------------------------------------------------------------
 
@@ -151,9 +151,9 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::value& aMods, const rjson::v
     const auto& mods_data_mod = aModData["mods"];
     rjson::for_each(aMods, [&mods_data_mod,&aChartDraw,aIgnoreUnrecognized,&aModData,verbose](const rjson::value& mod_desc) {
         try {
+            if (verbose == acmacs::verbose::yes)
+                fmt::print(stderr, "DEBUG: mod: {}\n", mod_desc);
             for (const auto& mod: factory(aChartDraw, mod_desc, mods_data_mod, {}, verbose)) {
-                if (verbose == acmacs::verbose::yes)
-                    fmt::print(stderr, "DEBUG: mod \"{}\"\n", mod_desc);
                 // Timeit ti{"INFO: Applying " + rjson::to_string(mod_desc) + ": "};
                 mod->apply(aChartDraw, aModData);
             }
@@ -724,7 +724,7 @@ class ModCircle : public Mod
 
 // ----------------------------------------------------------------------
 
-Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value& aSettingsMods, const rjson::value& aUpdate, acmacs::verbose verbose)
+Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value& aSettingsMods, const rjson::value& aUpdate, acmacs::verbose verbose, size_t level)
 {
     std::string name;
     rjson::value args{rjson::object{}};
@@ -767,6 +767,9 @@ Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value
             throw unrecognized_mod{"mod not found: " + aName};
         }
     };
+
+    if (verbose == acmacs::verbose::yes)
+        fmt::print(stderr, "DEBUG: {:{}s}mod: \"{}\"\n", "", level * 4, name);
 
     if (name == "antigens") {
         result.emplace_back(new ModAntigens(args));
@@ -880,9 +883,9 @@ Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value
             "{date}", info->date(acmacs::chart::Info::Compute::Yes)
                                                  );
         if (verbose == acmacs::verbose::yes && name != substituted)
-            fmt::print(stderr, "DEBUG: mod subtitution: \"{}\" --> \"{}\"\n", name, substituted);
-        rjson::for_each(get_referenced_mod(substituted), [&aChartDraw, &aSettingsMods, &args, &result, verbose](const rjson::value& submod_desc) {
-            for (auto&& submod : factory(aChartDraw, submod_desc, aSettingsMods, args, verbose)) {
+            fmt::print(stderr, "DEBUG: {:{}s}         \"{}\" --> \"{}\"\n", "", level * 4, name, substituted);
+        rjson::for_each(get_referenced_mod(substituted), [&aChartDraw, &aSettingsMods, &args, &result, verbose, level](const rjson::value& submod_desc) {
+            for (auto&& submod : factory(aChartDraw, submod_desc, aSettingsMods, args, verbose, level + 1)) {
                 result.push_back(std::move(submod));
             }
         });

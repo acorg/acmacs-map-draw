@@ -5,22 +5,13 @@
         "?+vaccines",
         "?+legend",
         "+position",
-        "+title",
+        "+title"
     ],
 
     "mods": {
-        "+clades": [
-            "+marking-reset",
-            "+all-grey",
-            "+clades-{virus_type}",
-            "*clades-{virus_type}-{assay}",
-            "*clades-{virus_type}-{lab}",
-            "*clades-{virus_type}-{assay}-{lab}"
-        ],
-
         "+position": [
             "*position-{lab}",
-            "*position-{lab}-{assay}",
+            "*position-{lab}-{assay}"
         ],
 
         "+title": [
@@ -63,6 +54,93 @@
             {"N": "antigens", "select": {"vaccine": {"type": "current", "passage": "reassortant"}}, "report": true, "outline": "black", "fill": "green", "size": 15, "show": true, "order": "raise"},
             {"N": "antigens", "select": {"vaccine": {"type": "surrogate"}}, "report": true, "outline": "black", "fill": "pink", "size": 15, "show": true, "order": "raise"}
         ],
+
+        "? clades": "====================================================================================================",
+
+        "+clades": [
+            "+marking-reset",
+            "+all-grey",
+            "+clades-{virus_type}",
+            "*clades-{virus_type}-{assay}",
+            "*clades-{virus_type}-{lab}",
+            "*clades-{virus_type}-{assay}-{lab}"
+        ],
+
+        "+clades-light": [
+            "+marking-reset",
+            "+all-grey",
+            "+clades-light-{virus_type}",
+            "*clades-light-{virus_type}-{assay}",
+            "*clades-light-{virus_type}-{lab}",
+            "*clades-light-{virus_type}-{assay}-{lab}"
+        ],
+
+        "+clades-12m": [
+            "+marking-reset",
+            "+all-grey",
+            "+clades-12m-{virus_type}",
+            "*clades-12m-{virus_type}-{assay}",
+            "*clades-12m-{virus_type}-{lab}",
+            "*clades-12m-{virus_type}-{assay}-{lab}"
+        ],
+
+        "+clades-6m": [
+            "+marking-reset",
+            "+all-grey",
+            "+clades-6m-{virus_type}",
+            "*clades-6m-{virus_type}-{assay}",
+            "*clades-6m-{virus_type}-{lab}",
+            "*clades-6m-{virus_type}-{assay}-{lab}"
+        ],
+
+        "? H1 clades": "--------------------------------------------------",
+
+        "+clades-A(H1N1)": [
+            {"N": "antigens", "select": {"amino_acid": ["155E"]},         "fill": "#ffc808", "legend": {"label": "155E", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["155X"]},         "fill": "#742f32", "legend": {"label": "155X", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156D"]},         "fill": "#a2b324", "legend": {"label": "156D", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156S"]},         "fill": "#049457", "legend": {"label": "156S", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156K"]},         "fill": "#e72f27", "legend": {"label": "156K", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156X"]},         "fill": "#f1b066", "legend": {"label": "156X", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156N", "155G"]}, "fill": "#03569b", "legend": {"label": "156N 155G", "count": true}, "outline": "black", "order": "raise"}
+        ],
+
+        "+clades-12m-A(H1N1)": [
+            {"N": "antigens", "select": {"amino_acid": ["155E"],         "younger_than_days": 365}, "fill": "#ffc808", "legend": {"label": "155E", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["155X"],         "younger_than_days": 365}, "fill": "#742f32", "legend": {"label": "155X", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156D"],         "younger_than_days": 365}, "fill": "#a2b324", "legend": {"label": "156D", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156S"],         "younger_than_days": 365}, "fill": "#049457", "legend": {"label": "156S", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156K"],         "younger_than_days": 365}, "fill": "#e72f27", "legend": {"label": "156K", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156X"],         "younger_than_days": 365}, "fill": "#f1b066", "legend": {"label": "156X", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156N" ,"155G"], "younger_than_days": 365}, "fill": "#03569b", "legend": {"label": "156N 155G", "count": true}, "outline": "black", "order": "raise"}
+        ],
+
+        "+clades-6m-A(H1N1)": [
+            {"N": "antigens", "select": {"amino_acid": ["155E"],         "younger_than_days": 183}, "fill": "#ffc808", "legend": {"label": "155E", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["155X"],         "younger_than_days": 183}, "fill": "#742f32", "legend": {"label": "155X", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156D"],         "younger_than_days": 183}, "fill": "#a2b324", "legend": {"label": "156D", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156S"],         "younger_than_days": 183}, "fill": "#049457", "legend": {"label": "156S", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156K"],         "younger_than_days": 183}, "fill": "#e72f27", "legend": {"label": "156K", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156X"],         "younger_than_days": 183}, "fill": "#f1b066", "legend": {"label": "156X", "count": true},      "outline": "black", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156N" ,"155G"], "younger_than_days": 183}, "fill": "#03569b", "legend": {"label": "156N 155G", "count": true}, "outline": "black", "order": "raise"}
+        ],
+
+        "+clades-light-A(H1N1)": [
+            {"N": "antigens", "select": {"amino_acid": ["155E"],         "?date_range": ["2019-02", ""]}, "fill": "#ffe380", "legend": {"label": "155E", "count": true},      "outline": "#BFBFBF", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["155X"],         "?date_range": ["2019-02", ""]}, "fill": "#ff8085", "legend": {"label": "155X", "count": true},      "outline": "#BFBFBF", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156D"],         "?date_range": ["2019-02", ""]}, "fill": "#f0ff80", "legend": {"label": "156D", "count": true},      "outline": "#BFBFBF", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156S"],         "?date_range": ["2019-02", ""]}, "fill": "#80ffc9", "legend": {"label": "156S", "count": true},      "outline": "#BFBFBF", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156K"],         "?date_range": ["2019-02", ""]}, "fill": "#ff8580", "legend": {"label": "156K", "count": true},      "outline": "#BFBFBF", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156X"],         "?date_range": ["2019-02", ""]}, "fill": "#ffc380", "legend": {"label": "156X", "count": true},      "outline": "#BFBFBF", "order": "raise"},
+            {"N": "antigens", "select": {"amino_acid": ["156N" ,"155G"], "?date_range": ["2019-02", ""]}, "fill": "#bfe2ff", "legend": {"label": "156N 155G", "count": true}, "outline": "#BFBFBF", "order": "raise"}
+        ],
+
+        "? H3 clades": "--------------------------------------------------",
+
+        "? B/Vic clades": "--------------------------------------------------",
+
+        "? B/Yam clades": "--------------------------------------------------",
+
         "? backward compatibility": "======================================================================",
 
         "all_grey": [
