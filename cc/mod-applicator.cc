@@ -759,7 +759,7 @@ Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value
         else if (!aName.empty() && aName[0] == '*') // optional mod
             return rjson::EmptyArray;
         else {
-            fmt::print(stderr, "ERROR: available mods:\n");
+            fmt::print(stderr, "ERROR: mod not found: \"{}\"\n  available mods:\n", aName);
             rjson::for_each(aSettingsMods, [](std::string_view key, const auto&) {
                 if (key[0] != '?')
                     fmt::print("   {}\n", key);

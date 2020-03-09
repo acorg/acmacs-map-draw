@@ -18,15 +18,15 @@ class VaccineMatchData
  public:
     VaccineMatchData() : mNo{0} {}
 
-    template <typename S, typename = std::enable_if_t<acmacs::sfinae::is_string_v<S>>> VaccineMatchData& type(S aType) { mType = aType; return *this; }
-    template <typename S, typename = std::enable_if_t<acmacs::sfinae::is_string_v<S>>> VaccineMatchData& passage(S aPassage) { mPassage = aPassage; return *this; }
+    VaccineMatchData& type(std::string_view aType) { mType.assign(aType); return *this; }
+    VaccineMatchData& passage(std::string_view aPassage) { mPassage.assign(aPassage); return *this; }
     VaccineMatchData& no(size_t aNo) { mNo = aNo; return *this; }
-    template <typename S, typename = std::enable_if_t<acmacs::sfinae::is_string_v<S>>> VaccineMatchData& name(S aName) { mName = aName; return *this; }
+    VaccineMatchData& name(std::string_view aName) { mName.assign(aName); return *this; }
 
-    std::string type() const { return mType; }
-    std::string passage() const { return mPassage; }
+    std::string_view type() const { return mType; }
+    std::string_view passage() const { return mPassage; }
     size_t no() const { return mNo; }
-    std::string name() const { return mName; }
+    std::string_view name() const { return mName; }
 
  private:
     std::string mType;
@@ -53,10 +53,13 @@ class Vaccines
         acmacs::PointStyle style;
 
         bool match(const hidb::VaccinesOfChart& aVaccinesOfChart, const VaccineMatchData& aMatchData) const
-            {
-                return (aMatchData.passage().empty() || hidb::Vaccines::passage_type(aMatchData.passage()) == passage_type)
-                        && aVaccinesOfChart[vaccines_of_chart_index].match(aMatchData.name(), aMatchData.type());
-            }
+        {
+            if (aMatchData.passage() == "cell-egg" || aMatchData.passage() == "egg-cell")
+                return aVaccinesOfChart[vaccines_of_chart_index].match(aMatchData.name(), aMatchData.type());
+            else
+                return (aMatchData.passage().empty() || hidb::Vaccines::passage_type(aMatchData.passage()) == passage_type) &&
+                       aVaccinesOfChart[vaccines_of_chart_index].match(aMatchData.name(), aMatchData.type());
+        }
 
     }; // class Entry
 

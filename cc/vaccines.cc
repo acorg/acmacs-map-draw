@@ -1,3 +1,4 @@
+#include "acmacs-base/range-v3.hh"
 #include "acmacs-chart-2/chart.hh"
 //#include "draw.hh"
 #include "vaccines.hh"
@@ -75,18 +76,29 @@ std::vector<size_t> Vaccines::indices() const
 
 std::vector<size_t> Vaccines::indices(const VaccineMatchData& aMatchData) const
 {
-    std::vector<size_t> ind;
+    std::vector<std::pair<size_t, hidb::Vaccines::PassageType>> ind_passage;
     for (const auto& entry: mEntries) {
-        // std::cerr << "Vaccine vaccines_of_chart_index: " << entry.vaccines_of_chart_index << " entry.antigen_no: " << entry.antigen_no << " size for " << entry.passage_type << ": " << mVaccinesOfChart[entry.vaccines_of_chart_index].size_for_passage_type(entry.passage_type) << '\n';
         if (entry.match(mVaccinesOfChart, aMatchData)) {
-            // std::cerr << "Vaccine entry.antigen_no: " << entry.antigen_no << " size for " << entry.passage_type << ": " << mVaccinesOfChart[entry.vaccines_of_chart_index].size_for_passage_type(entry.passage_type) << '\n';
-            if (const auto* vacc = mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, aMatchData.no() /* entry.antigen_no */); vacc) {
-                // std::cerr << "Vaccine " << vacc->chart_antigen_index << " size for " << entry.passage_type << ": " << mVaccinesOfChart[entry.vaccines_of_chart_index].size_for_passage_type(entry.passage_type) << '\n';
-                ind.push_back(vacc->chart_antigen_index);
-            }
+            if (const auto* vacc = mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, aMatchData.no() /* entry.antigen_no */); vacc)
+                ind_passage.emplace_back(vacc->chart_antigen_index, entry.passage_type);
         }
     }
-    return ind;
+
+    const auto to_index = [](const auto& en) { return en.first; };
+    if (aMatchData.passage() == "cell-egg") {
+        const auto is_cell = [](const auto& en) { return en.second == hidb::Vaccines::Cell; };
+        if (ranges::any_of(ind_passage, is_cell))
+            return ind_passage | ranges::views::filter(is_cell) | ranges::views::transform(to_index) | ranges::to_vector;
+        else
+            return ind_passage | ranges::views::transform(to_index) | ranges::to_vector;
+    }
+    else if (aMatchData.passage() == "egg-cell") {
+        const auto is_egg = [](const auto& en) { return en.second == hidb::Vaccines::Egg; };
+        if (ranges::any_of(ind_passage, is_egg))
+            return ind_passage | ranges::views::filter(is_egg) | ranges::views::transform(to_index) | ranges::to_vector;
+        else
+            return ind_passage | ranges::views::transform(to_index) | ranges::to_vector;
+    }
 
 } // Vaccines::indices
 
