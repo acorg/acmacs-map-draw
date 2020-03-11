@@ -99,6 +99,8 @@ std::vector<size_t> Vaccines::indices(const VaccineMatchData& aMatchData) const
         else
             return ind_passage | ranges::views::transform(to_index) | ranges::to_vector;
     }
+    else
+        return ind_passage | ranges::views::transform(to_index) | ranges::to_vector;
 
 } // Vaccines::indices
 
