@@ -62,7 +62,7 @@ class GeographicMapDraw
     virtual void prepare(acmacs::surface::Surface& aSurface);
     virtual void draw(std::string aFilename, double aImageWidth);
 
-    void add_point(long aPriority, double aLat, double aLong, Color aFill, Pixels aSize, Color aOutline = "transparent", Pixels aOutlineWidth = Pixels{0});
+    void add_point(long aPriority, double aLat, double aLong, Color aFill, Pixels aSize, Color aOutline = TRANSPARENT, Pixels aOutlineWidth = Pixels{0});
     map_elements::Title& title() { return mTitle; }
 
  protected:
@@ -86,14 +86,15 @@ class GeographicMapColoring
     struct ColoringData
     {
         ColoringData() = default;
-        ColoringData(Color aFill, Color aOutline = "black", double aOutlineWidth = 0) : fill{aFill}, outline{aOutline}, outline_width{aOutlineWidth} {}
-        ColoringData(std::string aFill, std::string aOutline = "black", double aOutlineWidth = 0) : fill{aFill}, outline{aOutline}, outline_width{aOutlineWidth} {}
+        ColoringData(Color aFill, Color aOutline = BLACK, double aOutlineWidth = 0) : fill{aFill}, outline{aOutline}, outline_width{aOutlineWidth} {}
+        ColoringData(const acmacs::color::Modifier& aFill) : fill{aFill} {}
+        // ColoringData(std::string aFill, std::string aOutline = "black", double aOutlineWidth = 0) : fill{aFill}, outline{aOutline}, outline_width{aOutlineWidth} {}
         ColoringData(std::string_view aFill, std::string_view aOutline = "black", double aOutlineWidth = 0) : fill{aFill}, outline{aOutline}, outline_width{aOutlineWidth} {}
         bool operator<(const ColoringData& aNother) const { return fill == aNother.fill ? (outline == aNother.outline ? outline_width < aNother.outline_width : outline < aNother.outline) : fill < aNother.fill; }
         ColoringData& operator=(std::string_view a_fill) { fill = a_fill; return *this; }
 
-        Color fill;
-        Color outline{"black"};
+        acmacs::color::Modifier fill;
+        acmacs::color::Modifier outline{BLACK};
         Pixels outline_width{0};
     };
 
@@ -150,7 +151,7 @@ class ColoringByLineage : public GeographicMapColoring
                 return {lineage, mColors.at(lineage)};
             }
             catch (...) {
-                return {"UNKNOWN", {GREY50}};
+                return {"UNKNOWN", ColoringData{GREY50}};
             }
         }
 
@@ -211,7 +212,7 @@ class ColorOverride : public GeographicMapColoring
                 return TagColor{aAntigen.name(), mColors.at(*aAntigen.name())};
             }
             catch (...) {
-                return TagColor{"UNKNOWN", {ColorNoChange}};
+                return TagColor{"UNKNOWN", ColoringData{acmacs::color::no_change}};
             }
         }
 

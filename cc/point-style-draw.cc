@@ -10,19 +10,19 @@ void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aS
     if (*aStyle.shown && aCoord.exists()) {
         switch (*aStyle.shape) {
           case acmacs::PointShape::Circle:
-              aSurface.circle_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, *aStyle.outline, *aStyle.outline_width, acmacs::surface::Dash::NoDash, *aStyle.fill);
+              aSurface.circle_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, acmacs::color::get(*aStyle.outline), *aStyle.outline_width, acmacs::surface::Dash::NoDash, acmacs::color::get(*aStyle.fill));
               break;
           case acmacs::PointShape::Egg:
-              aSurface.egg_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, *aStyle.outline, *aStyle.outline_width, acmacs::surface::Dash::NoDash, *aStyle.fill);
+              aSurface.egg_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, acmacs::color::get(*aStyle.outline), *aStyle.outline_width, acmacs::surface::Dash::NoDash, acmacs::color::get(*aStyle.fill));
               break;
           case acmacs::PointShape::UglyEgg:
-              aSurface.ugly_egg_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, *aStyle.outline, *aStyle.outline_width, acmacs::surface::Dash::NoDash, *aStyle.fill);
+              aSurface.ugly_egg_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, acmacs::color::get(*aStyle.outline), *aStyle.outline_width, acmacs::surface::Dash::NoDash, acmacs::color::get(*aStyle.fill));
               break;
           case acmacs::PointShape::Box:
-              aSurface.square_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, *aStyle.outline, *aStyle.outline_width, *aStyle.fill);
+              aSurface.square_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, acmacs::color::get(*aStyle.outline), *aStyle.outline_width, acmacs::color::get(*aStyle.fill));
               break;
           case acmacs::PointShape::Triangle:
-              aSurface.triangle_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, *aStyle.outline, *aStyle.outline_width, *aStyle.fill);
+              aSurface.triangle_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, acmacs::color::get(*aStyle.outline), *aStyle.outline_width, acmacs::color::get(*aStyle.fill));
               break;
         }
     }
@@ -42,9 +42,9 @@ acmacs::PointStyle point_style_from_json(const rjson::value& aSource, Color pass
                 style.fill = Color(val_s);
         }
         else if (key == "fill_saturation")
-            style.fill = Color(Color::type::adjust_saturation, val.to<double>());
+            style.fill = acmacs::color::Modifier{acmacs::color::adjust_saturation{val.to<double>()}};
         else if (key == "fill_brightness")
-            style.fill = Color(Color::type::adjust_brightness, val.to<double>());
+            style.fill = acmacs::color::Modifier{acmacs::color::adjust_brightness{val.to<double>()}};
         else if (key == "outline") {
             if (const std::string_view val_s{val.to<std::string_view>()}; val_s == "passage")
                 style.outline = Color(passage_color);
@@ -52,9 +52,9 @@ acmacs::PointStyle point_style_from_json(const rjson::value& aSource, Color pass
                 style.outline = Color(val_s);
         }
         else if (key == "outline_saturation")
-            style.outline = Color(Color::type::adjust_saturation, val.to<double>());
+            style.outline = acmacs::color::Modifier{acmacs::color::adjust_saturation{val.to<double>()}};
         else if (key == "outline_brightness")
-            style.outline = Color(Color::type::adjust_brightness, val.to<double>());
+            style.outline = acmacs::color::Modifier{acmacs::color::adjust_brightness{val.to<double>()}};
         else if (key == "show")
             style.shown = val.to<bool>();
         else if (key == "hide")

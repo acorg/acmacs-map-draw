@@ -5,6 +5,7 @@
 #include "acmacs-base/read-file.hh"
 #include "acmacs-base/filesystem.hh"
 #include "acmacs-base/quicklook.hh"
+#include "acmacs-base/color-distinct.hh"
 #include "seqdb-3/compare.hh"
 #include "acmacs-map-draw/mod-amino-acids.hh"
 #include "acmacs-map-draw/draw.hh"
@@ -157,7 +158,7 @@ Color ModAminoAcids::fill_color_default(size_t aIndex, std::string aAA)
     }
     if (mColors.empty()) {
         const auto ct = rjson::get_or(args(), "color_set", "ana");
-        mColors = Color::distinct(ct == "google" ? Color::distinct_t::GoogleMaps : Color::distinct_t::Ana);
+        mColors = acmacs::color::distinct(ct == "google" ? acmacs::color::distinct_t::GoogleMaps : acmacs::color::distinct_t::Ana);
     }
     const auto index = aIndex - mIndexDiff;
     if (index < mColors.size())

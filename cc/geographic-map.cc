@@ -184,7 +184,7 @@ ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen
             });
         }
         if (rjson::get_or(settings_, "report", false))
-            fmt::print(stderr, "DEBUG: ColoringByAminoAcid {}: {} <-- {} {}\n", aAntigen.full_name(), tag, aa_report, result.fill.to_string());
+            fmt::print(stderr, "DEBUG: ColoringByAminoAcid {}: {} <-- {} {}\n", aAntigen.full_name(), tag, aa_report, result.fill);
     }
     catch (std::exception& err) {
         fmt::print(stderr, "ERROR: ColoringByAminoAcid {}: {}\n", aAntigen.full_name(), err);
@@ -210,7 +210,7 @@ void GeographicMapWithPointsFromHidb::prepare(acmacs::surface::Surface& aSurface
             const double center_lat = location.latitude(), center_long = location.longitude();
             auto iter = location_color.second.iterator();
             auto [coloring_data, priority] = *iter;
-            add_point(priority, center_lat, center_long, coloring_data.fill, mPointSize, coloring_data.outline, coloring_data.outline_width);
+            add_point(priority, center_lat, center_long, acmacs::color::get(coloring_data.fill), mPointSize, acmacs::color::get(coloring_data.outline), coloring_data.outline_width);
             ++iter;
             for (size_t circle_no = 1; iter; ++circle_no) {
                 const double distance = point_scaled * mDensity * circle_no;
@@ -219,7 +219,7 @@ void GeographicMapWithPointsFromHidb::prepare(acmacs::surface::Surface& aSurface
                 const double step = 2.0 * M_PI / points_on_circle;
                 for (auto index: acmacs::range(0UL, points_on_circle)) {
                     std::tie(coloring_data, priority) = *iter;
-                    add_point(priority, center_lat + distance * std::cos(index * step), center_long + distance * std::sin(index * step), coloring_data.fill, mPointSize, coloring_data.outline, coloring_data.outline_width);
+                    add_point(priority, center_lat + distance * std::cos(index * step), center_long + distance * std::sin(index * step), acmacs::color::get(coloring_data.fill), mPointSize, acmacs::color::get(coloring_data.outline), coloring_data.outline_width);
                     ++iter;
                 }
             }
@@ -246,7 +246,7 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const Geog
     acmacs::Counter<std::string> tag_counter;
     for (auto antigen: antigens) {
         auto [tag, coloring_data] = aColorOverride.color(*antigen);
-        if (coloring_data.fill.empty())
+        if (acmacs::color::is_no_change(coloring_data.fill))
             std::tie(tag, coloring_data) = aColoring.color(*antigen);
         tag_counter.count(tag);
         try {
