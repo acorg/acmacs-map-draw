@@ -894,7 +894,7 @@ export class ColoringModified extends ColoringBase
 const sCladeColors = {
     // H1
     "6B1":      "#0000ff",
-    "6B1.A":    "#0000a0"
+    "6B1.A":    "#0000a0",
     "6B2":      "#ff0000",
 
     "183P":     "#742f32",      // 183P unlikely to be marked, just in case, same as 183P-4, P4 is old and has few strains
