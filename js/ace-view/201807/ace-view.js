@@ -893,6 +893,7 @@ export class ColoringModified extends ColoringBase
 
 const sCladeColors = {
     // H1
+    "6B":       "#00ff00",
     "6B1":      "#0000ff",
     "6B1.A":    "#0000a0",
     "6B2":      "#ff0000",
@@ -946,6 +947,23 @@ const sCladeColors = {
 // if antigen is in multiple clades, choose one with the highest rank
 // default rank is a clade name length
 const sCladeRank = {
+    // H1
+    "6B":       4,
+    "6B1":      5,
+    "6B1.A":    6,
+    "6B2":      7,
+
+    "183P":     8,
+    "183P-1":   9,
+    "183P-2":   10,
+    "183P-3/6": 11,
+    "183P-4":   12,
+    "183P-5":   13,
+    "183P-5A":  14,
+    "183P-5B":  15,
+    "183P-7":   16,
+
+    // H3
     "3C.3": 5,
     "3C.3A": 6,
     "3A": 6,
