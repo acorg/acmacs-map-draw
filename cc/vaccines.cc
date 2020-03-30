@@ -46,7 +46,7 @@ std::string Vaccines::report(const hidb::Vaccines::ReportConfig& config) const
 {
     std::string result;
     for (const auto& entry: mEntries) {
-        if (*entry.style.shown) {
+        if (entry.style.shown) {
             const auto& vacc = mVaccinesOfChart[entry.vaccines_of_chart_index];
             const std::string s = vacc.report(entry.passage_type, config, entry.antigen_no);
             if (!s.empty())
@@ -63,7 +63,7 @@ std::vector<size_t> Vaccines::indices() const
 {
     std::vector<size_t> ind;
     for (const auto& entry: mEntries) {
-        if (*entry.style.shown) {
+        if (entry.style.shown) {
             if (const auto* vacc = mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, entry.antigen_no); vacc)
                 ind.push_back(vacc->chart_antigen_index);
         }
@@ -109,7 +109,7 @@ std::vector<size_t> Vaccines::indices(const VaccineMatchData& aMatchData) const
 void Vaccines::plot(ChartDraw& aChartDraw) const
 {
     for (const auto& entry: mEntries) {
-        if (*entry.style.shown) {
+        if (entry.style.shown) {
             if (const auto* vacc = mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, entry.antigen_no); vacc)
                 aChartDraw.modify(vacc->chart_antigen_index, entry.style, PointDrawingOrder::Raise);
         }

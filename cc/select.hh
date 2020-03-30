@@ -91,7 +91,7 @@ class SelectAntigensSera
     {
         const auto& all_styles = aChartSelectInterface.plot_spec().all_styles();
         const auto other_outline = [&all_styles,outline,aIndexBase](auto index) -> bool {
-            return *all_styles[index + aIndexBase].outline != outline;
+            return all_styles[index + aIndexBase].outline != outline;
         };
         indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), other_outline), indexes.end());
     }
@@ -100,7 +100,7 @@ class SelectAntigensSera
     {
         const auto& all_styles = aChartSelectInterface.plot_spec().all_styles();
         const auto other_outline_width = [&all_styles,outline_width,aIndexBase](auto index) -> bool {
-            return *all_styles[index + aIndexBase].outline_width != outline_width;
+            return all_styles[index + aIndexBase].outline_width != outline_width;
         };
         indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), other_outline_width), indexes.end());
     }

@@ -1,3 +1,4 @@
+#include "acmacs-base/debug.hh"
 #include "acmacs-base/rjson.hh"
 #include "acmacs-draw/surface.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
@@ -7,22 +8,22 @@
 void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aStyle, const acmacs::PointCoordinates& aCoord)
 {
       // obsolete
-    if (*aStyle.shown && aCoord.exists()) {
-        switch (*aStyle.shape) {
+    if (aStyle.shown && aCoord.exists()) {
+        switch (aStyle.shape) {
           case acmacs::PointShape::Circle:
-              aSurface.circle_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, acmacs::color::get(*aStyle.outline), *aStyle.outline_width, acmacs::surface::Dash::NoDash, acmacs::color::get(*aStyle.fill));
+              aSurface.circle_filled(aCoord, Pixels{aStyle.size}, aStyle.aspect, aStyle.rotation, acmacs::color::get(aStyle.outline), aStyle.outline_width, acmacs::surface::Dash::NoDash, acmacs::color::get(aStyle.fill));
               break;
           case acmacs::PointShape::Egg:
-              aSurface.egg_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, acmacs::color::get(*aStyle.outline), *aStyle.outline_width, acmacs::surface::Dash::NoDash, acmacs::color::get(*aStyle.fill));
+              aSurface.egg_filled(aCoord, Pixels{aStyle.size}, aStyle.aspect, aStyle.rotation, acmacs::color::get(aStyle.outline), aStyle.outline_width, acmacs::surface::Dash::NoDash, acmacs::color::get(aStyle.fill));
               break;
           case acmacs::PointShape::UglyEgg:
-              aSurface.ugly_egg_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, acmacs::color::get(*aStyle.outline), *aStyle.outline_width, acmacs::surface::Dash::NoDash, acmacs::color::get(*aStyle.fill));
+              aSurface.ugly_egg_filled(aCoord, Pixels{aStyle.size}, aStyle.aspect, aStyle.rotation, acmacs::color::get(aStyle.outline), aStyle.outline_width, acmacs::surface::Dash::NoDash, acmacs::color::get(aStyle.fill));
               break;
           case acmacs::PointShape::Box:
-              aSurface.square_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, acmacs::color::get(*aStyle.outline), *aStyle.outline_width, acmacs::color::get(*aStyle.fill));
+              aSurface.square_filled(aCoord, Pixels{aStyle.size}, aStyle.aspect, aStyle.rotation, acmacs::color::get(aStyle.outline), aStyle.outline_width, acmacs::color::get(aStyle.fill));
               break;
           case acmacs::PointShape::Triangle:
-              aSurface.triangle_filled(aCoord, Pixels{*aStyle.size}, *aStyle.aspect, *aStyle.rotation, acmacs::color::get(*aStyle.outline), *aStyle.outline_width, acmacs::color::get(*aStyle.fill));
+              aSurface.triangle_filled(aCoord, Pixels{aStyle.size}, aStyle.aspect, aStyle.rotation, acmacs::color::get(aStyle.outline), aStyle.outline_width, acmacs::color::get(aStyle.fill));
               break;
         }
     }
@@ -41,20 +42,28 @@ acmacs::PointStyle point_style_from_json(const rjson::value& aSource, Color pass
             else
                 style.fill = Color(val_s);
         }
-        else if (key == "fill_saturation")
-            style.fill = acmacs::color::Modifier{acmacs::color::adjust_saturation{val.to<double>()}};
-        else if (key == "fill_brightness")
-            style.fill = acmacs::color::Modifier{acmacs::color::adjust_brightness{val.to<double>()}};
+        else if (key == "fill_saturation") {
+            AD_WARNING("\"fill_saturation\" not implemented");
+            // style.fill = acmacs::color::Modifier{acmacs::color::adjust_saturation{val.to<double>()}};
+        }
+        else if (key == "fill_brightness") {
+            AD_WARNING("\"fill_brightness not implemented");
+            // style.fill = acmacs::color::Modifier{acmacs::color::adjust_brightness{val.to<double>()}};
+        }
         else if (key == "outline") {
             if (const std::string_view val_s{val.to<std::string_view>()}; val_s == "passage")
                 style.outline = Color(passage_color);
             else
                 style.outline = Color(val_s);
         }
-        else if (key == "outline_saturation")
-            style.outline = acmacs::color::Modifier{acmacs::color::adjust_saturation{val.to<double>()}};
-        else if (key == "outline_brightness")
-            style.outline = acmacs::color::Modifier{acmacs::color::adjust_brightness{val.to<double>()}};
+        else if (key == "outline_saturation") {
+            AD_WARNING("\"outline_saturation\" not implemented");
+            // style.outline = acmacs::color::Modifier{acmacs::color::adjust_saturation{val.to<double>()}};
+        }
+        else if (key == "outline_brightness") {
+            AD_WARNING("\"outline_brightness\" not implemented");
+            // style.outline = acmacs::color::Modifier{acmacs::color::adjust_brightness{val.to<double>()}};
+        }
         else if (key == "show")
             style.shown = val.to<bool>();
         else if (key == "hide")

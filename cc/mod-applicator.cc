@@ -134,7 +134,7 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
             auto& legend = aChartDraw.legend_point_label();
             if (const auto& count = aLegendData["count"]; !count.is_null() && count.to<bool>())
                 aLabel += " (" + std::to_string(aIndices->size()) + ")";
-            legend.add_line(acmacs::color::get(*aStyle.outline), acmacs::color::get(*aStyle.fill), aLabel);
+            legend.add_line(acmacs::color::get(aStyle.outline), acmacs::color::get(aStyle.fill), aLabel);
         }
     }
 

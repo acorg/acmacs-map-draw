@@ -29,7 +29,7 @@ class VaccineMatcherBase
     template <typename F> void for_each_with_vacc(F f, bool only_shown = true)
         {
             for_each([&](auto& entry) {
-                    if (!only_shown || *entry.style.shown) {
+                    if (!only_shown || entry.style.shown) {
                         const auto* vacc_entry = mVaccines.mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, entry.antigen_no);
                         if (vacc_entry)
                             f(*vacc_entry);
