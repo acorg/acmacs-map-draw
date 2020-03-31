@@ -100,7 +100,7 @@ int main(int argc, char* const argv[])
             for (const auto& sf : *opt.settings_files)
                 fmt::print("    {}\n", sf);
 
-            fgets(buffer.data(), buffer.size(), pipe.get());
+            (void)fgets(buffer.data(), buffer.size(), pipe.get());
             acmacs::run_and_detach({"tink"}, 0);
         }
     }
