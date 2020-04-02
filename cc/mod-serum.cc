@@ -20,7 +20,7 @@ void ModSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
             add_labels(aChartDraw, indices, aChartDraw.number_of_antigens(), label);
     }
     else {
-        throw unrecognized_mod{"no \"select\" in \"sera\" mod: " + rjson::to_string(args()) };
+        throw unrecognized_mod{fmt::format("no \"select\" in \"sera\" mod: {}", args())};
     }
 
 } // ModSera::apply
@@ -53,7 +53,7 @@ size_t ModSerumHomologous::select_serum(ChartDraw& aChartDraw, bool aVerbose) co
 {
     const auto sera = SelectSera(acmacs::verbose_from(aVerbose)).select(aChartDraw, args()["serum"]);
     if (sera->size() != 1)
-        throw unrecognized_mod{"\"serum\" does not select single serum, mod: " + rjson::to_string(args())};
+        throw unrecognized_mod{fmt::format("\"serum\" does not select single serum, mod: {}", args())};
     return sera->front();
 }
 
@@ -89,7 +89,7 @@ acmacs::chart::PointIndexList ModSerumHomologous::select_antigens(ChartDraw& aCh
     if (const auto& antigen_select = args()["antigen"]; !antigen_select.is_null()) {
         const auto antigens = SelectAntigens(acmacs::verbose_from(aVerbose)).select(aChartDraw, antigen_select);
         if (antigens->empty())
-            throw unrecognized_mod{"\"antigen\" does not select an antigen, mod: " + rjson::to_string(args())};
+            throw unrecognized_mod{fmt::format("\"antigen\" does not select an antigen, mod: {}", args())};
         return antigens;
     }
     else {
@@ -105,7 +105,7 @@ acmacs::chart::PointIndexList ModSerumHomologous::select_homologous_antigens(Cha
     const auto antigen_indexes = aChartDraw.chart().serum(aSerumIndex)->homologous_antigens();
     if (antigen_indexes->empty()) {
         std::cerr << "WARNING: no homologous antigens for serum " << aSerumIndex << '\n';
-        throw unrecognized_mod{"no homologous antigens for serum, mod: " + rjson::to_string(args())};
+        throw unrecognized_mod{fmt::format("no homologous antigens for serum, mod: {}", args())};
     }
     if (aVerbose) {
         auto antigens = aChartDraw.chart().antigens();

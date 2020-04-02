@@ -60,7 +60,7 @@ int main(int argc, char* const argv[])
             apply_mods(chart_draw, settings["apply"], settings);
         }
         catch (std::exception& err) {
-            // throw std::runtime_error{"Cannot apply " + rjson::to_string(settings["apply"]) + ": " + err.what() + "\n settings:\n" + rjson::pretty(settings, rjson::emacs_indent::no) + '\n'};
+            // throw std::runtime_error{fmt::format("Cannot apply {}: {}\n settings:\n{}\n", settings["apply"], err, rjson::pretty(settings, rjson::emacs_indent::no))};
             throw std::runtime_error{fmt::format("{}", err)};
         }
 

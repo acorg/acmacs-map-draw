@@ -25,8 +25,6 @@ SelectAntigensSera::~SelectAntigensSera()
 
 acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector)
 {
-    // fmt::print(stderr, "DEBUG: SelectAntigensSera::select\n");
-    // fmt::print(stderr, "DEBUG: SelectAntigensSera::select {}\n", rjson::to_string(aSelector));
     try {
         return std::visit(
             [this, &aChartSelectInterface](const auto& val) -> acmacs::chart::Indexes {
@@ -41,7 +39,7 @@ acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aC
             aSelector.val_());
     }
     catch (std::exception& err) {
-        throw std::runtime_error{fmt::format("Unsupported selector value: {}: {}", rjson::to_string(aSelector), err)};
+        throw std::runtime_error{fmt::format("Unsupported selector value: {}: {}", aSelector, err)};
     }
 
 } // SelectAntigensSera::select
@@ -294,7 +292,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
     });
     if (verbose()) {
-        fmt::print("INFO: antigens selected: {:4d} {}\n", indexes->size(), rjson::to_string(aSelector));
+        fmt::print("INFO: antigens selected: {:4d} {}\n", indexes->size(), aSelector);
         if (!indexes->empty())
             report_antigens(std::begin(indexes), std::end(indexes), aChartSelectInterface, report_names_threshold());
     }
@@ -401,7 +399,7 @@ void SelectAntigens::filter_outlier(const ChartSelectInterface& aChartSelectInte
         return {sum, count};
     };
     auto [centroid, count] = std::accumulate(indexes.begin(), indexes.end(), sum_count_t{{0.0, 0.0}, 0}, sum_count_not_empty);
-    centroid /= count;
+    centroid /= static_cast<double>(count);
     // std::cerr << "centroid new: " << centroid << '\n';
 
     using point_dist_t = std::pair<size_t, double>; // point number (from indexes) and its distance to centroid

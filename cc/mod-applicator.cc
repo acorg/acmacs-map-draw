@@ -154,7 +154,7 @@ void apply_mods(ChartDraw& aChartDraw, const rjson::value& aMods, const rjson::v
             // if (verbose == acmacs::verbose::yes)
             //     fmt::print(stderr, "DEBUG: apply mod: {}\n", mod_desc);
             for (const auto& mod: factory(aChartDraw, mod_desc, mods_data_mod, {}, verbose)) {
-                // Timeit ti{"INFO: Applying " + rjson::to_string(mod_desc) + ": "};
+                // Timeit ti{"INFO: Applying " + rjson::format(mod_desc) + ": "};
                 mod->apply(aChartDraw, aModData);
             }
         }
@@ -190,7 +190,7 @@ void ModAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
             add_legend(aChartDraw, indices, styl, legend);
     }
     else {
-        throw unrecognized_mod{"no \"select\" in \"antigens\" mod: " + rjson::to_string(args())};
+        throw unrecognized_mod{"no \"select\" in \"antigens\" mod: " + rjson::format(args())};
     }
 
 } // ModAntigens::apply
@@ -206,17 +206,17 @@ acmacs::PointCoordinates ModMoveBase::get_move_to(ChartDraw& aChartDraw, bool aV
     else if (const auto& to_antigen = args()["to_antigen"]; !to_antigen.is_null()) {
         const auto antigens = SelectAntigens(acmacs::verbose_from(aVerbose)).select(aChartDraw, to_antigen);
         if (antigens->size() != 1)
-            throw unrecognized_mod{"\"to_antigen\" does not select single antigen, mod: " + rjson::to_string(args())};
+            throw unrecognized_mod{"\"to_antigen\" does not select single antigen, mod: " + rjson::format(args())};
         move_to = aChartDraw.layout()->at(antigens->front());
     }
     else if (const auto& to_serum = args()["to_serum"]; !to_serum.is_null()) {
         const auto sera = SelectSera(acmacs::verbose_from(aVerbose)).select(aChartDraw, to_serum);
         if (sera->size() != 1)
-            throw unrecognized_mod{"\"to_serum\" does not select single serum, mod: " + rjson::to_string(args())};
+            throw unrecognized_mod{"\"to_serum\" does not select single serum, mod: " + rjson::format(args())};
         move_to = aChartDraw.layout()->at(sera->front() + aChartDraw.number_of_antigens());
     }
     else
-        throw unrecognized_mod{"neither of \"to\", \"to_antigen\", \"to__serum\" provided in mod: " + rjson::to_string(args())};
+        throw unrecognized_mod{"neither of \"to\", \"to_antigen\", \"to__serum\" provided in mod: " + rjson::format(args())};
     return move_to;
 
 } // ModMoveBase::get_move_to
@@ -266,7 +266,7 @@ void ModMoveAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDat
         }
     }
     else {
-        throw unrecognized_mod{"no \"select\" in \"move_antigens\" mod: " + rjson::to_string(args())};
+        throw unrecognized_mod{"no \"select\" in \"move_antigens\" mod: " + rjson::format(args())};
     }
 
 } // ModMoveAntigens::apply
@@ -301,7 +301,7 @@ void ModMoveAntigensStress::apply(ChartDraw& aChartDraw, const rjson::value& /*a
         }
     }
     else {
-        throw unrecognized_mod{"no \"select\" in \"move_antigens\" mod: " + rjson::to_string(args())};
+        throw unrecognized_mod{"no \"select\" in \"move_antigens\" mod: " + rjson::format(args())};
     }
 
 } // ModMoveAntigensStress::apply
@@ -342,7 +342,7 @@ void ModMoveSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
         }
     }
     else {
-        throw unrecognized_mod{"no \"select\" in \"move_sera\" mod: " + rjson::to_string(args())};
+        throw unrecognized_mod{"no \"select\" in \"move_sera\" mod: " + rjson::format(args())};
     }
 
 } // ModMoveSera::apply
@@ -364,7 +364,7 @@ class ModRotate : public Mod
             aChartDraw.rotate(radians_v.to<double>());
         }
         else {
-            throw unrecognized_mod{"mod: " + rjson::to_string(args())};
+            throw unrecognized_mod{"mod: " + rjson::format(args())};
         }
     }
 
@@ -386,10 +386,10 @@ class ModFlip : public Mod
             else if (direction == "ns")
                 aChartDraw.flip(1, 0);
             else
-                throw unrecognized_mod{"mod: " + rjson::to_string(args())};
+                throw unrecognized_mod{"mod: " + rjson::format(args())};
         }
         else {
-            throw unrecognized_mod{"mod: " + rjson::to_string(args())};
+            throw unrecognized_mod{"mod: " + rjson::format(args())};
         }
     }
 
@@ -406,21 +406,21 @@ class ModViewport : public Mod
     {
         if (const auto& abs = args()["abs"]; !abs.is_null()) {
             if (abs.size() != 3)
-                throw unrecognized_mod{"\"abs\" must be array of 3 floats. mod: " + rjson::to_string(args())};
+                throw unrecognized_mod{"\"abs\" must be array of 3 floats. mod: " + rjson::format(args())};
             aChartDraw.viewport({abs[0].to<double>(), abs[1].to<double>()}, abs[2].to<double>());
         }
         else if (const auto& rel = args()["rel"]; !rel.is_null()) {
             if (rel.size() != 3)
-                throw unrecognized_mod{"\"rel\" must be array of 3 floats. mod: " + rjson::to_string(args())};
+                throw unrecognized_mod{"\"rel\" must be array of 3 floats. mod: " + rjson::format(args())};
             aChartDraw.calculate_viewport(false);
             const auto& orig_viewport = aChartDraw.viewport();
             const auto new_size = rel[2].to<double>() + orig_viewport.size.width;
             if (new_size < 1)
-                throw unrecognized_mod{"invalid size difference in \"rel\". mod: " + rjson::to_string(args())};
+                throw unrecognized_mod{"invalid size difference in \"rel\". mod: " + rjson::format(args())};
             aChartDraw.viewport(orig_viewport.origin + acmacs::PointCoordinates{rel[0].to<double>(), rel[1].to<double>()}, new_size);
         }
         else {
-            throw unrecognized_mod{"mod: " + rjson::to_string(args())};
+            throw unrecognized_mod{"mod: " + rjson::format(args())};
         }
     }
 
@@ -438,7 +438,7 @@ class ModBackground : public Mod
         if (const auto& color = args()["color"]; !color.is_null())
             aChartDraw.background_color(Color(color.to<std::string_view>()));
         else
-            throw unrecognized_mod{"mod: " + rjson::to_string(args())};
+            throw unrecognized_mod{"mod: " + rjson::format(args())};
     }
 
 }; // class ModBackground
@@ -629,7 +629,7 @@ class ModLine : public Mod
                result.push_back(layout->at(index + aChartDraw.number_of_antigens()));
        }
        else
-           throw unrecognized_mod{"neither \"" + aPrefix + "\" nor \"" + aPrefix + "_antigen\" nor \"" + aPrefix + "_serum\" provided in mod: " + rjson::to_string(args())};
+           throw unrecognized_mod{"neither \"" + aPrefix + "\" nor \"" + aPrefix + "_antigen\" nor \"" + aPrefix + "_serum\" provided in mod: " + rjson::format(args())};
        return result;
    }
 
@@ -694,7 +694,7 @@ class ModRectangle : public Mod
                     .close(rjson::get_or(args(), "filled", false) ? color : TRANSPARENT);
         }
         else
-            throw unrecognized_mod{"mod: " + rjson::to_string(args())};
+            throw unrecognized_mod{"mod: " + rjson::format(args())};
     }
 
 }; // class ModRectangle
@@ -717,7 +717,7 @@ class ModCircle : public Mod
             circle.rotation(Rotation{rjson::get_or(args(), "rotation", 0.0)});
         }
         else
-            throw unrecognized_mod{"mod: " + rjson::to_string(args())};
+            throw unrecognized_mod{"mod: " + rjson::format(args())};
     }
 
 }; // class ModCircle

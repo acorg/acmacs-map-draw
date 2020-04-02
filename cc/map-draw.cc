@@ -126,8 +126,8 @@ int draw(const Options& opt)
         apply_mods(chart_draw, settings["apply"], settings, acmacs::verbose_from(opt.verbose));
     }
     catch (std::exception& err) {
-        // throw std::runtime_error{"Cannot apply " + rjson::to_string(settings["apply"]) + ": " + err.what() + "\n settings:\n" + rjson::pretty(settings, rjson::emacs_indent::no) + '\n'};
-        const auto msg = rjson::to_string(settings["apply"]).substr(0, 200);
+        // throw std::runtime_error{fmt::format("Cannot apply {}: {}\n settings:\n{}\n", settings["apply"], err, rjson::pretty(settings, rjson::emacs_indent::no))};
+        const auto msg = rjson::format(settings["apply"]).substr(0, 200);
         const auto add_double_quotes = (std::count(std::begin(msg), std::end(msg), '"') % 2) == 1 ? "\"" : "";
         throw std::runtime_error{fmt::format(": {}   cannot apply: {} ... {}", err.what(), msg, add_double_quotes)};
     }

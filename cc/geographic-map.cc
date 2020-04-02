@@ -213,13 +213,13 @@ void GeographicMapWithPointsFromHidb::prepare(acmacs::surface::Surface& aSurface
             add_point(priority, center_lat, center_long, acmacs::color::get(coloring_data.fill), mPointSize, acmacs::color::get(coloring_data.outline), coloring_data.outline_width);
             ++iter;
             for (size_t circle_no = 1; iter; ++circle_no) {
-                const double distance = point_scaled * mDensity * circle_no;
-                const size_t circle_capacity = static_cast<size_t>(M_PI * 2.0 * distance * circle_no / (point_scaled * mDensity));
+                const double distance = point_scaled * mDensity * static_cast<double>(circle_no);
+                const size_t circle_capacity = static_cast<size_t>(M_PI * 2.0 * distance * static_cast<double>(circle_no) / (point_scaled * mDensity));
                 const size_t points_on_circle = std::min(circle_capacity, iter.left());
-                const double step = 2.0 * M_PI / points_on_circle;
+                const double step = 2.0 * M_PI / static_cast<double>(points_on_circle);
                 for (auto index: acmacs::range(0UL, points_on_circle)) {
                     std::tie(coloring_data, priority) = *iter;
-                    add_point(priority, center_lat + distance * std::cos(index * step), center_long + distance * std::sin(index * step), acmacs::color::get(coloring_data.fill), mPointSize, acmacs::color::get(coloring_data.outline), coloring_data.outline_width);
+                    add_point(priority, center_lat + distance * std::cos(static_cast<double>(index) * step), center_long + distance * std::sin(static_cast<double>(index) * step), acmacs::color::get(coloring_data.fill), mPointSize, acmacs::color::get(coloring_data.outline), coloring_data.outline_width);
                     ++iter;
                 }
             }

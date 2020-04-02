@@ -26,7 +26,7 @@ void ModAminoAcids::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*
     }
     else {
         std::cerr << "No pos no groups" << '\n';
-        throw unrecognized_mod{"expected either \"pos\":[] or \"groups\":[] mod: " + rjson::to_string(args())};
+        throw unrecognized_mod{fmt::format("expected either \"pos\":[] or \"groups\":[] mod: {}", args())};
     }
 
 } // ModAminoAcids::apply
@@ -75,15 +75,15 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool
                 std::vector<element_t> points(indexes.size(), {acmacs::PointCoordinates(layout->number_of_dimensions()), 0.0, 0.0});
                 std::transform(indexes.begin(), indexes.end(), points.begin(), [layout](auto index) -> element_t { return {layout->at(index), -1, -1}; });
                 acmacs::PointCoordinates centroid = std::accumulate(points.begin(), points.end(), acmacs::PointCoordinates(layout->number_of_dimensions(), 0.0), sum_vectors);
-                centroid /= points.size();
+                centroid /= static_cast<double>(points.size());
                 std::for_each(points.begin(), points.end(), [&centroid](auto& point) { std::get<1>(point) = acmacs::distance(std::get<0>(point), centroid); });
                 std::sort(points.begin(), points.end(), [](const auto& p1, const auto& p2) { return std::get<1>(p1) < std::get<1>(p2); });
                 const auto radius = std::get<1>(points.back());
                 // std::cerr << "DEBUG: min dist:" << std::get<1>(points.front()) << " max:" << radius << '\n';
 
-                const auto num_points_90 = static_cast<long>(points.size() * 0.9);
+                const auto num_points_90 = static_cast<long>(static_cast<double>(points.size()) * 0.9);
                 acmacs::PointCoordinates centroid_90 = std::accumulate(points.begin(), points.begin() + num_points_90, acmacs::PointCoordinates(layout->number_of_dimensions(), 0.0), sum_vectors);
-                centroid_90 /= num_points_90;
+                centroid_90 /= static_cast<double>(num_points_90);
                 std::for_each(points.begin(), points.begin() + num_points_90, [&centroid_90](auto& point) { std::get<2>(point) = acmacs::distance(std::get<0>(point), centroid_90); });
                 std::sort(points.begin(), points.begin() + num_points_90, [](const auto& p1, const auto& p2) { return std::get<2>(p1) < std::get<2>(p2); });
                 const auto radius_90 = std::get<2>(*(points.begin() + num_points_90 - 1));
@@ -165,7 +165,7 @@ Color ModAminoAcids::fill_color_default(size_t aIndex, std::string aAA)
         return mColors[index];
     else
         return mColors.back();
-    // throw unrecognized_mod{fmt::format("too few distinct colors in mod ({}): {}", mColors.size(), rjson::to_string(args()))};
+    // throw unrecognized_mod{fmt::format("too few distinct colors in mod ({}): {}", mColors.size(), args())};
 
 } // ModAminoAcids::fill_color_default
 
@@ -177,11 +177,11 @@ void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& aModD
     if (const auto& select1 = args()["select1"]; !select1.is_null())
         indexes1 = SelectAntigens(acmacs::verbose::no, 10).select(aChartDraw, select1);
     else
-        throw unrecognized_mod{fmt::format("no select1 in mod: {}", rjson::to_string(args()))};
+        throw unrecognized_mod{fmt::format("no select1 in mod: {}", args())};
     if (const auto& select2 = args()["select2"]; !select2.is_null())
         indexes2 = SelectAntigens(acmacs::verbose::no, 10).select(aChartDraw, select2);
     else
-        throw unrecognized_mod{fmt::format("no select2 in mod: {}", rjson::to_string(args()))};
+        throw unrecognized_mod{fmt::format("no select2 in mod: {}", args())};
 
     const auto& matched = aChartDraw.match_seqdb();
     auto set1 = matched.filter_by_indexes(indexes1);

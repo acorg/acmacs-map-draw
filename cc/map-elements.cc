@@ -202,7 +202,7 @@ void map_elements::LegendPointLabel::draw(acmacs::surface::Surface& aSurface, co
         const double scaled_point_size = aSurface.convert(mPointSize).value();
 
         const acmacs::Size legend_surface_size{width + padding.width * 3 + scaled_point_size,
-                                       height * (mLines.size() - 1) * mInterline + height + padding.height * 2};
+                                       height * static_cast<double>(mLines.size() - 1) * mInterline + height + padding.height * 2};
         const acmacs::PointCoordinates legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
 
         acmacs::surface::Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
@@ -265,7 +265,7 @@ void map_elements::Title::draw(acmacs::surface::Surface& aSurface) const
             const double padding = aSurface.convert(mPadding).value();
             if (std::isnan(padding))
                 throw std::runtime_error("padding is NaN");
-            const acmacs::Size legend_surface_size{width + padding * 2, height * (mLines.size() - 1) * mInterline + height + padding * 2};
+            const acmacs::Size legend_surface_size{width + padding * 2, height * static_cast<double>(mLines.size() - 1) * mInterline + height + padding * 2};
             const acmacs::PointCoordinates legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
 
             acmacs::surface::Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);

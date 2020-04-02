@@ -24,7 +24,7 @@ void ModBlobs::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
         auto& path = aChartDraw.path().color(Color(rjson::get_or(args(), "color", "pink"))).line_width(rjson::get_or(args(), "line_width", 1.0));
 
         for (size_t step = 0; step < data.size(); ++step) {
-            acmacs::PointCoordinates vertix{coords.x() + std::cos(blobs.angle_step() * step) * data[step], coords.y() + std::sin(blobs.angle_step() * step) * data[step]};
+            acmacs::PointCoordinates vertix{coords.x() + std::cos(blobs.angle_step() * static_cast<double>(step)) * data[step], coords.y() + std::sin(blobs.angle_step() * static_cast<double>(step)) * data[step]};
             // aChartDraw.line(transformation.transform(coords), transformation.transform(vertix)) .color(RED).line_width(2);
             path.add(transformation.transform(vertix));
         }

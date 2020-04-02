@@ -197,7 +197,7 @@ void make_ace(request_rec* r)
         //rjson::v1 if constexpr (std::is_same_v<decltype(ace), rjson::v2::value>) {
             if (!group_sets.is_null())
                 ace["c"]["group_sets"] = group_sets;
-            return rjson::to_string(ace);
+            return rjson::format(ace);
         //rjson::v1 }
         //rjson::v1 else {
         //rjson::v1     if (group_sets != rjson::v1::null{})
