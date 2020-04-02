@@ -32,6 +32,10 @@ cd "$TESTDIR"
 
 if [[ -f ${ACMACSD_ROOT}/data/hidb5.h3.hidb5b ]]; then
     OUTPUT="${TDIR}/2004nd-003.$(date +%Y%m%d-%H%M).pdf"
+    echo
+    echo "####################################################################################################"
+    echo ../dist/map-draw -s 2004nd-003.json 2004nd-003.ace "${OUTPUT}"
+    echo "####################################################################################################"
     ../dist/map-draw -s 2004nd-003.json 2004nd-003.ace "${OUTPUT}"
     # --open
 fi
