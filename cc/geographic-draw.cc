@@ -3,7 +3,8 @@
 #include <string>
 
 #include "acmacs-base/argv.hh"
-#include "acmacs-base/read-file.hh"
+#include "acmacs-base/file-stream.hh"
+#include "acmacs-base/temp-file.hh"
 #include "acmacs-base/quicklook.hh"
 
 #include "geographic-settings.hh"
