@@ -62,7 +62,7 @@ int main(int argc, char* const argv[])
         else
             throw std::runtime_error("not output_pdf provided and no --name-after-mod");
 
-        const auto cmd = fmt::format("fswatch --latency=0.1 '{}'", string::join("' '", *opt.settings_files));
+        const auto cmd = fmt::format("fswatch --latency=0.1 '{}'", acmacs::string::join("' '", *opt.settings_files));
         std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
 
         Timeit ti_chart(fmt::format("DEBUG: chart loading from {}: ", *opt.chart), report_time::yes);
