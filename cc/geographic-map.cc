@@ -92,7 +92,7 @@ static inline std::string location_of_antigen(const hidb::Antigen& antigen)
 ColorOverride::TagColor ColoringByContinent::color(const hidb::Antigen& aAntigen) const
 {
     try {
-        const std::string continent{get_locdb().continent(location_of_antigen(aAntigen))};
+        const std::string continent{acmacs::locationdb::get().continent(location_of_antigen(aAntigen))};
         return {continent, mColors.at(continent)};
     }
     catch (...) {
@@ -206,7 +206,7 @@ void GeographicMapWithPointsFromHidb::prepare(acmacs::surface::Surface& aSurface
     const double point_scaled = aSurface.convert(mPointSize).value();
     for (const auto& location_color: mPointsAtLocation) {
         try {
-            const auto location = get_locdb().find(location_color.first);
+            const auto location = acmacs::locationdb::get().find_or_throw(location_color.first);
             const double center_lat = location.latitude(), center_long = location.longitude();
             auto iter = location_color.second.iterator();
             auto [coloring_data, priority] = *iter;
@@ -224,7 +224,7 @@ void GeographicMapWithPointsFromHidb::prepare(acmacs::surface::Surface& aSurface
                 }
             }
         }
-        catch (LocationNotFound&) {
+        catch (acmacs::locationdb::LocationNotFound&) {
         }
     }
 

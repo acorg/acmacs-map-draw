@@ -16,7 +16,7 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
     auto layout = chart.projection(projection_no)->layout();
     const auto number_of_dimensions = layout->number_of_dimensions();
     const auto& seqdb = acmacs::seqdb::get();
-    const auto& locdb = get_locdb();
+    const auto& locdb = acmacs::locationdb::get();
     const auto entry_seqs = seqdb.match(*antigens, chart.info()->virus_type(acmacs::chart::Info::Compute::Yes)); // entry for each antigen
 
     acmacs::CsvWriter writer;
@@ -45,10 +45,10 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
         try {
             const auto find_for_virus_name = [&locdb](std::string aVirusName) {
                 try {
-                    return locdb.find(::virus_name::location(aVirusName));
+                    return locdb.find_or_throw(::virus_name::location(aVirusName));
                 }
                 catch (std::exception&) {
-                    return locdb.find(::virus_name::location_for_cdc_name(aVirusName));
+                    return locdb.find_or_throw(::virus_name::location_for_cdc_name(aVirusName));
                 }
             };
 
@@ -58,7 +58,7 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
             writer.add_field(std::to_string(location.latitude()));
             writer.add_field(std::to_string(location.longitude()));
         }
-        catch (LocationNotFound& /*err*/) {
+        catch (acmacs::locationdb::LocationNotFound& /*err*/) {
             fmt::print(stderr, "WARNING: LocationNotFound: \"{}\" of \"{}\"\n", virus_name::location(name), name);
         }
         catch (virus_name::Unrecognized& /*err*/) {
