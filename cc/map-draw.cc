@@ -82,7 +82,7 @@ int draw(const Options& opt)
             settings.update(rjson::parse_file(fn, rjson::remove_comments::no));
         }
         catch (std::exception& err) {
-            throw std::runtime_error(string::concat(fn, ':', err.what()));
+            throw std::runtime_error(acmacs::string::concat(fn, ':', err.what()));
         }
         settings_loaded = true;
     }
