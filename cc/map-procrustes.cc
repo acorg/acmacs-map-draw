@@ -42,7 +42,7 @@ int main(int argc, char* const argv[])
     try {
         Options opt(argc, argv);
         ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart1, acmacs::chart::Verify::None, report_time::no)), opt.p1);
-        const std::string secondary_chart((!opt.chart2->empty() && !string::endswith(*opt.chart2, ".pdf"sv)) ? opt.chart2 : opt.chart1);
+        const std::string secondary_chart((!opt.chart2->empty() && !acmacs::string::endswith(*opt.chart2, ".pdf"sv)) ? opt.chart2 : opt.chart1);
 
         rjson::value settings{rjson::object{{"apply", rjson::array{"title"}}}};
         for (const auto& settings_file_name : {"acmacs-map-draw.json"sv}) {
@@ -87,7 +87,7 @@ int main(int argc, char* const argv[])
 
         chart_draw.calculate_viewport();
 
-        const std::string output_file{!opt.chart2->empty() && string::endswith(*opt.chart2, ".pdf"sv) ? *opt.chart2 : *opt.pdf};
+        const std::string output_file{!opt.chart2->empty() && acmacs::string::endswith(*opt.chart2, ".pdf"sv) ? *opt.chart2 : *opt.pdf};
         acmacs::file::temp temp_file(".pdf");
         const std::string output = output_file.empty() ? static_cast<std::string>(temp_file) : output_file;
         chart_draw.draw(output, 800, report_time::yes);
