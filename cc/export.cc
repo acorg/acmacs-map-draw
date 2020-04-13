@@ -16,7 +16,6 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
     auto layout = chart.projection(projection_no)->layout();
     const auto number_of_dimensions = layout->number_of_dimensions();
     const auto& seqdb = acmacs::seqdb::get();
-    const auto& locdb = acmacs::locationdb::get();
     const auto entry_seqs = seqdb.match(*antigens, chart.info()->virus_type(acmacs::chart::Info::Compute::Yes)); // entry for each antigen
 
     acmacs::CsvWriter writer;
@@ -41,28 +40,26 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
     writer.add_field("sequence");
     writer.new_row();
 
-    auto add_location_data = [&writer, &locdb](std::string name) {
+    auto add_location_data = [&writer](std::string name) {
         try {
-            const auto find_for_virus_name = [&locdb](std::string aVirusName) {
-                try {
-                    return locdb.find_or_throw(::virus_name::location(aVirusName));
-                }
-                catch (std::exception&) {
-                    return locdb.find_or_throw(::virus_name::location_for_cdc_name(aVirusName));
-                }
+            const auto find_for_virus_name = [](std::string aVirusName) {
+                if (const auto loc = acmacs::locationdb::get().find(::virus_name::location(aVirusName), acmacs::locationdb::include_continent::yes); loc.has_value())
+                    return loc;
+                else
+                    return acmacs::locationdb::get().find(::virus_name::location_for_cdc_name(aVirusName), acmacs::locationdb::include_continent::yes);
             };
 
-            const auto location = find_for_virus_name(name);
-            writer.add_field(std::string{location.country()});
-            writer.add_field(std::string{locdb.continent_of_country(location.country())});
-            writer.add_field(std::to_string(location.latitude()));
-            writer.add_field(std::to_string(location.longitude()));
-        }
-        catch (acmacs::locationdb::LocationNotFound& /*err*/) {
-            fmt::print(stderr, "WARNING: LocationNotFound: \"{}\" of \"{}\"\n", virus_name::location(name), name);
+            if (const auto location = find_for_virus_name(name); location.has_value()) {
+                writer.add_field(std::string{location->country()});
+                writer.add_field(location->continent);
+                writer.add_field(std::to_string(location->latitude()));
+                writer.add_field(std::to_string(location->longitude()));
+            }
+            else
+                AD_WARNING("LocationNotFound: \"{}\" of \"{}\"", virus_name::location(name), name);
         }
         catch (virus_name::Unrecognized& /*err*/) {
-            fmt::print(stderr, "WARNING: cannot parse name to find location: \"{}\"\n", name);
+            AD_WARNING("cannot parse name to find location: \"{}\"", name);
         }
     };
 
