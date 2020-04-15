@@ -1,6 +1,7 @@
 #include "acmacs-base/acmacsd.hh"
 #include "acmacs-base/fmt.hh"
 #include "acmacs-base/argv.hh"
+#include "acmacs-base/string-compare.hh"
 #include "acmacs-base/filesystem.hh"
 #include "acmacs-base/temp-file.hh"
 #include "acmacs-base/string-split.hh"
