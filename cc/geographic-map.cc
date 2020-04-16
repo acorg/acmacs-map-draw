@@ -2,7 +2,7 @@
 #include "acmacs-base/fmt.hh"
 #include "acmacs-base/counter.hh"
 #include "acmacs-base/string-from-chars.hh"
-#include "acmacs-virus/virus-name.hh"
+#include "acmacs-virus/virus-name-v1.hh"
 #include "acmacs-draw/surface-cairo.hh"
 #include "acmacs-draw/geographic-map.hh"
 #include "seqdb-3/seqdb.hh"

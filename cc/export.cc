@@ -2,7 +2,7 @@
 #include "acmacs-base/csv.hh"
 #include "acmacs-base/read-file.hh"
 #include "acmacs-base/enumerate.hh"
-#include "acmacs-virus/virus-name.hh"
+#include "acmacs-virus/virus-name-v1.hh"
 #include "seqdb-3/seqdb.hh"
 #include "locationdb/locdb.hh"
 #include "acmacs-map-draw/export.hh"
