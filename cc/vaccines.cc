@@ -5,20 +5,26 @@
 
 // ----------------------------------------------------------------------
 
-static inline acmacs::PointStyle& point_style_for(acmacs::PointStyle&& aStyle, hidb::Vaccines::PassageType pt)
+static inline acmacs::PointStyleModified& point_style_for(acmacs::PointStyleModified&& aStyle, hidb::Vaccines::PassageType pt)
 {
     switch (pt) {
       case hidb::Vaccines::Egg:
           aStyle.aspect = AspectEgg;
+          aStyle.modified_aspect = true;
           aStyle.rotation = NoRotation;
+          aStyle.modified_rotation = true;
           break;
       case hidb::Vaccines::Cell:
           aStyle.aspect = AspectNormal;
+          aStyle.modified_aspect = true;
           aStyle.rotation = NoRotation;
+          aStyle.modified_rotation = true;
           break;
       case hidb::Vaccines::Reassortant:
           aStyle.aspect = AspectEgg;
+          aStyle.modified_aspect = true;
           aStyle.rotation = RotationReassortant;
+          aStyle.modified_rotation = true;
           break;
       case hidb::Vaccines::PassageTypeSize:
           break;
@@ -32,7 +38,7 @@ Vaccines::Vaccines(const acmacs::chart::Chart& aChart)
     for (size_t vaccines_of_chart_index = 0; vaccines_of_chart_index < mVaccinesOfChart.size(); ++vaccines_of_chart_index) {
         auto update = [&](hidb::Vaccines::PassageType pt) {
             if (!mVaccinesOfChart[vaccines_of_chart_index].empty(pt)) {
-                mEntries.emplace_back(vaccines_of_chart_index, pt, point_style_for(acmacs::PointStyle(), pt));
+                mEntries.emplace_back(vaccines_of_chart_index, pt, point_style_for(acmacs::PointStyleModified(), pt));
             }
         };
         hidb::Vaccines::for_each_passage_type(update);

@@ -59,25 +59,25 @@ class ChartDraw : public ChartSelectInterface
             }
         }
 
-    void modify(const acmacs::chart::Indexes& aPoints, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    void modify(const acmacs::chart::Indexes& aPoints, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
             plot_spec().modify(aPoints, aStyle);
             modify_drawing_order(aPoints, aPointDrawingOrder);
         }
 
-    void modify(size_t aPointNo, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    void modify(size_t aPointNo, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
             plot_spec().modify(aPointNo, aStyle);
             modify_drawing_order(aPointNo, aPointDrawingOrder);
         }
 
-    void modify_sera(const acmacs::chart::Indexes& aSera, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    void modify_sera(const acmacs::chart::Indexes& aSera, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
             plot_spec().modify_sera(aSera, aStyle);
             modify_sera_drawing_order(aSera, aPointDrawingOrder);
         }
 
-    void modify_serum(size_t aSerumNo, const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    void modify_serum(size_t aSerumNo, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
         {
             plot_spec().modify_serum(aSerumNo, aStyle);
             modify_sera_drawing_order(aSerumNo, aPointDrawingOrder);
@@ -88,7 +88,7 @@ class ChartDraw : public ChartSelectInterface
     void mark_reassortant_antigens();
     void mark_all_grey(Color aColor);
     void scale_points(double aPointScale, double aOulineScale) { plot_spec().scale_all(aPointScale, aOulineScale); }
-    void modify_all_sera(const acmacs::PointStyle& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange) { modify_sera(chart().sera()->all_indexes(), aStyle, aPointDrawingOrder); }
+    void modify_all_sera(const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange) { modify_sera(chart().sera()->all_indexes(), aStyle, aPointDrawingOrder); }
 
     void rotate(double aAngle)
         {

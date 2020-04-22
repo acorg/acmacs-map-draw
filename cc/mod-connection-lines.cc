@@ -65,10 +65,12 @@ void ModColorByNumberOfConnectionLines::apply(ChartDraw& aChartDraw, const rjson
     for (const auto& [ag_no, num_titers] : antigens_titers)
         antigens_per_bin.at(num_titers / bin_size).insert(ag_no);
     for (auto [color_no, antigens] : acmacs::enumerate(antigens_per_bin)) {
-        acmacs::PointStyle style;
+        acmacs::PointStyleModified style;
         // style.outline = BLACK;
         style.fill = colors.at(color_no);
+        style.modified_fill = true;
         style.outline = colors.at(color_no);
+        style.modified_outline = true;
         aChartDraw.modify(antigens, style, PointDrawingOrder::Raise);
         add_legend(aChartDraw, antigens, style, acmacs::string::concat(color_no * bin_size, "-", (color_no + 1) * bin_size - 1, " titrations"), rjson::object{});
     }

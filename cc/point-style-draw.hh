@@ -10,7 +10,7 @@ namespace acmacs::surface { class Surface; }
 
 // ----------------------------------------------------------------------
 
-acmacs::PointStyle point_style_from_json(const rjson::value& aSource, Color passage_color = PINK);
+acmacs::PointStyleModified point_style_from_json(const rjson::value& aSource, Color passage_color = PINK);
 void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aStyle, const acmacs::PointCoordinates& aCoord);
 
 // ----------------------------------------------------------------------

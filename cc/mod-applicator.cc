@@ -181,8 +181,9 @@ void ModAntigens::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
     if (const auto& select = args()["select"]; !select.is_null()) {
         const auto indices = SelectAntigens(acmacs::verbose_from(verbose), report_names_threshold).select(aChartDraw, select);
         const auto styl = style();
-          // if (verbose)
-          // std::cerr << "DEBUG: ModAntigens " << indices << ' ' << args() << ' ' << styl << '\n';
+
+        // AD_DEBUG("{}", styl);
+
         aChartDraw.modify(indices, styl, drawing_order());
         if (const auto& label = args()["label"]; !label.is_null())
             add_labels(aChartDraw, indices, 0, label);
