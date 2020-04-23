@@ -520,8 +520,9 @@ class ModTitle : public Mod
                 else
                     throw std::exception{};
             }
-            else
+            else {
                 title.add_line(aChartDraw.chart().make_name(aChartDraw.projection_no()));
+            }
             if (const auto& offset = args()["offset"]; !offset.is_null())
                 title.offset({offset[0].to<double>(), offset[1].to<double>()});
             if (const auto& padding = args()["padding"]; !padding.is_null())

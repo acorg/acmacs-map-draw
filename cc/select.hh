@@ -205,6 +205,7 @@ class SelectSera : public SelectAntigensSera
     void filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::seqdb::amino_acid_at_pos1_eq_list_t& pos1_aa);
     void filter_out_distinct(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes) override { filter_out_distinct_in(aChartSelectInterface.chart().sera(), indexes); }
     void filter_titrated_against(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& serum_indexes, const acmacs::chart::Indexes& antigen_indexes);
+    void filter_date_range(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view from, std::string_view to);
 
     void filter_outline(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, Color outline) override
     {

@@ -504,6 +504,9 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
         else if (key == "table") {
             filter_table(aChartSelectInterface, indexes, val.to<std::string_view>());
         }
+        else if (key == "date_range") {
+            filter_date_range(aChartSelectInterface, indexes, val[0].to<std::string_view>(), val[1].to<std::string_view>());
+        }
         else if (key == "in_rectangle") {
             const auto& c1 = val["c1"];
             const auto& c2 = val["c2"];
@@ -596,6 +599,29 @@ void SelectSera::filter_layer(const ChartSelectInterface& aChartSelectInterface,
     filter_layer_ag_sr(aChartSelectInterface, indexes, aLayer, [](const std::pair<acmacs::chart::PointIndexList, acmacs::chart::PointIndexList>& aPair) { return aPair.second; });
 
 } // SelectSera::filter_layer
+
+// ----------------------------------------------------------------------
+
+void SelectSera::filter_date_range(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view from, std::string_view to)
+{
+    const auto& chart = aChartSelectInterface.chart();
+    chart.set_homologous(acmacs::chart::find_homologous::relaxed);
+    auto antigens = chart.antigens();
+    auto sera = chart.sera();
+
+    auto antigen_indexes = antigens->all_indexes();
+    antigens->filter_date_range(antigen_indexes, from, to);
+
+    auto homologous_filtered_out_by_date_range = [&](auto serum_index) -> bool {
+        for (auto antigen_index : sera->at(serum_index)->homologous_antigens()) {
+            if (antigen_indexes.contains(antigen_index))
+                return false;   // homologous antigen selected by date range, do not remove this serum from indexes
+        }
+        return true;
+    };
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), homologous_filtered_out_by_date_range), indexes.end());
+
+} // SelectSera::filter_date_range
 
 // ----------------------------------------------------------------------
 

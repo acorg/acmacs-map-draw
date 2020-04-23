@@ -43,6 +43,7 @@
             "all",
             {"serum_id": "CDC 2016-003"},
             {"index": 11}, {"indexes": [55, 66]},
+            {"date_range": ["2016-01-01", "2016-09-01"], "?": "via homologous antigen"},
             {"country": "sweden"},
             {"continent": "europe"},
             {"localtion": "HONG KONG"},
