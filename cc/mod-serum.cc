@@ -105,7 +105,7 @@ acmacs::chart::PointIndexList ModSerumHomologous::select_homologous_antigens(Cha
     const auto antigen_indexes = aChartDraw.chart().serum(aSerumIndex)->homologous_antigens();
     if (antigen_indexes->empty()) {
         std::cerr << "WARNING: no homologous antigens for serum " << aSerumIndex << '\n';
-        throw unrecognized_mod{fmt::format("no homologous antigens for serum, mod: {}", args())};
+        // throw unrecognized_mod{fmt::format("no homologous antigens for serum, mod: {}", args())};
     }
     if (aVerbose) {
         auto antigens = aChartDraw.chart().antigens();
