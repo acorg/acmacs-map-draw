@@ -137,7 +137,7 @@ void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, 
         styl = point_style_from_json(aGroup);
         aChartDraw.modify(acmacs::chart::Indexes{aap->second}, styl, drawing_order());
         if (const auto& legend = args()["legend"]; !legend.is_null())
-            add_legend(aChartDraw, acmacs::chart::Indexes{aap->second}, styl, acmacs::string::join(" ", positions), legend);
+            add_legend(aChartDraw, acmacs::chart::Indexes{aap->second}, styl, acmacs::string::join(acmacs::string::join_space, positions), legend);
         if (aVerbose) {
             fmt::print(stderr, "INFO: amino-acids group {}: {}\n", pos_aa, aap->second.size());
             report_antigens(std::begin(aap->second), std::end(aap->second), aChartDraw, report_names_threshold);

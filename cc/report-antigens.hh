@@ -17,7 +17,7 @@ template <typename Iter> inline void report_antigens(Iter first, Iter last, cons
         auto antigens = chart.antigens();
         auto titers = chart.titers();
         auto info = chart.info();
-        fmt::print(stderr, "  AG ({}) {}\n", last - first, acmacs::string::join(",", first, last));
+        fmt::print(stderr, "  AG ({}) {}\n", last - first, acmacs::string::join(acmacs::string::join_comma, first, last));
         const auto full_name_max =
             antigens->at(*std::max_element(first, last, [&antigens](size_t i1, size_t i2) { return antigens->at(i1)->full_name().size() < antigens->at(i2)->full_name().size(); }))->full_name().size();
         for (; first != last; ++first) {
@@ -45,7 +45,7 @@ template <typename Iter> inline void report_sera(Iter first, Iter last, const Ch
     if (threshold >= static_cast<size_t>(last - first)) {
         const auto& chart = aChartSelectInterface.chart();
         auto sera = chart.sera();
-        fmt::print(stderr, "  SR ({}) {}\n", last - first, acmacs::string::join(",", first, last));
+        fmt::print(stderr, "  SR ({}) {}\n", last - first, acmacs::string::join(acmacs::string::join_comma, first, last));
         for (; first != last; ++first) {
             const auto serum = sera->at(*first);
             fmt::print(stderr, "  SR {:5d} \"{}\"\n", *first, serum->full_name());

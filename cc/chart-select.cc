@@ -49,7 +49,7 @@ int do_select(const Options& opt)
     if (!opt.sera) {
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_antigens())) + 1;
         const auto indices = SelectAntigens(acmacs::verbose_from(opt.verbose)).select(chart_select, selector);
-        std::cout << acmacs::string::join(",", indices) << '\n';
+        std::cout << acmacs::string::join(acmacs::string::join_comma, indices) << '\n';
         if (!opt.just_indexes) {
             for (auto index : indices)
                 fmt::print("AG {:{}d} {}\n", index, num_digits, chart->antigen(index)->full_name());
@@ -59,7 +59,7 @@ int do_select(const Options& opt)
         const auto num_digits = static_cast<int>(std::log10(chart->number_of_sera())) + 1;
         const auto indices = SelectSera(acmacs::verbose_from(opt.verbose)).select(chart_select, selector);
         if (!opt.just_indexes) {
-            fmt::print("{}\n", acmacs::string::join(",", indices));
+            fmt::print("{}\n", acmacs::string::join(acmacs::string::join_comma, indices));
         }
         else {
             for (auto index : indices)
