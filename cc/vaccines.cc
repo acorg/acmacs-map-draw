@@ -9,22 +9,16 @@ static inline acmacs::PointStyleModified& point_style_for(acmacs::PointStyleModi
 {
     switch (pt) {
       case hidb::Vaccines::Egg:
-          aStyle.aspect = AspectEgg;
-          aStyle.modified_aspect = true;
-          aStyle.rotation = NoRotation;
-          aStyle.modified_rotation = true;
+          aStyle.aspect(AspectEgg);
+          aStyle.rotation(NoRotation);
           break;
       case hidb::Vaccines::Cell:
-          aStyle.aspect = AspectNormal;
-          aStyle.modified_aspect = true;
-          aStyle.rotation = NoRotation;
-          aStyle.modified_rotation = true;
+          aStyle.aspect(AspectNormal);
+          aStyle.rotation(NoRotation);
           break;
       case hidb::Vaccines::Reassortant:
-          aStyle.aspect = AspectEgg;
-          aStyle.modified_aspect = true;
-          aStyle.rotation = RotationReassortant;
-          aStyle.modified_rotation = true;
+          aStyle.aspect(AspectEgg);
+          aStyle.rotation(RotationReassortant);
           break;
       case hidb::Vaccines::PassageTypeSize:
           break;
@@ -52,11 +46,11 @@ std::string Vaccines::report(const hidb::Vaccines::ReportConfig& config) const
 {
     std::string result;
     for (const auto& entry: mEntries) {
-        if (entry.style.shown) {
+        if (entry.style.shown()) {
             const auto& vacc = mVaccinesOfChart[entry.vaccines_of_chart_index];
             const std::string s = vacc.report(entry.passage_type, config, entry.antigen_no);
             if (!s.empty())
-                result += fmt::format("{:{}c}{} {} {}\n{}", ' ', config.indent_,  vacc.type(), vacc.name(), entry.style.fill, s);
+                result += fmt::format("{:{}c}{} {} {}\n{}", ' ', config.indent_,  vacc.type(), vacc.name(), entry.style.fill(), s);
         }
     }
     return result;
@@ -69,7 +63,7 @@ std::vector<size_t> Vaccines::indices() const
 {
     std::vector<size_t> ind;
     for (const auto& entry: mEntries) {
-        if (entry.style.shown) {
+        if (entry.style.shown()) {
             if (const auto* vacc = mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, entry.antigen_no); vacc)
                 ind.push_back(vacc->chart_antigen_index);
         }
@@ -115,7 +109,7 @@ std::vector<size_t> Vaccines::indices(const VaccineMatchData& aMatchData) const
 void Vaccines::plot(ChartDraw& aChartDraw) const
 {
     for (const auto& entry: mEntries) {
-        if (entry.style.shown) {
+        if (entry.style.shown()) {
             if (const auto* vacc = mVaccinesOfChart[entry.vaccines_of_chart_index].for_passage_type(entry.passage_type, entry.antigen_no); vacc)
                 aChartDraw.modify(vacc->chart_antigen_index, entry.style, PointDrawingOrder::Raise);
         }

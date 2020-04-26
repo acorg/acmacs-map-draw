@@ -50,8 +50,7 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool
         if (auto ca = color_for_aa.find(aa); ca == color_for_aa.end())
             throw unrecognized_mod{"cannot find color for AA: " + aa + ", \"colors\" in the settings is not complete?"};
         else
-            styl.fill = ca->second;
-        styl.modified_fill = true;
+            styl.fill(ca->second);
         aChartDraw.modify(acmacs::chart::Indexes{indices_for_aa}, styl, drawing_order());
         if (const auto& legend = args()["legend"]; !legend.is_null())
             add_legend(aChartDraw, acmacs::chart::Indexes{indices_for_aa}, styl, aa, legend);

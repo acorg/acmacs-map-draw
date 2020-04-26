@@ -58,11 +58,11 @@ void GeographicMapDraw::add_point(long aPriority, double aLat, double aLong, Col
 {
     mPoints.emplace_back(LongLat{aLong, -aLat}, aPriority);
     auto& style = mPoints.back();
-    style.shape = acmacs::PointShape::Circle;
-    style.fill = aFill;
-    style.outline = aOutline;
-    style.outline_width = aOutlineWidth;
-    style.size = aSize;
+    style.shape(acmacs::PointShape::Circle);
+    style.fill(aFill);
+    style.outline(aOutline);
+    style.outline_width(aOutlineWidth);
+    style.size(aSize);
 
 } // GeographicMapDraw::add_point
 

@@ -12,10 +12,10 @@ void Labels::draw(const acmacs::draw::PointLabel& label, acmacs::surface::Surfac
 {
       // obsolete
     const auto style = aPlotSpec.style(label.index());
-    if (style.shown) {
+    if (style.shown()) {
         auto text_origin = aLayout[label.index()].copy();
         if (text_origin.exists()) { // point is not disconnected
-            const double scaled_point_size = aSurface.convert(Pixels{style.size}).value();
+            const double scaled_point_size = aSurface.convert(style.size()).value();
             const acmacs::Size ts = aSurface.text_size(label.display_name(), label.text_size(), label.text_style());
             text_origin[acmacs::number_of_dimensions_t{0}] += label.text_offset(label.offset().x(), scaled_point_size, ts.width, false);
             text_origin[acmacs::number_of_dimensions_t{1}] += label.text_offset(label.offset().y(), scaled_point_size, ts.height, true);
