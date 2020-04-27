@@ -23,7 +23,7 @@
 #include "acmacs-base/filesystem.hh"
 #include "acmacs-base/gzip.hh"
 #include "acmacs-base/range.hh"
-#include "acmacs-base/rjson.hh"
+#include "acmacs-base/rjson-v2.hh"
 #include "seqdb-3/seqdb.hh"
 #include "acmacs-chart-2/chart-modify.hh"
 #include "acmacs-chart-2/factory-import.hh"

@@ -1,7 +1,5 @@
 #include "acmacs-draw/continent-map.hh"
-#include "acmacs-draw/draw-elements.hh"
 #include "acmacs-draw/draw-legend.hh"
-#include "acmacs-draw/draw-arrow.hh"
 #include "acmacs-map-draw/map-elements.hh"
 #include "acmacs-map-draw/draw.hh"
 
