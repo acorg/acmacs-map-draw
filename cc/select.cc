@@ -159,8 +159,11 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         else if (key == "amino_acid") {
             if (val.is_object())
                 filter_amino_acid_at_pos(aChartSelectInterface, indexes, val["aa"].to<std::string_view>()[0], acmacs::seqdb::pos1_t{val["pos"].to<size_t>()}, true);
-            else if (val.is_array())
-                filter_amino_acid_at_pos(aChartSelectInterface, indexes, acmacs::seqdb::extract_aa_at_pos1_eq_list(val));
+            else if (val.is_array()) {
+                std::vector<std::string> vals;
+                rjson::transform(val, std::back_inserter(vals), [](const rjson::value& v) -> std::string { return v.to<std::string>(); });
+                filter_amino_acid_at_pos(aChartSelectInterface, indexes, acmacs::seqdb::extract_aa_at_pos1_eq_list(acmacs::string::join(acmacs::string::join_comma, vals)));
+            }
             else
                 throw std::runtime_error{"invalid \"amino_acid\" value, object or array expected"};
         }
@@ -481,8 +484,11 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
             filter_clade(aChartSelectInterface, indexes, string::upper(val.to<std::string_view>()));
         }
         else if (key == "amino_acid") {
-            if (val.is_array())
-                filter_amino_acid_at_pos(aChartSelectInterface, indexes, acmacs::seqdb::extract_aa_at_pos1_eq_list(val));
+            if (val.is_array()) {
+                std::vector<std::string> vals;
+                rjson::transform(val, std::back_inserter(vals), [](const rjson::value& v) -> std::string { return v.to<std::string>(); });
+                filter_amino_acid_at_pos(aChartSelectInterface, indexes, acmacs::seqdb::extract_aa_at_pos1_eq_list(acmacs::string::join(acmacs::string::join_comma, vals)));
+            }
             else
                 throw std::runtime_error{"invalid \"amino_acid\" value, array expected"};
         }
