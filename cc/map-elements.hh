@@ -80,8 +80,8 @@ namespace map_elements
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
         void background_color(Color aBackground) { mBackground = aBackground; }
-        void grid(Color aGridColor, double aGridLineWidth) { mGridColor = aGridColor; mGridLineWidth = aGridLineWidth; }
-        void border(Color aBorderColor, double aBorderWidth) { mBorderColor = aBorderColor; mBorderWidth = aBorderWidth; }
+        void grid(Color aGridColor, double aGridLineWidth) { mGridColor = aGridColor; mGridLineWidth = Pixels{aGridLineWidth}; }
+        void border(Color aBorderColor, double aBorderWidth) { mBorderColor = aBorderColor; mBorderWidth = Pixels{aBorderWidth}; }
 
      private:
         Color mBackground;
@@ -119,7 +119,7 @@ namespace map_elements
             Line(Color aOutline, Color aFill, std::string aLabel) : outline(aOutline), fill(aFill), label(aLabel) {}
             Color outline, fill;
             std::string label;
-            friend inline std::ostream& operator<<(std::ostream& out, const Line& line) { return out << fmt::format("(LegendPointLabel line \"{}\" {} {})", line.label, line.fill, line.outline); }
+            // friend inline std::ostream& operator<<(std::ostream& out, const Line& line) { return out << fmt::format("(LegendPointLabel line \"{}\" {} {})", line.label, line.fill, line.outline); }
         };
 
         LegendPointLabel();
@@ -130,11 +130,11 @@ namespace map_elements
         void offset(const acmacs::PointCoordinates& aOrigin) { mOrigin = aOrigin; }
         void add_line(Color outline, Color fill, std::string label) { mLines.emplace_back(outline, fill, label); }
         void remove_line(std::string label) { mLines.erase(std::remove_if(mLines.begin(), mLines.end(), [&label](const auto& elt) { return elt.label == label; }), mLines.end()); }
-        void label_size(double aLabelSize) { mLabelSize = aLabelSize; }
-        void point_size(double aPointSize) { mPointSize = aPointSize; }
+        void label_size(double aLabelSize) { mLabelSize = Pixels{aLabelSize}; }
+        void point_size(double aPointSize) { mPointSize = Pixels{aPointSize}; }
         void background(Color aBackground) { mBackground = aBackground; }
         void border_color(Color aBorderColor) { mBorderColor = aBorderColor; }
-        void border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; }
+        void border_width(double aBorderWidth) { mBorderWidth = Pixels{aBorderWidth}; }
 
         const auto& lines() const { return mLines; }
 
@@ -166,14 +166,14 @@ namespace map_elements
         Title& show(bool aShow) { mShow = aShow; return *this; }
         Title& offset(const acmacs::PointCoordinates& aOrigin) { mOrigin = aOrigin; return *this; }
           // Title& offset(double x, double y) { mOrigin = acmacs::PointCoordinates(x, y); return *this; }
-        Title& padding(double x) { mPadding = x; return *this; }
+        Title& padding(double x) { mPadding = Pixels{x}; return *this; }
         Title& remove_all_lines() { mLines.clear(); return *this; }
         Title& add_line(std::string aText) { mLines.emplace_back(aText); return *this; }
-        Title& text_size(double aTextSize) { mTextSize = aTextSize; return *this; }
+        Title& text_size(double aTextSize) { mTextSize = Pixels{aTextSize}; return *this; }
         Title& text_color(Color aTextColor) { mTextColor = aTextColor; return *this; }
         Title& background(Color aBackground) { mBackground = aBackground; return *this; }
         Title& border_color(Color aBorderColor) { mBorderColor = aBorderColor; return *this; }
-        Title& border_width(double aBorderWidth) { mBorderWidth = aBorderWidth; return *this; }
+        Title& border_width(double aBorderWidth) { mBorderWidth = Pixels{aBorderWidth}; return *this; }
         Title& weight(std::string aWeight) { mTextStyle.weight = aWeight; return *this; }
         Title& slant(std::string aSlant) { mTextStyle.slant = aSlant; return *this; }
         Title& font_family(std::string aFamily) { mTextStyle.font_family = aFamily; return *this; }
@@ -209,14 +209,14 @@ namespace map_elements
         SerumCircle& serum_no(size_t aSerumNo) { mSerumNo = aSerumNo; return *this; }
         SerumCircle& radius(Scaled aRadius) { mRadius = aRadius; return *this; }
         SerumCircle& fill(Color aFill) { mFillColor = aFill; return *this; }
-        SerumCircle& outline(Color aOutline, double aOutlineWidth) { mOutlineColor = aOutline; mOutlineWidth = aOutlineWidth; return *this; }
+        SerumCircle& outline(Color aOutline, double aOutlineWidth) { mOutlineColor = aOutline; mOutlineWidth = Pixels{aOutlineWidth}; return *this; }
         SerumCircle& outline_no_dash() { mOutlineDash = acmacs::surface::Dash::NoDash; return *this; }
         SerumCircle& outline_dash1() { mOutlineDash = acmacs::surface::Dash::Dash1; return *this; }
         SerumCircle& outline_dash2() { mOutlineDash = acmacs::surface::Dash::Dash2; return *this; }
         SerumCircle& outline_dash3() { mOutlineDash = acmacs::surface::Dash::Dash3; return *this; }
 
-        SerumCircle& radius_line(Color aRadius, double aRadiusWidth) { mRadiusColor = aRadius; mRadiusWidth = aRadiusWidth; return *this; }
-        SerumCircle& angles(double aStart, double aEnd) { mStart = aStart; mEnd = aEnd; return *this; }
+        SerumCircle& radius_line(Color aRadius, double aRadiusWidth) { mRadiusColor = aRadius; mRadiusWidth = Pixels{aRadiusWidth}; return *this; }
+        SerumCircle& angles(double aStart, double aEnd) { mStart = Rotation{aStart}; mEnd = Rotation{aEnd}; return *this; }
         SerumCircle& radius_line_no_dash() { mRadiusDash = acmacs::surface::Dash::NoDash; return *this; }
         SerumCircle& radius_line_dash1() { mRadiusDash = acmacs::surface::Dash::Dash1; return *this; }
         SerumCircle& radius_line_dash2() { mRadiusDash = acmacs::surface::Dash::Dash2; return *this; }
@@ -245,7 +245,7 @@ namespace map_elements
         Line() : Element{"line", Elements::AfterPoints}, mLineColor{"pink"}, mLineWidth{1} {}
 
         Line& color(Color aColor) { mLineColor = aColor; return *this; }
-        Line& line_width(double aLineWidth) { mLineWidth = aLineWidth; return *this; }
+        Line& line_width(double aLineWidth) { mLineWidth = Pixels{aLineWidth}; return *this; }
 
      protected:
         Color mLineColor;
@@ -292,7 +292,7 @@ namespace map_elements
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
         Path& color(Color aColor) { mLineColor = aColor; return *this; }
-        Path& line_width(double aLineWidth) { mLineWidth = aLineWidth; return *this; }
+        Path& line_width(double aLineWidth) { mLineWidth = Pixels{aLineWidth}; return *this; }
         Path& add(const acmacs::PointCoordinates& aPoint) { mPath.push_back(aPoint); return *this; }
         Path& close(Color aFill) { close_and_fill_ = aFill; return *this; }
 
@@ -320,7 +320,7 @@ namespace map_elements
         Arrow& color(Color aColor) { return color(aColor, aColor); }
         Arrow& arrow_head_filled(bool aFilled) { mArrowHeadFilled = aFilled; return *this; }
         Arrow& line_width(double aLineWidth) { LineFromTo::line_width(aLineWidth); return *this; }
-        Arrow& arrow_width(double aArrowWidth) { mArrowWidth = aArrowWidth; return *this; }
+        Arrow& arrow_width(double aArrowWidth) { mArrowWidth = Pixels{aArrowWidth}; return *this; }
 
      private:
         Color mArrowHeadColor;
@@ -342,7 +342,7 @@ namespace map_elements
         Rectangle& corners(const acmacs::PointCoordinates& aCorner1, const acmacs::PointCoordinates& aCorner2) { mCorner1 = aCorner1; mCorner2 = aCorner2; return *this; }
         Rectangle& color(Color aColor) { mColor = aColor; return *this; }
         Rectangle& filled(bool aFilled) { mFilled = aFilled; return *this; }
-        Rectangle& line_width(double aLineWidth) { mLineWidth = aLineWidth; return *this; }
+        Rectangle& line_width(double aLineWidth) { mLineWidth = Pixels{aLineWidth}; return *this; }
 
      protected:
         acmacs::PointCoordinates mCorner1{acmacs::number_of_dimensions_t{2}}, mCorner2{acmacs::number_of_dimensions_t{2}};
@@ -366,7 +366,7 @@ namespace map_elements
         Circle& center(const acmacs::PointCoordinates& aCenter) { mCenter = aCenter; return *this; }
         Circle& size(Scaled aSize) { mSize = aSize; return *this; }
         Circle& color(Color aFillColor, Color aOutlineColor) { mFillColor = aFillColor; mOutlineColor = aOutlineColor; return *this; }
-        Circle& outline_width(double aOutlineWidth) { mOutlineWidth = aOutlineWidth; return *this; }
+        Circle& outline_width(double aOutlineWidth) { mOutlineWidth = Pixels{aOutlineWidth}; return *this; }
         Circle& aspect(Aspect aAspect) { mAspect = aAspect; return *this; }
         Circle& rotation(Rotation aRotation) { mRotation = aRotation; return *this; }
 
@@ -396,7 +396,7 @@ namespace map_elements
         Point& center(const acmacs::PointCoordinates& aCenter) { mCenter = aCenter; return *this; }
         Point& size(Pixels aSize) { mSize = aSize; return *this; }
         Point& color(Color aFillColor, Color aOutlineColor) { mFillColor = aFillColor; mOutlineColor = aOutlineColor; return *this; }
-        Point& outline_width(double aOutlineWidth) { mOutlineWidth = aOutlineWidth; return *this; }
+        Point& outline_width(double aOutlineWidth) { mOutlineWidth = Pixels{aOutlineWidth}; return *this; }
         Point& label(std::string aLabel) { mLabel = aLabel; return *this; }
 
      private:
