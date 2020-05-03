@@ -119,7 +119,6 @@ namespace map_elements
             Line(Color aOutline, Color aFill, std::string aLabel) : outline(aOutline), fill(aFill), label(aLabel) {}
             Color outline, fill;
             std::string label;
-            // friend inline std::ostream& operator<<(std::ostream& out, const Line& line) { return out << fmt::format("(LegendPointLabel line \"{}\" {} {})", line.label, line.fill, line.outline); }
         };
 
         LegendPointLabel();

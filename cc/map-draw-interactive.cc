@@ -33,7 +33,7 @@ struct Options : public argv
     option<str>       previous_pos{*this, "previous-pos"};
 
     argument<str> chart{*this, arg_name{"chart.ace"}, mandatory};
-    argument<str> output_pdf{*this, arg_name{"output.pdf"}};
+    argument<str> output_pdf{*this, arg_name{"mdi-output.pdf"}};
 };
 
 int main(int argc, char* const argv[])
