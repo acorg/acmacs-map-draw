@@ -100,7 +100,8 @@ int main(int argc, char* const argv[])
             for (const auto& sf : *opt.settings_files)
                 fmt::print("    {}\n", sf);
 
-            (void)fgets(buffer.data(), buffer.size(), pipe.get());
+            if (!fgets(buffer.data(), buffer.size(), pipe.get()))
+                throw std::runtime_error{"fgets error"};
             acmacs::run_and_detach({"tink"}, 0);
         }
     }
