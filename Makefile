@@ -14,7 +14,7 @@ TARGETS = \
   $(DIST)/mod_acmacs.so
 
 ACMACS_MAP_DRAW_SOURCES = \
-  mapi-settings.cc \
+  mapi-settings.cc mapi-settings-antigens.cc \
   draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc \
   vaccines.cc vaccine-matcher.cc select.cc setup-dbs.cc geographic-settings.cc \
   mod-applicator.cc mod-serum.cc mod-procrustes.cc mod-amino-acids.cc mod-blobs.cc mod-connection-lines.cc \

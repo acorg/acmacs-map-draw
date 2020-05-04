@@ -1,7 +1,7 @@
 #include "acmacs-base/acmacsd.hh"
 #include "acmacs-base/filesystem.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
-#include "acmacs-map-draw/draw.hh"
+// #include "acmacs-map-draw/draw.hh"
 
 // ----------------------------------------------------------------------
 
@@ -12,10 +12,10 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
     AD_LOG_INDENT;
     try {
         // printenv();
-        // if (name == "antigens"sv)
-        //     antigens();
-        //     return true;
-        // }
+        if (name == "antigens"sv)
+            return apply_antigens();
+        else if (name == "sera"sv)
+            return apply_sera();
         return acmacs::settings::Settings::apply_built_in(name);
     }
     catch (std::exception& err) {

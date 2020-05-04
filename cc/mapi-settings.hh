@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>
+// #include <memory>
 
 #include "acmacs-base/settings.hh"
 
@@ -11,6 +11,13 @@ class ChartDraw;
 namespace acmacs::mapi::inline v1
 {
     using error = settings::error;
+
+    class unrecognized : public error
+    {
+        using error::error;
+    };
+
+    // ----------------------------------------------------------------------
 
     class Settings : public settings::Settings
     {
@@ -25,6 +32,10 @@ namespace acmacs::mapi::inline v1
         ChartDraw& chart_draw_;
 
         void update_env();
+
+        // mapi-settings-antigens.cc
+        bool apply_antigens();
+        bool apply_sera();
     };
 
 } // namespace acmacs::mapi::inline v1
