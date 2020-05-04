@@ -8,8 +8,7 @@
 #include "acmacs-map-draw/select.hh"
 #include "acmacs-map-draw/report-antigens.hh"
 
-// using namespace std::string_literals;
-
+// ----------------------------------------------------------------------
 #ifdef __clang__
 #pragma GCC diagnostic ignored "-Wexit-time-destructors"
 //#pragma GCC diagnostic ignored "-Wglobal-constructors"
@@ -43,21 +42,6 @@ acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aC
     }
 
 } // SelectAntigensSera::select
-
-// ----------------------------------------------------------------------
-
-void SelectAntigensSera::filter_rectangle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::Layout& aLayout, const acmacs::Rectangle& aRectangle, Rotation rotation)
-{
-    acmacs::Transformation transformation;
-    transformation.rotate(- rotation); // rectangle rotated -> layout rotated in opposite direction
-    auto layout = aLayout.transform(transformation);
-    const auto not_in_rectangle = [&layout,aIndexBase,&aRectangle](auto index) -> bool {
-        const auto& p = layout->at(index + aIndexBase);
-        return p.number_of_dimensions() == acmacs::number_of_dimensions_t{2} ? !aRectangle.within(p) : true;
-    };
-    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_rectangle), indexes.end());
-
-} // SelectAntigensSera::filter_rectangle_in
 
 // ----------------------------------------------------------------------
 

@@ -1,0 +1,65 @@
+#pragma once
+
+#include "acmacs-chart-2/chart.hh"
+#include "acmacs-map-draw/chart-select-interface.hh"
+
+// ----------------------------------------------------------------------
+
+namespace acmacs::map_draw::select::filter
+{
+    template <typename AgSr> void name_in(AgSr aAgSr, acmacs::chart::Indexes& indexes, std::string_view aName)
+    {
+        // Timeit ti("filter_name_in " + aName + ": ", do_report_time(mVerbose));
+        acmacs::chart::Indexes result(indexes->size());
+        const auto by_name = aAgSr->find_by_name(aName);
+        // std::cerr << "DEBUG: SelectAntigensSera::filter_name_in \"" << aName << "\": " << by_name << '\n';
+        const auto end = std::set_intersection(indexes.begin(), indexes.end(), by_name.begin(), by_name.end(), result.begin());
+        indexes.get().erase(std::copy(result.begin(), end, indexes.begin()), indexes.end());
+    }
+
+    template <typename AgSr> void full_name_in(AgSr aAgSr, acmacs::chart::Indexes& indexes, std::string_view aFullName)
+    {
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return (*aAgSr)[index]->full_name() != aFullName; }), indexes.end());
+    }
+
+    template <typename AgSr> void location_in(AgSr aAgSr, acmacs::chart::Indexes& indexes, std::string_view aLocation)
+    {
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return (*aAgSr)[index]->location() != aLocation; }), indexes.end());
+    }
+
+    template <typename AgSr> void out_distinct_in(AgSr aAgSr, acmacs::chart::Indexes& indexes)
+    {
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return (*aAgSr)[index]->annotations().distinct(); }), indexes.end());
+    }
+
+    inline void circle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::Layout& aLayout, const acmacs::Circle& aCircle)
+    {
+        const auto not_in_circle = [&](auto index) -> bool {
+            const auto& p = aLayout[index + aIndexBase];
+            return p.number_of_dimensions() == acmacs::number_of_dimensions_t{2} ? !aCircle.within(p) : true;
+        };
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_circle), indexes.end());
+    }
+
+    inline void outline_in(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, size_t aIndexBase, Color outline)
+    {
+        const auto& all_styles = aChartSelectInterface.plot_spec().all_styles();
+        const auto other_outline = [&all_styles, outline, aIndexBase](auto index) -> bool { return all_styles[index + aIndexBase].outline() != outline; };
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), other_outline), indexes.end());
+    }
+
+    inline void outline_width_in(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, size_t aIndexBase, Pixels outline_width)
+    {
+        const auto& all_styles = aChartSelectInterface.plot_spec().all_styles();
+        const auto other_outline_width = [&all_styles, outline_width, aIndexBase](auto index) -> bool { return all_styles[index + aIndexBase].outline_width() != outline_width; };
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), other_outline_width), indexes.end());
+    }
+
+    void rectangle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::Layout& aLayout, const acmacs::Rectangle& aRectangle, Rotation rotation);
+
+} // namespace acmacs::map_draw::select::filter
+
+// ----------------------------------------------------------------------
+/// Local Variables:
+/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
+/// End:
