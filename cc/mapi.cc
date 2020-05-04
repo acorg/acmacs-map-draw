@@ -26,7 +26,7 @@ struct MapiOptions : public acmacs::argv::v2::argv
     // option<str> seqdb{*this, "seqdb"};
 
     option<str_array> settings_files{*this, 's'};
-    option<str_array> defines{*this, 'D', "define", desc{"see $ACMACSD_ROOT/share/doc/mapi.org"}};
+    option<str_array> defines{*this, 'D', "define", desc{"see {ACMACSD_ROOT}/share/doc/mapi.org"}};
     // option<str>       apply{*this, "apply", desc{"json array to use as \"apply\", e.g. [\"all_grey\",\"egg\",\"clades\",\"labels\"]"}};
     // option<str>       apply_from{*this, "apply-from", desc{"read json array to use as \"apply\" from file (or stdin if \"-\""}};
     // option<bool>      clade{*this, "clade"};

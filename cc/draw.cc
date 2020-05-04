@@ -38,6 +38,8 @@ const acmacs::Viewport& ChartDraw::calculate_viewport(bool verbose)
 
 void ChartDraw::draw(acmacs::surface::Surface& aSurface) const
 {
+    fmt::print(stderr, "\n\nWARNING: switch signature page to draw-elements interface\nWARNING: remove obsolete ChartDraw::draw(acmacs::surface::Surface&)\nWARNING: remove obsolete acmacs-map-draw interface: map_elements::draw(acmacs::surface::Surface& ...)\n");
+
       // obsolete
     if (mViewport.empty())
         throw std::runtime_error("Call calculate_viewport() before draw()");
@@ -69,8 +71,6 @@ void ChartDraw::draw(std::string_view aFilename, double aSize, report_time aTime
 
     acmacs::draw::DrawElements painter(aFilename, aSize);
     draw(painter);
-
-    fmt::print(stderr, "\n\nWARNING: switch signature page to draw-elements interface\nWARNING: remove obsolete ChartDraw::draw(acmacs::surface::Surface&)\nWARNING: remove obsolete acmacs-map-draw interface: map_elements::draw(acmacs::surface::Surface& ...)\n");
 
     // }
     // else {
