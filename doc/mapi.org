@@ -1,117 +1,118 @@
-# Time-stamp: <2020-05-04 10:50:13 eu>
+# Time-stamp: <2020-05-04 11:32:24 eu>
 
 * TODO
 
 * Command line defines
 
--D whocc
+# -D lab=
+# -D subtype=H3
+# -D "subtype=A(H3N2)"
 
 * Select Antigens
 
 #+BEGIN_SRC json
-{"name": "SWITZERLAND/9715293/2013",
- "passage": "reassortant"} -- multiple keys means all must match (conjunction)
+# {"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"} -- multiple keys means all must match (conjunction)
 
-"all"
-"reference"
-"test"
+# "all"
+# "reference"
+# "test"
 
-{"index": 11}
-{"index": [55, 66]} -- disjunction
-{"indexes": [55, 66]} -- DEPRECATED
+# {"index": 11}
+# {"index": [55, 66]} -- disjunction
+# {"indexes": [55, 66]} -- DEPRECATED
 
-{"name": "SWITZERLAND/9715293/2013"}
-{"name": ["SWITZERLAND/9715293/2013", "MICHIGAN/2/2009"]} -- either matched (disjunction)
-{"name_re": "/9715293/"} -- regex search
-{"name_re": ["/9715293/", "/2013$"]} -- regex search (disjunction)
+# {"name": "SWITZERLAND/9715293/2013"}
+# {"name": ["SWITZERLAND/9715293/2013", "MICHIGAN/2/2009"]} -- either matched (disjunction)
+# {"name_re": "/9715293/"} -- regex search
+# {"name_re": ["/9715293/", "/2013$"]} -- regex search (disjunction)
 
-{"name": ["SWITZERLAND/9715293/2013", "MICHIGAN/2/2009"], "passage": "reassortant"}
-{"name_full": "A(H1N1)/MICHIGAN/2/2009 MDCK1"} -- preferred form
-{"full_name": "A(H1N1)/MICHIGAN/2/2009 MDCK1", "no": 0} -- DEPRECATED (backward compatible)
-{"name_full": ["A(H1N1)/MICHIGAN/2/2009 MDCK1", "A(H1N1)/NEW YORK/33/2011 MDCK2"]} -- (disjunction)
-{"name_re": "MICHIGAN"} -- regex
-{"name_re": ["MICHIGAN", "/NEW YORK/"]} -- regex (disjunction)
+# {"name": ["SWITZERLAND/9715293/2013", "MICHIGAN/2/2009"], "passage": "reassortant"}
+# {"name_full": "A(H1N1)/MICHIGAN/2/2009 MDCK1"} -- preferred form
+# {"full_name": "A(H1N1)/MICHIGAN/2/2009 MDCK1", "no": 0} -- DEPRECATED (backward compatible)
+# {"name_full": ["A(H1N1)/MICHIGAN/2/2009 MDCK1", "A(H1N1)/NEW YORK/33/2011 MDCK2"]} -- (disjunction)
+# {"name_re": "MICHIGAN"} -- regex
+# {"name_re": ["MICHIGAN", "/NEW YORK/"]} -- regex (disjunction)
 
-{"passage": "egg"} -- wildtype only, lowercase! "EGG" means exact passage
-{"passage": "cell"}
-{"passage": "reassortant"}
-{"passage": ["egg", "reassortant"]} -- either wildtype or reassortant (disjunction)
-{"passage": "E4"} -- real passage
-{"passage": ["E4", "E3"]} -- either real passage (disjunction)
-{"passage_re": "E4$"} -- regex search
-{"passage_re": ["E4$", "E\\d$"]} -- regex search, matched any regex
+# {"passage": "egg"} -- wildtype only, lowercase! "EGG" means exact passage
+# {"passage": "cell"}
+# {"passage": "reassortant"}
+# {"passage": ["egg", "reassortant"]} -- either wildtype or reassortant (disjunction)
+# {"passage": "E4"} -- real passage
+# {"passage": ["E4", "E3"]} -- either real passage (disjunction)
+# {"passage_re": "E4$"} -- regex search
+# {"passage_re": ["E4$", "E\\d$"]} -- regex search, matched any regex
 
-{"date_range": ["2016-01-01", "2016-09-01"]}
-{"date_range": ["", "2016-09-01"]}
-{"date_range": ["2016-01-01", ""]}
-{"older_than_days": 365}
-{"younger_than_days": 365}
+# {"date_range": ["2016-01-01", "2016-09-01"]}
+# {"date_range": ["", "2016-09-01"]}
+# {"date_range": ["2016-01-01", ""]}
+# {"older_than_days": 365}
+# {"younger_than_days": 365}
 
-{"country": "sweden"} -- case insensetive
-{"country": ["sweden", "norway"]} -- disjunction
-{"continent": "europe"} -- case insensetive
-{"continent": ["europe", "russia"]} -- disjunction
-{"localtion": "HONG KONG"}
-{"localtion": ["HONG KONG", "CHINA"]} -- disjunction
+# {"country": "sweden"} -- case insensetive
+# {"country": ["sweden", "norway"]} -- disjunction
+# {"continent": "europe"} -- case insensetive
+# {"continent": ["europe", "russia"]} -- disjunction
+# {"localtion": "HONG KONG"}
+# {"localtion": ["HONG KONG", "CHINA"]} -- disjunction
 
-"sequenced"
-"not_sequenced"
-{"clade": "3C.3A"} -- ~/AD/share/conf/clades.json
-{"clade": ["3C.3A", "3C.2A2"]} -- disjunction
-{"amino_acid": "144R"}
-{"amino_acid": ["144R", "93A", "!160K"]} -- disjunction
+# "sequenced"
+# "not_sequenced"
+# {"clade": "3C.3A"} -- ~/AD/share/conf/clades.json
+# {"clade": ["3C.3A", "3C.2A2"]} -- disjunction
+# {"amino_acid": "144R"}
+# {"amino_acid": ["144R", "93A", "!160K"]} -- disjunction
 
-{"lab": "CDC"}
-{"lab": ["CDC", "MELB"]} -- disjunction
-{"lab": ["CDC", "VIDRL"]} -- old and new lab name
+# {"lab": "CDC"}
+# {"lab": ["CDC", "MELB"]} -- disjunction
+# {"lab": ["CDC", "VIDRL"]} -- old and new lab name
 
-"vaccine"
-{"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}}
+# "vaccine"
+# {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}}
 
-{"lineage": "VICTORIA"}
-{"lineage": "VIC"}
-{"lineage": "V"}
+# {"lineage": "VICTORIA"}
+# {"lineage": "VIC"}
+# {"lineage": "V"}
 
-{"in_rectangle": <Rectangle in Drawing>}
-{"in_circle": <Circle in Drawing>}
+# {"in_rectangle": <Rectangle in Drawing>}
+# {"in_circle": <Circle in Drawing>}
 
-{"subtype": "H1 A(H1N1) H3 A(H3N2) B BV BVIC BY BYAM"}, --?
+# {"subtype": "H1 A(H1N1) H3 A(H3N2) B BV BVIC BY BYAM"}, --?
 
-{"outlier": 1.0} -- threshold in units (distance from centroid of pre-selected points), must be after other select args, e.g. after "clade"
+# {"outlier": 1.0} -- threshold in units (distance from centroid of pre-selected points), must be after other select args, e.g. after "clade"
 
-{"table": "20170216"}
-{"table": "MELB:HI:turkey:20170216"}
-{"layer": 0} -- >=0: from the beginning, <0: from end
-{"relative_to_serum_line": {"distance_min": 0, "distance_max": 10000, "direction": 1}, "?direction": [1, -1, 0]}
+# {"table": "20170216"}
+# {"table": "MELB:HI:turkey:20170216"}
+# {"layer": 0} -- >=0: from the beginning, <0: from end
+# {"relative_to_serum_line": {"distance_min": 0, "distance_max": 10000, "direction": 1}, "?direction": [1, -1, 0]}
 
-{"titrated_against_sera": <select sera>}
+# {"titrated_against_sera": <select sera>}
 
-{"outline": "green", "outline_width": 3}
+# {"outline": "green", "outline_width": 3}
 #+END_SRC
 
 
 * Select Sera
 
 #+BEGIN_SRC json
-"all"
-{"index": 11}, 
-{"index": [55, 66]} -- disjunction
-{"indexes": [55, 66]} -- DEPRECATED
+# "all"
+# {"index": 11}, 
+# {"index": [55, 66]} -- disjunction
+# {"indexes": [55, 66]} -- DEPRECATED
 
-{"name*": ...} -- see Antigens for variants
-{"date_range": ...} -- via homologous antigens
-{"country": ...}
-{"continent": ...}
-{"localtion": ...}
-{"table": ...}
-{"clade": ...} -- ? via seqdb.clades_for_name()
-{"amino_acid": ...}
+# {"name*": ...} -- see Antigens for variants
+# {"date_range": ...} -- via homologous antigens
+# {"country": ...}
+# {"continent": ...}
+# {"localtion": ...}
+# {"table": ...}
+# {"clade": ...} -- ? via seqdb.clades_for_name()
+# {"amino_acid": ...}
 
-{"serum_id": "CDC 2016-003"}
-{"serum_id_re": "CDC 2016-003"}
+# {"serum_id": "CDC 2016-003"}
+# {"serum_id_re": "CDC 2016-003"}
 
-{"titrated_against_antigens": <select antigens>}
-{"outline": "green", "outline_width": 3}
+# {"titrated_against_antigens": <select antigens>}
+# {"outline": "green", "outline_width": 3}
 #+END_SRC
 
 
@@ -122,7 +123,7 @@
 [[Label][Label]]
 
 #+BEGIN_SRC json
-{"N": "antigens", "select": <Select Antigens>
+# {"N": "antigens", "select": <Select Antigens>
  "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
  "fill_saturation": 1.0, "fill_brightness": 1.0, "outline_saturation": 1.0, "outline_brightness": 1.0,
  "size": 1.0, "outline_width": 1.0,
@@ -132,7 +133,7 @@
  "legend": {"show": true, "label": "<TEXT>", "count": true, "replace": false},
  "report": false, "report_names_threshold": 30},
 
-{"N": "sera", "select": {<select>},
+# {"N": "sera", "select": {<select>},
  "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
  "fill_saturation": 1.0, "fill_brightness": 1.0, "outline_saturation": 1.0, "outline_brightness": 1.0,
  "size": 1.0, "outline_width": 1.0,
@@ -147,11 +148,11 @@
 * Label
 
 #+BEGIN_SRC json
-{"show": true,
-"display_name": "NAME",
-"name_type": "full|abbreviated|abbreviated_with_passage_type|abbreviated_location_year",
-"color": "black", "size": 12.0, "offset": [0, 1],
-"weight": "bold", "slant": "italic", "font_family": "monospace"}
+  # {"show": true,
+   "display_name": "NAME",
+   "name_type": "full|abbreviated|abbreviated_with_passage_type|abbreviated_location_year",
+   "color": "black", "size": 12.0, "offset": [0, 1],
+   "weight": "bold", "slant": "italic", "font_family": "monospace"}
 #+END_SRC
 
 * Legend
@@ -171,7 +172,7 @@
 * Title
 
 #+BEGIN_SRC json
-{"N": "title", "show": true, "offset": [10, 10], "padding": 10, "size": 1,
+# {"N": "title", "show": true, "offset": [10, 10], "padding": 10, "size": 1,
          "background": "grey97", "border_color": "black", "border_width": 0.1,
          "text_color": "black", "text_size": 12, "interline": 2,
          "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif",
@@ -182,51 +183,51 @@
 * Drawing
 
 #+BEGIN_SRC json
-{"N": "line", "from": [0, 0], "to": [1, 1], "transform": false, "width": 1, "color": "red"},
-{"N": "line", "from_antigen": {<antigen-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "report": true},
-{"N": "line", "from_antigen": {"reference": true}, "to_antigen": {"test": true}, "width": 1, "color": "green", "report": true},
-{"N": "line", "from_antigen": {"reference": true}, "to_serum": {"all": true}, "width": 1, "color": "green", "report": true},
-{"N": "line", "from_serum": {"reference": true}, "to_antigen": {"all": true}, "width": 1, "color": "green", "report": true},
+# {"N": "line", "from": [0, 0], "to": [1, 1], "transform": false, "width": 1, "color": "red"},
+# {"N": "line", "from_antigen": {<antigen-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "report": true},
+# {"N": "line", "from_antigen": {"reference": true}, "to_antigen": {"test": true}, "width": 1, "color": "green", "report": true},
+# {"N": "line", "from_antigen": {"reference": true}, "to_serum": {"all": true}, "width": 1, "color": "green", "report": true},
+# {"N": "line", "from_serum": {"reference": true}, "to_antigen": {"all": true}, "width": 1, "color": "green", "report": true},
 
-{"N": "arrow", "to_antigen": {<antigen-select>}, "from": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
-{"N": "arrow", "from_antigen": {<antigen-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
-{"N": "arrow", "to_serum": {<serum-select>}, "from": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
-{"N": "arrow", "from_serum": {<serum-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
+# {"N": "arrow", "to_antigen": {<antigen-select>}, "from": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
+# {"N": "arrow", "from_antigen": {<antigen-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
+# {"N": "arrow", "to_serum": {<serum-select>}, "from": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
+# {"N": "arrow", "from_serum": {<serum-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
 
-{"N": "rectangle", "c1": [-2, -1.5], "c2": [0.5, 3], "transform": true, "rotate": 0.0, "filled": true, "color": "#80FF0000", "?rotate": "<3.15 - radians, >3.15 - degrees"},
-{"N": "circle", "center": [0, 0], "size": 2, "aspect": 1.0, "rotation": 0, "fill": "#80FFA500", "outline": "#80FF0000", "outline_width": 10},
+# {"N": "rectangle", "c1": [-2, -1.5], "c2": [0.5, 3], "transform": true, "rotate": 0.0, "filled": true, "color": "#80FF0000", "?rotate": "<3.15 - radians, >3.15 - degrees"},
+# {"N": "circle", "center": [0, 0], "size": 2, "aspect": 1.0, "rotation": 0, "fill": "#80FFA500", "outline": "#80FF0000", "outline_width": 10},
 
-{"N": "serum_line", "color": "red", "line_width": 1},
+# {"N": "serum_line", "color": "red", "line_width": 1},
 
-{"N": "connection_lines", "antigens": {<select>}, "sera": {<select>}, "color": "grey", "line_width": 1},
-{"N": "error_lines", "antigens": {<select>}, "sera": {<select>}, "line_width": 1, "report": false},
-{"N": "color_by_number_of_connection_lines", "antigens": {<select>}, "sera": {<select>}, "start": "", "end": ""},
+# {"N": "connection_lines", "antigens": {<select>}, "sera": {<select>}, "color": "grey", "line_width": 1},
+# {"N": "error_lines", "antigens": {<select>}, "sera": {<select>}, "line_width": 1, "report": false},
+# {"N": "color_by_number_of_connection_lines", "antigens": {<select>}, "sera": {<select>}, "start": "", "end": ""},
 
-{"N": "blobs", "select": {<select-antigens>}, "stress_diff": 0.5, "number_of_drections": 36, "stress_diff_precision": 1e-5, "fill": "transparent", "color": "pink", "line_width": 1, "report": false},
+# {"N": "blobs", "select": {<select-antigens>}, "stress_diff": 0.5, "number_of_drections": 36, "stress_diff_precision": 1e-5, "fill": "transparent", "color": "pink", "line_width": 1, "report": false},
 #+END_SRC
 
 
 * Whole map manipulation
 
 #+BEGIN_SRC json
-{"N": "rotate", "degrees": 30, "radians": 1, "?positive": "counter-clockwise"},
-{"N": "flip", "direction": "ew|ns"},
-{"N": "viewport", "rel": [-1, 1, -5], "?abs": [-5, -5, 10]},
-{"N": "background", "color": "white"},
-{"N": "border", "color": "black", "line_width": 1},
-{"N": "grid", "color": "grey80", "line_width": 1},
-{"N": "point_scale", "scale": 1, "outline_scale": 1},
+# {"N": "rotate", "degrees": 30, "radians": 1, "?positive": "counter-clockwise"},
+# {"N": "flip", "direction": "ew|ns"},
+# {"N": "viewport", "rel": [-1, 1, -5], "?abs": [-5, -5, 10]},
+# {"N": "background", "color": "white"},
+# {"N": "border", "color": "black", "line_width": 1},
+# {"N": "grid", "color": "grey80", "line_width": 1},
+# {"N": "point_scale", "scale": 1, "outline_scale": 1},
 #+END_SRC
 
 
 * Move
 
 #+BEGIN_SRC json
-{"N": "move_antigens", "select": {"reference": true}, "?to": [5, 5], "?relative": [1, 1], "?to_antigen": {"index": 10}, "?to_serum": {"index": 10},
+# {"N": "move_antigens", "select": {"reference": true}, "?to": [5, 5], "?relative": [1, 1], "?to_antigen": {"index": 10}, "?to_serum": {"index": 10},
  "flip_over_line": {"from": [0, 0], "to": [1, 1], "transform": false},
  "?flip_over_serum_line": 1, "report": true, "?flip_over_serum_line": "scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)"},
-{"N": "move_sera", "select": {"all": true}, "?to": [5, 5], "?relative": [1, 1], "?to_antigen": {"index": 10}, "to_serum": {"index": 1}, "flip_over_line": {"from": [0, 0], "to": [1, 1], "transform": false}, "report": true},
-{"N": "move_antigens_stress", "select": {"reference": true}, "?to": [5, 5], "?relative": [1, 1], "?fill": "pink", "?outline": "grey", "?order": "raise", "?size": 1,
+# {"N": "move_sera", "select": {"all": true}, "?to": [5, 5], "?relative": [1, 1], "?to_antigen": {"index": 10}, "to_serum": {"index": 1}, "flip_over_line": {"from": [0, 0], "to": [1, 1], "transform": false}, "report": true},
+# {"N": "move_antigens_stress", "select": {"reference": true}, "?to": [5, 5], "?relative": [1, 1], "?fill": "pink", "?outline": "grey", "?order": "raise", "?size": 1,
  "report": true},
 #+END_SRC
 
@@ -234,7 +235,7 @@
 * Serum Circles
 
 #+BEGIN_SRC json
-{"N": "serum_circle", "serum": {"index": 0}, "?antigen": {"index": 0}, "report": true,
+# {"N": "serum_circle", "serum": {"index": 0}, "?antigen": {"index": 0}, "report": true,
  "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
  "empirical":   {"fill": "#C08080FF", "outline": "#4040FF", "outline_width": 2, "?outline_dash": "dash2", "?angle_degrees": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "show": true},
  "theoretical": {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "?outline_dash": "dash2", "?angle_degrees": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "show": true},
@@ -242,7 +243,7 @@
  "mark_serum":   {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
  "mark_antigen": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}}},
 
-{"N": "serum_circles", "serum": {"name": "may select none or multiple sera"}, "?antigen": {"index": 0}, "report": true,
+# {"N": "serum_circles", "serum": {"name": "may select none or multiple sera"}, "?antigen": {"index": 0}, "report": true,
  "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
  "empirical":   {"fill": "#C08080FF", "outline": "passage", "outline_width": 2, "?outline_dash": "dash2", "?angle_degrees": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "show": true},
  "theoretical": {"fill": "#C08080FF", "outline": "passage", "outline_width": 2, "?outline_dash": "dash2", "?angle_degrees": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "show": true},
@@ -250,13 +251,13 @@
  "mark_serum":   {"fill": "passage", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
  "mark_antigen": {"fill": "passage", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}}},
 
-{"N": "serum_coverage", "serum": {<select>}, "?antigen": {<select>}, "?homologous_titer": "1280", "report": true,
+# {"N": "serum_coverage", "serum": {<select>}, "?antigen": {<select>}, "?homologous_titer": "1280", "report": true,
  "mark_serum": {"fill": "red", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12, "weight": "bold"}},
  "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
  "within_4fold": {"outline": "pink", "outline_width": 3, "order": "raise"},
  "outside_4fold": {"fill": "grey50", "outline": "black", "order": "raise"}},
 
-{"N": "serum_coverage_circle", "serum": {<select>}, "?antigen": {<select>}, "?homologous_titer": "1280", "report": true,
+# {"N": "serum_coverage_circle", "serum": {<select>}, "?antigen": {<select>}, "?homologous_titer": "1280", "report": true,
  "mark_serum": {"fill": "red", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12, "weight": "bold"}},
  "empirical": {"show": true, "fill": "#C0FF8080", "outline": "red", "outline_width": 2, "?outline_dash": "dash2", "angle_degrees": [0, 30], "radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1},
  "theoretical": {"show": true, "fill": "#C08080FF", "outline": "blue", "outline_width": 2, "?outline_dash": "dash2", "angle_degrees": [0, 30], "radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1},
@@ -289,27 +290,29 @@
 :END:
 
 #+BEGIN_SRC json
-{"N": "title", "background": "transparent", "border_width": 0, "text_size": 24, "font_weight": "bold", "display_name": ["CDC H3 HI March 2017"]},
-"continents",
-{"N": "antigens", "select": "reference", "outline": "grey80", "fill": "transparent"},
-{"N": "antigens", "select": "test", "show": false},
-{"N": "antigens", "select": {"test": true, "date_range": ["2017-03-01", "2017-04-01"]}, "size": 8, "order": "raise", "show": true},
-{"N": "vaccines", "size": 25, "report": false},
-{"N": "point_scale", "scale": 2.5, "outline_scale": 1},
-{"N": "viewport", "rel": [6.5, 7.5, -11]},
+# {"N": "title", "background": "transparent", "border_width": 0, "text_size": 24, "font_weight": "bold", "display_name": ["CDC H3 HI March 2017"]},
+# "continents",
+# {"N": "antigens", "select": "reference", "outline": "grey80", "fill": "transparent"},
+# {"N": "antigens", "select": "test", "show": false},
+# {"N": "antigens", "select": {"test": true, "date_range": ["2017-03-01", "2017-04-01"]}, "size": 8, "order": "raise", "show": true},
+# {"N": "vaccines", "size": 25, "report": false},
+# {"N": "point_scale", "scale": 2.5, "outline_scale": 1},
+# {"N": "viewport", "rel": [6.5, 7.5, -11]},
 #+END_SRC
 
 
 * Built-in ~/AD/share/conf/mapi.json
 
 #+BEGIN_SRC json
-"all-grey"
-"size-reset"
-"clades"
-"clades-last-6-months"
-"clades-last-12-months"
-"continents"
-?? {"N": "continents", "legend": {"type": "continent_map", "offset": [-1, -1], "show": true, "size": 100}, "outline": "black"},
+# "/all-grey"
+# "/size-reset"
+# "/egg"
+# "/clades"
+# "/clades-light"
+# "/clades-6m"
+# "/clades-12m"
+# "/continents"
+# ?? {"N": "continents", "legend": {"type": "continent_map", "offset": [-1, -1], "show": true, "size": 100}, "outline": "black"},
 #+END_SRC
 
 

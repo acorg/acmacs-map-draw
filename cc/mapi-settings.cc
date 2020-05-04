@@ -8,11 +8,15 @@
 bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // returns true if built-in command with that name found and applied
 {
     using namespace std::string_view_literals;
+    AD_LOG(acmacs::log::settings, "mapi::apply_built_in \"{}\"", name);
+    AD_LOG_INDENT;
     try {
         // printenv();
-        // if (name == "antigenic-maps"sv)
-        //     antigenic_maps();
-        return true;
+        // if (name == "antigens"sv)
+        //     antigens();
+        //     return true;
+        // }
+        return acmacs::settings::Settings::apply_built_in(name);
     }
     catch (std::exception& err) {
         throw error{fmt::format("cannot apply \"{}\": {}", name, err)};

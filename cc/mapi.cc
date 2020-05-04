@@ -27,7 +27,7 @@ struct MapiOptions : public acmacs::argv::v2::argv
 
     option<str_array> settings_files{*this, 's'};
     option<str_array> defines{*this, 'D', "define", desc{"see {ACMACSD_ROOT}/share/doc/mapi.org"}};
-    // option<str>       apply{*this, "apply", desc{"json array to use as \"apply\", e.g. [\"all_grey\",\"egg\",\"clades\",\"labels\"]"}};
+    option<str_array> apply{*this, 'a', "apply", dflt{str_array{"main"}}, desc{"name or json array to use as \"apply\", e.g. [\"/all-grey\",\"/egg\",\"/clades\",\"/labels\"]"}};
     // option<str>       apply_from{*this, "apply-from", desc{"read json array to use as \"apply\" from file (or stdin if \"-\""}};
     // option<bool>      clade{*this, "clade"};
     // option<double>    point_scale{*this, "point-scale", dflt{1.0}};
@@ -58,8 +58,14 @@ int main(int argc, char* const argv[])
         acmacs::log::enable(opt.verbose);
         setup_dbs(opt.db_dir, !opt.verbose.empty());
         ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart)), opt.projection);
+
         acmacs::mapi::Settings settings{chart_draw};
         settings.load(opt.settings_files, opt.defines);
+        for (const auto& to_apply : opt.apply) {
+            AD_DEBUG("to_apply \"{}\"", to_apply);
+            settings.apply(to_apply);
+        }
+
         chart_draw.calculate_viewport();
         if (opt.output->empty()) {
             acmacs::file::temp output{fmt::format("{}--p{}.pdf", fs::path(*opt.chart).stem(), opt.projection)};

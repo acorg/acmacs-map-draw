@@ -11,8 +11,41 @@
 
     "? built-in": "----------------------------------------------------------------------",
 
-    "all-grey": [
+    "/all-grey": [
+        {"N": "/all-color", "color": "grey80"},
+        {"N": "antigens", "select": "reference", "order": "lower"},
+        {"N": "sera",     "select": "all",       "order": "lower"}
     ],
+
+    "/all-color": [
+        {"N": "antigens", "select": "test",      "fill": "{color}",     "outline": "{color}"},
+        {"N": "antigens", "select": "reference", "fill": "transparent", "outline": "{color}"},
+        {"N": "sera",     "select": "all",       "fill": "transparent", "outline": "{color}"}
+    ],
+
+    "/size-reset": [
+    ],
+
+    "/egg": [
+    ],
+
+    "/continents": [
+    ],
+
+    "? clades": "----------------------------------------------------------------------",
+
+    "/clades": [
+    ],
+
+    "/clades-light": [
+    ],
+
+    "/clades-6m": [
+    ],
+
+    "/clades-12m": [
+    ],
+
 
     "? end": "*********************** END ***************************"
 }
