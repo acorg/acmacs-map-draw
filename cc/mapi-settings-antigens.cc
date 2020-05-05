@@ -111,30 +111,35 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
 {
     using namespace std::string_view_literals;
 
-    const auto passage_group = [&ag_sr, &indexes](std::string_view passage_key) -> bool {
+    const auto passage_group = [&ag_sr](std::string_view passage_key, acmacs::chart::PointIndexList& ind) -> bool {
         if (passage_key == "egg"sv)
-            ag_sr.filter_egg(indexes, acmacs::chart::reassortant_as_egg::no);
+            ag_sr.filter_egg(ind, acmacs::chart::reassortant_as_egg::no);
         else if (passage_key == "cell"sv)
-            ag_sr.filter_cell(indexes);
+            ag_sr.filter_cell(ind);
         else if (passage_key == "reassortant"sv)
-            ag_sr.filter_reassortant(indexes);
+            ag_sr.filter_reassortant(ind);
         else
             return false;
         return true;
     };
 
-    if (passage_group(key))
+    if (passage_group(key, indexes))
         ; // processed
     else if (key == "passage"sv) {
-        value.visit([passage_group]<typename Val>(const Val& val) {
+        value.visit([passage_group, &indexes]<typename Val>(const Val& val) {
             if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
-                if (passage_group(val.template to<std::string_view>()))
+                if (passage_group(val.template to<std::string_view>(), indexes))
                     ; // processed
                 else
                     throw std::exception{};
             }
             else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-                throw std::exception{};
+                const auto orig{indexes};
+                for (const auto& psg : val) {
+                    auto ind{orig};
+                    passage_group(psg.template to<std::string_view>(), ind);
+                    indexes.extend(ind);
+                }
             }
             else
                 throw std::exception{};
