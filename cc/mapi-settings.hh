@@ -1,10 +1,8 @@
 #pragma once
 
-// #include <memory>
-
 #include "acmacs-base/settings.hh"
 #include "acmacs-base/point-style.hh"
-//#include "acmacs-chart-2/chart.hh"
+#include "acmacs-map-draw/point-style-draw.hh"
 
 // ----------------------------------------------------------------------
 
@@ -43,6 +41,7 @@ namespace acmacs::mapi::inline v1
         ChartDraw& chart_draw_;
 
         constexpr const ChartDraw& chart_draw() const { return chart_draw_; }
+        constexpr ChartDraw& chart_draw() { return chart_draw_; }
 
         void update_env();
 
@@ -55,6 +54,7 @@ namespace acmacs::mapi::inline v1
         acmacs::chart::PointIndexList select_antigens() const;
         acmacs::chart::PointIndexList select_sera() const;
         acmacs::PointStyleModified style_from_toplevel_environment() const;
+        PointDrawingOrder drawing_order_from_toplevel_environment() const;
         Color color(const rjson::v3::value& value) const;
 
         // ----------------------------------------------------------------------

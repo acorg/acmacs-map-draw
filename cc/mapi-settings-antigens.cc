@@ -9,7 +9,7 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
     using namespace std::string_view_literals;
 
     const auto indexes = select_antigens();
-    const auto style = style_from_toplevel_environment();
+    chart_draw().modify(indexes, style_from_toplevel_environment(), drawing_order_from_toplevel_environment());
 
     return true;
 
@@ -38,6 +38,7 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
 bool acmacs::mapi::v1::Settings::apply_sera()
 {
     const auto indexes = select_sera();
+    const auto style = style_from_toplevel_environment();
 
     return true;
 
@@ -235,6 +236,32 @@ Color acmacs::mapi::v1::Settings::color(const rjson::v3::value& value) const
     }
 
 } // acmacs::mapi::v1::Settings::color
+
+// ----------------------------------------------------------------------
+
+PointDrawingOrder acmacs::mapi::v1::Settings::drawing_order_from_toplevel_environment() const
+{
+    using namespace std::string_view_literals;
+    PointDrawingOrder result{PointDrawingOrder::NoChange};
+    for (const auto& [key, val] : getenv_toplevel()) {
+        if (key == "order"sv) {
+            if (const auto order = substitute_to_string(val); order == "raise"sv)
+                result = PointDrawingOrder::Raise;
+            else if (order == "lower"sv)
+                result = PointDrawingOrder::Lower;
+            else
+                AD_WARNING("unrecognized order value: {}", val);
+        }
+        else if ((key == "raise"sv || key == "raise_"sv || key == "_raise"sv) && val.to<bool>())
+            result = PointDrawingOrder::Raise;
+        else if ((key == "lower"sv || key == "lower_"sv || key == "_lower"sv) && val.to<bool>())
+            result = PointDrawingOrder::Lower;
+        if (result != PointDrawingOrder::NoChange)
+            break;
+    }
+    return result;
+
+} // acmacs::mapi::v1::Settings::drawing_order_from_toplevel_environment
 
 // ----------------------------------------------------------------------
 
