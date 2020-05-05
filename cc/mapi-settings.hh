@@ -3,11 +3,19 @@
 // #include <memory>
 
 #include "acmacs-base/settings.hh"
-#include "acmacs-chart-2/chart.hh"
+#include "acmacs-base/point-style.hh"
+//#include "acmacs-chart-2/chart.hh"
 
 // ----------------------------------------------------------------------
 
+namespace acmacs::chart
+{
+    class PointIndexList;
+}
+
 class ChartDraw;
+
+// ----------------------------------------------------------------------
 
 namespace acmacs::mapi::inline v1
 {
@@ -44,8 +52,9 @@ namespace acmacs::mapi::inline v1
         bool apply_antigens();
         bool apply_sera();
 
-        acmacs::chart::Indexes select_antigens() const;
-        acmacs::chart::Indexes select_sera() const;
+        acmacs::chart::PointIndexList select_antigens() const;
+        acmacs::chart::PointIndexList select_sera() const;
+        acmacs::PointStyleModified style_from_toplevel_environment() const;
 
         // ----------------------------------------------------------------------
 

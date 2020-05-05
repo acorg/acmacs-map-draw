@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-05 10:38:01 eu>
+# Time-stamp: <2020-05-05 14:22:59 eu>
 
 * TODO
 
@@ -135,26 +135,26 @@
 [[Label][Label]]
 
 #+BEGIN_SRC json
-# {"N": "antigens", "select": <Select Antigens>
- "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
- "fill_saturation": 1.0, "fill_brightness": 1.0, "outline_saturation": 1.0, "outline_brightness": 1.0,
- "size": 1.0, "outline_width": 1.0,
- "show": true, "shape": "circle|box|triangle",
- "order": "raise|lower",
- "label": <Label>,
- "legend": {"show": true, "label": "<TEXT>", "count": true, "replace": false},
+{"N": "antigens", "select": <Select Antigens>
+ "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0, "outline_width": 1.0,
+ "size": 1.0, "show": true, "shape": "circle|box|triangle",
+# "fill_saturation": 1.0, "fill_brightness": 1.0, "outline_saturation": 1.0, "outline_brightness": 1.0,
+# "fill": "passage", "outline": "passage", "fill": {"egg": "#FF4040", "cell": "#4040FF"}, "outline": {"egg": "#FF4040", "cell": "#4040FF"},
+# "order": "raise|lower",
+# "label": <Label>,
+# "legend": {"show": true, "label": "<TEXT>", "count": true, "replace": false},
  },
 
 # -- sort aa at pos by frequency and set ana/google colors, X is always grey
 
 # {"N": "sera", "select": {<select>},
- "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
- "fill_saturation": 1.0, "fill_brightness": 1.0, "outline_saturation": 1.0, "outline_brightness": 1.0,
- "size": 1.0, "outline_width": 1.0,
- "show": true, "shape": "circle|box|triangle",
- "order": "raise|lower",
- "label": <Label>,
- },
+# "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0,
+# "fill_saturation": 1.0, "fill_brightness": 1.0, "outline_saturation": 1.0, "outline_brightness": 1.0,
+# "size": 1.0, "outline_width": 1.0,
+# "show": true, "shape": "circle|box|triangle",
+# "order": "raise|lower",
+# "label": <Label>,
+# },
 
 #+END_SRC
 

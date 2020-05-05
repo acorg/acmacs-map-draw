@@ -6,10 +6,10 @@
 
 bool acmacs::mapi::v1::Settings::apply_antigens()
 {
-    const auto indexes = select_antigens();
+    using namespace std::string_view_literals;
 
-    for (const auto& [key, val] : getenv_toplevel()) {
-    }
+    const auto indexes = select_antigens();
+    const auto style = style_from_toplevel_environment();
 
     return true;
 
@@ -80,7 +80,7 @@ bool acmacs::mapi::v1::Settings::apply_sera()
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::Indexes acmacs::mapi::v1::Settings::select_antigens() const
+acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens() const
 {
     using namespace std::string_view_literals;
     if (const auto& select_clause = getenv("select"sv); !select_clause.is_null()) {
@@ -142,7 +142,7 @@ acmacs::chart::Indexes acmacs::mapi::v1::Settings::select_antigens() const
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::Indexes acmacs::mapi::v1::Settings::select_sera() const
+acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_sera() const
 {
     if (const auto& select_clause = getenv("select"); !select_clause.is_null()) {
         auto sera = chart_draw().chart().sera();
@@ -153,6 +153,69 @@ acmacs::chart::Indexes acmacs::mapi::v1::Settings::select_sera() const
         throw unrecognized{"no \"select\" clause"};
 
 } // acmacs::mapi::v1::Settings::select_sera
+
+// ----------------------------------------------------------------------
+
+acmacs::PointStyleModified acmacs::mapi::v1::Settings::style_from_toplevel_environment() const
+{
+    using namespace std::string_view_literals;
+    acmacs::PointStyleModified style;
+    for (const auto& [key, val] : getenv_toplevel()) {
+        // AD_DEBUG("apply_antigens {}: {}", key, val);
+        // const auto substituted = substitute(val);
+        if (key == "fill"sv) {
+            if (const std::string_view val_s{val.to<std::string_view>()}; val_s == "passage"sv)
+                AD_WARNING("\"fill\": \"passage\" not implemented"); // style.fill(Color(passage_color));
+            else
+                style.fill(Color(val_s));
+        }
+        else if (key == "fill_saturation"sv) {
+            AD_WARNING("\"fill_saturation\" not implemented");
+            // style.fill = acmacs::color::Modifier{acmacs::color::adjust_saturation{val.to<double>()}};
+        }
+        else if (key == "fill_brightness"sv) {
+            AD_WARNING("\"fill_brightness not implemented");
+            // style.fill = acmacs::color::Modifier{acmacs::color::adjust_brightness{val.to<double>()}};
+        }
+        else if (key == "outline"sv) {
+            if (const std::string_view val_s{val.to<std::string_view>()}; val_s == "passage"sv)
+                AD_WARNING("\"outline\": \"passage\" not implemented"); // style.outline(Color(passage_color));
+            else
+                style.outline(Color(val_s));
+        }
+        else if (key == "outline_saturation"sv) {
+            AD_WARNING("\"outline_saturation\" not implemented");
+            // style.outline = acmacs::color::Modifier{acmacs::color::adjust_saturation{val.to<double>()}};
+        }
+        else if (key == "outline_brightness"sv) {
+            AD_WARNING("\"outline_brightness\" not implemented");
+            // style.outline = acmacs::color::Modifier{acmacs::color::adjust_brightness{val.to<double>()}};
+        }
+        else if (key == "show"sv) {
+            style.shown(substitute_to_bool(val));
+        }
+        else if (key == "hide"sv) {
+            style.shown(! substitute_to_bool(val));
+        }
+        else if (key == "shape"sv) {
+            style.shape(PointShape{substitute_to_string(val)});
+        }
+        else if (key == "size"sv) {
+            style.size(Pixels{substitute_to_double(val)});
+        }
+        else if (key == "outline_width"sv) {
+            style.outline_width(Pixels{substitute_to_double(val)});
+        }
+        else if (key == "aspect"sv) {
+            style.aspect(Aspect{substitute_to_double(val)});
+        }
+        else if (key == "rotation"sv) {
+            style.rotation(Rotation{substitute_to_double(val)});
+        }
+    }
+    return style;
+
+} // acmacs::mapi::v1::Settings::style_from_toplevel_environment
 
 // ----------------------------------------------------------------------
 
