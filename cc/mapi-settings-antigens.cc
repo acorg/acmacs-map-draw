@@ -1,15 +1,12 @@
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/draw.hh"
+#include "acmacs-map-draw/report-antigens.hh"
 
 // ----------------------------------------------------------------------
 
 bool acmacs::mapi::v1::Settings::apply_antigens()
 {
-    if (const auto& select_clause = getenv("select"); !select_clause.is_null()) {
-    }
-    else {
-        throw unrecognized{"no \"select\" clause"};
-    }
+    const auto indexes = select_antigens();
 
     return true;
 
@@ -37,11 +34,7 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
 
 bool acmacs::mapi::v1::Settings::apply_sera()
 {
-    if (const auto& select_clause = getenv("select"); !select_clause.is_null()) {
-    }
-    else {
-        throw unrecognized{"no \"select\" clause"};
-    }
+    const auto indexes = select_sera();
 
     return true;
 
@@ -81,6 +74,82 @@ bool acmacs::mapi::v1::Settings::apply_sera()
     // }
 
 } // acmacs::mapi::v1::Settings::apply_sera
+
+// ----------------------------------------------------------------------
+
+acmacs::chart::Indexes acmacs::mapi::v1::Settings::select_antigens() const
+{
+    using namespace std::string_view_literals;
+    if (const auto& select_clause = getenv("select"sv); !select_clause.is_null()) {
+        auto antigens = chart_draw().chart().antigens();
+        auto indexes = antigens->all_indexes();
+        bool report{false};
+        size_t report_threshold{20};
+        try {
+            select_clause.visit([&indexes, &antigens, &report, &report_threshold]<typename Value>(const Value& select_clause_v) {
+                if constexpr (std::is_same_v<Value, rjson::v3::detail::string>) {
+                    if (select_clause_v.template to<std::string_view>() == "all"sv)
+                        ; // do nothing
+                    else if (select_clause_v.template to<std::string_view>() == "reference"sv)
+                        antigens->filter_reference(indexes);
+                    else if (select_clause_v.template to<std::string_view>() == "test"sv)
+                        antigens->filter_test(indexes);
+                    else
+                        throw unrecognized{};
+                }
+                else if constexpr (std::is_same_v<Value, rjson::v3::detail::object>) {
+                    for (const auto& [key, value] : select_clause_v) {
+                        if (key == "all"sv) {
+                            if (!value.is_bool() || !value)
+                                throw unrecognized{fmt::format("unsupported value of \"{}\"", key)};
+                        }
+                        else if (key == "reference"sv) {
+                            if (!value.is_bool() || !value)
+                                throw unrecognized{fmt::format("unsupported value of \"{}\"", key)};
+                            antigens->filter_reference(indexes);
+                        }
+                        else if (key == "test"sv) {
+                            if (!value.is_bool() || !value)
+                                throw unrecognized{fmt::format("unsupported value of \"{}\"", key)};
+                            antigens->filter_test(indexes);
+                        }
+                        else if (key == "report"sv)
+                            report = true;
+                        else if (key == "report_threshold"sv)
+                            report_threshold = value.template to<size_t>();
+                    }
+                }
+                else
+                    throw unrecognized{};
+            });
+        }
+        catch (std::exception& err) {
+            throw unrecognized{AD_FORMAT("unrecognized \"select\" clause: {}: {}", select_clause, err)};
+        }
+        if (report) {
+            AD_INFO("{} antigens selected with {}", indexes.size(), select_clause);
+            report_antigens(std::begin(indexes), std::end(indexes), chart_draw(), report_threshold);
+        }
+        return indexes;
+    }
+    else
+        throw unrecognized{"no \"select\" clause"};
+
+} // acmacs::mapi::v1::Settings::select_antigens
+
+// ----------------------------------------------------------------------
+
+acmacs::chart::Indexes acmacs::mapi::v1::Settings::select_sera() const
+{
+    if (const auto& select_clause = getenv("select"); !select_clause.is_null()) {
+        auto sera = chart_draw().chart().sera();
+        auto indexes = sera->all_indexes();
+        return indexes;
+    }
+    else
+        throw unrecognized{"no \"select\" clause"};
+
+} // acmacs::mapi::v1::Settings::select_sera
 
 // ----------------------------------------------------------------------
 

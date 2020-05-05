@@ -3,6 +3,7 @@
 // #include <memory>
 
 #include "acmacs-base/settings.hh"
+#include "acmacs-chart-2/chart.hh"
 
 // ----------------------------------------------------------------------
 
@@ -14,7 +15,9 @@ namespace acmacs::mapi::inline v1
 
     class unrecognized : public error
     {
+      public:
         using error::error;
+        unrecognized() : error{""} {}
     };
 
     // ----------------------------------------------------------------------
@@ -31,11 +34,21 @@ namespace acmacs::mapi::inline v1
       private:
         ChartDraw& chart_draw_;
 
+        constexpr const ChartDraw& chart_draw() const { return chart_draw_; }
+
         void update_env();
 
+        // ----------------------------------------------------------------------
         // mapi-settings-antigens.cc
+
         bool apply_antigens();
         bool apply_sera();
+
+        acmacs::chart::Indexes select_antigens() const;
+        acmacs::chart::Indexes select_sera() const;
+
+        // ----------------------------------------------------------------------
+
     };
 
 } // namespace acmacs::mapi::inline v1

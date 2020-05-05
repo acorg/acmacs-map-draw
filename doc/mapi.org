@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-05 09:27:18 eu>
+# Time-stamp: <2020-05-05 10:38:01 eu>
 
 * TODO
 
@@ -15,7 +15,9 @@
 
 # "all"
 # "reference"
+# {"reference": true} -- to combine with other criteria
 # "test"
+# {"test": true} -- to combine with other criteria
 
 # {"index": 11}
 # {"index": [55, 66]} -- disjunction
@@ -93,6 +95,9 @@
 # {"titrated_against_sera": <select sera>}
 
 # {"outline": "green", "outline_width": 3}
+
+{"report": true, "report_threshold": 20}
+
 #+END_SRC
 
 
@@ -118,6 +123,8 @@
 
 # {"titrated_against_antigens": <select antigens>}
 # {"outline": "green", "outline_width": 3}
+
+{"report": true, "report_threshold": 20}
 #+END_SRC
 
 
@@ -136,7 +143,7 @@
  "order": "raise|lower",
  "label": <Label>,
  "legend": {"show": true, "label": "<TEXT>", "count": true, "replace": false},
- "report": false, "report_names_threshold": 30},
+ },
 
 # -- sort aa at pos by frequency and set ana/google colors, X is always grey
 
@@ -147,7 +154,7 @@
  "show": true, "shape": "circle|box|triangle",
  "order": "raise|lower",
  "label": <Label>,
- "report": false, "report_names_threshold": 30},
+ },
 
 #+END_SRC
 
