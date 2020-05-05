@@ -2,17 +2,9 @@
 
 #include "acmacs-base/rjson-v2.hh"
 #include "acmacs-base/string.hh"
-#include "hidb-5/hidb.hh"
-#include "acmacs-chart-2/serum-line.hh"
 #include "acmacs-map-draw/vaccines.hh"
 #include "acmacs-map-draw/select.hh"
 #include "acmacs-map-draw/report-antigens.hh"
-
-// ----------------------------------------------------------------------
-#ifdef __clang__
-#pragma GCC diagnostic ignored "-Wexit-time-destructors"
-//#pragma GCC diagnostic ignored "-Wglobal-constructors"
-#endif
 
 // ----------------------------------------------------------------------
 
@@ -304,143 +296,6 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
 
 // ----------------------------------------------------------------------
 
-void SelectAntigens::filter_sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes)
-{
-    const auto& entries = aChartSelectInterface.match_seqdb();
-    auto not_sequenced = [&entries](auto index) -> bool { return !entries[index]; };
-    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_sequenced), indexes.end());
-
-} // SelectAntigens::filter_sequenced
-
-// ----------------------------------------------------------------------
-
-void SelectAntigens::filter_not_sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes)
-{
-    const auto& entries = aChartSelectInterface.match_seqdb();
-    const auto sequenced = [&entries](auto index) -> bool { return !entries[index].empty(); };
-    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), sequenced), indexes.end());
-
-} // SelectAntigens::filter_not_sequenced
-
-// ----------------------------------------------------------------------
-
-std::map<std::string_view, size_t> SelectAntigens::clades(const ChartSelectInterface& aChartSelectInterface)
-{
-    std::map<std::string_view, size_t> result;
-    for (const auto& entry: aChartSelectInterface.match_seqdb()) {
-        if (entry) {
-            for (const auto& clade: entry.seq().clades)
-                ++result[clade];
-        }
-    }
-    return result;
-
-} // SelectAntigens::clades
-
-// ----------------------------------------------------------------------
-
-void SelectAntigens::filter_clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aClade)
-{
-    const auto& entries = aChartSelectInterface.match_seqdb();
-    const auto& seqdb = acmacs::seqdb::get();
-    auto not_in_clade = [&entries,aClade,&seqdb](auto index) -> bool { const auto& entry = entries[index]; return !entry || !entry.has_clade(seqdb, aClade); };
-    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_clade), indexes.end());
-
-} // SelectAntigens::filter_clade
-
-// ----------------------------------------------------------------------
-
-void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, acmacs::seqdb::pos1_t pos1, bool equal)
-{
-    const auto& entries = aChartSelectInterface.match_seqdb();
-    const auto& seqdb = acmacs::seqdb::get();
-    auto at_pos_neq = [amino_acid,pos1,equal,&seqdb](const auto& entry) -> bool { return equal ? entry.aa_at_pos(seqdb, pos1) != amino_acid : entry.aa_at_pos(seqdb, pos1) == amino_acid; };
-    auto not_aa_at_pos = [&entries,&at_pos_neq](auto index) -> bool { const auto& entry = entries[index]; return !entry || at_pos_neq(entry); };
-    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_aa_at_pos), indexes.end());
-
-} // SelectAntigens::filter_amino_acid_at_pos
-
-// ----------------------------------------------------------------------
-
-void SelectAntigens::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const std::vector<acmacs::seqdb::amino_acid_at_pos1_eq_t>& pos1_aa)
-{
-    for (const auto& entry : pos1_aa)
-        filter_amino_acid_at_pos(aChartSelectInterface, indexes, std::get<char>(entry), std::get<acmacs::seqdb::pos1_t>(entry), std::get<bool>(entry));
-
-} // SelectAntigens::filter_amino_acid_at_pos
-
-// ----------------------------------------------------------------------
-
-void SelectAntigens::filter_outlier(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, double aUnits)
-{
-    auto layout = aChartSelectInterface.layout();
-
-    using sum_count_t = std::pair<acmacs::PointCoordinates, size_t>;
-    auto sum_count_not_empty = [&layout](const auto& sum_count, size_t index) -> sum_count_t {
-        const auto coord = layout->at(index);
-        auto [sum, count] = sum_count;
-        if (coord.exists()) {
-            sum += coord;
-            ++count;
-        }
-        return {sum, count};
-    };
-    auto [centroid, count] = std::accumulate(indexes.begin(), indexes.end(), sum_count_t{{0.0, 0.0}, 0}, sum_count_not_empty);
-    centroid /= static_cast<double>(count);
-    // std::cerr << "centroid new: " << centroid << '\n';
-
-    using point_dist_t = std::pair<size_t, double>; // point number (from indexes) and its distance to centroid
-    std::vector<point_dist_t> point_dist(indexes->size());
-    std::transform(indexes.begin(), indexes.end(), point_dist.begin(), [centroid=centroid,&layout](size_t index) -> point_dist_t {
-        const auto coord = layout->at(index);
-        if (coord.exists())
-            return {index, acmacs::distance(centroid, coord)};
-        else
-            return {index, 0.0}; // not an outlier!
-    });
-    std::sort(point_dist.begin(), point_dist.end(), [](const auto& a, const auto& b) { return a.second > b.second; }); // outliers first
-
-    std::cout << "Outliers:" << '\n';
-    for (const auto& [point_no, dist]: point_dist)
-        std::cout << std::setfill(' ') << std::setw(8) << point_no << ' ' << dist << '\n';
-
-    auto not_outlier = [&point_dist,aUnits](size_t index) { const auto& [_, d] = *std::find_if(point_dist.begin(), point_dist.end(), [index](const auto& pd) { return pd.first == index; }); return d < aUnits; };
-    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_outlier), indexes.end());
-
-} // SelectAntigens::filter_outlier
-
-// ----------------------------------------------------------------------
-
-void SelectAntigens::filter_vaccine(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const VaccineMatchData& aMatchData)
-{
-    const auto virus_type = aChartSelectInterface.chart().info()->virus_type(acmacs::chart::Info::Compute::Yes);
-    if (!virus_type.empty()) {
-
-          // thread unsafe!
-        static std::map<const ChartSelectInterface*, Vaccines> cache_vaccines;
-        auto vaccines_of_chart = cache_vaccines.find(&aChartSelectInterface);
-        if (vaccines_of_chart == cache_vaccines.end()) {
-            Timeit ti_vaccines("Vaccines of chart: ");
-            vaccines_of_chart = cache_vaccines.emplace(&aChartSelectInterface, Vaccines{aChartSelectInterface.chart()}).first;
-            if (verbose())
-                std::cerr << vaccines_of_chart->second.report(hidb::Vaccines::ReportConfig{}.indent(2)) << '\n';
-        }
-        auto vaccine_indexes = vaccines_of_chart->second.indices(aMatchData);
-
-        std::sort(vaccine_indexes.begin(), vaccine_indexes.end());
-        acmacs::chart::Indexes result(vaccine_indexes.size());
-        const auto end = std::set_intersection(indexes.begin(), indexes.end(), vaccine_indexes.begin(), vaccine_indexes.end(), result.begin());
-        indexes.get().erase(std::copy(result.begin(), end, indexes.begin()), indexes.end());
-    }
-    else {
-        indexes.get().clear();
-        std::cerr << "WARNING: unknown virus_type for chart: " << aChartSelectInterface.chart().make_name() << '\n';
-    }
-
-} // SelectAntigens::filter_vaccine
-
-// ----------------------------------------------------------------------
-
 acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector)
 {
     const auto& sera = aChartSelectInterface.chart().sera();
@@ -534,59 +389,44 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
 
 // ----------------------------------------------------------------------
 
-template <typename AgSr> void filter_table_ag_sr(const AgSr& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aTable, std::shared_ptr<hidb::Tables> aHidbTables)
-{
-    auto not_in_table = [aTable,&aAgSr,hidb_tables=*aHidbTables](size_t index) {
-        if (auto ag_sr = aAgSr[index]; ag_sr) { // found in hidb
-            for (auto table_no: ag_sr->tables()) {
-                auto table = hidb_tables[table_no];
-                if (table->date() == aTable || table->name() == aTable)
-                    return false;
-            }
-        }
-        return true;
-    };
-    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_table), indexes.end());
-}
-
 void SelectAntigens::filter_table(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aTable)
 {
     const auto& hidb = hidb::get(aChartSelectInterface.chart().info()->virus_type());
-    filter_table_ag_sr(hidb.antigens()->find(*aChartSelectInterface.chart().antigens()), indexes, aTable, hidb.tables());
+    acmacs::map_draw::select::filter::table_ag_sr(hidb.antigens()->find(*aChartSelectInterface.chart().antigens()), indexes, aTable, hidb.tables());
 
 } // SelectAntigens::filter_table
 
 void SelectSera::filter_table(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aTable)
 {
     const auto& hidb = hidb::get(aChartSelectInterface.chart().info()->virus_type());
-    filter_table_ag_sr(hidb.sera()->find(*aChartSelectInterface.chart().sera()), indexes, aTable, hidb.tables());
+    acmacs::map_draw::select::filter::table_ag_sr(hidb.sera()->find(*aChartSelectInterface.chart().sera()), indexes, aTable, hidb.tables());
 
 } // SelectSera::filter_table
 
 // ----------------------------------------------------------------------
 
-template <typename F> void filter_layer_ag_sr(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, int aLayer, F first_second)
-{
-    auto titers = aChartSelectInterface.chart().titers();
-    if (aLayer < 0)
-        aLayer = static_cast<int>(titers->number_of_layers()) + aLayer;
-    if (aLayer < 0 || aLayer > static_cast<int>(titers->number_of_layers()))
-        throw std::runtime_error(fmt::format("Invalid layer: {}", aLayer));
+// template <typename F> void filter_layer_ag_sr(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, int aLayer, F first_second)
+// {
+//     auto titers = aChartSelectInterface.chart().titers();
+//     if (aLayer < 0)
+//         aLayer = static_cast<int>(titers->number_of_layers()) + aLayer;
+//     if (aLayer < 0 || aLayer > static_cast<int>(titers->number_of_layers()))
+//         throw std::runtime_error(fmt::format("Invalid layer: {}", aLayer));
 
-    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [antigens_in_layer=first_second(titers->antigens_sera_of_layer(static_cast<size_t>(aLayer)))](size_t index) {
-        return std::find(std::begin(antigens_in_layer), std::end(antigens_in_layer), index) == std::end(antigens_in_layer);
-    }), indexes.end());
-}
+//     indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [antigens_in_layer=first_second(titers->antigens_sera_of_layer(static_cast<size_t>(aLayer)))](size_t index) {
+//         return std::find(std::begin(antigens_in_layer), std::end(antigens_in_layer), index) == std::end(antigens_in_layer);
+//     }), indexes.end());
+// }
 
 void SelectAntigens::filter_layer(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, int aLayer)
 {
-    filter_layer_ag_sr(aChartSelectInterface, indexes, aLayer, [](const std::pair<acmacs::chart::PointIndexList, acmacs::chart::PointIndexList>& aPair) { return aPair.first; });
+    acmacs::map_draw::select::filter::layer(aChartSelectInterface, indexes, aLayer, acmacs::map_draw::select::filter::antigens);
 
 } // SelectAntigens::filter_layer
 
 void SelectSera::filter_layer(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, int aLayer)
 {
-    filter_layer_ag_sr(aChartSelectInterface, indexes, aLayer, [](const std::pair<acmacs::chart::PointIndexList, acmacs::chart::PointIndexList>& aPair) { return aPair.second; });
+    acmacs::map_draw::select::filter::layer(aChartSelectInterface, indexes, aLayer, acmacs::map_draw::select::filter::sera);
 
 } // SelectSera::filter_layer
 
@@ -671,45 +511,6 @@ void SelectSera::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSele
     indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), homologous_filtered_out_by_amino_acid), indexes.end());
 
 } // SelectSera::filter_amino_acid_at_pos
-
-// ----------------------------------------------------------------------
-
-void SelectAntigens::filter_relative_to_serum_line(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, double distance_min, double distance_max, int direction)
-{
-    acmacs::chart::SerumLine serum_line(aChartSelectInterface.projection());
-    auto layout = aChartSelectInterface.layout();
-
-    auto not_relative_to_line = [&serum_line, &layout, distance_min, distance_max, direction](auto antigen_no) -> bool {
-        const auto distance = serum_line.line().distance_with_direction(layout->at(antigen_no));
-        return std::abs(distance) < distance_min || std::abs(distance) > distance_max || (direction != 0 && (direction * distance) < 0);
-    };
-    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_relative_to_line), indexes.end());
-
-} // SelectAntigens::filter_relative_to_serum_line
-
-// ----------------------------------------------------------------------
-
-void SelectAntigens::filter_titrated_against(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& antigen_indexes, const acmacs::chart::Indexes& serum_indexes)
-{
-    auto titers = aChartSelectInterface.chart().titers();
-    auto not_titrated = [&titers, &serum_indexes](auto antigen_no) -> bool {
-        return std::all_of(std::begin(serum_indexes), std::end(serum_indexes), [&titers, antigen_no](auto sr_no) { return titers->titer(antigen_no, sr_no).is_dont_care(); });
-    };
-    antigen_indexes.get().erase(std::remove_if(antigen_indexes.begin(), antigen_indexes.end(), not_titrated), antigen_indexes.end());
-
-} // SelectAntigens::filter_titrated_against
-
-// ----------------------------------------------------------------------
-
-void SelectSera::filter_titrated_against(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& serum_indexes, const acmacs::chart::Indexes& antigen_indexes)
-{
-    auto titers = aChartSelectInterface.chart().titers();
-    auto not_titrated = [&titers, &antigen_indexes](auto serum_no) -> bool {
-        return std::all_of(std::begin(antigen_indexes), std::end(antigen_indexes), [&titers, serum_no](auto ag_no) { return titers->titer(ag_no, serum_no).is_dont_care(); });
-    };
-    serum_indexes.get().erase(std::remove_if(serum_indexes.begin(), serum_indexes.end(), not_titrated), serum_indexes.end());
-
-} // SelectSera::filter_titrated_against
 
 // ----------------------------------------------------------------------
 /// Local Variables:

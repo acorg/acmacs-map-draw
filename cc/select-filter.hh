@@ -1,7 +1,13 @@
 #pragma once
 
+#include "acmacs-virus/type-subtype.hh"
 #include "acmacs-chart-2/chart.hh"
+#include "hidb-5/hidb.hh"
 #include "acmacs-map-draw/chart-select-interface.hh"
+
+// ----------------------------------------------------------------------
+
+class VaccineMatchData;         // vaccines.hh
 
 // ----------------------------------------------------------------------
 
@@ -57,7 +63,47 @@ namespace acmacs::map_draw::select::filter
 
     void rectangle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::Layout& aLayout, const acmacs::Rectangle& aRectangle, Rotation rotation);
 
+    void sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes);
+    void not_sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes);
+    void clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aClade);
+    void amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, acmacs::seqdb::pos1_t pos1, bool equal);
+    void amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::seqdb::amino_acid_at_pos1_eq_list_t& pos1_aa);
+    void outlier(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, double aUnits);
+
+    void vaccine(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::virus::type_subtype_t& virus_type, const VaccineMatchData& aMatchData);
+
+    template <typename AgSr> void table_ag_sr(const AgSr& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aTable, std::shared_ptr<hidb::Tables> aHidbTables)
+    {
+        auto not_in_table = [aTable, &aAgSr, hidb_tables = *aHidbTables](size_t index) {
+            if (auto ag_sr = aAgSr[index]; ag_sr) { // found in hidb
+                for (auto table_no : ag_sr->tables()) {
+                    auto table = hidb_tables[table_no];
+                    if (table->date() == aTable || table->name() == aTable)
+                        return false;
+                }
+            }
+            return true;
+        };
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_table), indexes.end());
+    }
+
+    enum ag_sr_ { antigens, sera };
+
+    void layer(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, int aLayer, ag_sr_ ag_sr);
+
+    void relative_to_serum_line(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, double distance_min, double distance_max, int direction);
+    void antigens_titrated_against(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& antigen_indexes, const acmacs::chart::Indexes& serum_indexes);
+    void sera_titrated_against(const ChartSelectInterface& aChartSelectInterface, const acmacs::chart::Indexes& antigen_indexes, acmacs::chart::Indexes& serum_indexes);
+
 } // namespace acmacs::map_draw::select::filter
+
+// ----------------------------------------------------------------------
+
+namespace acmacs::map_draw::select
+{
+    std::map<std::string_view, size_t> clades(const ChartSelectInterface& aChartSelectInterface);
+
+}
 
 // ----------------------------------------------------------------------
 /// Local Variables:
