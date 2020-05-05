@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-04 11:32:24 eu>
+# Time-stamp: <2020-05-05 09:23:12 eu>
 
 * TODO
 
@@ -42,11 +42,15 @@
 # {"passage_re": "E4$"} -- regex search
 # {"passage_re": ["E4$", "E\\d$"]} -- regex search, matched any regex
 
-# {"date_range": ["2016-01-01", "2016-09-01"]}
-# {"date_range": ["", "2016-09-01"]}
-# {"date_range": ["2016-01-01", ""]}
-# {"older_than_days": 365}
-# {"younger_than_days": 365}
+# {"date": ["2016-01-01", "2016-09-01"]} -- range
+# {"date": ["", "2016-09-01"]}
+# {"date": ["2016-01-01", ""]}
+# {"date": {"older_than_days": 365}}
+# {"date": {"younger_than_days": 365}}
+# {"date": {"older_than_days": 183, "younger_than_days": 365}}
+# {"date": {"before": "2016-09-01"}}
+# {"date": {"after": "2016-09-01"}}
+# {"date": {"after": "2016-09-01", "older_than_days": 183}}
 
 # {"country": "sweden"} -- case insensetive
 # {"country": ["sweden", "norway"]} -- disjunction
@@ -100,7 +104,7 @@
 # {"indexes": [55, 66]} -- DEPRECATED
 
 # {"name*": ...} -- see Antigens for variants
-# {"date_range": ...} -- via homologous antigens
+# {"date": ...} -- via homologous antigens
 # {"country": ...}
 # {"continent": ...}
 # {"localtion": ...}
