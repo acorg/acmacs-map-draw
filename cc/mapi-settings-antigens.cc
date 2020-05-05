@@ -128,7 +128,7 @@ acmacs::chart::Indexes acmacs::mapi::v1::Settings::select_antigens() const
         }
         if (report) {
             AD_INFO("{} antigens selected with {}", indexes.size(), select_clause);
-            report_antigens(std::begin(indexes), std::end(indexes), chart_draw(), report_threshold);
+            report_antigens(indexes, chart_draw(), report_threshold);
         }
         return indexes;
     }
