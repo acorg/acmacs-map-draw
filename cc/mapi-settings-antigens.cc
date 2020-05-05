@@ -8,6 +8,9 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
 {
     const auto indexes = select_antigens();
 
+    for (const auto& [key, val] : getenv_toplevel()) {
+    }
+
     return true;
 
     // const auto verbose = rjson::get_or(args(), "report", false);
