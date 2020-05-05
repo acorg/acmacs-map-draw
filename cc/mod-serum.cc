@@ -62,7 +62,7 @@ size_t ModSerumHomologous::select_serum(ChartDraw& aChartDraw, bool aVerbose) co
 void ModSerumHomologous::mark_serum(ChartDraw& aChartDraw, size_t serum_index)
 {
     if (const auto& mark_serum = args()["mark_serum"]; !mark_serum.is_null()) {
-        aChartDraw.modify_serum(serum_index, point_style_from_json(mark_serum, aChartDraw.chart().serum(serum_index)->is_egg() ? Color("#FF4040") : Color("#4040FF")), drawing_order_from_json(mark_serum));
+        aChartDraw.modify_serum(serum_index, point_style_from_json(mark_serum, aChartDraw.chart().serum(serum_index)->is_egg(acmacs::chart::reassortant_as_egg::yes) ? Color("#FF4040") : Color("#4040FF")), drawing_order_from_json(mark_serum));
         if (const auto& label = mark_serum["label"]; !label.is_null())
             add_label(aChartDraw, serum_index, aChartDraw.number_of_antigens(), label);
     }
@@ -243,7 +243,7 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex
         circle.fill(Color(rjson::get_or(circle_plot_spec, "fill", "transparent")));
         auto outline = rjson::get_or(circle_plot_spec, "outline", "pink");
         if (outline == "passage") {
-            if (aChartDraw.chart().serum(aSerumIndex)->is_egg())
+            if (aChartDraw.chart().serum(aSerumIndex)->is_egg(acmacs::chart::reassortant_as_egg::yes))
                 outline = "#FF4040";
             else
                 outline = "#4040FF";

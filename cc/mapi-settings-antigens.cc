@@ -113,7 +113,7 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
 
     const auto passage_group = [&ag_sr, &indexes](std::string_view passage_key) -> bool {
         if (passage_key == "egg"sv)
-            ag_sr.filter_egg(indexes);
+            ag_sr.filter_egg(indexes, acmacs::chart::reassortant_as_egg::no);
         else if (passage_key == "cell"sv)
             ag_sr.filter_cell(indexes);
         else if (passage_key == "reassortant"sv)
