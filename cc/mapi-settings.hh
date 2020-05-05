@@ -55,6 +55,7 @@ namespace acmacs::mapi::inline v1
         acmacs::chart::PointIndexList select_antigens() const;
         acmacs::chart::PointIndexList select_sera() const;
         acmacs::PointStyleModified style_from_toplevel_environment() const;
+        Color color(const rjson::v3::value& value) const;
 
         // ----------------------------------------------------------------------
 

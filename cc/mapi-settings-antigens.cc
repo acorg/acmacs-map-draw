@@ -162,13 +162,24 @@ acmacs::PointStyleModified acmacs::mapi::v1::Settings::style_from_toplevel_envir
     acmacs::PointStyleModified style;
     for (const auto& [key, val] : getenv_toplevel()) {
         // AD_DEBUG("apply_antigens {}: {}", key, val);
-        // const auto substituted = substitute(val);
-        if (key == "fill"sv) {
-            if (const std::string_view val_s{val.to<std::string_view>()}; val_s == "passage"sv)
-                AD_WARNING("\"fill\": \"passage\" not implemented"); // style.fill(Color(passage_color));
-            else
-                style.fill(Color(val_s));
-        }
+        if (key == "fill"sv)
+            style.fill(color(val));
+        else if (key == "outline"sv)
+            style.outline(color(val));
+        else if (key == "show"sv)
+            style.shown(substitute_to_bool(val));
+        else if (key == "hide"sv)
+            style.shown(!substitute_to_bool(val));
+        else if (key == "shape"sv)
+            style.shape(PointShape{substitute_to_string(val)});
+        else if (key == "size"sv)
+            style.size(Pixels{substitute_to_double(val)});
+        else if (key == "outline_width"sv)
+            style.outline_width(Pixels{substitute_to_double(val)});
+        else if (key == "aspect"sv)
+            style.aspect(Aspect{substitute_to_double(val)});
+        else if (key == "rotation"sv)
+            style.rotation(Rotation{substitute_to_double(val)});
         else if (key == "fill_saturation"sv) {
             AD_WARNING("\"fill_saturation\" not implemented");
             // style.fill = acmacs::color::Modifier{acmacs::color::adjust_saturation{val.to<double>()}};
@@ -176,12 +187,6 @@ acmacs::PointStyleModified acmacs::mapi::v1::Settings::style_from_toplevel_envir
         else if (key == "fill_brightness"sv) {
             AD_WARNING("\"fill_brightness not implemented");
             // style.fill = acmacs::color::Modifier{acmacs::color::adjust_brightness{val.to<double>()}};
-        }
-        else if (key == "outline"sv) {
-            if (const std::string_view val_s{val.to<std::string_view>()}; val_s == "passage"sv)
-                AD_WARNING("\"outline\": \"passage\" not implemented"); // style.outline(Color(passage_color));
-            else
-                style.outline(Color(val_s));
         }
         else if (key == "outline_saturation"sv) {
             AD_WARNING("\"outline_saturation\" not implemented");
@@ -191,31 +196,45 @@ acmacs::PointStyleModified acmacs::mapi::v1::Settings::style_from_toplevel_envir
             AD_WARNING("\"outline_brightness\" not implemented");
             // style.outline = acmacs::color::Modifier{acmacs::color::adjust_brightness{val.to<double>()}};
         }
-        else if (key == "show"sv) {
-            style.shown(substitute_to_bool(val));
-        }
-        else if (key == "hide"sv) {
-            style.shown(! substitute_to_bool(val));
-        }
-        else if (key == "shape"sv) {
-            style.shape(PointShape{substitute_to_string(val)});
-        }
-        else if (key == "size"sv) {
-            style.size(Pixels{substitute_to_double(val)});
-        }
-        else if (key == "outline_width"sv) {
-            style.outline_width(Pixels{substitute_to_double(val)});
-        }
-        else if (key == "aspect"sv) {
-            style.aspect(Aspect{substitute_to_double(val)});
-        }
-        else if (key == "rotation"sv) {
-            style.rotation(Rotation{substitute_to_double(val)});
-        }
     }
     return style;
 
 } // acmacs::mapi::v1::Settings::style_from_toplevel_environment
+
+// ----------------------------------------------------------------------
+
+Color acmacs::mapi::v1::Settings::color(const rjson::v3::value& value) const
+{
+    using namespace std::string_view_literals;
+    const auto make_color = [](std::string_view source) -> Color {
+        if (source == "passage"sv) {
+            AD_WARNING("\"passage\" color not implemented");
+            return PINK;
+        }
+        else
+            return source;
+    };
+
+    try {
+        return std::visit(
+            [make_color]<typename Value>(const Value& val) -> Color {
+                if constexpr (std::is_same_v<Value, const rjson::v3::value*>) {
+                    if (val->is_string()) {
+                        return make_color(val->template to<std::string_view>());
+                    }
+                    else
+                        throw std::exception{};
+                }
+                else
+                    return make_color(val);
+            },
+            substitute(value));
+    }
+    catch (std::exception&) {
+        throw unrecognized{AD_FORMAT("canot get color from {}", value)};
+    }
+
+} // acmacs::mapi::v1::Settings::color
 
 // ----------------------------------------------------------------------
 
