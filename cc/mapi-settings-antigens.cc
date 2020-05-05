@@ -38,7 +38,7 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
 bool acmacs::mapi::v1::Settings::apply_sera()
 {
     const auto indexes = select_sera();
-    const auto style = style_from_toplevel_environment();
+    chart_draw().modify_sera(indexes, style_from_toplevel_environment(), drawing_order_from_toplevel_environment());
 
     return true;
 
