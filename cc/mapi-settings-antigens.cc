@@ -84,41 +84,39 @@ bool acmacs::mapi::v1::Settings::apply_sera()
 acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens() const
 {
     using namespace std::string_view_literals;
+
     if (const auto& select_clause = getenv("select"sv); !select_clause.is_null()) {
         auto antigens = chart_draw().chart().antigens();
         auto indexes = antigens->all_indexes();
         bool report{false};
         size_t report_threshold{20};
+
+        const auto select_by_key_and_bool = [&antigens, &indexes](std::string_view key, const rjson::v3::value& expected_bool) -> bool {
+            if (!expected_bool.is_bool() || !expected_bool.template to<bool>())
+                throw unrecognized{fmt::format("unsupported \"{}\" value of {}", key, expected_bool)};
+            if (key == "all"sv)
+                ; // do nothing
+            else if (key == "reference"sv)
+                antigens->filter_reference(indexes);
+            else if (key == "test"sv)
+                antigens->filter_test(indexes);
+            else
+                return false;
+            return true;
+        };
+
         try {
-            select_clause.visit([&indexes, &antigens, &report, &report_threshold]<typename Value>(const Value& select_clause_v) {
+            select_clause.visit([&indexes, &antigens, &report, &report_threshold, select_by_key_and_bool]<typename Value>(const Value& select_clause_v) {
                 if constexpr (std::is_same_v<Value, rjson::v3::detail::string>) {
-                    if (select_clause_v.template to<std::string_view>() == "all"sv)
-                        ; // do nothing
-                    else if (select_clause_v.template to<std::string_view>() == "reference"sv)
-                        antigens->filter_reference(indexes);
-                    else if (select_clause_v.template to<std::string_view>() == "test"sv)
-                        antigens->filter_test(indexes);
-                    else
+                    if (!select_by_key_and_bool(select_clause_v.template to<std::string_view>(), rjson::v3::const_true))
                         throw unrecognized{};
                 }
                 else if constexpr (std::is_same_v<Value, rjson::v3::detail::object>) {
                     for (const auto& [key, value] : select_clause_v) {
-                        if (key == "all"sv) {
-                            if (!value.is_bool() || !value)
-                                throw unrecognized{fmt::format("unsupported value of \"{}\"", key)};
-                        }
-                        else if (key == "reference"sv) {
-                            if (!value.is_bool() || !value)
-                                throw unrecognized{fmt::format("unsupported value of \"{}\"", key)};
-                            antigens->filter_reference(indexes);
-                        }
-                        else if (key == "test"sv) {
-                            if (!value.is_bool() || !value)
-                                throw unrecognized{fmt::format("unsupported value of \"{}\"", key)};
-                            antigens->filter_test(indexes);
-                        }
+                        if (select_by_key_and_bool(key, value))
+                            ; // processed
                         else if (key == "report"sv)
-                            report = true;
+                            report = value.template to<bool>();
                         else if (key == "report_threshold"sv)
                             report_threshold = value.template to<size_t>();
                     }
