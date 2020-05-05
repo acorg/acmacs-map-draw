@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-05 17:29:36 eu>
+# Time-stamp: <2020-05-05 19:02:34 eu>
 
 * TODO
 
@@ -38,7 +38,7 @@
 {"passage": "egg"} -- wildtype only, lowercase! "EGG" means exact passage
 {"passage": "cell"}
 {"passage": "reassortant"}
-# {"passage": ["egg", "reassortant"]} -- either wildtype or reassortant (disjunction)
+{"passage": ["egg", "reassortant"]} -- either wildtype or reassortant (disjunction)
 # {"passage": "E4"} -- real passage
 # {"passage": ["E4", "E3"]} -- either real passage (disjunction)
 # {"passage_re": "E4$"} -- regex search

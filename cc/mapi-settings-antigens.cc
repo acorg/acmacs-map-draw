@@ -135,10 +135,17 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
             }
             else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
                 const auto orig{indexes};
+                bool first{true};
                 for (const auto& psg : val) {
-                    auto ind{orig};
-                    passage_group(psg.template to<std::string_view>(), ind);
-                    indexes.extend(ind);
+                    if (first) {
+                        passage_group(psg.template to<std::string_view>(), indexes);
+                        first = false;
+                    }
+                    else {
+                        auto ind{orig};
+                        passage_group(psg.template to<std::string_view>(), ind);
+                        indexes.extend(ind);
+                    }
                 }
             }
             else
