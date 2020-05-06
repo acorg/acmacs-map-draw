@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-06 18:45:29 eu>
+# Time-stamp: <2020-05-06 18:57:32 eu>
 
 * TODO
 
@@ -56,8 +56,8 @@
 {"localtion": ["HONG KONG", "CHINA"]} -- disjunction
 
 {"sequenced": true}, {"sequenced": false}
-# {"clade": "3C.3A"} -- ~/AD/share/conf/clades.json
-# {"clade": ["3C.3A", "3C.2A2"]} -- disjunction
+{"clade": "3C.3A"} -- ~/AD/share/conf/clades.json
+{"clade": ["3C.3A", "3C.2A2"]} -- disjunction
 # {"amino-acid": "144R"}
 # {"amino-acid": ["144R", "93A", "!160K"]} -- disjunction
 # -- sort aa at pos by frequency and set ana/google colors, X is always grey
@@ -106,7 +106,7 @@
 {"country": ...}
 {"continent": ...}
 {"localtion": ...}
-# {"clade": ...}  -- ? via seqdb.clades_for_name()
+{"clade": ...}  -- ? via seqdb.clades_for_name()
 {"sequenced": ...} 
 # {"amino-acid": ...}
 

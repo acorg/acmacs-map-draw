@@ -389,9 +389,17 @@ static inline void check_sequence(const ChartSelectInterface& aChartSelectInterf
 
     const auto report_error = [key, &value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"{}\" clause: {}", key, value)}; };
 
-    value.visit([&aChartSelectInterface, &antigens, &indexes, report_error, key, &value]<typename Val>(const Val& val) {
-        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
+    const auto sequence_one = [&aChartSelectInterface, report_error, key](acmacs::chart::PointIndexList& ind, std::string_view name) {
+        if (key == "clade"sv || key == "clades"sv) {
+            acmacs::map_draw::select::filter::clade(aChartSelectInterface, ind, name);
+        }
+        else
             report_error();
+    };
+
+    value.visit([&aChartSelectInterface, &indexes, report_error, sequence_one, key]<typename Val>(const Val& val) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
+            sequence_one(indexes, val.template to<std::string_view>());
         }
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::boolean>) {
             if (key == "sequenced"sv) {
@@ -404,18 +412,27 @@ static inline void check_sequence(const ChartSelectInterface& aChartSelectInterf
                 report_error();
         }
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-            report_error();
+            const auto orig{indexes};
+            bool first{true};
+            for (const auto& name : val) {
+                if (first) {
+                    sequence_one(indexes, name.template to<std::string_view>());
+                    first = false;
+                }
+                else {
+                    auto ind{orig};
+                    sequence_one(ind, name.template to<std::string_view>());
+                    indexes.extend(ind);
+                }
+            }
         }
-        else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
-            report_error();
-        }
+        // else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
+        //     report_error();
+        // }
         else
             report_error();
     });
 
-    // acmacs::map_draw::select::filter::sequenced(aChartSelectInterface, indexes);
-    // acmacs::map_draw::select::filter::not_sequenced(aChartSelectInterface, indexes);
-    // acmacs::map_draw::select::filter::clade(aChartSelectInterface, indexes, aClade);
     // acmacs::map_draw::select::filter::amino_acid_at_pos(aChartSelectInterface, indexes, amino_acid, pos1, equal);
     // acmacs::map_draw::select::filter::amino_acid_at_pos(aChartSelectInterface, indexes, pos1_aa);
 
