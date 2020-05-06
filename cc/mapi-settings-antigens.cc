@@ -1,3 +1,4 @@
+#include "acmacs-base/date.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/report-antigens.hh"
@@ -213,7 +214,29 @@ static inline void check_date(const acmacs::chart::Chart& /*chart*/, const acmac
             antigens.filter_date_range(indexes, val[0].template to<std::string_view>(), val[1].template to<std::string_view>());
         }
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
-            report_error();
+            std::string first_date, last_date;
+            const auto update_first = [&first_date](std::string_view date) {
+                if (first_date.empty() || date > first_date)
+                    first_date.assign(date);
+            };
+            const auto update_last = [&last_date](std::string_view date) {
+                if (last_date.empty() || date < last_date)
+                    last_date.assign(date);
+            };
+            for (const auto& [key, value] : val) {
+                if (key == "younger_than_days"sv)
+                    update_first(date::display(date::days_ago(date::today(), value.template to<int>())));
+                else if (key == "older_than_days"sv)
+                    update_last(date::display(date::days_ago(date::today(), value.template to<int>())));
+                else if (key == "before"sv)
+                    update_last(value.template to<std::string_view>());
+                else if (key == "after"sv)
+                    update_first(value.template to<std::string_view>());
+                else
+                    AD_WARNING("unrecognized \"date\" key \"{}\"", key);
+            }
+            // AD_DEBUG("filter_date_range \"{}\" \"{}\"", first_date, last_date);
+            antigens.filter_date_range(indexes, first_date, last_date);
         }
         else
             report_error();
@@ -350,6 +373,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                             report = value.template to<bool>();
                         else if (key == "report_threshold"sv)
                             report_threshold = value.template to<size_t>();
+                        else if (!key.empty() && key[0] != '?')
+                            AD_WARNING("unrecognized \"select\" key: \"{}\"", key);
                     }
                 }
                 else
