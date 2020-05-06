@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-06 16:20:48 eu>
+# Time-stamp: <2020-05-06 16:56:18 eu>
 
 * TODO
 
@@ -48,12 +48,12 @@
 {"date": {"after": "2016-09-01"}}
 {"date": {"after": "2016-09-01", "older_than_days": 183}} -- (conjunction)
 
-# {"country": "sweden"} -- case insensetive
-# {"country": ["sweden", "norway"]} -- disjunction
-# {"continent": "europe"} -- case insensetive
-# {"continent": ["europe", "russia"]} -- disjunction
-# {"localtion": "HONG KONG"}
-# {"localtion": ["HONG KONG", "CHINA"]} -- disjunction
+{"country": "sweden"} -- case insensetive
+{"country": ["sweden", "norway"]} -- disjunction
+{"continent": "europe"} -- case insensetive
+{"continent": ["europe", "russia"]} -- disjunction
+{"localtion": "HONG KONG"}
+{"localtion": ["HONG KONG", "CHINA"]} -- disjunction
 
 # "sequenced"
 # "not_sequenced"
@@ -90,6 +90,8 @@
 
 # {"outline": "green", "outline_width": 3}
 
+# "exclude_distinct"
+
 {"report": true, "report_threshold": 20}
 
 #+END_SRC
@@ -101,17 +103,17 @@
 "all"
 {"index": ...} -- see Antigens for variants
 {"name*": ...} -- see Antigens for variants
-# {"date": ...} -- via homologous antigens
-# {"country": ...}
-# {"continent": ...}
-# {"localtion": ...}
-# {"table": ...}
+{"date": ...} -- via homologous antigens
+{"country": ...}
+{"continent": ...}
+{"localtion": ...}
 # {"clade": ...} -- ? via seqdb.clades_for_name()
 # {"amino_acid": ...}
 
 # {"serum_id": "CDC 2016-003"}
 # {"serum_id_re": "CDC 2016-003"}
 
+# {"table": ...}
 # {"titrated_against_antigens": <select antigens>}
 # {"outline": "green", "outline_width": 3}
 

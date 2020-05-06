@@ -267,6 +267,50 @@ static inline void check_date(const acmacs::chart::Chart& chart, const acmacs::c
 
 // ----------------------------------------------------------------------
 
+template <typename AgSr> static void check_location(const AgSr& ag_sr, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+{
+    using namespace std::string_view_literals;
+
+    const auto report_error = [key, &value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"{}\" clause: {}", key, value)}; };
+
+    const auto location_one = [&ag_sr, key](acmacs::chart::PointIndexList& ind, std::string_view name) {
+        if (key == "country"sv || key == "countries"sv)
+            ag_sr.filter_country(ind, string::upper(name));
+        else if (key == "continent"sv || key == "continents"sv)
+            ag_sr.filter_continent(ind, string::upper(name));
+        else if (key == "location"sv || key == "locations"sv)
+            acmacs::map_draw::select::filter::location_in(ag_sr, ind, string::upper(name));
+        else
+            AD_WARNING("unrecognized location  key \"{}\"", key); // should never come here actually
+    };
+
+    value.visit([&indexes, report_error, location_one]<typename Val>(const Val& val) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
+            location_one(indexes, val.template to<std::string_view>());
+        }
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+            const auto orig{indexes};
+            bool first{true};
+            for (const auto& name : val) {
+                if (first) {
+                    location_one(indexes, name.template to<std::string_view>());
+                    first = false;
+                }
+                else {
+                    auto ind{orig};
+                    location_one(ind, name.template to<std::string_view>());
+                    indexes.extend(ind);
+                }
+            }
+        }
+        else
+            report_error();
+    });
+
+} // check_location
+
+// ----------------------------------------------------------------------
+
 template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value, throw_if_unprocessed tiu)
 {
     using namespace std::string_view_literals;
@@ -373,6 +417,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                             report = value.template to<bool>();
                         else if (key == "report_threshold"sv)
                             report_threshold = value.template to<size_t>();
+                        else if (key == "country"sv || key == "countries"sv || key == "continent"sv || key == "continents"sv || key == "location"sv || key == "locations"sv)
+                            check_location(ag_sr, indexes, key, value);
                         else if (!key.empty() && key[0] != '?')
                             AD_WARNING("unrecognized \"select\" key: \"{}\"", key);
                     }
