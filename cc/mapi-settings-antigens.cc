@@ -196,7 +196,7 @@ template <typename AgSr> static void check_name(const AgSr& ag_sr, acmacs::chart
 
 // ----------------------------------------------------------------------
 
-static inline void check_date(const acmacs::chart::Antigens& antigens, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+static inline void check_date(const acmacs::chart::Chart& /*chart*/, const acmacs::chart::Antigens& antigens, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
 {
     using namespace std::string_view_literals;
 
@@ -223,10 +223,22 @@ static inline void check_date(const acmacs::chart::Antigens& antigens, acmacs::c
 
 // ----------------------------------------------------------------------
 
-static inline void check_date(const acmacs::chart::Sera& sera, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+static inline void check_date(const acmacs::chart::Chart& chart, const acmacs::chart::Sera& sera, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
 {
-    AD_DEBUG("\"date\" is not implemented for sera");
-    indexes.clear();
+    chart.set_homologous(acmacs::chart::find_homologous::relaxed);
+
+    auto antigens = chart.antigens();
+    auto antigen_indexes = antigens->all_indexes();
+    check_date(chart, *antigens, antigen_indexes, key, value);
+
+    auto homologous_filtered_out_by_date_range = [&sera, &antigen_indexes](auto serum_index) -> bool {
+        for (auto antigen_index : sera.at(serum_index)->homologous_antigens()) {
+            if (antigen_indexes.contains(antigen_index))
+                return false;   // homologous antigen selected by date range, do not remove this serum from indexes
+        }
+        return true;
+    };
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), homologous_filtered_out_by_date_range), indexes.end());
 
 } // check_date(sera)
 
@@ -313,7 +325,7 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
         size_t report_threshold{20};
 
         try {
-            select_clause.visit([&indexes, &ag_sr, &report, &report_threshold]<typename Value>(const Value& select_clause_v) {
+            select_clause.visit([&indexes, &ag_sr, &report, &report_threshold, this]<typename Value>(const Value& select_clause_v) {
                 if constexpr (std::is_same_v<Value, rjson::v3::detail::string>) {
                     if (check_reference(ag_sr, indexes, select_clause_v.template to<std::string_view>(), rjson::v3::const_true))
                         ; // processed
@@ -327,7 +339,7 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                         if (check_reference(ag_sr, indexes, key, value))
                             ; // processed
                         else if (key == "date"sv || key == "dates"sv || key == "date_range"sv)
-                            check_date(ag_sr, indexes, key, value);
+                            check_date(chart_draw().chart(), ag_sr, indexes, key, value);
                         else if (key == "index"sv || key == "indexes"sv || key == "indices"sv)
                             check_index(ag_sr, indexes, key, value);
                         else if (key == "name"sv || key == "names"sv)
