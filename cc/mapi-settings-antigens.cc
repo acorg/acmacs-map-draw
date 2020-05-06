@@ -166,7 +166,7 @@ template <typename AgSr> static void check_name(const AgSr& ag_sr, acmacs::chart
 
     const auto report_error = [&value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized name clause: {}", value)}; };
 
-    if (key != "names"sv)
+    if (key != "name"sv)
         AD_WARNING("Selecting antigen/serum with \"{}\" deprecated, use \"name\"", key);
 
     value.visit([&ag_sr, &indexes, report_error]<typename Val>(const Val& val) {
@@ -193,6 +193,42 @@ template <typename AgSr> static void check_name(const AgSr& ag_sr, acmacs::chart
     });
 
 } // check_name
+
+// ----------------------------------------------------------------------
+
+static inline void check_date(const acmacs::chart::Antigens& antigens, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+{
+    using namespace std::string_view_literals;
+
+    const auto report_error = [&value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized date clause: {}", value)}; };
+
+    if (key != "date"sv)
+        AD_WARNING("Selecting antigen/serum with \"{}\" deprecated, use \"date\"", key);
+
+    value.visit([&antigens, &indexes, report_error]<typename Val>(const Val& val) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
+            report_error();
+        }
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+            antigens.filter_date_range(indexes, val[0].template to<std::string_view>(), val[1].template to<std::string_view>());
+        }
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
+            report_error();
+        }
+        else
+            report_error();
+    });
+
+} // check_date(antigens)
+
+// ----------------------------------------------------------------------
+
+static inline void check_date(const acmacs::chart::Sera& sera, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+{
+    AD_DEBUG("\"date\" is not implemented for sera");
+    indexes.clear();
+
+} // check_date(sera)
 
 // ----------------------------------------------------------------------
 
@@ -290,6 +326,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                     for (const auto& [key, value] : select_clause_v) {
                         if (check_reference(ag_sr, indexes, key, value))
                             ; // processed
+                        else if (key == "date"sv || key == "dates"sv || key == "date_range"sv)
+                            check_date(ag_sr, indexes, key, value);
                         else if (key == "index"sv || key == "indexes"sv || key == "indices"sv)
                             check_index(ag_sr, indexes, key, value);
                         else if (key == "name"sv || key == "names"sv)

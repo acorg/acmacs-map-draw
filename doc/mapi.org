@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-06 12:32:57 eu>
+# Time-stamp: <2020-05-06 15:43:16 eu>
 
 * TODO
 
@@ -11,7 +11,7 @@
 * Select Antigens
 
 #+BEGIN_SRC json
-# {"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"} -- multiple keys means all must match (conjunction)
+{"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"} -- multiple keys means all must match (conjunction)
 
 "all"
 "reference"
@@ -23,16 +23,9 @@
 {"index": [55, 66]} -- disjunction
 {"indexes": [55, 66]} -- DEPRECATED
 
-# {"name": "SWITZERLAND/9715293/2013"}
-# {"name": "~/971529\d/"} -- regex search in FULL name (~ in front removed before compiling regex, use single \)
-# {"name": ["SWITZERLAND/9715293/2013", "~/2/2009"]} -- either matched (disjunction)
-
-# {"name": ["SWITZERLAND/9715293/2013", "MICHIGAN/2/2009"], "passage": "reassortant"}
-# {"name_full": "A(H1N1)/MICHIGAN/2/2009 MDCK1"} -- preferred form
-# {"full_name": "A(H1N1)/MICHIGAN/2/2009 MDCK1", "no": 0} -- DEPRECATED (backward compatible)
-# {"name_full": ["A(H1N1)/MICHIGAN/2/2009 MDCK1", "A(H1N1)/NEW YORK/33/2011 MDCK2"]} -- (disjunction)
-# {"name_re": "MICHIGAN"} -- regex
-# {"name_re": ["MICHIGAN", "/NEW YORK/"]} -- regex (disjunction)
+{"name": "SWITZERLAND/9715293/2013"}
+{"name": "~/971529\d/"} -- regex search in FULL name (~ in front removed before compiling regex, use single \)
+{"name": ["SWITZERLAND/9715293/2013", "~/2/2009"]} -- either matched (disjunction)
 
 "egg" -- wildtype only
 "cell"
@@ -45,15 +38,15 @@
 {"passage": "~E\d$"} -- regex search (~ in front removed before compiling regex, use single \)
 {"passage": ["E4", "~K\d$"]} -- combine non-regex and regex search (disjunction)
 
-# {"date": ["2016-01-01", "2016-09-01"]} -- range
-# {"date": ["", "2016-09-01"]}
-# {"date": ["2016-01-01", ""]}
+{"date": ["2016-01-01", "2016-09-01"]} -- range
+{"date": ["", "2016-09-01"]}
+{"date": ["2016-01-01", ""]}
 # {"date": {"older_than_days": 365}}
 # {"date": {"younger_than_days": 365}}
-# {"date": {"older_than_days": 183, "younger_than_days": 365}}
+# {"date": {"older_than_days": 183, "younger_than_days": 365}} -- (conjunction)
 # {"date": {"before": "2016-09-01"}}
 # {"date": {"after": "2016-09-01"}}
-# {"date": {"after": "2016-09-01", "older_than_days": 183}}
+# {"date": {"after": "2016-09-01", "older_than_days": 183}} -- (conjunction)
 
 # {"country": "sweden"} -- case insensetive
 # {"country": ["sweden", "norway"]} -- disjunction
@@ -105,12 +98,9 @@
 * Select Sera
 
 #+BEGIN_SRC json
-# "all"
-# {"index": 11}, 
-# {"index": [55, 66]} -- disjunction
-# {"indexes": [55, 66]} -- DEPRECATED
-
-# {"name*": ...} -- see Antigens for variants
+"all"
+{"index": ...} -- see Antigens for variants
+{"name*": ...} -- see Antigens for variants
 # {"date": ...} -- via homologous antigens
 # {"country": ...}
 # {"continent": ...}
