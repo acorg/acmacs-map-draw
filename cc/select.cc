@@ -148,7 +148,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
         }
         else if (key == "name") {
             if (val.is_string()) {
-                filter_name(aChartSelectInterface, indexes, string::upper(val.to<std::string_view>()));
+                filter_name(aChartSelectInterface, indexes, val.to<std::string_view>());
             }
             else if (val.is_array()) {
                 decltype(indexes) to_include;
@@ -338,7 +338,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
         //     sera->filter_continent(indexes, string::upper(val.to<std::string_view>()));
         // }
         else if (key == "name") {
-            filter_name(aChartSelectInterface, indexes, string::upper(val.to<std::string_view>()));
+            filter_name(aChartSelectInterface, indexes, val.to<std::string_view>());
         }
         else if (key == "full_name") {
             filter_full_name(aChartSelectInterface, indexes, string::upper(val.to<std::string_view>()));

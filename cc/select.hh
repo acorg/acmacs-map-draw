@@ -84,15 +84,15 @@ class SelectAntigens : public SelectAntigensSera
 
     void filter_name(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aName) override
     {
-        acmacs::map_draw::select::filter::name_in(aChartSelectInterface.chart().antigens(), indexes, aName);
+        acmacs::map_draw::select::filter::name_in(*aChartSelectInterface.chart().antigens(), indexes, aName);
     }
     void filter_full_name(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aFullName) override
     {
-        acmacs::map_draw::select::filter::full_name_in(aChartSelectInterface.chart().antigens(), indexes, aFullName);
+        acmacs::map_draw::select::filter::full_name_in(*aChartSelectInterface.chart().antigens(), indexes, aFullName);
     }
     void filter_location(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aLocation) override
     {
-        acmacs::map_draw::select::filter::location_in(aChartSelectInterface.chart().antigens(), indexes, aLocation);
+        acmacs::map_draw::select::filter::location_in(*aChartSelectInterface.chart().antigens(), indexes, aLocation);
     }
     void filter_rectangle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::Rectangle& aRectangle, transformed_t transformed,
                           Rotation rotation) override
@@ -108,7 +108,7 @@ class SelectAntigens : public SelectAntigensSera
     {
         acmacs::map_draw::select::filter::outline_width_in(aChartSelectInterface, indexes, 0, outline_width);
     }
-    void filter_out_distinct(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes) override { acmacs::map_draw::select::filter::out_distinct_in(aChartSelectInterface.chart().antigens(), indexes); }
+    void filter_out_distinct(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes) override { acmacs::map_draw::select::filter::out_distinct_in(*aChartSelectInterface.chart().antigens(), indexes); }
 
     void filter_vaccine(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const VaccineMatchData& aMatchData)
     {
@@ -140,15 +140,15 @@ class SelectSera : public SelectAntigensSera
 
     void filter_name(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aName) override
     {
-        acmacs::map_draw::select::filter::name_in(aChartSelectInterface.chart().sera(), indexes, aName);
+        acmacs::map_draw::select::filter::name_in(*aChartSelectInterface.chart().sera(), indexes, aName);
     }
     void filter_full_name(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aFullName) override
     {
-        acmacs::map_draw::select::filter::full_name_in(aChartSelectInterface.chart().sera(), indexes, aFullName);
+        acmacs::map_draw::select::filter::full_name_in(*aChartSelectInterface.chart().sera(), indexes, aFullName);
     }
     void filter_location(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aLocation) override
     {
-        acmacs::map_draw::select::filter::location_in(aChartSelectInterface.chart().sera(), indexes, aLocation);
+        acmacs::map_draw::select::filter::location_in(*aChartSelectInterface.chart().sera(), indexes, aLocation);
     }
     void filter_rectangle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::Rectangle& aRectangle, transformed_t transformed,
                           Rotation rotation) override
@@ -178,7 +178,7 @@ class SelectSera : public SelectAntigensSera
 
     void filter_clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aClade);
     void filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::seqdb::amino_acid_at_pos1_eq_list_t& pos1_aa);
-    void filter_out_distinct(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes) override { acmacs::map_draw::select::filter::out_distinct_in(aChartSelectInterface.chart().sera(), indexes); }
+    void filter_out_distinct(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes) override { acmacs::map_draw::select::filter::out_distinct_in(*aChartSelectInterface.chart().sera(), indexes); }
     void filter_date_range(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view from, std::string_view to);
 
 }; // class SelectSera

@@ -160,6 +160,42 @@ template <typename AgSr> static void check_index(const AgSr& ag_sr, acmacs::char
 
 // ----------------------------------------------------------------------
 
+template <typename AgSr> static void check_name(const AgSr& ag_sr, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+{
+    using namespace std::string_view_literals;
+
+    const auto report_error = [&value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized name clause: {}", value)}; };
+
+    if (key != "names"sv)
+        AD_WARNING("Selecting antigen/serum with \"{}\" deprecated, use \"name\"", key);
+
+    value.visit([&ag_sr, &indexes, report_error]<typename Val>(const Val& val) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
+            acmacs::map_draw::select::filter::name_in(ag_sr, indexes, val.template to<std::string_view>());
+        }
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+            const auto orig{indexes};
+            bool first{true};
+            for (const auto& name : val) {
+                if (first) {
+                    acmacs::map_draw::select::filter::name_in(ag_sr, indexes, name.template to<std::string_view>());
+                    first = false;
+                 }
+                else {
+                    auto ind{orig};
+                    acmacs::map_draw::select::filter::name_in(ag_sr, ind, name.template to<std::string_view>());
+                    indexes.extend(ind);
+                }
+            }
+        }
+        else
+            report_error();
+    });
+
+} // check_name
+
+// ----------------------------------------------------------------------
+
 template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value, throw_if_unprocessed tiu)
 {
     using namespace std::string_view_literals;
@@ -256,6 +292,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                             ; // processed
                         else if (key == "index"sv || key == "indexes"sv || key == "indices"sv)
                             check_index(ag_sr, indexes, key, value);
+                        else if (key == "name"sv || key == "names"sv)
+                            check_name(ag_sr, indexes, key, value);
                         else if (key == "passage"sv)
                             check_passage(ag_sr, indexes, key, value, throw_if_unprocessed::yes);
                         else if (key == "report"sv)
@@ -272,8 +310,14 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
             throw unrecognized{AD_FORMAT("unrecognized \"select\" clause: {}: {}", select_clause, err)};
         }
         if (report) {
-            AD_INFO("{} antigens selected with {}", indexes.size(), select_clause);
-            report_antigens(indexes, chart_draw(), report_threshold);
+            if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
+                AD_INFO("{} antigens selected with {}", indexes.size(), select_clause);
+                report_antigens(indexes, chart_draw(), report_threshold);
+            }
+            else {
+                AD_INFO("{} sera selected with {}", indexes.size(), select_clause);
+                report_sera(indexes, chart_draw(), report_threshold);
+            }
         }
         return indexes;
     }

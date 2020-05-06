@@ -13,29 +13,33 @@ class VaccineMatchData;         // vaccines.hh
 
 namespace acmacs::map_draw::select::filter
 {
-    template <typename AgSr> void name_in(AgSr aAgSr, acmacs::chart::Indexes& indexes, std::string_view aName)
+    template <typename AgSr> void name_in(const AgSr& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aName)
     {
         // Timeit ti("filter_name_in " + aName + ": ", do_report_time(mVerbose));
         acmacs::chart::Indexes result(indexes->size());
-        const auto by_name = aAgSr->find_by_name(aName);
+        acmacs::chart::Indexes by_name;
+        if (!aName.empty() && aName[0] == '~')
+            by_name = aAgSr.find_by_name(std::regex{std::next(std::begin(aName), 1), std::end(aName), acmacs::regex::icase});
+        else
+            by_name = aAgSr.find_by_name(::string::upper(aName));
         // std::cerr << "DEBUG: SelectAntigensSera::filter_name_in \"" << aName << "\": " << by_name << '\n';
         const auto end = std::set_intersection(indexes.begin(), indexes.end(), by_name.begin(), by_name.end(), result.begin());
         indexes.get().erase(std::copy(result.begin(), end, indexes.begin()), indexes.end());
     }
 
-    template <typename AgSr> void full_name_in(AgSr aAgSr, acmacs::chart::Indexes& indexes, std::string_view aFullName)
+    template <typename AgSr> void full_name_in(const AgSr& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aFullName)
     {
-        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return (*aAgSr)[index]->full_name() != aFullName; }), indexes.end());
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return aAgSr[index]->full_name() != aFullName; }), indexes.end());
     }
 
-    template <typename AgSr> void location_in(AgSr aAgSr, acmacs::chart::Indexes& indexes, std::string_view aLocation)
+    template <typename AgSr> void location_in(const AgSr& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aLocation)
     {
-        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return (*aAgSr)[index]->location() != aLocation; }), indexes.end());
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return aAgSr[index]->location() != aLocation; }), indexes.end());
     }
 
-    template <typename AgSr> void out_distinct_in(AgSr aAgSr, acmacs::chart::Indexes& indexes)
+    template <typename AgSr> void out_distinct_in(const AgSr& aAgSr, acmacs::chart::Indexes& indexes)
     {
-        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return (*aAgSr)[index]->annotations().distinct(); }), indexes.end());
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return aAgSr[index]->annotations().distinct(); }), indexes.end());
     }
 
     inline void circle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::Layout& aLayout, const acmacs::Circle& aCircle)

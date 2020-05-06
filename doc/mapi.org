@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-06 12:15:06 eu>
+# Time-stamp: <2020-05-06 12:32:57 eu>
 
 * TODO
 
@@ -24,9 +24,8 @@
 {"indexes": [55, 66]} -- DEPRECATED
 
 # {"name": "SWITZERLAND/9715293/2013"}
-# {"name": ["SWITZERLAND/9715293/2013", "MICHIGAN/2/2009"]} -- either matched (disjunction)
-# {"name_re": "/9715293/"} -- regex search
-# {"name_re": ["/9715293/", "/2013$"]} -- regex search (disjunction)
+# {"name": "~/971529\d/"} -- regex search in FULL name (~ in front removed before compiling regex, use single \)
+# {"name": ["SWITZERLAND/9715293/2013", "~/2/2009"]} -- either matched (disjunction)
 
 # {"name": ["SWITZERLAND/9715293/2013", "MICHIGAN/2/2009"], "passage": "reassortant"}
 # {"name_full": "A(H1N1)/MICHIGAN/2/2009 MDCK1"} -- preferred form
