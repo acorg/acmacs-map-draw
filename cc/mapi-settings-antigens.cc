@@ -224,9 +224,9 @@ static inline void check_date(const acmacs::chart::Chart& /*chart*/, const acmac
                     last_date.assign(date);
             };
             for (const auto& [key, value] : val) {
-                if (key == "younger_than_days"sv)
+                if (key == "younger-than-days"sv || key == "younger_than_days"sv)
                     update_first(date::display(date::days_ago(date::today(), value.template to<int>())));
-                else if (key == "older_than_days"sv)
+                else if (key == "older-than-days"sv || key == "older_than_days"sv)
                     update_last(date::display(date::days_ago(date::today(), value.template to<int>())));
                 else if (key == "before"sv)
                     update_last(value.template to<std::string_view>());
@@ -254,14 +254,14 @@ static inline void check_date(const acmacs::chart::Chart& chart, const acmacs::c
     auto antigen_indexes = antigens->all_indexes();
     check_date(chart, *antigens, antigen_indexes, key, value);
 
-    auto homologous_filtered_out_by_date_range = [&sera, &antigen_indexes](auto serum_index) -> bool {
+    auto homologous_filtered_out = [&sera, &antigen_indexes](auto serum_index) -> bool {
         for (auto antigen_index : sera.at(serum_index)->homologous_antigens()) {
             if (antigen_indexes.contains(antigen_index))
-                return false;   // homologous antigen selected by date range, do not remove this serum from indexes
+                return false;   // homologous antigen selected by ..., do not remove this serum from indexes
         }
         return true;
     };
-    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), homologous_filtered_out_by_date_range), indexes.end());
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), homologous_filtered_out), indexes.end());
 
 } // check_date(sera)
 
@@ -382,6 +382,68 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
 
 // ----------------------------------------------------------------------
 
+static inline void check_sequence(const ChartSelectInterface& aChartSelectInterface, const acmacs::chart::Antigens& antigens, acmacs::chart::PointIndexList& indexes, std::string_view key,
+                                  const rjson::v3::value& value)
+{
+    using namespace std::string_view_literals;
+
+    const auto report_error = [key, &value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"{}\" clause: {}", key, value)}; };
+
+    value.visit([&aChartSelectInterface, &antigens, &indexes, report_error, key, &value]<typename Val>(const Val& val) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
+            report_error();
+        }
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::boolean>) {
+            if (key == "sequenced"sv) {
+                if (val.template to<bool>())
+                    acmacs::map_draw::select::filter::sequenced(aChartSelectInterface, indexes);
+                else
+                    acmacs::map_draw::select::filter::not_sequenced(aChartSelectInterface, indexes);
+            }
+            else
+                report_error();
+        }
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+            report_error();
+        }
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
+            report_error();
+        }
+        else
+            report_error();
+    });
+
+    // acmacs::map_draw::select::filter::sequenced(aChartSelectInterface, indexes);
+    // acmacs::map_draw::select::filter::not_sequenced(aChartSelectInterface, indexes);
+    // acmacs::map_draw::select::filter::clade(aChartSelectInterface, indexes, aClade);
+    // acmacs::map_draw::select::filter::amino_acid_at_pos(aChartSelectInterface, indexes, amino_acid, pos1, equal);
+    // acmacs::map_draw::select::filter::amino_acid_at_pos(aChartSelectInterface, indexes, pos1_aa);
+
+} // check_sequence(antigens)
+
+// ----------------------------------------------------------------------
+
+static inline void check_sequence(const ChartSelectInterface& aChartSelectInterface, const acmacs::chart::Sera& sera, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+{
+    aChartSelectInterface.chart().set_homologous(acmacs::chart::find_homologous::relaxed);
+
+    auto antigens = aChartSelectInterface.chart().antigens();
+    auto antigen_indexes = antigens->all_indexes();
+    check_sequence(aChartSelectInterface, *antigens, antigen_indexes, key, value);
+
+    auto homologous_filtered_out = [&sera, &antigen_indexes](auto serum_index) -> bool {
+        for (auto antigen_index : sera.at(serum_index)->homologous_antigens()) {
+            if (antigen_indexes.contains(antigen_index))
+                return false;   // homologous antigen selected by ..., do not remove this serum from indexes
+        }
+        return true;
+    };
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), homologous_filtered_out), indexes.end());
+
+} // check_sequence(sera)
+
+// ----------------------------------------------------------------------
+
 template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select(const AgSr& ag_sr) const
 {
     using namespace std::string_view_literals;
@@ -413,9 +475,11 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                             check_name(ag_sr, indexes, key, value);
                         else if (key == "passage"sv)
                             check_passage(ag_sr, indexes, key, value, throw_if_unprocessed::yes);
+                        else if (key == "sequenced"sv || key == "clade"sv || key == "clades"sv || key == "amino_acid"sv || key == "amino_acids"sv || key == "amino-acid"sv || key == "amino-acids"sv)
+                            check_sequence(chart_draw(), ag_sr, indexes, key, value);
                         else if (key == "report"sv)
                             report = value.template to<bool>();
-                        else if (key == "report_threshold"sv)
+                        else if (key == "report-threshold"sv || key == "report_threshold"sv)
                             report_threshold = value.template to<size_t>();
                         else if (key == "country"sv || key == "countries"sv || key == "continent"sv || key == "continents"sv || key == "location"sv || key == "locations"sv)
                             check_location(ag_sr, indexes, key, value);

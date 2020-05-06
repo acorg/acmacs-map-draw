@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-06 16:56:18 eu>
+# Time-stamp: <2020-05-06 18:45:29 eu>
 
 * TODO
 
@@ -41,12 +41,12 @@
 {"date": ["2016-01-01", "2016-09-01"]} -- range
 {"date": ["", "2016-09-01"]}
 {"date": ["2016-01-01", ""]}
-{"date": {"older_than_days": 365}}
-{"date": {"younger_than_days": 365}}
-{"date": {"older_than_days": 183, "younger_than_days": 365}} -- (conjunction)
+{"date": {"older-than-days": 365}}
+{"date": {"younger-than-days": 365}}
+{"date": {"older-than-days": 183, "younger-than-days": 365}} -- (conjunction)
 {"date": {"before": "2016-09-01"}}
 {"date": {"after": "2016-09-01"}}
-{"date": {"after": "2016-09-01", "older_than_days": 183}} -- (conjunction)
+{"date": {"after": "2016-09-01", "older-than-days": 183}} -- (conjunction)
 
 {"country": "sweden"} -- case insensetive
 {"country": ["sweden", "norway"]} -- disjunction
@@ -55,12 +55,11 @@
 {"localtion": "HONG KONG"}
 {"localtion": ["HONG KONG", "CHINA"]} -- disjunction
 
-# "sequenced"
-# "not_sequenced"
+{"sequenced": true}, {"sequenced": false}
 # {"clade": "3C.3A"} -- ~/AD/share/conf/clades.json
 # {"clade": ["3C.3A", "3C.2A2"]} -- disjunction
-# {"amino_acid": "144R"}
-# {"amino_acid": ["144R", "93A", "!160K"]} -- disjunction
+# {"amino-acid": "144R"}
+# {"amino-acid": ["144R", "93A", "!160K"]} -- disjunction
 # -- sort aa at pos by frequency and set ana/google colors, X is always grey
 
 # {"lab": "CDC"}
@@ -74,8 +73,8 @@
 # {"lineage": "VIC"}
 # {"lineage": "V"}
 
-# {"in_rectangle": <Rectangle in Drawing>}
-# {"in_circle": <Circle in Drawing>}
+# {"in-rectangle": <Rectangle in Drawing>}
+# {"in-circle": <Circle in Drawing>}
 
 # {"subtype": "H1 A(H1N1) H3 A(H3N2) B BV BVIC BY BYAM"}, --?
 
@@ -84,15 +83,15 @@
 # {"table": "20170216"}
 # {"table": "MELB:HI:turkey:20170216"}
 # {"layer": 0} -- >=0: from the beginning, <0: from end
-# {"relative_to_serum_line": {"distance_min": 0, "distance_max": 10000, "direction": 1}, "?direction": [1, -1, 0]}
+# {"relative-to-serum-line": {"distance-min": 0, "distance-max": 10000, "direction": 1}, "?direction": [1, -1, 0]}
 
-# {"titrated_against_sera": <select sera>}
+# {"titrated-against-sera": <select sera>}
 
-# {"outline": "green", "outline_width": 3}
+# {"outline": "green", "outline-width": 3}
 
-# "exclude_distinct"
+# "exclude-distinct"
 
-{"report": true, "report_threshold": 20}
+{"report": true, "report-threshold": 20}
 
 #+END_SRC
 
@@ -107,8 +106,9 @@
 {"country": ...}
 {"continent": ...}
 {"localtion": ...}
-# {"clade": ...} -- ? via seqdb.clades_for_name()
-# {"amino_acid": ...}
+# {"clade": ...}  -- ? via seqdb.clades_for_name()
+{"sequenced": ...} 
+# {"amino-acid": ...}
 
 # {"serum_id": "CDC 2016-003"}
 # {"serum_id_re": "CDC 2016-003"}
