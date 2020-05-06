@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-06 15:43:16 eu>
+# Time-stamp: <2020-05-06 16:20:48 eu>
 
 * TODO
 
@@ -41,12 +41,12 @@
 {"date": ["2016-01-01", "2016-09-01"]} -- range
 {"date": ["", "2016-09-01"]}
 {"date": ["2016-01-01", ""]}
-# {"date": {"older_than_days": 365}}
-# {"date": {"younger_than_days": 365}}
-# {"date": {"older_than_days": 183, "younger_than_days": 365}} -- (conjunction)
-# {"date": {"before": "2016-09-01"}}
-# {"date": {"after": "2016-09-01"}}
-# {"date": {"after": "2016-09-01", "older_than_days": 183}} -- (conjunction)
+{"date": {"older_than_days": 365}}
+{"date": {"younger_than_days": 365}}
+{"date": {"older_than_days": 183, "younger_than_days": 365}} -- (conjunction)
+{"date": {"before": "2016-09-01"}}
+{"date": {"after": "2016-09-01"}}
+{"date": {"after": "2016-09-01", "older_than_days": 183}} -- (conjunction)
 
 # {"country": "sweden"} -- case insensetive
 # {"country": ["sweden", "norway"]} -- disjunction

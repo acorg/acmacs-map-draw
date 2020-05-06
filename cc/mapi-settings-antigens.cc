@@ -206,7 +206,7 @@ static inline void check_date(const acmacs::chart::Chart& /*chart*/, const acmac
     if (key != "date"sv)
         AD_WARNING("Selecting antigen/serum with \"{}\" deprecated, use \"date\"", key);
 
-    value.visit([&antigens, &indexes, report_error]<typename Val>(const Val& val) {
+    value.visit([&antigens, &indexes, report_error, &value]<typename Val>(const Val& val) {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
             report_error();
         }
@@ -235,7 +235,7 @@ static inline void check_date(const acmacs::chart::Chart& /*chart*/, const acmac
                 else
                     AD_WARNING("unrecognized \"date\" key \"{}\"", key);
             }
-            // AD_DEBUG("filter_date_range \"{}\" \"{}\"", first_date, last_date);
+            AD_INFO("date range for selecting antigens/sera by {}: \"{}\" .. \"{}\"", value, first_date, last_date);
             antigens.filter_date_range(indexes, first_date, last_date);
         }
         else
