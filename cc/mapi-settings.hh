@@ -51,6 +51,7 @@ namespace acmacs::mapi::inline v1
         bool apply_antigens();
         bool apply_sera();
 
+        template <typename AgSr> acmacs::chart::PointIndexList select(const AgSr& ag_sr) const;
         acmacs::chart::PointIndexList select_antigens() const;
         acmacs::chart::PointIndexList select_sera() const;
         acmacs::PointStyleModified style_from_toplevel_environment() const;

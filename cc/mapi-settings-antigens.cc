@@ -90,15 +90,19 @@ template <typename AgSr> static bool check_reference(const AgSr& ag_sr, acmacs::
         if (!expected_bool.is_bool() || !expected_bool.template to<bool>())
             throw acmacs::mapi::unrecognized{fmt::format("unsupported \"{}\" value of {}", key, expected_bool)};
     }
-    else if (key == "reference"sv) {
-        if (!expected_bool.is_bool() || !expected_bool.template to<bool>())
-            throw acmacs::mapi::unrecognized{fmt::format("unsupported \"{}\" value of {}", key, expected_bool)};
-        ag_sr.filter_reference(indexes);
-    }
-    else if (key == "test"sv) {
-        if (!expected_bool.is_bool() || !expected_bool.template to<bool>())
-            throw acmacs::mapi::unrecognized{fmt::format("unsupported \"{}\" value of {}", key, expected_bool)};
-        ag_sr.filter_test(indexes);
+    else if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
+        if (key == "reference"sv) {
+            if (!expected_bool.is_bool() || !expected_bool.template to<bool>())
+                throw acmacs::mapi::unrecognized{fmt::format("unsupported \"{}\" value of {}", key, expected_bool)};
+            ag_sr.filter_reference(indexes);
+        }
+        else if (key == "test"sv) {
+            if (!expected_bool.is_bool() || !expected_bool.template to<bool>())
+                throw acmacs::mapi::unrecognized{fmt::format("unsupported \"{}\" value of {}", key, expected_bool)};
+            ag_sr.filter_test(indexes);
+        }
+        else
+            return false;
     }
     else
         return false;
@@ -170,32 +174,31 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens() const
+template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select(const AgSr& ag_sr) const
 {
     using namespace std::string_view_literals;
 
     if (const auto& select_clause = getenv("select"sv); !select_clause.is_null()) {
-        auto antigens = chart_draw().chart().antigens();
-        auto indexes = antigens->all_indexes();
+        auto indexes = ag_sr.all_indexes();
         bool report{false};
         size_t report_threshold{20};
 
         try {
-            select_clause.visit([&indexes, &antigens, &report, &report_threshold]<typename Value>(const Value& select_clause_v) {
+            select_clause.visit([&indexes, &ag_sr, &report, &report_threshold]<typename Value>(const Value& select_clause_v) {
                 if constexpr (std::is_same_v<Value, rjson::v3::detail::string>) {
-                    if (check_reference(*antigens, indexes, select_clause_v.template to<std::string_view>(), rjson::v3::const_true))
+                    if (check_reference(ag_sr, indexes, select_clause_v.template to<std::string_view>(), rjson::v3::const_true))
                         ; // processed
-                    else if (check_passage(*antigens, indexes, select_clause_v.template to<std::string_view>(), rjson::v3::const_true))
+                    else if (check_passage(ag_sr, indexes, select_clause_v.template to<std::string_view>(), rjson::v3::const_true))
                         ; // processed
                     else
                         throw unrecognized{};
                 }
                 else if constexpr (std::is_same_v<Value, rjson::v3::detail::object>) {
                     for (const auto& [key, value] : select_clause_v) {
-                        if (check_reference(*antigens, indexes, key, value))
+                        if (check_reference(ag_sr, indexes, key, value))
                             ; // processed
                         else if (key == "passage"sv) {
-                            if (!check_passage(*antigens, indexes, key, value))
+                            if (!check_passage(ag_sr, indexes, key, value))
                                 throw unrecognized{fmt::format("unrecognized passage clause: {}", value)};
                         }
                         else if (key == "report"sv)
@@ -220,60 +223,21 @@ acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens() cons
     else
         throw unrecognized{"no \"select\" clause"};
 
+} // acmacs::mapi::v1::Settings::select
+
+// ----------------------------------------------------------------------
+
+acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens() const
+{
+    return select(*chart_draw().chart().antigens());
+
 } // acmacs::mapi::v1::Settings::select_antigens
 
 // ----------------------------------------------------------------------
 
 acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_sera() const
 {
-    using namespace std::string_view_literals;
-
-    if (const auto& select_clause = getenv("select"); !select_clause.is_null()) {
-        auto sera = chart_draw().chart().sera();
-        auto indexes = sera->all_indexes();
-        bool report{false};
-        size_t report_threshold{20};
-
-        try {
-            select_clause.visit([&indexes, &sera, &report, &report_threshold]<typename Value>(const Value& select_clause_v) {
-                if constexpr (std::is_same_v<Value, rjson::v3::detail::string>) {
-                    if (select_clause_v.template to<std::string_view>() == "all"sv)
-                        ; // processed
-                    else if (check_passage(*sera, indexes, select_clause_v.template to<std::string_view>(), rjson::v3::const_true))
-                        ; // processed
-                    else
-                        throw unrecognized{};
-                }
-                else if constexpr (std::is_same_v<Value, rjson::v3::detail::object>) {
-                    for (const auto& [key, value] : select_clause_v) {
-                        if (key == "all"sv)
-                            ;   // processed
-                        else if (key == "passage"sv) {
-                            if (!check_passage(*sera, indexes, key, value))
-                                throw unrecognized{fmt::format("unrecognized passage clause: {}", value)};
-                        }
-                        else if (key == "report"sv)
-                            report = value.template to<bool>();
-                        else if (key == "report_threshold"sv)
-                            report_threshold = value.template to<size_t>();
-                    }
-                }
-                else
-                    throw unrecognized{};
-            });
-        }
-        catch (std::exception& err) {
-            throw unrecognized{AD_FORMAT("unrecognized \"select\" clause: {}: {}", select_clause, err)};
-        }
-        if (report) {
-            AD_INFO("{} sera selected with {}", indexes.size(), select_clause);
-            report_sera(indexes, chart_draw(), report_threshold);
-        }
-
-        return indexes;
-    }
-    else
-        throw unrecognized{"no \"select\" clause"};
+    return select(*chart_draw().chart().sera());
 
 } // acmacs::mapi::v1::Settings::select_sera
 
