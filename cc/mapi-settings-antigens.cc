@@ -114,6 +114,52 @@ template <typename AgSr> static bool check_reference(const AgSr& ag_sr, acmacs::
 
 // ----------------------------------------------------------------------
 
+template <typename AgSr> static void check_index(const AgSr& ag_sr, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+{
+    using namespace std::string_view_literals;
+
+    const auto report_error = [&value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized index clause: {}", value)}; };
+
+    const auto keep = [&ag_sr](size_t index_to_keep, acmacs::chart::PointIndexList& ind) {
+        if (index_to_keep < ag_sr.size()) {
+            ind.erase_except(index_to_keep);
+        }
+        else {
+            ind.clear();
+            AD_WARNING("index is out of range: {} (range: 0 .. {})", index_to_keep, ag_sr.size() - 1);
+        }
+    };
+
+    if (key != "index"sv)
+        AD_WARNING("Selecting antigen/serum with \"{}\" deprecated, use \"index\"", key);
+
+    value.visit([&indexes, keep, report_error]<typename Val>(const Val& val) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::number>) {
+            keep(val.template to<size_t>(), indexes);
+        }
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+            const auto orig{indexes};
+            bool first{true};
+            for (const auto& index_to_keep : val) {
+                if (first) {
+                    keep(index_to_keep.template to<size_t>(), indexes);
+                    first = false;
+                }
+                else {
+                    auto ind{orig};
+                    keep(index_to_keep.template to<size_t>(), ind);
+                    indexes.extend(ind);
+                }
+            }
+        }
+        else
+            report_error();
+    });
+
+} // check_index
+
+// ----------------------------------------------------------------------
+
 template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value, throw_if_unprocessed tiu)
 {
     using namespace std::string_view_literals;
@@ -126,7 +172,7 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
 
     enum class basic { no, yes };
     const auto passage_group = [&ag_sr, report_error](std::string_view passage_key, acmacs::chart::PointIndexList& ind, basic bas) -> bool {
-        AD_DEBUG("passage_group \"{}\"", passage_key);
+        // AD_DEBUG("passage_group \"{}\"", passage_key);
         if (passage_key == "egg"sv)
             ag_sr.filter_egg(ind, acmacs::chart::reassortant_as_egg::no);
         else if (passage_key == "cell"sv)
@@ -208,6 +254,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                     for (const auto& [key, value] : select_clause_v) {
                         if (check_reference(ag_sr, indexes, key, value))
                             ; // processed
+                        else if (key == "index"sv || key == "indexes"sv || key == "indices"sv)
+                            check_index(ag_sr, indexes, key, value);
                         else if (key == "passage"sv)
                             check_passage(ag_sr, indexes, key, value, throw_if_unprocessed::yes);
                         else if (key == "report"sv)

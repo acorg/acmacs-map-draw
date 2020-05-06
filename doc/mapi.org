@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-06 11:19:21 eu>
+# Time-stamp: <2020-05-06 12:15:06 eu>
 
 * TODO
 
@@ -19,9 +19,9 @@
 "test"
 {"test": true} -- to combine with other criteria
 
-# {"index": 11}
-# {"index": [55, 66]} -- disjunction
-# {"indexes": [55, 66]} -- DEPRECATED
+{"index": 11}
+{"index": [55, 66]} -- disjunction
+{"indexes": [55, 66]} -- DEPRECATED
 
 # {"name": "SWITZERLAND/9715293/2013"}
 # {"name": ["SWITZERLAND/9715293/2013", "MICHIGAN/2/2009"]} -- either matched (disjunction)
