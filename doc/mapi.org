@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-06 10:54:25 eu>
+# Time-stamp: <2020-05-06 11:19:21 eu>
 
 * TODO
 
@@ -35,6 +35,9 @@
 # {"name_re": "MICHIGAN"} -- regex
 # {"name_re": ["MICHIGAN", "/NEW YORK/"]} -- regex (disjunction)
 
+"egg" -- wildtype only
+"cell"
+"reassortant"
 {"passage": "egg"} -- wildtype only, lowercase! "EGG" means exact passage
 {"passage": "cell"}
 {"passage": "reassortant"}

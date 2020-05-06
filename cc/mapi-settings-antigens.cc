@@ -3,6 +3,8 @@
 #include "acmacs-map-draw/report-antigens.hh"
 #include "acmacs-map-draw/select-filter.hh"
 
+enum class throw_if_unprocessed { no, yes };
+
 // ----------------------------------------------------------------------
 
 bool acmacs::mapi::v1::Settings::apply_antigens()
@@ -112,12 +114,19 @@ template <typename AgSr> static bool check_reference(const AgSr& ag_sr, acmacs::
 
 // ----------------------------------------------------------------------
 
-template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value, throw_if_unprocessed tiu)
 {
     using namespace std::string_view_literals;
 
+    const auto report_error = [tiu, &value](throw_if_unprocessed tiu2 = throw_if_unprocessed::no) -> bool {
+        if (tiu == throw_if_unprocessed::yes || tiu2 == throw_if_unprocessed::yes)
+            throw acmacs::mapi::unrecognized{fmt::format("unrecognized passage clause: {}", value)};
+        return false;
+    };
+
     enum class basic { no, yes };
-    const auto passage_group = [&ag_sr](std::string_view passage_key, acmacs::chart::PointIndexList& ind, basic bas) -> bool {
+    const auto passage_group = [&ag_sr, report_error](std::string_view passage_key, acmacs::chart::PointIndexList& ind, basic bas) -> bool {
+        AD_DEBUG("passage_group \"{}\"", passage_key);
         if (passage_key == "egg"sv)
             ag_sr.filter_egg(ind, acmacs::chart::reassortant_as_egg::no);
         else if (passage_key == "cell"sv)
@@ -132,6 +141,8 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
             else
                 ag_sr.filter_passage(ind, passage_key);
         }
+        else if (bas == basic::no)
+            return report_error();
         else
             return false;
         return true;
@@ -140,12 +151,12 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
     if (passage_group(key, indexes, basic::yes))
         ; // processed
     else if (key == "passage"sv) {
-        value.visit([passage_group, &indexes]<typename Val>(const Val& val) {
+        value.visit([passage_group, &indexes, report_error]<typename Val>(const Val& val) {
             if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
                 if (passage_group(val.template to<std::string_view>(), indexes, basic::no))
                     ; // processed
                 else
-                    throw std::exception{};
+                    report_error(throw_if_unprocessed::yes);
             }
             else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
                 const auto orig{indexes};
@@ -163,11 +174,11 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
                 }
             }
             else
-                throw std::exception{};
+                report_error(throw_if_unprocessed::yes);
         });
     }
     else
-        return false;
+        return report_error();
     return true;
 
 } // check_passage
@@ -188,7 +199,7 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                 if constexpr (std::is_same_v<Value, rjson::v3::detail::string>) {
                     if (check_reference(ag_sr, indexes, select_clause_v.template to<std::string_view>(), rjson::v3::const_true))
                         ; // processed
-                    else if (check_passage(ag_sr, indexes, select_clause_v.template to<std::string_view>(), rjson::v3::const_true))
+                    else if (check_passage(ag_sr, indexes, select_clause_v.template to<std::string_view>(), rjson::v3::const_true, throw_if_unprocessed::no))
                         ; // processed
                     else
                         throw unrecognized{};
@@ -197,10 +208,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                     for (const auto& [key, value] : select_clause_v) {
                         if (check_reference(ag_sr, indexes, key, value))
                             ; // processed
-                        else if (key == "passage"sv) {
-                            if (!check_passage(ag_sr, indexes, key, value))
-                                throw unrecognized{fmt::format("unrecognized passage clause: {}", value)};
-                        }
+                        else if (key == "passage"sv)
+                            check_passage(ag_sr, indexes, key, value, throw_if_unprocessed::yes);
                         else if (key == "report"sv)
                             report = value.template to<bool>();
                         else if (key == "report_threshold"sv)
