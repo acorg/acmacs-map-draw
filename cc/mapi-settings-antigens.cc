@@ -1,6 +1,7 @@
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/report-antigens.hh"
+#include "acmacs-map-draw/select-filter.hh"
 
 // ----------------------------------------------------------------------
 
@@ -111,24 +112,33 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
 {
     using namespace std::string_view_literals;
 
-    const auto passage_group = [&ag_sr](std::string_view passage_key, acmacs::chart::PointIndexList& ind) -> bool {
+    enum class basic { no, yes };
+    const auto passage_group = [&ag_sr](std::string_view passage_key, acmacs::chart::PointIndexList& ind, basic bas) -> bool {
         if (passage_key == "egg"sv)
             ag_sr.filter_egg(ind, acmacs::chart::reassortant_as_egg::no);
         else if (passage_key == "cell"sv)
             ag_sr.filter_cell(ind);
         else if (passage_key == "reassortant"sv)
             ag_sr.filter_reassortant(ind);
+        else if (bas == basic::no) {
+            if (!passage_key.empty() && passage_key[0] == '~') {
+                const std::regex re{std::next(std::begin(passage_key), 1), std::end(passage_key), acmacs::regex::icase};
+                ag_sr.filter_passage(ind, re);
+            }
+            else
+                ag_sr.filter_passage(ind, passage_key);
+        }
         else
             return false;
         return true;
     };
 
-    if (passage_group(key, indexes))
+    if (passage_group(key, indexes, basic::yes))
         ; // processed
     else if (key == "passage"sv) {
         value.visit([passage_group, &indexes]<typename Val>(const Val& val) {
             if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
-                if (passage_group(val.template to<std::string_view>(), indexes))
+                if (passage_group(val.template to<std::string_view>(), indexes, basic::no))
                     ; // processed
                 else
                     throw std::exception{};
@@ -138,12 +148,12 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
                 bool first{true};
                 for (const auto& psg : val) {
                     if (first) {
-                        passage_group(psg.template to<std::string_view>(), indexes);
+                        passage_group(psg.template to<std::string_view>(), indexes, basic::no);
                         first = false;
                     }
                     else {
                         auto ind{orig};
-                        passage_group(psg.template to<std::string_view>(), ind);
+                        passage_group(psg.template to<std::string_view>(), ind, basic::no);
                         indexes.extend(ind);
                     }
                 }

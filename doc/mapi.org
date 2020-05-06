@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-05 19:02:34 eu>
+# Time-stamp: <2020-05-06 10:54:25 eu>
 
 * TODO
 
@@ -39,10 +39,9 @@
 {"passage": "cell"}
 {"passage": "reassortant"}
 {"passage": ["egg", "reassortant"]} -- either wildtype or reassortant (disjunction)
-# {"passage": "E4"} -- real passage
-# {"passage": ["E4", "E3"]} -- either real passage (disjunction)
-# {"passage_re": "E4$"} -- regex search
-# {"passage_re": ["E4$", "E\\d$"]} -- regex search, matched any regex
+{"passage": "E4"} -- search in passage
+{"passage": "~E\d$"} -- regex search (~ in front removed before compiling regex, use single \)
+{"passage": ["E4", "~K\d$"]} -- combine non-regex and regex search (disjunction)
 
 # {"date": ["2016-01-01", "2016-09-01"]} -- range
 # {"date": ["", "2016-09-01"]}
