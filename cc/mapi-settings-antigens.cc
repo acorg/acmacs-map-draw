@@ -382,6 +382,23 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
 
 // ----------------------------------------------------------------------
 
+template <typename Callback> void check_disjunction(acmacs::chart::PointIndexList& indexes, const rjson::v3::detail::array& arr, Callback&& callback)
+{
+    const auto orig{indexes};
+    bool first{true};
+    for (const auto& name : arr) {
+        if (first) {
+            callback(indexes, name.template to<std::string_view>());
+            first = false;
+        }
+        else {
+            auto ind{orig};
+            callback(ind, name.template to<std::string_view>());
+            indexes.extend(ind);
+        }
+    }
+}
+
 static inline void check_sequence(const ChartSelectInterface& aChartSelectInterface, const acmacs::chart::Antigens& antigens, acmacs::chart::PointIndexList& indexes, std::string_view key,
                                   const rjson::v3::value& value)
 {
@@ -415,19 +432,7 @@ static inline void check_sequence(const ChartSelectInterface& aChartSelectInterf
                 report_error();
         }
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-            const auto orig{indexes};
-            bool first{true};
-            for (const auto& name : val) {
-                if (first) {
-                    sequence_one(indexes, name.template to<std::string_view>());
-                    first = false;
-                }
-                else {
-                    auto ind{orig};
-                    sequence_one(ind, name.template to<std::string_view>());
-                    indexes.extend(ind);
-                }
-            }
+            check_disjunction(indexes, val, sequence_one);
         }
         // else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
         //     report_error();
