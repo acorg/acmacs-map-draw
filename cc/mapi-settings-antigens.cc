@@ -85,6 +85,26 @@ bool acmacs::mapi::v1::Settings::apply_sera()
 
 // ----------------------------------------------------------------------
 
+template <typename Conv, typename Callback> void check_disjunction(acmacs::chart::PointIndexList& indexes, const rjson::v3::detail::array& arr, Callback&& callback)
+{
+    const auto orig{indexes};
+    bool first{true};
+    for (const auto& name : arr) {
+        if (first) {
+            callback(indexes, name.template to<Conv>());
+            first = false;
+        }
+        else {
+            auto ind{orig};
+            callback(ind, name.template to<Conv>());
+            indexes.extend(ind);
+        }
+    }
+
+} // check_disjunction
+
+// ----------------------------------------------------------------------
+
 template <typename AgSr> static bool check_reference(const AgSr& ag_sr, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& expected_bool)
 {
     using namespace std::string_view_literals;
@@ -121,7 +141,7 @@ template <typename AgSr> static void check_index(const AgSr& ag_sr, acmacs::char
 
     const auto report_error = [&value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized index clause: {}", value)}; };
 
-    const auto keep = [&ag_sr](size_t index_to_keep, acmacs::chart::PointIndexList& ind) {
+    const auto keep = [&ag_sr](acmacs::chart::PointIndexList& ind, size_t index_to_keep) {
         if (index_to_keep < ag_sr.size()) {
             ind.erase_except(index_to_keep);
         }
@@ -135,24 +155,10 @@ template <typename AgSr> static void check_index(const AgSr& ag_sr, acmacs::char
         AD_WARNING("Selecting antigen/serum with \"{}\" deprecated, use \"index\"", key);
 
     value.visit([&indexes, keep, report_error]<typename Val>(const Val& val) {
-        if constexpr (std::is_same_v<Val, rjson::v3::detail::number>) {
-            keep(val.template to<size_t>(), indexes);
-        }
-        else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-            const auto orig{indexes};
-            bool first{true};
-            for (const auto& index_to_keep : val) {
-                if (first) {
-                    keep(index_to_keep.template to<size_t>(), indexes);
-                    first = false;
-                }
-                else {
-                    auto ind{orig};
-                    keep(index_to_keep.template to<size_t>(), ind);
-                    indexes.extend(ind);
-                }
-            }
-        }
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::number>)
+                             keep(indexes, val.template to<size_t>());
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>)
+            check_disjunction<size_t>(indexes, val, keep);
         else
             report_error();
     });
@@ -167,27 +173,19 @@ template <typename AgSr> static void check_name(const AgSr& ag_sr, acmacs::chart
 
     const auto report_error = [&value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized name clause: {}", value)}; };
 
+    const auto name_one = [&ag_sr](acmacs::chart::PointIndexList& ind, std::string_view name) {
+        acmacs::map_draw::select::filter::name_in(ag_sr, ind, name);
+    };
+
     if (key != "name"sv)
         AD_WARNING("Selecting antigen/serum with \"{}\" deprecated, use \"name\"", key);
 
-    value.visit([&ag_sr, &indexes, report_error]<typename Val>(const Val& val) {
+    value.visit([&indexes, name_one, report_error]<typename Val>(const Val& val) {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
-            acmacs::map_draw::select::filter::name_in(ag_sr, indexes, val.template to<std::string_view>());
+            name_one(indexes, val.template to<std::string_view>());
         }
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-            const auto orig{indexes};
-            bool first{true};
-            for (const auto& name : val) {
-                if (first) {
-                    acmacs::map_draw::select::filter::name_in(ag_sr, indexes, name.template to<std::string_view>());
-                    first = false;
-                 }
-                else {
-                    auto ind{orig};
-                    acmacs::map_draw::select::filter::name_in(ag_sr, ind, name.template to<std::string_view>());
-                    indexes.extend(ind);
-                }
-            }
+            check_disjunction<std::string_view>(indexes, val, name_one);
         }
         else
             report_error();
@@ -285,24 +283,10 @@ template <typename AgSr> static void check_location(const AgSr& ag_sr, acmacs::c
     };
 
     value.visit([&indexes, report_error, location_one]<typename Val>(const Val& val) {
-        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
             location_one(indexes, val.template to<std::string_view>());
-        }
-        else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-            const auto orig{indexes};
-            bool first{true};
-            for (const auto& name : val) {
-                if (first) {
-                    location_one(indexes, name.template to<std::string_view>());
-                    first = false;
-                }
-                else {
-                    auto ind{orig};
-                    location_one(ind, name.template to<std::string_view>());
-                    indexes.extend(ind);
-                }
-            }
-        }
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>)
+            check_disjunction<std::string_view>(indexes, val, location_one);
         else
             report_error();
     });
@@ -322,7 +306,7 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
     };
 
     enum class basic { no, yes };
-    const auto passage_group = [&ag_sr, report_error](std::string_view passage_key, acmacs::chart::PointIndexList& ind, basic bas) -> bool {
+    const auto passage_group = [&ag_sr, report_error](acmacs::chart::PointIndexList& ind, std::string_view passage_key, basic bas = basic::no) -> bool {
         // AD_DEBUG("passage_group \"{}\"", passage_key);
         if (passage_key == "egg"sv)
             ag_sr.filter_egg(ind, acmacs::chart::reassortant_as_egg::no);
@@ -345,31 +329,18 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
         return true;
     };
 
-    if (passage_group(key, indexes, basic::yes))
+    if (passage_group(indexes, key, basic::yes))
         ; // processed
     else if (key == "passage"sv) {
         value.visit([passage_group, &indexes, report_error]<typename Val>(const Val& val) {
             if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
-                if (passage_group(val.template to<std::string_view>(), indexes, basic::no))
+                if (passage_group(indexes, val.template to<std::string_view>(), basic::no))
                     ; // processed
                 else
                     report_error(throw_if_unprocessed::yes);
             }
-            else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-                const auto orig{indexes};
-                bool first{true};
-                for (const auto& psg : val) {
-                    if (first) {
-                        passage_group(psg.template to<std::string_view>(), indexes, basic::no);
-                        first = false;
-                    }
-                    else {
-                        auto ind{orig};
-                        passage_group(psg.template to<std::string_view>(), ind, basic::no);
-                        indexes.extend(ind);
-                    }
-                }
-            }
+            else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>)
+                check_disjunction<std::string_view>(indexes, val, passage_group);
             else
                 report_error(throw_if_unprocessed::yes);
         });
@@ -381,23 +352,6 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
 } // check_passage
 
 // ----------------------------------------------------------------------
-
-template <typename Callback> void check_disjunction(acmacs::chart::PointIndexList& indexes, const rjson::v3::detail::array& arr, Callback&& callback)
-{
-    const auto orig{indexes};
-    bool first{true};
-    for (const auto& name : arr) {
-        if (first) {
-            callback(indexes, name.template to<std::string_view>());
-            first = false;
-        }
-        else {
-            auto ind{orig};
-            callback(ind, name.template to<std::string_view>());
-            indexes.extend(ind);
-        }
-    }
-}
 
 static inline void check_sequence(const ChartSelectInterface& aChartSelectInterface, const acmacs::chart::Antigens& antigens, acmacs::chart::PointIndexList& indexes, std::string_view key,
                                   const rjson::v3::value& value)
@@ -432,7 +386,7 @@ static inline void check_sequence(const ChartSelectInterface& aChartSelectInterf
                 report_error();
         }
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-            check_disjunction(indexes, val, sequence_one);
+            check_disjunction<std::string_view>(indexes, val, sequence_one);
         }
         // else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
         //     report_error();
@@ -440,9 +394,6 @@ static inline void check_sequence(const ChartSelectInterface& aChartSelectInterf
         else
             report_error();
     });
-
-    // acmacs::map_draw::select::filter::amino_acid_at_pos(aChartSelectInterface, indexes, amino_acid, pos1, equal);
-    // acmacs::map_draw::select::filter::amino_acid_at_pos(aChartSelectInterface, indexes, pos1_aa);
 
 } // check_sequence(antigens)
 
