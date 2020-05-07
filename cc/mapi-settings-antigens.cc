@@ -105,6 +105,15 @@ template <typename Conv, typename Callback> void check_disjunction(acmacs::chart
 
 // ----------------------------------------------------------------------
 
+template <typename Conv, typename Callback> void check_conjunction(acmacs::chart::PointIndexList& indexes, const rjson::v3::detail::array& arr, Callback&& callback)
+{
+    for (const auto& name : arr)
+        callback(indexes, name.template to<Conv>());
+
+} // check_disjunction
+
+// ----------------------------------------------------------------------
+
 template <typename AgSr> static bool check_reference(const AgSr& ag_sr, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& expected_bool)
 {
     using namespace std::string_view_literals;
@@ -353,7 +362,7 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
 
 // ----------------------------------------------------------------------
 
-static inline void check_sequence(const ChartSelectInterface& aChartSelectInterface, const acmacs::chart::Antigens& antigens, acmacs::chart::PointIndexList& indexes, std::string_view key,
+static inline void check_sequence(const ChartSelectInterface& aChartSelectInterface, const acmacs::chart::Antigens& /*antigens*/, acmacs::chart::PointIndexList& indexes, std::string_view key,
                                   const rjson::v3::value& value)
 {
     using namespace std::string_view_literals;
@@ -361,12 +370,10 @@ static inline void check_sequence(const ChartSelectInterface& aChartSelectInterf
     const auto report_error = [key, &value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"{}\" clause: {}", key, value)}; };
 
     const auto sequence_one = [&aChartSelectInterface, report_error, key](acmacs::chart::PointIndexList& ind, std::string_view name) {
-        if (key == "clade"sv || key == "clades"sv) {
+        if (key == "clade"sv || key == "clades"sv)
             acmacs::map_draw::select::filter::clade(aChartSelectInterface, ind, name);
-        }
-        else if (key == "amino-acid"sv || key == "amino-acids"sv || key == "amino_acid"sv || key == "amino_acids"sv) {
+        else if (key == "amino-acid"sv || key == "amino-acids"sv || key == "amino_acid"sv || key == "amino_acids"sv)
             acmacs::map_draw::select::filter::amino_acid_at_pos(aChartSelectInterface, ind, acmacs::seqdb::extract_aa_at_pos1_eq(name));
-        }
         else
             report_error();
     };
@@ -386,7 +393,12 @@ static inline void check_sequence(const ChartSelectInterface& aChartSelectInterf
                 report_error();
         }
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-            check_disjunction<std::string_view>(indexes, val, sequence_one);
+            if (key == "clade"sv || key == "clades"sv)
+                check_disjunction<std::string_view>(indexes, val, sequence_one);
+            else if (key == "amino-acid"sv || key == "amino-acids"sv || key == "amino_acid"sv || key == "amino_acids"sv)
+                check_conjunction<std::string_view>(indexes, val, sequence_one);
+            else
+                report_error();
         }
         // else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
         //     report_error();
