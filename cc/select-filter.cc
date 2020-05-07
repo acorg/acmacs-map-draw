@@ -56,6 +56,14 @@ void acmacs::map_draw::select::filter::amino_acid_at_pos(const ChartSelectInterf
 
 // ----------------------------------------------------------------------
 
+void acmacs::map_draw::select::filter::amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::seqdb::amino_acid_at_pos1_eq_t& pos1_aa)
+{
+    amino_acid_at_pos(aChartSelectInterface, indexes, std::get<char>(pos1_aa), std::get<acmacs::seqdb::pos1_t>(pos1_aa), std::get<bool>(pos1_aa));
+
+} // acmacs::map_draw::select::filter::amino_acid_at_pos
+
+// ----------------------------------------------------------------------
+
 void acmacs::map_draw::select::filter::outlier(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, double aUnits)
 {
     auto layout = aChartSelectInterface.layout();

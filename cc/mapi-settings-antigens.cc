@@ -393,6 +393,9 @@ static inline void check_sequence(const ChartSelectInterface& aChartSelectInterf
         if (key == "clade"sv || key == "clades"sv) {
             acmacs::map_draw::select::filter::clade(aChartSelectInterface, ind, name);
         }
+        else if (key == "amino-acid"sv || key == "amino-acids"sv || key == "amino_acid"sv || key == "amino_acids"sv) {
+            acmacs::map_draw::select::filter::amino_acid_at_pos(aChartSelectInterface, ind, acmacs::seqdb::extract_aa_at_pos1_eq(name));
+        }
         else
             report_error();
     };
