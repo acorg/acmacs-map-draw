@@ -39,8 +39,20 @@ void acmacs::mapi::v1::Settings::load(const std::vector<std::string_view>& setti
     }
     load(setting_files);
     for (const auto& def : defines) {
-        if (const auto pos = def.find('='); pos != std::string_view::npos)
-            setenv(def.substr(0, pos), def.substr(pos + 1));
+        if (const auto pos = def.find('='); pos != std::string_view::npos) {
+            const auto val_s = def.substr(pos + 1);
+            if (val_s == "-") { // parsed as -0
+                setenv(def.substr(0, pos), rjson::v3::parse_string(fmt::format("\"{}\"", val_s)));
+            }
+            else {
+                try {
+                    setenv(def.substr(0, pos), rjson::v3::parse_string(val_s));
+                }
+                catch (std::exception&) {
+                    setenv(def.substr(0, pos), rjson::v3::parse_string(fmt::format("\"{}\"", val_s)));
+                }
+            }
+        }
         else
             setenv(def, "true"sv);
     }
