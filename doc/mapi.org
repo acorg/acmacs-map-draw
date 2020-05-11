@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-07 09:50:04 eu>
+# Time-stamp: <2020-05-11 18:12:35 eu>
 
 * TODO
 
@@ -60,11 +60,11 @@
 {"clade": ["3C.3A", "3C.2A2"]} -- disjunction
 {"amino-acid": "144R"}
 {"amino-acid": ["144R", "93A", "!160K"]} -- conjunction
-# -- sort aa at pos by frequency and set ana/google colors, X is always grey
+# sort aa at pos by frequency and set ana/google colors, X is always grey
 
-# {"lab": "CDC"}
-# {"lab": ["CDC", "MELB"]} -- disjunction
-# {"lab": ["CDC", "VIDRL"]} -- old and new lab name
+{"lab": "CDC"}
+{"lab": ["CDC", "MELB"]} -- disjunction
+{"lab": ["CDC", "VIDRL"]} -- old and new lab name
 
 # "vaccine"
 # {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}}
@@ -78,7 +78,7 @@
 
 # {"subtype": "H1 A(H1N1) H3 A(H3N2) B BV BVIC BY BYAM"}, --?
 
-# {"outlier": 1.0} -- threshold in units (distance from centroid of pre-selected points), must be after other select args, e.g. after "clade"
+# {"outlier": 1.0} # threshold in units (distance from centroid of pre-selected points), must be after other select args, e.g. after "clade"
 
 # {"table": "20170216"}
 # {"table": "MELB:HI:turkey:20170216"}
@@ -92,7 +92,6 @@
 # "exclude-distinct"
 
 {"report": true, "report-threshold": 20}
-
 #+END_SRC
 
 

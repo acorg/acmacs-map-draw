@@ -1,4 +1,5 @@
 #include "acmacs-base/date.hh"
+#include "acmacs-whocc-data/labs.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/report-antigens.hh"
@@ -148,7 +149,7 @@ template <typename AgSr> static void check_index(const AgSr& ag_sr, acmacs::char
 {
     using namespace std::string_view_literals;
 
-    const auto report_error = [&value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized index clause: {}", value)}; };
+    const auto report_error = [&value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"index\" clause: {}", value)}; };
 
     const auto keep = [&ag_sr](acmacs::chart::PointIndexList& ind, size_t index_to_keep) {
         if (index_to_keep < ag_sr.size()) {
@@ -180,7 +181,7 @@ template <typename AgSr> static void check_name(const AgSr& ag_sr, acmacs::chart
 {
     using namespace std::string_view_literals;
 
-    const auto report_error = [&value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized name clause: {}", value)}; };
+    const auto report_error = [&value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"name\" clause: {}", value)}; };
 
     const auto name_one = [&ag_sr](acmacs::chart::PointIndexList& ind, std::string_view name) {
         acmacs::map_draw::select::filter::name_in(ag_sr, ind, name);
@@ -204,11 +205,37 @@ template <typename AgSr> static void check_name(const AgSr& ag_sr, acmacs::chart
 
 // ----------------------------------------------------------------------
 
+static inline void check_lab(const acmacs::chart::Chart& chart, acmacs::chart::PointIndexList& indexes, std::string_view /*key*/, const rjson::v3::value& value)
+{
+    using namespace std::string_view_literals;
+
+    const auto report_error = [&value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"lab\" clause: {}", value)}; };
+
+    const auto lab_one = [&chart](acmacs::chart::PointIndexList& ind, std::string_view lab) {
+        if (acmacs::whocc::lab_name_normalize(chart.info()->lab(acmacs::chart::Info::Compute::Yes)) != acmacs::whocc::lab_name_normalize(lab))
+            ind.clear();
+    };
+
+    value.visit([&indexes, lab_one, report_error]<typename Val>(const Val& val) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
+            lab_one(indexes, val.template to<std::string_view>());
+        }
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+            check_disjunction<std::string_view>(indexes, val, lab_one);
+        }
+        else
+            report_error();
+    });
+
+} // check_name
+
+// ----------------------------------------------------------------------
+
 static inline void check_date(const acmacs::chart::Chart& /*chart*/, const acmacs::chart::Antigens& antigens, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
 {
     using namespace std::string_view_literals;
 
-    const auto report_error = [&value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized date clause: {}", value)}; };
+    const auto report_error = [&value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"date\" clause: {}", value)}; };
 
     if (key != "date"sv)
         AD_WARNING("Selecting antigen/serum with \"{}\" deprecated, use \"date\"", key);
@@ -465,6 +492,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                             check_passage(ag_sr, indexes, key, value, throw_if_unprocessed::yes);
                         else if (key == "sequenced"sv || key == "clade"sv || key == "clades"sv || key == "amino_acid"sv || key == "amino_acids"sv || key == "amino-acid"sv || key == "amino-acids"sv)
                             check_sequence(chart_draw(), ag_sr, indexes, key, value);
+                        else if (key == "lab"sv || key == "labs"sv)
+                            check_lab(chart_draw().chart(), indexes, key, value);
                         else if (key == "report"sv)
                             report = value.template to<bool>();
                         else if (key == "report-threshold"sv || key == "report_threshold"sv)
