@@ -420,13 +420,13 @@ void SelectSera::filter_table(const ChartSelectInterface& aChartSelectInterface,
 
 void SelectAntigens::filter_layer(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, int aLayer)
 {
-    acmacs::map_draw::select::filter::layer(aChartSelectInterface, indexes, aLayer, acmacs::map_draw::select::filter::antigens);
+    acmacs::map_draw::select::filter::layer(aChartSelectInterface.chart(), indexes, aLayer, acmacs::map_draw::select::filter::antigens);
 
 } // SelectAntigens::filter_layer
 
 void SelectSera::filter_layer(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, int aLayer)
 {
-    acmacs::map_draw::select::filter::layer(aChartSelectInterface, indexes, aLayer, acmacs::map_draw::select::filter::sera);
+    acmacs::map_draw::select::filter::layer(aChartSelectInterface.chart(), indexes, aLayer, acmacs::map_draw::select::filter::sera);
 
 } // SelectSera::filter_layer
 

@@ -149,9 +149,9 @@ void acmacs::map_draw::select::filter::vaccine(const ChartSelectInterface& aChar
 
 // ----------------------------------------------------------------------
 
-void acmacs::map_draw::select::filter::layer(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, int aLayer, ag_sr_ ag_sr)
+void acmacs::map_draw::select::filter::layer(const acmacs::chart::Chart& chart, acmacs::chart::Indexes& indexes, int aLayer, ag_sr_ ag_sr)
 {
-    auto titers = aChartSelectInterface.chart().titers();
+    auto titers = chart.titers();
     if (aLayer < 0)
         aLayer = static_cast<int>(titers->number_of_layers()) + aLayer;
     if (aLayer < 0 || aLayer > static_cast<int>(titers->number_of_layers()))

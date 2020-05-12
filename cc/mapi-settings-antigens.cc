@@ -480,6 +480,40 @@ static inline void check_sequence(const ChartSelectInterface& aChartSelectInterf
 
 // ----------------------------------------------------------------------
 
+template <typename AgSr> static void check_layer(const acmacs::chart::Chart& chart, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+{
+    using namespace std::string_view_literals;
+
+    const auto report_error = [key, &value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"{}\" clause: {}", key, value)}; };
+
+    const auto layer_one = [&chart](acmacs::chart::PointIndexList& ind, int layer) {
+        if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>)
+            acmacs::map_draw::select::filter::layer(chart, ind, layer, acmacs::map_draw::select::filter::antigens);
+        else
+            acmacs::map_draw::select::filter::layer(chart, ind, layer, acmacs::map_draw::select::filter::sera);
+    };
+
+    value.visit([&indexes, key, layer_one, report_error]<typename Val>(const Val& val) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::number>) {
+            if (key == "layer"sv || key == "layers"sv)
+                layer_one(indexes, val.template to<int>());
+            else
+                report_error();
+        }
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+            if (key == "layer"sv || key == "layers"sv)
+                check_disjunction<int>(indexes, val, layer_one);
+            else
+                report_error();
+        }
+        else
+            report_error();
+    });
+
+} // check_layer<>
+
+// ----------------------------------------------------------------------
+
 template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select(const AgSr& ag_sr) const
 {
     using namespace std::string_view_literals;
@@ -517,6 +551,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                             check_lab(chart_draw().chart(), indexes, key, value);
                         else if (key == "lineage"sv)
                             check_lineage(chart_draw().chart(), indexes, key, value);
+                        else if (key == "layer"sv || key == "layers"sv || key == "table"sv || key == "tables"sv)
+                            check_layer<AgSr>(chart_draw().chart(), indexes, key, value);
                         else if (key == "report"sv)
                             report = value.template to<bool>();
                         else if (key == "report-threshold"sv || key == "report_threshold"sv)

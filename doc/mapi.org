@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-12 12:08:35 eu>
+# Time-stamp: <2020-05-12 15:59:44 eu>
 
 * TODO
 
@@ -69,7 +69,7 @@
 # "vaccine"
 # {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}}
 
-{"lineage": "VICTORIA"}
+{"lineage": "VICTORIA"} -- chart lineage (NOT each antigen lineage)
 {"lineage": "VIC"}
 {"lineage": "V"}
 
@@ -81,8 +81,10 @@
 # {"outlier": 1.0} # threshold in units (distance from centroid of pre-selected points), must be after other select args, e.g. after "clade"
 
 # {"table": "20170216"}
+# {"table": ["20170216", "20170221"]} -- disjunction
 # {"table": "MELB:HI:turkey:20170216"}
-# {"layer": 0} -- >=0: from the beginning, <0: from end
+{"layer": 0} -- >=0: from the beginning, <0: from end
+{"layer": [0, -1]} -- disjunction
 # {"relative-to-serum-line": {"distance-min": 0, "distance-max": 10000, "direction": 1}, "?direction": [1, -1, 0]}
 
 # {"titrated-against-sera": <select sera>}
