@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-12 16:24:38 eu>
+# Time-stamp: <2020-05-12 17:19:46 eu>
 
 * TODO
 
@@ -89,7 +89,10 @@
 
 # {"relative-to-serum-line": {"distance-min": 0, "distance-max": 10000, "direction": 1}, "?direction": [1, -1, 0]}
 
-# {"titrated-against-sera": <select sera>}
+{"titrated-against-sera": <select sera>}
+{"titrated-against": <select sera>} -- same as above
+# {"not-titrated-against-sera": <select sera>}
+# {"not-titrated-against": <select sera>} -- same as above
 
 # {"outline": "green", "outline-width": 3}
 
@@ -116,8 +119,11 @@
 # {"serum_id": "CDC 2016-003"}
 # {"serum_id_re": "CDC 2016-003"}
 
-# {"table": ...}
-# {"titrated_against_antigens": <select antigens>}
+{"table": ...}
+{"titrated-against-antigens": <select sera>}
+{"titrated-against": <select sera>} -- same as above
+# {"not-titrated-against-antigens": <select sera>}
+# {"not-titrated-against": <select sera>} -- same as above
 # {"outline": "green", "outline_width": 3}
 
 {"report": true, "report_threshold": 20}

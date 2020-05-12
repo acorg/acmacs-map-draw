@@ -530,31 +530,49 @@ template <typename AgSr> static void check_layer(const acmacs::chart::Chart& cha
 
 // ----------------------------------------------------------------------
 
-template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select(const AgSr& ag_sr) const
+template <typename AgSr> static acmacs::chart::PointIndexList select(const ChartSelectInterface& aChartSelectInterface, const AgSr& ag_sr, const rjson::v3::value& select_clause);
+
+template <typename AgSr> static void check_titrated_against(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::PointIndexList& indexes, std::string_view, const rjson::v3::value& value)
 {
     using namespace std::string_view_literals;
 
-    if (const auto& select_clause = getenv("select"sv); !select_clause.is_null()) {
+    if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
+        const auto serum_indexes = select(aChartSelectInterface, *aChartSelectInterface.chart().sera(), value);
+        acmacs::map_draw::select::filter::antigens_titrated_against(aChartSelectInterface, indexes, serum_indexes);
+    }
+    else {
+        const auto antigen_indexes = select(aChartSelectInterface, *aChartSelectInterface.chart().antigens(), value);
+        acmacs::map_draw::select::filter::sera_titrated_against(aChartSelectInterface, antigen_indexes, indexes);
+    }
+}
+
+// ----------------------------------------------------------------------
+
+template <typename AgSr> static acmacs::chart::PointIndexList select(const ChartSelectInterface& aChartSelectInterface, const AgSr& ag_sr, const rjson::v3::value& select_clause)
+{
+    using namespace std::string_view_literals;
+
+    if (!select_clause.is_null()) {
         auto indexes = ag_sr.all_indexes();
         bool report{false};
         size_t report_threshold{20};
 
         try {
-            select_clause.visit([&indexes, &ag_sr, &report, &report_threshold, this]<typename Value>(const Value& select_clause_v) {
+            select_clause.visit([&indexes, &ag_sr, &report, &report_threshold, &aChartSelectInterface]<typename Value>(const Value& select_clause_v) {
                 if constexpr (std::is_same_v<Value, rjson::v3::detail::string>) {
                     if (check_reference(ag_sr, indexes, select_clause_v.template to<std::string_view>(), rjson::v3::const_true))
                         ; // processed
                     else if (check_passage(ag_sr, indexes, select_clause_v.template to<std::string_view>(), rjson::v3::const_true, throw_if_unprocessed::no))
                         ; // processed
                     else
-                        throw unrecognized{};
+                        throw acmacs::mapi::unrecognized{};
                 }
                 else if constexpr (std::is_same_v<Value, rjson::v3::detail::object>) {
                     for (const auto& [key, value] : select_clause_v) {
                         if (check_reference(ag_sr, indexes, key, value))
                             ; // processed
                         else if (key == "date"sv || key == "dates"sv || key == "date_range"sv)
-                            check_date(chart_draw().chart(), ag_sr, indexes, key, value);
+                            check_date(aChartSelectInterface.chart(), ag_sr, indexes, key, value);
                         else if (key == "index"sv || key == "indexes"sv || key == "indices"sv)
                             check_index(ag_sr, indexes, key, value);
                         else if (key == "name"sv || key == "names"sv)
@@ -562,13 +580,15 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                         else if (key == "passage"sv)
                             check_passage(ag_sr, indexes, key, value, throw_if_unprocessed::yes);
                         else if (key == "sequenced"sv || key == "clade"sv || key == "clades"sv || key == "amino_acid"sv || key == "amino_acids"sv || key == "amino-acid"sv || key == "amino-acids"sv)
-                            check_sequence(chart_draw(), ag_sr, indexes, key, value);
+                            check_sequence(aChartSelectInterface, ag_sr, indexes, key, value);
                         else if (key == "lab"sv || key == "labs"sv)
-                            check_lab(chart_draw().chart(), indexes, key, value);
+                            check_lab(aChartSelectInterface.chart(), indexes, key, value);
                         else if (key == "lineage"sv)
-                            check_lineage(chart_draw().chart(), indexes, key, value);
+                            check_lineage(aChartSelectInterface.chart(), indexes, key, value);
                         else if (key == "layer"sv || key == "layers"sv || key == "table"sv || key == "tables"sv)
-                            check_layer<AgSr>(chart_draw().chart(), indexes, key, value);
+                            check_layer<AgSr>(aChartSelectInterface.chart(), indexes, key, value);
+                        else if (key == "titrated-against-sera"sv || key == "titrated-against-antigens"sv || key == "titrated-against"sv)
+                            check_titrated_against<AgSr>(aChartSelectInterface, indexes, key, value);
                         else if (key == "report"sv)
                             report = value.template to<bool>();
                         else if (key == "report-threshold"sv || key == "report_threshold"sv)
@@ -580,26 +600,26 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                     }
                 }
                 else
-                    throw unrecognized{};
+                    throw acmacs::mapi::unrecognized{};
             });
         }
         catch (std::exception& err) {
-            throw unrecognized{AD_FORMAT("unrecognized \"select\" clause: {}: {}", select_clause, err)};
+            throw acmacs::mapi::unrecognized{AD_FORMAT("unrecognized \"select\" clause: {}: {}", select_clause, err)};
         }
         if (report) {
             if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
                 AD_INFO("{} antigens selected with {}", indexes.size(), select_clause);
-                report_antigens(indexes, chart_draw(), report_threshold);
+                report_antigens(indexes, aChartSelectInterface, report_threshold);
             }
             else {
                 AD_INFO("{} sera selected with {}", indexes.size(), select_clause);
-                report_sera(indexes, chart_draw(), report_threshold);
+                report_sera(indexes, aChartSelectInterface, report_threshold);
             }
         }
         return indexes;
     }
     else
-        throw unrecognized{"no \"select\" clause"};
+        throw acmacs::mapi::unrecognized{"no \"select\" clause"};
 
 } // acmacs::mapi::v1::Settings::select
 
@@ -607,7 +627,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
 
 acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens() const
 {
-    return select(*chart_draw().chart().antigens());
+    using namespace std::string_view_literals;
+    return ::select(chart_draw(), *chart_draw().chart().antigens(), getenv("select"sv));
 
 } // acmacs::mapi::v1::Settings::select_antigens
 
@@ -615,7 +636,8 @@ acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens() cons
 
 acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_sera() const
 {
-    return select(*chart_draw().chart().sera());
+    using namespace std::string_view_literals;
+    return ::select(chart_draw(), *chart_draw().chart().sera(), getenv("select"sv));
 
 } // acmacs::mapi::v1::Settings::select_sera
 
