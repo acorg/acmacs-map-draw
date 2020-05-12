@@ -1,4 +1,5 @@
 #include "acmacs-base/date.hh"
+#include "acmacs-base/string-compare.hh"
 #include "acmacs-whocc-data/labs.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/draw.hh"
@@ -226,6 +227,26 @@ static inline void check_lab(const acmacs::chart::Chart& chart, acmacs::chart::P
         else
             report_error();
     });
+
+} // check_name
+
+// ----------------------------------------------------------------------
+
+static inline void check_lineage(const acmacs::chart::Chart& chart, acmacs::chart::PointIndexList& indexes, std::string_view /*key*/, const rjson::v3::value& value)
+{
+    using namespace std::string_view_literals;
+
+    const auto lineage_is = [&value](const acmacs::virus::lineage_t& chart_lineage) -> bool {
+        return value.visit([&chart_lineage, &value]<typename Val>(const Val& val) -> bool {
+            if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
+                return acmacs::string::startswith_ignore_case(*chart_lineage, val.template to<std::string_view>());
+            else
+                throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"lineage\" clause: {}", value)};
+        });
+    };
+
+    if (chart.info()->virus_type(acmacs::chart::Info::Compute::Yes).h_or_b() != "B"sv || !lineage_is(chart.lineage()))
+        indexes.clear();
 
 } // check_name
 
@@ -494,6 +515,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                             check_sequence(chart_draw(), ag_sr, indexes, key, value);
                         else if (key == "lab"sv || key == "labs"sv)
                             check_lab(chart_draw().chart(), indexes, key, value);
+                        else if (key == "lineage"sv)
+                            check_lineage(chart_draw().chart(), indexes, key, value);
                         else if (key == "report"sv)
                             report = value.template to<bool>();
                         else if (key == "report-threshold"sv || key == "report_threshold"sv)

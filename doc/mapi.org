@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-11 18:12:35 eu>
+# Time-stamp: <2020-05-12 12:08:35 eu>
 
 * TODO
 
@@ -69,9 +69,9 @@
 # "vaccine"
 # {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}}
 
-# {"lineage": "VICTORIA"}
-# {"lineage": "VIC"}
-# {"lineage": "V"}
+{"lineage": "VICTORIA"}
+{"lineage": "VIC"}
+{"lineage": "V"}
 
 # {"in-rectangle": <Rectangle in Drawing>}
 # {"in-circle": <Circle in Drawing>}
