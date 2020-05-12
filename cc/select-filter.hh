@@ -83,6 +83,7 @@ namespace acmacs::map_draw::select::filter
             if (auto ag_sr = aAgSr[index]; ag_sr) { // found in hidb
                 for (auto table_no : ag_sr->tables()) {
                     auto table = hidb_tables[table_no];
+                    // AD_DEBUG("{} {} [{}] \"{}\" {}", index, table_no, table->date(), table->name(), table->name() == aTable);
                     if (table->date() == aTable || table->name() == aTable)
                         return false;
                 }

@@ -493,16 +493,32 @@ template <typename AgSr> static void check_layer(const acmacs::chart::Chart& cha
             acmacs::map_draw::select::filter::layer(chart, ind, layer, acmacs::map_draw::select::filter::sera);
     };
 
-    value.visit([&indexes, key, layer_one, report_error]<typename Val>(const Val& val) {
+    const auto table_one = [&chart](acmacs::chart::PointIndexList& ind, std::string_view table) {
+        const auto& hidb = hidb::get(chart.info()->virus_type());
+        if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>)
+            acmacs::map_draw::select::filter::table_ag_sr(hidb.antigens()->find(*chart.antigens()), ind, table, hidb.tables());
+        else
+            acmacs::map_draw::select::filter::table_ag_sr(hidb.sera()->find(*chart.sera()), ind, table, hidb.tables());
+    };
+
+    value.visit([&indexes, key, layer_one, table_one, report_error]<typename Val>(const Val& val) {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::number>) {
             if (key == "layer"sv || key == "layers"sv)
                 layer_one(indexes, val.template to<int>());
             else
                 report_error();
         }
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
+            if (key == "table"sv || key == "tables"sv)
+                table_one(indexes, val.template to<std::string_view>());
+            else
+                report_error();
+        }
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
             if (key == "layer"sv || key == "layers"sv)
                 check_disjunction<int>(indexes, val, layer_one);
+            else if (key == "table"sv || key == "tables"sv)
+                check_disjunction<std::string_view>(indexes, val, table_one);
             else
                 report_error();
         }
