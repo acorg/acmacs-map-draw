@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-13 08:31:28 eu>
+# Time-stamp: <2020-05-13 09:43:38 eu>
 
 * TODO
 
@@ -66,17 +66,16 @@
 {"lab": ["CDC", "MELB"]} -- disjunction
 {"lab": ["CDC", "VIDRL"]} -- old and new lab name
 
-# "vaccine"
-# {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}}
-
+# {"subtype": "H1 A(H1N1) H3 A(H3N2) B BV BVIC BY BYAM"}, --?
 {"lineage": "VICTORIA"} -- chart lineage (NOT each antigen lineage)
 {"lineage": "VIC"}
 {"lineage": "V"}
 
+# "vaccine"
+# {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}}
+
 # {"in-rectangle": <Rectangle in Drawing>}
 # {"in-circle": <Circle in Drawing>}
-
-# {"subtype": "H1 A(H1N1) H3 A(H3N2) B BV BVIC BY BYAM"}, --?
 
 # {"outlier": 1.0} # threshold in units (distance from centroid of pre-selected points), must be after other select args, e.g. after "clade"
 
@@ -91,8 +90,8 @@
 
 {"titrated-against-sera": <select sera>}
 {"titrated-against": <select sera>} -- same as above
-# {"not-titrated-against-sera": <select sera>}
-# {"not-titrated-against": <select sera>} -- same as above
+{"not-titrated-against-sera": <select sera>}
+{"not-titrated-against": <select sera>} -- same as above
 
 # {"outline": "green", "outline-width": 3}
 
@@ -122,8 +121,9 @@
 {"table": ...}
 {"titrated-against-antigens": <select sera>}
 {"titrated-against": <select sera>} -- same as above
-# {"not-titrated-against-antigens": <select sera>}
-# {"not-titrated-against": <select sera>} -- same as above
+{"not-titrated-against-antigens": <select sera>}
+{"not-titrated-against": <select sera>} -- same as above
+
 # {"outline": "green", "outline_width": 3}
 
 {"report": true, "report_threshold": 20}
