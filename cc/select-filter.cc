@@ -206,6 +206,30 @@ void acmacs::map_draw::select::filter::sera_titrated_against(const ChartSelectIn
 
 // ----------------------------------------------------------------------
 
+void acmacs::map_draw::select::filter::antigens_not_titrated_against(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& antigen_indexes, const acmacs::chart::Indexes& serum_indexes)
+{
+    auto titers = aChartSelectInterface.chart().titers();
+    auto titrated = [&titers, &serum_indexes](auto antigen_no) -> bool {
+        return std::all_of(std::begin(serum_indexes), std::end(serum_indexes), [&titers, antigen_no](auto sr_no) { return !titers->titer(antigen_no, sr_no).is_dont_care(); });
+    };
+    antigen_indexes.get().erase(std::remove_if(antigen_indexes.begin(), antigen_indexes.end(), titrated), antigen_indexes.end());
+
+} // acmacs::map_draw::select::filter::antigens_not_titrated_against
+
+// ----------------------------------------------------------------------
+
+void acmacs::map_draw::select::filter::sera_not_titrated_against(const ChartSelectInterface& aChartSelectInterface, const acmacs::chart::Indexes& antigen_indexes, acmacs::chart::Indexes& serum_indexes)
+{
+    auto titers = aChartSelectInterface.chart().titers();
+    auto titrated = [&titers, &antigen_indexes](auto serum_no) -> bool {
+        return std::all_of(std::begin(antigen_indexes), std::end(antigen_indexes), [&titers, serum_no](auto ag_no) { return !titers->titer(ag_no, serum_no).is_dont_care(); });
+    };
+    serum_indexes.get().erase(std::remove_if(serum_indexes.begin(), serum_indexes.end(), titrated), serum_indexes.end());
+
+} // acmacs::map_draw::select::filter::sera_not_titrated_against
+
+// ----------------------------------------------------------------------
+
 std::map<std::string_view, size_t> acmacs::map_draw::select::clades(const ChartSelectInterface& aChartSelectInterface)
 {
     std::map<std::string_view, size_t> result;

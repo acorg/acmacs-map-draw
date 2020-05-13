@@ -532,17 +532,23 @@ template <typename AgSr> static void check_layer(const acmacs::chart::Chart& cha
 
 template <typename AgSr> static acmacs::chart::PointIndexList select(const ChartSelectInterface& aChartSelectInterface, const AgSr& ag_sr, const rjson::v3::value& select_clause);
 
-template <typename AgSr> static void check_titrated_against(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::PointIndexList& indexes, std::string_view, const rjson::v3::value& value)
+template <typename AgSr> static void check_titrated_against(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
 {
     using namespace std::string_view_literals;
 
     if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
         const auto serum_indexes = select(aChartSelectInterface, *aChartSelectInterface.chart().sera(), value);
-        acmacs::map_draw::select::filter::antigens_titrated_against(aChartSelectInterface, indexes, serum_indexes);
+        if (key[0] == 't')
+            acmacs::map_draw::select::filter::antigens_titrated_against(aChartSelectInterface, indexes, serum_indexes);
+        else
+            acmacs::map_draw::select::filter::antigens_not_titrated_against(aChartSelectInterface, indexes, serum_indexes);
     }
     else {
         const auto antigen_indexes = select(aChartSelectInterface, *aChartSelectInterface.chart().antigens(), value);
-        acmacs::map_draw::select::filter::sera_titrated_against(aChartSelectInterface, antigen_indexes, indexes);
+        if (key[0] == 't')
+            acmacs::map_draw::select::filter::sera_titrated_against(aChartSelectInterface, antigen_indexes, indexes);
+        else
+            acmacs::map_draw::select::filter::sera_not_titrated_against(aChartSelectInterface, antigen_indexes, indexes);
     }
 }
 
@@ -587,7 +593,7 @@ template <typename AgSr> static acmacs::chart::PointIndexList select(const Chart
                             check_lineage(aChartSelectInterface.chart(), indexes, key, value);
                         else if (key == "layer"sv || key == "layers"sv || key == "table"sv || key == "tables"sv)
                             check_layer<AgSr>(aChartSelectInterface.chart(), indexes, key, value);
-                        else if (key == "titrated-against-sera"sv || key == "titrated-against-antigens"sv || key == "titrated-against"sv)
+                        else if (key == "titrated-against-sera"sv || key == "titrated-against-antigens"sv || key == "titrated-against"sv || key == "not-titrated-against-sera"sv || key == "not-titrated-against-antigens"sv || key == "not-titrated-against"sv)
                             check_titrated_against<AgSr>(aChartSelectInterface, indexes, key, value);
                         else if (key == "report"sv)
                             report = value.template to<bool>();

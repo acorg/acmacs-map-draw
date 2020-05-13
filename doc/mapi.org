@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-12 17:19:46 eu>
+# Time-stamp: <2020-05-13 08:31:28 eu>
 
 * TODO
 
@@ -82,7 +82,7 @@
 
 {"table": "20170216"}
 {"table": ["20170216", "20170221"]} -- disjunction
-{"table": "MELB:HI:turkey:20170216"}
+{"table": "MELB:HI:turkey:20170216"} -- table name is from hidb, it is not from chart layers
 {"table": ["MELB:HI:turkey:20170216", "NIID:HI:YAMAGATA:turkey:20191003.002"]} -- disjunction
 {"layer": 0} -- >=0: from the beginning, <0: from end
 {"layer": [0, -1]} -- disjunction
