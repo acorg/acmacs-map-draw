@@ -198,12 +198,12 @@ void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& aModD
         else {
             filename = "/d/a.html";
         }
-        acmacs::file::write(filename, acmacs::seqdb::compare_report_html(filename, set1, set2));
+        acmacs::file::write(filename, acmacs::seqdb::compare_report_html(filename, set1, set2, acmacs::seqdb::compare::aa));
         if (const auto& open = args()["open"]; open.is_null() || open.to<bool>())
             acmacs::open_or_quicklook(true, false, filename, 0, 0);
     }
     else
-        fmt::print("{}\n\n", acmacs::seqdb::compare_report_text(set1, set2));
+        fmt::print("{}\n\n", acmacs::seqdb::compare_report_text(set1, set2, acmacs::seqdb::compare::aa));
 
 } // ModCompareSequences::apply
 
