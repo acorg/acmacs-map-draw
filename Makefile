@@ -54,8 +54,8 @@ install: install-headers install-acmacs-map-draw-lib $(TARGETS)
 	$(call symbolic_link_wildcard,$(DIST)/chart-*,$(AD_BIN))
 	$(call symbolic_link_wildcard,$(DIST)/geographic-*,$(AD_BIN))
 	$(call symbolic_link,$(DIST)/mod_acmacs.so,$(AD_LIB))
-	$(call symbolic_link_wildcard,$(abspath doc)/mapi.org,$(AD_DOC))
-	mkdir -p $(AD_SHARE)/js/map-draw
+	$(call symbolic_link_wildcard,$(abspath doc)/*.org,$(AD_DOC))
+	$(call make_dir,$(AD_SHARE)/js/map-draw)
 	$(call symbolic_link_wildcard,$(abspath js)/ace-view,$(AD_SHARE)/js/map-draw)
 
 install-acmacs-map-draw-lib: $(ACMACS_MAP_DRAW_LIB)
