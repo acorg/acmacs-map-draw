@@ -616,6 +616,12 @@ template <typename AgSr> static acmacs::chart::PointIndexList select(const Chart
                             else
                                 acmacs::map_draw::select::filter::out_distinct_in(*aChartSelectInterface.chart().sera(), indexes);
                         }
+                        else if (key == "serum-id"sv || key == "serum_id"sv) {
+                            if constexpr (std::is_same_v<AgSr, acmacs::chart::Sera>)
+                                acmacs::map_draw::select::filter::serum_id_in(*aChartSelectInterface.chart().sera(), indexes, value.template to<std::string_view>());
+                            else
+                                AD_WARNING("\"select\" key: \"{}\" not applicable for antigens", key);
+                        }
                         else if (key == "layer"sv || key == "layers"sv || key == "table"sv || key == "tables"sv)
                             check_layer<AgSr>(aChartSelectInterface.chart(), indexes, key, value);
                         else if (key == "titrated-against-sera"sv || key == "titrated-against-antigens"sv || key == "titrated-against"sv || key == "not-titrated-against-sera"sv ||

@@ -110,6 +110,8 @@ namespace acmacs::map_draw::select::filter
     void sera_titrated_against(const ChartSelectInterface& aChartSelectInterface, const acmacs::chart::Indexes& antigen_indexes, acmacs::chart::Indexes& serum_indexes);
     void sera_not_titrated_against(const ChartSelectInterface& aChartSelectInterface, const acmacs::chart::Indexes& antigen_indexes, acmacs::chart::Indexes& serum_indexes);
 
+    void serum_id_in(const acmacs::chart::Sera& sera, acmacs::chart::Indexes& indexes, std::string_view serum_id);
+
 } // namespace acmacs::map_draw::select::filter
 
 // ----------------------------------------------------------------------

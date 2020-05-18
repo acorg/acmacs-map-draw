@@ -182,6 +182,17 @@ void acmacs::map_draw::select::filter::relative_to_serum_line(const ChartSelectI
 
 // ----------------------------------------------------------------------
 
+void acmacs::map_draw::select::filter::serum_id_in(const acmacs::chart::Sera& sera, acmacs::chart::Indexes& indexes, std::string_view serum_id)
+{
+    if (!serum_id.empty() && serum_id[0] == '~')
+        sera.filter_serum_id(indexes, std::regex{std::next(std::begin(serum_id), 1), std::end(serum_id), acmacs::regex::icase});
+    else
+        sera.filter_serum_id(indexes, serum_id);
+
+} // acmacs::map_draw::select::filter::serum_id_in
+
+// ----------------------------------------------------------------------
+
 void acmacs::map_draw::select::filter::antigens_titrated_against(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& antigen_indexes, const acmacs::chart::Indexes& serum_indexes)
 {
     auto titers = aChartSelectInterface.chart().titers();
