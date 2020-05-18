@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-18 12:36:53 eu>
+# Time-stamp: <2020-05-18 14:46:43 eu>
 
 * TODO
 
@@ -140,7 +140,7 @@
 
 #+BEGIN_SRC json
 {"N": "antigens", "select": <Select Antigens>
- "outline": "black", "fill": "red", "aspect": 1.0, "rotation": 0.0, "outline_width": 1.0,
+ "outline": "<color-modifier>", "fill": "<color-modifier>", "aspect": 1.0, "rotation": 0.0, "outline_width": 1.0,
  "size": 1.0, "show": true, "shape": "circle|box|triangle",
 # "fill_saturation": 1.0, "fill_brightness": 1.0, "outline_saturation": 1.0, "outline_brightness": 1.0,
 # "fill": "passage", "outline": "passage", "fill": {"egg": "#FF4040", "cell": "#4040FF"}, "outline": {"egg": "#FF4040", "cell": "#4040FF"},
@@ -162,6 +162,10 @@
 
 #+END_SRC
 
+
+* Color and Color modifier
+
+See [[file:~/AD/share/doc/color.org][color.org]]
 
 * Label
 

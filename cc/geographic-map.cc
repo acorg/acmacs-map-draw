@@ -244,7 +244,7 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const Geog
     acmacs::Counter<std::string> tag_counter;
     for (auto antigen: antigens) {
         auto [tag, coloring_data] = aColorOverride.color(*antigen);
-        if (acmacs::color::is_no_change(coloring_data.fill))
+        if (coloring_data.fill.is_no_change())
             std::tie(tag, coloring_data) = aColoring.color(*antigen);
         tag_counter.count(tag);
         try {

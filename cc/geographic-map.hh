@@ -93,7 +93,7 @@ class GeographicMapColoring
         bool operator<(const ColoringData& aNother) const { return fill == aNother.fill ? (outline == aNother.outline ? outline_width < aNother.outline_width : outline < aNother.outline) : fill < aNother.fill; }
         ColoringData& operator=(std::string_view a_fill) { fill = a_fill; return *this; }
 
-        acmacs::color::Modifier fill;
+        acmacs::color::Modifier fill; // no change by default
         acmacs::color::Modifier outline{BLACK};
         Pixels outline_width{0};
     };
@@ -212,7 +212,7 @@ class ColorOverride : public GeographicMapColoring
                 return TagColor{aAntigen.name(), mColors.at(*aAntigen.name())};
             }
             catch (...) {
-                return TagColor{"UNKNOWN", ColoringData{acmacs::color::no_change}};
+                return TagColor{"UNKNOWN", ColoringData{}};
             }
         }
 
