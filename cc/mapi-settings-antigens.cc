@@ -610,9 +610,16 @@ template <typename AgSr> static acmacs::chart::PointIndexList select(const Chart
                             check_lineage(aChartSelectInterface.chart(), indexes, key, value);
                         else if (key == "fill"sv || key == "outline"sv || key == "outline-width"sv || key == "outline_width"sv)
                             check_color(aChartSelectInterface, indexes, key, value);
+                        else if (key == "exclude-distinct"sv || key == "exclude_distinct"sv) {
+                            if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>)
+                                acmacs::map_draw::select::filter::out_distinct_in(*aChartSelectInterface.chart().antigens(), indexes);
+                            else
+                                acmacs::map_draw::select::filter::out_distinct_in(*aChartSelectInterface.chart().sera(), indexes);
+                        }
                         else if (key == "layer"sv || key == "layers"sv || key == "table"sv || key == "tables"sv)
                             check_layer<AgSr>(aChartSelectInterface.chart(), indexes, key, value);
-                        else if (key == "titrated-against-sera"sv || key == "titrated-against-antigens"sv || key == "titrated-against"sv || key == "not-titrated-against-sera"sv || key == "not-titrated-against-antigens"sv || key == "not-titrated-against"sv)
+                        else if (key == "titrated-against-sera"sv || key == "titrated-against-antigens"sv || key == "titrated-against"sv || key == "not-titrated-against-sera"sv ||
+                                 key == "not-titrated-against-antigens"sv || key == "not-titrated-against"sv)
                             check_titrated_against<AgSr>(aChartSelectInterface, indexes, key, value);
                         else if (key == "report"sv)
                             report = value.template to<bool>();

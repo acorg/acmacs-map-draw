@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-18 12:04:23 eu>
+# Time-stamp: <2020-05-18 12:22:26 eu>
 
 * TODO
 
@@ -95,7 +95,7 @@
 
 {"fill": "red", "outline": "green", "outline-width": 3}
 
-# "exclude-distinct"
+{"exclude-distinct": true}
 
 {"report": true, "report-threshold": 20}
 #+END_SRC
@@ -125,6 +125,8 @@
 {"not-titrated-against": <select sera>} -- same as above
 
 {"fill": "red", "outline": "green", "outline-width": 3}
+
+{"exclude-distinct": true}
 
 {"report": true, "report_threshold": 20}
 #+END_SRC
