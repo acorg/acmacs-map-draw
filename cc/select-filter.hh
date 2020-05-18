@@ -51,6 +51,13 @@ namespace acmacs::map_draw::select::filter
         indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_circle), indexes.end());
     }
 
+    inline void fill_in(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, size_t aIndexBase, Color fill)
+    {
+        const auto& all_styles = aChartSelectInterface.plot_spec().all_styles();
+        const auto other_fill = [&all_styles, fill, aIndexBase](auto index) -> bool { return all_styles[index + aIndexBase].fill() != fill; };
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), other_fill), indexes.end());
+    }
+
     inline void outline_in(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, size_t aIndexBase, Color outline)
     {
         const auto& all_styles = aChartSelectInterface.plot_spec().all_styles();

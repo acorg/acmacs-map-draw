@@ -554,6 +554,23 @@ template <typename AgSr> static void check_titrated_against(const ChartSelectInt
 
 // ----------------------------------------------------------------------
 
+static inline void check_color(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+{
+    using namespace std::string_view_literals;
+
+    if (key == "fill"sv)
+        acmacs::map_draw::select::filter::fill_in(aChartSelectInterface, indexes, 0, Color(value.to<std::string_view>()));
+    else if (key == "outline"sv)
+        acmacs::map_draw::select::filter::outline_in(aChartSelectInterface, indexes, 0, Color(value.to<std::string_view>()));
+    else if (key == "outline_width"sv || key == "outline-width"sv)
+        acmacs::map_draw::select::filter::outline_width_in(aChartSelectInterface, indexes, 0, value.to<Pixels>());
+    else
+        throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"{}\" clause: {}", key, value)};
+
+} // check_name
+
+// ----------------------------------------------------------------------
+
 template <typename AgSr> static acmacs::chart::PointIndexList select(const ChartSelectInterface& aChartSelectInterface, const AgSr& ag_sr, const rjson::v3::value& select_clause)
 {
     using namespace std::string_view_literals;
@@ -591,6 +608,8 @@ template <typename AgSr> static acmacs::chart::PointIndexList select(const Chart
                             check_lab(aChartSelectInterface.chart(), indexes, key, value);
                         else if (key == "lineage"sv)
                             check_lineage(aChartSelectInterface.chart(), indexes, key, value);
+                        else if (key == "fill"sv || key == "outline"sv || key == "outline-width"sv || key == "outline_width"sv)
+                            check_color(aChartSelectInterface, indexes, key, value);
                         else if (key == "layer"sv || key == "layers"sv || key == "table"sv || key == "tables"sv)
                             check_layer<AgSr>(aChartSelectInterface.chart(), indexes, key, value);
                         else if (key == "titrated-against-sera"sv || key == "titrated-against-antigens"sv || key == "titrated-against"sv || key == "not-titrated-against-sera"sv || key == "not-titrated-against-antigens"sv || key == "not-titrated-against"sv)
