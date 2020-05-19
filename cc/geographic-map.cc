@@ -54,7 +54,7 @@ void GeographicMapDraw::draw(std::string aFilename, double aImageWidth)
 
 // ----------------------------------------------------------------------
 
-void GeographicMapDraw::add_point(long aPriority, double aLat, double aLong, Color aFill, Pixels aSize, Color aOutline, Pixels aOutlineWidth)
+void GeographicMapDraw::add_point(long aPriority, double aLat, double aLong, const acmacs::color::Modifier& aFill, Pixels aSize, const acmacs::color::Modifier& aOutline, Pixels aOutlineWidth)
 {
     mPoints.emplace_back(LongLat{aLong, -aLat}, aPriority);
     auto& style = mPoints.back();
@@ -210,7 +210,7 @@ void GeographicMapWithPointsFromHidb::prepare(acmacs::surface::Surface& aSurface
             const double center_lat = location->latitude(), center_long = location->longitude();
             auto iter = location_color.second.iterator();
             auto [coloring_data, priority] = *iter;
-            add_point(priority, center_lat, center_long, acmacs::color::get(coloring_data.fill), mPointSize, acmacs::color::get(coloring_data.outline), coloring_data.outline_width);
+            add_point(priority, center_lat, center_long, coloring_data.fill, mPointSize, coloring_data.outline, coloring_data.outline_width);
             ++iter;
             for (size_t circle_no = 1; iter; ++circle_no) {
                 const double distance = point_scaled * mDensity * static_cast<double>(circle_no);
@@ -219,7 +219,7 @@ void GeographicMapWithPointsFromHidb::prepare(acmacs::surface::Surface& aSurface
                 const double step = 2.0 * M_PI / static_cast<double>(points_on_circle);
                 for (auto index: acmacs::range(0UL, points_on_circle)) {
                     std::tie(coloring_data, priority) = *iter;
-                    add_point(priority, center_lat + distance * std::cos(static_cast<double>(index) * step), center_long + distance * std::sin(static_cast<double>(index) * step), acmacs::color::get(coloring_data.fill), mPointSize, acmacs::color::get(coloring_data.outline), coloring_data.outline_width);
+                    add_point(priority, center_lat + distance * std::cos(static_cast<double>(index) * step), center_long + distance * std::sin(static_cast<double>(index) * step), coloring_data.fill, mPointSize, coloring_data.outline, coloring_data.outline_width);
                     ++iter;
                 }
             }

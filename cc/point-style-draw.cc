@@ -11,19 +11,19 @@ void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aS
     if (aStyle.shown() && aCoord.exists()) {
         switch (aStyle.shape()) {
           case acmacs::PointShape::Circle:
-              aSurface.circle_filled(aCoord, aStyle.size(), aStyle.aspect(), aStyle.rotation(), acmacs::color::get(aStyle.outline()), aStyle.outline_width(), acmacs::surface::Dash::NoDash, acmacs::color::get(aStyle.fill()));
+              aSurface.circle_filled(aCoord, aStyle.size(), aStyle.aspect(), aStyle.rotation(), aStyle.outline(), aStyle.outline_width(), acmacs::surface::Dash::NoDash, aStyle.fill());
               break;
           case acmacs::PointShape::Egg:
-              aSurface.egg_filled(aCoord, aStyle.size(), aStyle.aspect(), aStyle.rotation(), acmacs::color::get(aStyle.outline()), aStyle.outline_width(), acmacs::surface::Dash::NoDash, acmacs::color::get(aStyle.fill()));
+              aSurface.egg_filled(aCoord, aStyle.size(), aStyle.aspect(), aStyle.rotation(), aStyle.outline(), aStyle.outline_width(), acmacs::surface::Dash::NoDash, aStyle.fill());
               break;
           case acmacs::PointShape::UglyEgg:
-              aSurface.ugly_egg_filled(aCoord, aStyle.size(), aStyle.aspect(), aStyle.rotation(), acmacs::color::get(aStyle.outline()), aStyle.outline_width(), acmacs::surface::Dash::NoDash, acmacs::color::get(aStyle.fill()));
+              aSurface.ugly_egg_filled(aCoord, aStyle.size(), aStyle.aspect(), aStyle.rotation(), aStyle.outline(), aStyle.outline_width(), acmacs::surface::Dash::NoDash, aStyle.fill());
               break;
           case acmacs::PointShape::Box:
-              aSurface.square_filled(aCoord, aStyle.size(), aStyle.aspect(), aStyle.rotation(), acmacs::color::get(aStyle.outline()), aStyle.outline_width(), acmacs::color::get(aStyle.fill()));
+              aSurface.square_filled(aCoord, aStyle.size(), aStyle.aspect(), aStyle.rotation(), aStyle.outline(), aStyle.outline_width(), aStyle.fill());
               break;
           case acmacs::PointShape::Triangle:
-              aSurface.triangle_filled(aCoord, aStyle.size(), aStyle.aspect(), aStyle.rotation(), acmacs::color::get(aStyle.outline()), aStyle.outline_width(), acmacs::color::get(aStyle.fill()));
+              aSurface.triangle_filled(aCoord, aStyle.size(), aStyle.aspect(), aStyle.rotation(), aStyle.outline(), aStyle.outline_width(), aStyle.fill());
               break;
         }
     }

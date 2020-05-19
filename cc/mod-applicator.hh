@@ -39,8 +39,8 @@ class Mod
     PointDrawingOrder drawing_order() const { return drawing_order_from_json(args()); }
     void add_labels(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, size_t aBaseIndex, const rjson::value& aLabelData);
     void add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, const rjson::value& aLabelData);
-    void add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, const rjson::value& aLegendData);
-    void add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData);
+    void add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyleModified& aStyle, const rjson::value& aLegendData);
+    void add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyleModified& aStyle, std::string aLabel, const rjson::value& aLegendData);
 
  private:
     const rjson::value mArgs;  // not reference! "N" is probably wrong due to updating args in factory!

@@ -62,7 +62,7 @@ class GeographicMapDraw
     virtual void prepare(acmacs::surface::Surface& aSurface);
     virtual void draw(std::string aFilename, double aImageWidth);
 
-    void add_point(long aPriority, double aLat, double aLong, Color aFill, Pixels aSize, Color aOutline = TRANSPARENT, Pixels aOutlineWidth = Pixels{0});
+    void add_point(long aPriority, double aLat, double aLong, const acmacs::color::Modifier& aFill, Pixels aSize, const acmacs::color::Modifier& aOutline, Pixels aOutlineWidth = Pixels{0});
     map_elements::Title& title() { return mTitle; }
 
  protected:

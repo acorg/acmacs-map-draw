@@ -728,7 +728,7 @@ acmacs::PointStyleModified acmacs::mapi::v1::Settings::style_from_toplevel_envir
 
 // ----------------------------------------------------------------------
 
-Color acmacs::mapi::v1::Settings::color(const rjson::v3::value& value) const
+acmacs::color::Modifier acmacs::mapi::v1::Settings::color(const rjson::v3::value& value) const
 {
     using namespace std::string_view_literals;
     const auto make_color = [](std::string_view source) -> Color {

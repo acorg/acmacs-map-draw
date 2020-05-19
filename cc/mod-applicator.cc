@@ -101,7 +101,7 @@ void Mod::add_labels(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 
 // ----------------------------------------------------------------------
 
-void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, const rjson::value& aLegendData)
+void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyleModified& aStyle, const rjson::value& aLegendData)
 {
     const std::string label(rjson::get_or(aLegendData, "label", "use \"label\" in \"legend\""));
     if (const auto& replace = aLegendData["replace"]; !replace.is_null() && replace.to<bool>()) {
@@ -120,7 +120,7 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
 
 // ----------------------------------------------------------------------
 
-void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyle& aStyle, std::string aLabel, const rjson::value& aLegendData)
+void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyleModified& aStyle, std::string aLabel, const rjson::value& aLegendData)
 {
     // std::cerr << "DEBUG: add_legend " << aLabel << '\n';
     if (const auto& show = aLegendData["show"]; (show.is_null() || show.to<bool>()) && !aIndices->empty()) { // show is true by default
@@ -134,7 +134,7 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
             auto& legend = aChartDraw.legend_point_label();
             if (const auto& count = aLegendData["count"]; !count.is_null() && count.to<bool>())
                 aLabel += " (" + std::to_string(aIndices->size()) + ")";
-            legend.add_line(acmacs::color::get(aStyle.outline()), acmacs::color::get(aStyle.fill()), aLabel);
+            legend.add_line(aStyle.outline(), aStyle.fill(), aLabel);
         }
     }
 
