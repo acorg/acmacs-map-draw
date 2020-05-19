@@ -705,21 +705,8 @@ acmacs::PointStyleModified acmacs::mapi::v1::Settings::style_from_toplevel_envir
             style.aspect(Aspect{substitute_to_double(val)});
         else if (key == "rotation"sv)
             style.rotation(Rotation{substitute_to_double(val)});
-        else if (key == "fill_saturation"sv) {
-            AD_WARNING("\"fill_saturation\" not implemented");
-            // style.fill = acmacs::color::Modifier{acmacs::color::adjust_saturation{val.to<double>()}};
-        }
-        else if (key == "fill_brightness"sv) {
-            AD_WARNING("\"fill_brightness not implemented");
-            // style.fill = acmacs::color::Modifier{acmacs::color::adjust_brightness{val.to<double>()}};
-        }
-        else if (key == "outline_saturation"sv) {
-            AD_WARNING("\"outline_saturation\" not implemented");
-            // style.outline = acmacs::color::Modifier{acmacs::color::adjust_saturation{val.to<double>()}};
-        }
-        else if (key == "outline_brightness"sv) {
-            AD_WARNING("\"outline_brightness\" not implemented");
-            // style.outline = acmacs::color::Modifier{acmacs::color::adjust_brightness{val.to<double>()}};
+        else if (key == "fill_saturation"sv || key == "fill_brightness"sv || key == "outline_saturation"sv || key == "outline_brightness"sv) {
+            AD_WARNING("\"{}\" is not supported, use color modificators, e.g. \":s-0.5\"", key);
         }
     }
     return style;
