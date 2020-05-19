@@ -38,9 +38,9 @@ acmacs::PointStyleModified point_style_from_json(const rjson::value& aSource, Co
     rjson::for_each(aSource, [&style,passage_color](std::string_view key, const rjson::value& val) {
         if (key == "fill") {
             if (const std::string_view val_s{val.to<std::string_view>()}; val_s == "passage")
-                style.fill(Color(passage_color));
+                style.fill(acmacs::color::Modifier{Color(passage_color)});
             else
-                style.fill(Color(val_s));
+                style.fill(acmacs::color::Modifier{Color(val_s)});
         }
         else if (key == "fill_saturation") {
             AD_WARNING("\"fill_saturation\" not implemented");
@@ -52,9 +52,9 @@ acmacs::PointStyleModified point_style_from_json(const rjson::value& aSource, Co
         }
         else if (key == "outline") {
             if (const std::string_view val_s{val.to<std::string_view>()}; val_s == "passage")
-                style.outline(Color(passage_color));
+                style.outline(acmacs::color::Modifier{Color(passage_color)});
             else
-                style.outline(Color(val_s));
+                style.outline(acmacs::color::Modifier{Color(val_s)});
         }
         else if (key == "outline_saturation") {
             AD_WARNING("\"outline_saturation\" not implemented");

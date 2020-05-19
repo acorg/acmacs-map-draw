@@ -731,10 +731,10 @@ acmacs::PointStyleModified acmacs::mapi::v1::Settings::style_from_toplevel_envir
 acmacs::color::Modifier acmacs::mapi::v1::Settings::color(const rjson::v3::value& value) const
 {
     using namespace std::string_view_literals;
-    const auto make_color = [](std::string_view source) -> Color {
+    const auto make_color = [](std::string_view source) -> acmacs::color::Modifier {
         if (source == "passage"sv) {
             AD_WARNING("\"passage\" color not implemented");
-            return PINK;
+            return acmacs::color::Modifier{PINK};
         }
         else
             return source;
@@ -742,7 +742,7 @@ acmacs::color::Modifier acmacs::mapi::v1::Settings::color(const rjson::v3::value
 
     try {
         return std::visit(
-            [make_color]<typename Value>(const Value& val) -> Color {
+            [make_color]<typename Value>(const Value& val) -> acmacs::color::Modifier {
                 if constexpr (std::is_same_v<Value, const rjson::v3::value*>) {
                     if (val->is_string()) {
                         return make_color(val->template to<std::string_view>());

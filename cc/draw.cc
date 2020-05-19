@@ -169,11 +169,11 @@ void ChartDraw::mark_reassortant_antigens()
 void ChartDraw::mark_all_grey(Color aColor)
 {
     acmacs::PointStyleModified ref_antigen;
-    ref_antigen.outline(aColor);
+    ref_antigen.outline(acmacs::color::Modifier{aColor});
     plot_spec().modify(chart().antigens()->reference_indexes(), ref_antigen);
     acmacs::PointStyleModified test_antigen;
-    test_antigen.fill(aColor);
-    test_antigen.outline(aColor);
+    test_antigen.fill(acmacs::color::Modifier{aColor});
+    test_antigen.outline(acmacs::color::Modifier{aColor});
     plot_spec().modify(chart().antigens()->test_indexes(), test_antigen);
     plot_spec().modify(chart().sera()->all_indexes(), ref_antigen);
 
