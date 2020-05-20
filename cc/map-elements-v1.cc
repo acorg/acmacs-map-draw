@@ -5,20 +5,22 @@
 
 bool map_elements::Elements::add_v1(std::string aKeyword)
 {
+    using namespace map_elements::v1;
+
     if (aKeyword == "line" || aKeyword == "line_from_to")
-        mElements.emplace_back(new map_elements::v1::LineFromTo{});
+        add<LineFromTo>();
     else if (aKeyword == "path")
-        mElements.emplace_back(new map_elements::v1::Path{});
+        add<Path>();
     else if (aKeyword == "line_slope")
-        mElements.emplace_back(new map_elements::v1::LineSlope{});
+        add<LineSlope>();
     else if (aKeyword == "arrow")
-        mElements.emplace_back(new map_elements::v1::Arrow{});
+        add<Arrow>();
     else if (aKeyword == "point")
-        mElements.emplace_back(new map_elements::v1::Point{});
+        add<Point>();
     else if (aKeyword == "rectangle")
-        mElements.emplace_back(new map_elements::v1::Rectangle{});
+        add<Rectangle>();
     else if (aKeyword == "circle")
-        mElements.emplace_back(new map_elements::v1::Circle{});
+        add<Circle>();
     else
         return false;
 

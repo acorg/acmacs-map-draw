@@ -31,6 +31,7 @@ namespace map_elements
         Elements();
         Element& operator[](std::string aKeyword);
         Element& add(std::string aKeyword);
+        template <typename Elt> Element& add() { return *mElements.emplace_back(std::make_unique<Elt>()); }
         void remove(std::string aKeyword);
         bool exists(std::string aKeyword) const;
 

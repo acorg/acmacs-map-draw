@@ -35,20 +35,19 @@ map_elements::Element& map_elements::Elements::operator[](std::string aKeyword)
 map_elements::Element& map_elements::Elements::add(std::string aKeyword)
 {
     if (add_v1(aKeyword))
-        ;                       // added
+        return *mElements.back();
     else if (aKeyword == "background-border-grid")
-        mElements.emplace_back(new BackgroundBorderGrid{});
+        return add<BackgroundBorderGrid>();
     else if (aKeyword == "continent-map")
-        mElements.emplace_back(new ContinentMap{});
+        return add<ContinentMap>();
     else if (aKeyword == "legend-point-label")
-        mElements.emplace_back(new LegendPointLabel{});
+        return add<LegendPointLabel>();
     else if (aKeyword == "title")
-        mElements.emplace_back(new Title{});
+        return add<Title>();
     else if (aKeyword == "serum-circle")
-        mElements.emplace_back(new SerumCircle{});
+        return add<SerumCircle>();
     else
         throw std::runtime_error("Don't know how to make map element " + aKeyword);
-    return *mElements.back();
 
 } // map_elements::Elements::add
 
