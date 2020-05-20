@@ -91,7 +91,7 @@ class GeographicMapColoring
         // ColoringData(std::string aFill, std::string aOutline = "black", double aOutlineWidth = 0) : fill{aFill}, outline{aOutline}, outline_width{aOutlineWidth} {}
         ColoringData(std::string_view aFill, std::string_view aOutline = "black", double aOutlineWidth = 0) : fill{aFill}, outline{aOutline}, outline_width{aOutlineWidth} {}
         bool operator<(const ColoringData& aNother) const { return fill == aNother.fill ? (outline == aNother.outline ? outline_width < aNother.outline_width : outline < aNother.outline) : fill < aNother.fill; }
-        ColoringData& operator=(std::string_view a_fill) { fill = a_fill; return *this; }
+        ColoringData& operator=(std::string_view a_fill) { fill = acmacs::color::Modifier{a_fill}; return *this; }
 
         acmacs::color::Modifier fill; // no change by default
         acmacs::color::Modifier outline{BLACK};
