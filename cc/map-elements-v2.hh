@@ -13,6 +13,8 @@ namespace map_elements::v2
 
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
+        constexpr void radius(Scaled radius) { radius_ = radius; }
+
       protected:
         // acmacs::PointCoordinates mCenter{acmacs::number_of_dimensions_t{2}};
         Scaled radius_{1.0};
