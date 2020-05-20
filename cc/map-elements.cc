@@ -1,4 +1,3 @@
-#include "acmacs-draw/continent-map.hh"
 #include "acmacs-draw/draw-legend.hh"
 #include "acmacs-map-draw/map-elements.hh"
 #include "acmacs-map-draw/draw.hh"
@@ -7,7 +6,7 @@
 
 map_elements::Elements::Elements()
 {
-    add<BackgroundBorderGrid>();
+    add_basic_elements_v1();
 
 } // map_elements::Elements::Elements
 
@@ -39,10 +38,6 @@ map_elements::Element& map_elements::Elements::add(std::string_view aKeyword)
         return *mElements.back();
     // else if (aKeyword == "background-border-grid"sv)
     //     return add<BackgroundBorderGrid>();
-    else if (aKeyword == "continent-map"sv)
-        return add<ContinentMap>();
-    else if (aKeyword == "legend-point-label"sv)
-        return add<LegendPointLabel>();
     else if (aKeyword == "title"sv)
         return add<Title>();
     else if (aKeyword == "serum-circle"sv)
@@ -95,112 +90,6 @@ acmacs::PointCoordinates map_elements::Element::subsurface_origin(acmacs::surfac
     return subsurface_origin;
 
 } // map_elements::Element::subsurface_origin
-
-// ----------------------------------------------------------------------
-
-// obsolete
-void map_elements::BackgroundBorderGrid::draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const
-{
-    const auto& v = aSurface.viewport();
-    aSurface.rectangle_filled(v.origin, v.size, mBackground, Pixels{0}, mBackground);
-    aSurface.grid(Scaled{1}, mGridColor, mGridLineWidth);
-    aSurface.rectangle(v.origin, v.size, mBorderColor, mBorderWidth);
-
-} // map_elements::BackgroundBorderGrid::draw
-
-// ----------------------------------------------------------------------
-
-void map_elements::BackgroundBorderGrid::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
-{
-    aDrawElements.border(mBorderColor, mBorderWidth);
-    aDrawElements.background(mBackground);
-    aDrawElements.grid(Scaled{1}, mGridColor, mGridLineWidth);
-
-} // map_elements::BackgroundBorderGrid::draw
-
-// ----------------------------------------------------------------------
-
-// obsolete
-void map_elements::ContinentMap::draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const
-{
-    acmacs::PointCoordinates origin = mOrigin;
-    if (origin.x() < 0)
-        origin.x(origin.x() + aSurface.width_in_pixels() - mWidthInParent.value());
-    if (origin.y() < 0)
-        origin.y(origin.y() + aSurface.height_in_pixels() - mWidthInParent.value() / continent_map_aspect());
-    acmacs::surface::Surface& continent_surface = aSurface.subsurface(origin, mWidthInParent, continent_map_size(), true);
-    continent_map_draw(continent_surface);
-
-} // map_elements::ContinentMap::draw
-
-// ----------------------------------------------------------------------
-
-void map_elements::ContinentMap::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
-{
-    aDrawElements.continent_map(mOrigin, mWidthInParent);
-
-} // map_elements::ContinentMap::draw
-
-// ----------------------------------------------------------------------
-
-map_elements::LegendPointLabel::LegendPointLabel()
-    : Element("legend-point-label", Elements::AfterPoints), mOrigin{-10, -10},
-      mBackground("white"), mBorderColor(BLACK), mBorderWidth(0.3), mPointSize(8),
-      mLabelColor(BLACK), mLabelSize(12), mInterline(2.0)
-{
-} // map_elements::LegendPointLabel::LegendPointLabel
-
-// ----------------------------------------------------------------------
-
-// obsolete
-void map_elements::LegendPointLabel::draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const
-{
-    if (!mLines.empty()) {
-        double width = 0, height = 0;
-        for (const auto& line: mLines) {
-            const acmacs::Size line_size = aSurface.text_size(line.label, mLabelSize, mLabelStyle);
-            if (line_size.width > width)
-                width = line_size.width;
-            if (line_size.height > height)
-                height = line_size.height;
-        }
-        const acmacs::Size padding = aSurface.text_size("O", mLabelSize, mLabelStyle);
-        const double scaled_point_size = aSurface.convert(mPointSize).value();
-
-        const acmacs::Size legend_surface_size{width + padding.width * 3 + scaled_point_size,
-                                       height * static_cast<double>(mLines.size() - 1) * mInterline + height + padding.height * 2};
-        const acmacs::PointCoordinates legend_surface_origin = subsurface_origin(aSurface, mOrigin, legend_surface_size);
-
-        acmacs::surface::Surface& legend_surface = aSurface.subsurface(legend_surface_origin, Scaled{legend_surface_size.width}, legend_surface_size, false);
-        const auto& legend_v = legend_surface.viewport();
-        legend_surface.rectangle_filled(legend_v.origin, legend_v.size, mBackground, Pixels{0}, mBackground);
-        legend_surface.rectangle(legend_v.origin, legend_v.size, mBorderColor, mBorderWidth);
-        const double point_x = padding.width + scaled_point_size / 2;
-        const double text_x = padding.width * 2 + scaled_point_size;
-        double y = padding.height + height;
-        for (const auto& line: mLines) {
-            legend_surface.circle_filled({point_x, y - height / 2}, mPointSize, AspectNormal, NoRotation, line.outline, Pixels{1}, acmacs::surface::Dash::NoDash, line.fill);
-            legend_surface.text({text_x, y}, line.label, mLabelColor, mLabelSize, mLabelStyle);
-            y += height * mInterline;
-        }
-    }
-
-} // map_elements::LegendPointLabel::draw
-
-// ----------------------------------------------------------------------
-
-void map_elements::LegendPointLabel::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
-{
-    auto& legend = aDrawElements.legend();
-    legend.origin(mOrigin)
-            .background(mBackground)
-            .border_color(mBorderColor)
-            .border_width(mBorderWidth);
-    legend.interline(mInterline);
-    for (const auto& line : mLines)
-        legend.add(line.label, mLabelColor, mLabelSize, mLabelStyle, mPointSize, line.outline, line.fill);
-
-} // map_elements::LegendPointLabel::draw
 
 // ----------------------------------------------------------------------
 

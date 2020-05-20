@@ -6,6 +6,90 @@
 
 namespace map_elements::v1
 {
+    class BackgroundBorderGrid : public Element
+    {
+     public:
+        BackgroundBorderGrid()
+            : Element("background-border-grid", Elements::BeforePoints),
+              mBackground("white"), mGridColor("grey80"), mGridLineWidth(1), mBorderColor("black"), mBorderWidth(1) {}
+
+        void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
+        void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
+
+        void background_color(Color aBackground) { mBackground = aBackground; }
+        void grid(Color aGridColor, double aGridLineWidth) { mGridColor = aGridColor; mGridLineWidth = Pixels{aGridLineWidth}; }
+        void border(Color aBorderColor, double aBorderWidth) { mBorderColor = aBorderColor; mBorderWidth = Pixels{aBorderWidth}; }
+
+     private:
+        Color mBackground;
+        Color mGridColor;
+        Pixels mGridLineWidth;
+        Color mBorderColor;
+        Pixels mBorderWidth;
+
+    }; // class BackgroundBorderGrid
+
+    // ----------------------------------------------------------------------
+
+    class ContinentMap : public Element
+    {
+     public:
+        ContinentMap() : Element("continent-map", Elements::AfterPoints) {}
+
+        void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
+        void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
+        auto& offset_width(const acmacs::PointCoordinates& aOrigin, Pixels aWidthInParent) { mOrigin = aOrigin; mWidthInParent = aWidthInParent; return *this; }
+
+     private:
+        acmacs::PointCoordinates mOrigin{-1.0, -1.0};
+        Pixels mWidthInParent{100};
+
+    }; // class ContinentMap
+
+    // ----------------------------------------------------------------------
+
+    class LegendPointLabel : public Element
+    {
+     public:
+        struct Line
+        {
+            Line(Color aOutline, Color aFill, std::string aLabel) : outline(aOutline), fill(aFill), label(aLabel) {}
+            Color outline, fill;
+            std::string label;
+        };
+
+        LegendPointLabel();
+
+        void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
+        void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
+
+        void offset(const acmacs::PointCoordinates& aOrigin) { mOrigin = aOrigin; }
+        void add_line(Color outline, Color fill, std::string label) { mLines.emplace_back(outline, fill, label); }
+        void remove_line(std::string label) { mLines.erase(std::remove_if(mLines.begin(), mLines.end(), [&label](const auto& elt) { return elt.label == label; }), mLines.end()); }
+        void label_size(double aLabelSize) { mLabelSize = Pixels{aLabelSize}; }
+        void point_size(double aPointSize) { mPointSize = Pixels{aPointSize}; }
+        void background(Color aBackground) { mBackground = aBackground; }
+        void border_color(Color aBorderColor) { mBorderColor = aBorderColor; }
+        void border_width(double aBorderWidth) { mBorderWidth = Pixels{aBorderWidth}; }
+
+        const auto& lines() const { return mLines; }
+
+      private:
+        acmacs::PointCoordinates mOrigin;
+        Color mBackground;
+        Color mBorderColor;
+        Pixels mBorderWidth;
+        Pixels mPointSize;
+        Color mLabelColor;
+        Pixels mLabelSize;
+        acmacs::TextStyle mLabelStyle;
+        double mInterline;
+        std::vector<Line> mLines;
+
+    }; // class LegendPointLabel
+
+    // ----------------------------------------------------------------------
+
     class Path : public Element
     {
       public:
