@@ -33,7 +33,7 @@ struct Options : public argv
 
 static int draw(const Options& opt);
 static GeographicMapColoring* make_coloring(const rjson::value& aSettings);
-static void set_title(map_elements::Title& aTitle, const rjson::value& aSettings, bool use_title_text);
+static void set_title(map_elements::v1::Title& aTitle, const rjson::value& aSettings, bool use_title_text);
 
 int main(int argc, char* const argv[])
 {
@@ -175,7 +175,7 @@ GeographicMapColoring* make_coloring(const rjson::value& aSettings)
 
 // ----------------------------------------------------------------------
 
-void set_title(map_elements::Title& aTitle, const rjson::value& aSettings, bool use_title_text)
+void set_title(map_elements::v1::Title& aTitle, const rjson::value& aSettings, bool use_title_text)
 {
     if (!use_title_text || aSettings["title_text"].to<std::string_view>() != "") {
         const rjson::value& title_data = aSettings["title"];

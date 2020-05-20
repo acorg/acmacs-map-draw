@@ -116,14 +116,14 @@ class ChartDraw : public ChartSelectInterface
     map_elements::v1::LegendPointLabel& legend_point_label(const acmacs::PointCoordinates& aOffset) { auto& legend = dynamic_cast<map_elements::v1::LegendPointLabel&>(mMapElements["legend-point-label"]); legend.offset(aOffset); return legend; }
     map_elements::v1::LegendPointLabel& legend_point_label() { return dynamic_cast<map_elements::v1::LegendPointLabel&>(mMapElements["legend-point-label"]); }
     void remove_legend() { mMapElements.remove("legend-point-label"); }
-    map_elements::Title& title(const acmacs::PointCoordinates& aOffset) { auto& title = dynamic_cast<map_elements::Title&>(mMapElements["title"]); title.offset(aOffset); return title; }
-    map_elements::Title& title() { return dynamic_cast<map_elements::Title&>(mMapElements["title"]); }
+    map_elements::v1::Title& title(const acmacs::PointCoordinates& aOffset) { auto& title = dynamic_cast<map_elements::v1::Title&>(mMapElements["title"]); title.offset(aOffset); return title; }
+    map_elements::v1::Title& title() { return dynamic_cast<map_elements::v1::Title&>(mMapElements["title"]); }
     bool has_title() const { return mMapElements.exists("title"); }
     map_elements::Labels& labels() { return mLabels; }
     acmacs::draw::PointLabel& add_label(size_t aIndex) { return mLabels.add(aIndex, chart()); }
     void add_all_labels() const { const_cast<ChartDraw*>(this)->mLabels.add_all(chart()); }
     void remove_label(size_t aIndex) { return mLabels.remove(aIndex); }
-    map_elements::SerumCircle& serum_circle(size_t aSerumNo, Scaled aRadius);
+    map_elements::v1::SerumCircle& serum_circle(size_t aSerumNo, Scaled aRadius);
     map_elements::v1::Line& line(const acmacs::PointCoordinates& aBegin, const acmacs::PointCoordinates& aEnd);
     map_elements::v1::Line& line(const acmacs::LineDefinedByEquation& line, apply_map_transformation a_apply_map_transformation);
     map_elements::v1::Path& path();

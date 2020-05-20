@@ -181,9 +181,9 @@ void ChartDraw::mark_all_grey(Color aColor)
 
 // ----------------------------------------------------------------------
 
-map_elements::SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadius)
+map_elements::v1::SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadius)
 {
-    auto& serum_circle = dynamic_cast<map_elements::SerumCircle&>(mMapElements.add("serum-circle"));
+    auto& serum_circle = dynamic_cast<map_elements::v1::SerumCircle&>(mMapElements.add("serum-circle"));
     serum_circle.serum_no(aSerumNo);
     serum_circle.radius(aRadius);
     return serum_circle;

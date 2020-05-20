@@ -8,7 +8,7 @@
 #include "hidb-5/hidb.hh"
 #include "locationdb/locdb.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
-#include "acmacs-map-draw/map-elements.hh"
+#include "acmacs-map-draw/map-elements-v1.hh"
 
 // ----------------------------------------------------------------------
 
@@ -63,7 +63,7 @@ class GeographicMapDraw
     virtual void draw(std::string aFilename, double aImageWidth);
 
     void add_point(long aPriority, double aLat, double aLong, const acmacs::color::Modifier& aFill, Pixels aSize, const acmacs::color::Modifier& aOutline, Pixels aOutlineWidth = Pixels{0});
-    map_elements::Title& title() { return mTitle; }
+    map_elements::v1::Title& title() { return mTitle; }
 
  protected:
     void sort_points() { mPoints.sort(); }
@@ -72,7 +72,7 @@ class GeographicMapDraw
     Color mOutline;
     Pixels mOutlineWidth;
     GeographicMapPoints mPoints;
-    map_elements::Title mTitle;
+    map_elements::v1::Title mTitle;
 
     virtual void draw(acmacs::surface::Surface& aOutlineSurface, acmacs::surface::Surface& aPointSurface) const;
 
@@ -296,7 +296,7 @@ class GeographicTimeSeries
         : map_(aVirusType, aPointSizeInPixels, aPointDensity, aOutlineColor, aOutlineWidth), time_series_{acmacs::time_series::make(params)}, priority_{priority} {}
     virtual ~GeographicTimeSeries() = default;
 
-    map_elements::Title& title() { return map_.title(); }
+    map_elements::v1::Title& title() { return map_.title(); }
     void draw(std::string_view aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const;
 
  private:
