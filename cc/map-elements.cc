@@ -7,7 +7,7 @@
 
 map_elements::Elements::Elements()
 {
-    operator[]("background-border-grid");
+    add<BackgroundBorderGrid>();
 
 } // map_elements::Elements::Elements
 
@@ -32,22 +32,23 @@ map_elements::Element& map_elements::Elements::operator[](std::string aKeyword)
 
 // ----------------------------------------------------------------------
 
-map_elements::Element& map_elements::Elements::add(std::string aKeyword)
+map_elements::Element& map_elements::Elements::add(std::string_view aKeyword)
 {
+    using namespace std::string_view_literals;
     if (add_v1(aKeyword))
         return *mElements.back();
-    else if (aKeyword == "background-border-grid")
-        return add<BackgroundBorderGrid>();
-    else if (aKeyword == "continent-map")
+    // else if (aKeyword == "background-border-grid"sv)
+    //     return add<BackgroundBorderGrid>();
+    else if (aKeyword == "continent-map"sv)
         return add<ContinentMap>();
-    else if (aKeyword == "legend-point-label")
+    else if (aKeyword == "legend-point-label"sv)
         return add<LegendPointLabel>();
-    else if (aKeyword == "title")
+    else if (aKeyword == "title"sv)
         return add<Title>();
-    else if (aKeyword == "serum-circle")
+    else if (aKeyword == "serum-circle"sv)
         return add<SerumCircle>();
     else
-        throw std::runtime_error("Don't know how to make map element " + aKeyword);
+        throw std::runtime_error{fmt::format("Don't know how to make map element {}", aKeyword)};
 
 } // map_elements::Elements::add
 

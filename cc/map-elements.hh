@@ -30,10 +30,19 @@ namespace map_elements
 
         Elements();
         Element& operator[](std::string aKeyword);
-        Element& add(std::string aKeyword);
-        template <typename Elt> Element& add() { return *mElements.emplace_back(std::make_unique<Elt>()); }
+
         void remove(std::string aKeyword);
         bool exists(std::string aKeyword) const;
+
+        Element& add(std::string_view aKeyword);
+
+        template <typename Elt> Elt& add()
+        {
+            auto ptr = std::make_unique<Elt>();
+            auto& elt = *ptr;
+            mElements.push_back(std::move(ptr));
+            return elt;
+        }
 
         void draw(acmacs::surface::Surface& aSurface, Order aOrder, const ChartDraw& aChartDraw) const;
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const;
@@ -41,7 +50,7 @@ namespace map_elements
      private:
         std::vector<std::shared_ptr<Element>> mElements;
 
-        bool add_v1(std::string aKeyword);
+        bool add_v1(std::string_view aKeyword);
 
     }; // class Elements
 
@@ -239,7 +248,6 @@ namespace map_elements
     }; // class SerumCircle
 
 // ----------------------------------------------------------------------
-
 
 } // namespace map_elements
 

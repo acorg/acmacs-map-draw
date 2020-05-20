@@ -3,23 +3,24 @@
 
 // ----------------------------------------------------------------------
 
-bool map_elements::Elements::add_v1(std::string aKeyword)
+bool map_elements::Elements::add_v1(std::string_view aKeyword)
 {
+    using namespace std::string_view_literals;
     using namespace map_elements::v1;
 
-    if (aKeyword == "line" || aKeyword == "line_from_to")
+    if (aKeyword == "line"sv || aKeyword == "line_from_to"sv)
         add<LineFromTo>();
-    else if (aKeyword == "path")
+    else if (aKeyword == "path"sv)
         add<Path>();
-    else if (aKeyword == "line_slope")
+    else if (aKeyword == "line_slope"sv)
         add<LineSlope>();
-    else if (aKeyword == "arrow")
+    else if (aKeyword == "arrow"sv)
         add<Arrow>();
-    else if (aKeyword == "point")
+    else if (aKeyword == "point"sv)
         add<Point>();
-    else if (aKeyword == "rectangle")
+    else if (aKeyword == "rectangle"sv)
         add<Rectangle>();
-    else if (aKeyword == "circle")
+    else if (aKeyword == "circle"sv)
         add<Circle>();
     else
         return false;
