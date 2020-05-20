@@ -1,15 +1,13 @@
-#include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/map-elements-v2.hh"
-#include "acmacs-map-draw/draw.hh"
+#include "acmacs-draw/draw-elements.hh"
 
 // ----------------------------------------------------------------------
 
-bool acmacs::mapi::v1::Settings::apply_circle()
+void map_elements::v2::Circle::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& /*aChartDraw*/) const
 {
-    auto& circle = chart_draw().map_elements().add<map_elements::v2::Circle>();
-    return true;
+    aDrawElements.circle({0.0, 0.0}, radius_ * 2.0, fill_, outline_, outline_width_, aspect_, rotation_);
 
-} // acmacs::mapi::v1::Settings::apply_circle
+} // map_elements::v2::Circle::draw
 
 // ----------------------------------------------------------------------
 

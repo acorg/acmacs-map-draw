@@ -135,6 +135,9 @@ class ChartDraw : public ChartSelectInterface
 
     void save(std::string_view aFilename, std::string_view aProgramName);
 
+    constexpr auto& map_elements() { return mMapElements; }
+    constexpr const auto& map_elements() const { return mMapElements; }
+
  private:
     acmacs::Viewport mViewport;
     map_elements::Elements mMapElements;

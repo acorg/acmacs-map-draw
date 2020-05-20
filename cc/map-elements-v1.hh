@@ -367,7 +367,7 @@ namespace map_elements::v1
     class Circle : public Element
     {
       public:
-        Circle() : Element{"circle", Elements::AfterPoints}, mFillColor{"transparent"}, mOutlineColor{"pink"}, mOutlineWidth{1}, mAspect{AspectNormal}, mRotation{NoRotation} {}
+        Circle() : Element{"circle-v1", Elements::AfterPoints}, mFillColor{"transparent"}, mOutlineColor{"pink"}, mOutlineWidth{1}, mAspect{AspectNormal}, mRotation{NoRotation} {}
 
         void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;

@@ -267,7 +267,7 @@ map_elements::v1::Rectangle& ChartDraw::rectangle(const acmacs::PointCoordinates
 
 map_elements::v1::Circle& ChartDraw::circle(const acmacs::PointCoordinates& aCenter, Scaled aSize)
 {
-    auto& point = dynamic_cast<map_elements::v1::Circle&>(mMapElements.add("circle"));
+    auto& point = dynamic_cast<map_elements::v1::Circle&>(mMapElements.add("circle-v1"));
     point.center(aCenter);
     point.size(aSize);
     return point;

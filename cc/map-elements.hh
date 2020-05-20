@@ -60,7 +60,7 @@ namespace map_elements
     class Element
     {
      public:
-        Element(std::string aKeyword, Elements::Order aOrder) : mKeyword(aKeyword), mOrder(aOrder) {}
+        Element(std::string_view aKeyword, Elements::Order aOrder) : mKeyword(aKeyword), mOrder(aOrder) {}
         Element(const Element&) = default;
         virtual ~Element() = default;
 

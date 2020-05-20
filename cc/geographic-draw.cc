@@ -43,7 +43,7 @@ int main(int argc, char* const argv[])
         exit_code = draw(opt);
     }
     catch (std::exception& err) {
-        std::cerr << "ERROR: " << err.what() << '\n';
+        fmt::print(stderr, "> ERROR {}\n", err);
         exit_code = 2;
     }
     return exit_code;
