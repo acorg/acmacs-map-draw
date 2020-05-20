@@ -76,7 +76,9 @@ namespace acmacs::mapi::inline v1
         modifier_or_passage_t color(const rjson::v3::value& value) const;
 
         // ----------------------------------------------------------------------
+        // mapi-settings-drawing.cc
 
+        bool apply_circle();
     };
 
 } // namespace acmacs::mapi::inline v1

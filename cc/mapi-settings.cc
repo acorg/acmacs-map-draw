@@ -16,6 +16,8 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
             return apply_antigens();
         else if (name == "sera"sv)
             return apply_sera();
+        else if (name == "circle"sv)
+            return apply_circle();
         return acmacs::settings::Settings::apply_built_in(name);
     }
     catch (std::exception& err) {

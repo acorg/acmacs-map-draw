@@ -19,7 +19,7 @@ ACMACS_MAP_DRAW_SOURCES = \
   vaccines.cc vaccine-matcher.cc setup-dbs.cc geographic-settings.cc \
   mod-applicator.cc mod-serum.cc mod-procrustes.cc mod-amino-acids.cc mod-blobs.cc mod-connection-lines.cc \
   select.cc select-filter.cc \
-  mapi-settings.cc export.cc \
+  mapi-settings-drawing.cc mapi-settings.cc export.cc \
   hemisphering-data.cc
 
 ACMACS_MAP_DRAW_LIB_MAJOR = 2

@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-20 11:10:24 eu>
+# Time-stamp: <2020-05-20 12:38:15 eu>
 
 * TODO
 
@@ -11,124 +11,124 @@
 * Select Antigens
 
 #+BEGIN_SRC json
-{"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"} -- multiple keys means all must match (conjunction)
+  {"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"} -- multiple keys means all must match (conjunction)
 
-"all"
-"reference"
-{"reference": true} -- to combine with other criteria
-"test"
-{"test": true} -- to combine with other criteria
+  "all"
+  "reference"
+  {"reference": true} -- to combine with other criteria
+  "test"
+  {"test": true} -- to combine with other criteria
 
-{"index": 11}
-{"index": [55, 66]} -- disjunction
-{"indexes": [55, 66]} -- DEPRECATED
+  {"index": 11}
+  {"index": [55, 66]} -- disjunction
+  {"indexes": [55, 66]} -- DEPRECATED
 
-{"name": "SWITZERLAND/9715293/2013"}
-{"name": "~/971529\d/"} -- regex search in FULL name (~ in front removed before compiling regex, use single \)
-{"name": ["SWITZERLAND/9715293/2013", "~/2/2009"]} -- either matched (disjunction)
+  {"name": "SWITZERLAND/9715293/2013"}
+  {"name": "~/971529\d/"} -- regex search in FULL name (~ in front removed before compiling regex, use single \)
+  {"name": ["SWITZERLAND/9715293/2013", "~/2/2009"]} -- either matched (disjunction)
 
-"egg" -- wildtype only
-"cell"
-"reassortant"
-{"passage": "egg"} -- wildtype only, lowercase! "EGG" means exact passage
-{"passage": "cell"}
-{"passage": "reassortant"}
-{"passage": ["egg", "reassortant"]} -- either wildtype or reassortant (disjunction)
-{"passage": "E4"} -- search in passage
-{"passage": "~E\d$"} -- regex search (~ in front removed before compiling regex, use single \)
-{"passage": ["E4", "~K\d$"]} -- combine non-regex and regex search (disjunction)
+  "egg" -- wildtype only
+  "cell"
+  "reassortant"
+  {"passage": "egg"} -- wildtype only, lowercase! "EGG" means exact passage
+  {"passage": "cell"}
+  {"passage": "reassortant"}
+  {"passage": ["egg", "reassortant"]} -- either wildtype or reassortant (disjunction)
+  {"passage": "E4"} -- search in passage
+  {"passage": "~E\d$"} -- regex search (~ in front removed before compiling regex, use single \)
+  {"passage": ["E4", "~K\d$"]} -- combine non-regex and regex search (disjunction)
 
-{"date": ["2016-01-01", "2016-09-01"]} -- range
-{"date": ["", "2016-09-01"]}
-{"date": ["2016-01-01", ""]}
-{"date": {"older-than-days": 365}}
-{"date": {"younger-than-days": 365}}
-{"date": {"older-than-days": 183, "younger-than-days": 365}} -- (conjunction)
-{"date": {"before": "2016-09-01"}}
-{"date": {"after": "2016-09-01"}}
-{"date": {"after": "2016-09-01", "older-than-days": 183}} -- (conjunction)
+  {"date": ["2016-01-01", "2016-09-01"]} -- range
+  {"date": ["", "2016-09-01"]}
+  {"date": ["2016-01-01", ""]}
+  {"date": {"older-than-days": 365}}
+  {"date": {"younger-than-days": 365}}
+  {"date": {"older-than-days": 183, "younger-than-days": 365}} -- (conjunction)
+  {"date": {"before": "2016-09-01"}}
+  {"date": {"after": "2016-09-01"}}
+  {"date": {"after": "2016-09-01", "older-than-days": 183}} -- (conjunction)
 
-{"country": "sweden"} -- case insensetive
-{"country": ["sweden", "norway"]} -- disjunction
-{"continent": "europe"} -- case insensetive
-{"continent": ["europe", "russia"]} -- disjunction
-{"localtion": "HONG KONG"}
-{"localtion": ["HONG KONG", "CHINA"]} -- disjunction
+  {"country": "sweden"} -- case insensetive
+  {"country": ["sweden", "norway"]} -- disjunction
+  {"continent": "europe"} -- case insensetive
+  {"continent": ["europe", "russia"]} -- disjunction
+  {"localtion": "HONG KONG"}
+  {"localtion": ["HONG KONG", "CHINA"]} -- disjunction
 
-{"sequenced": true}, {"sequenced": false}
-{"clade": "3C.3A"} -- ~/AD/share/conf/clades.json
-{"clade": ["3C.3A", "3C.2A2"]} -- disjunction
-{"amino-acid": "144R"}
-{"amino-acid": ["144R", "93A", "!160K"]} -- conjunction
-# sort aa at pos by frequency and set ana/google colors, X is always grey
+  {"sequenced": true}, {"sequenced": false}
+  {"clade": "3C.3A"} -- ~/AD/share/conf/clades.json
+  {"clade": ["3C.3A", "3C.2A2"]} -- disjunction
+  {"amino-acid": "144R"}
+  {"amino-acid": ["144R", "93A", "!160K"]} -- conjunction
+  # sort aa at pos by frequency and set ana/google colors, X is always grey
 
-{"lab": "CDC"}
-{"lab": ["CDC", "MELB"]} -- disjunction
-{"lab": ["CDC", "VIDRL"]} -- old and new lab name
+  {"lab": "CDC"}
+  {"lab": ["CDC", "MELB"]} -- disjunction
+  {"lab": ["CDC", "VIDRL"]} -- old and new lab name
 
-# {"subtype": "H1 A(H1N1) H3 A(H3N2) B BV BVIC BY BYAM"}, --?
-{"lineage": "VICTORIA"} -- chart lineage (NOT each antigen lineage)
-{"lineage": "VIC"}
-{"lineage": "V"}
+  # {"subtype": "H1 A(H1N1) H3 A(H3N2) B BV BVIC BY BYAM"}, --?
+  {"lineage": "VICTORIA"} -- chart lineage (NOT each antigen lineage)
+  {"lineage": "VIC"}
+  {"lineage": "V"}
 
-# "vaccine"
-# {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}}
+  # "vaccine"
+  # {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}}
 
-# {"in-rectangle": <Rectangle in Drawing>}
-# {"in-circle": <Circle in Drawing>}
+  # {"in-rectangle": <Rectangle in Drawing>}
+  # {"in-circle": <Circle in Drawing>}
 
-# {"outlier": 1.0} # threshold in units (distance from centroid of pre-selected points), must be after other select args, e.g. after "clade"
+  # {"outlier": 1.0} # threshold in units (distance from centroid of pre-selected points), must be after other select args, e.g. after "clade"
 
-{"table": "20170216"}
-{"table": ["20170216", "20170221"]} -- disjunction
-{"table": "MELB:HI:turkey:20170216"} -- table name is from hidb, it is not from chart layers
-{"table": ["MELB:HI:turkey:20170216", "NIID:HI:YAMAGATA:turkey:20191003.002"]} -- disjunction
-{"layer": 0} -- >=0: from the beginning, <0: from end
-{"layer": [0, -1]} -- disjunction
+  {"table": "20170216"}
+  {"table": ["20170216", "20170221"]} -- disjunction
+  {"table": "MELB:HI:turkey:20170216"} -- table name is from hidb, it is not from chart layers
+  {"table": ["MELB:HI:turkey:20170216", "NIID:HI:YAMAGATA:turkey:20191003.002"]} -- disjunction
+  {"layer": 0} -- >=0: from the beginning, <0: from end
+  {"layer": [0, -1]} -- disjunction
 
-# {"relative-to-serum-line": {"distance-min": 0, "distance-max": 10000, "direction": 1}, "?direction": [1, -1, 0]}
+  # {"relative-to-serum-line": {"distance-min": 0, "distance-max": 10000, "direction": 1}, "?direction": [1, -1, 0]}
 
-{"titrated-against-sera": <select sera>}
-{"titrated-against": <select sera>} -- same as above
-{"not-titrated-against-sera": <select sera>}
-{"not-titrated-against": <select sera>} -- same as above
+  {"titrated-against-sera": <select sera>}
+  {"titrated-against": <select sera>} -- same as above
+  {"not-titrated-against-sera": <select sera>}
+  {"not-titrated-against": <select sera>} -- same as above
 
-{"fill": "red", "outline": "green", "outline-width": 3}
+  {"fill": "red", "outline": "green", "outline-width": 3}
 
-{"exclude-distinct": true}
+  {"exclude-distinct": true}
 
-{"report": true, "report-threshold": 20}
+  {"report": true, "report-threshold": 20}
 #+END_SRC
 
 
 * Select Sera
 
 #+BEGIN_SRC json
-"all"
-{"index": ...} -- see Antigens for variants
-{"name*": ...} -- see Antigens for variants
-{"date": ...} -- via homologous antigens
-{"country": ...}
-{"continent": ...}
-{"localtion": ...}
-{"clade": ...}  -- ? via seqdb.clades_for_name()
-{"sequenced": ...} 
-{"amino-acid": ...}
+  "all"
+  {"index": ...} -- see Antigens for variants
+  {"name*": ...} -- see Antigens for variants
+  {"date": ...} -- via homologous antigens
+  {"country": ...}
+  {"continent": ...}
+  {"localtion": ...}
+  {"clade": ...}  -- ? via seqdb.clades_for_name()
+  {"sequenced": ...} 
+  {"amino-acid": ...}
 
-{"serum_id": "CDC 2016-003"}
-{"serum_id": "~2016"} -- regex search
+  {"serum_id": "CDC 2016-003"}
+  {"serum_id": "~2016"} -- regex search
 
-{"table": ...}
-{"titrated-against-antigens": <select sera>}
-{"titrated-against": <select sera>} -- same as above
-{"not-titrated-against-antigens": <select sera>}
-{"not-titrated-against": <select sera>} -- same as above
+  {"table": ...}
+  {"titrated-against-antigens": <select sera>}
+  {"titrated-against": <select sera>} -- same as above
+  {"not-titrated-against-antigens": <select sera>}
+  {"not-titrated-against": <select sera>} -- same as above
 
-{"fill": "red", "outline": "green", "outline-width": 3}
+  {"fill": "red", "outline": "green", "outline-width": 3}
 
-{"exclude-distinct": true}
+  {"exclude-distinct": true}
 
-{"report": true, "report_threshold": 20}
+  {"report": true, "report_threshold": 20}
 #+END_SRC
 
 
@@ -203,28 +203,48 @@ See [[file:~/AD/share/doc/color.org][color.org]]
 
 * Drawing
 
+line, arrow, rectangle, circle
+http://geomalgorithms.com/a03-_inclusion.html
+
 #+BEGIN_SRC json
-# {"N": "line", "from": [0, 0], "to": [1, 1], "transform": false, "width": 1, "color": "red"},
-# {"N": "line", "from_antigen": {<antigen-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "report": true},
-# {"N": "line", "from_antigen": {"reference": true}, "to_antigen": {"test": true}, "width": 1, "color": "green", "report": true},
-# {"N": "line", "from_antigen": {"reference": true}, "to_serum": {"all": true}, "width": 1, "color": "green", "report": true},
-# {"N": "line", "from_serum": {"reference": true}, "to_antigen": {"all": true}, "width": 1, "color": "green", "report": true},
+  # {"N": "path", "points": [<point>, ...], "close": true, "width": 1, "color": "red", "fill": "transparent", "arrow": {"at": [<point-index>...], "color": "magenta", "width": 10, "fill": "magenta"}},
+  # {"N": "circle", "center": <point>, "radius": 1, "aspect": 1.0, "rotation": 0, "fill": "#80FFA500", "outline": "#80FF0000", "outline_width": 10}
 
-# {"N": "arrow", "to_antigen": {<antigen-select>}, "from": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
-# {"N": "arrow", "from_antigen": {<antigen-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
-# {"N": "arrow", "to_serum": {<serum-select>}, "from": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
-# {"N": "arrow", "from_serum": {<serum-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
+  # -- point
+  # {"v": [x, y]} -- viewport based, top left corner of viewport is 0,0
+  # {"l": [x, y]} -- non transformed layout based
+  # {"t": [x, y]} -- transformed layout based
+  # {"a": {<antigen-select>}} -- if multiple antigens selected, middle point of them used
+  # {"s": {<serum-select>}} -- if multiple antigens selected, middle point of them used
+  # --
 
-# {"N": "rectangle", "c1": [-2, -1.5], "c2": [0.5, 3], "transform": true, "rotate": 0.0, "filled": true, "color": "#80FF0000", "?rotate": "<3.15 - radians, >3.15 - degrees"},
-# {"N": "circle", "center": [0, 0], "size": 2, "aspect": 1.0, "rotation": 0, "fill": "#80FFA500", "outline": "#80FF0000", "outline_width": 10},
+  # {"N": "connection_lines", "antigens": {<select>}, "sera": {<select>}, "color": "grey", "line_width": 1},
+  # {"N": "error_lines", "antigens": {<select>}, "sera": {<select>}, "line_width": 1, "report": false},
+#+END_SRC
 
-# {"N": "serum_line", "color": "red", "line_width": 1},
 
-# {"N": "connection_lines", "antigens": {<select>}, "sera": {<select>}, "color": "grey", "line_width": 1},
-# {"N": "error_lines", "antigens": {<select>}, "sera": {<select>}, "line_width": 1, "report": false},
-# {"N": "color_by_number_of_connection_lines", "antigens": {<select>}, "sera": {<select>}, "start": "", "end": ""},
+#+BEGIN_SRC json
+  # {"N": "line", "from": [0, 0], "to": [1, 1], "transform": false, "width": 1, "color": "red"},
+  # {"N": "line", "from_antigen": {<antigen-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "report": true},
+  # {"N": "line", "from_antigen": {"reference": true}, "to_antigen": {"test": true}, "width": 1, "color": "green", "report": true},
+  # {"N": "line", "from_antigen": {"reference": true}, "to_serum": {"all": true}, "width": 1, "color": "green", "report": true},
+  # {"N": "line", "from_serum": {"reference": true}, "to_antigen": {"all": true}, "width": 1, "color": "green", "report": true},
 
-# {"N": "blobs", "select": {<select-antigens>}, "stress_diff": 0.5, "number_of_drections": 36, "stress_diff_precision": 1e-5, "fill": "transparent", "color": "pink", "line_width": 1, "report": false},
+  # {"N": "arrow", "to_antigen": {<antigen-select>}, "from": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
+  # {"N": "arrow", "from_antigen": {<antigen-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
+  # {"N": "arrow", "to_serum": {<serum-select>}, "from": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
+  # {"N": "arrow", "from_serum": {<serum-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
+
+  # {"N": "rectangle", "c1": [-2, -1.5], "c2": [0.5, 3], "transform": true, "rotate": 0.0, "filled": true, "color": "#80FF0000", "?rotate": "<3.15 - radians, >3.15 - degrees"},
+  # {"N": "circle", "center": [0, 0], "size": 2, "aspect": 1.0, "rotation": 0, "fill": "#80FFA500", "outline": "#80FF0000", "outline_width": 10},
+
+  # {"N": "serum_line", "color": "red", "line_width": 1},
+
+  # {"N": "connection_lines", "antigens": {<select>}, "sera": {<select>}, "color": "grey", "line_width": 1},
+  # {"N": "error_lines", "antigens": {<select>}, "sera": {<select>}, "line_width": 1, "report": false},
+  # {"N": "color_by_number_of_connection_lines", "antigens": {<select>}, "sera": {<select>}, "start": "", "end": ""},
+
+  # {"N": "blobs", "select": {<select-antigens>}, "stress_diff": 0.5, "number_of_drections": 36, "stress_diff_precision": 1e-5, "fill": "transparent", "color": "pink", "line_width": 1, "report": false},
 #+END_SRC
 
 

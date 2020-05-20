@@ -68,7 +68,7 @@ map_elements::Element& map_elements::Elements::add(std::string aKeyword)
         mElements.emplace_back(new Rectangle{});
     }
     else if (aKeyword == "circle") {
-        mElements.emplace_back(new Circle{});
+        mElements.emplace_back(new map_elements::v1::Circle{});
     }
     else {
         throw std::runtime_error("Don't know how to make map element " + aKeyword);
@@ -440,19 +440,19 @@ void map_elements::Point::draw(acmacs::draw::DrawElements& aDrawElements, const 
 // ----------------------------------------------------------------------
 
 // obsolete
-void map_elements::Circle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
+void map_elements::v1::Circle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
 {
     aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, acmacs::surface::Dash::NoDash, mFillColor);
 
-} // map_elements::Circle::draw
+} // map_elements::v1::Circle::draw
 
 // ----------------------------------------------------------------------
 
-void map_elements::Circle::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
+void map_elements::v1::Circle::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
 {
     aDrawElements.circle(mCenter, mSize, mFillColor, mOutlineColor, mOutlineWidth, mAspect, mRotation);
 
-} // map_elements::Circle::draw
+} // map_elements::v1::Circle::draw
 
 // ----------------------------------------------------------------------
 

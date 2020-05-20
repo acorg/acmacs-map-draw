@@ -130,7 +130,7 @@ class ChartDraw : public ChartSelectInterface
     map_elements::Arrow& arrow(const acmacs::PointCoordinates& aBegin, const acmacs::PointCoordinates& aEnd);
     map_elements::Point& point(const acmacs::PointCoordinates& aCenter, Pixels aSize);
     map_elements::Rectangle& rectangle(const acmacs::PointCoordinates& aCorner1, const acmacs::PointCoordinates& aCorner2);
-    map_elements::Circle& circle(const acmacs::PointCoordinates& aCenter, Scaled aSize);
+    map_elements::v1::Circle& circle(const acmacs::PointCoordinates& aCenter, Scaled aSize);
     void remove_serum_circles();
 
     void save(std::string_view aFilename, std::string_view aProgramName);

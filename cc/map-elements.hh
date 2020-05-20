@@ -353,35 +353,6 @@ namespace map_elements
 
 // ----------------------------------------------------------------------
 
-    class Circle : public Element
-    {
-     public:
-        Circle()
-            : Element{"circle", Elements::AfterPoints}, mFillColor{"transparent"}, mOutlineColor{"pink"}, mOutlineWidth{1}, mAspect{AspectNormal}, mRotation{NoRotation} {}
-
-        void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
-        void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
-
-        Circle& center(const acmacs::PointCoordinates& aCenter) { mCenter = aCenter; return *this; }
-        Circle& size(Scaled aSize) { mSize = aSize; return *this; }
-        Circle& color(Color aFillColor, Color aOutlineColor) { mFillColor = aFillColor; mOutlineColor = aOutlineColor; return *this; }
-        Circle& outline_width(double aOutlineWidth) { mOutlineWidth = Pixels{aOutlineWidth}; return *this; }
-        Circle& aspect(Aspect aAspect) { mAspect = aAspect; return *this; }
-        Circle& rotation(Rotation aRotation) { mRotation = aRotation; return *this; }
-
-     protected:
-        acmacs::PointCoordinates mCenter{acmacs::number_of_dimensions_t{2}};
-        Scaled mSize;
-        Color mFillColor;
-        Color mOutlineColor;
-        Pixels mOutlineWidth;
-        Aspect mAspect;
-        Rotation mRotation;
-
-    }; // class Circle
-
-// ----------------------------------------------------------------------
-
     class Point : public Element
     {
      public:
@@ -411,6 +382,41 @@ namespace map_elements
     }; // class Point
 
 } // namespace map_elements
+
+// ======================================================================
+
+namespace map_elements::v1
+{
+    class Circle : public Element
+    {
+     public:
+        Circle()
+            : Element{"circle", Elements::AfterPoints}, mFillColor{"transparent"}, mOutlineColor{"pink"}, mOutlineWidth{1}, mAspect{AspectNormal}, mRotation{NoRotation} {}
+
+        void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
+        void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
+
+        Circle& center(const acmacs::PointCoordinates& aCenter) { mCenter = aCenter; return *this; }
+        Circle& size(Scaled aSize) { mSize = aSize; return *this; }
+        Circle& color(Color aFillColor, Color aOutlineColor) { mFillColor = aFillColor; mOutlineColor = aOutlineColor; return *this; }
+        Circle& outline_width(double aOutlineWidth) { mOutlineWidth = Pixels{aOutlineWidth}; return *this; }
+        Circle& aspect(Aspect aAspect) { mAspect = aAspect; return *this; }
+        Circle& rotation(Rotation aRotation) { mRotation = aRotation; return *this; }
+
+     protected:
+        acmacs::PointCoordinates mCenter{acmacs::number_of_dimensions_t{2}};
+        Scaled mSize;
+        Color mFillColor;
+        Color mOutlineColor;
+        Pixels mOutlineWidth;
+        Aspect mAspect;
+        Rotation mRotation;
+
+    }; // class Circle
+
+    // ----------------------------------------------------------------------
+
+}
 
 // ----------------------------------------------------------------------
 /// Local Variables:
