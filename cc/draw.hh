@@ -9,6 +9,7 @@
 #include "acmacs-draw/viewport.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 #include "acmacs-map-draw/map-elements.hh"
+#include "acmacs-map-draw/map-elements-v1.hh"
 #include "acmacs-map-draw/labels.hh"
 #include "acmacs-map-draw/chart-select-interface.hh"
 
@@ -123,13 +124,12 @@ class ChartDraw : public ChartSelectInterface
     void add_all_labels() const { const_cast<ChartDraw*>(this)->mLabels.add_all(chart()); }
     void remove_label(size_t aIndex) { return mLabels.remove(aIndex); }
     map_elements::SerumCircle& serum_circle(size_t aSerumNo, Scaled aRadius);
-    map_elements::Line& line(const acmacs::PointCoordinates& aBegin, const acmacs::PointCoordinates& aEnd);
-      // map_elements::Line& line(double slope, double intercept, apply_map_transformation a_apply_map_transformation);
-    map_elements::Line& line(const acmacs::LineDefinedByEquation& line, apply_map_transformation a_apply_map_transformation);
-    map_elements::Path& path();
-    map_elements::Arrow& arrow(const acmacs::PointCoordinates& aBegin, const acmacs::PointCoordinates& aEnd);
-    map_elements::Point& point(const acmacs::PointCoordinates& aCenter, Pixels aSize);
-    map_elements::Rectangle& rectangle(const acmacs::PointCoordinates& aCorner1, const acmacs::PointCoordinates& aCorner2);
+    map_elements::v1::Line& line(const acmacs::PointCoordinates& aBegin, const acmacs::PointCoordinates& aEnd);
+    map_elements::v1::Line& line(const acmacs::LineDefinedByEquation& line, apply_map_transformation a_apply_map_transformation);
+    map_elements::v1::Path& path();
+    map_elements::v1::Arrow& arrow(const acmacs::PointCoordinates& aBegin, const acmacs::PointCoordinates& aEnd);
+    map_elements::v1::Point& point(const acmacs::PointCoordinates& aCenter, Pixels aSize);
+    map_elements::v1::Rectangle& rectangle(const acmacs::PointCoordinates& aCorner1, const acmacs::PointCoordinates& aCorner2);
     map_elements::v1::Circle& circle(const acmacs::PointCoordinates& aCenter, Scaled aSize);
     void remove_serum_circles();
 

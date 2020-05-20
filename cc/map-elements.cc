@@ -34,45 +34,20 @@ map_elements::Element& map_elements::Elements::operator[](std::string aKeyword)
 
 map_elements::Element& map_elements::Elements::add(std::string aKeyword)
 {
-    if (aKeyword == "background-border-grid") {
+    if (add_v1(aKeyword))
+        ;                       // added
+    else if (aKeyword == "background-border-grid")
         mElements.emplace_back(new BackgroundBorderGrid{});
-    }
-    else if (aKeyword == "continent-map") {
+    else if (aKeyword == "continent-map")
         mElements.emplace_back(new ContinentMap{});
-    }
-    else if (aKeyword == "legend-point-label") {
+    else if (aKeyword == "legend-point-label")
         mElements.emplace_back(new LegendPointLabel{});
-    }
-    else if (aKeyword == "title") {
+    else if (aKeyword == "title")
         mElements.emplace_back(new Title{});
-    }
-    else if (aKeyword == "serum-circle") {
+    else if (aKeyword == "serum-circle")
         mElements.emplace_back(new SerumCircle{});
-    }
-    else if (aKeyword == "line" || aKeyword == "line_from_to") {
-        mElements.emplace_back(new LineFromTo{});
-    }
-    else if (aKeyword == "path") {
-        mElements.emplace_back(new Path{});
-    }
-    else if (aKeyword == "line_slope") {
-        mElements.emplace_back(new LineSlope{});
-    }
-    else if (aKeyword == "arrow") {
-        mElements.emplace_back(new Arrow{});
-    }
-    else if (aKeyword == "point") {
-        mElements.emplace_back(new Point{});
-    }
-    else if (aKeyword == "rectangle") {
-        mElements.emplace_back(new Rectangle{});
-    }
-    else if (aKeyword == "circle") {
-        mElements.emplace_back(new map_elements::v1::Circle{});
-    }
-    else {
+    else
         throw std::runtime_error("Don't know how to make map element " + aKeyword);
-    }
     return *mElements.back();
 
 } // map_elements::Elements::add
@@ -106,13 +81,6 @@ void map_elements::Elements::draw(acmacs::draw::DrawElements& aDrawElements, con
         element->draw(aDrawElements, aChartDraw);
 
 } // map_elements::Elements::draw
-
-// ----------------------------------------------------------------------
-
-map_elements::Element::~Element()
-{
-
-} // Element::~Element
 
 // ----------------------------------------------------------------------
 
@@ -335,126 +303,6 @@ void map_elements::SerumCircle::draw(acmacs::draw::DrawElements& aDrawElements, 
         std::cerr << ">> SerumCircle::draw(draw_elements): cannot draw serum circle, center coordinates: " << coord << '\n';
 
 } // map_elements::SerumCircle::draw
-
-// ----------------------------------------------------------------------
-
-// obsolete
-void map_elements::LineFromTo::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
-{
-    aSurface.line(mBegin, mEnd, mLineColor, mLineWidth);
-
-} // map_elements::LineFromTo::draw
-
-// ----------------------------------------------------------------------
-
-void map_elements::LineFromTo::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
-{
-    aDrawElements.line(mBegin, mEnd, mLineColor, mLineWidth);
-
-} // map_elements::LineFromTo::draw
-
-// ----------------------------------------------------------------------
-
-void map_elements::LineSlope::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
-{
-    aDrawElements.line(line_, mLineColor, mLineWidth, apply_map_transformation_);
-
-} // map_elements::Line::draw
-
-// ----------------------------------------------------------------------
-
-// obsolete
-void map_elements::Path::draw(acmacs::surface::Surface& /*aSurface*/, const ChartDraw& /*aChartDraw*/) const
-{
-    std::cerr << ">> WARNING: map_elements::Path::draw(surface) obsolete and not implemented\n";
-
-} // map_elements::Path::draw
-
-
-void map_elements::Path::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& /*aChartDraw*/) const
-{
-    aDrawElements.path(mPath, mLineColor, mLineWidth, close_and_fill_);
-
-} // map_elements::Path::draw
-
-// ----------------------------------------------------------------------
-
-// obsolete
-void map_elements::Rectangle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
-{
-    const std::vector<acmacs::PointCoordinates> path{mCorner1, {mCorner1.x(), mCorner2.y()}, mCorner2, {mCorner2.x(), mCorner1.y()}};
-    if (mFilled)
-        aSurface.path_fill(path.begin(), path.end(), mColor);
-    else
-        aSurface.path_outline(path.begin(), path.end(), mColor, mLineWidth, true);
-
-} // map_elements::Rectangle::draw
-
-// ----------------------------------------------------------------------
-
-void map_elements::Rectangle::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
-{
-    aDrawElements.rectangle(mCorner1, mCorner2, mColor, mFilled, mLineWidth);
-
-} // map_elements::Rectangle::draw
-
-// ----------------------------------------------------------------------
-
-// obsolete
-void map_elements::Arrow::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
-{
-    const bool x_eq = float_equal(mEnd.x(), mBegin.x());
-    const double sign2 = x_eq ? (mBegin.y() < mEnd.y() ? 1.0 : -1.0) : (mEnd.x() < mBegin.x() ? 1.0 : -1.0);
-    const double angle = x_eq ? -M_PI_2 : std::atan((mEnd.y() - mBegin.y()) / (mEnd.x() - mBegin.x()));
-    const auto end = aSurface.arrow_head(mEnd, angle, sign2, mArrowHeadColor, mArrowWidth, mArrowHeadFilled);
-      // std::cerr << "DEBUG: Arrow " << mBegin << ' ' << mEnd << ' ' << end << " angle:" << angle << " sign2:" << sign2 << ' ' << mArrowHeadColor << '\n';
-    aSurface.line(mBegin, end, mLineColor, mLineWidth);
-
-} // map_elements::Arrow::draw
-
-// ----------------------------------------------------------------------
-
-void map_elements::Arrow::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
-{
-    aDrawElements.arrow(mBegin, mEnd, mLineColor, mLineWidth, mArrowHeadColor, mArrowHeadFilled, mArrowWidth);
-
-} // map_elements::Arrow::draw
-
-// ----------------------------------------------------------------------
-
-// obsolete
-void map_elements::Point::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
-{
-    aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, acmacs::surface::Dash::NoDash, mFillColor);
-
-} // map_elements::Point::draw
-
-// ----------------------------------------------------------------------
-
-void map_elements::Point::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
-{
-    aDrawElements.point(mCenter, mSize, mFillColor, mOutlineColor, mOutlineWidth, mAspect, mRotation, mLabel);
-
-} // map_elements::Point::draw
-
-// ----------------------------------------------------------------------
-
-// obsolete
-void map_elements::v1::Circle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& /*aChartDraw*/) const
-{
-    aSurface.circle_filled(mCenter, mSize, mAspect, mRotation, mOutlineColor, mOutlineWidth, acmacs::surface::Dash::NoDash, mFillColor);
-
-} // map_elements::v1::Circle::draw
-
-// ----------------------------------------------------------------------
-
-void map_elements::v1::Circle::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
-{
-    aDrawElements.circle(mCenter, mSize, mFillColor, mOutlineColor, mOutlineWidth, mAspect, mRotation);
-
-} // map_elements::v1::Circle::draw
-
-// ----------------------------------------------------------------------
 
 
 // ----------------------------------------------------------------------
