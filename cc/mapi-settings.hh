@@ -53,9 +53,27 @@ namespace acmacs::mapi::inline v1
 
         acmacs::chart::PointIndexList select_antigens() const;
         acmacs::chart::PointIndexList select_sera() const;
-        acmacs::PointStyleModified style_from_toplevel_environment() const;
         PointDrawingOrder drawing_order_from_toplevel_environment() const;
-        acmacs::color::Modifier color(const rjson::v3::value& value) const;
+
+        struct passage_color_t
+        {
+            acmacs::color::Modifier egg{Color{0xFF4040}};
+            acmacs::color::Modifier cell{Color{0x4040FF}};
+            acmacs::color::Modifier reassortant{Color{0xFF4040}};
+        };
+
+        struct point_style_t
+        {
+            acmacs::PointStyleModified style;
+            std::optional<passage_color_t> fill;
+            std::optional<passage_color_t> outline;
+        };
+
+        point_style_t style_from_toplevel_environment() const;
+        template <typename AgSr> void color_according_to_passage(const AgSr& ag_sr, const point_style_t& point_style);
+
+        using modifier_or_passage_t  = std::variant<acmacs::color::Modifier, passage_color_t>;
+        modifier_or_passage_t color(const rjson::v3::value& value) const;
 
         // ----------------------------------------------------------------------
 

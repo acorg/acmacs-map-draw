@@ -14,12 +14,12 @@ TARGETS = \
   $(DIST)/mod_acmacs.so
 
 ACMACS_MAP_DRAW_SOURCES = \
-  mapi-settings.cc mapi-settings-antigens.cc report-antigens.cc \
+  mapi-settings-antigens.cc report-antigens.cc \
   draw.cc point-style-draw.cc map-elements.cc labels.cc geographic-map.cc \
   vaccines.cc vaccine-matcher.cc setup-dbs.cc geographic-settings.cc \
   mod-applicator.cc mod-serum.cc mod-procrustes.cc mod-amino-acids.cc mod-blobs.cc mod-connection-lines.cc \
   select.cc select-filter.cc \
-  export.cc \
+  mapi-settings.cc export.cc \
   hemisphering-data.cc
 
 ACMACS_MAP_DRAW_LIB_MAJOR = 2
