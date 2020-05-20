@@ -771,15 +771,40 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
             return acmacs::color::Modifier{source};
     };
 
+    const auto make_color_passage_helper = [](const auto& substituted) -> std::optional<color::Modifier> {
+        return std::visit(
+            []<typename Res>(const Res& res) -> std::optional<color::Modifier> {
+                if constexpr (std::is_same_v<Res, const rjson::v3::value*>) {
+                    if (!res->is_null())
+                        return color::Modifier{res->template to<std::string_view>()};
+                }
+                else
+                    return color::Modifier{res};
+                return std::nullopt;
+            },
+            substituted);
+    };
+
+    const auto make_color_passage = [this, make_color_passage_helper](const rjson::v3::value& egg, const rjson::v3::value& reassortant, const rjson::v3::value& cell) -> modifier_or_passage_t {
+        passage_color_t result;
+        if (const auto egg_val = make_color_passage_helper(substitute(egg)); egg_val.has_value())
+            result.egg = result.reassortant = *egg_val;
+        if (const auto reassortant_val = make_color_passage_helper(substitute(reassortant)); reassortant_val.has_value())
+            result.reassortant = *reassortant_val;
+        if (const auto cell_val = make_color_passage_helper(substitute(cell)); cell_val.has_value())
+            result.cell = *cell_val;
+        return result;
+    };
+
     try {
         return std::visit(
-            [make_color]<typename Value>(const Value& substituted_val) -> modifier_or_passage_t {
+            [make_color, make_color_passage]<typename Value>(const Value& substituted_val) -> modifier_or_passage_t {
                 if constexpr (std::is_same_v<Value, const rjson::v3::value*>) {
-                    return substituted_val->visit([make_color]<typename Val>(const Val& val) -> modifier_or_passage_t {
+                    return substituted_val->visit([make_color, make_color_passage]<typename Val>(const Val& val) -> modifier_or_passage_t {
                         if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
                             return make_color(val.template to<std::string_view>());
                         else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>)
-                            throw std::exception{};
+                            return make_color_passage(val["egg"sv], val["reassortant"sv], val["cell"sv]);
                         else
                             throw std::exception{};
                     });

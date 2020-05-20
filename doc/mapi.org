@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-20 09:54:14 eu>
+# Time-stamp: <2020-05-20 11:10:24 eu>
 
 * TODO
 
@@ -142,7 +142,7 @@
 {"N": "antigens", "select": <Select Antigens>
  "outline": "<color-modifier>", "fill": "<color-modifier>", "aspect": 1.0, "rotation": 0.0, "outline_width": 1.0,
  "size": 1.0, "show": true, "shape": "circle|box|triangle",
-# "fill": "passage", "outline": "passage", "fill": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"}, "outline": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"},
+ "fill": "passage", "outline": "passage", "fill": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"}, "outline": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"},
  "order": "raise|lower",
 # "label": <Label>,
 # "legend": {"show": true, "label": "<TEXT>", "count": true, "replace": false},
@@ -154,8 +154,8 @@
  "outline": "<color-modifier>", "fill": "<color-modifier>", "aspect": 1.0, "rotation": 0.0,
  "size": 1.0, "outline_width": 1.0,
  "show": true, "shape": "circle|box|triangle",
-# "fill": "passage", "outline": "passage", "fill": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"}, "outline": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"},
-# "order": "raise|lower",
+ "fill": "passage", "outline": "passage", "fill": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"}, "outline": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"},
+ "order": "raise|lower",
 # "label": <Label>,
 # },
 
