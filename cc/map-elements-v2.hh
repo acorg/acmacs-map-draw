@@ -55,7 +55,7 @@ namespace map_elements::v2
         void fill(const acmacs::color::Modifier& fill) { fill_.add(fill); }
         void outline(const acmacs::color::Modifier& outline) { outline_.add(outline); }
         constexpr void outline_width(Pixels outline_width) { outline_width_ = outline_width; }
-        constexpr void center(const Coordinates& center) { center_ = center; }
+        void center(const Coordinates& center) { center_ = center; }
 
       protected:
         Coordinates center_{Coordinates::layout{acmacs::PointCoordinates{0.0, 0.0}}};
