@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-21 12:01:01 eu>
+# Time-stamp: <2020-05-21 15:06:23 eu>
 
 * TODO
 
@@ -207,7 +207,8 @@ line, arrow, rectangle, circle
 http://geomalgorithms.com/a03-_inclusion.html
 
 #+BEGIN_SRC json
-  # {"N": "path", "points": [<point>, ...], "close": true, "width": 1, "color": "red", "fill": "transparent", "arrow": {"at": [<point-index>...], "color": "magenta", "width": 10, "fill": "magenta"}},
+  # {"N": "path", "points": [<point>, ...], "close": true, "width": 1, "outline": "red", "fill": "transparent", 
+  #  "arrows": [{"at": <point-index>, "from": <point-index>, "outline": "magenta", "width": 10, "fill": "magenta"}]},
   {"N": "circle", "center": <point>, "radius": 1, "aspect": 1.0, "rotation": 0, "fill": "#80FFA500", "outline": "#80FF0000", "outline_width": 10}
 
   # point
@@ -235,7 +236,6 @@ http://geomalgorithms.com/a03-_inclusion.html
   # {"N": "arrow", "from_serum": {<serum-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
 
   # {"N": "rectangle", "c1": [-2, -1.5], "c2": [0.5, 3], "transform": true, "rotate": 0.0, "filled": true, "color": "#80FF0000", "?rotate": "<3.15 - radians, >3.15 - degrees"},
-  # {"N": "circle", "center": [0, 0], "size": 2, "aspect": 1.0, "rotation": 0, "fill": "#80FFA500", "outline": "#80FF0000", "outline_width": 10},
 
   # {"N": "serum_line", "color": "red", "line_width": 1},
 

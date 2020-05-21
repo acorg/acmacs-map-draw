@@ -81,6 +81,7 @@ namespace acmacs::mapi::inline v1
         // mapi-settings-drawing.cc
 
         bool apply_circle();
+        bool apply_path();
     };
 
 } // namespace acmacs::mapi::inline v1

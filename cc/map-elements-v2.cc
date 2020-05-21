@@ -58,6 +58,13 @@ void map_elements::v2::Circle::draw(acmacs::draw::DrawElements& aDrawElements, c
 // ----------------------------------------------------------------------
 
 
+void map_elements::v2::Path::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const
+{
+
+} // map_elements::v2::Path::draw
+
+// ----------------------------------------------------------------------
+
 
 // ----------------------------------------------------------------------
 /// Local Variables:

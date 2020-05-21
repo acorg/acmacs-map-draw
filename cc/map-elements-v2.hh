@@ -68,6 +68,49 @@ namespace map_elements::v2
 
     }; // class Circle
 
+    // ----------------------------------------------------------------------
+
+    struct PathData
+    {
+        std::vector<Coordinates> vertices;
+        bool close{true};
+
+    };
+
+    struct ArrowData
+    {
+        size_t at{0};               // vertex index in the path
+        std::optional<size_t> from; // used when vertex is in the middle of the path
+        acmacs::color::Modifier fill; // inherited from Path outline
+        acmacs::color::Modifier outline; // inherited from Path outline
+        Pixels width{5};
+
+    };
+
+    class Path : public Element
+    {
+      public:
+        Path() : Element{"path-v2", Elements::AfterPoints} {}
+
+        void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
+
+        constexpr auto& data() { return data_; }
+        constexpr const auto& data() const { return data_; }
+
+        void fill(const acmacs::color::Modifier& fill) { fill_.add(fill); }
+        void outline(const acmacs::color::Modifier& outline) { outline_.add(outline); }
+        constexpr void outline_width(Pixels outline_width) { outline_width_ = outline_width; }
+        constexpr auto& arrows() { return arrows_; }
+
+      private:
+        PathData data_;
+        acmacs::color::Modifier fill_;
+        acmacs::color::Modifier outline_;
+        Pixels outline_width_;
+        std::vector<ArrowData> arrows_;
+
+    }; // class Path
+
 } // namespace map_elements::v2
 
 // ----------------------------------------------------------------------

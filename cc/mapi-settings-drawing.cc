@@ -123,6 +123,23 @@ bool acmacs::mapi::v1::Settings::apply_circle()
 
 // ----------------------------------------------------------------------
 
+  // # {"N": "path", "points": [<point>, ...], "close": true, "width": 1, "outline": "red", "fill": "transparent",
+  // #  "arrows": [{"at": <point-index>, "from": <point-index>, "outline": "magenta", "width": 10, "fill": "magenta"}]},
+
+bool acmacs::mapi::v1::Settings::apply_path()
+{
+    try {
+        throw std::exception{};
+        return true;
+    }
+    catch (std::exception&) {
+        throw acmacs::mapi::unrecognized{fmt::format("unrecognized {}", getenv_toplevel())};
+    }
+
+} // acmacs::mapi::v1::Settings::apply_path
+
+// ----------------------------------------------------------------------
+
 
 
 // ----------------------------------------------------------------------
