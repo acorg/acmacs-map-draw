@@ -10,14 +10,14 @@ enum class throw_if_unprocessed { no, yes };
 
 // ----------------------------------------------------------------------
 
-template <typename AgSr> void acmacs::mapi::v1::Settings::color_according_to_passage(const AgSr& ag_sr, const point_style_t& style)
+template <typename AgSr> void acmacs::mapi::v1::Settings::color_according_to_passage(const AgSr& ag_sr, const acmacs::chart::PointIndexList& indexes, const point_style_t& style)
 {
     if (style.fill.has_value() || style.outline.has_value()) {
-        auto egg_indexes = ag_sr.all_indexes();
+        auto egg_indexes = indexes;
         ag_sr.filter_egg(egg_indexes, acmacs::chart::reassortant_as_egg::no);
-        auto reassortant_indexes = ag_sr.all_indexes();
+        auto reassortant_indexes = indexes;
         ag_sr.filter_reassortant(reassortant_indexes);
-        auto cell_indexes = ag_sr.all_indexes();
+        auto cell_indexes = indexes;
         ag_sr.filter_cell(cell_indexes);
 
         PointStyleModified ps_egg, ps_reassortant, ps_cell;
@@ -54,7 +54,7 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
     const auto indexes = select_antigens();
     const auto style = style_from_toplevel_environment();
     chart_draw().modify(indexes, style.style, drawing_order_from_toplevel_environment());
-    color_according_to_passage(*chart_draw().chart().antigens(), style);
+    color_according_to_passage(*chart_draw().chart().antigens(), indexes, style);
 
     return true;
 
@@ -72,7 +72,7 @@ bool acmacs::mapi::v1::Settings::apply_sera()
     const auto indexes = select_sera();
     const auto style = style_from_toplevel_environment();
     chart_draw().modify_sera(indexes, style.style, drawing_order_from_toplevel_environment());
-    color_according_to_passage(*chart_draw().chart().sera(), style);
+    color_according_to_passage(*chart_draw().chart().sera(), indexes, style);
 
     return true;
 
