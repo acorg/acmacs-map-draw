@@ -12,13 +12,48 @@ bool acmacs::mapi::v1::Settings::apply_circle()
 
     auto& circle = chart_draw().map_elements().add<map_elements::v2::Circle>();
 
-    //     {"N": "circle", "center": {"l": [0, 0]}, "radius": 0.5, "aspect": 2.0, "rotation": 45, "fill": "#80FFA500", "outline": "blue", "outline_width": 3},
+    // "center": {"l": [0, 0]}
 
     getenv("radius"sv).visit([&circle, report_error]<typename Value>(const Value& value) {
         if constexpr (std::is_same_v<Value, rjson::v3::detail::number>)
             circle.radius(value.template to<Scaled>());
         else if constexpr (!std::is_same_v<Value, rjson::v3::detail::null>)
             report_error("radius"sv, value);
+    });
+
+    getenv("aspect"sv).visit([&circle, report_error]<typename Value>(const Value& value) {
+        if constexpr (std::is_same_v<Value, rjson::v3::detail::number>)
+            circle.aspect(value.template to<Aspect>());
+        else if constexpr (!std::is_same_v<Value, rjson::v3::detail::null>)
+            report_error("aspect"sv, value);
+    });
+
+    getenv("rotation"sv).visit([&circle, report_error]<typename Value>(const Value& value) {
+        if constexpr (std::is_same_v<Value, rjson::v3::detail::number>)
+            circle.rotation(value.template to<Rotation>());
+        else if constexpr (!std::is_same_v<Value, rjson::v3::detail::null>)
+            report_error("rotation"sv, value);
+    });
+
+    getenv("fill"sv).visit([&circle, report_error]<typename Value>(const Value& value) {
+        if constexpr (std::is_same_v<Value, rjson::v3::detail::string>)
+            circle.fill(acmacs::color::Modifier{value.template to<std::string_view>()});
+        else if constexpr (!std::is_same_v<Value, rjson::v3::detail::null>)
+            report_error("fill"sv, value);
+    });
+
+    getenv("outline"sv).visit([&circle, report_error]<typename Value>(const Value& value) {
+        if constexpr (std::is_same_v<Value, rjson::v3::detail::string>)
+            circle.outline(acmacs::color::Modifier{value.template to<std::string_view>()});
+        else if constexpr (!std::is_same_v<Value, rjson::v3::detail::null>)
+            report_error("outline"sv, value);
+    });
+
+    getenv("outline_width"sv).visit([&circle, report_error]<typename Value>(const Value& value) {
+        if constexpr (std::is_same_v<Value, rjson::v3::detail::number>)
+            circle.outline_width(value.template to<Pixels>());
+        else if constexpr (!std::is_same_v<Value, rjson::v3::detail::null>)
+            report_error("outline_width"sv, value);
     });
 
     return true;

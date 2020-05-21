@@ -14,6 +14,11 @@ namespace map_elements::v2
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
         constexpr void radius(Scaled radius) { radius_ = radius; }
+        constexpr void aspect(Aspect aspect) { aspect_ = aspect; }
+        constexpr void rotation(Rotation rotation) { rotation_ = rotation; }
+        void fill(const acmacs::color::Modifier& fill) { fill_.add(fill); }
+        void outline(const acmacs::color::Modifier& outline) { outline_.add(outline); }
+        constexpr void outline_width(Pixels outline_width) { outline_width_ = outline_width; }
 
       protected:
         // acmacs::PointCoordinates mCenter{acmacs::number_of_dimensions_t{2}};
