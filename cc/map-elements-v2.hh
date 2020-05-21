@@ -74,16 +74,23 @@ namespace map_elements::v2
     {
         std::vector<Coordinates> vertices;
         bool close{true};
-
     };
 
-    struct ArrowData
+    class ArrowData
     {
-        size_t at{0};               // vertex index in the path
-        std::optional<size_t> from; // used when vertex is in the middle of the path
-        acmacs::color::Modifier fill; // inherited from Path outline
-        acmacs::color::Modifier outline; // inherited from Path outline
-        Pixels width{5};
+      public:
+        void at(size_t at) { at_ = at; }
+        void from(size_t from) { from_ = from; }
+        void fill(const acmacs::color::Modifier& fill) { fill_.add(fill); }
+        void outline(const acmacs::color::Modifier& outline) { outline_.add(outline); }
+        constexpr void outline_width(Pixels outline_width) { outline_width_ = outline_width; }
+
+      private:
+        size_t at_{0};               // vertex index in the path
+        std::optional<size_t> from_; // used when vertex is in the middle of the path
+        acmacs::color::Modifier fill_; // inherited from Path outline
+        acmacs::color::Modifier outline_; // inherited from Path outline
+        Pixels outline_width_{5};
 
     };
 
@@ -104,9 +111,9 @@ namespace map_elements::v2
 
       private:
         PathData data_;
-        acmacs::color::Modifier fill_;
-        acmacs::color::Modifier outline_;
-        Pixels outline_width_;
+        acmacs::color::Modifier fill_{TRANSPARENT};
+        acmacs::color::Modifier outline_{PINK};
+        Pixels outline_width_{1};
         std::vector<ArrowData> arrows_;
 
     }; // class Path

@@ -62,78 +62,146 @@ static inline std::optional<map_elements::v2::Coordinates> read_coordinates(cons
 
 // ----------------------------------------------------------------------
 
+template <typename Target> static inline std::optional<Target> read_from_number(const rjson::v3::value& source)
+{
+    return source.visit([]<typename Val>(const Val& value) -> std::optional<Target> {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::number>)
+            return value.template to<Target>();
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>)
+            return std::nullopt;
+        else
+            throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
+    });
+
+} // read_from_number
+
+// ----------------------------------------------------------------------
+
+static inline std::optional<acmacs::color::Modifier> read_from_color(const rjson::v3::value& source)
+{
+    return source.visit([]<typename Val>(const Val& value) -> std::optional<acmacs::color::Modifier> {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
+            return acmacs::color::Modifier{value.template to<std::string_view>()};
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>)
+            return std::nullopt;
+        else
+            throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
+    });
+
+} // read_from_number
+
+// ----------------------------------------------------------------------
+
+template <typename Target> static inline void read_fill_outline(Target& target, const rjson::v3::value& fill, const rjson::v3::value& outline, const rjson::v3::value& outline_width)
+{
+    if (const auto fill_v = ::read_from_color(fill); fill_v.has_value())
+        target.fill(*fill_v);
+    if (const auto outline_v = ::read_from_color(outline); outline_v.has_value())
+        target.outline(*outline_v);
+    if (const auto outline_width_v = ::read_from_number<Pixels>(outline_width); outline_width_v.has_value())
+        target.outline_width(*outline_width_v);
+
+} // read_fill_outline
+
+// ----------------------------------------------------------------------
+
 bool acmacs::mapi::v1::Settings::apply_circle()
 {
     using namespace std::string_view_literals;
 
-    const auto report_error = [](std::string_view key, const auto& value) { throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"circle\" \"{}\": {}", key, value)}; };
+    // const auto report_error = [](std::string_view key, const auto& value) { throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"{}\": {}", key, value)}; };
 
-    auto& circle = chart_draw().map_elements().add<map_elements::v2::Circle>();
+    try {
+        auto& circle = chart_draw().map_elements().add<map_elements::v2::Circle>();
 
-    // "center": {"l": [0, 0]}
+        if (const auto coord = ::read_coordinates(getenv("center"sv), *this); coord.has_value())
+            circle.center(*coord);
+        ::read_fill_outline(circle, getenv("fill"sv), getenv("outline"sv), getenv("outline_width"sv));
 
-    if (const auto coord = ::read_coordinates(getenv("center"sv), *this); coord.has_value())
-        circle.center(*coord);
+        if (const auto radius = ::read_from_number<Scaled>(getenv("radius"sv)); radius.has_value())
+            circle.radius(*radius);
+        if (const auto aspect = ::read_from_number<Aspect>(getenv("aspect"sv)); aspect.has_value())
+            circle.aspect(*aspect);
+        if (const auto rotation = ::read_from_number<Rotation>(getenv("rotation"sv)); rotation.has_value())
+            circle.rotation(*rotation);
 
-    getenv("radius"sv).visit([&circle, report_error]<typename Value>(const Value& value) {
-        if constexpr (std::is_same_v<Value, rjson::v3::detail::number>)
-            circle.radius(value.template to<Scaled>());
-        else if constexpr (!std::is_same_v<Value, rjson::v3::detail::null>)
-            report_error("radius"sv, value);
-    });
-
-    getenv("aspect"sv).visit([&circle, report_error]<typename Value>(const Value& value) {
-        if constexpr (std::is_same_v<Value, rjson::v3::detail::number>)
-            circle.aspect(value.template to<Aspect>());
-        else if constexpr (!std::is_same_v<Value, rjson::v3::detail::null>)
-            report_error("aspect"sv, value);
-    });
-
-    getenv("rotation"sv).visit([&circle, report_error]<typename Value>(const Value& value) {
-        if constexpr (std::is_same_v<Value, rjson::v3::detail::number>)
-            circle.rotation(value.template to<Rotation>());
-        else if constexpr (!std::is_same_v<Value, rjson::v3::detail::null>)
-            report_error("rotation"sv, value);
-    });
-
-    getenv("fill"sv).visit([&circle, report_error]<typename Value>(const Value& value) {
-        if constexpr (std::is_same_v<Value, rjson::v3::detail::string>)
-            circle.fill(acmacs::color::Modifier{value.template to<std::string_view>()});
-        else if constexpr (!std::is_same_v<Value, rjson::v3::detail::null>)
-            report_error("fill"sv, value);
-    });
-
-    getenv("outline"sv).visit([&circle, report_error]<typename Value>(const Value& value) {
-        if constexpr (std::is_same_v<Value, rjson::v3::detail::string>)
-            circle.outline(acmacs::color::Modifier{value.template to<std::string_view>()});
-        else if constexpr (!std::is_same_v<Value, rjson::v3::detail::null>)
-            report_error("outline"sv, value);
-    });
-
-    getenv("outline_width"sv).visit([&circle, report_error]<typename Value>(const Value& value) {
-        if constexpr (std::is_same_v<Value, rjson::v3::detail::number>)
-            circle.outline_width(value.template to<Pixels>());
-        else if constexpr (!std::is_same_v<Value, rjson::v3::detail::null>)
-            report_error("outline_width"sv, value);
-    });
-
-    return true;
+        return true;
+    }
+    catch (std::exception& err) {
+        throw acmacs::mapi::unrecognized{fmt::format("{} while reading {}", err, getenv_toplevel())};
+    }
 
 } // acmacs::mapi::v1::Settings::apply_circle
 
 // ----------------------------------------------------------------------
 
-  // # {"N": "path", "points": [<point>, ...], "close": true, "width": 1, "outline": "red", "fill": "transparent",
+static inline void read_path_vertices(map_elements::v2::PathData& path, const rjson::v3::value& points, const rjson::v3::value& close, const acmacs::mapi::v1::Settings& settings)
+{
+    points.visit([&path, &settings]<typename Val>(const Val& value) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+            for (const auto& en : value) {
+                if (const auto coord = ::read_coordinates(en, settings); coord.has_value())
+                    path.vertices.push_back(std::move(*coord));
+                else
+                    throw acmacs::mapi::unrecognized{fmt::format("cannot read vertex from {}", value)};
+            }
+        }
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
+            throw acmacs::mapi::unrecognized{fmt::format("cannot read path vertex from {}", value)};
+    });
+
+    close.visit([&path]<typename Val>(const Val& value) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::boolean> || std::is_same_v<Val, rjson::v3::detail::number>)
+            path.close = value.template to<bool>();
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
+            throw acmacs::mapi::unrecognized{fmt::format("cannot read path \"close\" from {}", value)};
+    });
+
+} // read_path_vertices
+
+// ----------------------------------------------------------------------
+
+  // # {"N": "path",
   // #  "arrows": [{"at": <point-index>, "from": <point-index>, "outline": "magenta", "width": 10, "fill": "magenta"}]},
+
+static inline map_elements::v2::ArrowData read_path_arrow(const rjson::v3::value& source)
+{
+    using namespace std::string_view_literals;
+
+    map_elements::v2::ArrowData result;
+    if (const auto at = ::read_from_number<size_t>(source["at"sv]); at.has_value())
+        result.at(*at);
+    if (const auto from = ::read_from_number<size_t>(source["from"sv]); from.has_value())
+        result.from(*from);
+    ::read_fill_outline(result, source["fill"sv], source["outline"sv], source["outline_width"sv]);
+
+    return result;
+
+} // read_path_arrow
+
+// ----------------------------------------------------------------------
 
 bool acmacs::mapi::v1::Settings::apply_path()
 {
+    using namespace std::string_view_literals;
     try {
-        throw std::exception{};
+        auto& path = chart_draw().map_elements().add<map_elements::v2::Path>();
+        ::read_path_vertices(path.data(), getenv("points"sv), getenv("close"sv), *this);
+        ::read_fill_outline(path, getenv("fill"sv), getenv("outline"sv), getenv("outline_width"sv));
+
+        getenv("arrows"sv).visit([&path]<typename Val>(const Val& value) {
+            if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+                for (const auto& en : value)
+                    path.arrows().push_back(::read_path_arrow(en));
+            }
+            else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
+                throw acmacs::mapi::unrecognized{fmt::format("cannot read path \"arrows\" from {}", value)};
+        });
+
         return true;
     }
-    catch (std::exception&) {
-        throw acmacs::mapi::unrecognized{fmt::format("unrecognized {}", getenv_toplevel())};
+    catch (std::exception& err) {
+        throw acmacs::mapi::unrecognized{fmt::format("{} while reading {}", err, getenv_toplevel())};
     }
 
 } // acmacs::mapi::v1::Settings::apply_path
