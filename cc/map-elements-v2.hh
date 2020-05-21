@@ -24,6 +24,7 @@ namespace map_elements::v2
         };
         struct points : public acmacs::chart::PointIndexList
         {
+            using acmacs::chart::PointIndexList::get;
             acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
         };
 

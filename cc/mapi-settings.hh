@@ -37,10 +37,14 @@ namespace acmacs::mapi::inline v1
         void load(const std::vector<std::string_view>& setting_files, const std::vector<std::string_view>& defines);
         bool apply_built_in(std::string_view name) override; // returns true if built-in command with that name found and applied
 
+        acmacs::chart::PointIndexList select_antigens(const rjson::v3::value& select_clause) const;
+        acmacs::chart::PointIndexList select_sera(const rjson::v3::value& select_clause) const;
+
+        constexpr const ChartDraw& chart_draw() const { return chart_draw_; }
+
       private:
         ChartDraw& chart_draw_;
 
-        constexpr const ChartDraw& chart_draw() const { return chart_draw_; }
         constexpr ChartDraw& chart_draw() { return chart_draw_; }
 
         void update_env();
@@ -51,8 +55,6 @@ namespace acmacs::mapi::inline v1
         bool apply_antigens();
         bool apply_sera();
 
-        acmacs::chart::PointIndexList select_antigens() const;
-        acmacs::chart::PointIndexList select_sera() const;
         PointDrawingOrder drawing_order_from_toplevel_environment() const;
 
         struct passage_color_t

@@ -51,7 +51,7 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
 {
     using namespace std::string_view_literals;
 
-    const auto indexes = select_antigens();
+    const auto indexes = select_antigens(getenv("select"sv));
     const auto style = style_from_toplevel_environment();
     chart_draw().modify(indexes, style.style, drawing_order_from_toplevel_environment());
     color_according_to_passage(*chart_draw().chart().antigens(), indexes, style);
@@ -69,7 +69,9 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
 
 bool acmacs::mapi::v1::Settings::apply_sera()
 {
-    const auto indexes = select_sera();
+    using namespace std::string_view_literals;
+
+    const auto indexes = select_sera(getenv("select"sv));
     const auto style = style_from_toplevel_environment();
     chart_draw().modify_sera(indexes, style.style, drawing_order_from_toplevel_environment());
     color_according_to_passage(*chart_draw().chart().sera(), indexes, style);
@@ -691,19 +693,17 @@ template <typename AgSr> static acmacs::chart::PointIndexList select(const Chart
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens() const
+acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens(const rjson::v3::value& select_clause) const
 {
-    using namespace std::string_view_literals;
-    return ::select(chart_draw(), *chart_draw().chart().antigens(), getenv("select"sv));
+    return ::select(chart_draw(), *chart_draw().chart().antigens(), select_clause);
 
 } // acmacs::mapi::v1::Settings::select_antigens
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_sera() const
+acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_sera(const rjson::v3::value& select_clause) const
 {
-    using namespace std::string_view_literals;
-    return ::select(chart_draw(), *chart_draw().chart().sera(), getenv("select"sv));
+    return ::select(chart_draw(), *chart_draw().chart().sera(), select_clause);
 
 } // acmacs::mapi::v1::Settings::select_sera
 

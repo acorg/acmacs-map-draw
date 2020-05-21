@@ -31,7 +31,12 @@ acmacs::PointCoordinates map_elements::v2::Coordinates::transformed_layout::get(
 
 acmacs::PointCoordinates map_elements::v2::Coordinates::points::get(const ChartDraw& chart_draw) const
 {
-    return {0.0, 0.0};
+    auto layout = chart_draw.transformed_layout();
+    acmacs::PointCoordinates coord{layout->number_of_dimensions(), 0.0};
+    for (const auto point_index : get())
+        coord += layout->at(point_index);
+    coord /= static_cast<double>(size());
+    return coord;
 
 } // map_elements::v2::Coordinates::points::get
 

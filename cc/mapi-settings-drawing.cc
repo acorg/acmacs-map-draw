@@ -10,7 +10,7 @@
     // # {"a": {<antigen-select>}} -- if multiple antigens selected, middle point of them used
     // # {"s": {<serum-select>}} -- if multiple antigens selected, middle point of them used
 
-static inline std::optional<map_elements::v2::Coordinates> read_coordinates(const rjson::v3::value& source)
+static inline std::optional<map_elements::v2::Coordinates> read_coordinates(const rjson::v3::value& source, const acmacs::mapi::v1::Settings& settings)
 {
     using namespace std::string_view_literals;
 
@@ -28,18 +28,17 @@ static inline std::optional<map_elements::v2::Coordinates> read_coordinates(cons
         });
     };
 
-    const auto read = [read_values](const rjson::v3::detail::object& obj) -> map_elements::v2::Coordinates {
+    const auto read = [read_values, &settings](const rjson::v3::detail::object& obj) -> map_elements::v2::Coordinates {
         if (const auto& v_val = obj["v"sv]; !v_val.is_null())
             return map_elements::v2::Coordinates::viewport{read_values(v_val)};
         else if (const auto& l_val = obj["l"sv]; !l_val.is_null())
-            return map_elements::v2::Coordinates{map_elements::v2::Coordinates::layout{read_values(l_val)}};
+            return map_elements::v2::Coordinates::layout{read_values(l_val)};
         else if (const auto& t_val = obj["t"sv]; !t_val.is_null())
-            return map_elements::v2::Coordinates{map_elements::v2::Coordinates::transformed_layout{read_values(t_val)}};
-        else if (const auto& a_val = obj["a"sv]; !a_val.is_null()) {
-            throw std::exception{};
-        }
+            return map_elements::v2::Coordinates::transformed_layout{read_values(t_val)};
+        else if (const auto& a_val = obj["a"sv]; !a_val.is_null())
+            return map_elements::v2::Coordinates::points{settings.select_antigens(a_val)};
         else if (const auto& s_val = obj["s"sv]; !s_val.is_null()) {
-            throw std::exception{};
+            return map_elements::v2::Coordinates::points{settings.select_sera(s_val).serum_index_to_point(settings.chart_draw().chart().number_of_antigens())};
         }
         else
             throw std::exception{};
@@ -73,7 +72,7 @@ bool acmacs::mapi::v1::Settings::apply_circle()
 
     // "center": {"l": [0, 0]}
 
-    if (const auto coord = ::read_coordinates(getenv("center"sv)); coord.has_value())
+    if (const auto coord = ::read_coordinates(getenv("center"sv), *this); coord.has_value())
         circle.center(*coord);
 
     getenv("radius"sv).visit([&circle, report_error]<typename Value>(const Value& value) {
