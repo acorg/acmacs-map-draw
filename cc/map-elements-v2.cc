@@ -12,20 +12,19 @@ acmacs::PointCoordinates map_elements::v2::Coordinates::viewport::get(const Char
 
 // ----------------------------------------------------------------------
 
-acmacs::PointCoordinates map_elements::v2::Coordinates::layout::get(const ChartDraw& chart_draw) const
+acmacs::PointCoordinates map_elements::v2::Coordinates::layout::get(const ChartDraw& /*chart_draw*/) const
 {
-    // auto layout = chart_draw.layout()
     return *this;
 
 } // map_elements::v2::Coordinates::layout::get
 
 // ----------------------------------------------------------------------
 
-acmacs::PointCoordinates map_elements::v2::Coordinates::transformed_layout::get(const ChartDraw& chart_draw) const
+acmacs::PointCoordinates map_elements::v2::Coordinates::transformed::get(const ChartDraw& chart_draw) const
 {
-    return *this;
+    return chart_draw.transformation().transform(*this);
 
-} // map_elements::v2::Coordinates::transformed_layout::get
+} // map_elements::v2::Coordinates::transformed::get
 
 // ----------------------------------------------------------------------
 

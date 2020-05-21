@@ -34,7 +34,7 @@ static inline std::optional<map_elements::v2::Coordinates> read_coordinates(cons
         else if (const auto& l_val = obj["l"sv]; !l_val.is_null())
             return map_elements::v2::Coordinates::layout{read_values(l_val)};
         else if (const auto& t_val = obj["t"sv]; !t_val.is_null())
-            return map_elements::v2::Coordinates::transformed_layout{read_values(t_val)};
+            return map_elements::v2::Coordinates::transformed{read_values(t_val)};
         else if (const auto& a_val = obj["a"sv]; !a_val.is_null())
             return map_elements::v2::Coordinates::points{settings.select_antigens(a_val)};
         else if (const auto& s_val = obj["s"sv]; !s_val.is_null()) {

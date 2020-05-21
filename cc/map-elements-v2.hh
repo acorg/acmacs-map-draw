@@ -14,21 +14,24 @@ namespace map_elements::v2
         {
             acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
         };
+
         struct layout : public acmacs::PointCoordinates
         {
             acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
         };
-        struct transformed_layout : public acmacs::PointCoordinates
+
+        struct transformed : public acmacs::PointCoordinates
         {
             acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
         };
+
         struct points : public acmacs::chart::PointIndexList
         {
             using acmacs::chart::PointIndexList::get;
             acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
         };
 
-        using coordinates_t = std::variant<viewport, layout, transformed_layout, points>;
+        using coordinates_t = std::variant<viewport, layout, transformed, points>;
 
         coordinates_t coordinates;
 
