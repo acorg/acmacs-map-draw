@@ -1,11 +1,43 @@
 #pragma once
 
+#include "acmacs-chart-2/point-index-list.hh"
 #include "acmacs-map-draw/map-elements.hh"
 
 // ----------------------------------------------------------------------
 
 namespace map_elements::v2
 {
+    struct Coordinates
+    {
+      public:
+        struct viewport : public acmacs::PointCoordinates
+        {
+            acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
+        };
+        struct layout : public acmacs::PointCoordinates
+        {
+            acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
+        };
+        struct transformed_layout : public acmacs::PointCoordinates
+        {
+            acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
+        };
+        struct points : public acmacs::chart::PointIndexList
+        {
+            acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
+        };
+
+        using coordinates_t = std::variant<viewport, layout, transformed_layout, points>;
+
+        coordinates_t coordinates;
+
+        template <typename Src> Coordinates(const Src& src) : coordinates{src} {}
+        acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
+
+    }; // class Coordinates
+
+    // ----------------------------------------------------------------------
+
     class Circle : public Element
     {
       public:
@@ -19,9 +51,10 @@ namespace map_elements::v2
         void fill(const acmacs::color::Modifier& fill) { fill_.add(fill); }
         void outline(const acmacs::color::Modifier& outline) { outline_.add(outline); }
         constexpr void outline_width(Pixels outline_width) { outline_width_ = outline_width; }
+        constexpr void center(const Coordinates& center) { center_ = center; }
 
       protected:
-        // acmacs::PointCoordinates mCenter{acmacs::number_of_dimensions_t{2}};
+        Coordinates center_{Coordinates::layout{acmacs::PointCoordinates{0.0, 0.0}}};
         Scaled radius_{1.0};
         acmacs::color::Modifier fill_{TRANSPARENT};
         acmacs::color::Modifier outline_{PINK};
