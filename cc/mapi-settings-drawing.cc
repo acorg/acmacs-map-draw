@@ -234,7 +234,17 @@ void acmacs::mapi::v1::Settings::filter_inside_path(acmacs::chart::PointIndexLis
 {
     std::vector<map_elements::v2::Coordinates> path;
     ::read_path_vertices(path, points, *this);
-    // *chart_draw().transformed_layout()
+    auto layout = chart_draw().transformed_layout();
+
+    const auto inside_path = [&path](const PointCoordinates& point) -> bool {
+        return false;
+    };
+
+    const auto not_inside = [index_base, inside_path, &layout](auto index) -> bool {
+        return !inside_path(layout->at(index + index_base));
+    };
+
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_inside), indexes.end());
 
 } // acmacs::mapi::v1::Settings::filter_inside_path
 
