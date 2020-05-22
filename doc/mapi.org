@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-22 10:15:33 eu>
+# Time-stamp: <2020-05-22 12:08:26 eu>
 
 * TODO
 
@@ -214,7 +214,7 @@ http://geomalgorithms.com/a03-_inclusion.html
   {"N": "circle", "center": <point>, "radius": 1, "aspect": 1.0, "rotation": 0, "fill": "#80FFA500", "outline": "#80FF0000", "outline_width": 10}
 
   # point
-  {"v": [x, y]} -- viewport based, top left corner of viewport is 0,0
+  {"v": [x, y]} -- viewport based, top left corner of viewport is 0,0  WARNING: works only after setting the viewport!
   {"l": [x, y]} -- x,y without map transformation
   {"t": [x, y]} -- map transformation will be applied to x,y
   {"a": {<antigen-select>}} -- if multiple antigens selected, middle point of them used

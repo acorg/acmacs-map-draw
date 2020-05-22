@@ -5,6 +5,8 @@
 
 acmacs::PointCoordinates map_elements::v2::Coordinates::viewport::get(const ChartDraw& chart_draw) const
 {
+    if (float_zero(chart_draw.viewport().size.width))
+        AD_ERROR("map_elements::v2::Coordinates::viewport::get called but viewport is not set");
     return chart_draw.viewport().origin + *this;
 
 } // map_elements::v2::Coordinates::viewport::get

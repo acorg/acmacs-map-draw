@@ -602,6 +602,7 @@ static inline void check_color(const ChartSelectInterface& aChartSelectInterface
 template <typename AgSr> static void check_inside(const acmacs::mapi::v1::Settings& settings, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
 {
     using namespace std::string_view_literals;
+    AD_DEBUG("check_inside");
 
     size_t index_base{0};
     if constexpr (std::is_same_v<AgSr, acmacs::chart::Sera>)
