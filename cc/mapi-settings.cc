@@ -20,6 +20,10 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
             return apply_circle();
         else if (name == "path"sv)
             return apply_path();
+        else if (name == "rotate"sv)
+            return apply_rotate();
+        else if (name == "flip"sv)
+            return apply_flip();
         return acmacs::settings::Settings::apply_built_in(name);
     }
     catch (std::exception& err) {

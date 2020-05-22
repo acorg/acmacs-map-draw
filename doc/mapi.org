@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-22 12:08:26 eu>
+# Time-stamp: <2020-05-22 16:07:47 eu>
 
 * TODO
 
@@ -239,8 +239,8 @@ http://geomalgorithms.com/a03-_inclusion.html
 * Whole map manipulation
 
 #+BEGIN_SRC json
-# {"N": "rotate", "degrees": 30, "radians": 1, "?positive": "counter-clockwise"},
-# {"N": "flip", "direction": "ew|ns"},
+{"N": "rotate", "degrees": 30, "radians": 1, "?positive": "counter-clockwise"},
+{"N": "flip", "direction": "ew|ns"},
 # {"N": "viewport", "rel": [-1, 1, -5], "?abs": [-5, -5, 10]},
 # {"N": "background", "color": "white"},
 # {"N": "border", "color": "black", "line_width": 1},
@@ -252,12 +252,9 @@ http://geomalgorithms.com/a03-_inclusion.html
 * Move
 
 #+BEGIN_SRC json
-# {"N": "move_antigens", "select": {"reference": true}, "?to": [5, 5], "?relative": [1, 1], "?to_antigen": {"index": 10}, "?to_serum": {"index": 10},
- "flip_over_line": {"from": [0, 0], "to": [1, 1], "transform": false},
- "?flip_over_serum_line": 1, "report": true, "?flip_over_serum_line": "scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)"},
+# {"N": "move_antigens", "select": {"reference": true}, "?to": [5, 5], "?relative": [1, 1], "?to_antigen": {"index": 10}, "?to_serum": {"index": 10}, "flip_over_line": {"from": [0, 0], "to": [1, 1], "transform": false}, "?flip_over_serum_line": 1, "report": true, "?flip_over_serum_line": "scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)"},
 # {"N": "move_sera", "select": {"all": true}, "?to": [5, 5], "?relative": [1, 1], "?to_antigen": {"index": 10}, "to_serum": {"index": 1}, "flip_over_line": {"from": [0, 0], "to": [1, 1], "transform": false}, "report": true},
-# {"N": "move_antigens_stress", "select": {"reference": true}, "?to": [5, 5], "?relative": [1, 1], "?fill": "pink", "?outline": "grey", "?order": "raise", "?size": 1,
- "report": true},
+# {"N": "move_antigens_stress", "select": {"reference": true}, "?to": [5, 5], "?relative": [1, 1], "?fill": "pink", "?outline": "grey", "?order": "raise", "?size": 1, "report": true},
 #+END_SRC
 
 

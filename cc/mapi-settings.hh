@@ -89,6 +89,8 @@ namespace acmacs::mapi::inline v1
 
         bool apply_circle();
         bool apply_path();
+        bool apply_rotate();
+        bool apply_flip();
     };
 
 

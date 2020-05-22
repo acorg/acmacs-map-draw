@@ -118,6 +118,7 @@ class ChartDraw : public ChartSelectInterface
 
     constexpr acmacs::Viewport& viewport(std::string_view by) { return viewport_.use(by); }
     constexpr const acmacs::Viewport& viewport(std::string_view by) const { return viewport_.use(by); }
+    void set_viewport(const acmacs::Viewport& viewport) { viewport_.set(viewport); }
 
     void background_color(Color aBackground) { dynamic_cast<map_elements::v1::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).background_color(aBackground); }
     void grid(Color aGridColor, double aGridLineWidth) { dynamic_cast<map_elements::v1::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).grid(aGridColor, aGridLineWidth); }

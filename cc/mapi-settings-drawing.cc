@@ -92,6 +92,21 @@ static inline std::optional<acmacs::color::Modifier> read_from_color(const rjson
 
 // ----------------------------------------------------------------------
 
+static inline std::optional<std::string_view> read_from_string(const rjson::v3::value& source)
+{
+    return source.visit([]<typename Val>(const Val& value) -> std::optional<std::string_view> {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
+            return value.template to<std::string_view>();
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>)
+            return std::nullopt;
+        else
+            throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
+    });
+
+} // read_from_string
+
+// ----------------------------------------------------------------------
+
 template <typename Target> static inline void read_fill_outline(Target& target, const rjson::v3::value& fill, const rjson::v3::value& outline, const rjson::v3::value& outline_width)
 {
     if (const auto fill_v = ::read_from_color(fill); fill_v.has_value())
@@ -273,6 +288,50 @@ void acmacs::mapi::v1::Settings::filter_inside_path(acmacs::chart::PointIndexLis
 
 // ----------------------------------------------------------------------
 
+bool acmacs::mapi::v1::Settings::apply_rotate()
+{
+    using namespace std::string_view_literals;
+    try {
+        if (const auto degrees = ::read_from_number<double>(getenv("degrees"sv)); degrees.has_value())
+            chart_draw().rotate(*degrees * std::acos(-1) / 180.0);
+        else if (const auto radians = ::read_from_number<double>(getenv("radians"sv)); radians.has_value())
+            chart_draw().rotate(*radians);
+        else
+            throw acmacs::mapi::unrecognized{"neither \"degrees\" nor \"radians\" found"};
+        return true;
+    }
+    catch (std::exception& err) {
+        throw acmacs::mapi::unrecognized{fmt::format("{} while reading {}", err, getenv_toplevel())};
+    }
+
+} // acmacs::mapi::v1::Settings::apply_rotate
+
+// ----------------------------------------------------------------------
+
+bool acmacs::mapi::v1::Settings::apply_flip()
+{
+    using namespace std::string_view_literals;
+    try {
+        if (const auto direction = ::read_from_string(getenv("direction"sv)); direction.has_value()) {
+            if (*direction == "ew"sv)
+                chart_draw().flip(0, 1);
+            else if (*direction == "ns"sv)
+                chart_draw().flip(1, 0);
+            else
+                throw acmacs::mapi::unrecognized{"unrecognized \"direction\""};
+        }
+        else
+            throw acmacs::mapi::unrecognized{"\"direction\" not found"};
+
+        return true;
+    }
+    catch (std::exception& err) {
+        throw acmacs::mapi::unrecognized{fmt::format("{} while reading {}", err, getenv_toplevel())};
+    }
+
+} // acmacs::mapi::v1::Settings::apply_flip
+
+// ----------------------------------------------------------------------
 
 
 // ----------------------------------------------------------------------
