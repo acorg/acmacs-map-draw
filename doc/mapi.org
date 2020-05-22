@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-22 09:34:32 eu>
+# Time-stamp: <2020-05-22 10:15:33 eu>
 
 * TODO
 
@@ -74,7 +74,7 @@
   # "vaccine"
   # {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}}
 
-  # {"in-rectangle": <Rectangle in Drawing>}
+  {"inside": {"points": : [<point>, ...]}} -- see "path" in Drawing below, path is closed
   # {"in-circle": <Circle in Drawing>}
 
   # {"outlier": 1.0} # threshold in units (distance from centroid of pre-selected points), must be after other select args, e.g. after "clade"
@@ -117,6 +117,8 @@
 
   {"serum_id": "CDC 2016-003"}
   {"serum_id": "~2016"} -- regex search
+
+  {"inside": ...}
 
   {"table": ...}
   {"titrated-against-antigens": <select sera>}
@@ -224,19 +226,6 @@ http://geomalgorithms.com/a03-_inclusion.html
 
 
 #+BEGIN_SRC json
-  # {"N": "line", "from": [0, 0], "to": [1, 1], "transform": false, "width": 1, "color": "red"},
-  # {"N": "line", "from_antigen": {<antigen-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "report": true},
-  # {"N": "line", "from_antigen": {"reference": true}, "to_antigen": {"test": true}, "width": 1, "color": "green", "report": true},
-  # {"N": "line", "from_antigen": {"reference": true}, "to_serum": {"all": true}, "width": 1, "color": "green", "report": true},
-  # {"N": "line", "from_serum": {"reference": true}, "to_antigen": {"all": true}, "width": 1, "color": "green", "report": true},
-
-  # {"N": "arrow", "to_antigen": {<antigen-select>}, "from": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
-  # {"N": "arrow", "from_antigen": {<antigen-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
-  # {"N": "arrow", "to_serum": {<serum-select>}, "from": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
-  # {"N": "arrow", "from_serum": {<serum-select>}, "to": [0, 0], "transform": false, "width": 1, "color": "red", "head_filled": true, "head_color": "magenta", "arrow_width": 10, "report": true},
-
-  # {"N": "rectangle", "c1": [-2, -1.5], "c2": [0.5, 3], "transform": true, "rotate": 0.0, "filled": true, "color": "#80FF0000", "?rotate": "<3.15 - radians, >3.15 - degrees"},
-
   # {"N": "serum_line", "color": "red", "line_width": 1},
 
   # {"N": "connection_lines", "antigens": {<select>}, "sera": {<select>}, "color": "grey", "line_width": 1},

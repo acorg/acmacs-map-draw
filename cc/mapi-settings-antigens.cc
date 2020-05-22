@@ -601,6 +601,36 @@ static inline void check_color(const ChartSelectInterface& aChartSelectInterface
 
 // ----------------------------------------------------------------------
 
+template <typename AgSr> static void check_inside(const AgSr& ag_sr, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+{
+    using namespace std::string_view_literals;
+
+    // const auto report_error = [key, &value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"{}\" clause: {}", key, value)}; };
+
+    // const auto location_one = [&ag_sr, key](acmacs::chart::PointIndexList& ind, std::string_view name) {
+    //     if (key == "country"sv || key == "countries"sv)
+    //         ag_sr.filter_country(ind, string::upper(name));
+    //     else if (key == "continent"sv || key == "continents"sv)
+    //         ag_sr.filter_continent(ind, string::upper(name));
+    //     else if (key == "location"sv || key == "locations"sv)
+    //         acmacs::map_draw::select::filter::location_in(ag_sr, ind, string::upper(name));
+    //     else
+    //         AD_WARNING("unrecognized location  key \"{}\"", key); // should never come here actually
+    // };
+
+    // value.visit([&indexes, report_error, location_one]<typename Val>(const Val& val) {
+    //     if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
+    //         location_one(indexes, val.template to<std::string_view>());
+    //     else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>)
+    //         check_disjunction<std::string_view>(indexes, val, location_one);
+    //     else
+    //         report_error();
+    // });
+
+} // check_location
+
+// ----------------------------------------------------------------------
+
 template <typename AgSr> static acmacs::chart::PointIndexList select(const ChartSelectInterface& aChartSelectInterface, const AgSr& ag_sr, const rjson::v3::value& select_clause)
 {
     using namespace std::string_view_literals;
@@ -663,6 +693,8 @@ template <typename AgSr> static acmacs::chart::PointIndexList select(const Chart
                             report_threshold = value.template to<size_t>();
                         else if (key == "country"sv || key == "countries"sv || key == "continent"sv || key == "continents"sv || key == "location"sv || key == "locations"sv)
                             check_location(ag_sr, indexes, key, value);
+                        else if (key == "inside"sv)
+                            check_inside(ag_sr, indexes, key, value);
                         else if (!key.empty() && key[0] != '?')
                             AD_WARNING("unrecognized \"select\" key: \"{}\"", key);
                     }
