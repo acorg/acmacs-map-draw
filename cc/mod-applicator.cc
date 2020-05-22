@@ -408,17 +408,17 @@ class ModViewport : public Mod
         if (const auto& abs = args()["abs"]; !abs.is_null()) {
             if (abs.size() != 3)
                 throw unrecognized_mod{"\"abs\" must be array of 3 floats. mod: " + rjson::format(args())};
-            aChartDraw.viewport({abs[0].to<double>(), abs[1].to<double>()}, abs[2].to<double>());
+            aChartDraw.viewport("ModViewport::apply").set({abs[0].to<double>(), abs[1].to<double>()}, abs[2].to<double>());
         }
         else if (const auto& rel = args()["rel"]; !rel.is_null()) {
             if (rel.size() != 3)
                 throw unrecognized_mod{"\"rel\" must be array of 3 floats. mod: " + rjson::format(args())};
-            aChartDraw.calculate_viewport(false);
-            const auto& orig_viewport = aChartDraw.viewport();
+            aChartDraw.calculate_viewport();
+            const auto& orig_viewport = aChartDraw.viewport("ModViewport::apply");
             const auto new_size = rel[2].to<double>() + orig_viewport.size.width;
             if (new_size < 1)
                 throw unrecognized_mod{"invalid size difference in \"rel\". mod: " + rjson::format(args())};
-            aChartDraw.viewport(orig_viewport.origin + acmacs::PointCoordinates{rel[0].to<double>(), rel[1].to<double>()}, new_size);
+            aChartDraw.viewport("ModViewport::apply").set(orig_viewport.origin + acmacs::PointCoordinates{rel[0].to<double>(), rel[1].to<double>()}, new_size);
         }
         else {
             throw unrecognized_mod{"mod: " + rjson::format(args())};

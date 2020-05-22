@@ -1,7 +1,6 @@
 #include <memory>
 #include <algorithm>
 
-#include "acmacs-base/log.hh"
 #include "acmacs-base/float.hh"
 #include "acmacs-base/fmt.hh"
 #include "acmacs-base/enumerate.hh"
@@ -15,24 +14,104 @@
 
 // ----------------------------------------------------------------------
 
-const acmacs::Viewport& ChartDraw::calculate_viewport(bool verbose)
+const acmacs::Viewport& MapViewport::use(std::string_view by) const
 {
-    if (number_of_dimensions() != acmacs::number_of_dimensions_t{2})
-        throw std::runtime_error(acmacs::to_string(number_of_dimensions()) + "D maps are not supported");
-    auto layout = transformed_layout();
-    const acmacs::BoundingBall bb{minimum_bounding_ball(*layout)};
-    acmacs::Viewport viewport;
-    viewport.set_from_center_size(bb.center(), bb.diameter());
-    viewport.whole_width();
-    if (verbose)
-        fmt::print("[Calculated]:     {}\n", viewport);
-    if (mViewport.empty())
-        mViewport = viewport;
-    if (verbose)
-        fmt::print("[Used]:           {}\n[Transformation]: {}\n", mViewport, transformation());
-    return mViewport;
+    if (recalculate_)
+        AD_WARNING("map viewport requires recalculation, but it is used by {}", by);
+    used_by_.emplace_back(by);
+    return viewport_;
+
+} // MapViewport::use
+
+// ----------------------------------------------------------------------
+
+acmacs::Viewport& MapViewport::use(std::string_view by)
+{
+    if (recalculate_)
+        AD_WARNING("map viewport requires recalculation, but it is used by {} for writing", by);
+    used_by_.emplace_back(by);
+    return viewport_;
+
+} // MapViewport::use
+
+// ----------------------------------------------------------------------
+
+void MapViewport::set(const acmacs::PointCoordinates& origin, double size)
+{
+    if (!used_by_.empty()) {
+        AD_WARNING("map report change ({} {}) requested, but it was used by {}", origin, size, used_by_);
+        used_by_.clear();
+    }
+    viewport_.set(origin, size);
+    recalculate_ = false;
+
+} // MapViewport::set
+
+// ----------------------------------------------------------------------
+
+void MapViewport::set(const acmacs::Viewport& aViewport)
+{
+    if (!used_by_.empty()) {
+        AD_WARNING("map report change ({}) requested, but it was used by {}", aViewport, used_by_);
+        used_by_.clear();
+    }
+    viewport_ = aViewport;
+    recalculate_ = false;
+
+} // MapViewport::set
+
+// ----------------------------------------------------------------------
+
+void MapViewport::calculate(const acmacs::Layout& layout)
+{
+    if (recalculate_) {
+        if (!used_by_.empty()) {
+            AD_WARNING("map report recalculation requested, but it was used by {}", used_by_);
+            used_by_.clear();
+        }
+        if (layout.number_of_dimensions() != acmacs::number_of_dimensions_t{2})
+            throw std::runtime_error{fmt::format("{}D maps are not supported", layout.number_of_dimensions())};
+        const acmacs::BoundingBall bb{minimum_bounding_ball(layout)};
+        acmacs::Viewport viewport;
+        viewport.set_from_center_size(bb.center(), bb.diameter());
+        viewport.whole_width();
+        viewport_ = viewport;
+        recalculate_ = false;
+    }
+    else
+        AD_WARNING("redundant request of report recalculation");
+
+} // MapViewport::calculate
+
+// ----------------------------------------------------------------------
+
+void ChartDraw::calculate_viewport() const
+{
+    viewport_.calculate(*transformed_layout());
 
 } // ChartDraw::calculate_viewport
+
+// ----------------------------------------------------------------------
+
+void ChartDraw::rotate(double aAngle)
+{
+    if (!float_zero(aAngle)) {
+        //     log("rotate radians:", aAngle, " degrees:", 180.0 * aAngle / M_PI, " ", aAngle > 0 ? "counter-" : "", "clockwise");
+        projection().rotate_radians(aAngle);
+        viewport_.set_recalculate();
+    }
+
+} // ChartDraw::rotate
+
+// ----------------------------------------------------------------------
+
+void ChartDraw::flip(double aX, double aY)
+{
+    // log("flip ", aX, " ", aY);
+    projection().flip(aX, aY); // reflect about a line specified with vector [aX, aY]
+    viewport_.set_recalculate();
+
+} // ChartDraw::flip
 
 // ----------------------------------------------------------------------
 
@@ -41,10 +120,10 @@ void ChartDraw::draw(acmacs::surface::Surface& aSurface) const
     fmt::print(stderr, "\n\nWARNING: switch signature page to draw-elements interface\nWARNING: remove obsolete ChartDraw::draw(acmacs::surface::Surface&)\nWARNING: remove obsolete acmacs-map-draw interface: map_elements::draw(acmacs::surface::Surface& ...)\n");
 
       // obsolete
-    if (mViewport.empty())
+    if (viewport_.empty())
         throw std::runtime_error("Call calculate_viewport() before draw()");
 
-    acmacs::surface::Surface& rescaled_surface = aSurface.subsurface(acmacs::PointCoordinates::zero2D, Scaled{aSurface.viewport().size.width}, mViewport, true);
+    acmacs::surface::Surface& rescaled_surface = aSurface.subsurface(acmacs::PointCoordinates::zero2D, Scaled{aSurface.viewport().size.width}, viewport_.use("ChartDraw::draw(Surface)"), true);
     mMapElements.draw(rescaled_surface, map_elements::Elements::BeforePoints, *this);
 
     const auto layout_p = transformed_layout();
@@ -118,9 +197,9 @@ std::string ChartDraw::draw_json(report_time aTimer) const
 
 void ChartDraw::draw(acmacs::draw::DrawElements& painter) const
 {
-    if (mViewport.empty())
+    if (viewport_.empty())
         throw std::runtime_error("Call calculate_viewport() before draw()");
-    painter.viewport(mViewport);
+    painter.viewport(viewport_.use("ChartDraw::draw(DrawElements)"));
     mMapElements.draw(painter, *this);
     auto& points = painter.points(layout(), transformation()).drawing_order(*drawing_order()).styles(plot_spec_ptr()).labels(mLabels);
     if (painter.add_all_labels()) {

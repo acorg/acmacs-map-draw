@@ -142,6 +142,7 @@ std::string draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::v
 
         apply_mods(chart_draw, settings["apply"], settings);
         chart_draw.calculate_viewport();
+        AD_INFO("{}\n{}", chart_draw.viewport("map-draw-interactive main"), chart_draw.transformation());
         chart_draw.draw(output, 800, report_time::yes);
         chart->projection_modify(projection_no)->transformation(orig_transformation);
         return output;

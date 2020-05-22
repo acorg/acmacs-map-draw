@@ -19,6 +19,28 @@ namespace acmacs::draw { class DrawElements; }
 
 // ----------------------------------------------------------------------
 
+class MapViewport
+{
+  public:
+    void calculate(const acmacs::Layout& layout);
+
+    void set(const acmacs::PointCoordinates& origin, double size);
+    void set(const acmacs::Viewport& aViewport);
+    void set_recalculate() { recalculate_ = true; }
+
+    bool empty() const { return viewport_.empty(); }
+    const acmacs::Viewport& use(std::string_view by) const;
+    acmacs::Viewport& use(std::string_view by);
+
+  private:
+    acmacs::Viewport viewport_;
+    bool recalculate_{true};
+    mutable std::vector<std::string> used_by_;
+
+}; // class MapViewport
+
+// ----------------------------------------------------------------------
+
 class ChartDraw : public ChartSelectInterface
 {
  public:
@@ -30,7 +52,7 @@ class ChartDraw : public ChartSelectInterface
     void draw(std::string_view aFilename, double aSize, report_time aTimer = report_time::no) const;
     std::string draw_json(report_time aTimer = report_time::no) const;
     std::string draw_pdf(double aSize, report_time aTimer = report_time::no) const;
-    const acmacs::Viewport& calculate_viewport(bool verbose = true);
+    void calculate_viewport() const;
 
     template <typename T> void modify_drawing_order(const T& aPoints, PointDrawingOrder aPointDrawingOrder)
         {
@@ -91,22 +113,11 @@ class ChartDraw : public ChartSelectInterface
     void scale_points(double aPointScale, double aOulineScale) { plot_spec().scale_all(aPointScale, aOulineScale); }
     void modify_all_sera(const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange) { modify_sera(chart().sera()->all_indexes(), aStyle, aPointDrawingOrder); }
 
-    void rotate(double aAngle)
-        {
-            if (!float_zero(aAngle))
-                log("rotate radians:", aAngle, " degrees:", 180.0 * aAngle / M_PI, " ", aAngle > 0 ? "counter-" : "", "clockwise");
-            projection().rotate_radians(aAngle);
-        }
+    void rotate(double aAngle);
+    void flip(double aX, double aY);
 
-    void flip(double aX, double aY)
-        {
-            log("flip ", aX, " ", aY);
-            projection().flip(aX, aY); // reflect about a line specified with vector [aX, aY]
-        }
-
-    void viewport(const acmacs::PointCoordinates& origin, double size) { mViewport.set(origin, size); }
-    void viewport(const acmacs::Viewport& aViewport) { mViewport = aViewport; }
-    const acmacs::Viewport& viewport() const { return mViewport; }
+    constexpr acmacs::Viewport& viewport(std::string_view by) { return viewport_.use(by); }
+    constexpr const acmacs::Viewport& viewport(std::string_view by) const { return viewport_.use(by); }
 
     void background_color(Color aBackground) { dynamic_cast<map_elements::v1::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).background_color(aBackground); }
     void grid(Color aGridColor, double aGridLineWidth) { dynamic_cast<map_elements::v1::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).grid(aGridColor, aGridLineWidth); }
@@ -139,7 +150,7 @@ class ChartDraw : public ChartSelectInterface
     constexpr const auto& map_elements() const { return mMapElements; }
 
  private:
-    acmacs::Viewport mViewport;
+    mutable MapViewport viewport_;
     map_elements::Elements mMapElements;
     map_elements::Labels mLabels;
 

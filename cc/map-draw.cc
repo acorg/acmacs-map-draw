@@ -135,6 +135,7 @@ int draw(const Options& opt)
     }
 
     chart_draw.calculate_viewport();
+    AD_INFO("{}\n{}", chart_draw.viewport("map-draw main"), chart_draw.transformation());
 
     if (opt.output_pdf->empty()) {
         acmacs::file::temp output(static_cast<std::string>(fs::path(*opt.chart).stem()) + "--p" + std::to_string(opt.projection), ".pdf");

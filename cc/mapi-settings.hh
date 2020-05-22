@@ -45,14 +45,12 @@ namespace acmacs::mapi::inline v1
         acmacs::chart::PointIndexList select_antigens(const rjson::v3::value& select_clause) const;
         acmacs::chart::PointIndexList select_sera(const rjson::v3::value& select_clause) const;
 
-        constexpr const ChartDraw& chart_draw() const { return chart_draw_; }
+        constexpr ChartDraw& chart_draw() const { return chart_draw_; }
 
         void filter_inside_path(acmacs::chart::PointIndexList& indexes, const rjson::v3::value& points, size_t index_base) const; // mapi-settings-drawing.cc
 
       private:
         ChartDraw& chart_draw_;
-
-        constexpr ChartDraw& chart_draw() { return chart_draw_; }
 
         void update_env();
 

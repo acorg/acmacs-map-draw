@@ -15,9 +15,8 @@ VaccineMatcherLabel& VaccineMatcherLabel::name_type(std::string aNameType)
         else if (aNameType == "abbreviated_location_with_passage_type")
             name = antigen->abbreviated_location_with_passage_type();
         else {
-            if (aNameType != "full") {
-                log_warning("unsupported name_type \"", aNameType, "\" (\"full\" is used)");
-            }
+            if (aNameType != "full")
+                AD_WARNING("unsupported name_type \"{}\" (\"full\" is used)", aNameType);
             name = antigen->full_name();
         }
           // std::cerr << "DEBUG: name " << aNameType << ": \"" << name << '"' << std::endl;

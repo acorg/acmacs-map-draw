@@ -67,6 +67,7 @@ int main(int argc, char* const argv[])
         }
 
         chart_draw.calculate_viewport();
+        AD_INFO("{}\n{}", chart_draw.viewport("map-hemisphering main"), chart_draw.transformation());
 
         if (opt.pdf) {
             chart_draw.draw(opt.pdf, 800, report_time::yes);
