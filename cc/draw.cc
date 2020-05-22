@@ -39,7 +39,7 @@ acmacs::Viewport& MapViewport::use(std::string_view by)
 void MapViewport::set(const acmacs::PointCoordinates& origin, double size)
 {
     if (!used_by_.empty()) {
-        AD_WARNING("map report change ({} {}) requested, but it was used by {}", origin, size, used_by_);
+        AD_WARNING("map viewport change ({} {}) requested, but it was used by {}", origin, size, used_by_);
         used_by_.clear();
     }
     viewport_.set(origin, size);

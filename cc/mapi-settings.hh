@@ -91,6 +91,7 @@ namespace acmacs::mapi::inline v1
         bool apply_path();
         bool apply_rotate();
         bool apply_flip();
+        bool apply_viewport();
     };
 
 

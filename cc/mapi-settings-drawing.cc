@@ -333,6 +333,51 @@ bool acmacs::mapi::v1::Settings::apply_flip()
 
 // ----------------------------------------------------------------------
 
+bool acmacs::mapi::v1::Settings::apply_viewport()
+{
+    using namespace std::string_view_literals;
+    try {
+        bool updated{false};
+        getenv("abs"sv).visit([&updated, this]<typename Val>(const Val& value) {
+            if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+                if (value.size() != 3)
+                    throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {} (3 numbers expected)", value)};
+                chart_draw().viewport("mapi::v1::Settings::apply_viewport [abs]").set({value[0].template to<double>(), value[1].template to<double>()}, value[2].template to<double>());
+                updated = true;
+            }
+            else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
+                throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
+        });
+
+        getenv("rel"sv).visit([&updated, this]<typename Val>(const Val& value) {
+            if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+                if (value.size() != 3)
+                    throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {} (3 numbers expected)", value)};
+                chart_draw().calculate_viewport("mapi::v1::Settings::apply_viewport [rel]");
+                const auto& orig_viewport = chart_draw().viewport("mapi::v1::Settings::apply_viewport [rel]");
+                const auto new_size = value[2].template to<double>() + orig_viewport.size.width;
+                if (new_size < 1)
+                    throw acmacs::mapi::unrecognized{"invalid size difference in \"rel\""};
+                chart_draw().set_viewport(orig_viewport.origin + acmacs::PointCoordinates{value[0].template to<double>(), value[1].template to<double>()}, new_size);
+                updated = true;
+            }
+            else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
+                throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
+        });
+
+        if (!updated)
+            throw acmacs::mapi::unrecognized{"neither \"abs\" nor \"rel\" found"};
+
+        return true;
+    }
+    catch (std::exception& err) {
+        throw acmacs::mapi::unrecognized{fmt::format("{} while reading {}", err, getenv_toplevel())};
+    }
+
+} // acmacs::mapi::v1::Settings::apply_viewport
+
+// ----------------------------------------------------------------------
+
 
 // ----------------------------------------------------------------------
 /// Local Variables:

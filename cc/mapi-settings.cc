@@ -24,6 +24,8 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
             return apply_rotate();
         else if (name == "flip"sv)
             return apply_flip();
+        else if (name == "viewport"sv)
+            return apply_viewport();
         return acmacs::settings::Settings::apply_built_in(name);
     }
     catch (std::exception& err) {
