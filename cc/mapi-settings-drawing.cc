@@ -161,9 +161,6 @@ static inline void read_path_vertices(map_elements::v2::PathData& path, const rj
 
 // ----------------------------------------------------------------------
 
-  // # {"N": "path",
-  // #  "arrows": [{"at": <point-index>, "from": <point-index>, "outline": "magenta", "width": 10, "fill": "magenta"}]},
-
 static inline map_elements::v2::ArrowData read_path_arrow(const rjson::v3::value& source)
 {
     using namespace std::string_view_literals;

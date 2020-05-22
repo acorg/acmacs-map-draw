@@ -57,9 +57,19 @@ void map_elements::v2::Circle::draw(acmacs::draw::DrawElements& aDrawElements, c
 
 // ----------------------------------------------------------------------
 
-
-void map_elements::v2::Path::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const
+void map_elements::v2::Path::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& chart_draw) const
 {
+    if (data().vertices.size() < 2) {
+        AD_WARNING("too few vertices in path");
+        return;
+    }
+
+    std::vector<acmacs::PointCoordinates> path;
+    std::transform(std::begin(data().vertices), std::end(data().vertices), std::back_inserter(path), [&chart_draw](const auto& vertex) { return vertex.get(chart_draw); });
+    std::optional<Color> close_and_fill;
+    if (data().close)
+        close_and_fill = fill_;
+    aDrawElements.path(path, outline_, outline_width_, close_and_fill);
 
 } // map_elements::v2::Path::draw
 
