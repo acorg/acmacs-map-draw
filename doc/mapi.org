@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-21 18:18:51 eu>
+# Time-stamp: <2020-05-22 09:34:32 eu>
 
 * TODO
 
@@ -207,8 +207,8 @@ line, arrow, rectangle, circle
 http://geomalgorithms.com/a03-_inclusion.html
 
 #+BEGIN_SRC json
-  # {"N": "path", "points": [<point>, ...], "close": true, "outline_width": 1, "outline": "red", "fill": "transparent", 
-  #  "arrows": [{"at": <point-index>, "from": <point-index>, "outline": "magenta", "outline_width": 10, "fill": "magenta"}]},
+  {"N": "path", "points": [<point>, ...], "close": true, "outline_width": 1, "outline": "red", "fill": "transparent", 
+   "arrows": [{"at": <point-index>, "from": <point-index>, "width": 5, "outline": "magenta", "outline_width": 1, "fill": "magenta"}]},
   {"N": "circle", "center": <point>, "radius": 1, "aspect": 1.0, "rotation": 0, "fill": "#80FFA500", "outline": "#80FF0000", "outline_width": 10}
 
   # point

@@ -170,6 +170,8 @@ static inline map_elements::v2::ArrowData read_path_arrow(const rjson::v3::value
         result.at(*at);
     if (const auto from = ::read_from_number<size_t>(source["from"sv]); from.has_value())
         result.from(*from);
+    if (const auto width = ::read_from_number<Pixels>(source["width"sv]); width.has_value())
+        result.width(*width);
     ::read_fill_outline(result, source["fill"sv], source["outline"sv], source["outline_width"sv]);
 
     return result;

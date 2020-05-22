@@ -1,6 +1,7 @@
 #pragma once
 
 #include "acmacs-chart-2/point-index-list.hh"
+#include "acmacs-draw/draw-arrow.hh"
 #include "acmacs-map-draw/map-elements.hh"
 
 // ----------------------------------------------------------------------
@@ -76,23 +77,7 @@ namespace map_elements::v2
         bool close{true};
     };
 
-    class ArrowData
-    {
-      public:
-        void at(size_t at) { at_ = at; }
-        void from(size_t from) { from_ = from; }
-        void fill(const acmacs::color::Modifier& fill) { fill_.add(fill); }
-        void outline(const acmacs::color::Modifier& outline) { outline_.add(outline); }
-        constexpr void outline_width(Pixels outline_width) { outline_width_ = outline_width; }
-
-      private:
-        size_t at_{0};               // vertex index in the path
-        std::optional<size_t> from_; // used when vertex is in the middle of the path
-        acmacs::color::Modifier fill_; // inherited from Path outline
-        acmacs::color::Modifier outline_; // inherited from Path outline
-        Pixels outline_width_{5};
-
-    };
+    using ArrowData = acmacs::draw::PathWithArrows::ArrowData;
 
     class Path : public Element
     {
