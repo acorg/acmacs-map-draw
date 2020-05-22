@@ -602,15 +602,13 @@ static inline void check_color(const ChartSelectInterface& aChartSelectInterface
 template <typename AgSr> static inline void check_inside(const acmacs::mapi::v1::Settings& settings, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
 {
     using namespace std::string_view_literals;
-    AD_DEBUG("check_inside");
 
     size_t index_base{0};
     if constexpr (std::is_same_v<AgSr, acmacs::chart::Sera>)
         index_base = settings.chart_draw().chart().number_of_antigens();
 
-    if (const auto& points = value["points"sv]; !points.is_null()) {
+    if (const auto& points = value["points"sv]; !points.is_null())
         settings.filter_inside_path(indexes, points, index_base);
-    }
     else
         throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"{}\" clause: {}", key, value)};
 

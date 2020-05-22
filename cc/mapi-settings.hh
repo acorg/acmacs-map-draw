@@ -92,6 +92,10 @@ namespace acmacs::mapi::inline v1
         bool apply_rotate();
         bool apply_flip();
         bool apply_viewport();
+        bool apply_background();
+        bool apply_border();
+        bool apply_grid();
+        bool apply_point_scale();
     };
 
 

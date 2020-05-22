@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-22 16:53:32 eu>
+# Time-stamp: <2020-05-22 18:47:48 eu>
 
 * TODO
 
@@ -242,10 +242,10 @@ http://geomalgorithms.com/a03-_inclusion.html
 {"N": "rotate", "degrees": 30, "radians": 1, "?positive": "counter-clockwise"},
 {"N": "flip", "direction": "ew|ns"},
 {"N": "viewport", "rel": [-1, 1, -5], "?abs": [-5, -5, 10]},
-# {"N": "background", "color": "white"},
-# {"N": "border", "color": "black", "line_width": 1},
-# {"N": "grid", "color": "grey80", "line_width": 1},
-# {"N": "point_scale", "scale": 1, "outline_scale": 1},
+{"N": "background", "color": "white"},
+{"N": "border", "color": "black", "line_width": 1},
+{"N": "grid", "color": "grey80", "line_width": 1},
+{"N": "point-scale", "scale": 1, "outline_scale": 1},
 #+END_SRC
 
 

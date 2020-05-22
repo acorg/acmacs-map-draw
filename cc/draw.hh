@@ -19,31 +19,9 @@ namespace acmacs::draw { class DrawElements; }
 
 // ----------------------------------------------------------------------
 
-class MapViewport
-{
-  public:
-    void calculate(const acmacs::Layout& layout, std::string_view by);
-
-    void set(const acmacs::PointCoordinates& origin, double size);
-    void set(const acmacs::Viewport& aViewport);
-    void set_recalculate() { recalculate_ = true; }
-
-    bool empty() const { return viewport_.empty(); }
-    const acmacs::Viewport& use(std::string_view by) const;
-    acmacs::Viewport& use(std::string_view by);
-
-  private:
-    acmacs::Viewport viewport_;
-    bool recalculate_{true};
-    mutable std::vector<std::string> used_by_;
-
-}; // class MapViewport
-
-// ----------------------------------------------------------------------
-
 class ChartDraw : public ChartSelectInterface
 {
- public:
+  public:
     using ChartSelectInterface::ChartSelectInterface;
 
     enum class apply_map_transformation { no, yes };
@@ -54,70 +32,73 @@ class ChartDraw : public ChartSelectInterface
     std::string draw_pdf(double aSize, report_time aTimer = report_time::no) const;
 
     template <typename T> void modify_drawing_order(const T& aPoints, PointDrawingOrder aPointDrawingOrder)
-        {
-            switch (aPointDrawingOrder) {
-              case PointDrawingOrder::Raise:
-                  plot_spec().raise(aPoints);
-                  break;
-              case PointDrawingOrder::Lower:
-                  plot_spec().lower(aPoints);
-                  break;
-              case PointDrawingOrder::NoChange:
-                  break;
-            }
+    {
+        switch (aPointDrawingOrder) {
+            case PointDrawingOrder::Raise:
+                plot_spec().raise(aPoints);
+                break;
+            case PointDrawingOrder::Lower:
+                plot_spec().lower(aPoints);
+                break;
+            case PointDrawingOrder::NoChange:
+                break;
         }
+    }
 
     template <typename T> void modify_sera_drawing_order(const T& aPoints, PointDrawingOrder aPointDrawingOrder)
-        {
-            switch (aPointDrawingOrder) {
-              case PointDrawingOrder::Raise:
-                  plot_spec().raise_serum(aPoints);
-                  break;
-              case PointDrawingOrder::Lower:
-                  plot_spec().lower_serum(aPoints);
-                  break;
-              case PointDrawingOrder::NoChange:
-                  break;
-            }
+    {
+        switch (aPointDrawingOrder) {
+            case PointDrawingOrder::Raise:
+                plot_spec().raise_serum(aPoints);
+                break;
+            case PointDrawingOrder::Lower:
+                plot_spec().lower_serum(aPoints);
+                break;
+            case PointDrawingOrder::NoChange:
+                break;
         }
+    }
 
     void modify(const acmacs::chart::Indexes& aPoints, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
-        {
-            plot_spec().modify(aPoints, aStyle);
-            modify_drawing_order(aPoints, aPointDrawingOrder);
-        }
+    {
+        plot_spec().modify(aPoints, aStyle);
+        modify_drawing_order(aPoints, aPointDrawingOrder);
+    }
 
     void modify(size_t aPointNo, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
-        {
-            plot_spec().modify(aPointNo, aStyle);
-            modify_drawing_order(aPointNo, aPointDrawingOrder);
-        }
+    {
+        plot_spec().modify(aPointNo, aStyle);
+        modify_drawing_order(aPointNo, aPointDrawingOrder);
+    }
 
     void modify_sera(const acmacs::chart::Indexes& aSera, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
-        {
-            plot_spec().modify_sera(aSera, aStyle);
-            modify_sera_drawing_order(aSera, aPointDrawingOrder);
-        }
+    {
+        plot_spec().modify_sera(aSera, aStyle);
+        modify_sera_drawing_order(aSera, aPointDrawingOrder);
+    }
 
     void modify_serum(size_t aSerumNo, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
-        {
-            plot_spec().modify_serum(aSerumNo, aStyle);
-            modify_sera_drawing_order(aSerumNo, aPointDrawingOrder);
-        }
+    {
+        plot_spec().modify_serum(aSerumNo, aStyle);
+        modify_sera_drawing_order(aSerumNo, aPointDrawingOrder);
+    }
 
     void hide_all_except(const acmacs::chart::Indexes& aNotHide);
     void mark_egg_antigens();
     void mark_reassortant_antigens();
     void mark_all_grey(Color aColor);
     void scale_points(double aPointScale, double aOulineScale) { plot_spec().scale_all(aPointScale, aOulineScale); }
-    void modify_all_sera(const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange) { modify_sera(chart().sera()->all_indexes(), aStyle, aPointDrawingOrder); }
+    void modify_all_sera(const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    {
+        modify_sera(chart().sera()->all_indexes(), aStyle, aPointDrawingOrder);
+    }
 
     void rotate(double aAngle);
     void flip(double aX, double aY);
 
     void calculate_viewport(std::string_view by) const;
-    constexpr acmacs::Viewport& viewport(std::string_view by) { return viewport_.use(by); }
-    constexpr const acmacs::Viewport& viewport(std::string_view by) const { return viewport_.use(by); }
+    const acmacs::Viewport& viewport(std::string_view by) const { return viewport_.use(by); }
+    const acmacs::Viewport& viewport_before_changing() const { return viewport_.use_before_changing(); }
     void set_viewport(const acmacs::Viewport& viewport) { viewport_.set(viewport); }
     void set_viewport(const acmacs::PointCoordinates& origin, double size) { viewport_.set(origin, size); }
 
@@ -126,10 +107,20 @@ class ChartDraw : public ChartSelectInterface
     void border(Color aBorderColor, double aBorderWidth) { dynamic_cast<map_elements::v1::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).border(aBorderColor, aBorderWidth); }
     auto& continent_map(const acmacs::PointCoordinates& aOffset, Pixels aWidth) { return dynamic_cast<map_elements::v1::ContinentMap&>(mMapElements["continent-map"]).offset_width(aOffset, aWidth); }
     auto& continent_map() { return dynamic_cast<map_elements::v1::ContinentMap&>(mMapElements["continent-map"]); }
-    map_elements::v1::LegendPointLabel& legend_point_label(const acmacs::PointCoordinates& aOffset) { auto& legend = dynamic_cast<map_elements::v1::LegendPointLabel&>(mMapElements["legend-point-label"]); legend.offset(aOffset); return legend; }
+    map_elements::v1::LegendPointLabel& legend_point_label(const acmacs::PointCoordinates& aOffset)
+    {
+        auto& legend = dynamic_cast<map_elements::v1::LegendPointLabel&>(mMapElements["legend-point-label"]);
+        legend.offset(aOffset);
+        return legend;
+    }
     map_elements::v1::LegendPointLabel& legend_point_label() { return dynamic_cast<map_elements::v1::LegendPointLabel&>(mMapElements["legend-point-label"]); }
     void remove_legend() { mMapElements.remove("legend-point-label"); }
-    map_elements::v1::Title& title(const acmacs::PointCoordinates& aOffset) { auto& title = dynamic_cast<map_elements::v1::Title&>(mMapElements["title"]); title.offset(aOffset); return title; }
+    map_elements::v1::Title& title(const acmacs::PointCoordinates& aOffset)
+    {
+        auto& title = dynamic_cast<map_elements::v1::Title&>(mMapElements["title"]);
+        title.offset(aOffset);
+        return title;
+    }
     map_elements::v1::Title& title() { return dynamic_cast<map_elements::v1::Title&>(mMapElements["title"]); }
     bool has_title() const { return mMapElements.exists("title"); }
     map_elements::Labels& labels() { return mLabels; }
@@ -151,7 +142,31 @@ class ChartDraw : public ChartSelectInterface
     constexpr auto& map_elements() { return mMapElements; }
     constexpr const auto& map_elements() const { return mMapElements; }
 
- private:
+  private:
+    class MapViewport
+    {
+      private:
+        MapViewport() = default;
+
+        acmacs::Viewport viewport_;
+        bool recalculate_{true};
+        mutable std::vector<std::string> used_by_;
+
+        bool empty() const { return viewport_.empty(); }
+
+        const acmacs::Viewport& use_before_changing() const { return viewport_; }
+        const acmacs::Viewport& use(std::string_view by) const;
+
+        void set(const acmacs::PointCoordinates& origin, double size);
+        void set(const acmacs::Viewport& aViewport);
+
+        void calculate(const acmacs::Layout& layout);
+        void set_recalculate() { recalculate_ = true; }
+
+        friend class ChartDraw;
+
+    }; // class MapViewport
+
     mutable MapViewport viewport_;
     map_elements::Elements mMapElements;
     map_elements::Labels mLabels;

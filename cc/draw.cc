@@ -14,59 +14,48 @@
 
 // ----------------------------------------------------------------------
 
-const acmacs::Viewport& MapViewport::use(std::string_view by) const
+const acmacs::Viewport& ChartDraw::MapViewport::use(std::string_view by) const
 {
     if (recalculate_)
         AD_WARNING("map viewport requires recalculation, but it is used by {}", by);
     used_by_.emplace_back(by);
     return viewport_;
 
-} // MapViewport::use
+} // ChartDraw::MapViewport::use
 
 // ----------------------------------------------------------------------
 
-acmacs::Viewport& MapViewport::use(std::string_view by)
-{
-    if (recalculate_)
-        AD_WARNING("map viewport requires recalculation, but it is used by {} for writing", by);
-    used_by_.emplace_back(by);
-    return viewport_;
-
-} // MapViewport::use
-
-// ----------------------------------------------------------------------
-
-void MapViewport::set(const acmacs::PointCoordinates& origin, double size)
+void ChartDraw::MapViewport::set(const acmacs::PointCoordinates& origin, double size)
 {
     if (!used_by_.empty()) {
-        AD_WARNING("map viewport change ({} {}) requested, but it was used by {}", origin, size, used_by_);
+        AD_ERROR("map viewport change ({} {}) requested, but it was used by {}", origin, size, used_by_);
         used_by_.clear();
     }
     viewport_.set(origin, size);
     recalculate_ = false;
 
-} // MapViewport::set
+} // ChartDraw::MapViewport::set
 
 // ----------------------------------------------------------------------
 
-void MapViewport::set(const acmacs::Viewport& aViewport)
+void ChartDraw::MapViewport::set(const acmacs::Viewport& aViewport)
 {
     if (!used_by_.empty()) {
-        AD_WARNING("map report change ({}) requested, but it was used by {}", aViewport, used_by_);
+        AD_ERROR("map report change ({}) requested, but it was used by {}", aViewport, used_by_);
         used_by_.clear();
     }
     viewport_ = aViewport;
     recalculate_ = false;
 
-} // MapViewport::set
+} // ChartDraw::MapViewport::set
 
 // ----------------------------------------------------------------------
 
-void MapViewport::calculate(const acmacs::Layout& layout, std::string_view by)
+void ChartDraw::MapViewport::calculate(const acmacs::Layout& layout)
 {
     if (recalculate_) {
         if (!used_by_.empty()) {
-            AD_WARNING("map report recalculation requested, but it was used by {}", used_by_);
+            AD_ERROR("map report recalculation requested, but it was used by {}", used_by_);
             used_by_.clear();
         }
         if (layout.number_of_dimensions() != acmacs::number_of_dimensions_t{2})
@@ -78,16 +67,14 @@ void MapViewport::calculate(const acmacs::Layout& layout, std::string_view by)
         viewport_ = viewport;
         recalculate_ = false;
     }
-    else
-        AD_WARNING("redundant request of report recalculation by {}", by);
 
-} // MapViewport::calculate
+} // ChartDraw::MapViewport::calculate
 
 // ----------------------------------------------------------------------
 
 void ChartDraw::calculate_viewport(std::string_view by) const
 {
-    viewport_.calculate(*transformed_layout(), by);
+    viewport_.calculate(*transformed_layout());
 
 } // ChartDraw::calculate_viewport
 

@@ -124,27 +124,20 @@ bool acmacs::mapi::v1::Settings::apply_circle()
 {
     using namespace std::string_view_literals;
 
-    // const auto report_error = [](std::string_view key, const auto& value) { throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"{}\": {}", key, value)}; };
+    auto& circle = chart_draw().map_elements().add<map_elements::v2::Circle>();
 
-    try {
-        auto& circle = chart_draw().map_elements().add<map_elements::v2::Circle>();
+    if (const auto coord = ::read_coordinates(getenv("center"sv), *this); coord.has_value())
+        circle.center(*coord);
+    ::read_fill_outline(circle, getenv("fill"sv), getenv("outline"sv), getenv("outline_width"sv));
 
-        if (const auto coord = ::read_coordinates(getenv("center"sv), *this); coord.has_value())
-            circle.center(*coord);
-        ::read_fill_outline(circle, getenv("fill"sv), getenv("outline"sv), getenv("outline_width"sv));
+    if (const auto radius = ::read_from_number<Scaled>(getenv("radius"sv)); radius.has_value())
+        circle.radius(*radius);
+    if (const auto aspect = ::read_from_number<Aspect>(getenv("aspect"sv)); aspect.has_value())
+        circle.aspect(*aspect);
+    if (const auto rotation = ::read_from_number<Rotation>(getenv("rotation"sv)); rotation.has_value())
+        circle.rotation(*rotation);
 
-        if (const auto radius = ::read_from_number<Scaled>(getenv("radius"sv)); radius.has_value())
-            circle.radius(*radius);
-        if (const auto aspect = ::read_from_number<Aspect>(getenv("aspect"sv)); aspect.has_value())
-            circle.aspect(*aspect);
-        if (const auto rotation = ::read_from_number<Rotation>(getenv("rotation"sv)); rotation.has_value())
-            circle.rotation(*rotation);
-
-        return true;
-    }
-    catch (std::exception& err) {
-        throw acmacs::mapi::unrecognized{fmt::format("{} while reading {}", err, getenv_toplevel())};
-    }
+    return true;
 
 } // acmacs::mapi::v1::Settings::apply_circle
 
@@ -221,25 +214,20 @@ static inline map_elements::v2::ArrowData read_path_arrow(const rjson::v3::value
 bool acmacs::mapi::v1::Settings::apply_path()
 {
     using namespace std::string_view_literals;
-    try {
-        auto& path = chart_draw().map_elements().add<map_elements::v2::Path>();
-        ::read_path_data(path.data(), getenv("points"sv), getenv("close"sv), *this);
-        ::read_fill_outline(path, getenv("fill"sv), getenv("outline"sv), getenv("outline_width"sv));
+    auto& path = chart_draw().map_elements().add<map_elements::v2::Path>();
+    ::read_path_data(path.data(), getenv("points"sv), getenv("close"sv), *this);
+    ::read_fill_outline(path, getenv("fill"sv), getenv("outline"sv), getenv("outline_width"sv));
 
-        getenv("arrows"sv).visit([&path]<typename Val>(const Val& value) {
-            if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-                for (const auto& en : value)
-                    path.arrows().push_back(::read_path_arrow(en, path.data().vertices.size()));
-            }
-            else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
-                throw acmacs::mapi::unrecognized{fmt::format("cannot read path \"arrows\" from {}", value)};
-        });
+    getenv("arrows"sv).visit([&path]<typename Val>(const Val& value) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+            for (const auto& en : value)
+                path.arrows().push_back(::read_path_arrow(en, path.data().vertices.size()));
+        }
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
+            throw acmacs::mapi::unrecognized{fmt::format("cannot read path \"arrows\" from {}", value)};
+    });
 
-        return true;
-    }
-    catch (std::exception& err) {
-        throw acmacs::mapi::unrecognized{fmt::format("{} while reading {}", err, getenv_toplevel())};
-    }
+    return true;
 
 } // acmacs::mapi::v1::Settings::apply_path
 
@@ -278,7 +266,7 @@ void acmacs::mapi::v1::Settings::filter_inside_path(acmacs::chart::PointIndexLis
     ::read_path_vertices(path_vertices, points, *this);
     std::vector<acmacs::PointCoordinates> path;
     std::transform(std::begin(path_vertices), std::end(path_vertices), std::back_inserter(path), [this](const auto& vertex) { return vertex.get(chart_draw()); });
-    AD_DEBUG("filter_inside_path {}", path);
+    // AD_DEBUG("filter_inside_path {}", path);
 
     auto layout = chart_draw().transformed_layout();
     const auto outside = [index_base, &path, &layout](auto index) -> bool { return winding_number(layout->at(index + index_base), path) == 0; };
@@ -291,18 +279,13 @@ void acmacs::mapi::v1::Settings::filter_inside_path(acmacs::chart::PointIndexLis
 bool acmacs::mapi::v1::Settings::apply_rotate()
 {
     using namespace std::string_view_literals;
-    try {
-        if (const auto degrees = ::read_from_number<double>(getenv("degrees"sv)); degrees.has_value())
-            chart_draw().rotate(*degrees * std::acos(-1) / 180.0);
-        else if (const auto radians = ::read_from_number<double>(getenv("radians"sv)); radians.has_value())
-            chart_draw().rotate(*radians);
-        else
-            throw acmacs::mapi::unrecognized{"neither \"degrees\" nor \"radians\" found"};
-        return true;
-    }
-    catch (std::exception& err) {
-        throw acmacs::mapi::unrecognized{fmt::format("{} while reading {}", err, getenv_toplevel())};
-    }
+    if (const auto degrees = ::read_from_number<double>(getenv("degrees"sv)); degrees.has_value())
+        chart_draw().rotate(*degrees * std::acos(-1) / 180.0);
+    else if (const auto radians = ::read_from_number<double>(getenv("radians"sv)); radians.has_value())
+        chart_draw().rotate(*radians);
+    else
+        throw acmacs::mapi::unrecognized{"neither \"degrees\" nor \"radians\" found"};
+    return true;
 
 } // acmacs::mapi::v1::Settings::apply_rotate
 
@@ -311,23 +294,18 @@ bool acmacs::mapi::v1::Settings::apply_rotate()
 bool acmacs::mapi::v1::Settings::apply_flip()
 {
     using namespace std::string_view_literals;
-    try {
-        if (const auto direction = ::read_from_string(getenv("direction"sv)); direction.has_value()) {
-            if (*direction == "ew"sv)
-                chart_draw().flip(0, 1);
-            else if (*direction == "ns"sv)
-                chart_draw().flip(1, 0);
-            else
-                throw acmacs::mapi::unrecognized{"unrecognized \"direction\""};
-        }
+    if (const auto direction = ::read_from_string(getenv("direction"sv)); direction.has_value()) {
+        if (*direction == "ew"sv)
+            chart_draw().flip(0, 1);
+        else if (*direction == "ns"sv)
+            chart_draw().flip(1, 0);
         else
-            throw acmacs::mapi::unrecognized{"\"direction\" not found"};
+            throw acmacs::mapi::unrecognized{"unrecognized \"direction\""};
+    }
+    else
+        throw acmacs::mapi::unrecognized{"\"direction\" not found"};
 
-        return true;
-    }
-    catch (std::exception& err) {
-        throw acmacs::mapi::unrecognized{fmt::format("{} while reading {}", err, getenv_toplevel())};
-    }
+    return true;
 
 } // acmacs::mapi::v1::Settings::apply_flip
 
@@ -336,45 +314,109 @@ bool acmacs::mapi::v1::Settings::apply_flip()
 bool acmacs::mapi::v1::Settings::apply_viewport()
 {
     using namespace std::string_view_literals;
-    try {
-        bool updated{false};
-        getenv("abs"sv).visit([&updated, this]<typename Val>(const Val& value) {
-            if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-                if (value.size() != 3)
-                    throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {} (3 numbers expected)", value)};
-                chart_draw().viewport("mapi::v1::Settings::apply_viewport [abs]").set({value[0].template to<double>(), value[1].template to<double>()}, value[2].template to<double>());
-                updated = true;
-            }
-            else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
-                throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
-        });
+    bool updated{false};
+    getenv("abs"sv).visit([&updated, this]<typename Val>(const Val& value) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+            if (value.size() != 3)
+                throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {} (3 numbers expected)", value)};
+            chart_draw().set_viewport({value[0].template to<double>(), value[1].template to<double>()}, value[2].template to<double>());
+            updated = true;
+        }
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
+            throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
+    });
 
-        getenv("rel"sv).visit([&updated, this]<typename Val>(const Val& value) {
-            if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-                if (value.size() != 3)
-                    throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {} (3 numbers expected)", value)};
-                chart_draw().calculate_viewport("mapi::v1::Settings::apply_viewport [rel]");
-                const auto& orig_viewport = chart_draw().viewport("mapi::v1::Settings::apply_viewport [rel]");
-                const auto new_size = value[2].template to<double>() + orig_viewport.size.width;
-                if (new_size < 1)
-                    throw acmacs::mapi::unrecognized{"invalid size difference in \"rel\""};
-                chart_draw().set_viewport(orig_viewport.origin + acmacs::PointCoordinates{value[0].template to<double>(), value[1].template to<double>()}, new_size);
-                updated = true;
-            }
-            else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
-                throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
-        });
+    getenv("rel"sv).visit([&updated, this]<typename Val>(const Val& value) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+            if (value.size() != 3)
+                throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {} (3 numbers expected)", value)};
+            chart_draw().calculate_viewport("mapi::v1::Settings::apply_viewport [rel]");
+            const auto& orig_viewport = chart_draw().viewport_before_changing();
+            const auto new_size = value[2].template to<double>() + orig_viewport.size.width;
+            if (new_size < 1)
+                throw acmacs::mapi::unrecognized{"invalid size difference in \"rel\""};
+            chart_draw().set_viewport(orig_viewport.origin + acmacs::PointCoordinates{value[0].template to<double>(), value[1].template to<double>()}, new_size);
+            updated = true;
+        }
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
+            throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
+    });
 
-        if (!updated)
-            throw acmacs::mapi::unrecognized{"neither \"abs\" nor \"rel\" found"};
+    if (!updated)
+        throw acmacs::mapi::unrecognized{"neither \"abs\" nor \"rel\" found"};
 
-        return true;
-    }
-    catch (std::exception& err) {
-        throw acmacs::mapi::unrecognized{fmt::format("{} while reading {}", err, getenv_toplevel())};
-    }
+    return true;
 
 } // acmacs::mapi::v1::Settings::apply_viewport
+
+// ----------------------------------------------------------------------
+
+bool acmacs::mapi::v1::Settings::apply_background()
+{
+    using namespace std::string_view_literals;
+    if (const auto color = ::read_from_color(getenv("color"sv)); color.has_value())
+        chart_draw().background_color(*color);
+
+    return true;
+
+} // acmacs::mapi::v1::Settings::apply_background
+
+// ----------------------------------------------------------------------
+
+bool acmacs::mapi::v1::Settings::apply_border()
+{
+    using namespace std::string_view_literals;
+
+    Color border_color{BLACK};
+    if (const auto color = ::read_from_color(getenv("color"sv)); color.has_value())
+        border_color = *color;
+    double border_line_width{1.0};
+    if (const auto line_width = ::read_from_number<double>(getenv("line_width"sv)); line_width.has_value())
+        border_line_width = *line_width;
+    chart_draw().border(border_color, border_line_width);
+
+    return true;
+
+} // acmacs::mapi::v1::Settings::apply_border
+
+// ----------------------------------------------------------------------
+
+bool acmacs::mapi::v1::Settings::apply_grid()
+{
+    using namespace std::string_view_literals;
+
+    Color grid_color{0xCCCCCC}; // grey80
+    if (const auto color = ::read_from_color(getenv("color"sv)); color.has_value())
+        grid_color = *color;
+    double grid_line_width{1.0};
+    if (const auto line_width = ::read_from_number<double>(getenv("line_width"sv)); line_width.has_value())
+        grid_line_width = *line_width;
+
+    chart_draw().grid(grid_color, grid_line_width);
+
+    return true;
+
+} // acmacs::mapi::v1::Settings::apply_grid
+
+// ----------------------------------------------------------------------
+
+bool acmacs::mapi::v1::Settings::apply_point_scale()
+{
+    using namespace std::string_view_literals;
+
+    double point_scale{1.0};
+    if (const auto scale = ::read_from_number<double>(getenv("scale"sv)); scale.has_value())
+        point_scale = *scale;
+    double point_outline_scale{1.0};
+    if (const auto outline_scale = ::read_from_number<double>(getenv("outline_scale"sv)); outline_scale.has_value())
+        point_outline_scale = *outline_scale;
+
+    AD_DEBUG("apply_point_scale {} {}", point_scale, point_outline_scale);
+    chart_draw().scale_points(point_scale, point_outline_scale);
+
+    return true;
+
+} // acmacs::mapi::v1::Settings::apply_point_scale
 
 // ----------------------------------------------------------------------
 
