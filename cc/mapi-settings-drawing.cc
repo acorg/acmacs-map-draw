@@ -230,21 +230,44 @@ bool acmacs::mapi::v1::Settings::apply_path()
 
 // ----------------------------------------------------------------------
 
+// http://geomalgorithms.com/a03-_inclusion.html
+// returns winding number, i.e. 0 if point is outside polygon defined by path, non-zero otherwise
+static inline int winding_number(const acmacs::PointCoordinates& point, const std::vector<acmacs::PointCoordinates>& path)
+{
+    // >0 for point left of the line through p0 and p1
+    // =0 for point on the line
+    // <0 for point right of the line
+    const auto is_left = [&point](auto p0, auto p1) -> double { return ((p1->x() - p0->x()) * (point.y() - p0->y()) - (point.x() - p0->x()) * (p1->y() - p0->y())); };
+
+    int wn{0};
+    auto path_end = std::prev(path.end(), path.front() == path.back() ? 1 : 0);
+    for (auto vi = path.begin(); vi != path_end; ++vi) {
+        auto vi_next = std::next(vi);
+        if (vi_next == path_end)
+            vi_next = path.begin();
+        if (vi->y() <= point.y()) {
+            if (vi_next->y() > point.y() && is_left(vi, vi_next) > 0)
+                ++wn;
+        }
+        else {
+            if (vi_next->y() <= point.y() && is_left(vi, vi_next) < 0)
+                --wn;
+        }
+    }
+    return wn;
+}
+
 void acmacs::mapi::v1::Settings::filter_inside_path(acmacs::chart::PointIndexList& indexes, const rjson::v3::value& points, size_t index_base) const
 {
-    std::vector<map_elements::v2::Coordinates> path;
-    ::read_path_vertices(path, points, *this);
+    std::vector<map_elements::v2::Coordinates> path_vertices;
+    ::read_path_vertices(path_vertices, points, *this);
+    std::vector<acmacs::PointCoordinates> path;
+    std::transform(std::begin(path_vertices), std::end(path_vertices), std::back_inserter(path), [this](const auto& vertex) { return vertex.get(chart_draw()); });
+    AD_DEBUG("filter_inside_path {}", path);
+
     auto layout = chart_draw().transformed_layout();
-
-    const auto inside_path = [&path](const PointCoordinates& point) -> bool {
-        return false;
-    };
-
-    const auto not_inside = [index_base, inside_path, &layout](auto index) -> bool {
-        return !inside_path(layout->at(index + index_base));
-    };
-
-    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_inside), indexes.end());
+    const auto outside = [index_base, &path, &layout](auto index) -> bool { return winding_number(layout->at(index + index_base), path) == 0; };
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), outside), indexes.end());
 
 } // acmacs::mapi::v1::Settings::filter_inside_path
 

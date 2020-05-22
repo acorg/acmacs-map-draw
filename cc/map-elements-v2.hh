@@ -39,6 +39,8 @@ namespace map_elements::v2
         template <typename Src> Coordinates(const Src& src) : coordinates{src} {}
         acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
 
+        bool operator==(const Coordinates& rhs) const { return coordinates == rhs.coordinates; }
+
     }; // class Coordinates
 
     // ----------------------------------------------------------------------
