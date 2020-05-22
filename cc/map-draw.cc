@@ -134,7 +134,7 @@ int draw(const Options& opt)
         throw std::runtime_error{fmt::format(": {}   cannot apply: {} ... {}", err.what(), msg, add_double_quotes)};
     }
 
-    chart_draw.calculate_viewport();
+    chart_draw.calculate_viewport("map-draw main");
     AD_INFO("{}\n{}", chart_draw.viewport("map-draw main"), chart_draw.transformation());
 
     if (opt.output_pdf->empty()) {

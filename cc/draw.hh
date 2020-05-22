@@ -22,7 +22,7 @@ namespace acmacs::draw { class DrawElements; }
 class MapViewport
 {
   public:
-    void calculate(const acmacs::Layout& layout);
+    void calculate(const acmacs::Layout& layout, std::string_view by);
 
     void set(const acmacs::PointCoordinates& origin, double size);
     void set(const acmacs::Viewport& aViewport);
@@ -52,7 +52,7 @@ class ChartDraw : public ChartSelectInterface
     void draw(std::string_view aFilename, double aSize, report_time aTimer = report_time::no) const;
     std::string draw_json(report_time aTimer = report_time::no) const;
     std::string draw_pdf(double aSize, report_time aTimer = report_time::no) const;
-    void calculate_viewport() const;
+    void calculate_viewport(std::string_view by) const;
 
     template <typename T> void modify_drawing_order(const T& aPoints, PointDrawingOrder aPointDrawingOrder)
         {

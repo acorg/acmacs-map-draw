@@ -7,8 +7,8 @@ acmacs::PointCoordinates map_elements::v2::Coordinates::viewport::get(const Char
 {
     // if (float_zero(chart_draw.viewport("Coordinates::viewport::get").size.width))
     //     AD_ERROR("map_elements::v2::Coordinates::viewport::get called but viewport is not set");
-    chart_draw.calculate_viewport();
-    return chart_draw.viewport("Coordinates::viewport::get").origin + *this;
+    chart_draw.calculate_viewport("map_elements::v2::Coordinates::viewport::get");
+    return chart_draw.viewport("map_elements::v2::Coordinates::viewport::get").origin + *this;
 
 } // map_elements::v2::Coordinates::viewport::get
 

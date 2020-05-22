@@ -62,7 +62,7 @@ void MapViewport::set(const acmacs::Viewport& aViewport)
 
 // ----------------------------------------------------------------------
 
-void MapViewport::calculate(const acmacs::Layout& layout)
+void MapViewport::calculate(const acmacs::Layout& layout, std::string_view by)
 {
     if (recalculate_) {
         if (!used_by_.empty()) {
@@ -79,15 +79,15 @@ void MapViewport::calculate(const acmacs::Layout& layout)
         recalculate_ = false;
     }
     else
-        AD_WARNING("redundant request of report recalculation");
+        AD_WARNING("redundant request of report recalculation by {}", by);
 
 } // MapViewport::calculate
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::calculate_viewport() const
+void ChartDraw::calculate_viewport(std::string_view by) const
 {
-    viewport_.calculate(*transformed_layout());
+    viewport_.calculate(*transformed_layout(), by);
 
 } // ChartDraw::calculate_viewport
 

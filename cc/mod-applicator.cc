@@ -413,7 +413,7 @@ class ModViewport : public Mod
         else if (const auto& rel = args()["rel"]; !rel.is_null()) {
             if (rel.size() != 3)
                 throw unrecognized_mod{"\"rel\" must be array of 3 floats. mod: " + rjson::format(args())};
-            aChartDraw.calculate_viewport();
+            aChartDraw.calculate_viewport("ModViewport::apply");
             const auto& orig_viewport = aChartDraw.viewport("ModViewport::apply");
             const auto new_size = rel[2].to<double>() + orig_viewport.size.width;
             if (new_size < 1)
