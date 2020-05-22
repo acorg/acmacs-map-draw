@@ -1,4 +1,5 @@
 #include "acmacs-draw/draw-elements.hh"
+#include "acmacs-draw/draw-arrow.hh"
 #include "acmacs-map-draw/map-elements-v2.hh"
 #include "acmacs-map-draw/draw.hh"
 
@@ -66,10 +67,7 @@ void map_elements::v2::Path::draw(acmacs::draw::DrawElements& aDrawElements, con
 
     std::vector<acmacs::PointCoordinates> path;
     std::transform(std::begin(data().vertices), std::end(data().vertices), std::back_inserter(path), [&chart_draw](const auto& vertex) { return vertex.get(chart_draw); });
-    std::optional<Color> close_and_fill;
-    if (data().close)
-        close_and_fill = fill_;
-    aDrawElements.path(path, outline_, outline_width_, close_and_fill);
+    auto& path_element = aDrawElements.add<acmacs::draw::PathWithArrows>(path, data().close, fill_, outline_, outline_width_);
 
 } // map_elements::v2::Path::draw
 
