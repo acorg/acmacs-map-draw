@@ -161,7 +161,7 @@ static inline void read_path_vertices(map_elements::v2::PathData& path, const rj
 
 // ----------------------------------------------------------------------
 
-static inline map_elements::v2::ArrowData read_path_arrow(const rjson::v3::value& source)
+static inline map_elements::v2::ArrowData read_path_arrow(const rjson::v3::value& source, size_t path_size)
 {
     using namespace std::string_view_literals;
 
@@ -173,6 +173,9 @@ static inline map_elements::v2::ArrowData read_path_arrow(const rjson::v3::value
     if (const auto width = ::read_from_number<Pixels>(source["width"sv]); width.has_value())
         result.width(*width);
     ::read_fill_outline(result, source["fill"sv], source["outline"sv], source["outline_width"sv]);
+
+    if (!result.valid(path_size))
+        AD_WARNING("invalid path arrow specification: {} (path size: {})", source, path_size);
 
     return result;
 
@@ -191,7 +194,7 @@ bool acmacs::mapi::v1::Settings::apply_path()
         getenv("arrows"sv).visit([&path]<typename Val>(const Val& value) {
             if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
                 for (const auto& en : value)
-                    path.arrows().push_back(::read_path_arrow(en));
+                    path.arrows().push_back(::read_path_arrow(en, path.data().vertices.size()));
             }
             else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
                 throw acmacs::mapi::unrecognized{fmt::format("cannot read path \"arrows\" from {}", value)};
