@@ -96,7 +96,7 @@ class ChartDraw : public ChartSelectInterface
     void rotate(double aAngle);
     void flip(double aX, double aY);
 
-    void calculate_viewport(std::string_view by) const;
+    void calculate_viewport() const;
     const acmacs::Viewport& viewport(std::string_view by) const { return viewport_.use(by); }
     const acmacs::Viewport& viewport_before_changing() const { return viewport_.use_before_changing(); }
     void set_viewport(const acmacs::Viewport& viewport) { viewport_.set(viewport); }

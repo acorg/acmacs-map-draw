@@ -72,7 +72,7 @@ void ChartDraw::MapViewport::calculate(const acmacs::Layout& layout)
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::calculate_viewport(std::string_view by) const
+void ChartDraw::calculate_viewport() const
 {
     viewport_.calculate(*transformed_layout());
 

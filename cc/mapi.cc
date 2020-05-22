@@ -66,7 +66,7 @@ int main(int argc, char* const argv[])
             settings.apply(to_apply);
         }
 
-        chart_draw.calculate_viewport("mapi main");
+        chart_draw.calculate_viewport();
         AD_INFO("{:.2f}", chart_draw.viewport("mapi main"));
         AD_INFO("transformation: {}", chart_draw.transformation());
 

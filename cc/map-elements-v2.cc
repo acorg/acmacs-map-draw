@@ -5,7 +5,7 @@
 
 acmacs::PointCoordinates map_elements::v2::Coordinates::viewport::get(const ChartDraw& chart_draw) const
 {
-    chart_draw.calculate_viewport("map_elements::v2::Coordinates::viewport::get");
+    chart_draw.calculate_viewport();
     return chart_draw.viewport("map_elements::v2::Coordinates::viewport::get").origin + *this;
 
 } // map_elements::v2::Coordinates::viewport::get

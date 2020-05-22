@@ -66,7 +66,7 @@ int main(int argc, char* const argv[])
             throw std::runtime_error{fmt::format("{}", err)};
         }
 
-        chart_draw.calculate_viewport("map-hemisphering main");
+        chart_draw.calculate_viewport();
         AD_INFO("{}\n{}", chart_draw.viewport("map-hemisphering main"), chart_draw.transformation());
 
         if (opt.pdf) {

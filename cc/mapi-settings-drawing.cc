@@ -330,7 +330,7 @@ bool acmacs::mapi::v1::Settings::apply_viewport()
         if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
             if (value.size() != 3)
                 throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {} (3 numbers expected)", value)};
-            chart_draw().calculate_viewport("mapi::v1::Settings::apply_viewport [rel]");
+            chart_draw().calculate_viewport();
             const auto& orig_viewport = chart_draw().viewport_before_changing();
             const auto new_size = value[2].template to<double>() + orig_viewport.size.width;
             if (new_size < 1)
@@ -411,7 +411,6 @@ bool acmacs::mapi::v1::Settings::apply_point_scale()
     if (const auto outline_scale = ::read_from_number<double>(getenv("outline_scale"sv)); outline_scale.has_value())
         point_outline_scale = *outline_scale;
 
-    AD_DEBUG("apply_point_scale {} {}", point_scale, point_outline_scale);
     chart_draw().scale_points(point_scale, point_outline_scale);
 
     return true;
