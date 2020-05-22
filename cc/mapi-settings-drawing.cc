@@ -135,13 +135,13 @@ bool acmacs::mapi::v1::Settings::apply_circle()
 
 // ----------------------------------------------------------------------
 
-static inline void read_path_vertices(map_elements::v2::PathData& path, const rjson::v3::value& points, const rjson::v3::value& close, const acmacs::mapi::v1::Settings& settings)
+static inline void read_path_vertices(std::vector<map_elements::v2::Coordinates>& path, const rjson::v3::value& points, const acmacs::mapi::v1::Settings& settings)
 {
     points.visit([&path, &settings]<typename Val>(const Val& value) {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
             for (const auto& en : value) {
                 if (const auto coord = ::read_coordinates(en, settings); coord.has_value())
-                    path.vertices.push_back(std::move(*coord));
+                    path.push_back(std::move(*coord));
                 else
                     throw acmacs::mapi::unrecognized{fmt::format("cannot read vertex from {}", value)};
             }
@@ -150,6 +150,26 @@ static inline void read_path_vertices(map_elements::v2::PathData& path, const rj
             throw acmacs::mapi::unrecognized{fmt::format("cannot read path vertex from {}", value)};
     });
 
+} // read_path_vertices
+
+// ----------------------------------------------------------------------
+
+static inline void read_path_data(map_elements::v2::PathData& path, const rjson::v3::value& points, const rjson::v3::value& close, const acmacs::mapi::v1::Settings& settings)
+{
+    read_path_vertices(path.vertices, points, settings);
+    // points.visit([&path, &settings]<typename Val>(const Val& value) {
+    //     if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+    //         for (const auto& en : value) {
+    //             if (const auto coord = ::read_coordinates(en, settings); coord.has_value())
+    //                 path.vertices.push_back(std::move(*coord));
+    //             else
+    //                 throw acmacs::mapi::unrecognized{fmt::format("cannot read vertex from {}", value)};
+    //         }
+    //     }
+    //     else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
+    //         throw acmacs::mapi::unrecognized{fmt::format("cannot read path vertex from {}", value)};
+    // });
+
     close.visit([&path]<typename Val>(const Val& value) {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::boolean> || std::is_same_v<Val, rjson::v3::detail::number>)
             path.close = value.template to<bool>();
@@ -157,7 +177,7 @@ static inline void read_path_vertices(map_elements::v2::PathData& path, const rj
             throw acmacs::mapi::unrecognized{fmt::format("cannot read path \"close\" from {}", value)};
     });
 
-} // read_path_vertices
+} // read_path_data
 
 // ----------------------------------------------------------------------
 
@@ -188,7 +208,7 @@ bool acmacs::mapi::v1::Settings::apply_path()
     using namespace std::string_view_literals;
     try {
         auto& path = chart_draw().map_elements().add<map_elements::v2::Path>();
-        ::read_path_vertices(path.data(), getenv("points"sv), getenv("close"sv), *this);
+        ::read_path_data(path.data(), getenv("points"sv), getenv("close"sv), *this);
         ::read_fill_outline(path, getenv("fill"sv), getenv("outline"sv), getenv("outline_width"sv));
 
         getenv("arrows"sv).visit([&path]<typename Val>(const Val& value) {
@@ -207,6 +227,16 @@ bool acmacs::mapi::v1::Settings::apply_path()
     }
 
 } // acmacs::mapi::v1::Settings::apply_path
+
+// ----------------------------------------------------------------------
+
+void acmacs::mapi::v1::Settings::filter_inside_path(acmacs::chart::PointIndexList& indexes, const rjson::v3::value& points, size_t index_base) const
+{
+    std::vector<map_elements::v2::Coordinates> path;
+    ::read_path_vertices(path, points, *this);
+    // *chart_draw().transformed_layout()
+
+} // acmacs::mapi::v1::Settings::filter_inside_path
 
 // ----------------------------------------------------------------------
 

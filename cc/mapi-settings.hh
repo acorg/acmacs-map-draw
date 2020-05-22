@@ -13,6 +13,11 @@ namespace acmacs::chart
 
 class ChartDraw;
 
+namespace rjson::v3
+{
+    class value;
+};
+
 // ----------------------------------------------------------------------
 
 namespace acmacs::mapi::inline v1
@@ -42,6 +47,8 @@ namespace acmacs::mapi::inline v1
 
         constexpr const ChartDraw& chart_draw() const { return chart_draw_; }
 
+        void filter_inside_path(acmacs::chart::PointIndexList& indexes, const rjson::v3::value& points, size_t index_base) const; // mapi-settings-drawing.cc
+
       private:
         ChartDraw& chart_draw_;
 
@@ -54,6 +61,8 @@ namespace acmacs::mapi::inline v1
 
         bool apply_antigens();
         bool apply_sera();
+        template <typename AgSr> acmacs::chart::PointIndexList select(const AgSr& ag_sr, const rjson::v3::value& select_clause) const;
+        template <typename AgSr> void check_titrated_against(acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value) const;
 
         PointDrawingOrder drawing_order_from_toplevel_environment() const;
 
@@ -83,6 +92,7 @@ namespace acmacs::mapi::inline v1
         bool apply_circle();
         bool apply_path();
     };
+
 
 } // namespace acmacs::mapi::inline v1
 
