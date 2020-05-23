@@ -411,8 +411,15 @@ bool acmacs::mapi::v1::Settings::apply_connection_lines()
 {
     using namespace std::string_view_literals;
 
-    auto antigen_indexes = select_antigens(getenv("antigens"sv));
-    auto serum_indexes = select_sera(getenv("sera"sv));
+    acmacs::chart::PointIndexList antigen_indexes, serum_indexes;
+    if (const auto& antigens_v = getenv("antigens"sv); !antigens_v.is_null())
+        antigen_indexes = select_antigens(antigens_v);
+    else
+        antigen_indexes = chart_draw().chart().antigens()->all_indexes();
+    if (const auto& sera_v = getenv("sera"sv); !sera_v.is_null())
+        serum_indexes = select_sera(sera_v);
+    else
+        serum_indexes = chart_draw().chart().sera()->all_indexes();
 
     const auto number_of_antigens = chart_draw().chart().number_of_antigens();
     auto layout = chart_draw().layout();
@@ -473,6 +480,8 @@ bool acmacs::mapi::v1::Settings::apply_connection_lines()
 bool acmacs::mapi::v1::Settings::apply_error_lines()
 {
     // {"N": "error_lines", "antigens": {<select>}, "sera": {<select>}, "line_width": 1, "report": false},
+
+    return true;
 
 } // acmacs::mapi::v1::Settings::apply_error_lines
 
