@@ -565,14 +565,14 @@ template <typename AgSr> void acmacs::mapi::v1::Settings::check_titrated_against
     using namespace std::string_view_literals;
 
     if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
-        const auto serum_indexes = select(*chart_draw().chart().sera(), value);
+        const auto serum_indexes = select(*chart_draw().chart().sera(), value, if_null::raise);
         if (key[0] == 't')
             acmacs::map_draw::select::filter::antigens_titrated_against(chart_draw(), indexes, serum_indexes);
         else
             acmacs::map_draw::select::filter::antigens_not_titrated_against(chart_draw(), indexes, serum_indexes);
     }
     else {
-        const auto antigen_indexes = select(*chart_draw().chart().antigens(), value);
+        const auto antigen_indexes = select(*chart_draw().chart().antigens(), value, if_null::raise);
         if (key[0] == 't')
             acmacs::map_draw::select::filter::sera_titrated_against(chart_draw(), antigen_indexes, indexes);
         else
@@ -616,107 +616,118 @@ template <typename AgSr> static inline void check_inside(const acmacs::mapi::v1:
 
 // ----------------------------------------------------------------------
 
-template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select(const AgSr& ag_sr, const rjson::v3::value& select_clause) const
+template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select(const AgSr& ag_sr, const rjson::v3::value& select_clause, if_null ifnull) const
 {
     using namespace std::string_view_literals;
 
-    if (!select_clause.is_null()) {
-        auto indexes = ag_sr.all_indexes();
-        bool report{false};
-        size_t report_threshold{20};
+    auto indexes = ag_sr.all_indexes();
+    bool report{false};
+    size_t report_threshold{20};
 
-        try {
-            select_clause.visit([&indexes, &ag_sr, &report, &report_threshold, this]<typename Value>(const Value& select_clause_v) {
-                if constexpr (std::is_same_v<Value, rjson::v3::detail::string>) {
-                    if (check_reference(ag_sr, indexes, select_clause_v.template to<std::string_view>(), rjson::v3::const_true))
-                        ; // processed
-                    else if (check_passage(ag_sr, indexes, select_clause_v.template to<std::string_view>(), rjson::v3::const_true, throw_if_unprocessed::no))
-                        ; // processed
-                    else
-                        throw acmacs::mapi::unrecognized{};
-                }
-                else if constexpr (std::is_same_v<Value, rjson::v3::detail::object>) {
-                    for (const auto& [key, value] : select_clause_v) {
-                        if (check_reference(ag_sr, indexes, key, value))
-                            ; // processed
-                        else if (key == "date"sv || key == "dates"sv || key == "date_range"sv)
-                            check_date(chart_draw().chart(), ag_sr, indexes, key, value);
-                        else if (key == "index"sv || key == "indexes"sv || key == "indices"sv)
-                            check_index(ag_sr, indexes, key, value);
-                        else if (key == "name"sv || key == "names"sv)
-                            check_name(ag_sr, indexes, key, value);
-                        else if (key == "passage"sv)
-                            check_passage(ag_sr, indexes, key, value, throw_if_unprocessed::yes);
-                        else if (key == "sequenced"sv || key == "clade"sv || key == "clades"sv || key == "amino_acid"sv || key == "amino_acids"sv || key == "amino-acid"sv || key == "amino-acids"sv)
-                            check_sequence(chart_draw(), ag_sr, indexes, key, value);
-                        else if (key == "lab"sv || key == "labs"sv)
-                            check_lab(chart_draw().chart(), indexes, key, value);
-                        else if (key == "lineage"sv)
-                            check_lineage(chart_draw().chart(), indexes, key, value);
-                        else if (key == "fill"sv || key == "outline"sv || key == "outline-width"sv || key == "outline_width"sv)
-                            check_color(chart_draw(), indexes, key, value);
-                        else if (key == "exclude-distinct"sv || key == "exclude_distinct"sv)
-                            acmacs::map_draw::select::filter::out_distinct_in(ag_sr, indexes);
-                        else if (key == "serum-id"sv || key == "serum_id"sv) {
-                            if constexpr (std::is_same_v<AgSr, acmacs::chart::Sera>)
-                                acmacs::map_draw::select::filter::serum_id_in(ag_sr, indexes, value.template to<std::string_view>());
-                            else
-                                AD_WARNING("\"select\" key: \"{}\" not applicable for antigens", key);
-                        }
-                        else if (key == "layer"sv || key == "layers"sv || key == "table"sv || key == "tables"sv)
-                            check_layer<AgSr>(chart_draw().chart(), indexes, key, value);
-                        else if (key == "titrated-against-sera"sv || key == "titrated-against-antigens"sv || key == "titrated-against"sv || key == "not-titrated-against-sera"sv ||
-                                 key == "not-titrated-against-antigens"sv || key == "not-titrated-against"sv)
-                            check_titrated_against<AgSr>(indexes, key, value);
-                        else if (key == "report"sv)
-                            report = value.template to<bool>();
-                        else if (key == "report-threshold"sv || key == "report_threshold"sv)
-                            report_threshold = value.template to<size_t>();
-                        else if (key == "country"sv || key == "countries"sv || key == "continent"sv || key == "continents"sv || key == "location"sv || key == "locations"sv)
-                            check_location(ag_sr, indexes, key, value);
-                        else if (key == "inside"sv)
-                            check_inside<AgSr>(*this, indexes, key, value);
-                        else if (!key.empty() && key[0] != '?')
-                            AD_WARNING("unrecognized \"select\" key: \"{}\"", key);
-                    }
-                }
+    try {
+        select_clause.visit([&indexes, &ag_sr, &report, &report_threshold, ifnull, this]<typename Value>(const Value& select_clause_v) {
+            if constexpr (std::is_same_v<Value, rjson::v3::detail::string>) {
+                if (check_reference(ag_sr, indexes, select_clause_v.template to<std::string_view>(), rjson::v3::const_true))
+                    ; // processed
+                else if (check_passage(ag_sr, indexes, select_clause_v.template to<std::string_view>(), rjson::v3::const_true, throw_if_unprocessed::no))
+                    ; // processed
                 else
                     throw acmacs::mapi::unrecognized{};
-            });
-        }
-        catch (std::exception& err) {
-            throw acmacs::mapi::unrecognized{AD_FORMAT("unrecognized \"select\" clause: {}: {}", select_clause, err)};
-        }
-        if (report) {
-            if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
-                AD_INFO("{} antigens selected with {}", indexes.size(), select_clause);
-                report_antigens(indexes, chart_draw(), report_threshold);
             }
-            else {
-                AD_INFO("{} sera selected with {}", indexes.size(), select_clause);
-                report_sera(indexes, chart_draw(), report_threshold);
+            else if constexpr (std::is_same_v<Value, rjson::v3::detail::object>) {
+                for (const auto& [key, value] : select_clause_v) {
+                    if (check_reference(ag_sr, indexes, key, value))
+                        ; // processed
+                    else if (key == "date"sv || key == "dates"sv || key == "date_range"sv)
+                        check_date(chart_draw().chart(), ag_sr, indexes, key, value);
+                    else if (key == "index"sv || key == "indexes"sv || key == "indices"sv)
+                        check_index(ag_sr, indexes, key, value);
+                    else if (key == "name"sv || key == "names"sv)
+                        check_name(ag_sr, indexes, key, value);
+                    else if (key == "passage"sv)
+                        check_passage(ag_sr, indexes, key, value, throw_if_unprocessed::yes);
+                    else if (key == "sequenced"sv || key == "clade"sv || key == "clades"sv || key == "amino_acid"sv || key == "amino_acids"sv || key == "amino-acid"sv || key == "amino-acids"sv)
+                        check_sequence(chart_draw(), ag_sr, indexes, key, value);
+                    else if (key == "lab"sv || key == "labs"sv)
+                        check_lab(chart_draw().chart(), indexes, key, value);
+                    else if (key == "lineage"sv)
+                        check_lineage(chart_draw().chart(), indexes, key, value);
+                    else if (key == "fill"sv || key == "outline"sv || key == "outline-width"sv || key == "outline_width"sv)
+                        check_color(chart_draw(), indexes, key, value);
+                    else if (key == "exclude-distinct"sv || key == "exclude_distinct"sv)
+                        acmacs::map_draw::select::filter::out_distinct_in(ag_sr, indexes);
+                    else if (key == "serum-id"sv || key == "serum_id"sv) {
+                        if constexpr (std::is_same_v<AgSr, acmacs::chart::Sera>)
+                            acmacs::map_draw::select::filter::serum_id_in(ag_sr, indexes, value.template to<std::string_view>());
+                        else
+                            AD_WARNING("\"select\" key: \"{}\" not applicable for antigens", key);
+                    }
+                    else if (key == "layer"sv || key == "layers"sv || key == "table"sv || key == "tables"sv)
+                        check_layer<AgSr>(chart_draw().chart(), indexes, key, value);
+                    else if (key == "titrated-against-sera"sv || key == "titrated-against-antigens"sv || key == "titrated-against"sv || key == "not-titrated-against-sera"sv ||
+                             key == "not-titrated-against-antigens"sv || key == "not-titrated-against"sv)
+                        check_titrated_against<AgSr>(indexes, key, value);
+                    else if (key == "report"sv)
+                        report = value.template to<bool>();
+                    else if (key == "report-threshold"sv || key == "report_threshold"sv)
+                        report_threshold = value.template to<size_t>();
+                    else if (key == "country"sv || key == "countries"sv || key == "continent"sv || key == "continents"sv || key == "location"sv || key == "locations"sv)
+                        check_location(ag_sr, indexes, key, value);
+                    else if (key == "inside"sv)
+                        check_inside<AgSr>(*this, indexes, key, value);
+                    else if (!key.empty() && key[0] != '?')
+                        AD_WARNING("unrecognized \"select\" key: \"{}\"", key);
+                }
             }
-        }
-        return indexes;
+            else if constexpr (std::is_same_v<Value, rjson::v3::detail::null>) {
+                switch (ifnull) {
+                    case if_null::empty:
+                        indexes.clear();
+                        break;
+                    case if_null::warn_empty:
+                        AD_WARNING("no antigens sera selected because no select clause present");
+                        indexes.clear();
+                        break;
+                    case if_null::raise:
+                        throw acmacs::mapi::unrecognized{};
+                    case if_null::all:
+                        break;
+                }
+            }
+            else
+                throw acmacs::mapi::unrecognized{};
+        });
     }
-    else
-        throw acmacs::mapi::unrecognized{"no \"select\" clause"};
+    catch (std::exception& err) {
+        throw acmacs::mapi::unrecognized{AD_FORMAT("unrecognized \"select\" clause: {}: {}", select_clause, err)};
+    }
+    if (report) {
+        if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
+            AD_INFO("{} antigens selected with {}", indexes.size(), select_clause);
+            report_antigens(indexes, chart_draw(), report_threshold);
+        }
+        else {
+            AD_INFO("{} sera selected with {}", indexes.size(), select_clause);
+            report_sera(indexes, chart_draw(), report_threshold);
+        }
+    }
+    return indexes;
 
 } // acmacs::mapi::v1::Settings::select
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens(const rjson::v3::value& select_clause) const
+acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens(const rjson::v3::value& select_clause, if_null ifnull) const
 {
-    return select(*chart_draw().chart().antigens(), select_clause);
+    return select(*chart_draw().chart().antigens(), select_clause, ifnull);
 
 } // acmacs::mapi::v1::Settings::select_antigens
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_sera(const rjson::v3::value& select_clause) const
+acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_sera(const rjson::v3::value& select_clause, if_null ifnull) const
 {
-    return select(*chart_draw().chart().sera(), select_clause);
+    return select(*chart_draw().chart().sera(), select_clause, ifnull);
 
 } // acmacs::mapi::v1::Settings::select_sera
 

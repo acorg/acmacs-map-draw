@@ -411,16 +411,8 @@ bool acmacs::mapi::v1::Settings::apply_connection_lines()
 {
     using namespace std::string_view_literals;
 
-    acmacs::chart::PointIndexList antigen_indexes, serum_indexes;
-    if (const auto& antigens_v = getenv("antigens"sv); !antigens_v.is_null())
-        antigen_indexes = select_antigens(antigens_v);
-    else
-        antigen_indexes = chart_draw().chart().antigens()->all_indexes();
-    if (const auto& sera_v = getenv("sera"sv); !sera_v.is_null())
-        serum_indexes = select_sera(sera_v);
-    else
-        serum_indexes = chart_draw().chart().sera()->all_indexes();
-
+    auto antigen_indexes = select_antigens(getenv("antigens"sv), if_null::all);
+    auto serum_indexes = select_sera(getenv("sera"sv), if_null::all);
     const auto number_of_antigens = chart_draw().chart().number_of_antigens();
     auto layout = chart_draw().layout();
     antigen_indexes.remove_if([&layout](size_t index) { return !layout->point_has_coordinates(index); });
@@ -453,25 +445,6 @@ bool acmacs::mapi::v1::Settings::apply_connection_lines()
         AD_INFO("connection lines: ({}) {}", lines_to_draw.size(), lines_to_draw);
 
     return true;
-
-    // {"N": "connection_lines", "antigens": {<select>}, "sera": {<select>}, "color": "grey", "line_width": 1},
-
-    // const auto [antigen_indexes, serum_indexes] = select_antigens_sera_for_connection_lines(aChartDraw, args()["antigens"], args()["sera"]);
-
-    // const Color line_color{rjson::get_or(args(), "color", "black")};
-    // const double line_width{rjson::get_or(args(), "line_width", 1.0)};
-
-    // auto layout = aChartDraw.transformed_layout();
-    // auto titers = aChartDraw.chart().titers();
-    // for (const auto ag_no : antigen_indexes) {
-    //     for (const auto sr_no : serum_indexes) {
-    //         if (const auto titer = titers->titer(ag_no, sr_no); !titer.is_dont_care()) {
-    //             // std::cerr << "DEBUG: " << ag_no << ' ' << sr_no << ' ' << titer << '\n';
-    //             if (const auto from = layout->at(ag_no), to = layout->at(sr_no + aChartDraw.number_of_antigens()); from.exists() && to.exists())
-    //                 aChartDraw.line(from, to).color(line_color).line_width(line_width);
-    //         }
-    //     }
-    // }
 
 } // acmacs::mapi::v1::Settings::apply_connection_lines
 

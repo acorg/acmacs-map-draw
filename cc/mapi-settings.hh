@@ -42,8 +42,9 @@ namespace acmacs::mapi::inline v1
         void load(const std::vector<std::string_view>& setting_files, const std::vector<std::string_view>& defines);
         bool apply_built_in(std::string_view name) override; // returns true if built-in command with that name found and applied
 
-        acmacs::chart::PointIndexList select_antigens(const rjson::v3::value& select_clause) const;
-        acmacs::chart::PointIndexList select_sera(const rjson::v3::value& select_clause) const;
+        enum class if_null { empty, warn_empty, raise, all }; // return empty, return empty and print warning, throw exception, return all indexes
+        acmacs::chart::PointIndexList select_antigens(const rjson::v3::value& select_clause, if_null ifnull = if_null::raise) const;
+        acmacs::chart::PointIndexList select_sera(const rjson::v3::value& select_clause, if_null ifnull = if_null::raise) const;
 
         constexpr ChartDraw& chart_draw() const { return chart_draw_; }
 
@@ -59,7 +60,7 @@ namespace acmacs::mapi::inline v1
 
         bool apply_antigens();
         bool apply_sera();
-        template <typename AgSr> acmacs::chart::PointIndexList select(const AgSr& ag_sr, const rjson::v3::value& select_clause) const;
+        template <typename AgSr> acmacs::chart::PointIndexList select(const AgSr& ag_sr, const rjson::v3::value& select_clause, if_null ifnull) const;
         template <typename AgSr> void check_titrated_against(acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value) const;
 
         PointDrawingOrder drawing_order_from_toplevel_environment() const;
