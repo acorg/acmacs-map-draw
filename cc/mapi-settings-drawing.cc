@@ -32,7 +32,7 @@ static inline std::optional<map_elements::v2::Coordinates> read_coordinates(cons
         if (const auto& v_val = obj["v"sv]; !v_val.is_null())
             return map_elements::v2::Coordinates::viewport{read_values(v_val)};
         else if (const auto& l_val = obj["l"sv]; !l_val.is_null())
-            return map_elements::v2::Coordinates::layout{read_values(l_val)};
+            return map_elements::v2::Coordinates::not_transformed{read_values(l_val)};
         else if (const auto& t_val = obj["t"sv]; !t_val.is_null())
             return map_elements::v2::Coordinates::transformed{read_values(t_val)};
         else if (const auto& a_val = obj["a"sv]; !a_val.is_null())

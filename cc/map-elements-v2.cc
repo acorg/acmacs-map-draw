@@ -12,11 +12,11 @@ acmacs::PointCoordinates map_elements::v2::Coordinates::viewport::get(const Char
 
 // ----------------------------------------------------------------------
 
-acmacs::PointCoordinates map_elements::v2::Coordinates::layout::get(const ChartDraw& /*chart_draw*/) const
+acmacs::PointCoordinates map_elements::v2::Coordinates::not_transformed::get(const ChartDraw& /*chart_draw*/) const
 {
     return *this;
 
-} // map_elements::v2::Coordinates::layout::get
+} // map_elements::v2::Coordinates::not_transformed::get
 
 // ----------------------------------------------------------------------
 

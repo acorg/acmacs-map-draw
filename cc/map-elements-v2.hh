@@ -16,7 +16,7 @@ namespace map_elements::v2
             acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
         };
 
-        struct layout : public acmacs::PointCoordinates
+        struct not_transformed : public acmacs::PointCoordinates
         {
             acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
         };
@@ -34,7 +34,7 @@ namespace map_elements::v2
             acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
         };
 
-        using coordinates_t = std::variant<viewport, layout, transformed, points>;
+        using coordinates_t = std::variant<viewport, not_transformed, transformed, points>;
 
         coordinates_t coordinates;
 
@@ -63,7 +63,7 @@ namespace map_elements::v2
         void center(const Coordinates& center) { center_ = center; }
 
       protected:
-        Coordinates center_{Coordinates::layout{acmacs::PointCoordinates{0.0, 0.0}}};
+        Coordinates center_{Coordinates::transformed{acmacs::PointCoordinates{0.0, 0.0}}};
         Scaled radius_{1.0};
         acmacs::color::Modifier fill_{TRANSPARENT};
         acmacs::color::Modifier outline_{PINK};
