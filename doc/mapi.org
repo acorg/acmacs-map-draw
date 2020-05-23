@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-23 17:26:54 eu>
+# Time-stamp: <2020-05-23 18:01:39 eu>
 
 * TODO
 
@@ -245,8 +245,8 @@ http://geomalgorithms.com/a03-_inclusion.html
 * TODO Move
 
 #+BEGIN_SRC json
-# {"N": "move_antigens", "select": {"reference": true}, "?to": [5, 5], "?relative": [1, 1], "?to_antigen": {"index": 10}, "?to_serum": {"index": 10}, "flip_over_line": {"from": [0, 0], "to": [1, 1], "transform": false}, "?flip_over_serum_line": 1, "report": true, "?flip_over_serum_line": "scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)"},
-# {"N": "move_sera", "select": {"all": true}, "?to": [5, 5], "?relative": [1, 1], "?to_antigen": {"index": 10}, "to_serum": {"index": 1}, "flip_over_line": {"from": [0, 0], "to": [1, 1], "transform": false}, "report": true},
+# {"N": "move_antigens", "select": {"reference": true}, "?to": <point>, "?relative": [1, 1], "flip_over_line": {"from": <point>, "to": <point>}, "?flip_over_serum_line": 1, "report": true, "?flip_over_serum_line": "scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)"},
+# {"N": "move_sera", "select": {"reference": true}, "?to": <point>, "?relative": [1, 1], "flip_over_line": {"from": <point>, "to": <point>}, "?flip_over_serum_line": 1, "report": true, "?flip_over_serum_line": "scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)"},
 # {"N": "move_antigens_stress", "select": {"reference": true}, "?to": [5, 5], "?relative": [1, 1], "?fill": "pink", "?outline": "grey", "?order": "raise", "?size": 1, "report": true},
 #+END_SRC
 
