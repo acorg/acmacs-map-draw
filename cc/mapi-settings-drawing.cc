@@ -77,6 +77,21 @@ template <typename Target> static inline std::optional<Target> read_from_number(
 
 // ----------------------------------------------------------------------
 
+template <typename Target> static Target read_from_number(const rjson::v3::value& source, Target&& dflt)
+{
+    return source.visit([&dflt]<typename Val>(const Val& value) -> Target {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::number>)
+            return value.template to<Target>();
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>)
+            return std::forward<Target>(dflt);
+        else
+            throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
+    });
+
+} // read_from_number
+
+// ----------------------------------------------------------------------
+
 static inline std::optional<acmacs::color::Modifier> read_from_color(const rjson::v3::value& source)
 {
     return source.visit([]<typename Val>(const Val& value) -> std::optional<acmacs::color::Modifier> {
@@ -88,7 +103,7 @@ static inline std::optional<acmacs::color::Modifier> read_from_color(const rjson
             throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
     });
 
-} // read_from_number
+} // read_from_color
 
 // ----------------------------------------------------------------------
 
@@ -103,7 +118,7 @@ static inline acmacs::color::Modifier read_from_color_or_empty(const rjson::v3::
             throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
     });
 
-} // read_from_number
+} // read_from_color_or_empty
 
 // ----------------------------------------------------------------------
 
@@ -367,12 +382,7 @@ bool acmacs::mapi::v1::Settings::apply_background()
 bool acmacs::mapi::v1::Settings::apply_border()
 {
     using namespace std::string_view_literals;
-
-    double border_line_width{1.0};
-    if (const auto line_width = ::read_from_number<double>(getenv("line_width"sv)); line_width.has_value())
-        border_line_width = *line_width;
-    chart_draw().border(acmacs::color::Modifier{BLACK, ::read_from_color_or_empty(getenv("color"sv))}, border_line_width);
-
+    chart_draw().border(acmacs::color::Modifier{BLACK, ::read_from_color_or_empty(getenv("color"sv))}, ::read_from_number(getenv("line_width"sv), 1.0));
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_border
@@ -382,13 +392,7 @@ bool acmacs::mapi::v1::Settings::apply_border()
 bool acmacs::mapi::v1::Settings::apply_grid()
 {
     using namespace std::string_view_literals;
-
-    double grid_line_width{1.0};
-    if (const auto line_width = ::read_from_number<double>(getenv("line_width"sv)); line_width.has_value())
-        grid_line_width = *line_width;
-
-    chart_draw().grid(acmacs::color::Modifier{Color{0xCCCCCC} /* grey80 */, ::read_from_color_or_empty(getenv("color"sv))}, grid_line_width);
-
+    chart_draw().grid(acmacs::color::Modifier{Color{0xCCCCCC} /* grey80 */, ::read_from_color_or_empty(getenv("color"sv))}, ::read_from_number(getenv("line_width"sv), 1.0));
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_grid
@@ -398,16 +402,7 @@ bool acmacs::mapi::v1::Settings::apply_grid()
 bool acmacs::mapi::v1::Settings::apply_point_scale()
 {
     using namespace std::string_view_literals;
-
-    double point_scale{1.0};
-    if (const auto scale = ::read_from_number<double>(getenv("scale"sv)); scale.has_value())
-        point_scale = *scale;
-    double point_outline_scale{1.0};
-    if (const auto outline_scale = ::read_from_number<double>(getenv("outline_scale"sv)); outline_scale.has_value())
-        point_outline_scale = *outline_scale;
-
-    chart_draw().scale_points(point_scale, point_outline_scale);
-
+    chart_draw().scale_points(::read_from_number(getenv("scale"sv), 1.0), ::read_from_number(getenv("outline_scale"sv), 1.0));
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_point_scale
@@ -425,11 +420,12 @@ bool acmacs::mapi::v1::Settings::apply_connection_lines()
     antigen_indexes.remove_if([&layout](size_t index) { return !layout->point_has_coordinates(index); });
     serum_indexes.remove_if([&layout, number_of_antigens](size_t index) { return !layout->point_has_coordinates(index + number_of_antigens); });
 
-    acmacs::color::Modifier connection_line_color{GREY, ::read_from_color_or_empty(getenv("color"sv))};
-    Pixels connection_line_width{1.0};
-    if (const auto line_width = ::read_from_number<Pixels>(getenv("line_width"sv)); line_width.has_value())
-        connection_line_width = *line_width;
-    const bool report = getenv("report"sv).to<bool>();
+    const acmacs::color::Modifier connection_line_color{GREY, ::read_from_color_or_empty(getenv("color"sv))};
+    const auto connection_line_width{::read_from_number(getenv("line_width"sv), Pixels{0.5})};
+    // Pixels connection_line_width{1.0};
+    // if (const auto line_width = ::read_from_number<Pixels>(getenv("line_width"sv)); line_width.has_value())
+    //     connection_line_width = *line_width;
+    // const bool report = getenv("report"sv).to<bool>();
 
     std::vector<std::pair<size_t, size_t>> lines_to_draw;
     auto titers = chart_draw().chart().titers();
@@ -446,7 +442,7 @@ bool acmacs::mapi::v1::Settings::apply_connection_lines()
             }
         }
     }
-    if (report)
+    if (getenv("report"sv).to<bool>())
         AD_INFO("connection lines: ({}) {}", lines_to_draw.size(), lines_to_draw);
 
     return true;
@@ -464,8 +460,8 @@ bool acmacs::mapi::v1::Settings::apply_error_lines()
     auto serum_indexes = select_sera(getenv("sera"sv), if_null::all);
     const auto number_of_antigens = chart_draw().chart().number_of_antigens();
 
-    acmacs::color::Modifier more{RED, ::read_from_color_or_empty(getenv("more"sv))};
-    acmacs::color::Modifier less{BLUE, ::read_from_color_or_empty(getenv("less"sv))};
+    const acmacs::color::Modifier more{RED, ::read_from_color_or_empty(getenv("more"sv))};
+    const acmacs::color::Modifier less{BLUE, ::read_from_color_or_empty(getenv("less"sv))};
 
     return true;
 
