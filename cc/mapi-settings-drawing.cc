@@ -92,6 +92,21 @@ static inline std::optional<acmacs::color::Modifier> read_from_color(const rjson
 
 // ----------------------------------------------------------------------
 
+static inline acmacs::color::Modifier read_from_color_or_empty(const rjson::v3::value& source)
+{
+    return source.visit([]<typename Val>(const Val& value) -> acmacs::color::Modifier {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
+            return value.template to<std::string_view>();
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>)
+            return {};
+        else
+            throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
+    });
+
+} // read_from_number
+
+// ----------------------------------------------------------------------
+
 static inline std::optional<std::string_view> read_from_string(const rjson::v3::value& source)
 {
     return source.visit([]<typename Val>(const Val& value) -> std::optional<std::string_view> {
@@ -342,9 +357,7 @@ bool acmacs::mapi::v1::Settings::apply_viewport()
 bool acmacs::mapi::v1::Settings::apply_background()
 {
     using namespace std::string_view_literals;
-    if (const auto color = ::read_from_color(getenv("color"sv)); color.has_value())
-        chart_draw().background_color(*color);
-
+    chart_draw().background_color(acmacs::color::Modifier{WHITE, ::read_from_color_or_empty(getenv("color"sv))});
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_background
@@ -355,13 +368,10 @@ bool acmacs::mapi::v1::Settings::apply_border()
 {
     using namespace std::string_view_literals;
 
-    Color border_color{BLACK};
-    if (const auto color = ::read_from_color(getenv("color"sv)); color.has_value())
-        border_color = *color;
     double border_line_width{1.0};
     if (const auto line_width = ::read_from_number<double>(getenv("line_width"sv)); line_width.has_value())
         border_line_width = *line_width;
-    chart_draw().border(border_color, border_line_width);
+    chart_draw().border(acmacs::color::Modifier{BLACK, ::read_from_color_or_empty(getenv("color"sv))}, border_line_width);
 
     return true;
 
@@ -373,14 +383,11 @@ bool acmacs::mapi::v1::Settings::apply_grid()
 {
     using namespace std::string_view_literals;
 
-    Color grid_color{0xCCCCCC}; // grey80
-    if (const auto color = ::read_from_color(getenv("color"sv)); color.has_value())
-        grid_color = *color;
     double grid_line_width{1.0};
     if (const auto line_width = ::read_from_number<double>(getenv("line_width"sv)); line_width.has_value())
         grid_line_width = *line_width;
 
-    chart_draw().grid(grid_color, grid_line_width);
+    chart_draw().grid(acmacs::color::Modifier{Color{0xCCCCCC} /* grey80 */, ::read_from_color_or_empty(getenv("color"sv))}, grid_line_width);
 
     return true;
 
@@ -418,9 +425,7 @@ bool acmacs::mapi::v1::Settings::apply_connection_lines()
     antigen_indexes.remove_if([&layout](size_t index) { return !layout->point_has_coordinates(index); });
     serum_indexes.remove_if([&layout, number_of_antigens](size_t index) { return !layout->point_has_coordinates(index + number_of_antigens); });
 
-    acmacs::color::Modifier connection_line_color{GREY};
-    if (const auto color = ::read_from_color(getenv("color"sv)); color.has_value())
-        connection_line_color.add(*color);
+    acmacs::color::Modifier connection_line_color{GREY, ::read_from_color_or_empty(getenv("color"sv))};
     Pixels connection_line_width{1.0};
     if (const auto line_width = ::read_from_number<Pixels>(getenv("line_width"sv)); line_width.has_value())
         connection_line_width = *line_width;
@@ -452,9 +457,54 @@ bool acmacs::mapi::v1::Settings::apply_connection_lines()
 
 bool acmacs::mapi::v1::Settings::apply_error_lines()
 {
-    // {"N": "error_lines", "antigens": {<select>}, "sera": {<select>}, "line_width": 1, "report": false},
+    // {"N": "error_lines", "antigens": {<select>}, "sera": {<select>}, "more": "red", "less": "blue", "line_width": 0.5, "report": false},
+
+    using namespace std::string_view_literals;
+    auto antigen_indexes = select_antigens(getenv("antigens"sv), if_null::all);
+    auto serum_indexes = select_sera(getenv("sera"sv), if_null::all);
+    const auto number_of_antigens = chart_draw().chart().number_of_antigens();
+
+    acmacs::color::Modifier more{RED, ::read_from_color_or_empty(getenv("more"sv))};
+    acmacs::color::Modifier less{BLUE, ::read_from_color_or_empty(getenv("less"sv))};
 
     return true;
+
+    // const Color  line_color_td_more{rjson::get_or(args(), "color", "red")};
+    // const Color  line_color_td_less{rjson::get_or(args(), "color", "blue")};
+    // const double line_width{rjson::get_or(args(), "line_width", 1.0)};
+    // const bool   report{rjson::get_or(args(), "report", false)};
+    // const auto error_lines = aChartDraw.projection().error_lines();
+
+    // // if (report) {
+    // //     fmt::print("INFO: antigens for error lines: {}\nINFO: sera for error lines: {}\n", antigen_indexes, serum_indexes);
+    // //     for (const auto& errl : error_lines)
+    // //         fmt::print("INFO: error line {} {} : {}\n", errl.point_1, errl.point_2, errl.error_line);
+    // // }
+
+    // auto layout = aChartDraw.transformed_layout();
+    // auto titers = aChartDraw.chart().titers();
+    // auto antigens = aChartDraw.chart().antigens();
+    // auto sera = aChartDraw.chart().sera();
+    // const auto number_of_antigens = antigens->size();
+    // for (const auto ag_no : antigen_indexes) {
+    //     for (const auto sr_no : serum_indexes) {
+    //         const auto p2_no = sr_no + number_of_antigens;
+    //         if (const auto found =
+    //                 std::find_if(std::begin(error_lines), std::end(error_lines), [p1_no=ag_no,p2_no](const auto& erl) { return erl.point_1 == p1_no && erl.point_2 == p2_no; });
+    //             found != std::end(error_lines)) {
+    //             if (const auto p1 = layout->at(ag_no), p2 = layout->at(p2_no); p1.exists() && p2.exists()) {
+    //                 if (report)
+    //                     fmt::print("INFO: error line {} {} -- {} {} : {}\n", ag_no, antigens->at(ag_no)->full_name(), sr_no, sera->at(sr_no)->full_name(), found->error_line);
+    //                 //aChartDraw.line(p1, p2).color(GREY).line_width(line_width * 3);
+    //                 const auto v3 = (p2 - p1) / distance(p1, p2) * (- found->error_line) / 2.0;
+    //                 const auto& color = found->error_line > 0 ? line_color_td_more : line_color_td_less;
+    //                 aChartDraw.line(p1, p1 + v3).color(color).line_width(line_width);
+    //                 aChartDraw.line(p2, p2 - v3).color(color).line_width(line_width);
+    //                 // std::cerr << "DEBUG: " << found->point_1 << ' ' << sr_no << ' ' << found->error_line << ' ' << v3 << '\n';
+    //             }
+    //         }
+    //     }
+    // }
 
 } // acmacs::mapi::v1::Settings::apply_error_lines
 

@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-23 11:32:00 eu>
+# Time-stamp: <2020-05-23 16:39:38 eu>
 
 * TODO
 
@@ -213,15 +213,15 @@ http://geomalgorithms.com/a03-_inclusion.html
    "arrows": [{"at": <point-index>, "from": <point-index>, "width": 5, "outline": "magenta", "outline_width": 1, "fill": "magenta"}]},
   {"N": "circle", "center": <point>, "radius": 1, "aspect": 1.0, "rotation": 0, "fill": "#80FFA500", "outline": "#80FF0000", "outline_width": 10}
 
-  # point
+  -- point
   {"v": [x, y]} -- viewport based, top left corner of viewport is 0,0  WARNING: works only after setting the viewport!
   {"l": [x, y]} -- x,y without map transformation
   {"t": [x, y]} -- map transformation will be applied to x,y
   {"a": {<antigen-select>}} -- if multiple antigens selected, middle point of them used
   {"s": {<serum-select>}} -- if multiple antigens selected, middle point of them used
 
-  {"N": "connection_lines", "antigens": {<select>}, "sera": {<select>}, "color": "grey", "line_width": 1, "report": true},
-  # {"N": "error_lines", "antigens": {<select>}, "sera": {<select>}, "line_width": 1, "report": false},
+  {"N": "connection_lines", "antigens": {<select>}, "sera": {<select>}, "color": "grey", "line_width": 0.5, "report": false},
+  {"N": "error_lines", "antigens": {<select>}, "sera": {<select>}, "more": "red", "less": "blue", "line_width": 0.5, "report": false},
 #+END_SRC
 
 
