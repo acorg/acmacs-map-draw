@@ -1,3 +1,4 @@
+#include "acmacs-base/rjson-v3-helper.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/map-elements-v2.hh"
 #include "acmacs-map-draw/draw.hh"
@@ -62,88 +63,15 @@ static inline std::optional<map_elements::v2::Coordinates> read_coordinates(cons
 
 // ----------------------------------------------------------------------
 
-template <typename Target> static inline std::optional<Target> read_from_number(const rjson::v3::value& source)
-{
-    return source.visit([]<typename Val>(const Val& value) -> std::optional<Target> {
-        if constexpr (std::is_same_v<Val, rjson::v3::detail::number>)
-            return value.template to<Target>();
-        else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>)
-            return std::nullopt;
-        else
-            throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
-    });
-
-} // read_from_number
-
-// ----------------------------------------------------------------------
-
-template <typename Target> static Target read_from_number(const rjson::v3::value& source, Target&& dflt)
-{
-    return source.visit([&dflt]<typename Val>(const Val& value) -> Target {
-        if constexpr (std::is_same_v<Val, rjson::v3::detail::number>)
-            return value.template to<Target>();
-        else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>)
-            return std::forward<Target>(dflt);
-        else
-            throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
-    });
-
-} // read_from_number
-
-// ----------------------------------------------------------------------
-
-static inline std::optional<acmacs::color::Modifier> read_color(const rjson::v3::value& source)
-{
-    return source.visit([]<typename Val>(const Val& value) -> std::optional<acmacs::color::Modifier> {
-        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
-            return acmacs::color::Modifier{value.template to<std::string_view>()};
-        else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>)
-            return std::nullopt;
-        else
-            throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
-    });
-
-} // read_color
-
-// ----------------------------------------------------------------------
-
-static inline acmacs::color::Modifier read_color_or_empty(const rjson::v3::value& source)
-{
-    return source.visit([]<typename Val>(const Val& value) -> acmacs::color::Modifier {
-        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
-            return value.template to<std::string_view>();
-        else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>)
-            return {};
-        else
-            throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
-    });
-
-} // read_color_or_empty
-
-// ----------------------------------------------------------------------
-
-static inline std::optional<std::string_view> read_from_string(const rjson::v3::value& source)
-{
-    return source.visit([]<typename Val>(const Val& value) -> std::optional<std::string_view> {
-        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
-            return value.template to<std::string_view>();
-        else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>)
-            return std::nullopt;
-        else
-            throw acmacs::mapi::unrecognized{fmt::format("unrecognized: {}", value)};
-    });
-
-} // read_from_string
-
 // ----------------------------------------------------------------------
 
 template <typename Target> static inline void read_fill_outline(Target& target, const rjson::v3::value& fill, const rjson::v3::value& outline, const rjson::v3::value& outline_width)
 {
-    if (const auto fill_v = ::read_color(fill); fill_v.has_value())
+    if (const auto fill_v = rjson::v3::read_color(fill); fill_v.has_value())
         target.fill(*fill_v);
-    if (const auto outline_v = ::read_color(outline); outline_v.has_value())
+    if (const auto outline_v = rjson::v3::read_color(outline); outline_v.has_value())
         target.outline(*outline_v);
-    if (const auto outline_width_v = ::read_from_number<Pixels>(outline_width); outline_width_v.has_value())
+    if (const auto outline_width_v = rjson::v3::read_number<Pixels>(outline_width); outline_width_v.has_value())
         target.outline_width(*outline_width_v);
 
 } // read_fill_outline
@@ -160,11 +88,11 @@ bool acmacs::mapi::v1::Settings::apply_circle()
         circle.center(*coord);
     ::read_fill_outline(circle, getenv("fill"sv), getenv("outline"sv), getenv("outline_width"sv));
 
-    if (const auto radius = ::read_from_number<Scaled>(getenv("radius"sv)); radius.has_value())
+    if (const auto radius = rjson::v3::read_number<Scaled>(getenv("radius"sv)); radius.has_value())
         circle.radius(*radius);
-    if (const auto aspect = ::read_from_number<Aspect>(getenv("aspect"sv)); aspect.has_value())
+    if (const auto aspect = rjson::v3::read_number<Aspect>(getenv("aspect"sv)); aspect.has_value())
         circle.aspect(*aspect);
-    if (const auto rotation = ::read_from_number<Rotation>(getenv("rotation"sv)); rotation.has_value())
+    if (const auto rotation = rjson::v3::read_number<Rotation>(getenv("rotation"sv)); rotation.has_value())
         circle.rotation(*rotation);
 
     return true;
@@ -212,11 +140,11 @@ static inline map_elements::v2::ArrowData read_path_arrow(const rjson::v3::value
     using namespace std::string_view_literals;
 
     map_elements::v2::ArrowData result;
-    if (const auto at = ::read_from_number<size_t>(source["at"sv]); at.has_value())
+    if (const auto at = rjson::v3::read_number<size_t>(source["at"sv]); at.has_value())
         result.at(*at);
-    if (const auto from = ::read_from_number<size_t>(source["from"sv]); from.has_value())
+    if (const auto from = rjson::v3::read_number<size_t>(source["from"sv]); from.has_value())
         result.from(*from);
-    if (const auto width = ::read_from_number<Pixels>(source["width"sv]); width.has_value())
+    if (const auto width = rjson::v3::read_number<Pixels>(source["width"sv]); width.has_value())
         result.width(*width);
     ::read_fill_outline(result, source["fill"sv], source["outline"sv], source["outline_width"sv]);
 
@@ -297,9 +225,9 @@ void acmacs::mapi::v1::Settings::filter_inside_path(acmacs::chart::PointIndexLis
 bool acmacs::mapi::v1::Settings::apply_rotate()
 {
     using namespace std::string_view_literals;
-    if (const auto degrees = ::read_from_number<double>(getenv("degrees"sv)); degrees.has_value())
+    if (const auto degrees = rjson::v3::read_number<double>(getenv("degrees"sv)); degrees.has_value())
         chart_draw().rotate(*degrees * std::acos(-1) / 180.0);
-    else if (const auto radians = ::read_from_number<double>(getenv("radians"sv)); radians.has_value())
+    else if (const auto radians = rjson::v3::read_number<double>(getenv("radians"sv)); radians.has_value())
         chart_draw().rotate(*radians);
     else
         throw acmacs::mapi::unrecognized{"neither \"degrees\" nor \"radians\" found"};
@@ -312,7 +240,7 @@ bool acmacs::mapi::v1::Settings::apply_rotate()
 bool acmacs::mapi::v1::Settings::apply_flip()
 {
     using namespace std::string_view_literals;
-    if (const auto direction = ::read_from_string(getenv("direction"sv)); direction.has_value()) {
+    if (const auto direction = rjson::v3::read_from_string(getenv("direction"sv)); direction.has_value()) {
         if (*direction == "ew"sv)
             chart_draw().flip(0, 1);
         else if (*direction == "ns"sv)
@@ -372,7 +300,7 @@ bool acmacs::mapi::v1::Settings::apply_viewport()
 bool acmacs::mapi::v1::Settings::apply_background()
 {
     using namespace std::string_view_literals;
-    chart_draw().background_color(acmacs::color::Modifier{WHITE, ::read_color_or_empty(getenv("color"sv))});
+    chart_draw().background_color(acmacs::color::Modifier{WHITE, rjson::v3::read_color_or_empty(getenv("color"sv))});
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_background
@@ -382,7 +310,7 @@ bool acmacs::mapi::v1::Settings::apply_background()
 bool acmacs::mapi::v1::Settings::apply_border()
 {
     using namespace std::string_view_literals;
-    chart_draw().border(acmacs::color::Modifier{BLACK, ::read_color_or_empty(getenv("color"sv))}, ::read_from_number(getenv("line_width"sv), 1.0));
+    chart_draw().border(acmacs::color::Modifier{BLACK, rjson::v3::read_color_or_empty(getenv("color"sv))}, rjson::v3::read_number(getenv("line_width"sv), 1.0));
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_border
@@ -392,7 +320,7 @@ bool acmacs::mapi::v1::Settings::apply_border()
 bool acmacs::mapi::v1::Settings::apply_grid()
 {
     using namespace std::string_view_literals;
-    chart_draw().grid(acmacs::color::Modifier{Color{0xCCCCCC} /* grey80 */, ::read_color_or_empty(getenv("color"sv))}, ::read_from_number(getenv("line_width"sv), 1.0));
+    chart_draw().grid(acmacs::color::Modifier{Color{0xCCCCCC} /* grey80 */, rjson::v3::read_color_or_empty(getenv("color"sv))}, rjson::v3::read_number(getenv("line_width"sv), 1.0));
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_grid
@@ -402,7 +330,7 @@ bool acmacs::mapi::v1::Settings::apply_grid()
 bool acmacs::mapi::v1::Settings::apply_point_scale()
 {
     using namespace std::string_view_literals;
-    chart_draw().scale_points(::read_from_number(getenv("scale"sv), 1.0), ::read_from_number(getenv("outline_scale"sv), 1.0));
+    chart_draw().scale_points(rjson::v3::read_number(getenv("scale"sv), 1.0), rjson::v3::read_number(getenv("outline_scale"sv), 1.0));
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_point_scale
@@ -432,8 +360,8 @@ bool acmacs::mapi::v1::Settings::apply_connection_lines()
     antigen_indexes.remove_if([&layout](size_t index) { return !layout->point_has_coordinates(index); });
     serum_indexes.remove_if([&layout, number_of_antigens](size_t index) { return !layout->point_has_coordinates(index + number_of_antigens); });
 
-    const acmacs::color::Modifier connection_line_color{GREY, ::read_color_or_empty(getenv("color"sv))};
-    const auto connection_line_width{::read_from_number(getenv("line_width"sv), Pixels{0.5})};
+    const acmacs::color::Modifier connection_line_color{GREY, rjson::v3::read_color_or_empty(getenv("color"sv))};
+    const auto connection_line_width{rjson::v3::read_number(getenv("line_width"sv), Pixels{0.5})};
 
     std::vector<std::pair<size_t, size_t>> lines_to_draw;
     auto titers = chart_draw().chart().titers();
@@ -468,9 +396,9 @@ bool acmacs::mapi::v1::Settings::apply_error_lines()
     serum_indexes.remove_if([&layout, number_of_antigens](size_t index) { return !layout->point_has_coordinates(index + number_of_antigens); });
     const auto error_lines = chart_draw().projection().error_lines();
 
-    const auto line_width{::read_from_number(getenv("line_width"sv), Pixels{0.5})};
-    const acmacs::color::Modifier more{RED, ::read_color_or_empty(getenv("more"sv))};
-    const acmacs::color::Modifier less{BLUE, ::read_color_or_empty(getenv("less"sv))};
+    const auto line_width{rjson::v3::read_number(getenv("line_width"sv), Pixels{0.5})};
+    const acmacs::color::Modifier more{RED, rjson::v3::read_color_or_empty(getenv("more"sv))};
+    const acmacs::color::Modifier less{BLUE, rjson::v3::read_color_or_empty(getenv("less"sv))};
     const auto report{getenv("report"sv).to<bool>()};
 
     for (const auto ag_no : antigen_indexes) {
