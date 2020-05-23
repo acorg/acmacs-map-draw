@@ -35,6 +35,7 @@ acmacs::PointCoordinates map_elements::v2::Coordinates::points::get(const ChartD
     for (const auto point_index : get())
         coord += layout->at(point_index);
     coord /= static_cast<double>(size());
+    // AD_DEBUG("point {} : {}", get(), coord);
     return coord;
 
 } // map_elements::v2::Coordinates::points::get

@@ -165,18 +165,6 @@ static inline void read_path_vertices(std::vector<map_elements::v2::Coordinates>
 static inline void read_path_data(map_elements::v2::PathData& path, const rjson::v3::value& points, const rjson::v3::value& close, const acmacs::mapi::v1::Settings& settings)
 {
     read_path_vertices(path.vertices, points, settings);
-    // points.visit([&path, &settings]<typename Val>(const Val& value) {
-    //     if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-    //         for (const auto& en : value) {
-    //             if (const auto coord = ::read_coordinates(en, settings); coord.has_value())
-    //                 path.vertices.push_back(std::move(*coord));
-    //             else
-    //                 throw acmacs::mapi::unrecognized{fmt::format("cannot read vertex from {}", value)};
-    //         }
-    //     }
-    //     else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
-    //         throw acmacs::mapi::unrecognized{fmt::format("cannot read path vertex from {}", value)};
-    // });
 
     close.visit([&path]<typename Val>(const Val& value) {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::boolean> || std::is_same_v<Val, rjson::v3::detail::number>)
