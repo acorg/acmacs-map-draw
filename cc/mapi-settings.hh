@@ -96,6 +96,8 @@ namespace acmacs::mapi::inline v1
         bool apply_border();
         bool apply_grid();
         bool apply_point_scale();
+        bool apply_connection_lines();
+        bool apply_error_lines();
     };
 
 

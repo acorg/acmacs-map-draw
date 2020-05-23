@@ -28,6 +28,8 @@ namespace map_elements::v2
 
         struct points : public acmacs::chart::PointIndexList
         {
+            points(size_t index) : acmacs::chart::PointIndexList{index} {}
+            points(const acmacs::chart::PointIndexList& index_list) : acmacs::chart::PointIndexList{index_list} {}
             using acmacs::chart::PointIndexList::get;
             acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
         };

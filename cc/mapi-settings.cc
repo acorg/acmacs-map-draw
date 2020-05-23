@@ -34,6 +34,10 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
             return apply_grid();
         else if (name == "point-scale"sv || name == "point_scale"sv)
             return apply_point_scale();
+        else if (name == "connection_lines"sv || name == "connection-lines"sv)
+            return apply_connection_lines();
+        else if (name == "error_lines"sv || name == "error-lines"sv)
+            return apply_error_lines();
         // else if (name == ""sv)
         //     return apply_();
         return acmacs::settings::Settings::apply_built_in(name);
