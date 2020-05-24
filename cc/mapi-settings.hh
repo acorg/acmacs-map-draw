@@ -104,7 +104,7 @@ namespace acmacs::mapi::inline v1
         // mapi-settings-labels.cc
 
         void add_labels(const acmacs::chart::PointIndexList& indexes, size_t index_base, const rjson::v3::value& label_data);
-        void add_label(size_t point_index, const rjson::v3::value& label_data);
+        void add_label(size_t index, size_t index_base, const rjson::v3::value& label_data);
     };
 
 

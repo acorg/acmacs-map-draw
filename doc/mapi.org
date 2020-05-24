@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-24 16:41:09 eu>
+# Time-stamp: <2020-05-24 17:51:21 eu>
 
 * TODO
 
@@ -146,7 +146,7 @@
  "size": 1.0, "show": true, "shape": "circle|box|triangle",
  "fill": "passage", "outline": "passage", "fill": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"}, "outline": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"},
  "order": "raise|lower",
-# "label": <Label>,
+ "label": <Label>,
 # "legend": {"show": true, "label": "<TEXT>", "count": true, "replace": false},
  },
 
@@ -158,7 +158,7 @@
  "show": true, "shape": "circle|box|triangle",
  "fill": "passage", "outline": "passage", "fill": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"}, "outline": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"},
  "order": "raise|lower",
-# "label": <Label>,
+ "label": <Label>,
 # },
 
 #+END_SRC
@@ -177,7 +177,7 @@ See [[file:~/AD/share/doc/color.org][color.org]]
    "weight": "bold", "slant": "italic", "font_family": "monospace"}
 #+END_SRC
 
-* Legend
+* TODO Legend
 
 #+BEGIN_SRC json
   {
@@ -191,7 +191,7 @@ See [[file:~/AD/share/doc/color.org][color.org]]
   }
 #+END_SRC
 
-* Title
+* TODO Title
 
 #+BEGIN_SRC json
 # {"N": "title", "show": true, "offset": [10, 10], "padding": 10, "size": 1,
