@@ -45,7 +45,7 @@ std::string report_antigens(const acmacs::chart::PointIndexList& indexes, const 
                 std::vector<std::string> layers;
                 for (size_t layer_no : titers->layers_with_antigen(index))
                     layers.emplace_back(info->source(layer_no)->date());
-                fmt::format_to(output, " {}", layers);
+                fmt::format_to(output, " {:3d}{}", layers.size(), layers);
             }
             fmt::format_to(output, "\n");
         }
@@ -59,20 +59,50 @@ std::string report_sera(const acmacs::chart::PointIndexList& indexes, const Char
 {
     fmt::memory_buffer output;
     if (threshold >= indexes.size()) {
+        const auto& seqdb = acmacs::seqdb::get();
         const auto& chart = aChartSelectInterface.chart();
+        chart.set_homologous(acmacs::chart::find_homologous::all);
         auto sera = chart.sera();
         const auto number_of_antigens = chart.number_of_antigens();
         const auto full_name_max{acmacs::chart::max_full_name(*sera, indexes)};
         auto layout = aChartSelectInterface.layout();
+        auto titers = chart.titers();
+        auto info = chart.info();
+
+        const auto& matched_seqdb = aChartSelectInterface.match_seqdb();
+        using seq_data_t = std::pair<acmacs::seqdb::seq_id_t, std::string>;
+        acmacs::small_map_with_unique_keys_t<size_t, seq_data_t> seq_clades;
+        size_t seq_max{0}, clades_max{0};
+        for (auto index : indexes) {
+            for (const auto antigen_index : sera->at(index)->homologous_antigens()) {
+                if (const auto& ref = matched_seqdb[antigen_index]; ref) {
+                    const auto seq_id = ref.seq_id();
+                    seq_max = std::max(seq_max, seq_id.size());
+                    const auto clades = fmt::format("{}", ref.seq_with_sequence(seqdb).clades);
+                    clades_max = std::max(clades_max, clades.size());
+                    seq_clades.emplace_or_replace(index, seq_id, clades);
+                    break;
+                }
+            }
+        }
+
         fmt::format_to(output, "  SR ({}) {}\n", indexes.size(), acmacs::string::join(acmacs::string::join_comma, std::begin(indexes), std::end(indexes)));
         for (auto index : indexes) {
             const auto serum = sera->at(index);
             const auto coord = layout->at(index + number_of_antigens);
             fmt::format_to(output, "  SR {:5d} {: <{}} {: <6s}", index, fmt::format("\"{}\"", serum->full_name()), full_name_max + 2, serum->passage().passage_type());
+            const auto& seq_data = seq_clades.get_or(index, seq_data_t{});
+            fmt::format_to(output, " {:<{}s} {:<{}s}", seq_data.first, seq_max, seq_data.second, clades_max);
             if (coord.exists())
                 fmt::format_to(output, " {:8.4f}", coord);
             else
                 fmt::format_to(output, "    <disconnected>   ");
+            if (titers->number_of_layers() > 1) {
+                std::vector<std::string> layers;
+                for (size_t layer_no : titers->layers_with_serum(index))
+                    layers.emplace_back(info->source(layer_no)->date());
+                fmt::format_to(output, " {:3d}{}", layers.size(), layers);
+            }
             fmt::format_to(output, "\n");
         }
     }
