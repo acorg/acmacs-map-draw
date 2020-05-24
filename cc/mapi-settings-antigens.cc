@@ -55,13 +55,12 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
     const auto style = style_from_toplevel_environment();
     chart_draw().modify(indexes, style.style, drawing_order_from_toplevel_environment());
     color_according_to_passage(*chart_draw().chart().antigens(), indexes, style);
-
-    return true;
-
-    //     if (const auto& label = args()["label"]; !label.is_null())
-    //         add_labels(aChartDraw, indices, 0, label);
+    if (const auto& label = getenv("label"sv); !label.is_null())
+        add_labels(indexes, 0, label);
     //     if (const auto& legend = args()["legend"]; !legend.is_null())
     //         add_legend(aChartDraw, indices, styl, legend);
+
+    return true;
 
 } // acmacs::mapi::v1::Settings::apply_antigens
 
@@ -75,6 +74,10 @@ bool acmacs::mapi::v1::Settings::apply_sera()
     const auto style = style_from_toplevel_environment();
     chart_draw().modify_sera(indexes, style.style, drawing_order_from_toplevel_environment());
     color_according_to_passage(*chart_draw().chart().sera(), indexes, style);
+    if (const auto& label = getenv("label"sv); !label.is_null())
+        add_labels(indexes, chart_draw().chart().number_of_antigens(), label);
+    //     if (const auto& legend = args()["legend"]; !legend.is_null())
+    //         add_legend(aChartDraw, indices, styl, legend);
 
     return true;
 

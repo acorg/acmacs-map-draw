@@ -99,6 +99,12 @@ namespace acmacs::mapi::inline v1
         bool apply_point_scale();
         bool apply_connection_lines();
         bool apply_error_lines();
+
+        // ----------------------------------------------------------------------
+        // mapi-settings-labels.cc
+
+        void add_labels(const acmacs::chart::PointIndexList& indexes, size_t index_base, const rjson::v3::value& label_data);
+        void add_label(size_t point_index, const rjson::v3::value& label_data);
     };
 
 
