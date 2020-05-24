@@ -240,7 +240,7 @@ bool acmacs::mapi::v1::Settings::apply_rotate()
 bool acmacs::mapi::v1::Settings::apply_flip()
 {
     using namespace std::string_view_literals;
-    if (const auto direction = rjson::v3::read_from_string(getenv("direction"sv)); direction.has_value()) {
+    if (const auto direction = rjson::v3::read_string(getenv("direction"sv)); direction.has_value()) {
         if (*direction == "ew"sv)
             chart_draw().flip(0, 1);
         else if (*direction == "ns"sv)

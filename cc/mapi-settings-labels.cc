@@ -1,3 +1,4 @@
+#include "acmacs-base/rjson-v3-helper.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/draw.hh"
 
@@ -31,8 +32,33 @@ void acmacs::mapi::v1::Settings::add_labels(const acmacs::chart::PointIndexList&
 
 void acmacs::mapi::v1::Settings::add_label(size_t point_index, const rjson::v3::value& label_data)
 {
+    using namespace std::string_view_literals;
+
     auto& label = chart_draw().add_label(point_index);
+
+    for (const auto key : {"name_type"sv, "name-type"sv, "display_name"sv, "display-name"sv}) {
+        if (!label_data[key].is_null())
+            AD_ERROR("\"{}\" is not supported, use \"format\", run chart-name-format-help to list formats", key);
+    }
     label.display_name("JOPA");
+
+    label_data["offset"sv].visit([&label]<typename Val>(const Val& value) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::array>)
+            label.offset({value[0].template to<double>(), value[1].template to<double>()});
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
+            throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"offset\" value: {}", value)};
+    });
+
+    if (const auto color = rjson::v3::read_color(label_data["color"sv]); color.has_value())
+        label.color(*color);
+    if (const auto size = rjson::v3::read_number<Pixels>(label_data["size"sv]); size.has_value())
+        label.size(*size);
+    if (const auto weight = rjson::v3::read_string(label_data["weight"sv]); weight.has_value())
+        label.weight(*weight);
+    if (const auto slant = rjson::v3::read_string(label_data["slant"sv]); slant.has_value())
+        label.slant(*slant);
+    if (const auto font_family = rjson::v3::read_string(label_data["font_family"sv]); font_family.has_value())
+        label.font_family(*font_family);
 
 } // acmacs::mapi::v1::Settings::add_label
 

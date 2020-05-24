@@ -62,19 +62,19 @@ class VaccineMatcherBase
 class VaccineMatcherLabel : public VaccineMatcherBase
 {
  private:
-    template <typename MF, typename ... Arg> void for_each_mf(MF mf, Arg ...arg)
+    template <typename MF, typename ... Arg> void for_each_mf(MF mf, Arg&& ... arg)
         {
             auto mff = std::mem_fn(mf);
-            for_each_with_vacc([&](const hidb::Vaccines::Entry& ve) { mff(mChartDraw.add_label(ve.chart_antigen_index), arg ...); });
+            for_each_with_vacc([&](const hidb::Vaccines::Entry& ve) { mff(mChartDraw.add_label(ve.chart_antigen_index), std::forward<Arg>(arg) ...); });
         }
 
  public:
     using LBL = acmacs::draw::PointLabel;
 
     VaccineMatcherLabel& display_name(std::string aDisplayName) { for_each_mf(static_cast<LBL& (LBL::*)(std::string_view)>(&LBL::display_name), aDisplayName); return *this; }
-    VaccineMatcherLabel& color(Color aColor) { for_each_mf(&LBL::color, aColor); return *this; }
-    template <typename S, typename = std::enable_if_t<acmacs::sfinae::is_string_v<S>>> VaccineMatcherLabel& color(S aColor) { for_each_mf(&LBL::color, Color(aColor)); return *this; }
-    VaccineMatcherLabel& size(double aSize) { for_each_mf(&LBL::size, aSize); return *this; }
+    VaccineMatcherLabel& color(Color aColor) { for_each_mf(&LBL::color, acmacs::color::Modifier{aColor}); return *this; }
+    template <typename S, typename = std::enable_if_t<acmacs::sfinae::is_string_v<S>>> VaccineMatcherLabel& color(S aColor) { for_each_mf(&LBL::color, acmacs::color::Modifier{Color(aColor)}); return *this; }
+    VaccineMatcherLabel& size(Pixels aSize) { for_each_mf(&LBL::size, aSize); return *this; }
     template <typename S, typename = std::enable_if_t<acmacs::sfinae::is_string_v<S>>> VaccineMatcherLabel& weight(S aWeight) { for_each_mf(&LBL::weight, aWeight); return *this; }
     template <typename S, typename = std::enable_if_t<acmacs::sfinae::is_string_v<S>>> VaccineMatcherLabel& slant(S aSlant) { for_each_mf(&LBL::slant, aSlant); return *this; }
     template <typename S, typename = std::enable_if_t<acmacs::sfinae::is_string_v<S>>> VaccineMatcherLabel& font_family(S aFamily) { for_each_mf(&LBL::font_family, aFamily); return *this; }

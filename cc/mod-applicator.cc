@@ -30,9 +30,9 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
     if (aChartDraw.point_has_coordinates(aIndex + aBaseIndex)) {
         auto& label = aChartDraw.add_label(aIndex + aBaseIndex);
         if (const auto& val = aLabelData["color"]; !val.is_null())
-            label.color(Color(val.to<std::string_view>()));
+            label.color(val.to<std::string_view>());
         if (const auto& val = aLabelData["size"]; !val.is_null())
-            label.size(val.to<double>());
+            label.size(Pixels{val.to<double>()});
         if (const auto& val = aLabelData["weight"]; !val.is_null())
             label.weight(val.to<std::string_view>());
         if (const auto& val = aLabelData["slant"]; !val.is_null())

@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-24 10:50:06 eu>
+# Time-stamp: <2020-05-24 16:04:21 eu>
 
 * TODO
 
@@ -172,8 +172,7 @@ See [[file:~/AD/share/doc/color.org][color.org]]
 
 #+BEGIN_SRC json
   {"show": true,
-   "display_name": "NAME",
-   "name_type": "full|abbreviated|abbreviated_with_passage_type|abbreviated_location_year",
+   "format": "{name-abbreviated}",
    "color": "black", "size": 12.0, "offset": [0, 1],
    "weight": "bold", "slant": "italic", "font_family": "monospace"}
 #+END_SRC
