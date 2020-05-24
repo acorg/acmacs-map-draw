@@ -273,7 +273,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
     if (verbose()) {
         fmt::print("INFO: antigens selected: {:4d} {}\n", indexes->size(), aSelector);
         if (!indexes->empty())
-            report_antigens(indexes, aChartSelectInterface, report_names_threshold());
+            fmt::print(stderr, "{}", report_antigens(indexes, aChartSelectInterface, report_names_threshold()));
     }
 
     return indexes;
@@ -381,7 +381,7 @@ acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSel
     if (verbose()) {
         fmt::print("INFO: sera selected: {:4d} {}\n", indexes->size(), aSelector);
         if (!indexes->empty())
-            report_sera(indexes, aChartSelectInterface, report_names_threshold());
+            fmt::print(stderr, "{}", report_sera(indexes, aChartSelectInterface, report_names_threshold()));
     }
     return indexes;
 

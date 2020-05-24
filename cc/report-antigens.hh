@@ -1,5 +1,7 @@
 #pragma once
 
+#include "acmacs-base/fmt.hh"
+
 // ----------------------------------------------------------------------
 
 namespace acmacs::chart
@@ -9,8 +11,8 @@ namespace acmacs::chart
 
 class ChartSelectInterface;
 
-void report_antigens(const acmacs::chart::PointIndexList& indexes, const ChartSelectInterface& aChartSelectInterface, size_t threshold);
-void report_sera(const acmacs::chart::PointIndexList& indexes, const ChartSelectInterface& aChartSelectInterface, size_t threshold);
+[[nodiscard]] std::string report_antigens(const acmacs::chart::PointIndexList& indexes, const ChartSelectInterface& aChartSelectInterface, size_t threshold);
+[[nodiscard]] std::string report_sera(const acmacs::chart::PointIndexList& indexes, const ChartSelectInterface& aChartSelectInterface, size_t threshold);
 
 // ----------------------------------------------------------------------
 /// Local Variables:

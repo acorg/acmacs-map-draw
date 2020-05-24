@@ -704,11 +704,11 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
     if (report) {
         if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
             AD_INFO("{} antigens selected with {}", indexes.size(), select_clause);
-            report_antigens(indexes, chart_draw(), report_threshold);
+            fmt::print(stderr, "{}", report_antigens(indexes, chart_draw(), report_threshold));
         }
         else {
             AD_INFO("{} sera selected with {}", indexes.size(), select_clause);
-            report_sera(indexes, chart_draw(), report_threshold);
+            fmt::print(stderr, "{}", report_sera(indexes, chart_draw(), report_threshold));
         }
     }
     return indexes;
