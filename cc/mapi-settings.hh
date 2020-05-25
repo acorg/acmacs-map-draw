@@ -74,9 +74,10 @@ namespace acmacs::mapi::inline v1
 
         struct passage_color_t
         {
-            acmacs::color::Modifier egg{Color{0xFF4040}};
-            acmacs::color::Modifier cell{Color{0x4040FF}};
-            acmacs::color::Modifier reassortant{Color{0xFFB040}};
+            void init_passage_colors();
+            std::optional<acmacs::color::Modifier> egg;
+            std::optional<acmacs::color::Modifier> reassortant;
+            std::optional<acmacs::color::Modifier> cell;
             std::optional<acmacs::seqdb::pos1_t> pos; // coloring by aa at pos
             std::vector<acmacs::color::Modifier> color_order; // coloring by aa at pos
         };

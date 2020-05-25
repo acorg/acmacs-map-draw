@@ -15,7 +15,7 @@ template <typename AgSr> bool acmacs::mapi::v1::Settings::color_according_to_pas
 {
     using namespace std::string_view_literals;
 
-    if (style.passage_fill.has_value() || style.passage_outline.has_value()) {
+    if ((style.passage_fill.has_value() && style.passage_fill->egg.has_value()) || (style.passage_outline.has_value() && style.passage_outline->egg.has_value())) {
         auto egg_indexes = indexes;
         ag_sr.filter_egg(egg_indexes, acmacs::chart::reassortant_as_egg::no);
         auto reassortant_indexes = indexes;
@@ -25,14 +25,14 @@ template <typename AgSr> bool acmacs::mapi::v1::Settings::color_according_to_pas
 
         PointStyleModified ps_egg, ps_reassortant, ps_cell;
         if (style.passage_fill.has_value()) {
-            ps_egg.fill(style.passage_fill->egg);
-            ps_reassortant.fill(style.passage_fill->reassortant);
-            ps_cell.fill(style.passage_fill->cell);
+            ps_egg.fill(*style.passage_fill->egg);
+            ps_reassortant.fill(*style.passage_fill->reassortant);
+            ps_cell.fill(*style.passage_fill->cell);
         }
         if (style.passage_outline.has_value()) {
-            ps_egg.outline(style.passage_outline->egg);
-            ps_reassortant.outline(style.passage_outline->reassortant);
-            ps_cell.outline(style.passage_outline->cell);
+            ps_egg.outline(*style.passage_outline->egg);
+            ps_reassortant.outline(*style.passage_outline->reassortant);
+            ps_cell.outline(*style.passage_outline->cell);
         }
 
         // order b y number of occurrences, lest frequent passage (last in by_passage) is on top
@@ -822,12 +822,25 @@ acmacs::mapi::v1::Settings::point_style_t acmacs::mapi::v1::Settings::style_from
 
 // ----------------------------------------------------------------------
 
+void acmacs::mapi::v1::Settings::passage_color_t::init_passage_colors()
+{
+    egg = acmacs::color::Modifier{Color{0xFF4040}};
+    reassortant = acmacs::color::Modifier{Color{0xFFB040}};
+    cell = acmacs::color::Modifier{Color{0x4040FF}};
+
+} // acmacs::mapi::v1::Settings::passage_color_t::init_passage_colors
+
+// ----------------------------------------------------------------------
+
 acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::color(const rjson::v3::value& value) const
 {
     using namespace std::string_view_literals;
     const auto make_color = [](std::string_view source) -> modifier_or_passage_t {
-        if (source == "passage"sv)
-            return passage_color_t{};
+        if (source == "passage"sv) {
+            passage_color_t colors;
+            colors.init_passage_colors();
+            return colors;
+        }
         else
             return acmacs::color::Modifier{source};
     };
@@ -847,6 +860,8 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
     };
 
     const auto make_color_passage = [this, make_color_passage_helper](passage_color_t& result, const rjson::v3::value& egg, const rjson::v3::value& reassortant, const rjson::v3::value& cell) {
+        if (!egg.is_null() || !reassortant.is_null() || !cell.is_null())
+            result.init_passage_colors();
         if (const auto egg_val = make_color_passage_helper(substitute(egg)); egg_val.has_value())
             result.egg = result.reassortant = *egg_val;
         if (const auto reassortant_val = make_color_passage_helper(substitute(reassortant)); reassortant_val.has_value())
