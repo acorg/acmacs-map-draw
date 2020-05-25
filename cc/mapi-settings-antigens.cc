@@ -106,7 +106,6 @@ bool acmacs::mapi::v1::Settings::color_according_to_aa_at_pos(const acmacs::char
                         color.add(data->color_order[colors_used++]);
                     else
                         throw acmacs::mapi::unrecognized{fmt::format("color_according_to_aa_at_pos: too few colors in the color order for pos {}", *data->pos)};
-                    AD_DEBUG("color_according_to_aa_at_pos {} {}", aa, color);
                     if (fill)
                         en.second.fill(color);
                     else
@@ -116,6 +115,10 @@ bool acmacs::mapi::v1::Settings::color_according_to_aa_at_pos(const acmacs::char
             else { // standard aa colors
                 AD_DEBUG("use standard colors");
             }
+
+            // mark antigens
+            for (const auto& [aa, en] : per_aa)
+                chart_draw().modify(en.first, en.second, PointDrawingOrder::Raise);
 
             // legend lines
             if (const auto& legend = getenv("legend"sv); !legend.is_null()) {
@@ -895,7 +898,6 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
 
     const auto make_color_aa_at = [](passage_color_t& result, const rjson::v3::value& aa_at, const rjson::v3::value& colors) {
         result.pos = rjson::v3::read_number<acmacs::seqdb::pos1_t>(aa_at);
-        AD_DEBUG("make_color_aa_at {} {}", aa_at, colors);
         colors.visit([&result]<typename Val>(const Val& color_values) {
             if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
                 for (const auto& col : color_values)
@@ -904,7 +906,6 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
             else if constexpr (!std::is_same_v<Val, const rjson::v3::detail::null>)
                 AD_WARNING("invalid \"colors\": {} (array of colors expected)", color_values);
         });
-        AD_DEBUG("make_color_aa_at {}", result.color_order);
     };
 
     try {
