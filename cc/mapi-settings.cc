@@ -38,6 +38,16 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
             return apply_connection_lines();
         else if (name == "error_lines"sv || name == "error-lines"sv)
             return apply_error_lines();
+        else if (name == "legend"sv)
+            return apply_legend();
+        else if (name == "title"sv)
+            return apply_title();
+        // else if (name == "serum-circles"sv || name == "serum-circle"sv || name == "serum_circles"sv || name == "serum_circle"sv)
+        //     return apply_serum_circles();
+        // else if (name == "procrustes"sv)
+        //     return apply_procrustes();
+        // else if (name == "time-series"sv || name == "time_series"sv)
+        //     return apply_time_series();
         // else if (name == ""sv)
         //     return apply_();
         return acmacs::settings::Settings::apply_built_in(name);

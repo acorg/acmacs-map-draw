@@ -18,6 +18,11 @@ namespace rjson::v3
     class value;
 };
 
+namespace map_elements::v1
+{
+    class LegendPointLabel;
+}
+
 // ----------------------------------------------------------------------
 
 namespace acmacs::mapi::inline v1
@@ -105,7 +110,22 @@ namespace acmacs::mapi::inline v1
 
         void add_labels(const acmacs::chart::PointIndexList& indexes, size_t index_base, const rjson::v3::value& label_data);
         void add_label(size_t index, size_t index_base, const rjson::v3::value& label_data);
-    };
+
+        // ----------------------------------------------------------------------
+        // mapi-settings-legend.cc
+
+        map_elements::v1::LegendPointLabel& legend();
+        bool apply_legend();
+        void add_legend_continent_map();
+        void add_legend(const acmacs::chart::PointIndexList& indexes, size_t index_base, const point_style_t& style, const rjson::v3::value& legend_data);
+        void add_legend(const acmacs::chart::PointIndexList& indexes, size_t index_base, const point_style_t& style, std::string_view label, const rjson::v3::value& legend_data);
+        bool apply_title();
+
+        // bool apply_serum_circles();
+        // bool apply_procrustes();
+        // bool apply_time_series();
+
+    }; // class Settings
 
 
 } // namespace acmacs::mapi::inline v1

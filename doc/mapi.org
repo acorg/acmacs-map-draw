@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-24 17:51:21 eu>
+# Time-stamp: <2020-05-25 09:35:31 eu>
 
 * TODO
 
@@ -147,7 +147,7 @@
  "fill": "passage", "outline": "passage", "fill": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"}, "outline": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"},
  "order": "raise|lower",
  "label": <Label>,
-# "legend": {"show": true, "label": "<TEXT>", "count": true, "replace": false},
+ "legend": {"show": true, "label": "<format>", "count": true, "replace": false},
  },
 
 # -- sort aa at pos by frequency and set ana/google colors, X is always grey
@@ -159,7 +159,8 @@
  "fill": "passage", "outline": "passage", "fill": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"}, "outline": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"},
  "order": "raise|lower",
  "label": <Label>,
-# },
+ "legend": {"show": true, "label": "<format>", "count": true, "replace": false},
+},
 
 #+END_SRC
 
@@ -187,6 +188,7 @@ See [[file:~/AD/share/doc/color.org][color.org]]
       "label_size": 14,
       "point_size": 10,
       "?type": "continent-map",
+      "title": "<format>" -- ["<format>", ...]
       "data": [{"display_name": "163-del", "outline": "black", "fill": "red"}]
   }
 #+END_SRC
@@ -302,7 +304,7 @@ http://geomalgorithms.com/a03-_inclusion.html
 #+END_SRC
 
 
-* VCM SSM
+* TODO VCM SSM
 :PROPERTIES:
 :VISIBILITY: folded
 :END:

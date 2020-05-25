@@ -97,15 +97,6 @@ void map_elements::v1::ContinentMap::draw(acmacs::draw::DrawElements& aDrawEleme
 
 // ----------------------------------------------------------------------
 
-map_elements::v1::LegendPointLabel::LegendPointLabel()
-    : Element("legend-point-label", Elements::AfterPoints), mOrigin{-10, -10},
-      mBackground("white"), mBorderColor(BLACK), mBorderWidth(0.3), mPointSize(8),
-      mLabelColor(BLACK), mLabelSize(12), mInterline(2.0)
-{
-} // map_elements::v1::LegendPointLabel::LegendPointLabel
-
-// ----------------------------------------------------------------------
-
 // obsolete
 void map_elements::v1::LegendPointLabel::draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const
 {

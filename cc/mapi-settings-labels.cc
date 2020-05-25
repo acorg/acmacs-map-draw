@@ -9,16 +9,7 @@ void acmacs::mapi::v1::Settings::add_labels(const acmacs::chart::PointIndexList&
 {
     using namespace std::string_view_literals;
 
-    const bool show = label_data["show"].visit([]<typename Val>(const Val& value) -> bool {
-        if constexpr (std::is_same_v<Val, rjson::v3::detail::null>)
-            return true; // show by default
-        else if constexpr (std::is_same_v<Val, rjson::v3::detail::boolean>)
-            return value.template to<bool>();
-        else
-            throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"show\" value: {}", value)};
-    });
-
-    if (show) { // const auto& show = aLabelData["show"]; show.is_null() || show.to<bool>()) { // true by default
+    if (rjson::v3::read_bool(label_data["show"sv], true)) { // show by default
         for (auto index : indexes)
             add_label(index, index_base, label_data);
     }

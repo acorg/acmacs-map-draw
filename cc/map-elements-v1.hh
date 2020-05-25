@@ -53,19 +53,19 @@ namespace map_elements::v1
      public:
         struct Line
         {
-            Line(Color aOutline, Color aFill, std::string aLabel) : outline(aOutline), fill(aFill), label(aLabel) {}
+            Line(Color aOutline, Color aFill, std::string_view aLabel) : outline{aOutline}, fill{aFill}, label{aLabel} {}
             Color outline, fill;
             std::string label;
         };
 
-        LegendPointLabel();
+        LegendPointLabel() : Element("legend-point-label", Elements::AfterPoints) {}
 
         void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
         void offset(const acmacs::PointCoordinates& aOrigin) { mOrigin = aOrigin; }
-        void add_line(Color outline, Color fill, std::string label) { mLines.emplace_back(outline, fill, label); }
-        void remove_line(std::string label) { mLines.erase(std::remove_if(mLines.begin(), mLines.end(), [&label](const auto& elt) { return elt.label == label; }), mLines.end()); }
+        void add_line(Color outline, Color fill, std::string_view label) { mLines.emplace_back(outline, fill, label); }
+        void remove_line(std::string_view label) { mLines.erase(std::remove_if(mLines.begin(), mLines.end(), [&label](const auto& elt) { return elt.label == label; }), mLines.end()); }
         void label_size(double aLabelSize) { mLabelSize = Pixels{aLabelSize}; }
         void point_size(double aPointSize) { mPointSize = Pixels{aPointSize}; }
         void background(Color aBackground) { mBackground = aBackground; }
@@ -75,15 +75,15 @@ namespace map_elements::v1
         const auto& lines() const { return mLines; }
 
       private:
-        acmacs::PointCoordinates mOrigin;
-        Color mBackground;
-        Color mBorderColor;
-        Pixels mBorderWidth;
-        Pixels mPointSize;
-        Color mLabelColor;
-        Pixels mLabelSize;
+        acmacs::PointCoordinates mOrigin{-10, -10};
+        Color mBackground{WHITE};
+        Color mBorderColor{BLACK};
+        Pixels mBorderWidth{0.3};
+        Pixels mPointSize{8};
+        Color mLabelColor{BLACK};
+        Pixels mLabelSize{12};
         acmacs::TextStyle mLabelStyle;
-        double mInterline;
+        double mInterline{2.0};
         std::vector<Line> mLines;
 
     }; // class LegendPointLabel
