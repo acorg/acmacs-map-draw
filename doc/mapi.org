@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-25 11:06:48 eu>
+# Time-stamp: <2020-05-25 11:50:21 eu>
 
 * TODO
 
@@ -191,7 +191,7 @@ See [[file:~/AD/share/doc/color.org][color.org]]
       "point_size": 10,
       "?type": "continent-map",
       "title": "<format>" -- ["<format>", ...]
-      "lines": [{"display_name": "163-del", "outline": "black", "fill": "red"}]
+      "lines": [{"text": "163-del", "outline": "black", "fill": "red"}]
   }
 #+END_SRC
 
