@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-25 15:14:44 eu>
+# Time-stamp: <2020-05-25 18:34:45 eu>
 
 * TODO
 
@@ -187,6 +187,9 @@ See [[file:~/AD/share/doc/color.org][color.org]]
 
   "outline": {"aa-at": 159}
   "outline": {"aa-at": 159, "colors": ["#FF4040", "#4040FF", "#40FF40"]} -- ordered by frequency, X is always grey
+
+  -- NOTE to change fill and make outline black for just sequenced antigens, add another entry afterwards
+  {"N": "antigens", "select": {"sequenced": true}, "outline": "black"},
 #+END_SRC
 
 * Label

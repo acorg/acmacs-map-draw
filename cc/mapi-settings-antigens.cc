@@ -965,7 +965,9 @@ bool acmacs::mapi::v1::Settings::color_according_to_aa_at_pos(const acmacs::char
             return false;
     };
 
-    return make(style.passage_fill, true) || make(style.passage_outline, false);
+    const auto fill_modified = make(style.passage_fill, true);
+    const auto outline_modified = make(style.passage_outline, false);
+    return fill_modified || outline_modified;
 
 } // acmacs::mapi::v1::Settings::color_according_to_aa_at_pos
 
