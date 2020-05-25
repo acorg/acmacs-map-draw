@@ -1,6 +1,7 @@
 #include "acmacs-base/date.hh"
 #include "acmacs-base/string-compare.hh"
 #include "acmacs-base/rjson-v3-helper.hh"
+#include "acmacs-base/color-amino-acid.hh"
 #include "acmacs-whocc-data/labs.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/draw.hh"
@@ -113,7 +114,13 @@ bool acmacs::mapi::v1::Settings::color_according_to_aa_at_pos(const acmacs::char
                 }
             }
             else { // standard aa colors
-                AD_DEBUG("use standard colors");
+                for (auto& [aa, en] : per_aa) {
+                    const acmacs::color::Modifier color{acmacs::amino_acid_color(aa)};
+                    if (fill)
+                        en.second.fill(color);
+                    else
+                        en.second.outline(color);
+                }
             }
 
             // mark antigens
@@ -903,7 +910,7 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
                 for (const auto& col : color_values)
                     result.color_order.emplace_back(col.template to<std::string_view>());
             }
-            else if constexpr (!std::is_same_v<Val, const rjson::v3::detail::null>)
+            else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
                 AD_WARNING("invalid \"colors\": {} (array of colors expected)", color_values);
         });
     };
