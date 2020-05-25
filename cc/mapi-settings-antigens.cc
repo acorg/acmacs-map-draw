@@ -81,73 +81,6 @@ template <typename AgSr> bool acmacs::mapi::v1::Settings::color_according_to_pas
 
 // ----------------------------------------------------------------------
 
-bool acmacs::mapi::v1::Settings::color_according_to_aa_at_pos(const acmacs::chart::PointIndexList& indexes, const point_style_t& style)
-{
-    using namespace std::string_view_literals;
-
-    const auto make = [&indexes, this](const std::optional<passage_color_t>& data, bool fill) -> bool {
-        if (data.has_value() && data->pos.has_value()) {
-            const auto& entries = chart_draw().match_seqdb();
-            const auto& seqdb = acmacs::seqdb::get();
-            acmacs::small_map_with_unique_keys_t<char, std::pair<acmacs::chart::PointIndexList, PointStyleModified>> per_aa;
-            for (const auto index : indexes) {
-                if (const auto& entry{entries[index]}; entry)
-                    per_aa.emplace_not_replace(entry.aa_at_pos(seqdb, *data->pos)).second.first.insert(index);
-            }
-            per_aa.sort([](const auto& e1, const auto& e2) { return e1.second.first.size() > e2.second.first.size(); }); // most occurred aa first
-
-            // set colors
-            if (!data->color_order.empty()) {
-                size_t colors_used{0};
-                for (auto& [aa, en] : per_aa) {
-                    acmacs::color::Modifier color;
-                    if (aa == 'X')
-                        color.add(acmacs::color::Modifier{GREY});
-                    else if (colors_used < data->color_order.size())
-                        color.add(data->color_order[colors_used++]);
-                    else
-                        throw acmacs::mapi::unrecognized{fmt::format("color_according_to_aa_at_pos: too few colors in the color order for pos {}", *data->pos)};
-                    if (fill)
-                        en.second.fill(color);
-                    else
-                        en.second.outline(color);
-                }
-            }
-            else { // standard aa colors
-                for (auto& [aa, en] : per_aa) {
-                    const acmacs::color::Modifier color{acmacs::amino_acid_color(aa)};
-                    if (fill)
-                        en.second.fill(color);
-                    else
-                        en.second.outline(color);
-                }
-            }
-
-            // mark antigens
-            for (const auto& [aa, en] : per_aa)
-                chart_draw().modify(en.first, en.second, PointDrawingOrder::Raise);
-
-            // legend lines
-            if (const auto& legend = getenv("legend"sv); !legend.is_null()) {
-                for (const auto& [aa, en] : per_aa) {
-                    const auto label{fmt::format(rjson::v3::get_or(legend["label"sv], "{pos}{aa} ({count})"sv),
-                                                 fmt::arg("aa", aa), fmt::arg("pos", *data->pos), fmt::arg("count", en.first.size()))};
-                        add_legend(en.first, en.second, label, legend);
-                }
-            }
-
-            return true;
-        }
-        else
-            return false;
-    };
-
-    return make(style.passage_fill, true) || make(style.passage_outline, false);
-
-} // acmacs::mapi::v1::Settings::color_according_to_aa_at_pos
-
-// ----------------------------------------------------------------------
-
 bool acmacs::mapi::v1::Settings::apply_antigens()
 {
     using namespace std::string_view_literals;
@@ -971,6 +904,70 @@ PointDrawingOrder acmacs::mapi::v1::Settings::drawing_order_from_toplevel_enviro
 
 // ----------------------------------------------------------------------
 
+bool acmacs::mapi::v1::Settings::color_according_to_aa_at_pos(const acmacs::chart::PointIndexList& indexes, const point_style_t& style)
+{
+    using namespace std::string_view_literals;
+
+    const auto make = [&indexes, this](const std::optional<passage_color_t>& data, bool fill) -> bool {
+        if (data.has_value() && data->pos.has_value()) {
+            const auto& entries = chart_draw().match_seqdb();
+            const auto& seqdb = acmacs::seqdb::get();
+            acmacs::small_map_with_unique_keys_t<char, std::pair<acmacs::chart::PointIndexList, PointStyleModified>> per_aa;
+            for (const auto index : indexes) {
+                if (const auto& entry{entries[index]}; entry)
+                    per_aa.emplace_not_replace(entry.aa_at_pos(seqdb, *data->pos)).second.first.insert(index);
+            }
+            per_aa.sort([](const auto& e1, const auto& e2) { return e1.second.first.size() > e2.second.first.size(); }); // most occurred aa first
+
+            // set colors
+            if (!data->color_order.empty()) {
+                size_t colors_used{0};
+                for (auto& [aa, en] : per_aa) {
+                    acmacs::color::Modifier color;
+                    if (aa == 'X')
+                        color.add(acmacs::color::Modifier{GREY});
+                    else if (colors_used < data->color_order.size())
+                        color.add(data->color_order[colors_used++]);
+                    else
+                        throw acmacs::mapi::unrecognized{fmt::format("color_according_to_aa_at_pos: too few colors in the color order for pos {}", *data->pos)};
+                    if (fill)
+                        en.second.fill(color);
+                    else
+                        en.second.outline(color);
+                }
+            }
+            else { // standard aa colors
+                for (auto& [aa, en] : per_aa) {
+                    const acmacs::color::Modifier color{acmacs::amino_acid_color(aa)};
+                    if (fill)
+                        en.second.fill(color);
+                    else
+                        en.second.outline(color);
+                }
+            }
+
+            // mark antigens
+            for (const auto& [aa, en] : per_aa)
+                chart_draw().modify(en.first, en.second, PointDrawingOrder::Raise);
+
+            // legend lines
+            if (const auto& legend = getenv("legend"sv); !legend.is_null()) {
+                for (const auto& [aa, en] : per_aa) {
+                    const auto label{fmt::format(rjson::v3::get_or(legend["label"sv], "{pos}{aa} ({count})"sv),
+                                                 fmt::arg("aa", aa), fmt::arg("pos", *data->pos), fmt::arg("count", en.first.size()))};
+                        add_legend(en.first, en.second, label, legend);
+                }
+            }
+
+            return true;
+        }
+        else
+            return false;
+    };
+
+    return make(style.passage_fill, true) || make(style.passage_outline, false);
+
+} // acmacs::mapi::v1::Settings::color_according_to_aa_at_pos
 
 // ----------------------------------------------------------------------
 /// Local Variables:
