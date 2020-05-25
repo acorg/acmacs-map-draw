@@ -2,6 +2,7 @@
 
 #include "acmacs-base/settings.hh"
 #include "acmacs-base/point-style.hh"
+#include "seqdb-3/sequence.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 
 // ----------------------------------------------------------------------
@@ -76,6 +77,8 @@ namespace acmacs::mapi::inline v1
             acmacs::color::Modifier egg{Color{0xFF4040}};
             acmacs::color::Modifier cell{Color{0x4040FF}};
             acmacs::color::Modifier reassortant{Color{0xFFB040}};
+            std::optional<acmacs::seqdb::pos1_t> pos; // coloring by aa at pos
+            std::vector<acmacs::color::Modifier> color_order; // coloring by aa at pos
         };
 
         struct point_style_t

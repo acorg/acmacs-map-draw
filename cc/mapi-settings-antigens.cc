@@ -1,5 +1,6 @@
 #include "acmacs-base/date.hh"
 #include "acmacs-base/string-compare.hh"
+#include "acmacs-base/rjson-v3-helper.hh"
 #include "acmacs-whocc-data/labs.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/draw.hh"
@@ -845,26 +846,40 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
             substituted);
     };
 
-    const auto make_color_passage = [this, make_color_passage_helper](const rjson::v3::value& egg, const rjson::v3::value& reassortant, const rjson::v3::value& cell) -> modifier_or_passage_t {
-        passage_color_t result;
+    const auto make_color_passage = [this, make_color_passage_helper](passage_color_t& result, const rjson::v3::value& egg, const rjson::v3::value& reassortant, const rjson::v3::value& cell) {
         if (const auto egg_val = make_color_passage_helper(substitute(egg)); egg_val.has_value())
             result.egg = result.reassortant = *egg_val;
         if (const auto reassortant_val = make_color_passage_helper(substitute(reassortant)); reassortant_val.has_value())
             result.reassortant = *reassortant_val;
         if (const auto cell_val = make_color_passage_helper(substitute(cell)); cell_val.has_value())
             result.cell = *cell_val;
-        return result;
+    };
+
+    const auto make_color_aa_at = [](passage_color_t& result, const rjson::v3::value& aa_at, const rjson::v3::value& colors) {
+        result.pos = rjson::v3::read_number<acmacs::seqdb::pos1_t>(aa_at);
+        colors.visit([&result]<typename Val>(const Val& color_values) {
+                if constexpr (std::is_same_v<Val, const rjson::v3::detail::array>) {
+                    for (const auto& col : color_values)
+                        result.color_order.emplace_back(col.template to<std::string_view>());
+            }
+            else if constexpr (std::is_same_v<Val, const rjson::v3::detail::null>)
+                AD_WARNING("invalid \"colors\": {} (array of colors expected)", color_values);
+        });
     };
 
     try {
         return std::visit(
-            [make_color, make_color_passage]<typename Value>(const Value& substituted_val) -> modifier_or_passage_t {
+            [make_color, make_color_passage, make_color_aa_at]<typename Value>(const Value& substituted_val) -> modifier_or_passage_t {
                 if constexpr (std::is_same_v<Value, const rjson::v3::value*>) {
-                    return substituted_val->visit([make_color, make_color_passage]<typename Val>(const Val& val) -> modifier_or_passage_t {
+                    return substituted_val->visit([make_color, make_color_passage, make_color_aa_at]<typename Val>(const Val& val) -> modifier_or_passage_t {
                         if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
                             return make_color(val.template to<std::string_view>());
-                        else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>)
-                            return make_color_passage(val["egg"sv], val["reassortant"sv], val["cell"sv]);
+                        else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
+                            passage_color_t passage_color;
+                            make_color_passage(passage_color, val["egg"sv], val["reassortant"sv], val["cell"sv]);
+                            make_color_aa_at(passage_color, val["aa-at"sv], val["colors"sv]);
+                            return passage_color;
+                        }
                         else
                             throw std::exception{};
                     });
