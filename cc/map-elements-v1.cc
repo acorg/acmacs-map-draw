@@ -150,15 +150,6 @@ void map_elements::v1::LegendPointLabel::draw(acmacs::draw::DrawElements& aDrawE
 
 // ----------------------------------------------------------------------
 
-map_elements::v1::Title::Title()
-    : Element("title", Elements::AfterPoints), mOrigin{10, 10}, mPadding{10},
-      mBackground(GREY97), mBorderColor(BLACK), mBorderWidth(0.1),
-      mTextColor(BLACK), mTextSize(12), mInterline(2.0)
-{
-} // map_elements::v1::Title::Title
-
-// ----------------------------------------------------------------------
-
 // obsolete
 void map_elements::v1::Title::draw(acmacs::surface::Surface& aSurface) const
 {

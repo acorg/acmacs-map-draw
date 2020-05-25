@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-25 11:50:21 eu>
+# Time-stamp: <2020-05-25 14:59:23 eu>
 
 * TODO
 
@@ -180,7 +180,7 @@ See [[file:~/AD/share/doc/color.org][color.org]]
    "weight": "bold", "slant": "italic", "font_family": "monospace"}
 #+END_SRC
 
-* TODO Legend
+* Legend
 
 #+BEGIN_SRC json
   {
@@ -198,11 +198,9 @@ See [[file:~/AD/share/doc/color.org][color.org]]
 * TODO Title
 
 #+BEGIN_SRC json
-# {"N": "title", "show": true, "offset": [10, 10], "padding": 10, "size": 1,
-         "background": "grey97", "border_color": "black", "border_width": 0.1,
-         "text_color": "black", "text_size": 12, "interline": 2,
-         "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif",
-         "?display_name": ["Line 1 {lab} {assay} {assay_short} {virus_type} {lineage} {date} {name}", "Line 2", "Another line"]}
+  {"N": "title", "show": true, "offset": [10, 10], "lines": ["Line 1 {lab} {assay} {assay_short} {virus_type} {lineage} {rbc} {subset} {date} {name}", "Line 2", "Another line"],
+   "padding": 10, "background": "transparent", "border_color": "black", "border_width": 0.0, "text_color": "black", "text_size": 12, "interline": 2, "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif"
+  }
 #+END_SRC
 
 

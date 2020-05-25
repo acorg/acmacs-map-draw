@@ -95,7 +95,7 @@ namespace map_elements::v1
     class Title : public Element
     {
      public:
-        Title();
+        Title(): Element{"title", Elements::AfterPoints} {}
 
         virtual void draw(acmacs::surface::Surface& aSurface) const;
         void draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const override { draw(aSurface); }
@@ -104,29 +104,30 @@ namespace map_elements::v1
         Title& show(bool aShow) { mShow = aShow; return *this; }
         Title& offset(const acmacs::PointCoordinates& aOrigin) { mOrigin = aOrigin; return *this; }
           // Title& offset(double x, double y) { mOrigin = acmacs::PointCoordinates(x, y); return *this; }
-        Title& padding(double x) { mPadding = Pixels{x}; return *this; }
+        Title& padding(Pixels x) { mPadding = x; return *this; }
         Title& remove_all_lines() { mLines.clear(); return *this; }
-        Title& add_line(std::string aText) { mLines.emplace_back(aText); return *this; }
-        Title& text_size(double aTextSize) { mTextSize = Pixels{aTextSize}; return *this; }
+        Title& add_line(std::string_view aText) { mLines.emplace_back(aText); return *this; }
+        Title& text_size(Pixels aTextSize) { mTextSize = aTextSize; return *this; }
         Title& text_color(const acmacs::color::Modifier& aTextColor) { mTextColor.add(aTextColor); return *this; }
+        Title& interline(double interline) { mInterline = interline; return *this; }
         Title& background(const acmacs::color::Modifier& aBackground) { mBackground.add(aBackground); return *this; }
         Title& border_color(const acmacs::color::Modifier& aBorderColor) { mBorderColor.add(aBorderColor); return *this; }
-        Title& border_width(double aBorderWidth) { mBorderWidth = Pixels{aBorderWidth}; return *this; }
-        Title& weight(std::string aWeight) { mTextStyle.weight = aWeight; return *this; }
-        Title& slant(std::string aSlant) { mTextStyle.slant = aSlant; return *this; }
-        Title& font_family(std::string aFamily) { mTextStyle.font_family = aFamily; return *this; }
+        Title& border_width(Pixels aBorderWidth) { mBorderWidth = aBorderWidth; return *this; }
+        Title& weight(std::string_view aWeight) { mTextStyle.weight = aWeight; return *this; }
+        Title& slant(std::string_view aSlant) { mTextStyle.slant = aSlant; return *this; }
+        Title& font_family(std::string_view aFamily) { mTextStyle.font_family = aFamily; return *this; }
 
      private:
-        bool mShow;
-        acmacs::PointCoordinates mOrigin;
-        Pixels mPadding;
-        acmacs::color::Modifier mBackground;
-        acmacs::color::Modifier mBorderColor;
-        Pixels mBorderWidth;
-        acmacs::color::Modifier mTextColor;
-        Pixels mTextSize;
+        bool mShow{true};
+        acmacs::PointCoordinates mOrigin{10, 10};
+        Pixels mPadding{10};
+        acmacs::color::Modifier mBackground{TRANSPARENT};
+        acmacs::color::Modifier mBorderColor{BLACK};
+        Pixels mBorderWidth{0};
+        acmacs::color::Modifier mTextColor{BLACK};
+        Pixels mTextSize{12};
         acmacs::TextStyle mTextStyle;
-        double mInterline;
+        double mInterline{2.0};
         std::vector<std::string> mLines;
 
     }; // class Title

@@ -526,9 +526,9 @@ class ModTitle : public Mod
             if (const auto& offset = args()["offset"]; !offset.is_null())
                 title.offset({offset[0].to<double>(), offset[1].to<double>()});
             if (const auto& padding = args()["padding"]; !padding.is_null())
-                title.padding(padding.to<double>());
+                title.padding(padding.to<Pixels>());
             if (const auto& text_size = args()["text_size"]; !text_size.is_null())
-                title.text_size(text_size.to<double>());
+                title.text_size(text_size.to<Pixels>());
             if (const auto& text_color = args()["text_color"]; !text_color.is_null())
                 title.text_color(text_color.to<std::string_view>());
             if (const auto& background = args()["background"]; !background.is_null())
@@ -536,7 +536,7 @@ class ModTitle : public Mod
             if (const auto& border_color = args()["border_color"]; !border_color.is_null())
                 title.border_color(border_color.to<std::string_view>());
             if (const auto& border_width = args()["border_width"]; !border_width.is_null())
-                title.border_width(border_width.to<double>());
+                title.border_width(border_width.to<Pixels>());
             if (const auto& font_weight = args()["font_weight"]; !font_weight.is_null())
                 title.weight(font_weight.to<std::string>());
             if (const auto& font_slant = args()["font_slant"]; !font_slant.is_null())
