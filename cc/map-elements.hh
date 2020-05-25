@@ -29,12 +29,13 @@ namespace map_elements
         enum Order { BeforePoints, AfterPoints };
 
         Elements();
-        Element& operator[](std::string aKeyword);
+        Element& operator[](std::string keyword);
 
-        void remove(std::string aKeyword);
-        bool exists(std::string aKeyword) const;
+        void remove(std::string keyword);
+        bool exists(std::string keyword) const;
 
-        Element& add(std::string_view aKeyword);
+        Element& add(std::string_view keyword);
+        template <typename ElementType> ElementType& find_or_add(std::string_view keyword) { return dynamic_cast<ElementType&>(find_or_add_raw(keyword)); }
 
         template <typename Elt> Elt& add()
         {
@@ -51,7 +52,8 @@ namespace map_elements
         std::vector<std::shared_ptr<Element>> mElements;
 
         void add_basic_elements_v1();
-        bool add_v1(std::string_view aKeyword);
+        bool add_v1(std::string_view keyword);
+        Element& find_or_add_raw(std::string_view keyword);
 
     }; // class Elements
 
@@ -60,7 +62,7 @@ namespace map_elements
     class Element
     {
      public:
-        Element(std::string_view aKeyword, Elements::Order aOrder) : mKeyword(aKeyword), mOrder(aOrder) {}
+        Element(std::string_view keyword, Elements::Order aOrder) : mKeyword(keyword), mOrder(aOrder) {}
         Element(const Element&) = default;
         virtual ~Element() = default;
 
@@ -72,7 +74,7 @@ namespace map_elements
      protected:
         virtual acmacs::PointCoordinates subsurface_origin(acmacs::surface::Surface& aSurface, const acmacs::PointCoordinates& aPixelOrigin, const acmacs::Size& aScaledSubsurfaceSize) const;
 
-        void keyword(std::string aKeyword) { mKeyword = aKeyword; }
+        void keyword(std::string keyword) { mKeyword = keyword; }
 
      private:
         std::string mKeyword;

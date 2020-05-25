@@ -11,40 +11,51 @@ map_elements::Elements::Elements()
 
 // ----------------------------------------------------------------------
 
-bool map_elements::Elements::exists(std::string aKeyword) const
+bool map_elements::Elements::exists(std::string keyword) const
 {
-    return std::find_if(mElements.begin(), mElements.end(), [&aKeyword](const auto& element) { return element->keyword() == aKeyword; }) != mElements.end();
+    return std::find_if(mElements.begin(), mElements.end(), [&keyword](const auto& element) { return element->keyword() == keyword; }) != mElements.end();
 
 } // map_elements::Elements::exists
 
 // ----------------------------------------------------------------------
 
-map_elements::Element& map_elements::Elements::operator[](std::string aKeyword)
+map_elements::Element& map_elements::Elements::operator[](std::string keyword)
 {
-    if (auto found = std::find_if(mElements.begin(), mElements.end(), [&aKeyword](const auto& element) { return element->keyword() == aKeyword; }); found != mElements.end())
+    if (auto found = std::find_if(mElements.begin(), mElements.end(), [&keyword](const auto& element) { return element->keyword() == keyword; }); found != mElements.end())
         return **found;
     else
-        return add(aKeyword);
+        return add(keyword);
 
 } // map_elements::Elements::operator[]
 
 // ----------------------------------------------------------------------
 
-map_elements::Element& map_elements::Elements::add(std::string_view aKeyword)
+map_elements::Element& map_elements::Elements::add(std::string_view keyword)
 {
     using namespace std::string_view_literals;
-    if (add_v1(aKeyword))
+    if (add_v1(keyword))
         return *mElements.back();
     else
-        throw std::runtime_error{fmt::format("Don't know how to make map element {}", aKeyword)};
+        throw std::runtime_error{fmt::format("Don't know how to make map element {}", keyword)};
 
 } // map_elements::Elements::add
 
 // ----------------------------------------------------------------------
 
-void map_elements::Elements::remove(std::string aKeyword)
+map_elements::Element& map_elements::Elements::find_or_add_raw(std::string_view keyword)
 {
-    mElements.erase(std::remove_if(mElements.begin(), mElements.end(), [&aKeyword](const auto& e) { return e->keyword() == aKeyword; }), mElements.end());
+    if (auto found = std::find_if(mElements.begin(), mElements.end(), [&keyword](const auto& element) { return element->keyword() == keyword; }); found != mElements.end())
+        return **found;
+    else
+        return add(keyword);
+
+} // map_elements::Elements::find_or_add
+
+// ----------------------------------------------------------------------
+
+void map_elements::Elements::remove(std::string keyword)
+{
+    mElements.erase(std::remove_if(mElements.begin(), mElements.end(), [&keyword](const auto& e) { return e->keyword() == keyword; }), mElements.end());
 
 } // map_elements::Elements::remove
 

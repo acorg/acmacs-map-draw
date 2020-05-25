@@ -117,8 +117,10 @@ namespace acmacs::mapi::inline v1
         map_elements::v1::LegendPointLabel& legend();
         bool apply_legend();
         void add_legend_continent_map();
-        void add_legend(const acmacs::chart::PointIndexList& indexes, size_t index_base, const point_style_t& style, const rjson::v3::value& legend_data);
-        void add_legend(const acmacs::chart::PointIndexList& indexes, size_t index_base, const point_style_t& style, std::string_view label, const rjson::v3::value& legend_data);
+        void add_legend(const acmacs::chart::PointIndexList& indexes, const point_style_t& style, const rjson::v3::value& legend_data);
+        void add_legend(const acmacs::chart::PointIndexList& indexes, const point_style_t& style, std::string_view label, const rjson::v3::value& legend_data);
+
+        map_elements::v1::Title& title();
         bool apply_title();
 
         // bool apply_serum_circles();

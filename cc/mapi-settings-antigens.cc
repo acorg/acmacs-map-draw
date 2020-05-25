@@ -58,7 +58,7 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
     if (const auto& label = getenv("label"sv); !label.is_null())
         add_labels(indexes, 0, label);
     if (const auto& legend = getenv("legend"sv); !legend.is_null())
-        add_legend(indexes, 0, style, legend);
+        add_legend(indexes, style, legend);
 
     return true;
 
@@ -78,7 +78,7 @@ bool acmacs::mapi::v1::Settings::apply_sera()
     if (const auto& label = getenv("label"sv); !label.is_null())
         add_labels(indexes, number_of_antigens, label);
     if (const auto& legend = getenv("legend"sv); !legend.is_null())
-        add_legend(indexes, number_of_antigens, style, legend);
+        add_legend(indexes, style, legend);
 
     return true;
 

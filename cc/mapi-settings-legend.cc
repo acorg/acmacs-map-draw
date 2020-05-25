@@ -7,7 +7,7 @@
 
 map_elements::v1::LegendPointLabel& acmacs::mapi::v1::Settings::legend()
 {
-    return chart_draw().map_elements().add<map_elements::v1::LegendPointLabel>();
+    return chart_draw().map_elements().find_or_add<map_elements::v1::LegendPointLabel>("legend-point-label");
 
 } // acmacs::mapi::v1::Settings::legend
 
@@ -25,8 +25,10 @@ bool acmacs::mapi::v1::Settings::apply_legend()
             auto& legend_element = legend();
         }
     }
-    else
+    else {
+        AD_DEBUG("remove_legend");
         chart_draw().remove_legend();
+    }
 
     return true;
 
@@ -34,7 +36,7 @@ bool acmacs::mapi::v1::Settings::apply_legend()
 
 // ----------------------------------------------------------------------
 
-void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList& indexes, size_t index_base, const point_style_t& style, const rjson::v3::value& legend_data)
+void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList& indexes, const point_style_t& style, const rjson::v3::value& legend_data)
 {
     using namespace std::string_view_literals;
 
@@ -44,16 +46,16 @@ void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList&
     if (rjson::v3::read_bool(legend_data["replace"sv], false))
         legend().remove_line(label);
 
-    add_legend(indexes, index_base, style, label, legend_data);
+    add_legend(indexes, style, label, legend_data);
 
 } // acmacs::mapi::v1::Settings::add_legend
 
 // ----------------------------------------------------------------------
 
-void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList& indexes, size_t index_base, const point_style_t& style, std::string_view label, const rjson::v3::value& legend_data)
+void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList& indexes, const point_style_t& style, std::string_view label, const rjson::v3::value& legend_data)
 {
     using namespace std::string_view_literals;
-    if (rjson::v3::read_bool(legend_data["show"sv], false)  && !indexes->empty()) { // show is true by default
+    if (rjson::v3::read_bool(legend_data["show"sv], true) && !indexes->empty()) { // show is true by default
         legend().add_line(style.style.outline(), style.style.fill(), label);
     }
 
@@ -74,6 +76,14 @@ void acmacs::mapi::v1::Settings::add_legend_continent_map()
     });
 
 } // acmacs::mapi::v1::Settings::add_legend_continent_map
+
+// ----------------------------------------------------------------------
+
+map_elements::v1::Title& acmacs::mapi::v1::Settings::title()
+{
+    return chart_draw().map_elements().find_or_add<map_elements::v1::Title>("title");
+
+} // acmacs::mapi::v1::Settings::title
 
 // ----------------------------------------------------------------------
 
