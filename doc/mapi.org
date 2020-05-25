@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-25 14:59:23 eu>
+# Time-stamp: <2020-05-25 15:14:44 eu>
 
 * TODO
 
@@ -141,35 +141,53 @@
 [[Label][Label]]
 
 #+BEGIN_SRC json
-{"N": "antigens", "select": <Select Antigens>
- "outline": "<color-modifier>", "fill": "<color-modifier>",
- "fill": "passage", "outline": "passage", "fill": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"}, "outline": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"},
- "aspect": 1.0, "rotation": 0.0, "outline_width": 1.0,
- "size": 1.0, "show": true, "shape": "circle|box|triangle",
- "order": "raise|lower",
- "label": <Label>,
- "legend": {"show": true, "label": "name ({count})", "replace": false},
- },
+  {"N": "antigens", "select": <Select Antigens>
+   "outline": "<color-modifier>", "fill": "<color-modifier>",
+   "aspect": 1.0, "rotation": 0.0, "outline_width": 1.0,
+   "size": 1.0, "show": true, "shape": "circle|box|triangle",
+   "order": "raise|lower",
+   "label": <Label>,
+   "legend": {"show": true, "label": "name ({count})", "replace": false},
+   }
 
-# -- sort aa at pos by frequency and set ana/google colors, X is always grey
-
-{"N": "sera", "select": {<select>},
- "outline": "<color-modifier>", "fill": "<color-modifier>",
- "fill": "passage", "outline": "passage", "fill": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"}, "outline": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"},
- "aspect": 1.0, "rotation": 0.0,
- "size": 1.0, "outline_width": 1.0,
- "show": true, "shape": "circle|box|triangle",
- "order": "raise|lower",
- "label": <Label>,
- "legend": {"show": true, "label": "name ({count})", "replace": false},
-},
-
+  {"N": "sera", "select": {<select>},
+   "outline": "<color-modifier>", "fill": "<color-modifier>",
+   "aspect": 1.0, "rotation": 0.0,
+   "size": 1.0, "outline_width": 1.0,
+   "show": true, "shape": "circle|box|triangle",
+   "order": "raise|lower",
+   "label": <Label>,
+   "legend": {"show": true, "label": "name ({count})", "replace": false},
+  }
 #+END_SRC
 
 
 * Color and Color modifier
 
 See [[file:~/AD/share/doc/color.org][color.org]]
+
+"fill": "red"
+"fill": "red:s-0.5"
+
+** outline and fill depends on passage
+
+#+BEGIN_SRC json
+  "fill": "passage"
+  "fill": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"} 
+
+  "outline": "passage"
+  "outline": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"}
+#+END_SRC
+
+** outline and fill depends on aa at pos
+
+#+BEGIN_SRC json
+  "fill": {"aa-at": 159}
+  "fill": {"aa-at": 159, "colors": ["#FF4040", "#4040FF", "#40FF40"]} -- ordered by frequency, X is always grey
+
+  "outline": {"aa-at": 159}
+  "outline": {"aa-at": 159, "colors": ["#FF4040", "#4040FF", "#40FF40"]} -- ordered by frequency, X is always grey
+#+END_SRC
 
 * Label
 
@@ -189,13 +207,19 @@ See [[file:~/AD/share/doc/color.org][color.org]]
       "show": true,
       "label_size": 14,
       "point_size": 10,
-      "?type": "continent-map",
       "title": "<format>" -- ["<format>", ...]
-      "lines": [{"text": "163-del", "outline": "black", "fill": "red"}]
+      "lines": [{"text": "163-del", "outline": "black", "fill": "red"}] -- additional lines added after the ones added by {"N": antigens, "legend": ...}
+  }
+
+  {
+      "N": "legend",
+      "type": "continent-map",
+      "offset": [-10, 10],
+      "show": true
   }
 #+END_SRC
 
-* TODO Title
+* Title
 
 #+BEGIN_SRC json
   {"N": "title", "show": true, "offset": [10, 10], "lines": ["Line 1 {lab} {assay} {assay_short} {virus_type} {lineage} {rbc} {subset} {date} {name}", "Line 2", "Another line"],

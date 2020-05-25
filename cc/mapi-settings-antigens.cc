@@ -12,7 +12,7 @@ enum class throw_if_unprocessed { no, yes };
 
 template <typename AgSr> void acmacs::mapi::v1::Settings::color_according_to_passage(const AgSr& ag_sr, const acmacs::chart::PointIndexList& indexes, const point_style_t& style)
 {
-    if (style.fill.has_value() || style.outline.has_value()) {
+    if (style.passage_fill.has_value() || style.passage_outline.has_value()) {
         auto egg_indexes = indexes;
         ag_sr.filter_egg(egg_indexes, acmacs::chart::reassortant_as_egg::no);
         auto reassortant_indexes = indexes;
@@ -21,15 +21,15 @@ template <typename AgSr> void acmacs::mapi::v1::Settings::color_according_to_pas
         ag_sr.filter_cell(cell_indexes);
 
         PointStyleModified ps_egg, ps_reassortant, ps_cell;
-        if (style.fill.has_value()) {
-            ps_egg.fill(style.fill->egg);
-            ps_reassortant.fill(style.fill->reassortant);
-            ps_cell.fill(style.fill->cell);
+        if (style.passage_fill.has_value()) {
+            ps_egg.fill(style.passage_fill->egg);
+            ps_reassortant.fill(style.passage_fill->reassortant);
+            ps_cell.fill(style.passage_fill->cell);
         }
-        if (style.outline.has_value()) {
-            ps_egg.outline(style.outline->egg);
-            ps_reassortant.outline(style.outline->reassortant);
-            ps_cell.outline(style.outline->cell);
+        if (style.passage_outline.has_value()) {
+            ps_egg.outline(style.passage_outline->egg);
+            ps_reassortant.outline(style.passage_outline->reassortant);
+            ps_cell.outline(style.passage_outline->cell);
         }
         if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
             chart_draw().modify(egg_indexes, ps_egg);
@@ -749,7 +749,7 @@ acmacs::mapi::v1::Settings::point_style_t acmacs::mapi::v1::Settings::style_from
                     if constexpr (std::is_same_v<Modifier, acmacs::color::Modifier>)
                         result.style.fill(modifier);
                     else
-                        result.fill = modifier;
+                        result.passage_fill = modifier;
                 },
                 color(val));
         }
@@ -759,7 +759,7 @@ acmacs::mapi::v1::Settings::point_style_t acmacs::mapi::v1::Settings::style_from
                     if constexpr (std::is_same_v<Modifier, acmacs::color::Modifier>)
                         result.style.outline(modifier);
                     else
-                        result.outline = modifier;
+                        result.passage_outline = modifier;
                 },
                 color(val));
         }
@@ -791,10 +791,8 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
 {
     using namespace std::string_view_literals;
     const auto make_color = [](std::string_view source) -> modifier_or_passage_t {
-        if (source == "passage"sv) {
-            AD_WARNING("\"passage\" color not implemented");
+        if (source == "passage"sv)
             return passage_color_t{};
-        }
         else
             return acmacs::color::Modifier{source};
     };

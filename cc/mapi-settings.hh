@@ -81,8 +81,8 @@ namespace acmacs::mapi::inline v1
         struct point_style_t
         {
             acmacs::PointStyleModified style;
-            std::optional<passage_color_t> fill;
-            std::optional<passage_color_t> outline;
+            std::optional<passage_color_t> passage_fill;
+            std::optional<passage_color_t> passage_outline;
         };
 
         point_style_t style_from_toplevel_environment() const;
