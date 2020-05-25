@@ -21,6 +21,7 @@ namespace rjson::v3
 namespace map_elements::v1
 {
     class LegendPointLabel;
+    class Title;
 }
 
 // ----------------------------------------------------------------------

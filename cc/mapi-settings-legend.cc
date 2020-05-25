@@ -40,9 +40,8 @@ void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList&
 {
     using namespace std::string_view_literals;
 
-    std::string label{rjson::v3::get_or(legend_data["label"sv], "use \"label\" in \"legend\""sv)};
-    if (rjson::v3::read_bool(legend_data["count"sv], false))
-        label = fmt::format("{} ({})", label, indexes.size());
+    const auto label{fmt::format(rjson::v3::get_or(legend_data["label"sv], "use \"label\" in \"legend\""sv),
+                                 fmt::arg("count", indexes.size()))};
     if (rjson::v3::read_bool(legend_data["replace"sv], false))
         legend().remove_line(label);
 
