@@ -42,12 +42,8 @@ void acmacs::mapi::v1::Settings::add_label(size_t index, size_t index_base, cons
     else
         label.display_name(acmacs::chart::format_serum(pattern, chart_draw().chart(), index));
 
-    label_data["offset"sv].visit([&label]<typename Val>(const Val& value) {
-        if constexpr (std::is_same_v<Val, rjson::v3::detail::array>)
-            label.offset({value[0].template to<double>(), value[1].template to<double>()});
-        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
-            throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"offset\" value: {}", value)};
-    });
+    if (const auto offset = rjson::v3::read_point_coordinates(label_data["offset"sv]); offset.has_value())
+        label.offset(*offset);
 
     if (const auto color = rjson::v3::read_color(label_data["color"sv]); color.has_value())
         label.color(*color);

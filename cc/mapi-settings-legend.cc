@@ -22,7 +22,16 @@ bool acmacs::mapi::v1::Settings::apply_legend()
             add_legend_continent_map();
         }
         else {
+      // "offset": [-10, 10],
+      // "show": true,
+      // "label_size": 14,
+      // "point_size": 10,
+      // "?type": "continent-map",
+      // "title": "<format>" -- ["<format>", ...]
+      // "lines": [{"display_name": "163-del", "outline": "black", "fill": "red"}]
+
             auto& legend_element = legend();
+            legend_element.offset(rjson::v3::read_point_coordinates(getenv("offset"sv), acmacs::PointCoordinates{-10, -10}));
         }
     }
     else {
@@ -65,14 +74,10 @@ void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList&
 void acmacs::mapi::v1::Settings::add_legend_continent_map()
 {
     using namespace std::string_view_literals;
-    getenv("offset"sv).visit([this]<typename Val>(const Val& offset) {
-        if constexpr (std::is_same_v<Val, rjson::v3::detail::array>)
-            chart_draw().continent_map({offset[0].template to<double>(), offset[1].template to<double>()}, rjson::v3::read_number(getenv("size"sv), Pixels{100.0}));
-        else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>)
-            chart_draw().continent_map();
-        else
-            throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"offset\" value: {}", offset)};
-    });
+    if (const auto offset = rjson::v3::read_point_coordinates(getenv("offset"sv)); offset.has_value())
+        chart_draw().continent_map(*offset, rjson::v3::read_number(getenv("size"sv), Pixels{100.0}));
+    else
+        chart_draw().continent_map();
 
 } // acmacs::mapi::v1::Settings::add_legend_continent_map
 
