@@ -10,8 +10,10 @@ enum class throw_if_unprocessed { no, yes };
 
 // ----------------------------------------------------------------------
 
-template <typename AgSr> void acmacs::mapi::v1::Settings::color_according_to_passage(const AgSr& ag_sr, const acmacs::chart::PointIndexList& indexes, const point_style_t& style)
+template <typename AgSr> bool acmacs::mapi::v1::Settings::color_according_to_passage(const AgSr& ag_sr, const acmacs::chart::PointIndexList& indexes, const point_style_t& style)
 {
+    using namespace std::string_view_literals;
+
     if (style.passage_fill.has_value() || style.passage_outline.has_value()) {
         auto egg_indexes = indexes;
         ag_sr.filter_egg(egg_indexes, acmacs::chart::reassortant_as_egg::no);
@@ -31,17 +33,38 @@ template <typename AgSr> void acmacs::mapi::v1::Settings::color_according_to_pas
             ps_reassortant.outline(style.passage_outline->reassortant);
             ps_cell.outline(style.passage_outline->cell);
         }
+
+        using by_passage_t = std::tuple<const acmacs::chart::PointIndexList*, std::string_view, const PointStyleModified*>;
+        std::array by_passage{
+            by_passage_t{&egg_indexes, "egg", &ps_egg},
+            by_passage_t{&reassortant_indexes, "reassortant", &ps_reassortant},
+            by_passage_t{&cell_indexes, "cell", &ps_cell},
+        };
+        std::sort(std::begin(by_passage), std::end(by_passage), [](const auto& e1, const auto& e2) { return std::get<const acmacs::chart::PointIndexList*>(e1)->size() > std::get<const acmacs::chart::PointIndexList*>(e2)->size(); });
+
         if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
             chart_draw().modify(egg_indexes, ps_egg);
             chart_draw().modify(reassortant_indexes, ps_reassortant);
             chart_draw().modify(cell_indexes, ps_cell);
+            chart_draw().modify_drawing_order(*std::get<const acmacs::chart::PointIndexList*>(by_passage[1]), PointDrawingOrder::Raise);
+            chart_draw().modify_drawing_order(*std::get<const acmacs::chart::PointIndexList*>(by_passage[2]), PointDrawingOrder::Raise);
         }
         else {
             chart_draw().modify_sera(egg_indexes, ps_egg);
             chart_draw().modify_sera(reassortant_indexes, ps_reassortant);
             chart_draw().modify_sera(cell_indexes, ps_cell);
+            chart_draw().modify_sera_drawing_order(*std::get<const acmacs::chart::PointIndexList*>(by_passage[1]), PointDrawingOrder::Raise);
+            chart_draw().modify_sera_drawing_order(*std::get<const acmacs::chart::PointIndexList*>(by_passage[2]), PointDrawingOrder::Raise);
         }
+
+        // if (const auto& legend = getenv("legend"sv); !legend.is_null()) {
+        //     std::array passages{"egg", "reassortant",
+        // }
+
+        return true;
     }
+    else
+        return false;
 
 } // acmacs::mapi::v1::Settings::color_according_to_passage
 
@@ -54,11 +77,12 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
     const auto indexes = select_antigens(getenv("select"sv));
     const auto style = style_from_toplevel_environment();
     chart_draw().modify(indexes, style.style, drawing_order_from_toplevel_environment());
-    color_according_to_passage(*chart_draw().chart().antigens(), indexes, style);
+    if (!color_according_to_passage(*chart_draw().chart().antigens(), indexes, style)) {
+        if (const auto& legend = getenv("legend"sv); !legend.is_null())
+            add_legend(indexes, style, legend);
+    }
     if (const auto& label = getenv("label"sv); !label.is_null())
         add_labels(indexes, 0, label);
-    if (const auto& legend = getenv("legend"sv); !legend.is_null())
-        add_legend(indexes, style, legend);
 
     return true;
 
@@ -73,12 +97,13 @@ bool acmacs::mapi::v1::Settings::apply_sera()
     const auto indexes = select_sera(getenv("select"sv));
     const auto style = style_from_toplevel_environment();
     chart_draw().modify_sera(indexes, style.style, drawing_order_from_toplevel_environment());
-    color_according_to_passage(*chart_draw().chart().sera(), indexes, style);
+    if (!color_according_to_passage(*chart_draw().chart().sera(), indexes, style)) {
+        if (const auto& legend = getenv("legend"sv); !legend.is_null())
+            add_legend(indexes, style, legend);
+    }
     const auto number_of_antigens = chart_draw().chart().number_of_antigens();
     if (const auto& label = getenv("label"sv); !label.is_null())
         add_labels(indexes, number_of_antigens, label);
-    if (const auto& legend = getenv("legend"sv); !legend.is_null())
-        add_legend(indexes, style, legend);
 
     return true;
 
