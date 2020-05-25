@@ -75,7 +75,7 @@ namespace acmacs::mapi::inline v1
         {
             acmacs::color::Modifier egg{Color{0xFF4040}};
             acmacs::color::Modifier cell{Color{0x4040FF}};
-            acmacs::color::Modifier reassortant{Color{0xFF4040}};
+            acmacs::color::Modifier reassortant{Color{0xFFB040}};
         };
 
         struct point_style_t
@@ -118,8 +118,8 @@ namespace acmacs::mapi::inline v1
         map_elements::v1::LegendPointLabel& legend();
         bool apply_legend();
         void add_legend_continent_map();
-        void add_legend(const acmacs::chart::PointIndexList& indexes, const point_style_t& style, const rjson::v3::value& legend_data);
-        void add_legend(const acmacs::chart::PointIndexList& indexes, const point_style_t& style, std::string_view label, const rjson::v3::value& legend_data);
+        void add_legend(const acmacs::chart::PointIndexList& indexes, const acmacs::PointStyleModified& style, const rjson::v3::value& legend_data);
+        void add_legend(const acmacs::chart::PointIndexList& indexes, const acmacs::PointStyleModified& style, std::string_view label, const rjson::v3::value& legend_data);
 
         map_elements::v1::Title& title();
         bool apply_title();

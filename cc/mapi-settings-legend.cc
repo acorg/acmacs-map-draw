@@ -62,7 +62,7 @@ bool acmacs::mapi::v1::Settings::apply_legend()
 
 // ----------------------------------------------------------------------
 
-void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList& indexes, const point_style_t& style, const rjson::v3::value& legend_data)
+void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList& indexes, const acmacs::PointStyleModified& style, const rjson::v3::value& legend_data)
 {
     using namespace std::string_view_literals;
 
@@ -77,11 +77,11 @@ void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList&
 
 // ----------------------------------------------------------------------
 
-void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList& indexes, const point_style_t& style, std::string_view label, const rjson::v3::value& legend_data)
+void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList& indexes, const acmacs::PointStyleModified& style, std::string_view label, const rjson::v3::value& legend_data)
 {
     using namespace std::string_view_literals;
     if (rjson::v3::read_bool(legend_data["show"sv], true) && !indexes->empty()) { // show is true by default
-        legend().add_line(acmacs::color::Modifier{style.style.outline()}, acmacs::color::Modifier{style.style.fill()}, label);
+        legend().add_line(acmacs::color::Modifier{style.outline()}, acmacs::color::Modifier{style.fill()}, label);
     }
 
 } // acmacs::mapi::v1::Settings::add_legend

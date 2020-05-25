@@ -34,6 +34,7 @@ template <typename AgSr> bool acmacs::mapi::v1::Settings::color_according_to_pas
             ps_cell.outline(style.passage_outline->cell);
         }
 
+        // order b y number of occurrences, lest frequent passage (last in by_passage) is on top
         using by_passage_t = std::tuple<const acmacs::chart::PointIndexList*, std::string_view, const PointStyleModified*>;
         std::array by_passage{
             by_passage_t{&egg_indexes, "egg", &ps_egg},
@@ -57,9 +58,17 @@ template <typename AgSr> bool acmacs::mapi::v1::Settings::color_according_to_pas
             chart_draw().modify_sera_drawing_order(*std::get<const acmacs::chart::PointIndexList*>(by_passage[2]), PointDrawingOrder::Raise);
         }
 
-        // if (const auto& legend = getenv("legend"sv); !legend.is_null()) {
-        //     std::array passages{"egg", "reassortant",
-        // }
+        // order legend by number of occurrences
+        if (const auto& legend = getenv("legend"sv); !legend.is_null()) {
+            for (const auto& en : by_passage) {
+                if (const auto& indexes = *std::get<const acmacs::chart::PointIndexList*>(en); indexes.size() > 0) {
+                    const auto label{fmt::format(rjson::v3::get_or(legend["label"sv], "{passage} ({count})"sv),
+                                                 fmt::arg("passage", std::get<std::string_view>(en)),
+                                                 fmt::arg("count", indexes.size()))};
+                    add_legend(indexes, *std::get<const PointStyleModified*>(en), label, legend);
+                }
+            }
+        }
 
         return true;
     }
@@ -79,7 +88,7 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
     chart_draw().modify(indexes, style.style, drawing_order_from_toplevel_environment());
     if (!color_according_to_passage(*chart_draw().chart().antigens(), indexes, style)) {
         if (const auto& legend = getenv("legend"sv); !legend.is_null())
-            add_legend(indexes, style, legend);
+            add_legend(indexes, style.style, legend);
     }
     if (const auto& label = getenv("label"sv); !label.is_null())
         add_labels(indexes, 0, label);
@@ -99,7 +108,7 @@ bool acmacs::mapi::v1::Settings::apply_sera()
     chart_draw().modify_sera(indexes, style.style, drawing_order_from_toplevel_environment());
     if (!color_according_to_passage(*chart_draw().chart().sera(), indexes, style)) {
         if (const auto& legend = getenv("legend"sv); !legend.is_null())
-            add_legend(indexes, style, legend);
+            add_legend(indexes, style.style, legend);
     }
     const auto number_of_antigens = chart_draw().chart().number_of_antigens();
     if (const auto& label = getenv("label"sv); !label.is_null())
