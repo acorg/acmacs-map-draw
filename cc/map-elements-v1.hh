@@ -53,8 +53,9 @@ namespace map_elements::v1
      public:
         struct Line
         {
-            Line(Color aOutline, Color aFill, std::string_view aLabel) : outline{aOutline}, fill{aFill}, label{aLabel} {}
-            Color outline, fill;
+            Line(const acmacs::color::Modifier& aOutline, const acmacs::color::Modifier& aFill, std::string_view aLabel) : outline{aOutline}, fill{aFill}, label{aLabel} {}
+            Line(std::string_view aLabel) : outline{TRANSPARENT}, fill{TRANSPARENT}, label{aLabel} {}
+            acmacs::color::Modifier outline, fill;
             std::string label;
         };
 
@@ -64,7 +65,7 @@ namespace map_elements::v1
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
         void offset(const acmacs::PointCoordinates& aOrigin) { mOrigin = aOrigin; }
-        void add_line(Color outline, Color fill, std::string_view label) { mLines.emplace_back(outline, fill, label); }
+        void add_line(const acmacs::color::Modifier& outline, const acmacs::color::Modifier& fill, std::string_view label) { mLines.emplace_back(outline, fill, label); }
         void remove_line(std::string_view label) { mLines.erase(std::remove_if(mLines.begin(), mLines.end(), [&label](const auto& elt) { return elt.label == label; }), mLines.end()); }
         void label_size(Pixels aLabelSize) { mLabelSize = aLabelSize; }
         void point_size(Pixels aPointSize) { mPointSize = aPointSize; }
@@ -72,7 +73,8 @@ namespace map_elements::v1
         void border_color(Color aBorderColor) { mBorderColor = aBorderColor; }
         void border_width(double aBorderWidth) { mBorderWidth = Pixels{aBorderWidth}; }
 
-        const auto& lines() const { return mLines; }
+        constexpr const auto& lines() const { return mLines; }
+        constexpr auto& lines() { return mLines; }
 
       private:
         acmacs::PointCoordinates mOrigin{-10, -10};
@@ -106,9 +108,9 @@ namespace map_elements::v1
         Title& remove_all_lines() { mLines.clear(); return *this; }
         Title& add_line(std::string aText) { mLines.emplace_back(aText); return *this; }
         Title& text_size(double aTextSize) { mTextSize = Pixels{aTextSize}; return *this; }
-        Title& text_color(Color aTextColor) { mTextColor = aTextColor; return *this; }
-        Title& background(Color aBackground) { mBackground = aBackground; return *this; }
-        Title& border_color(Color aBorderColor) { mBorderColor = aBorderColor; return *this; }
+        Title& text_color(const acmacs::color::Modifier& aTextColor) { mTextColor.add(aTextColor); return *this; }
+        Title& background(const acmacs::color::Modifier& aBackground) { mBackground.add(aBackground); return *this; }
+        Title& border_color(const acmacs::color::Modifier& aBorderColor) { mBorderColor.add(aBorderColor); return *this; }
         Title& border_width(double aBorderWidth) { mBorderWidth = Pixels{aBorderWidth}; return *this; }
         Title& weight(std::string aWeight) { mTextStyle.weight = aWeight; return *this; }
         Title& slant(std::string aSlant) { mTextStyle.slant = aSlant; return *this; }
@@ -118,10 +120,10 @@ namespace map_elements::v1
         bool mShow;
         acmacs::PointCoordinates mOrigin;
         Pixels mPadding;
-        Color mBackground;
-        Color mBorderColor;
+        acmacs::color::Modifier mBackground;
+        acmacs::color::Modifier mBorderColor;
         Pixels mBorderWidth;
-        Color mTextColor;
+        acmacs::color::Modifier mTextColor;
         Pixels mTextSize;
         acmacs::TextStyle mTextStyle;
         double mInterline;

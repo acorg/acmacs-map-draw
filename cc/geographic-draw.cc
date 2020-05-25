@@ -181,10 +181,10 @@ void set_title(map_elements::v1::Title& aTitle, const rjson::value& aSettings, b
         const rjson::value& title_data = aSettings["title"];
         aTitle.show(true)
                 .padding(rjson::get_or(title_data, "padding", 10.0))
-                .background(Color(rjson::get_or(title_data, "background", "transparent")))
-                .border_color(Color(rjson::get_or(title_data, "border_color", "black")))
+                .background(rjson::get_or(title_data, "background", "transparent"))
+                .border_color(rjson::get_or(title_data, "border_color", "black"))
                 .border_width(rjson::get_or(title_data, "border_width", 0.0))
-                .text_color(Color(rjson::get_or(title_data, "text_color", "black")))
+                .text_color(rjson::get_or(title_data, "text_color", "black"))
                 .text_size(rjson::get_or(title_data, "text_size", 12.0))
                 ;
         if (const auto& offset = title_data["offset"]; !offset.empty())

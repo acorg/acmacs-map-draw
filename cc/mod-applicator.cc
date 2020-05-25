@@ -134,7 +134,7 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
             auto& legend = aChartDraw.legend_point_label();
             if (const auto& count = aLegendData["count"]; !count.is_null() && count.to<bool>())
                 aLabel += " (" + std::to_string(aIndices->size()) + ")";
-            legend.add_line(aStyle.outline(), aStyle.fill(), aLabel);
+            legend.add_line(acmacs::color::Modifier{aStyle.outline()}, acmacs::color::Modifier{aStyle.fill()}, aLabel);
         }
     }
 
@@ -530,11 +530,11 @@ class ModTitle : public Mod
             if (const auto& text_size = args()["text_size"]; !text_size.is_null())
                 title.text_size(text_size.to<double>());
             if (const auto& text_color = args()["text_color"]; !text_color.is_null())
-                title.text_color(Color(text_color.to<std::string_view>()));
+                title.text_color(text_color.to<std::string_view>());
             if (const auto& background = args()["background"]; !background.is_null())
-                title.background(Color(background.to<std::string_view>()));
+                title.background(background.to<std::string_view>());
             if (const auto& border_color = args()["border_color"]; !border_color.is_null())
-                title.border_color(Color(border_color.to<std::string_view>()));
+                title.border_color(border_color.to<std::string_view>());
             if (const auto& border_width = args()["border_width"]; !border_width.is_null())
                 title.border_width(border_width.to<double>());
             if (const auto& font_weight = args()["font_weight"]; !font_weight.is_null())
@@ -564,7 +564,7 @@ class ModLegend : public Mod
             auto& legend = aChartDraw.legend_point_label();
             if (const auto& data = args()["data"]; !data.is_null()) {
                 rjson::for_each(data, [&legend](const rjson::value& line_data) {
-                    legend.add_line(Color(rjson::get_or(line_data, "outline", "black")), Color(rjson::get_or(line_data, "fill", "pink")),
+                    legend.add_line(rjson::get_or(line_data, "outline", "black"), rjson::get_or(line_data, "fill", "pink"),
                                     std::string(rjson::get_or(line_data, "display_name", "* no display_name *")));
                 });
             }

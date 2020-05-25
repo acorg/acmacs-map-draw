@@ -22,13 +22,24 @@ bool acmacs::mapi::v1::Settings::apply_legend()
             add_legend_continent_map();
         }
         else {
-      // "title": "<format>" -- ["<format>", ...]
-      // "lines": [{"display_name": "163-del", "outline": "black", "fill": "red"}]
+            // "lines": [{"display_name": "163-del", "outline": "black", "fill": "red"}]
 
             auto& legend_element = legend();
             legend_element.offset(rjson::v3::read_point_coordinates(getenv("offset"sv), acmacs::PointCoordinates{-10, -10}));
             legend_element.label_size(rjson::v3::read_number(getenv("label_size"sv), Pixels{12}));
             legend_element.point_size(rjson::v3::read_number(getenv("point_size"sv), Pixels{8}));
+
+            getenv("title"sv).visit([&legend_element]<typename Val>(const Val& title) {
+                auto insertion_point{legend_element.lines().begin()};
+                if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+                    for (const auto& line : title)
+                        insertion_point = std::next(legend_element.lines().insert(insertion_point, line.template to<std::string_view>()));
+                }
+                else if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
+                    legend_element.lines().insert(insertion_point, title.template to<std::string_view>());
+                else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
+                    throw error{fmt::format("unrecognized: {} (expected array of strings or a string)", title)};
+            });
         }
     }
     else {
@@ -61,7 +72,7 @@ void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList&
 {
     using namespace std::string_view_literals;
     if (rjson::v3::read_bool(legend_data["show"sv], true) && !indexes->empty()) { // show is true by default
-        legend().add_line(style.style.outline(), style.style.fill(), label);
+        legend().add_line(acmacs::color::Modifier{style.style.outline()}, acmacs::color::Modifier{style.style.fill()}, label);
     }
 
 } // acmacs::mapi::v1::Settings::add_legend
