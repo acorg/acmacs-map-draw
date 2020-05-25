@@ -80,6 +80,62 @@ template <typename AgSr> bool acmacs::mapi::v1::Settings::color_according_to_pas
 
 // ----------------------------------------------------------------------
 
+bool acmacs::mapi::v1::Settings::color_according_to_aa_at_pos(const acmacs::chart::PointIndexList& indexes, const point_style_t& style)
+{
+    using namespace std::string_view_literals;
+
+    const auto make = [&indexes, this](const std::optional<passage_color_t>& data, bool fill) -> bool {
+        if (data.has_value() && data->pos.has_value()) {
+            const auto& entries = chart_draw().match_seqdb();
+            const auto& seqdb = acmacs::seqdb::get();
+            acmacs::small_map_with_unique_keys_t<char, std::pair<acmacs::chart::PointIndexList, PointStyleModified>> per_aa;
+            for (const auto index : indexes) {
+                if (const auto& entry{entries[index]}; entry)
+                    per_aa.emplace_not_replace(entry.aa_at_pos(seqdb, *data->pos)).second.first.insert(index);
+            }
+            per_aa.sort([](const auto& e1, const auto& e2) { return e1.second.first.size() > e2.second.first.size(); }); // most occurred aa first
+
+            // set colors
+            if (!data->color_order.empty()) {
+                size_t colors_used{0};
+                for (auto& [aa, en] : per_aa) {
+                    acmacs::color::Modifier color;
+                    if (aa == 'X')
+                        color.add(acmacs::color::Modifier{GREY});
+                    else if (colors_used < data->color_order.size())
+                        color.add(data->color_order[colors_used++]);
+                    else
+                        throw acmacs::mapi::unrecognized{fmt::format("color_according_to_aa_at_pos: too few colors in the color order for pos {}", *data->pos)};
+                    if (fill)
+                        en.second.fill(color);
+                    else
+                        en.second.outline(color);
+                }
+            }
+            else { // standard aa colors
+            }
+
+            // legend lines
+            if (const auto& legend = getenv("legend"sv); !legend.is_null()) {
+                for (const auto& [aa, en] : per_aa) {
+                    const auto label{fmt::format(rjson::v3::get_or(legend["label"sv], "{pos}{aa} ({count})"sv),
+                                                 fmt::arg("aa", aa), fmt::arg("pos", *data->pos), fmt::arg("count", en.first.size()))};
+                        add_legend(en.first, en.second, label, legend);
+                }
+            }
+
+            return true;
+        }
+        else
+            return false;
+    };
+
+    return make(style.passage_fill, true) || make(style.passage_outline, false);
+
+} // acmacs::mapi::v1::Settings::color_according_to_aa_at_pos
+
+// ----------------------------------------------------------------------
+
 bool acmacs::mapi::v1::Settings::apply_antigens()
 {
     using namespace std::string_view_literals;
@@ -87,7 +143,7 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
     const auto indexes = select_antigens(getenv("select"sv));
     const auto style = style_from_toplevel_environment();
     chart_draw().modify(indexes, style.style, drawing_order_from_toplevel_environment());
-    if (!color_according_to_passage(*chart_draw().chart().antigens(), indexes, style)) {
+    if (!color_according_to_passage(*chart_draw().chart().antigens(), indexes, style) && !color_according_to_aa_at_pos(indexes, style)) {
         if (const auto& legend = getenv("legend"sv); !legend.is_null())
             add_legend(indexes, style.style, legend);
     }
@@ -116,41 +172,6 @@ bool acmacs::mapi::v1::Settings::apply_sera()
         add_labels(indexes, number_of_antigens, label);
 
     return true;
-
-    // const auto verbose = rjson::get_or(args(), "report", false);
-    // if (const auto& select = args()["select"]; !select.is_null()) {
-    //     auto& projection = aChartDraw.projection();
-    //     if (auto relative = args().get("relative"); !relative.is_null()) {
-    //         auto layout = aChartDraw.layout();
-    //         for (auto index : SelectSera(acmacs::verbose_from(verbose)).select(aChartDraw, select)) {
-    //             const auto coord = layout->at(index + aChartDraw.number_of_antigens());
-    //             projection.move_point(index + aChartDraw.number_of_antigens(), acmacs::PointCoordinates(coord.x() + relative[0].to<double>(), coord.y() + relative[1].to<double>()));
-    //         }
-    //     }
-    //     else if (const auto& flip_line = args()["flip_over_line"]; !flip_line.is_null()) {
-    //         acmacs::PointCoordinates from{flip_line["from"][0].to<double>(), flip_line["from"][1].to<double>()}, to{flip_line["to"][0].to<double>(), flip_line["to"][1].to<double>()};
-    //         if (!rjson::get_or(flip_line, "transform", true)) {
-    //             const auto transformation = aChartDraw.transformation().inverse();
-    //             from = transformation.transform(from);
-    //             to = transformation.transform(to);
-    //         }
-    //         const acmacs::LineDefinedByEquation line(from, to);
-    //         auto layout = aChartDraw.layout();
-    //         for (auto index : SelectSera(acmacs::verbose_from(verbose)).select(aChartDraw, select)) {
-    //             const auto flipped = line.flip_over(layout->at(index + aChartDraw.number_of_antigens()), 1.0);
-    //             projection.move_point(index + aChartDraw.number_of_antigens(), flipped);
-    //         }
-    //     }
-    //     else {
-    //         const auto move_to = get_move_to(aChartDraw, verbose);
-    //         for (auto index : SelectSera(acmacs::verbose_from(verbose)).select(aChartDraw, select)) {
-    //             projection.move_point(index + aChartDraw.number_of_antigens(), move_to);
-    //         }
-    //     }
-    // }
-    // else {
-    //     throw unrecognized_mod{"no \"select\" in \"move_sera\" mod: " + rjson::format(args())};
-    // }
 
 } // acmacs::mapi::v1::Settings::apply_sera
 
