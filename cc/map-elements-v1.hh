@@ -66,8 +66,8 @@ namespace map_elements::v1
         void offset(const acmacs::PointCoordinates& aOrigin) { mOrigin = aOrigin; }
         void add_line(Color outline, Color fill, std::string_view label) { mLines.emplace_back(outline, fill, label); }
         void remove_line(std::string_view label) { mLines.erase(std::remove_if(mLines.begin(), mLines.end(), [&label](const auto& elt) { return elt.label == label; }), mLines.end()); }
-        void label_size(double aLabelSize) { mLabelSize = Pixels{aLabelSize}; }
-        void point_size(double aPointSize) { mPointSize = Pixels{aPointSize}; }
+        void label_size(Pixels aLabelSize) { mLabelSize = aLabelSize; }
+        void point_size(Pixels aPointSize) { mPointSize = aPointSize; }
         void background(Color aBackground) { mBackground = aBackground; }
         void border_color(Color aBorderColor) { mBorderColor = aBorderColor; }
         void border_width(double aBorderWidth) { mBorderWidth = Pixels{aBorderWidth}; }

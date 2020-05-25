@@ -22,16 +22,13 @@ bool acmacs::mapi::v1::Settings::apply_legend()
             add_legend_continent_map();
         }
         else {
-      // "offset": [-10, 10],
-      // "show": true,
-      // "label_size": 14,
-      // "point_size": 10,
-      // "?type": "continent-map",
       // "title": "<format>" -- ["<format>", ...]
       // "lines": [{"display_name": "163-del", "outline": "black", "fill": "red"}]
 
             auto& legend_element = legend();
             legend_element.offset(rjson::v3::read_point_coordinates(getenv("offset"sv), acmacs::PointCoordinates{-10, -10}));
+            legend_element.label_size(rjson::v3::read_number(getenv("label_size"sv), Pixels{12}));
+            legend_element.point_size(rjson::v3::read_number(getenv("point_size"sv), Pixels{8}));
         }
     }
     else {

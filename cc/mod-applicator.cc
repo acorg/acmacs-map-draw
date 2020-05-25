@@ -571,9 +571,9 @@ class ModLegend : public Mod
             if (const auto& offset = args()["offset"]; !offset.is_null())
                 legend.offset({offset[0].to<double>(), offset[1].to<double>()});
             if (const auto& label_size = args()["label_size"]; !label_size.is_null())
-                legend.label_size(label_size.to<double>());
+                legend.label_size(label_size.to<Pixels>());
             if (const auto& point_size = args()["point_size"]; !point_size.is_null())
-                legend.point_size(point_size.to<double>());
+                legend.point_size(point_size.to<Pixels>());
             if (const auto& background = args()["background"]; !background.is_null())
                 legend.background(Color(background.to<std::string_view>()));
             if (const auto& border_color = args()["border_color"]; !border_color.is_null())
