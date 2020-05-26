@@ -6,6 +6,38 @@
 
 // ----------------------------------------------------------------------
 
+inline static void report_circles(fmt::memory_buffer& report, size_t indent, const acmacs::chart::Antigens& antigens, const acmacs::chart::PointIndexList& antigen_indexes, const acmacs::chart::SerumCircle& empirical,
+                                  const acmacs::chart::SerumCircle& theoretical)
+{
+    const auto find_data = [](const acmacs::chart::SerumCircle& data, size_t antigen_index) -> const acmacs::chart::detail::SerumCirclePerAntigen& {
+        if (const auto found = find_if(std::begin(data.per_antigen()), std::end(data.per_antigen()), [antigen_index](const auto& en) { return en.antigen_no == antigen_index; }); found != std::end(data.per_antigen()))
+            return *found;
+        else
+            throw std::runtime_error{"internal error in report_circles..find_data"};
+    };
+
+    fmt::format_to(report, "{:{}c} empir   theor   titer\n", ' ', indent);
+    for (const auto antigen_index : antigen_indexes) {
+        const auto& empirical_data = find_data(empirical, antigen_index);
+        const auto& theoretical_data = find_data(theoretical, antigen_index);
+        std::string empirical_radius(6, ' '), theoretical_radius(6, ' '), empirical_report, theoretical_report;
+        if (empirical_data.valid())
+            empirical_radius = fmt::format("{:.4f}", *empirical_data.radius);
+        else
+            empirical_report.assign(empirical_data.report_reason());
+        if (theoretical_data.valid())
+            theoretical_radius = fmt::format("{:.4f}", *theoretical_data.radius);
+        else
+            theoretical_report.assign(theoretical_data.report_reason());
+        fmt::format_to(report, "{:{}c}{}  {}  {:>6s}   AG {:4d} {:40s}", ' ', indent, empirical_radius, theoretical_radius, theoretical_data.titer, antigen_index, antigens[antigen_index]->full_name(), empirical_report);
+        if (!empirical_report.empty())
+            fmt::format_to(report, " -- {}", empirical_report);
+        else if (!theoretical_report.empty())
+            fmt::format_to(report, " -- {}", theoretical_report);
+        fmt::format_to(report, "\n");
+    }
+}
+
 //  "?homologous_titer": "1280",
 //  "empirical":   {"fill": "#C08080FF", "outline": "#4040FF", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
 //  "theoretical": {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
@@ -26,11 +58,12 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
     const auto serum_indexes = select_sera(getenv("serum"sv, "sera"sv));
     const auto fold = rjson::v3::read_number(getenv("fold"sv), 2.0);
     const auto forced_homologous_titer = rjson::v3::read_string(getenv("homologous_titer"sv));
-    const auto print_report = rjson::v3::read_bool(getenv("report"sv), false);
     const auto verb = verbose_from(rjson::v3::read_bool(getenv("verbose"sv), false));
     const auto& antigen_selector{getenv("antigen"sv, "antigens"sv)};
+    fmt::memory_buffer report;
+    const size_t indent{2};
     for (auto serum_index : serum_indexes) {
-        fmt::memory_buffer report;
+        fmt::format_to(report, "{:{}c}SR {} {}\n", ' ', indent, serum_index, sera->at(serum_index)->full_name());
         if (!layout->point_has_coordinates(serum_index + antigens->size())) {
             fmt::format_to(report, "  serum is disconnected");
         }
@@ -46,27 +79,17 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
                 theoretical = acmacs::chart::serum_circle_theoretical(antigen_indexes, serum_index, column_basis, *titers, fold);
             }
 
-            for (size_t ag_no{0}; ag_no < antigen_indexes.size(); ++ag_no) {
-                fmt::format_to(report, "  AG {} {}\n", antigen_indexes[ag_no], antigens->at(antigen_indexes[ag_no])->full_name());
-                if (const auto& empirical_data = empirical.per_antigen()[ag_no]; empirical_data.valid())
-                    fmt::format_to(report, "  {}  empir: {:.4f}  titer: {}\n", empirical_data.antigen_no, *empirical_data.radius, empirical_data.titer);
-                else
-                    fmt::format_to(report, "  {}  NO empirical: {}  titer: {}\n", empirical_data.antigen_no, empirical_data.report_reason(), empirical_data.titer);
-                if (const auto& theoretical_data = theoretical.per_antigen()[ag_no]; theoretical_data.valid())
-                    fmt::format_to(report, "  {}  theor: {:.4f}  titer: {}\n", theoretical_data.antigen_no, *theoretical_data.radius, theoretical_data.titer);
-                else
-                    fmt::format_to(report, "  {}  NO theoretical: {}  titer: {}\n", theoretical_data.antigen_no, theoretical_data.report_reason(), theoretical_data.titer);
-            }
+            report_circles(report, indent * 2, *antigens, antigen_indexes, empirical, theoretical);
 
             // mark antigen
             // mark serum
         }
         else
-            fmt::format_to(report, "  no homologous antigens selected (selector: {})", antigen_selector);
-
-        if (print_report)
-            AD_INFO("serum circle SR {} {}\n{}", serum_index, sera->at(serum_index)->full_name(), fmt::to_string(report));
+            fmt::format_to(report, "{:{}c}*** no homologous antigens selected (selector: {})\n", ' ', indent, antigen_selector);
+        fmt::format_to(report, "\n");
     }
+    if (rjson::v3::read_bool(getenv("report"sv), false))
+        AD_INFO("Serum circles for {} sera\n{}", serum_indexes.size(), fmt::to_string(report));
 
     // const auto verbose = rjson::get_or(args(), "report", false);
     // for (auto serum_index : serum_indexes) {
@@ -95,7 +118,7 @@ acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens_for_se
         acmacs::map_draw::select::filter::name_in(*chart.antigens(), antigen_indexes, serum->name());
     }
     else {
-        chart.set_homologous(acmacs::chart::find_homologous::relaxed);
+        chart.set_homologous(acmacs::chart::find_homologous::all);
         antigen_indexes = serum->homologous_antigens();
     }
 
