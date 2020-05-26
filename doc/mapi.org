@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-26 09:10:21 eu>
+# Time-stamp: <2020-05-26 10:28:37 eu>
 
 * TODO
 
@@ -282,7 +282,8 @@ http://geomalgorithms.com/a03-_inclusion.html
 * TODO Serum Circles
 
 #+BEGIN_SRC json
-{"N": "serum_circle", "serum": {<Select Sera>}, "?antigen": {<Select Antigens>}, "report": true,
+{"N": "serum_circle", "serum": {<Select Sera>}, "?antigen": {<Select Antigens>}, "?homologous_titer": "1280",
+ "report": true, "verbose": false, 
  "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
  "empirical":   {"fill": "#C08080FF", "outline": "#4040FF", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
  "theoretical": {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
