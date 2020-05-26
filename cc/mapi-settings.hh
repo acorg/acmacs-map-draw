@@ -23,6 +23,7 @@ namespace map_elements::v1
 {
     class LegendPointLabel;
     class Title;
+    class SerumCircle;
 }
 
 // ----------------------------------------------------------------------
@@ -94,7 +95,7 @@ namespace acmacs::mapi::inline v1
         bool color_according_to_aa_at_pos(const acmacs::chart::PointIndexList& indexes, const point_style_t& point_style);
 
         using modifier_or_passage_t  = std::variant<acmacs::color::Modifier, passage_color_t>;
-        modifier_or_passage_t color(const rjson::v3::value& value) const;
+        modifier_or_passage_t color(const rjson::v3::value& value, std::optional<Color> if_null = std::nullopt) const;
 
         // ----------------------------------------------------------------------
         // mapi-settings-drawing.cc
@@ -134,6 +135,8 @@ namespace acmacs::mapi::inline v1
 
         bool apply_serum_circles();
         acmacs::chart::PointIndexList select_antigens_for_serum_circle(size_t serum_index, const rjson::v3::value& antigen_selector);
+        void make_circle(map_elements::v1::SerumCircle& circle, const rjson::v3::value& plot);
+
         // bool apply_procrustes();
         // bool apply_time_series();
 

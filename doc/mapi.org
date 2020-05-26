@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-26 10:28:37 eu>
+# Time-stamp: <2020-05-26 16:10:34 eu>
 
 * TODO
 
@@ -285,11 +285,11 @@ http://geomalgorithms.com/a03-_inclusion.html
 {"N": "serum_circle", "serum": {<Select Sera>}, "?antigen": {<Select Antigens>}, "?homologous_titer": "1280",
  "report": true, "verbose": false, 
  "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
- "empirical":   {"fill": "#C08080FF", "outline": "#4040FF", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
- "theoretical": {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
- "fallback":    {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "outline_dash": "dash3",  "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
- "mark_serum":   {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"format": "{full_name}", "offset": [0, 1.2], "color": "black", "size": 12}},
- "mark_antigen": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "{full_name}", "offset": [0, 1.2], "color": "black", "size": 12}}},
+ "empirical":   {"fill":  "<color-modifier>", "outline": "<color-modifier>", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
+ "theoretical": {"fill":  "<color-modifier>", "outline": "<color-modifier>", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
+ "fallback":    {"fill":  "<color-modifier>", "outline": "<color-modifier>", "outline_width": 2, "outline_dash": "dash3",  "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
+ "mark_serum":   {"fill": "<color-modifier>", "outline": "<color-modifier>", "order": "raise", "label": {"format": "{full_name}", "offset": [0, 1.2], "color": "black", "size": 12}},
+ "mark_antigen": {"fill": "<color-modifier>", "outline": "<color-modifier>", "order": "raise", "label": {"format": "{full_name}", "offset": [0, 1.2], "color": "black", "size": 12}}},
 
 # {"N": "serum_circles", "serum": {"name": "may select none or multiple sera"}, "?antigen": {"index": 0}, "report": true,
  "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",

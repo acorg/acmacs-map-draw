@@ -148,14 +148,14 @@ namespace map_elements::v1
         SerumCircle& serum_no(size_t aSerumNo) { mSerumNo = aSerumNo; return *this; }
         SerumCircle& radius(Scaled aRadius) { mRadius = aRadius; return *this; }
         SerumCircle& fill(Color aFill) { mFillColor = aFill; return *this; }
-        SerumCircle& outline(Color aOutline, double aOutlineWidth) { mOutlineColor = aOutline; mOutlineWidth = Pixels{aOutlineWidth}; return *this; }
+        SerumCircle& outline(Color aOutline, Pixels aOutlineWidth) { mOutlineColor = aOutline; mOutlineWidth = aOutlineWidth; return *this; }
         SerumCircle& outline_no_dash() { mOutlineDash = acmacs::surface::Dash::NoDash; return *this; }
         SerumCircle& outline_dash1() { mOutlineDash = acmacs::surface::Dash::Dash1; return *this; }
         SerumCircle& outline_dash2() { mOutlineDash = acmacs::surface::Dash::Dash2; return *this; }
         SerumCircle& outline_dash3() { mOutlineDash = acmacs::surface::Dash::Dash3; return *this; }
 
-        SerumCircle& radius_line(Color aRadius, double aRadiusWidth) { mRadiusColor = aRadius; mRadiusWidth = Pixels{aRadiusWidth}; return *this; }
-        SerumCircle& angles(double aStart, double aEnd) { mStart = Rotation{aStart}; mEnd = Rotation{aEnd}; return *this; }
+        SerumCircle& radius_line(Color aRadius, Pixels aRadiusWidth) { mRadiusColor = aRadius; mRadiusWidth = aRadiusWidth; return *this; }
+        SerumCircle& angles(Rotation aStart, Rotation aEnd) { mStart = aStart; mEnd = aEnd; return *this; }
         SerumCircle& radius_line_no_dash() { mRadiusDash = acmacs::surface::Dash::NoDash; return *this; }
         SerumCircle& radius_line_dash1() { mRadiusDash = acmacs::surface::Dash::Dash1; return *this; }
         SerumCircle& radius_line_dash2() { mRadiusDash = acmacs::surface::Dash::Dash2; return *this; }

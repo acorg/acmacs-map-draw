@@ -6,48 +6,13 @@
 
 // ----------------------------------------------------------------------
 
-inline static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Antigens& antigens, const acmacs::chart::PointIndexList& antigen_indexes, const acmacs::chart::SerumCircle& empirical,
-                                  const acmacs::chart::SerumCircle& theoretical)
-{
-    const auto find_data = [](const acmacs::chart::SerumCircle& data, size_t antigen_index) -> const acmacs::chart::detail::SerumCirclePerAntigen& {
-        if (const auto found = find_if(std::begin(data.per_antigen()), std::end(data.per_antigen()), [antigen_index](const auto& en) { return en.antigen_no == antigen_index; }); found != std::end(data.per_antigen()))
-            return *found;
-        else
-            throw std::runtime_error{"internal error in report_circles..find_data"};
-    };
+static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Antigens& antigens, const acmacs::chart::PointIndexList& antigen_indexes, const acmacs::chart::SerumCircle& empirical,
+                           const acmacs::chart::SerumCircle& theoretical);
 
-    fmt::format_to(report, "     empir   theor   titer\n");
-    for (const auto antigen_index : antigen_indexes) {
-        const auto& empirical_data = find_data(empirical, antigen_index);
-        const auto& theoretical_data = find_data(theoretical, antigen_index);
-        std::string empirical_radius(6, ' '), theoretical_radius(6, ' '), empirical_report, theoretical_report;
-        if (empirical_data.valid())
-            empirical_radius = fmt::format("{:.4f}", *empirical_data.radius);
-        else
-            empirical_report.assign(empirical_data.report_reason());
-        if (theoretical_data.valid())
-            theoretical_radius = fmt::format("{:.4f}", *theoretical_data.radius);
-        else
-            theoretical_report.assign(theoretical_data.report_reason());
-        fmt::format_to(report, "    {}  {}  {:>6s}   AG {:4d} {:40s}", empirical_radius, theoretical_radius, theoretical_data.titer, antigen_index, antigens[antigen_index]->full_name(), empirical_report);
-        if (!empirical_report.empty())
-            fmt::format_to(report, " -- {}", empirical_report);
-        else if (!theoretical_report.empty())
-            fmt::format_to(report, " -- {}", theoretical_report);
-        fmt::format_to(report, "\n");
-    }
-    std::string empirical_radius(6, ' '), theoretical_radius(6, ' ');
-    if (empirical.valid())
-        empirical_radius = fmt::format("{:.4f}", empirical.radius());
-    if (theoretical.valid())
-        theoretical_radius = fmt::format("{:.4f}", theoretical.radius());
-    fmt::format_to(report, "  > {}  {}\n", empirical_radius, theoretical_radius);
-}
+
+// ----------------------------------------------------------------------
 
 //  "?homologous_titer": "1280",
-//  "empirical":   {"fill": "#C08080FF", "outline": "#4040FF", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
-//  "theoretical": {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
-//  "fallback":    {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "outline_dash": "dash3",  "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
 //  "mark_serum":   {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"format": "{full_name}", "offset": [0, 1.2], "color": "black", "size": 12}},
 //  "mark_antigen": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "{full_name}", "offset": [0, 1.2], "color": "black", "size": 12}}},
 
@@ -84,10 +49,27 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
                 empirical = acmacs::chart::serum_circle_empirical(antigen_indexes, serum_index, *layout, column_basis, *titers, fold, verb);
                 theoretical = acmacs::chart::serum_circle_theoretical(antigen_indexes, serum_index, column_basis, *titers, fold);
             }
-
             report_circles(report, *antigens, antigen_indexes, empirical, theoretical);
 
+            std::optional<size_t> mark_antigen;
+            if (empirical.valid()) {
+                make_circle(chart_draw().serum_circle(serum_index, Scaled{empirical.radius()}), getenv("empirical"sv));
+                mark_antigen = empirical.per_antigen().front().antigen_no;
+            }
+            if (theoretical.valid()) {
+                make_circle(chart_draw().serum_circle(serum_index, Scaled{theoretical.radius()}), getenv("theoretical"sv));
+                if (!mark_antigen.has_value())
+                    mark_antigen = theoretical.per_antigen().front().antigen_no;
+            }
+            if (!empirical.valid() && !theoretical.valid()) {
+                if (const auto& fallback = getenv("fallback"sv); !fallback.is_null() && rjson::v3::read_bool(fallback["show"sv], true))
+                    make_circle(chart_draw().serum_circle(serum_index, rjson::v3::read_number(fallback["radius"sv], Scaled{3.0})), fallback);
+            }
+
             // mark antigen
+            if (mark_antigen.has_value()) {
+            }
+
             // mark serum
         }
         else
@@ -125,6 +107,112 @@ acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens_for_se
 
 // ----------------------------------------------------------------------
 
+static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Antigens& antigens, const acmacs::chart::PointIndexList& antigen_indexes, const acmacs::chart::SerumCircle& empirical,
+                           const acmacs::chart::SerumCircle& theoretical)
+{
+    const auto find_data = [](const acmacs::chart::SerumCircle& data, size_t antigen_index) -> const acmacs::chart::detail::SerumCirclePerAntigen& {
+        if (const auto found = find_if(std::begin(data.per_antigen()), std::end(data.per_antigen()), [antigen_index](const auto& en) { return en.antigen_no == antigen_index; });
+            found != std::end(data.per_antigen()))
+            return *found;
+        else
+            throw std::runtime_error{"internal error in report_circles..find_data"};
+    };
+
+    fmt::format_to(report, "     empir   theor   titer\n");
+    for (const auto antigen_index : antigen_indexes) {
+        const auto& empirical_data = find_data(empirical, antigen_index);
+        const auto& theoretical_data = find_data(theoretical, antigen_index);
+        std::string empirical_radius(6, ' '), theoretical_radius(6, ' '), empirical_report, theoretical_report;
+        if (empirical_data.valid())
+            empirical_radius = fmt::format("{:.4f}", *empirical_data.radius);
+        else
+            empirical_report.assign(empirical_data.report_reason());
+        if (theoretical_data.valid())
+            theoretical_radius = fmt::format("{:.4f}", *theoretical_data.radius);
+        else
+            theoretical_report.assign(theoretical_data.report_reason());
+        fmt::format_to(report, "    {}  {}  {:>6s}   AG {:4d} {:40s}", empirical_radius, theoretical_radius, theoretical_data.titer, antigen_index, antigens[antigen_index]->full_name(),
+                       empirical_report);
+        if (!empirical_report.empty())
+            fmt::format_to(report, " -- {}", empirical_report);
+        else if (!theoretical_report.empty())
+            fmt::format_to(report, " -- {}", theoretical_report);
+        fmt::format_to(report, "\n");
+    }
+    std::string empirical_radius(6, ' '), theoretical_radius(6, ' ');
+    if (empirical.valid())
+        empirical_radius = fmt::format("{:.4f}", empirical.radius());
+    if (theoretical.valid())
+        theoretical_radius = fmt::format("{:.4f}", theoretical.radius());
+    fmt::format_to(report, "  > {}  {}\n", empirical_radius, theoretical_radius);
+}
+
+// ----------------------------------------------------------------------
+
+//  "empirical":   {"fill": "#C08080FF", "outline": "#4040FF", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
+//  "theoretical": {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
+//  "fallback":    {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "outline_dash": "dash3",  "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
+
+void acmacs::mapi::v1::Settings::make_circle(map_elements::v1::SerumCircle& circle, const rjson::v3::value& plot)
+{
+    using namespace std::string_view_literals;
+
+    if (rjson::v3::read_bool(plot["show"sv], true)) {
+        const auto fill = color(plot["fill"sv], TRANSPARENT);
+
+        if (const auto outline_dash = rjson::v3::read_string(plot["outline_dash"sv], ""sv); outline_dash == "dash1"sv)
+            circle.outline_dash1();
+        else if (outline_dash == "dash2"sv)
+            circle.outline_dash2();
+        else if (outline_dash == "dash3"sv)
+            circle.outline_dash3();
+        else
+            circle.outline_no_dash();
+
+        const auto outline_width = rjson::v3::read_number(plot["outline_width"sv], Pixels{1.0});
+        std::visit(
+            [outline_width, &circle]<typename Val>(const Val& value) {
+                if constexpr (std::is_same_v<Val, acmacs::color::Modifier>) {
+                    circle.outline(value, outline_width);
+                }
+                else { // Val = passage_color_t
+                }
+            },
+            color(plot["outline"sv], PINK));
+
+        std::visit(
+            [&circle]<typename Val>(const Val& value) {
+                if constexpr (std::is_same_v<Val, acmacs::color::Modifier>) {
+                    circle.fill(value);
+                }
+                else { // Val = passage_color_t
+                }
+            },
+            color(plot["fill"sv], TRANSPARENT));
+
+        // if (outline == "passage") {
+        //     if (aChartDraw.chart().serum(aSerumIndex)->is_egg(acmacs::chart::reassortant_as_egg::yes))
+        //         outline = "#FF4040";
+        //     else
+        //         outline = "#4040FF";
+        // }
+
+        // if (const auto& angles = circle_plot_spec["angle_degrees"]; !angles.is_null()) {
+        //     const double pi_180 = std::acos(-1) / 180.0;
+        //     circle.angles(angles[0].to<double>() * pi_180, angles[1].to<double>() * pi_180);
+        // }
+        // if (const auto line_dash = rjson::get_or(circle_plot_spec, "radius_line_dash", ""); line_dash == "dash1")
+        //     circle.radius_line_dash1();
+        // else if (line_dash == "dash2")
+        //     circle.radius_line_dash2();
+        // else if (line_dash == "dash3")
+        //     circle.radius_line_dash3();
+        // else
+        //     circle.radius_line_no_dash();
+        // circle.radius_line(Color(rjson::get_or(circle_plot_spec, "radius_line_color", outline)), rjson::get_or(circle_plot_spec, "radius_line_width", outline_width));
+    }
+
+} // acmacs::mapi::v1::Settings::make_circle
 
 // ----------------------------------------------------------------------
 /// Local Variables:

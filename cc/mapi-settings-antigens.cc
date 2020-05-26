@@ -798,7 +798,7 @@ void acmacs::mapi::v1::Settings::passage_color_t::init_passage_colors()
 
 // ----------------------------------------------------------------------
 
-acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::color(const rjson::v3::value& value) const
+acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::color(const rjson::v3::value& value, std::optional<Color> if_null) const
 {
     using namespace std::string_view_literals;
     const auto make_color = [](std::string_view source) -> modifier_or_passage_t {
@@ -850,9 +850,9 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
 
     try {
         return std::visit(
-            [make_color, make_color_passage, make_color_aa_at]<typename Value>(const Value& substituted_val) -> modifier_or_passage_t {
+            [make_color, make_color_passage, make_color_aa_at, &if_null]<typename Value>(const Value& substituted_val) -> modifier_or_passage_t {
                 if constexpr (std::is_same_v<Value, const rjson::v3::value*>) {
-                    return substituted_val->visit([make_color, make_color_passage, make_color_aa_at]<typename Val>(const Val& val) -> modifier_or_passage_t {
+                    return substituted_val->visit([make_color, make_color_passage, make_color_aa_at, &if_null]<typename Val>(const Val& val) -> modifier_or_passage_t {
                         if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
                             return make_color(val.template to<std::string_view>());
                         else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
@@ -860,6 +860,12 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
                             make_color_passage(passage_color, val["egg"sv], val["reassortant"sv], val["cell"sv]);
                             make_color_aa_at(passage_color, val["aa-at"sv], val["colors"sv]);
                             return passage_color;
+                        }
+                        else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>) {
+                            if (if_null.has_value())
+                                return acmacs::color::Modifier{*if_null};
+                            else
+                                throw std::exception{};
                         }
                         else
                             throw std::exception{};
@@ -871,7 +877,7 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
             substitute(value));
     }
     catch (std::exception&) {
-        throw unrecognized{AD_FORMAT("canot get color from {}", value)};
+        throw unrecognized{AD_FORMAT("cannot get color from {}", value)};
     }
 
 } // acmacs::mapi::v1::Settings::color

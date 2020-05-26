@@ -257,10 +257,10 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex
             circle.outline_dash3();
         else
             circle.outline_no_dash();
-        circle.outline(Color(outline), outline_width);
+        circle.outline(Color(outline), Pixels{outline_width});
         if (const auto& angles = circle_plot_spec["angle_degrees"]; !angles.is_null()) {
             const double pi_180 = std::acos(-1) / 180.0;
-            circle.angles(angles[0].to<double>() * pi_180, angles[1].to<double>() * pi_180);
+            circle.angles(Rotation{angles[0].to<double>() * pi_180}, Rotation{angles[1].to<double>() * pi_180});
         }
         if (const auto line_dash = rjson::get_or(circle_plot_spec, "radius_line_dash", ""); line_dash == "dash1")
             circle.radius_line_dash1();
@@ -270,7 +270,7 @@ void ModSerumCircle::make_serum_circle(ChartDraw& aChartDraw, size_t aSerumIndex
             circle.radius_line_dash3();
         else
             circle.radius_line_no_dash();
-        circle.radius_line(Color(rjson::get_or(circle_plot_spec, "radius_line_color", outline)), rjson::get_or(circle_plot_spec, "radius_line_width", outline_width));
+        circle.radius_line(Color(rjson::get_or(circle_plot_spec, "radius_line_color", outline)), Pixels{rjson::get_or(circle_plot_spec, "radius_line_width", outline_width)});
     }
 }
 
