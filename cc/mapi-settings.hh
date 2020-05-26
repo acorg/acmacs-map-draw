@@ -10,6 +10,8 @@
 namespace acmacs::chart
 {
     class PointIndexList;
+    class Antigens;
+    class Sera;
 }
 
 class ChartDraw;
@@ -72,6 +74,8 @@ namespace acmacs::mapi::inline v1
         template <typename AgSr> void check_titrated_against(acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value) const;
 
         PointDrawingOrder drawing_order_from_toplevel_environment() const;
+        PointDrawingOrder drawing_order_from(const rjson::v3::value& source) const;
+        PointDrawingOrder drawing_order_from(std::string_view key, const rjson::v3::value& val) const;
 
         struct passage_color_t
         {
@@ -144,8 +148,10 @@ namespace acmacs::mapi::inline v1
 
     }; // class Settings
 
-
 } // namespace acmacs::mapi::inline v1
+
+extern template bool acmacs::mapi::v1::Settings::color_according_to_passage(const acmacs::chart::Antigens&, const acmacs::chart::PointIndexList& indexes, const point_style_t& style);
+extern template bool acmacs::mapi::v1::Settings::color_according_to_passage(const acmacs::chart::Sera&, const acmacs::chart::PointIndexList& indexes, const point_style_t& style);
 
 // ----------------------------------------------------------------------
 /// Local Variables:

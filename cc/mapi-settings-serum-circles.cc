@@ -71,8 +71,12 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
             // mark antigen
             if (const auto& antigen_style = getenv("mark_antigen"sv); mark_antigen.has_value() && !antigen_style.is_null()) {
                 const auto style = style_from(antigen_style);
-                chart_draw().modify(*mark_antigen, style.style, drawing_order_from_toplevel_environment());
-                // color_according_to_passage(*chart_draw().chart().antigens(), *mark_antigen, style);
+                chart_draw().modify(*mark_antigen, style.style, drawing_order_from(antigen_style));
+                acmacs::chart::PointIndexList indexes;
+                indexes.insert(*mark_antigen);
+                color_according_to_passage(*chart_draw().chart().antigens(), indexes, style);
+                if (const auto& label = antigen_style["label"sv]; !label.is_null())
+                    add_labels(indexes, 0, label);
             }
 
             // mark serum

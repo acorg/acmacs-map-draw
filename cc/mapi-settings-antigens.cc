@@ -12,75 +12,6 @@ enum class throw_if_unprocessed { no, yes };
 
 // ----------------------------------------------------------------------
 
-template <typename AgSr> bool acmacs::mapi::v1::Settings::color_according_to_passage(const AgSr& ag_sr, const acmacs::chart::PointIndexList& indexes, const point_style_t& style)
-{
-    using namespace std::string_view_literals;
-
-    if ((style.passage_fill.has_value() && style.passage_fill->egg.has_value()) || (style.passage_outline.has_value() && style.passage_outline->egg.has_value())) {
-        auto egg_indexes = indexes;
-        ag_sr.filter_egg(egg_indexes, acmacs::chart::reassortant_as_egg::no);
-        auto reassortant_indexes = indexes;
-        ag_sr.filter_reassortant(reassortant_indexes);
-        auto cell_indexes = indexes;
-        ag_sr.filter_cell(cell_indexes);
-
-        PointStyleModified ps_egg, ps_reassortant, ps_cell;
-        if (style.passage_fill.has_value()) {
-            ps_egg.fill(*style.passage_fill->egg);
-            ps_reassortant.fill(*style.passage_fill->reassortant);
-            ps_cell.fill(*style.passage_fill->cell);
-        }
-        if (style.passage_outline.has_value()) {
-            ps_egg.outline(*style.passage_outline->egg);
-            ps_reassortant.outline(*style.passage_outline->reassortant);
-            ps_cell.outline(*style.passage_outline->cell);
-        }
-
-        // order b y number of occurrences, lest frequent passage (last in by_passage) is on top
-        using by_passage_t = std::tuple<const acmacs::chart::PointIndexList*, std::string_view, const PointStyleModified*>;
-        std::array by_passage{
-            by_passage_t{&egg_indexes, "egg", &ps_egg},
-            by_passage_t{&reassortant_indexes, "reassortant", &ps_reassortant},
-            by_passage_t{&cell_indexes, "cell", &ps_cell},
-        };
-        std::sort(std::begin(by_passage), std::end(by_passage), [](const auto& e1, const auto& e2) { return std::get<const acmacs::chart::PointIndexList*>(e1)->size() > std::get<const acmacs::chart::PointIndexList*>(e2)->size(); });
-
-        if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
-            chart_draw().modify(egg_indexes, ps_egg);
-            chart_draw().modify(reassortant_indexes, ps_reassortant);
-            chart_draw().modify(cell_indexes, ps_cell);
-            chart_draw().modify_drawing_order(*std::get<const acmacs::chart::PointIndexList*>(by_passage[1]), PointDrawingOrder::Raise);
-            chart_draw().modify_drawing_order(*std::get<const acmacs::chart::PointIndexList*>(by_passage[2]), PointDrawingOrder::Raise);
-        }
-        else {
-            chart_draw().modify_sera(egg_indexes, ps_egg);
-            chart_draw().modify_sera(reassortant_indexes, ps_reassortant);
-            chart_draw().modify_sera(cell_indexes, ps_cell);
-            chart_draw().modify_sera_drawing_order(*std::get<const acmacs::chart::PointIndexList*>(by_passage[1]), PointDrawingOrder::Raise);
-            chart_draw().modify_sera_drawing_order(*std::get<const acmacs::chart::PointIndexList*>(by_passage[2]), PointDrawingOrder::Raise);
-        }
-
-        // order legend by number of occurrences
-        if (const auto& legend = getenv("legend"sv); !legend.is_null()) {
-            for (const auto& en : by_passage) {
-                if (const auto& indexes_of_passage = *std::get<const acmacs::chart::PointIndexList*>(en); indexes_of_passage.size() > 0) {
-                    const auto label{fmt::format(rjson::v3::get_or(legend["label"sv], "{passage} ({count})"sv),
-                                                 fmt::arg("passage", std::get<std::string_view>(en)),
-                                                 fmt::arg("count", indexes_of_passage.size()))};
-                    add_legend(indexes_of_passage, *std::get<const PointStyleModified*>(en), label, legend);
-                }
-            }
-        }
-
-        return true;
-    }
-    else
-        return false;
-
-} // acmacs::mapi::v1::Settings::color_according_to_passage
-
-// ----------------------------------------------------------------------
-
 bool acmacs::mapi::v1::Settings::apply_antigens()
 {
     using namespace std::string_view_literals;
@@ -907,29 +838,131 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
 
 // ----------------------------------------------------------------------
 
-PointDrawingOrder acmacs::mapi::v1::Settings::drawing_order_from_toplevel_environment() const
+PointDrawingOrder acmacs::mapi::v1::Settings::drawing_order_from(std::string_view key, const rjson::v3::value& val) const
 {
     using namespace std::string_view_literals;
-    PointDrawingOrder result{PointDrawingOrder::NoChange};
-    for (const auto& [key, val] : getenv_toplevel()) {
-        if (key == "order"sv) {
-            if (const auto order = substitute_to_string(val); order == "raise"sv)
-                result = PointDrawingOrder::Raise;
-            else if (order == "lower"sv)
-                result = PointDrawingOrder::Lower;
-            else
-                AD_WARNING("unrecognized order value: {}", val);
+    if (key == "order"sv) {
+        if (const auto order = substitute_to_string(val); order == "raise"sv)
+            return PointDrawingOrder::Raise;
+        else if (order == "lower"sv)
+            return PointDrawingOrder::Lower;
+        else {
+            AD_WARNING("unrecognized order value: {}", val);
+            return PointDrawingOrder::NoChange;
         }
-        else if ((key == "raise"sv || key == "raise_"sv || key == "_raise"sv) && val.to<bool>())
-            result = PointDrawingOrder::Raise;
-        else if ((key == "lower"sv || key == "lower_"sv || key == "_lower"sv) && val.to<bool>())
-            result = PointDrawingOrder::Lower;
-        if (result != PointDrawingOrder::NoChange)
-            break;
     }
-    return result;
+    else if ((key == "raise"sv || key == "raise_"sv || key == "_raise"sv) && val.to<bool>())
+        return PointDrawingOrder::Raise;
+    else if ((key == "lower"sv || key == "lower_"sv || key == "_lower"sv) && val.to<bool>())
+        return PointDrawingOrder::Lower;
+    else
+        return PointDrawingOrder::NoChange;
+
+} // acmacs::mapi::v1::Settings::drawing_order_from
+
+// ----------------------------------------------------------------------
+
+PointDrawingOrder acmacs::mapi::v1::Settings::drawing_order_from_toplevel_environment() const
+{
+    for (const auto& [key, val] : getenv_toplevel()) {
+        if (const auto result = drawing_order_from(key, val); result != PointDrawingOrder::NoChange)
+            return result;
+    }
+    return PointDrawingOrder::NoChange;
 
 } // acmacs::mapi::v1::Settings::drawing_order_from_toplevel_environment
+
+// ----------------------------------------------------------------------
+
+PointDrawingOrder acmacs::mapi::v1::Settings::drawing_order_from(const rjson::v3::value& source) const
+{
+    return source.visit([this]<typename Val>(const Val& val) -> PointDrawingOrder {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
+            for (const auto& [subkey, subval] : val) {
+                if (const auto result = drawing_order_from(subkey, subval); result != PointDrawingOrder::NoChange)
+                    return result;
+            }
+            return PointDrawingOrder::NoChange;
+        }
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
+            throw acmacs::mapi::unrecognized{fmt::format("cannot get drawing order from {} (object with \"order\" or \"raise\" or \"lower\" expected)", val)};
+        else
+            return PointDrawingOrder::NoChange;
+    });
+
+} // acmacs::mapi::v1::Settings::drawing_order_from
+
+// ----------------------------------------------------------------------
+
+template <typename AgSr> bool acmacs::mapi::v1::Settings::color_according_to_passage(const AgSr& ag_sr, const acmacs::chart::PointIndexList& indexes, const point_style_t& style)
+{
+    using namespace std::string_view_literals;
+
+    if ((style.passage_fill.has_value() && style.passage_fill->egg.has_value()) || (style.passage_outline.has_value() && style.passage_outline->egg.has_value())) {
+        auto egg_indexes = indexes;
+        ag_sr.filter_egg(egg_indexes, acmacs::chart::reassortant_as_egg::no);
+        auto reassortant_indexes = indexes;
+        ag_sr.filter_reassortant(reassortant_indexes);
+        auto cell_indexes = indexes;
+        ag_sr.filter_cell(cell_indexes);
+
+        PointStyleModified ps_egg, ps_reassortant, ps_cell;
+        if (style.passage_fill.has_value()) {
+            ps_egg.fill(*style.passage_fill->egg);
+            ps_reassortant.fill(*style.passage_fill->reassortant);
+            ps_cell.fill(*style.passage_fill->cell);
+        }
+        if (style.passage_outline.has_value()) {
+            ps_egg.outline(*style.passage_outline->egg);
+            ps_reassortant.outline(*style.passage_outline->reassortant);
+            ps_cell.outline(*style.passage_outline->cell);
+        }
+
+        // order b y number of occurrences, lest frequent passage (last in by_passage) is on top
+        using by_passage_t = std::tuple<const acmacs::chart::PointIndexList*, std::string_view, const PointStyleModified*>;
+        std::array by_passage{
+            by_passage_t{&egg_indexes, "egg", &ps_egg},
+            by_passage_t{&reassortant_indexes, "reassortant", &ps_reassortant},
+            by_passage_t{&cell_indexes, "cell", &ps_cell},
+        };
+        std::sort(std::begin(by_passage), std::end(by_passage), [](const auto& e1, const auto& e2) { return std::get<const acmacs::chart::PointIndexList*>(e1)->size() > std::get<const acmacs::chart::PointIndexList*>(e2)->size(); });
+
+        if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
+            chart_draw().modify(egg_indexes, ps_egg);
+            chart_draw().modify(reassortant_indexes, ps_reassortant);
+            chart_draw().modify(cell_indexes, ps_cell);
+            chart_draw().modify_drawing_order(*std::get<const acmacs::chart::PointIndexList*>(by_passage[1]), PointDrawingOrder::Raise);
+            chart_draw().modify_drawing_order(*std::get<const acmacs::chart::PointIndexList*>(by_passage[2]), PointDrawingOrder::Raise);
+        }
+        else {
+            chart_draw().modify_sera(egg_indexes, ps_egg);
+            chart_draw().modify_sera(reassortant_indexes, ps_reassortant);
+            chart_draw().modify_sera(cell_indexes, ps_cell);
+            chart_draw().modify_sera_drawing_order(*std::get<const acmacs::chart::PointIndexList*>(by_passage[1]), PointDrawingOrder::Raise);
+            chart_draw().modify_sera_drawing_order(*std::get<const acmacs::chart::PointIndexList*>(by_passage[2]), PointDrawingOrder::Raise);
+        }
+
+        // order legend by number of occurrences
+        if (const auto& legend = getenv("legend"sv); !legend.is_null()) {
+            for (const auto& en : by_passage) {
+                if (const auto& indexes_of_passage = *std::get<const acmacs::chart::PointIndexList*>(en); indexes_of_passage.size() > 0) {
+                    const auto label{fmt::format(rjson::v3::get_or(legend["label"sv], "{passage} ({count})"sv),
+                                                 fmt::arg("passage", std::get<std::string_view>(en)),
+                                                 fmt::arg("count", indexes_of_passage.size()))};
+                    add_legend(indexes_of_passage, *std::get<const PointStyleModified*>(en), label, legend);
+                }
+            }
+        }
+
+        return true;
+    }
+    else
+        return false;
+
+} // acmacs::mapi::v1::Settings::color_according_to_passage
+
+template bool acmacs::mapi::v1::Settings::color_according_to_passage(const acmacs::chart::Antigens&, const acmacs::chart::PointIndexList& indexes, const point_style_t& style);
+template bool acmacs::mapi::v1::Settings::color_according_to_passage(const acmacs::chart::Sera&, const acmacs::chart::PointIndexList& indexes, const point_style_t& style);
 
 // ----------------------------------------------------------------------
 
