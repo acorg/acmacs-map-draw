@@ -34,9 +34,10 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
     fmt::memory_buffer report;
     const size_t indent{2};
     for (auto serum_index : serum_indexes) {
-        fmt::format_to(report, "{:{}c}SR {} {}\n", ' ', indent, serum_index, sera->at(serum_index)->full_name());
+        auto serum = sera->at(serum_index);
+        fmt::format_to(report, "{:{}c}SR {} {} {}\n", ' ', indent, serum_index, serum->full_name(), serum->passage_type(acmacs::chart::reassortant_as_egg::no));
         if (!layout->point_has_coordinates(serum_index + antigens->size())) {
-            fmt::format_to(report, "  serum is disconnected");
+            fmt::format_to(report, "{:{}c}  *** serum is disconnected\n", ' ', indent);
         }
         else if (const auto antigen_indexes = select_antigens_for_serum_circle(serum_index, antigen_selector); !antigen_indexes.empty()) {
             const auto column_basis = chart.column_basis(serum_index, chart_draw().projection_no());
@@ -51,19 +52,20 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
             }
             report_circles(report, *antigens, antigen_indexes, empirical, theoretical);
 
+            const auto serum_passage = serum->passage_type(acmacs::chart::reassortant_as_egg::no);
             std::optional<size_t> mark_antigen;
             if (empirical.valid()) {
-                make_circle(chart_draw().serum_circle(serum_index, Scaled{empirical.radius()}), getenv("empirical"sv));
+                make_circle(chart_draw().serum_circle(serum_index, Scaled{empirical.radius()}), serum_passage, getenv("empirical"sv));
                 mark_antigen = empirical.per_antigen().front().antigen_no;
             }
             if (theoretical.valid()) {
-                make_circle(chart_draw().serum_circle(serum_index, Scaled{theoretical.radius()}), getenv("theoretical"sv));
+                make_circle(chart_draw().serum_circle(serum_index, Scaled{theoretical.radius()}), serum_passage, getenv("theoretical"sv));
                 if (!mark_antigen.has_value())
                     mark_antigen = theoretical.per_antigen().front().antigen_no;
             }
             if (!empirical.valid() && !theoretical.valid()) {
                 if (const auto& fallback = getenv("fallback"sv); !fallback.is_null() && rjson::v3::read_bool(fallback["show"sv], true))
-                    make_circle(chart_draw().serum_circle(serum_index, rjson::v3::read_number(fallback["radius"sv], Scaled{3.0})), fallback);
+                    make_circle(chart_draw().serum_circle(serum_index, rjson::v3::read_number(fallback["radius"sv], Scaled{3.0})), serum_passage, fallback);
             }
 
             // mark antigen
@@ -73,7 +75,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
             // mark serum
         }
         else
-            fmt::format_to(report, "{:{}c}*** no homologous antigens selected (selector: {})\n", ' ', indent, antigen_selector);
+            fmt::format_to(report, "{:{}c}  *** no homologous antigens selected (selector: {})\n", ' ', indent, antigen_selector);
         fmt::format_to(report, "\n");
     }
     if (rjson::v3::read_bool(getenv("report"sv), false))
@@ -153,7 +155,7 @@ static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Anti
 //  "theoretical": {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
 //  "fallback":    {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "outline_dash": "dash3",  "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
 
-void acmacs::mapi::v1::Settings::make_circle(map_elements::v1::SerumCircle& circle, const rjson::v3::value& plot)
+void acmacs::mapi::v1::Settings::make_circle(map_elements::v1::SerumCircle& circle, std::string_view serum_passage, const rjson::v3::value& plot)
 {
     using namespace std::string_view_literals;
 
@@ -169,33 +171,28 @@ void acmacs::mapi::v1::Settings::make_circle(map_elements::v1::SerumCircle& circ
         else
             circle.outline_no_dash();
 
-        const auto outline_width = rjson::v3::read_number(plot["outline_width"sv], Pixels{1.0});
-        std::visit(
-            [outline_width, &circle]<typename Val>(const Val& value) {
-                if constexpr (std::is_same_v<Val, acmacs::color::Modifier>) {
-                    circle.outline(value, outline_width);
-                }
-                else { // Val = passage_color_t
-                }
-            },
-            color(plot["outline"sv], PINK));
+        const auto get_color = [serum_passage, this](const rjson::v3::value& source, Color dflt) -> Color {
+            return std::visit(
+                [serum_passage, dflt]<typename Val>(const Val& value) -> Color {
+                    std::optional<acmacs::color::Modifier> color;
+                    if constexpr (std::is_same_v<Val, acmacs::color::Modifier>)
+                        color = value;
+                    else if (serum_passage == "egg"sv) // Val = passage_color_t
+                        color = value.egg;
+                    else if (serum_passage == "cell"sv)
+                        color = value.cell;
+                    else if (serum_passage == "reassortant"sv)
+                        color = value.reassortant;
+                    if (color.has_value())
+                        return *color;
+                    else
+                        return dflt;
+                },
+                color(source, dflt));
+        };
 
-        std::visit(
-            [&circle]<typename Val>(const Val& value) {
-                if constexpr (std::is_same_v<Val, acmacs::color::Modifier>) {
-                    circle.fill(value);
-                }
-                else { // Val = passage_color_t
-                }
-            },
-            color(plot["fill"sv], TRANSPARENT));
-
-        // if (outline == "passage") {
-        //     if (aChartDraw.chart().serum(aSerumIndex)->is_egg(acmacs::chart::reassortant_as_egg::yes))
-        //         outline = "#FF4040";
-        //     else
-        //         outline = "#4040FF";
-        // }
+        circle.outline(get_color(plot["outline"sv], PINK), rjson::v3::read_number(plot["outline_width"sv], Pixels{1.0}));
+        circle.fill(get_color(plot["fill"sv], TRANSPARENT));
 
         // if (const auto& angles = circle_plot_spec["angle_degrees"]; !angles.is_null()) {
         //     const double pi_180 = std::acos(-1) / 180.0;
