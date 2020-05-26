@@ -6,7 +6,7 @@
 
 // ----------------------------------------------------------------------
 
-inline static void report_circles(fmt::memory_buffer& report, size_t indent, const acmacs::chart::Antigens& antigens, const acmacs::chart::PointIndexList& antigen_indexes, const acmacs::chart::SerumCircle& empirical,
+inline static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Antigens& antigens, const acmacs::chart::PointIndexList& antigen_indexes, const acmacs::chart::SerumCircle& empirical,
                                   const acmacs::chart::SerumCircle& theoretical)
 {
     const auto find_data = [](const acmacs::chart::SerumCircle& data, size_t antigen_index) -> const acmacs::chart::detail::SerumCirclePerAntigen& {
@@ -16,7 +16,7 @@ inline static void report_circles(fmt::memory_buffer& report, size_t indent, con
             throw std::runtime_error{"internal error in report_circles..find_data"};
     };
 
-    fmt::format_to(report, "{:{}c} empir   theor   titer\n", ' ', indent);
+    fmt::format_to(report, "     empir   theor   titer\n");
     for (const auto antigen_index : antigen_indexes) {
         const auto& empirical_data = find_data(empirical, antigen_index);
         const auto& theoretical_data = find_data(theoretical, antigen_index);
@@ -29,13 +29,19 @@ inline static void report_circles(fmt::memory_buffer& report, size_t indent, con
             theoretical_radius = fmt::format("{:.4f}", *theoretical_data.radius);
         else
             theoretical_report.assign(theoretical_data.report_reason());
-        fmt::format_to(report, "{:{}c}{}  {}  {:>6s}   AG {:4d} {:40s}", ' ', indent, empirical_radius, theoretical_radius, theoretical_data.titer, antigen_index, antigens[antigen_index]->full_name(), empirical_report);
+        fmt::format_to(report, "    {}  {}  {:>6s}   AG {:4d} {:40s}", empirical_radius, theoretical_radius, theoretical_data.titer, antigen_index, antigens[antigen_index]->full_name(), empirical_report);
         if (!empirical_report.empty())
             fmt::format_to(report, " -- {}", empirical_report);
         else if (!theoretical_report.empty())
             fmt::format_to(report, " -- {}", theoretical_report);
         fmt::format_to(report, "\n");
     }
+    std::string empirical_radius(6, ' '), theoretical_radius(6, ' ');
+    if (empirical.valid())
+        empirical_radius = fmt::format("{:.4f}", empirical.radius());
+    if (theoretical.valid())
+        theoretical_radius = fmt::format("{:.4f}", theoretical.radius());
+    fmt::format_to(report, "  > {}  {}\n", empirical_radius, theoretical_radius);
 }
 
 //  "?homologous_titer": "1280",
@@ -79,7 +85,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
                 theoretical = acmacs::chart::serum_circle_theoretical(antigen_indexes, serum_index, column_basis, *titers, fold);
             }
 
-            report_circles(report, indent * 2, *antigens, antigen_indexes, empirical, theoretical);
+            report_circles(report, *antigens, antigen_indexes, empirical, theoretical);
 
             // mark antigen
             // mark serum
@@ -90,17 +96,6 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
     }
     if (rjson::v3::read_bool(getenv("report"sv), false))
         AD_INFO("Serum circles for {} sera\n{}", serum_indexes.size(), fmt::to_string(report));
-
-    // const auto verbose = rjson::get_or(args(), "report", false);
-    // for (auto serum_index : serum_indexes) {
-    //     const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, acmacs::chart::find_homologous::all, verbose);
-    //     const double fold = rjson::get_or(args(), "fold", 2.0);
-    //     if (const auto& homologous_titer = args()["homologous_titer"]; !homologous_titer.is_null())
-    //         make_serum_circle(aChartDraw, serum_index, antigen_indices, acmacs::chart::Titer(homologous_titer.to<std::string_view>()), args()["empirical"], args()["theoretical"],
-    //         args()["fallback"], fold, verbose);
-    //     else
-    //         make_serum_circle(aChartDraw, serum_index, antigen_indices, args()["empirical"], args()["theoretical"], args()["fallback"], fold, verbose);
-    // }
 
     return true;
 
