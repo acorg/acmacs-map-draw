@@ -91,6 +91,8 @@ namespace acmacs::mapi::inline v1
         };
 
         point_style_t style_from_toplevel_environment() const;
+        point_style_t style_from(const rjson::v3::value& source) const;
+        void update_style(point_style_t& style, std::string_view key, const rjson::v3::value& val) const;
         template <typename AgSr> bool color_according_to_passage(const AgSr& ag_sr, const acmacs::chart::PointIndexList& indexes, const point_style_t& point_style);
         bool color_according_to_aa_at_pos(const acmacs::chart::PointIndexList& indexes, const point_style_t& point_style);
 

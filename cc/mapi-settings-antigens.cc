@@ -738,53 +738,76 @@ acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_sera(const rjso
 
 // ----------------------------------------------------------------------
 
-acmacs::mapi::v1::Settings::point_style_t acmacs::mapi::v1::Settings::style_from_toplevel_environment() const
+void acmacs::mapi::v1::Settings::update_style(point_style_t& style, std::string_view key, const rjson::v3::value& val) const
 {
     using namespace std::string_view_literals;
-    point_style_t result;
-    for (const auto& [key, val] : getenv_toplevel()) {
-        // AD_DEBUG("apply_antigens {}: {}", key, val);
-        if (key == "fill"sv) {
-            std::visit(
-                [&result]<typename Modifier>(const Modifier& modifier) {
-                    if constexpr (std::is_same_v<Modifier, acmacs::color::Modifier>)
-                        result.style.fill(modifier);
-                    else
-                        result.passage_fill = modifier;
-                },
-                color(val));
-        }
-        else if (key == "outline"sv) {
-            std::visit(
-                [&result]<typename Modifier>(const Modifier& modifier) {
-                    if constexpr (std::is_same_v<Modifier, acmacs::color::Modifier>)
-                        result.style.outline(modifier);
-                    else
-                        result.passage_outline = modifier;
-                },
-                color(val));
-        }
-        else if (key == "show"sv)
-            result.style.shown(substitute_to_bool(val));
-        else if (key == "hide"sv)
-            result.style.shown(!substitute_to_bool(val));
-        else if (key == "shape"sv)
-            result.style.shape(PointShape{substitute_to_string(val)});
-        else if (key == "size"sv)
-            result.style.size(Pixels{substitute_to_double(val)});
-        else if (key == "outline_width"sv)
-            result.style.outline_width(Pixels{substitute_to_double(val)});
-        else if (key == "aspect"sv)
-            result.style.aspect(Aspect{substitute_to_double(val)});
-        else if (key == "rotation"sv)
-            result.style.rotation(Rotation{substitute_to_double(val)});
-        else if (key == "fill_saturation"sv || key == "fill_brightness"sv || key == "outline_saturation"sv || key == "outline_brightness"sv) {
-            AD_WARNING("\"{}\" is not supported, use color modificators, e.g. \":s-0.5\"", key);
-        }
+    // AD_DEBUG("apply_antigens {}: {}", key, val);
+    if (key == "fill"sv) {
+        std::visit(
+            [&style]<typename Modifier>(const Modifier& modifier) {
+                if constexpr (std::is_same_v<Modifier, acmacs::color::Modifier>)
+                    style.style.fill(modifier);
+                else
+                    style.passage_fill = modifier;
+            },
+            color(val));
     }
+    else if (key == "outline"sv) {
+        std::visit(
+            [&style]<typename Modifier>(const Modifier& modifier) {
+                if constexpr (std::is_same_v<Modifier, acmacs::color::Modifier>)
+                    style.style.outline(modifier);
+                else
+                    style.passage_outline = modifier;
+            },
+            color(val));
+    }
+    else if (key == "show"sv)
+        style.style.shown(substitute_to_bool(val));
+    else if (key == "hide"sv)
+        style.style.shown(!substitute_to_bool(val));
+    else if (key == "shape"sv)
+        style.style.shape(PointShape{substitute_to_string(val)});
+    else if (key == "size"sv)
+        style.style.size(Pixels{substitute_to_double(val)});
+    else if (key == "outline_width"sv)
+        style.style.outline_width(Pixels{substitute_to_double(val)});
+    else if (key == "aspect"sv)
+        style.style.aspect(Aspect{substitute_to_double(val)});
+    else if (key == "rotation"sv)
+        style.style.rotation(Rotation{substitute_to_double(val)});
+    else if (key == "fill_saturation"sv || key == "fill_brightness"sv || key == "outline_saturation"sv || key == "outline_brightness"sv)
+        AD_WARNING("\"{}\" is not supported, use color modificators, e.g. \":s-0.5\"", key);
+
+} // acmacs::mapi::v1::Settings::update_style
+
+// ----------------------------------------------------------------------
+
+acmacs::mapi::v1::Settings::point_style_t acmacs::mapi::v1::Settings::style_from_toplevel_environment() const
+{
+    point_style_t result;
+    for (const auto& [key, val] : getenv_toplevel())
+        update_style(result, key, val);
     return result;
 
 } // acmacs::mapi::v1::Settings::style_from_toplevel_environment
+
+// ----------------------------------------------------------------------
+
+acmacs::mapi::v1::Settings::point_style_t acmacs::mapi::v1::Settings::style_from(const rjson::v3::value& source) const
+{
+    point_style_t result;
+    source.visit([&result, this]<typename Val>(const Val& val) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
+            for (const auto& [subkey, subval] : val)
+                update_style(result, subkey, subval);
+        }
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
+            throw acmacs::mapi::unrecognized{fmt::format("cannot get point style from {}", val)};
+    });
+    return result;
+
+} // acmacs::mapi::v1::Settings::style_from
 
 // ----------------------------------------------------------------------
 

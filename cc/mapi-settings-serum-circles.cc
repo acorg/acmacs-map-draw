@@ -69,7 +69,10 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
             }
 
             // mark antigen
-            if (mark_antigen.has_value()) {
+            if (const auto& antigen_style = getenv("mark_antigen"sv); mark_antigen.has_value() && !antigen_style.is_null()) {
+                const auto style = style_from(antigen_style);
+                chart_draw().modify(*mark_antigen, style.style, drawing_order_from_toplevel_environment());
+                // color_according_to_passage(*chart_draw().chart().antigens(), *mark_antigen, style);
             }
 
             // mark serum
@@ -100,9 +103,6 @@ acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens_for_se
         chart.set_homologous(acmacs::chart::find_homologous::all);
         antigen_indexes = serum->homologous_antigens();
     }
-
-    // if (antigen_indexes.empty())
-    //     throw acmacs::mapi::unrecognized{fmt::format("no homologous antigens seelected for SR {} {} (antigen selector: {})", serum_index, chart_draw().chart().sera()->at(serum_index)->full_name(), antigen_selector)};
     return antigen_indexes;
 
 } // acmacs::mapi::v1::Settings::select_antigens_for_serum_circle
