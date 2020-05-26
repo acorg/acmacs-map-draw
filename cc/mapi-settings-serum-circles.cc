@@ -7,7 +7,6 @@
 // ----------------------------------------------------------------------
 
 //  "?homologous_titer": "1280",
-//  "report": true, "verbose": false,
 //  "empirical":   {"fill": "#C08080FF", "outline": "#4040FF", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
 //  "theoretical": {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
 //  "fallback":    {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "outline_dash": "dash3",  "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
@@ -29,11 +28,14 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
     const auto forced_homologous_titer = rjson::v3::read_string(getenv("homologous_titer"sv));
     const auto print_report = rjson::v3::read_bool(getenv("report"sv), false);
     const auto verb = verbose_from(rjson::v3::read_bool(getenv("verbose"sv), false));
+    const auto& antigen_selector{getenv("antigen"sv, "antigens"sv)};
     for (auto serum_index : serum_indexes) {
         fmt::memory_buffer report;
-        const auto column_basis  = chart.column_basis(serum_index, chart_draw().projection_no());
-        const auto& antigen_selector{getenv("antigen"sv, "antigens"sv)};
-        if (const auto antigen_indexes = select_antigens_for_serum_circle(serum_index, antigen_selector); !antigen_indexes.empty()) {
+        if (!layout->point_has_coordinates(serum_index + antigens->size())) {
+            fmt::format_to(report, "  serum is disconnected");
+        }
+        else if (const auto antigen_indexes = select_antigens_for_serum_circle(serum_index, antigen_selector); !antigen_indexes.empty()) {
+            const auto column_basis = chart.column_basis(serum_index, chart_draw().projection_no());
             acmacs::chart::SerumCircle empirical, theoretical;
             if (forced_homologous_titer.has_value()) {
                 empirical = acmacs::chart::serum_circle_empirical(antigen_indexes, *forced_homologous_titer, serum_index, *layout, column_basis, *titers, fold, verb);
@@ -71,7 +73,8 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
     //     const auto antigen_indices = select_mark_antigens(aChartDraw, serum_index, acmacs::chart::find_homologous::all, verbose);
     //     const double fold = rjson::get_or(args(), "fold", 2.0);
     //     if (const auto& homologous_titer = args()["homologous_titer"]; !homologous_titer.is_null())
-    //         make_serum_circle(aChartDraw, serum_index, antigen_indices, acmacs::chart::Titer(homologous_titer.to<std::string_view>()), args()["empirical"], args()["theoretical"], args()["fallback"], fold, verbose);
+    //         make_serum_circle(aChartDraw, serum_index, antigen_indices, acmacs::chart::Titer(homologous_titer.to<std::string_view>()), args()["empirical"], args()["theoretical"],
+    //         args()["fallback"], fold, verbose);
     //     else
     //         make_serum_circle(aChartDraw, serum_index, antigen_indices, args()["empirical"], args()["theoretical"], args()["fallback"], fold, verbose);
     // }
