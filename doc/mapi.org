@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-25 18:34:45 eu>
+# Time-stamp: <2020-05-26 09:10:21 eu>
 
 * TODO
 
@@ -150,7 +150,7 @@
    "legend": {"show": true, "label": "name ({count})", "replace": false},
    }
 
-  {"N": "sera", "select": {<select>},
+  {"N": "sera", "select": {<Select Sera>},
    "outline": "<color-modifier>", "fill": "<color-modifier>",
    "aspect": 1.0, "rotation": 0.0,
    "size": 1.0, "outline_width": 1.0,
@@ -282,19 +282,19 @@ http://geomalgorithms.com/a03-_inclusion.html
 * TODO Serum Circles
 
 #+BEGIN_SRC json
-# {"N": "serum_circle", "serum": {"index": 0}, "?antigen": {"index": 0}, "report": true,
+{"N": "serum_circle", "serum": {<Select Sera>}, "?antigen": {<Select Antigens>}, "report": true,
  "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
- "empirical":   {"fill": "#C08080FF", "outline": "#4040FF", "outline_width": 2, "?outline_dash": "dash2", "?angle_degrees": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "show": true},
- "theoretical": {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "?outline_dash": "dash2", "?angle_degrees": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "show": true},
- "fallback":    {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "outline_dash": "dash3",  "?angle_degrees": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "radius": 3, "show": true},
- "mark_serum":   {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
- "mark_antigen": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}}},
+ "empirical":   {"fill": "#C08080FF", "outline": "#4040FF", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
+ "theoretical": {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
+ "fallback":    {"fill": "#C08080FF", "outline": "#0000C0", "outline_width": 2, "outline_dash": "dash3",  "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "red", "line_width": 1, "show": true}},
+ "mark_serum":   {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"format": "{full_name}", "offset": [0, 1.2], "color": "black", "size": 12}},
+ "mark_antigen": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "{full_name}", "offset": [0, 1.2], "color": "black", "size": 12}}},
 
 # {"N": "serum_circles", "serum": {"name": "may select none or multiple sera"}, "?antigen": {"index": 0}, "report": true,
  "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
- "empirical":   {"fill": "#C08080FF", "outline": "passage", "outline_width": 2, "?outline_dash": "dash2", "?angle_degrees": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "show": true},
- "theoretical": {"fill": "#C08080FF", "outline": "passage", "outline_width": 2, "?outline_dash": "dash2", "?angle_degrees": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "show": true},
- "fallback":    {"fill": "#C08080FF", "outline": "passage", "outline_width": 2, "outline_dash": "dash3",  "?angle_degrees": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "radius": 3, "show": true},
+ "empirical":   {"fill": "#C08080FF", "outline": "passage", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "show": true},
+ "theoretical": {"fill": "#C08080FF", "outline": "passage", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "show": true},
+ "fallback":    {"fill": "#C08080FF", "outline": "passage", "outline_width": 2, "outline_dash": "dash3",  "?angles": [0, 30], "?radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1, "radius": 3, "show": true},
  "mark_serum":   {"fill": "passage", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
  "mark_antigen": {"fill": "passage", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}}},
 

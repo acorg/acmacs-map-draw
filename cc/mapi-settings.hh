@@ -129,7 +129,11 @@ namespace acmacs::mapi::inline v1
         map_elements::v1::Title& title();
         bool apply_title();
 
-        // bool apply_serum_circles();
+        // ----------------------------------------------------------------------
+        // mapi-settings-serum-circles.cc
+
+        bool apply_serum_circles();
+        acmacs::chart::PointIndexList select_antigens_for_serum_circle(size_t serum_index, const rjson::v3::value& antigen_selector);
         // bool apply_procrustes();
         // bool apply_time_series();
 

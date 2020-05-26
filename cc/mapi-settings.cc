@@ -42,8 +42,8 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
             return apply_legend();
         else if (name == "title"sv)
             return apply_title();
-        // else if (name == "serum-circles"sv || name == "serum-circle"sv || name == "serum_circles"sv || name == "serum_circle"sv)
-        //     return apply_serum_circles();
+        else if (name == "serum-circles"sv || name == "serum-circle"sv || name == "serum_circles"sv || name == "serum_circle"sv)
+            return apply_serum_circles();
         // else if (name == "procrustes"sv)
         //     return apply_procrustes();
         // else if (name == "time-series"sv || name == "time_series"sv)
