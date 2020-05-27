@@ -1,10 +1,31 @@
-# Time-stamp: <2020-05-27 11:48:57 eu>
+# Time-stamp: <2020-05-27 17:10:43 eu>
 
 * Command line defines
 
-# -D lab=
-# -D subtype=H3
-# -D "subtype=A(H3N2)"
+-D lab=CDC
+-D virus-type=H3
+-D "virus-type=A(H3N2)"
+
+* Substitutions inferred from a (primary) chart
+
+{virus}                       ""
+{virus-type}                  "A(H3N2)"
+{lineage}                     "VICTORIA"
+{virus-type/lineage}          "B/Vic"
+{subset}                      "2009pdm"
+{lab}                         "VIDRL" "Crick"
+{table-date}                  "20150101-20200203"
+{assay}                       "hi" "neut"
+{assay-full}                  "HI" "PLAQUE REDUCTION NEUTRALISATION"
+{rbc}                         "guinea-pig"
+{number-of-antigens}          2838
+{number-of-sera}              105
+{number-of-layers}            115
+{primary-chart-name}          "/path/chart.ace"
+{secondary-chart-name}        "/path/chart.ace"
+
+To print environment use:
+-a :print-all-environment
 
 * Select Antigens
 

@@ -72,6 +72,9 @@ int main(int argc, char* const argv[])
 
         acmacs::mapi::Settings settings{chart_draw};
         settings.load(opt.settings_files, opt.defines);
+        settings.setenv_toplevel("primary-chart-name"sv, inputs[0]);
+        if (inputs.size() > 1)
+            settings.setenv_toplevel("secondary-chart-name"sv, inputs[1]);
         for (const auto& to_apply : opt.apply) {
             // AD_DEBUG("to_apply \"{}\"", to_apply);
             settings.apply(to_apply);

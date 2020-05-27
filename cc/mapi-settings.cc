@@ -1,7 +1,7 @@
 #include "acmacs-base/acmacsd.hh"
 #include "acmacs-base/filesystem.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
-// #include "acmacs-map-draw/draw.hh"
+#include "acmacs-map-draw/draw.hh"
 
 // ----------------------------------------------------------------------
 
@@ -97,23 +97,59 @@ void acmacs::mapi::v1::Settings::load(const std::vector<std::string_view>& setti
 
 // ----------------------------------------------------------------------
 
+constexpr static const char* sUpdateEnvPattern = R"({{
+"init": [
+{{"N": "set",
+"virus": "{virus}",
+"virus-type": "{virus_type}",
+"virus-type/lineage": "{virus_type_lineage}",
+"lineage": "{lineage}",
+"subset": "{subset}",
+"assay": "{assay}",
+"assay-full": "{assay_full}",
+"lab": "{lab}",
+"rbc": "{rbc}",
+"table-date": "{table_date}",
+"number-of-antigens": {number_of_antigens},
+"number-of-sera": {number_of_sera},
+"number-of-layers": {number_of_layers}
+}}
+]}})";
+
+
 void acmacs::mapi::v1::Settings::update_env()
 {
-    // const auto virus_type = tal_.tree().virus_type();
-    // if (!virus_type.empty()) {  // might be updated later upon seqdb matching
-    //     const auto lineage = tal_.tree().lineage();
-    //     AD_LOG(acmacs::log::settings, "tree virus type: \"{}\" lineage: \"\"", virus_type, lineage);
-    //     setenv_toplevel("virus-type", virus_type);
-    //     setenv_toplevel("lineage", lineage);
-    //     if (lineage.empty())
-    //         setenv_toplevel("virus-type/lineage", virus_type);
-    //     else
-    //         setenv_toplevel("virus-type/lineage", fmt::format("{}/{}", virus_type, ::string::capitalize(lineage.substr(0, 3))));
-    // }
-    // setenv_toplevel("tree-has-sequences", tal_.tree().has_sequences());
-    // setenv_toplevel("chart-present", tal_.chart_present());
-    // if (tal_.chart_present())
-    //     setenv_toplevel("chart-assay", tal_.chart().info()->assay().hi_or_neut());
+    using namespace std::string_view_literals;
+
+    const auto& chart{chart_draw().chart()};
+    auto info{chart.info()};
+    auto titers{chart.titers()};
+
+    const std::string virus_type{info->virus_type()}, lineage{chart.lineage()};
+    std::string virus_type_lineage;
+    if (lineage.empty())
+        virus_type_lineage = virus_type;
+    else
+        virus_type_lineage = fmt::format("{}/{}", virus_type, ::string::capitalize(lineage.substr(0, 3)));
+    const auto assay{info->assay()};
+    const auto json{fmt::format(sUpdateEnvPattern,
+                                fmt::arg("virus", info->virus()),
+                                fmt::arg("virus_type", virus_type),
+                                fmt::arg("virus_type_lineage", virus_type_lineage),
+                                fmt::arg("lineage", lineage),
+                                fmt::arg("subset", info->subset(chart::Info::Compute::Yes)),
+                                fmt::arg("assay", assay.hi_or_neut()),
+                                fmt::arg("assay_full", assay),
+                                fmt::arg("lab", info->lab()),
+                                fmt::arg("rbc", info->rbc_species()),
+                                fmt::arg("table_date", info->date(chart::Info::Compute::Yes)),
+                                fmt::arg("number_of_antigens", chart.number_of_antigens()),
+                                fmt::arg("number_of_sera", chart.number_of_sera()),
+                                fmt::arg("number_of_layers", titers->number_of_layers())
+                                )};
+
+    // AD_DEBUG("update_env\n{}", json);
+    load_from_string(json);
 
 } // acmacs::mapi::v1::Settings::update_env
 

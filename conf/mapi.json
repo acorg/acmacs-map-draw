@@ -24,6 +24,9 @@
     ],
 
     "/size-reset": [
+        {"N": "antigens", "select": "test",      "size": 5.0},
+        {"N": "antigens", "select": "reference", "size": 8.0},
+        {"N": "sera",     "select": "all",       "size": 8.0}
     ],
 
     "/egg": [
@@ -33,23 +36,26 @@
         {"N": "sera", "select": {"passage": "reassortant"}, "shape": "uglyegg", "aspect": 1.0, "rotation": 0.2}
     ],
 
-    "/continents": [
+    "? /continents": [
     ],
 
     "? clades": "----------------------------------------------------------------------",
 
     "/clades": [
+        "clades-{virus-type}"
     ],
 
     "/clades-light": [
+        {"N": "clades-{virus-type}"}
     ],
 
     "/clades-6m": [
+        {"N": "clades-{virus-type}"}
     ],
 
     "/clades-12m": [
+        {"N": "clades-{virus-type}"}
     ],
-
 
     "? end": "*********************** END ***************************"
 }
