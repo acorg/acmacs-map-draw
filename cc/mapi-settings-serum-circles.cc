@@ -9,10 +9,7 @@
 static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Antigens& antigens, const acmacs::chart::PointIndexList& antigen_indexes, const acmacs::chart::SerumCircle& empirical,
                            const acmacs::chart::SerumCircle& theoretical);
 
-
 // ----------------------------------------------------------------------
-
-//  "?homologous_titer": "1280",
 
 bool acmacs::mapi::v1::Settings::apply_serum_circles()
 {
@@ -228,6 +225,82 @@ void acmacs::mapi::v1::Settings::make_circle(map_elements::v1::SerumCircle& circ
     }
 
 } // acmacs::mapi::v1::Settings::make_circle
+
+// ======================================================================
+
+  // {"N": "serum_coverage", "serum": {<select>}, "?antigen": {<select>}, "?homologous_titer": "1280",
+  // "report": true, "verbose": false,
+  //  "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
+  //  "within_4fold": {"outline": "pink", "outline_width": 3, "order": "raise"},
+  //  "outside_4fold": {"fill": "grey50", "outline": "black", "order": "raise"},
+  //  "mark_serum": <see serum_circle>,
+  // },
+
+bool acmacs::mapi::v1::Settings::apply_serum_coverage()
+{
+    using namespace std::string_view_literals;
+
+    auto& chart = chart_draw().chart();
+    auto antigens = chart.antigens();
+    auto sera = chart.sera();
+    auto titers = chart.titers();
+    auto layout = chart_draw().layout();
+
+    const auto serum_indexes = select_sera(getenv("serum"sv, "sera"sv));
+    const auto fold = rjson::v3::read_number(getenv("fold"sv), 2.0);
+    const auto forced_homologous_titer = rjson::v3::read_string(getenv("homologous_titer"sv));
+    const auto& antigen_selector{getenv("antigen"sv, "antigens"sv)};
+    fmt::memory_buffer report;
+    const size_t indent{2};
+    for (auto serum_index : serum_indexes) {
+        auto serum = sera->at(serum_index);
+        fmt::format_to(report, "{:{}c}SR {} {} {}\n", ' ', indent, serum_index, serum->full_name(), serum->passage_type(acmacs::chart::reassortant_as_egg::no));
+        if (!layout->point_has_coordinates(serum_index + antigens->size())) {
+            fmt::format_to(report, "{:{}c}  *** serum is disconnected\n", ' ', indent);
+        }
+        else if (const auto antigen_indexes = select_antigens_for_serum_circle(serum_index, antigen_selector); !antigen_indexes.empty()) {
+            acmacs::chart::PointIndexList within, outside;
+            if (forced_homologous_titer.has_value()) {
+                chart.serum_coverage(*forced_homologous_titer, serum_index, within, outside, fold);
+                fmt::format_to(report, "{:{}c}  forced homologous titer: {}\n", ' ', indent, *forced_homologous_titer);
+            }
+            else {
+                std::optional<size_t> used_antigen_index;
+                for (const auto antigen_index : antigen_indexes) {
+                    try {
+                        chart.serum_coverage(antigen_index, serum_index, within, outside, fold);
+                        used_antigen_index = antigen_index;
+                        break;
+                    }
+                    catch (acmacs::chart::serum_coverage_error& err) {
+                        AD_WARNING("cannot use homologous AG {}: {} ", antigen_index, err);
+                        within.get().clear();
+                        outside.get().clear();
+                    }
+                }
+                if (used_antigen_index.has_value())
+                    fmt::format_to(report, "{:{}c}  AG {} {}\n", ' ', indent, *used_antigen_index, antigens->at(*used_antigen_index)->full_name());
+                else
+                    AD_WARNING("cannot apply serum_coverage for SR {} {}: no suitable antigen found?", serum_index, serum->full_name());
+            }
+            fmt::format_to(report, "{:{}c}  within 4fold: {}   outside 4fold: {}\n", ' ', indent, within->size(), outside->size());
+
+            // if (!within->empty())
+            //     chart_draw().modify(within, point_style_from_json(within_4fold), drawing_order_from_json(within_4fold));
+            // if (!outside->empty())
+            //     chart_draw().modify(outside, point_style_from_json(outside_4fold), drawing_order_from_json(outside_4fold));
+            // mark_serum(aChartDraw, serum_index);
+        }
+    }
+    if (rjson::v3::read_bool(getenv("report"sv), false))
+        AD_INFO("Serum coverage for {} sera\n{}", serum_indexes.size(), fmt::to_string(report));
+
+    return true;
+
+} // acmacs::mapi::v1::Settings::apply_serum_coverage
+
+// ----------------------------------------------------------------------
+
 
 // ----------------------------------------------------------------------
 /// Local Variables:
