@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-27 17:14:31 eu>
+# Time-stamp: <2020-05-27 19:07:06 eu>
 
 * Command line defines
 
@@ -364,13 +364,13 @@ http://geomalgorithms.com/a03-_inclusion.html
 * Built-in ~/AD/share/conf/mapi.json
 
 #+BEGIN_SRC json
-# "/all-grey"
-# "/size-reset"
-# "/egg"
-# "/clades"
-# "/clades-light"
-# "/clades-6m"
-# "/clades-12m"
+"/all-grey"
+"/size-reset"
+"/egg"
+"/clades"
+"/clades-pale"
+"/clades-6m"
+"/clades-12m"
 # "/continents"
 # ?? {"N": "continents", "legend": {"type": "continent_map", "offset": [-1, -1], "show": true, "size": 100}, "outline": "black"},
 #+END_SRC

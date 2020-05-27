@@ -97,8 +97,9 @@
         "/clades-{virus-type/lineage}{subset}"
     ],
 
-    "/clades-light": [
-        {"N": "/clades-{virus-type/lineage}{subset}"}
+    "/clades-pale": [
+        {"N": "/clades-{virus-type/lineage}{subset}"},
+        {"N": "antigens", "select": {"sequenced": true, "date": "{date-recent}"}, "fill": ":p0.5",  "outline": ":p0.8"}
     ],
 
     "/clades-6m": [
