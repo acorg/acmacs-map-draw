@@ -1,5 +1,6 @@
 #include "acmacs-base/argv.hh"
 #include "acmacs-base/temp-file.hh"
+#include "acmacs-base/string-compare.hh"
 #include "acmacs-base/quicklook.hh"
 #include "acmacs-base/filesystem.hh"
 #include "acmacs-chart-2/factory-import.hh"
@@ -11,6 +12,11 @@
 // ----------------------------------------------------------------------
 
 constexpr const std::string_view sHelpPost = R"(
+one input chart: make map
+two input charts: make procrustes
+output /: do not generate any output
+no output: generate temp pdf and open it (and then delete it)
+
 -D <arg> --define <arg>
 
 )";
@@ -37,16 +43,18 @@ struct MapiOptions : public acmacs::argv::v2::argv
     // option<str>       save{*this, "save", desc{"save resulting chart with modified projection and plot spec"}};
     // option<str>       previous{*this, "previous"};
     option<size_t>    projection{*this, 'p', "projection", dflt{0ul}};
+    option<size_t>    secondary_projection{*this, 'r', "secondary-projection", dflt{static_cast<size_t>(-1)}};
 
     option<bool>      open{*this, "open"};
     option<bool>      ql{*this, "ql"};
     option<str_array> verbose{*this, 'v', "verbose", desc{"comma separated list (or multiple switches) of enablers"}};
 
-    argument<str> chart{*this, arg_name{"chart.ace"}, mandatory};
-    argument<str> output{*this, arg_name{"mapi-output.pdf"}};
+    argument<str_array> files{*this, arg_name{"input: chart.ace, chart.save, chart.acd1; output: map.pdf, /"}, mandatory};
 };
 
 // ----------------------------------------------------------------------
+
+static std::pair<std::vector<std::string_view>, std::vector<std::string_view>> parse_files(const argument<str_array>& files);
 
 int main(int argc, char* const argv[])
 {
@@ -57,7 +65,10 @@ int main(int argc, char* const argv[])
         MapiOptions opt(argc, argv);
         acmacs::log::enable(opt.verbose);
         setup_dbs(opt.db_dir, !opt.verbose.empty());
-        ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart)), opt.projection);
+
+        const auto [inputs, outputs] = parse_files(opt.files);
+
+        ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(inputs[0])), opt.projection);
 
         acmacs::mapi::Settings settings{chart_draw};
         settings.load(opt.settings_files, opt.defines);
@@ -70,16 +81,16 @@ int main(int argc, char* const argv[])
         AD_INFO("{:.2f}", chart_draw.viewport("mapi main"));
         AD_INFO("transformation: {}", chart_draw.transformation());
 
-        if (opt.output->empty()) {
-            acmacs::file::temp output{fmt::format("{}--p{}.pdf", fs::path(*opt.chart).stem(), opt.projection)};
+        if (outputs.empty()) {
+            acmacs::file::temp output{fmt::format("{}--p{}.pdf", fs::path(inputs[0]).stem(), opt.projection)};
             chart_draw.draw(output, 800, report_time::yes);
             acmacs::quicklook(output, 2);
         }
-        else if (*opt.output == "/dev/null"sv || opt.output == "/"sv) { // do not generate pdf
+        else if (outputs[0] == "/dev/null"sv || outputs[0] == "/"sv) { // do not generate pdf
         }
         else {
-            chart_draw.draw(opt.output, 800, report_time::yes);
-            acmacs::open_or_quicklook(opt.open, opt.ql, opt.output);
+            chart_draw.draw(outputs[0], 800, report_time::yes);
+            acmacs::open_or_quicklook(opt.open, opt.ql, outputs[0]);
         }
     }
     catch (std::exception& err) {
@@ -88,6 +99,31 @@ int main(int argc, char* const argv[])
     }
     return exit_code;
 }
+
+// ----------------------------------------------------------------------
+
+std::pair<std::vector<std::string_view>, std::vector<std::string_view>> parse_files(const argument<str_array>& files)
+{
+    using namespace std::string_view_literals;
+    std::vector<std::string_view> inputs, outputs;
+    constexpr std::array input_suffixes{".ace"sv, ".acd1"sv, ".acd1.xz"sv, ".acd1.bz2"sv, ".save"sv, ".save.xz"sv, ".save.bz2"sv};
+    const auto is_input = [&input_suffixes](std::string_view name) -> bool {
+        return std::any_of(std::begin(input_suffixes), std::end(input_suffixes), [name](std::string_view suff) -> bool { return acmacs::string::endswith(name, suff); });
+    };
+    for (const auto& file : files) {
+        if (is_input(file))
+            inputs.push_back(file);
+        else
+            outputs.push_back(file);
+    }
+    if (inputs.empty())
+        throw std::runtime_error{"no input files (charts) found in the command line"};
+    return {inputs, outputs};
+
+} // parse_files
+
+// ----------------------------------------------------------------------
+
 
 // ----------------------------------------------------------------------
 /// Local Variables:
