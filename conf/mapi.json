@@ -41,20 +41,45 @@
 
     "? clades": "----------------------------------------------------------------------",
 
+    "/sequenced": [
+        {"N": "antigens", "select": {"sequenced": true, "report": true}, "?fill": "#C0C000",  "outline": "black", "legend": {"label": "sequenced ({count})"}, "order": "raise"}
+    ],
+
+    "/clades-A(H3N2)": [
+        "/sequenced",
+        {"N": "antigens", "select": {"clade": "3C.3", "report": true},    "fill": "#6495ED", "outline": "black", "legend": {"label": "3C.3 ({count})"}, "order": "raise"},
+        {"N": "antigens", "select": {"clade": "3C.3A", "report": true},   "fill": "green",   "outline": "black", "legend": {"label": "3a ({count})"},   "order": "raise"},
+        {"N": "antigens", "select": {"clade": "3C.3B", "report": true},   "fill": "blue",    "outline": "black", "legend": {"label": "3b ({count})"},   "order": "raise"},
+        {"N": "antigens", "select": {"clade": "3C.2A", "report": true},   "fill": "#FF0000", "outline": "black", "legend": {"label": "2a ({count})"},   "order": "raise"},
+        {"N": "antigens", "select": {"clade": "3C.2A1", "report": true},  "fill": "#ffab91", "outline": "black", "legend": {"label": "2a1 ({count})"},  "order": "raise"},
+        {"N": "antigens", "select": {"clade": "3C.2A1A", "report": true}, "fill": "#E040FB", "outline": "black", "legend": {"label": "2a1a ({count})"}, "order": "raise"},
+        {"N": "antigens", "select": {"clade": "3C.2A1B", "report": true}, "fill": "#CD5C5C", "outline": "black", "legend": {"label": "2a1b ({count})"}, "order": "raise"},
+        {"N": "antigens", "select": {"clade": "3C.2A2", "report": true},  "fill": "#EEB422", "outline": "black", "legend": {"label": "2a2 ({count})"},  "order": "raise"}
+    ],
+
+    "clades-A(H1N1)2009pdm": [
+    ],
+
+    "clades-B/Vic": [
+    ],
+
+    "clades-B/Yam": [
+    ],
+
     "/clades": [
-        "clades-{virus-type}"
+        "/clades-{virus-type/lineage}{subset}"
     ],
 
     "/clades-light": [
-        {"N": "clades-{virus-type}"}
+        {"N": "/clades-{virus-type/lineage}{subset}"}
     ],
 
     "/clades-6m": [
-        {"N": "clades-{virus-type}"}
+        {"N": "/clades-{virus-type/lineage}{subset}"}
     ],
 
     "/clades-12m": [
-        {"N": "clades-{virus-type}"}
+        {"N": "/clades-{virus-type/lineage}{subset}"}
     ],
 
     "? end": "*********************** END ***************************"
