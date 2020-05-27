@@ -49,22 +49,22 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
 
             const auto serum_passage = serum->passage_type(acmacs::chart::reassortant_as_egg::no);
             std::optional<size_t> mark_antigen;
-            bool mark_serum{false};
+            bool do_mark_serum{false};
             if (empirical.valid()) {
                 make_circle(chart_draw().serum_circle(serum_index, Scaled{empirical.radius()}), serum_passage, getenv("empirical"sv));
                 mark_antigen = empirical.per_antigen().front().antigen_no;
-                mark_serum = true;
+                do_mark_serum = true;
             }
             if (theoretical.valid()) {
                 make_circle(chart_draw().serum_circle(serum_index, Scaled{theoretical.radius()}), serum_passage, getenv("theoretical"sv));
                 if (!mark_antigen.has_value())
                     mark_antigen = theoretical.per_antigen().front().antigen_no;
-                mark_serum = true;
+                do_mark_serum = true;
             }
             if (!empirical.valid() && !theoretical.valid()) {
                 if (const auto& fallback = getenv("fallback"sv); !fallback.is_null() && rjson::v3::read_bool(fallback["show"sv], true)) {
                     make_circle(chart_draw().serum_circle(serum_index, rjson::v3::read_number(fallback["radius"sv], Scaled{3.0})), serum_passage, fallback);
-                    mark_serum = true;
+                    do_mark_serum = true;
                 }
             }
 
@@ -79,14 +79,8 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
             }
 
             // mark serum
-            if (const auto& serum_style = getenv("mark_serum"sv); mark_serum && !serum_style.is_null()) {
-                const auto style = style_from(serum_style);
-                const acmacs::chart::PointIndexList indexes{serum_index};
-                chart_draw().modify_sera(indexes, style.style, drawing_order_from(serum_style));
-                color_according_to_passage(*sera, indexes, style);
-                if (const auto& label = serum_style["label"sv]; !label.is_null())
-                    add_labels(indexes, antigens->size(), label);
-            }
+            if (do_mark_serum)
+                mark_serum(serum_index, getenv("mark_serum"sv));
         }
         else
             fmt::format_to(report, "{:{}c}  *** no homologous antigens selected (selector: {})\n", ' ', indent, antigen_selector);
@@ -283,13 +277,17 @@ bool acmacs::mapi::v1::Settings::apply_serum_coverage()
                 else
                     AD_WARNING("cannot apply serum_coverage for SR {} {}: no suitable antigen found?", serum_index, serum->full_name());
             }
-            fmt::format_to(report, "{:{}c}  within 4fold: {}   outside 4fold: {}\n", ' ', indent, within->size(), outside->size());
+            fmt::format_to(report, "{:{}c}  within 4fold: {} antigens     outside 4fold: {} antigens\n", ' ', indent, within->size(), outside->size());
 
-            // if (!within->empty())
-            //     chart_draw().modify(within, point_style_from_json(within_4fold), drawing_order_from_json(within_4fold));
-            // if (!outside->empty())
-            //     chart_draw().modify(outside, point_style_from_json(outside_4fold), drawing_order_from_json(outside_4fold));
-            // mark_serum(aChartDraw, serum_index);
+            if (!within->empty()) {
+                const auto& within_4fold{getenv("within_4fold"sv)};
+                chart_draw().modify(within, style_from(within_4fold).style, drawing_order_from(within_4fold));
+            }
+            if (!outside->empty()) {
+                const auto& outside_4fold{getenv("outside_4fold"sv)};
+                chart_draw().modify(outside, style_from(outside_4fold).style, drawing_order_from(outside_4fold));
+            }
+            mark_serum(serum_index, getenv("mark_serum"sv));
         }
     }
     if (rjson::v3::read_bool(getenv("report"sv), false))

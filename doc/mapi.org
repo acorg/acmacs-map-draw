@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-27 10:47:28 eu>
+# Time-stamp: <2020-05-27 11:37:28 eu>
 
 * TODO
 
@@ -294,7 +294,7 @@ http://geomalgorithms.com/a03-_inclusion.html
    "mark_antigen": {"fill": "<color-modifier>", "outline": "<color-modifier>", "order": "raise", "label": {"format": "{full_name}", "offset": [0, 1.2], "color": "black", "size": 12}}},
 
   {"N": "serum_coverage", "serum": {<select>}, "?antigen": {<select>}, "?homologous_titer": "1280",
-  "report": true, "verbose": false,
+  "report": true,
    "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
    "within_4fold": {"outline": "pink", "outline_width": 3, "order": "raise"},
    "outside_4fold": {"fill": "grey50", "outline": "black", "order": "raise"},

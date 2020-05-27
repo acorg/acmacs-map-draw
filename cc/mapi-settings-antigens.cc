@@ -669,6 +669,23 @@ acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_sera(const rjso
 
 // ----------------------------------------------------------------------
 
+void acmacs::mapi::v1::Settings::mark_serum(size_t serum_index, const rjson::v3::value& serum_style)
+{
+    using namespace std::string_view_literals;
+
+    if (!serum_style.is_null()) {
+        const auto style = style_from(serum_style);
+        const acmacs::chart::PointIndexList indexes{serum_index};
+        chart_draw().modify_sera(indexes, style.style, drawing_order_from(serum_style));
+        color_according_to_passage(*chart_draw().chart().sera(), indexes, style);
+        if (const auto& label = serum_style["label"sv]; !label.is_null())
+            add_labels(indexes, chart_draw().chart().number_of_antigens(), label);
+    }
+
+} // acmacs::mapi::v1::Settings::mark_serum
+
+// ----------------------------------------------------------------------
+
 void acmacs::mapi::v1::Settings::update_style(point_style_t& style, std::string_view key, const rjson::v3::value& val) const
 {
     using namespace std::string_view_literals;

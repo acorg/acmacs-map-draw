@@ -72,6 +72,7 @@ namespace acmacs::mapi::inline v1
         bool apply_sera();
         template <typename AgSr> acmacs::chart::PointIndexList select(const AgSr& ag_sr, const rjson::v3::value& select_clause, if_null ifnull) const;
         template <typename AgSr> void check_titrated_against(acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value) const;
+        void mark_serum(size_t serum_index, const rjson::v3::value& style);
 
         PointDrawingOrder drawing_order_from_toplevel_environment() const;
         PointDrawingOrder drawing_order_from(const rjson::v3::value& source) const;
