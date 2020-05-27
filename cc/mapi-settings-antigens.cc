@@ -136,7 +136,7 @@ template <typename AgSr> static void check_index(const AgSr& ag_sr, acmacs::char
                              keep(indexes, val.template to<size_t>());
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>)
             check_disjunction<size_t>(indexes, val, keep);
-        else
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
             report_error();
     });
 
@@ -164,7 +164,7 @@ template <typename AgSr> static void check_name(const AgSr& ag_sr, acmacs::chart
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
             check_disjunction<std::string_view>(indexes, val, name_one);
         }
-        else
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
             report_error();
     });
 
@@ -190,7 +190,7 @@ static inline void check_lab(const acmacs::chart::Chart& chart, acmacs::chart::P
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
             check_disjunction<std::string_view>(indexes, val, lab_one);
         }
-        else
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
             report_error();
     });
 
@@ -206,6 +206,8 @@ static inline void check_lineage(const acmacs::chart::Chart& chart, acmacs::char
         return value.visit([&chart_lineage, &value]<typename Val>(const Val& val) -> bool {
             if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
                 return acmacs::string::startswith_ignore_case(*chart_lineage, val.template to<std::string_view>());
+            else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>)
+                return true;
             else
                 throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"lineage\" clause: {}", value)};
         });
@@ -259,7 +261,7 @@ static inline void check_date(const acmacs::chart::Chart& /*chart*/, const acmac
             AD_INFO("date range for selecting antigens/sera by {}: \"{}\" .. \"{}\"", value, first_date, last_date);
             antigens.filter_date_range(indexes, first_date, last_date);
         }
-        else
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
             report_error();
     });
 
@@ -310,7 +312,7 @@ template <typename AgSr> static void check_location(const AgSr& ag_sr, acmacs::c
             location_one(indexes, val.template to<std::string_view>());
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>)
             check_disjunction<std::string_view>(indexes, val, location_one);
-        else
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
             report_error();
     });
 
@@ -364,7 +366,7 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
             }
             else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>)
                 check_disjunction<std::string_view>(indexes, val, passage_group);
-            else
+            else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
                 report_error(throw_if_unprocessed::yes);
         });
     }
@@ -417,7 +419,7 @@ static inline void check_sequence(const ChartSelectInterface& aChartSelectInterf
         // else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
         //     report_error();
         // }
-        else
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
             report_error();
     });
 
@@ -488,7 +490,7 @@ template <typename AgSr> static void check_layer(const acmacs::chart::Chart& cha
             else
                 report_error();
         }
-        else
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
             report_error();
     });
 
@@ -571,7 +573,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                     throw acmacs::mapi::unrecognized{};
             }
             else if constexpr (std::is_same_v<Value, rjson::v3::detail::object>) {
-                for (const auto& [key, value] : select_clause_v) {
+                for (const auto& [key, value_raw] : select_clause_v) {
+                    const auto& value{substitute_to_value(value_raw)};
                     if (check_reference(ag_sr, indexes, key, value))
                         ; // processed
                     else if (key == "date"sv || key == "dates"sv || key == "date_range"sv)
