@@ -80,6 +80,7 @@ namespace acmacs::mapi::inline v1
         struct passage_color_t
         {
             void init_passage_colors();
+            void apply(const acmacs::color::Modifier& modifier);
             std::optional<acmacs::color::Modifier> egg;
             std::optional<acmacs::color::Modifier> reassortant;
             std::optional<acmacs::color::Modifier> cell;

@@ -752,13 +752,29 @@ void acmacs::mapi::v1::Settings::passage_color_t::init_passage_colors()
 
 // ----------------------------------------------------------------------
 
+void acmacs::mapi::v1::Settings::passage_color_t::apply(const acmacs::color::Modifier& modifier)
+{
+    if (egg)
+        egg->add(modifier);
+    if (reassortant)
+        reassortant->add(modifier);
+    if (cell)
+        cell->add(modifier);
+
+} // acmacs::mapi::v1::Settings::passage_color_t::apply
+
+// ----------------------------------------------------------------------
+
 acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::color(const rjson::v3::value& value, std::optional<Color> if_null) const
 {
     using namespace std::string_view_literals;
     const auto make_color = [](std::string_view source) -> modifier_or_passage_t {
-        if (source == "passage"sv) {
+        constexpr std::string_view passage_key{"passage"};
+        if (acmacs::string::startswith(source, passage_key)) {
             passage_color_t colors;
             colors.init_passage_colors();
+            if (source.size() > passage_key.size())
+                colors.apply(acmacs::color::Modifier{source.substr(passage_key.size())});
             return colors;
         }
         else

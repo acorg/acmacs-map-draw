@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-27 09:32:02 eu>
+# Time-stamp: <2020-05-27 09:43:07 eu>
 
 * TODO
 
@@ -162,7 +162,7 @@
 #+END_SRC
 
 
-* Color and Color modifier
+* Color and Color modifier (<color-modifier>)
 
 See [[file:~/AD/share/doc/color.org][color.org]]
 
@@ -173,9 +173,11 @@ See [[file:~/AD/share/doc/color.org][color.org]]
 
 #+BEGIN_SRC json
   "fill": "passage"
+  "fill": "passage:t0.8" -- with modifier
   "fill": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"} 
 
   "outline": "passage"
+  "outline": "passage:t0.8" -- with modifier
   "outline": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"}
 #+END_SRC
 
