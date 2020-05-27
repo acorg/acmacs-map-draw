@@ -13,8 +13,6 @@ static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Anti
 // ----------------------------------------------------------------------
 
 //  "?homologous_titer": "1280",
-//  "mark_serum":   {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"format": "{full_name}", "offset": [0, 1.2], "color": "black", "size": 12}},
-//  "mark_antigen": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "{full_name}", "offset": [0, 1.2], "color": "black", "size": 12}}},
 
 bool acmacs::mapi::v1::Settings::apply_serum_circles()
 {
@@ -54,34 +52,43 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
 
             const auto serum_passage = serum->passage_type(acmacs::chart::reassortant_as_egg::no);
             std::optional<size_t> mark_antigen;
+            bool mark_serum{false};
             if (empirical.valid()) {
                 make_circle(chart_draw().serum_circle(serum_index, Scaled{empirical.radius()}), serum_passage, getenv("empirical"sv));
                 mark_antigen = empirical.per_antigen().front().antigen_no;
+                mark_serum = true;
             }
             if (theoretical.valid()) {
                 make_circle(chart_draw().serum_circle(serum_index, Scaled{theoretical.radius()}), serum_passage, getenv("theoretical"sv));
                 if (!mark_antigen.has_value())
                     mark_antigen = theoretical.per_antigen().front().antigen_no;
+                mark_serum = true;
             }
             if (!empirical.valid() && !theoretical.valid()) {
-                if (const auto& fallback = getenv("fallback"sv); !fallback.is_null() && rjson::v3::read_bool(fallback["show"sv], true))
+                if (const auto& fallback = getenv("fallback"sv); !fallback.is_null() && rjson::v3::read_bool(fallback["show"sv], true)) {
                     make_circle(chart_draw().serum_circle(serum_index, rjson::v3::read_number(fallback["radius"sv], Scaled{3.0})), serum_passage, fallback);
+                    mark_serum = true;
+                }
             }
 
             // mark antigen
             if (const auto& antigen_style = getenv("mark_antigen"sv); mark_antigen.has_value() && !antigen_style.is_null()) {
                 const auto style = style_from(antigen_style);
                 chart_draw().modify(*mark_antigen, style.style, drawing_order_from(antigen_style));
-                acmacs::chart::PointIndexList indexes;
-                indexes.insert(*mark_antigen);
-                color_according_to_passage(*chart_draw().chart().antigens(), indexes, style);
+                const acmacs::chart::PointIndexList indexes{*mark_antigen};
+                color_according_to_passage(*antigens, indexes, style);
                 if (const auto& label = antigen_style["label"sv]; !label.is_null())
                     add_labels(indexes, 0, label);
             }
 
-            // !!! sector markers (radius lines) in make_circle !!!
-
             // mark serum
+            if (const auto& serum_style = getenv("mark_serum"sv); mark_serum && !serum_style.is_null()) {
+                const auto style = style_from(serum_style);
+                chart_draw().modify(serum_index, style.style, drawing_order_from(serum_style));
+                color_according_to_passage(*sera, acmacs::chart::PointIndexList{serum_index}, style);
+                if (const auto& label = serum_style["label"sv]; !label.is_null())
+                    add_labels(acmacs::chart::PointIndexList{serum_index + antigens->size()}, 0, label);
+            }
         }
         else
             fmt::format_to(report, "{:{}c}  *** no homologous antigens selected (selector: {})\n", ' ', indent, antigen_selector);
