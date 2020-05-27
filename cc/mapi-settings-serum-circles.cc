@@ -211,7 +211,7 @@ void acmacs::mapi::v1::Settings::make_circle(map_elements::v1::SerumCircle& circ
                 circle.radius_line_dash3();
             else
                 circle.radius_line_no_dash();
-            circle.radius_line(rjson::v3::read_color(radius_line["color"sv], outline), rjson::v3::read_number(radius_line["line_width"sv], outline_width));
+            circle.radius_line(get_color(radius_line["color"sv], outline), rjson::v3::read_number(radius_line["line_width"sv], outline_width));
         }
 
         if (!plot["angle_degrees"sv].is_null() || !plot["radius_line_dash"sv].is_null() || !plot["radius_line_color"sv].is_null())
