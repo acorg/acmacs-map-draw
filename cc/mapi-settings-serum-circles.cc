@@ -85,9 +85,10 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
             if (const auto& serum_style = getenv("mark_serum"sv); mark_serum && !serum_style.is_null()) {
                 const auto style = style_from(serum_style);
                 chart_draw().modify(serum_index, style.style, drawing_order_from(serum_style));
-                color_according_to_passage(*sera, acmacs::chart::PointIndexList{serum_index}, style);
+                const acmacs::chart::PointIndexList indexes{serum_index};
+                color_according_to_passage(*sera, indexes, style);
                 if (const auto& label = serum_style["label"sv]; !label.is_null())
-                    add_labels(acmacs::chart::PointIndexList{serum_index + antigens->size()}, 0, label);
+                    add_labels(indexes, antigens->size(), label);
             }
         }
         else
