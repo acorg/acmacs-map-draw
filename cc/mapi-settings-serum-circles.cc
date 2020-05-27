@@ -42,7 +42,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
             acmacs::chart::SerumCircle empirical, theoretical;
             if (forced_homologous_titer.has_value()) {
                 empirical = acmacs::chart::serum_circle_empirical(antigen_indexes, *forced_homologous_titer, serum_index, *layout, column_basis, *titers, fold, verb);
-                theoretical = acmacs::chart::serum_circle_theoretical(*forced_homologous_titer, serum_index, column_basis, fold);
+                theoretical = acmacs::chart::serum_circle_theoretical(antigen_indexes, *forced_homologous_titer, serum_index, column_basis, fold);
             }
             else {
                 empirical = acmacs::chart::serum_circle_empirical(antigen_indexes, serum_index, *layout, column_basis, *titers, fold, verb);
@@ -84,8 +84,8 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
             // mark serum
             if (const auto& serum_style = getenv("mark_serum"sv); mark_serum && !serum_style.is_null()) {
                 const auto style = style_from(serum_style);
-                chart_draw().modify(serum_index, style.style, drawing_order_from(serum_style));
                 const acmacs::chart::PointIndexList indexes{serum_index};
+                chart_draw().modify_sera(indexes, style.style, drawing_order_from(serum_style));
                 color_according_to_passage(*sera, indexes, style);
                 if (const auto& label = serum_style["label"sv]; !label.is_null())
                     add_labels(indexes, antigens->size(), label);
@@ -128,10 +128,15 @@ static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Anti
 {
     const auto find_data = [](const acmacs::chart::SerumCircle& data, size_t antigen_index) -> const acmacs::chart::detail::SerumCirclePerAntigen& {
         if (const auto found = find_if(std::begin(data.per_antigen()), std::end(data.per_antigen()), [antigen_index](const auto& en) { return en.antigen_no == antigen_index; });
-            found != std::end(data.per_antigen()))
+            found != std::end(data.per_antigen())) {
             return *found;
-        else
+        }
+        else {
+            AD_ERROR("per_antigen: {}  looking for antigen {}", data.per_antigen().size(), antigen_index);
+            for (const auto& en : data.per_antigen())
+                AD_ERROR("AG {} titter:{}", en.antigen_no, en.titer);
             throw std::runtime_error{"internal error in report_circles..find_data"};
+        }
     };
 
     fmt::format_to(report, "     empir   theor   titer\n");

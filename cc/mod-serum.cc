@@ -283,7 +283,7 @@ double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumInde
             case serum_circle_radius_type::empirical:
                 return aChartDraw.chart().serum_circle_radius_empirical(aAntigenIndices, aHomologousTiter, aSerumIndex, aChartDraw.projection_no(), fold);
             case serum_circle_radius_type::theoretical:
-                return aChartDraw.chart().serum_circle_radius_theoretical(aHomologousTiter, aSerumIndex, aChartDraw.projection_no(), fold);
+                return aChartDraw.chart().serum_circle_radius_theoretical(aAntigenIndices, aHomologousTiter, aSerumIndex, aChartDraw.projection_no(), fold);
         }
         throw std::exception{};
     };
