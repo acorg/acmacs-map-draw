@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-27 11:42:22 eu>
+# Time-stamp: <2020-05-27 11:48:57 eu>
 
 * Command line defines
 
@@ -305,10 +305,14 @@ http://geomalgorithms.com/a03-_inclusion.html
 * TODO Procrustes
 
 #+BEGIN_SRC json
-        {"N": "procrustes_arrows", "chart": "secondary.ace", "projection": 0, "match": "auto", "?match": "auto, strict, relaxed, ignored", "scaling": false, "report": false,
-         "?subset": "all, sera, antigens, reference, test", "?subset_antigens": {"clade": "2a1"}, "?subset_sera": {"clade": "2a1"},
-         "threshold": 0.005, "?threshold": "do not show arrows shorter than this value in units",
-         "arrow": {"color": "black", "head_color": "black", "head_filled": true, "line_width": 1, "arrow_width": 5}},
+  {"N": "procrustes_arrows",
+   "chart": "secondary.ace", "projection": 0,
+   "match": "auto", -- "auto", "strict", "relaxed", "ignored"
+   "scaling": false, "report": false,
+   "antigens": "<select-antigens>", "sera": "<select-sera>",
+   "threshold": 0.005, -- do not show arrows shorter than this value in units
+   "arrow": {"line_width": 1, "outline": "black", "head": {"width": 5, "outline": "black", "outline_width": 1, "fill": "black"}}
+  }
 #+END_SRC
 
 
