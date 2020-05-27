@@ -1,6 +1,4 @@
-# Time-stamp: <2020-05-27 11:37:28 eu>
-
-* TODO
+# Time-stamp: <2020-05-27 11:42:22 eu>
 
 * Command line defines
 
@@ -281,7 +279,7 @@ http://geomalgorithms.com/a03-_inclusion.html
 #+END_SRC
 
 
-* TODO Serum Circles
+* Serum Circles
 
 #+BEGIN_SRC json
   {"N": "serum_circle", "serum": {<Select Sera>}, "?antigen": {<Select Antigens>}, "?homologous_titer": "1280",
@@ -291,24 +289,16 @@ http://geomalgorithms.com/a03-_inclusion.html
    "theoretical": {"fill":  "<color-modifier>", "outline": "<color-modifier>", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "<color-modifier>", "line_width": 1}},
    "fallback":    {"fill":  "<color-modifier>", "outline": "<color-modifier>", "outline_width": 2, "outline_dash": "dash3",  "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "<color-modifier>", "line_width": 1}},
    "mark_serum":   {"fill": "<color-modifier>", "outline": "<color-modifier>", "order": "raise", "label": {"format": "{full_name}", "offset": [0, 1.2], "color": "black", "size": 12}},
-   "mark_antigen": {"fill": "<color-modifier>", "outline": "<color-modifier>", "order": "raise", "label": {"format": "{full_name}", "offset": [0, 1.2], "color": "black", "size": 12}}},
+   "mark_antigen": {"fill": "<color-modifier>", "outline": "<color-modifier>", "order": "raise", "label": {"format": "{full_name}", "offset": [0, 1.2], "color": "black", "size": 12}}
+  }
 
   {"N": "serum_coverage", "serum": {<select>}, "?antigen": {<select>}, "?homologous_titer": "1280",
-  "report": true,
+   "report": true,
    "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
    "within_4fold": {"outline": "pink", "outline_width": 3, "order": "raise"},
    "outside_4fold": {"fill": "grey50", "outline": "black", "order": "raise"},
    "mark_serum": <see serum_circle>,
-  },
-
-  # {"N": "serum_coverage_circle", "serum": {<select>}, "?antigen": {<select>}, "?homologous_titer": "1280", "report": true,
-  # "mark_serum": {"fill": "red", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12, "weight": "bold"}},
-  # "empirical": {"show": true, "fill": "#C0FF8080", "outline": "red", "outline_width": 2, "?outline_dash": "dash2", "angle_degrees": [0, 30], "radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1},
-  # "theoretical": {"show": true, "fill": "#C08080FF", "outline": "blue", "outline_width": 2, "?outline_dash": "dash2", "angle_degrees": [0, 30], "radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1},
-  # "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
-  # "within_4fold": {"outline": "pink", "outline_width": 3, "order": "raise"},
-  # "outside_4fold": {"fill": "grey50", "outline": "black", "order": "raise"}},
-
+  }
 #+END_SRC
 
 
