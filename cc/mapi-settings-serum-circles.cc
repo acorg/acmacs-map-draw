@@ -79,6 +79,8 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
                     add_labels(indexes, 0, label);
             }
 
+            // !!! sector markers (radius lines) in make_circle !!!
+
             // mark serum
         }
         else
@@ -164,8 +166,6 @@ void acmacs::mapi::v1::Settings::make_circle(map_elements::v1::SerumCircle& circ
     using namespace std::string_view_literals;
 
     if (rjson::v3::read_bool(plot["show"sv], true)) {
-        const auto fill = color(plot["fill"sv], TRANSPARENT);
-
         if (const auto outline_dash = rjson::v3::read_string(plot["outline_dash"sv], ""sv); outline_dash == "dash1"sv)
             circle.outline_dash1();
         else if (outline_dash == "dash2"sv)
@@ -195,22 +195,27 @@ void acmacs::mapi::v1::Settings::make_circle(map_elements::v1::SerumCircle& circ
                 color(source, dflt));
         };
 
-        circle.outline(get_color(plot["outline"sv], PINK), rjson::v3::read_number(plot["outline_width"sv], Pixels{1.0}));
+        const auto outline{get_color(plot["outline"sv], PINK)};
+        const auto outline_width{rjson::v3::read_number(plot["outline_width"sv], Pixels{1.0})};
+        circle.outline(outline, outline_width);
         circle.fill(get_color(plot["fill"sv], TRANSPARENT));
 
-        // if (const auto& angles = circle_plot_spec["angle_degrees"]; !angles.is_null()) {
-        //     const double pi_180 = std::acos(-1) / 180.0;
-        //     circle.angles(angles[0].to<double>() * pi_180, angles[1].to<double>() * pi_180);
-        // }
-        // if (const auto line_dash = rjson::get_or(circle_plot_spec, "radius_line_dash", ""); line_dash == "dash1")
-        //     circle.radius_line_dash1();
-        // else if (line_dash == "dash2")
-        //     circle.radius_line_dash2();
-        // else if (line_dash == "dash3")
-        //     circle.radius_line_dash3();
-        // else
-        //     circle.radius_line_no_dash();
-        // circle.radius_line(Color(rjson::get_or(circle_plot_spec, "radius_line_color", outline)), rjson::get_or(circle_plot_spec, "radius_line_width", outline_width));
+        if (const auto& angles = plot["angles"sv]; !angles.is_null())
+            circle.angles(rjson::v3::read_number<Rotation>(angles[0], Rotation{0}), rjson::v3::read_number<Rotation>(angles[1], Rotation{0}));
+        if (const auto& radius_line = plot["radius_line"sv]; !radius_line.is_null()) {
+            if (const auto dash = rjson::v3::read_string(radius_line["dash"sv], ""sv); dash == "dash1"sv)
+                circle.radius_line_dash1();
+            else if (dash == "dash2"sv)
+                circle.radius_line_dash2();
+            else if (dash == "dash3"sv)
+                circle.radius_line_dash3();
+            else
+                circle.radius_line_no_dash();
+            circle.radius_line(rjson::v3::read_color(radius_line["color"sv], outline), rjson::v3::read_number(radius_line["line_width"sv], outline_width));
+        }
+
+        if (!plot["angle_degrees"sv].is_null() || !plot["radius_line_dash"sv].is_null() || !plot["radius_line_color"sv].is_null())
+            AD_WARNING("\"angle_degrees\", \"radius_line_dash\", \"radius_line_color\" are deprecated and not supported");
     }
 
 } // acmacs::mapi::v1::Settings::make_circle

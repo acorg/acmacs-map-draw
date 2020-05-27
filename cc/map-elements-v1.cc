@@ -184,7 +184,7 @@ void map_elements::v1::Title::draw(acmacs::surface::Surface& aSurface) const
         }
     }
     catch (std::exception& err) {
-        std::cerr << "ERROR: map_elements::Title::draw(Surface&): " << err.what() << " (ignored)\n";
+        AD_ERROR("map_elements::Title::draw(Surface&): {} (ignored)", err);
     }
 
 } // map_elements::v1::Title::draw
@@ -225,7 +225,7 @@ void map_elements::v1::SerumCircle::draw(acmacs::surface::Surface& aSurface, con
             }
         }
         else
-            std::cerr << ">> SerumCircle::draw(surface): cannot draw serum circle, center coordinates: " << coord << '\n';
+            AD_WARNING("SerumCircle::draw(surface): cannot draw serum circle, center coordinates: {}", coord);
     }
 
 } // map_elements::v1::SerumCircle::draw
@@ -237,7 +237,7 @@ void map_elements::v1::SerumCircle::draw(acmacs::draw::DrawElements& aDrawElemen
     if (const auto& coord = aChartDraw.layout()->at(mSerumNo + aChartDraw.number_of_antigens()); coord.exists())
         aDrawElements.serum_circle(coord, aChartDraw.transformation(), mRadius * 2.0, mFillColor, mOutlineColor, mOutlineWidth, mOutlineDash, mRadiusColor, mRadiusWidth, mRadiusDash, mStart, mEnd);
     else
-        std::cerr << ">> SerumCircle::draw(draw_elements): cannot draw serum circle, center coordinates: " << coord << '\n';
+        AD_WARNING("SerumCircle::draw(draw_elements): cannot draw serum circle, center coordinates: {}", coord);
 
 } // map_elements::v1::SerumCircle::draw
 
@@ -296,7 +296,6 @@ void map_elements::v1::Arrow::draw(acmacs::surface::Surface& aSurface, const Cha
     const double sign2 = x_eq ? (mBegin.y() < mEnd.y() ? 1.0 : -1.0) : (mEnd.x() < mBegin.x() ? 1.0 : -1.0);
     const double angle = x_eq ? -M_PI_2 : std::atan((mEnd.y() - mBegin.y()) / (mEnd.x() - mBegin.x()));
     const auto end = aSurface.arrow_head(mEnd, angle, sign2, mArrowHeadColor, mArrowWidth, mArrowHeadFilled);
-      // std::cerr << "DEBUG: Arrow " << mBegin << ' ' << mEnd << ' ' << end << " angle:" << angle << " sign2:" << sign2 << ' ' << mArrowHeadColor << '\n';
     aSurface.line(mBegin, end, mLineColor, mLineWidth);
 
 } // map_elements::v1::Arrow::draw
@@ -331,7 +330,7 @@ void map_elements::v1::Circle::draw(acmacs::draw::DrawElements& aDrawElements, c
 // obsolete
 void map_elements::v1::Path::draw(acmacs::surface::Surface& /*aSurface*/, const ChartDraw& /*aChartDraw*/) const
 {
-    std::cerr << ">> WARNING: map_elements::Path::draw(surface) obsolete and not implemented\n";
+    AD_WARNING("map_elements::Path::draw(surface) obsolete and not implemented");
 
 } // map_elements::v1::Path::draw
 
