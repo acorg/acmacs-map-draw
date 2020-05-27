@@ -36,7 +36,22 @@
         {"N": "sera", "select": {"passage": "reassortant"}, "shape": "uglyegg", "aspect": 1.0, "rotation": 0.2}
     ],
 
-    "? /continents": [
+    "/continents": [
+        {"N": "antigens", "select": {"continent": "EUROPE",            "date": "{date-recent}"}, "fill": "#00FF00", "outline": "black"},
+        {"N": "antigens", "select": {"continent": "CENTRAL-AMERICA",   "date": "{date-recent}"}, "fill": "#AAF9FF", "outline": "black"},
+        {"N": "antigens", "select": {"continent": "MIDDLE-EAST",       "date": "{date-recent}"}, "fill": "#8000FF", "outline": "black"},
+        {"N": "antigens", "select": {"continent": "NORTH-AMERICA",     "date": "{date-recent}"}, "fill": "#00008B", "outline": "black"},
+        {"N": "antigens", "select": {"continent": "AFRICA",            "date": "{date-recent}"}, "fill": "#FF8000", "outline": "black"},
+        {"N": "antigens", "select": {"continent": "ASIA",              "date": "{date-recent}"}, "fill": "#FF0000", "outline": "black"},
+        {"N": "antigens", "select": {"continent": "RUSSIA",            "date": "{date-recent}"}, "fill": "#B03060", "outline": "black"},
+        {"N": "antigens", "select": {"continent": "AUSTRALIA-OCEANIA", "date": "{date-recent}"}, "fill": "#FF69B4", "outline": "black"},
+        {"N": "antigens", "select": {"continent": "SOUTH-AMERICA",     "date": "{date-recent}"}, "fill": "#40E0D0", "outline": "black"},
+        {"N": "antigens", "select": {"continent": "ANTARCTICA",        "date": "{date-recent}"}, "fill": "#808080", "outline": "black"},
+        {"N": "antigens", "select": {"continent": "CHINA-SOUTH",       "date": "{date-recent}"}, "fill": "#FF0000", "outline": "black"},
+        {"N": "antigens", "select": {"continent": "CHINA-NORTH",       "date": "{date-recent}"}, "fill": "#6495ED", "outline": "black"},
+        {"N": "antigens", "select": {"continent": "CHINA-UNKNOWN",     "date": "{date-recent}"}, "fill": "#808080", "outline": "black"},
+        {"N": "antigens", "select": {"continent": "UNKNOWN",           "date": "{date-recent}"}, "fill": "#808080", "outline": "black"},
+        {"N": "legend", "type": "continent_map", "size": 100}
     ],
 
     "? clades": "----------------------------------------------------------------------",
