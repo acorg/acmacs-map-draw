@@ -102,10 +102,8 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     titl.add_line(secondary_chart.make_name(secondary_projection_no));
     titl.add_line(fmt::format("RMS: {:.6f}", procrustes_data.rms));
 
-    if (rjson::v3::read_bool(getenv("report"sv), false)) {
-        AD_INFO("Procrustes\n  common antigens: {}\n  common sera:     {}\n  RMS:             {:.6f}\n\n{}", common.common_antigens(), common.common_sera(), procrustes_data.rms,
-                common.report(2, verbose::no));
-    }
+    if (rjson::v3::read_bool(getenv("report"sv), false))
+        AD_INFO("Procrustes  AG:{}  SR:{}  RMS: {:.6f}\n\n{}", common.common_antigens(), common.common_sera(), procrustes_data.rms, common.report(2, verbose::no));
 
     return true;
 

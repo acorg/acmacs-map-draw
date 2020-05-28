@@ -1,6 +1,7 @@
 #include "acmacs-base/argv.hh"
 #include "acmacs-base/temp-file.hh"
 #include "acmacs-base/string-compare.hh"
+#include "acmacs-base/string-split.hh"
 #include "acmacs-base/quicklook.hh"
 #include "acmacs-base/filesystem.hh"
 #include "acmacs-map-draw/setup-dbs.hh"
@@ -32,7 +33,7 @@ struct MapiOptions : public acmacs::argv::v2::argv
 
     option<str_array> settings_files{*this, 's'};
     option<str_array> defines{*this, 'D', "define", desc{"see {ACMACSD_ROOT}/share/doc/mapi.org"}};
-    option<str_array> apply{*this, 'a', "apply", dflt{str_array{"main"}}, desc{"name or json array to use as \"apply\", e.g. [\"/all-grey\",\"/egg\",\"/clades\",\"/labels\"]"}};
+    option<str_array> apply{*this, 'a', "apply", dflt{str_array{"main"}}, desc{"comma separated names or json array to use as \"apply\", e.g. [\"/all-grey\",\"/egg\",\"/clades\",\"/labels\"]"}};
     // option<str>       apply_from{*this, "apply-from", desc{"read json array to use as \"apply\" from file (or stdin if \"-\""}};
     // option<bool>      clade{*this, "clade"};
     // option<double>    point_scale{*this, "point-scale", dflt{1.0}};
@@ -75,8 +76,15 @@ int main(int argc, char* const argv[])
         if (inputs.size() > 1)
             settings.setenv_toplevel("secondary-chart-name"sv, inputs[1]);
         for (const auto& to_apply : opt.apply) {
-            // AD_DEBUG("to_apply \"{}\"", to_apply);
-            settings.apply(to_apply);
+            if (!to_apply.empty()) {
+                if (to_apply[0] == '{' || to_apply[0] == '[') {
+                    settings.apply(to_apply);
+                }
+                else {
+                    for (const auto& to_apply_one : acmacs::string::split(to_apply))
+                        settings.apply(to_apply_one);
+                }
+            }
         }
 
         chart_draw.calculate_viewport();

@@ -60,6 +60,30 @@
         {"N": "antigens", "select": {"sequenced": true, "date": "{date-recent}", "report": true}, "?fill": "#C0C000",  "outline": "black", "legend": {"label": "sequenced ({count})"}, "order": "raise"}
     ],
 
+    "//clades": [
+        "/size-reset",
+        "/all-grey",
+        "/egg",
+        "/clades"
+    ],
+
+    "/clades": [
+        "/clades-{virus-type/lineage}{subset}"
+    ],
+
+    "/clades-pale": [
+        {"N": "/clades-{virus-type/lineage}{subset}"},
+        {"N": "antigens", "select": {"sequenced": true, "date": "{date-recent}"}, "fill": ":p0.5",  "outline": ":p0.8"}
+    ],
+
+    "/clades-6m": [
+        {"N": "/clades-{virus-type/lineage}{subset}", "date-recent": {"younger-than-days": 183}}
+    ],
+
+    "/clades-12m": [
+        {"N": "/clades-{virus-type/lineage}{subset}", "date-recent": {"younger-than-days": 365}}
+    ],
+
     "/clades-A(H3N2)": [
         "/sequenced",
         {"N": "antigens", "select": {"clade": "3C.3",    "date": "{date-recent}"}, "fill": "#6495ED", "outline": "black", "legend": {"label": "3C.3 ({count})"}, "order": "raise"},
@@ -108,30 +132,11 @@
         {"N": "antigens", "select": {"clade": "Y3", "date": "{date-recent}"}, "fill": "red",     "outline": "black", "legend": {"label": "Y3 ({count})"}, "order": "raise"}
     ],
 
-    "/clades": [
-        "/clades-{virus-type/lineage}{subset}"
-    ],
-
-    "/clades-pale": [
-        {"N": "/clades-{virus-type/lineage}{subset}"},
-        {"N": "antigens", "select": {"sequenced": true, "date": "{date-recent}"}, "fill": ":p0.5",  "outline": ":p0.8"}
-    ],
-
-    "/clades-6m": [
-        {"N": "/clades-{virus-type/lineage}{subset}", "date-recent": {"younger-than-days": 183}}
-    ],
-
-    "/clades-12m": [
-        {"N": "/clades-{virus-type/lineage}{subset}", "date-recent": {"younger-than-days": 365}}
-    ],
-
     "? commands": "----------------------------------------------------------------------",
 
     "/pc": [
-        {"N": "procrustes-arrows", "chart": 1, "projection": 0, "match": "auto", "report": true,
-         "?arrow": {"outline": "blue", "head": {"outline": "red", "fill": "transparent"}}
-        }
+        {"N": "procrustes-arrows", "chart": 1, "projection": 0, "match": "auto", "report": true}
     ],
-    
+
     "? end": "*********************** END ***************************"
 }
