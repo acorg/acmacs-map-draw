@@ -12,9 +12,15 @@ class ChartSelectInterface
     ChartSelectInterface(std::string_view chart_filename, size_t aProjectionNo);
     ChartSelectInterface(const std::vector<std::string_view>& chart_filenames, size_t aProjectionNo);
 
-    auto& chart() { return *charts_[0]; }
-    const auto& chart() const { return *charts_[0]; }
+    acmacs::chart::ChartModify& chart() { return *charts_[0]; }
+    const acmacs::chart::ChartModify& chart() const { return *charts_[0]; }
     auto chartp() const { return charts_[0]; }
+
+    size_t number_of_charts() const { return charts_.size(); }
+    acmacs::chart::ChartModify& chart(size_t index) { load_chart(index);  return *charts_[index]; }
+    const acmacs::chart::ChartModify& chart(size_t index) const { load_chart(index);  return *charts_[index]; }
+    std::string_view chart_name(size_t index) const { return chart_filenames_.at(index); }
+    const acmacs::chart::ChartModify& chart(std::string_view filename) const;
 
     size_t number_of_antigens() const { return chart().number_of_antigens(); }
     size_t number_of_sera() const { return chart().number_of_sera(); }
@@ -44,12 +50,14 @@ class ChartSelectInterface
     acmacs::seqdb::v3::Seqdb::aas_indexes_t aa_at_pos1_for_antigens(const std::vector<size_t>& aPositions1) const;
 
   private:
-    std::vector<std::string_view> chart_filenames_;
-    std::vector<acmacs::chart::ChartModifyP> charts_;
+    mutable std::vector<std::string_view> chart_filenames_;
+    mutable std::vector<acmacs::chart::ChartModifyP> charts_;
     acmacs::chart::ProjectionModifyP mProjectionModify;
     acmacs::chart::PlotSpecModifyP mPlotSpec;
     acmacs::chart::ChartP mPreviousChart;
     mutable std::optional<acmacs::seqdb::subset> matched_seqdb_;
+
+    void load_chart(size_t index) const;
 
 }; // class ChartSelectInterface
 
