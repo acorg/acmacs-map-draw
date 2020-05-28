@@ -54,12 +54,19 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     const auto& secondary_chart = get_chart(getenv("chart"sv));
     const auto match_level = CommonAntigensSera::match_level(rjson::v3::read_string(getenv("match"sv), "i auto"sv));
 
-    Pixels line_width{1};
-    acmacs::color::Modifier outline{BLACK};
+    Pixels line_width{1}, arrow_width{5}, arrow_outline_width{1};
+    acmacs::color::Modifier outline{BLACK}, arrow_fill{BLACK}, arrow_outline{BLACK};
     if (const auto& arrow_data = getenv("arrow"sv); arrow_data.is_object()) {
         line_width = rjson::v3::read_number(arrow_data["line_width"sv], line_width);
         outline = rjson::v3::read_color(arrow_data["outline"sv], outline);
-        // "head": {"width": 5, "outline": "black", "outline_width": 1, "fill": "black"}}
+        if (const auto& head_data = arrow_data["head"sv]; head_data.is_object()) {
+            arrow_width = rjson::v3::read_number(head_data["width"sv], arrow_width);
+            arrow_outline_width = rjson::v3::read_number(head_data["outline_width"sv], arrow_outline_width);
+            arrow_outline = rjson::v3::read_color(head_data["outline"sv], arrow_outline);
+            arrow_fill = rjson::v3::read_color(head_data["fill"sv], arrow_fill);
+        }
+        else if (!head_data.is_null())
+            AD_WARNING("invalid \"arrow\" \"head\": {} (object expected)", head_data);
     }
     else if (!arrow_data.is_null())
         AD_WARNING("invalid \"arrow\": {} (object expected)", arrow_data);
@@ -87,8 +94,7 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     // const auto& arrow_config = args()["arrow"];
     AD_DEBUG("common_points {}", common_points.size());
     for (size_t point_no = 0; point_no < common_points.size(); ++point_no) {
-        const auto primary_coords = primary_layout->at(common_points[point_no].primary),
-                secondary_coords = secondary_layout->at(common_points[point_no].secondary);
+        const auto primary_coords = primary_layout->at(common_points[point_no].primary), secondary_coords = secondary_layout->at(common_points[point_no].secondary);
         if (acmacs::distance(primary_coords, secondary_coords) > threshold) {
             auto& path = chart_draw().map_elements().add<map_elements::v2::Path>();
             path.outline(outline);
@@ -98,14 +104,10 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
             path.data().vertices.emplace_back(map_elements::v2::Coordinates::not_transformed{secondary_coords});
             auto& arrow = path.arrows().emplace_back();
             arrow.at(1);
-            // arrow.fill();
-            // arrow.outline();
-            // arrow.width();
-            // arrow.outline_width();
-
-            // auto& arrow = chart_draw().arrow(primary_coords, secondary_coords);
-            // arrow.arrow_head_filled(rjson::get_or(arrow_config, "head_filled", true));
-            // arrow.arrow_width(rjson::get_or(arrow_config, "arrow_width", 5.0));
+            arrow.fill(arrow_fill);
+            arrow.outline(arrow_outline);
+            arrow.width(arrow_width);
+            arrow.outline_width(arrow_outline_width);
         }
     }
 

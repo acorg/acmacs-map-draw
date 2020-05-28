@@ -128,7 +128,9 @@
     "? commands": "----------------------------------------------------------------------",
 
     "/pc": [
-        {"N": "procrustes-arrows", "chart": 1, "projection": 0, "match": "auto", "report": true}
+        {"N": "procrustes-arrows", "chart": 1, "projection": 0, "match": "auto", "report": true,
+         "?arrow": {"outline": "blue", "head": {"outline": "red", "fill": "transparent"}}
+        }
     ],
     
     "? end": "*********************** END ***************************"
