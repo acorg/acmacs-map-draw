@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-28 17:08:22 eu>
+# Time-stamp: <2020-05-28 17:24:52 eu>
 
 * Common usage
 
@@ -335,7 +335,7 @@ http://geomalgorithms.com/a03-_inclusion.html
 * TODO Procrustes
 
 #+BEGIN_SRC json
-{"N": "procrustes-arrows", "report": true,
+{"N": "procrustes-arrows", "report": true, "verbose": false,
    "chart": <filename or index>, "projection": 0,
    "match": "auto", -- "auto", "strict", "relaxed", "ignored"
    "scaling": false,
