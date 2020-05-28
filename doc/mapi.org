@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-27 19:17:27 eu>
+# Time-stamp: <2020-05-28 08:26:14 eu>
 
 * Command line defines
 
@@ -336,6 +336,7 @@ http://geomalgorithms.com/a03-_inclusion.html
   }
 #+END_SRC
 
+* TODO compare with previous
 
 * TODO Time series
 

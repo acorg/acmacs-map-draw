@@ -34,7 +34,7 @@ int main(int argc, char* const argv[])
     try {
         Options opt(argc, argv);
 
-        ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart)), 0);
+        ChartDraw chart_draw{opt.chart, 0};
 
         rjson::value settings{rjson::object{{"apply", rjson::array{"title"}}}};
         for (const auto& settings_file_name : {"acmacs-map-draw.json"sv}) {

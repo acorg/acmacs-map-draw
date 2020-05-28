@@ -123,7 +123,7 @@ std::string draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::v
         const size_t projection_no = 0;
         const acmacs::Layout orig_layout(*chart->projection_modify(projection_no)->layout());
         const auto orig_transformation = chart->projection_modify(projection_no)->transformation();
-        ChartDraw chart_draw(chart, projection_no);
+        ChartDraw chart_draw{chart, projection_no};
 
         rjson::value settings{rjson::object{{"apply", rjson::array{"title"}}}};
         for (const auto& settings_file_name : {"acmacs-map-draw.json"sv}) {

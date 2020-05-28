@@ -38,6 +38,7 @@ ACMACS_MAP_DRAW_SOURCES =    \
   mapi-settings-labels.cc    \
   mapi-settings-legend.cc    \
   mapi-settings-serum-circles.cc \
+  chart-select-interface.cc  \
   map-elements-v1.cc         \
   map-elements-v2.cc         \
   hemisphering-data.cc       \

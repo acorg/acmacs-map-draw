@@ -3,7 +3,6 @@
 #include "acmacs-base/string-compare.hh"
 #include "acmacs-base/quicklook.hh"
 #include "acmacs-base/filesystem.hh"
-#include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-map-draw/setup-dbs.hh"
 #include "acmacs-map-draw/log.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
@@ -68,7 +67,7 @@ int main(int argc, char* const argv[])
 
         const auto [inputs, outputs] = parse_files(opt.files);
 
-        ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(inputs[0])), opt.projection);
+        ChartDraw chart_draw{inputs, opt.projection};
 
         acmacs::mapi::Settings settings{chart_draw};
         settings.load(opt.settings_files, opt.defines);

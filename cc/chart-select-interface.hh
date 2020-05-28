@@ -8,22 +8,20 @@
 class ChartSelectInterface
 {
  public:
-    ChartSelectInterface(acmacs::chart::ChartModifyP aChart, size_t aProjectionNo)
-        : mChart(aChart),
-          mProjectionModify(mChart->projection_modify(aProjectionNo)),
-          mPlotSpec(mChart->plot_spec_modify())
-        {
-        }
+    ChartSelectInterface(acmacs::chart::ChartModifyP aChart, size_t aProjectionNo);
+    ChartSelectInterface(std::string_view chart_filename, size_t aProjectionNo);
+    ChartSelectInterface(const std::vector<std::string_view>& chart_filenames, size_t aProjectionNo);
 
-    auto& chart() { return *mChart; }
-    const auto& chart() const { return *mChart; }
-    auto chartp() const { return mChart; }
+    auto& chart() { return *charts_[0]; }
+    const auto& chart() const { return *charts_[0]; }
+    auto chartp() const { return charts_[0]; }
 
     size_t number_of_antigens() const { return chart().number_of_antigens(); }
     size_t number_of_sera() const { return chart().number_of_sera(); }
     size_t number_of_points() const { return number_of_antigens() + number_of_sera(); }
 
       // for "found_in_previous" and "not_found_in_previous" select keys
+    void previous_chart(std::string_view previous_chart_filename);
     void previous_chart(acmacs::chart::ChartP aPreviousChart) { mPreviousChart = aPreviousChart; }
     const acmacs::chart::Chart* previous_chart() const { return mPreviousChart.get(); }
 
@@ -42,29 +40,12 @@ class ChartSelectInterface
     acmacs::chart::DrawingOrder& drawing_order() { return plot_spec().drawing_order_modify(); }
     const acmacs::chart::DrawingOrder drawing_order() const { return plot_spec().drawing_order(); }
 
-    const acmacs::seqdb::subset& match_seqdb() const
-    {
-        if (!matched_seqdb_)
-            matched_seqdb_ = acmacs::seqdb::get().match(*chart().antigens(), chart().info()->virus_type(acmacs::chart::Info::Compute::Yes));
-        return *matched_seqdb_;
-    }
+    const acmacs::seqdb::subset& match_seqdb() const;
+    acmacs::seqdb::v3::Seqdb::aas_indexes_t aa_at_pos1_for_antigens(const std::vector<size_t>& aPositions1) const;
 
-    acmacs::seqdb::v3::Seqdb::aas_indexes_t aa_at_pos1_for_antigens(const std::vector<size_t>& aPositions1) const
-    {
-        const auto& seqdb = acmacs::seqdb::get();
-        acmacs::seqdb::v3::Seqdb::aas_indexes_t aas_indexes;
-        for (auto [ag_no, ref] : acmacs::enumerate(match_seqdb())) {
-            if (ref) {
-                std::string aa(aPositions1.size(), 'X');
-                std::transform(aPositions1.begin(), aPositions1.end(), aa.begin(), [&seqdb, ref=ref](size_t pos) { return ref.aa_at_pos(seqdb, acmacs::seqdb::pos1_t{pos}); });
-                aas_indexes[aa].push_back(ag_no);
-            }
-        }
-        return aas_indexes;
-    }
-
- private:
-    acmacs::chart::ChartModifyP mChart;
+  private:
+    std::vector<std::string_view> chart_filenames_;
+    std::vector<acmacs::chart::ChartModifyP> charts_;
     acmacs::chart::ProjectionModifyP mProjectionModify;
     acmacs::chart::PlotSpecModifyP mPlotSpec;
     acmacs::chart::ChartP mPreviousChart;

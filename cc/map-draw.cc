@@ -4,7 +4,6 @@
 #include "acmacs-base/file-stream.hh"
 #include "acmacs-base/temp-file.hh"
 #include "acmacs-base/quicklook.hh"
-#include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/mod-applicator.hh"
 #include "acmacs-map-draw/setup-dbs.hh"
@@ -62,9 +61,9 @@ int draw(const Options& opt)
 
     setup_dbs(opt.db_dir, opt.verbose);
 
-    ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart)), opt.projection);
+    ChartDraw chart_draw{opt.chart, opt.projection};
     if (!opt.previous->empty())
-        chart_draw.previous_chart(acmacs::chart::import_from_file(opt.previous));
+        chart_draw.previous_chart(opt.previous);
 
     rjson::value settings{rjson::object{{"apply", rjson::array{"title"}}}};
     for (const auto& settings_file_name : {"acmacs-map-draw.json"sv}) {

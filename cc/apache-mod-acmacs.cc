@@ -262,8 +262,8 @@ int process_post_request(request_rec* r)
 
 void command_download_pdf(request_rec *r, const rjson::value& args)
 {
-    const auto projection_no = rjson::get_or(args, "projection_no", 0UL);
-    ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(r->filename, acmacs::chart::Verify::None, report_time::no)), projection_no);
+    const auto projection_no = rjson::get_or(args, "projection_no", 0ul);
+    ChartDraw chart_draw{r->filename, projection_no};
     chart_draw.calculate_viewport();
 
     ap_set_content_type(r, "application/pdf");

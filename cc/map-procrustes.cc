@@ -6,7 +6,6 @@
 #include "acmacs-base/temp-file.hh"
 #include "acmacs-base/string-split.hh"
 #include "acmacs-base/quicklook.hh"
-#include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/mod-applicator.hh"
 #include "acmacs-map-draw/setup-dbs.hh"
@@ -42,7 +41,8 @@ int main(int argc, char* const argv[])
     int exit_code = 0;
     try {
         Options opt(argc, argv);
-        ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart1, acmacs::chart::Verify::None, report_time::no)), opt.p1);
+        // ChartDraw chart_draw(std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart1, acmacs::chart::Verify::None, report_time::no)), opt.p1);
+        ChartDraw chart_draw{opt.chart1, opt.p1};
         const std::string secondary_chart((!opt.chart2->empty() && !acmacs::string::endswith(*opt.chart2, ".pdf"sv)) ? opt.chart2 : opt.chart1);
 
         rjson::value settings{rjson::object{{"apply", rjson::array{"title"}}}};
