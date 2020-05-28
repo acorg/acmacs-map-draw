@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-28 08:26:14 eu>
+# Time-stamp: <2020-05-28 09:17:22 eu>
 
 * Command line defines
 
@@ -326,8 +326,8 @@ http://geomalgorithms.com/a03-_inclusion.html
 * TODO Procrustes
 
 #+BEGIN_SRC json
-  {"N": "procrustes_arrows",
-   "chart": "secondary.ace", "projection": 0,
+{"N": "procrustes-arrows", "report": true,
+   "chart": <filename or index>, "projection": 0,
    "match": "auto", -- "auto", "strict", "relaxed", "ignored"
    "scaling": false, "report": false,
    "antigens": "<select-antigens>", "sera": "<select-sera>",

@@ -12,6 +12,7 @@ namespace acmacs::chart
     class PointIndexList;
     class Antigens;
     class Sera;
+    class Chart;
 }
 
 class ChartDraw;
@@ -146,7 +147,12 @@ namespace acmacs::mapi::inline v1
         void make_circle(map_elements::v1::SerumCircle& circle, std::string_view serum_passage, const rjson::v3::value& plot);
         bool apply_serum_coverage();
 
-        // bool apply_procrustes();
+        // ----------------------------------------------------------------------
+        // mapi-settings-procrustes.cc
+
+        bool apply_procrustes();
+        const acmacs::chart::Chart& get_chart(const rjson::v3::value& source);
+
         // bool apply_time_series();
 
     }; // class Settings

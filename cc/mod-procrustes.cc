@@ -7,25 +7,6 @@
 
 // ----------------------------------------------------------------------
 
-static inline acmacs::chart::CommonAntigensSera::match_level_t make_match_level(std::string_view match_s)
-{
-    auto match_level{acmacs::chart::CommonAntigensSera::match_level_t::automatic};
-    if (!match_s.empty()) {
-        switch (match_s[0]) {
-          case 's': match_level = acmacs::chart::CommonAntigensSera::match_level_t::strict; break;
-          case 'r': match_level = acmacs::chart::CommonAntigensSera::match_level_t::relaxed; break;
-          case 'i': match_level = acmacs::chart::CommonAntigensSera::match_level_t::ignored; break;
-          case 'a': match_level = acmacs::chart::CommonAntigensSera::match_level_t::automatic; break;
-          default:
-              std::cerr << "Unrecognized --match argument, automatic assumed" << '\n';
-              break;
-        }
-    }
-    return match_level;
-}
-
-// ----------------------------------------------------------------------
-
 void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
     const auto verbose = rjson::get_or(args(), "report", false);
@@ -39,7 +20,7 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
     else if (subset_s == "antigens")
         subset = acmacs::chart::CommonAntigensSera::subset::antigens;
     else if (subset_s != "all")
-        std::cerr << "WARNING: unrecognized common points subset: \"" << subset_s << "\", supported: all, antigens, sera\n";
+        AD_WARNING("unrecognized common points subset: \"{}\", supported: all, antigens, sera", subset_s);
 
     acmacs::chart::Indexes antigen_indexes, serum_indexes;
     if (subset == acmacs::chart::CommonAntigensSera::subset::all) {
@@ -54,7 +35,7 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
         secondary_chart = acmacs::chart::import_from_file(chart_filename.to<std::string_view>(), acmacs::chart::Verify::None, do_report_time(verbose));
     else
         secondary_chart = aChartDraw.chartp();
-    const auto match_level = make_match_level(rjson::get_or(args(), "match", ""));
+    const auto match_level = acmacs::chart::CommonAntigensSera::match_level(rjson::get_or(args(), "match", ""));
     acmacs::chart::CommonAntigensSera common(aChartDraw.chart(), *secondary_chart, match_level);
     if (verbose)
         common.report();

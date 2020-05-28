@@ -13,35 +13,36 @@ TARGETS = \
   $(DIST)/chart-layout-sequences \
   $(DIST)/mod_acmacs.so
 
-ACMACS_MAP_DRAW_SOURCES =    \
-  mapi-settings-antigens.cc  \
-  mod-applicator.cc          \
-  select.cc                  \
-  geographic-map.cc          \
-  mod-amino-acids.cc         \
-  select-filter.cc           \
-  mod-serum.cc               \
-  mod-connection-lines.cc    \
-  mod-blobs.cc               \
-  export.cc                  \
-  map-elements.cc            \
-  vaccines.cc                \
-  mod-procrustes.cc          \
-  draw.cc                    \
-  report-antigens.cc         \
-  vaccine-matcher.cc         \
-  mapi-settings.cc           \
-  labels.cc                  \
-  setup-dbs.cc               \
-  point-style-draw.cc        \
-  mapi-settings-drawing.cc   \
-  mapi-settings-labels.cc    \
-  mapi-settings-legend.cc    \
+ACMACS_MAP_DRAW_SOURCES =        \
+  mapi-settings-antigens.cc      \
   mapi-settings-serum-circles.cc \
-  chart-select-interface.cc  \
-  map-elements-v1.cc         \
-  map-elements-v2.cc         \
-  hemisphering-data.cc       \
+  mapi-settings-drawing.cc       \
+  mapi-settings.cc               \
+  mapi-settings-legend.cc        \
+  mapi-settings-labels.cc        \
+  mod-applicator.cc              \
+  select.cc                      \
+  geographic-map.cc              \
+  mod-amino-acids.cc             \
+  select-filter.cc               \
+  mod-serum.cc                   \
+  mod-connection-lines.cc        \
+  mod-blobs.cc                   \
+  export.cc                      \
+  map-elements.cc                \
+  vaccines.cc                    \
+  mod-procrustes.cc              \
+  draw.cc                        \
+  report-antigens.cc             \
+  vaccine-matcher.cc             \
+  labels.cc                      \
+  setup-dbs.cc                   \
+  point-style-draw.cc            \
+  chart-select-interface.cc      \
+  mapi-settings-procrustes.cc    \
+  map-elements-v1.cc             \
+  map-elements-v2.cc             \
+  hemisphering-data.cc           \
   geographic-settings.cc
 
 ACMACS_MAP_DRAW_LIB_MAJOR = 2
