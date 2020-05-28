@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-28 09:17:22 eu>
+# Time-stamp: <2020-05-28 10:15:15 eu>
 
 * Command line defines
 
@@ -329,7 +329,7 @@ http://geomalgorithms.com/a03-_inclusion.html
 {"N": "procrustes-arrows", "report": true,
    "chart": <filename or index>, "projection": 0,
    "match": "auto", -- "auto", "strict", "relaxed", "ignored"
-   "scaling": false, "report": false,
+   "scaling": false,
    "antigens": "<select-antigens>", "sera": "<select-sera>",
    "threshold": 0.005, -- do not show arrows shorter than this value in units
    "arrow": {"line_width": 1, "outline": "black", "head": {"width": 5, "outline": "black", "outline_width": 1, "fill": "black"}}

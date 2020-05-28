@@ -35,10 +35,7 @@ const acmacs::chart::Chart& acmacs::mapi::v1::Settings::get_chart(const rjson::v
 // {"N": "procrustes-arrows",
 //    "chart": <filename or index>, "projection": 0,
 //    "match": "auto", -- "auto", "strict", "relaxed", "ignored"
-//    "scaling": false, "report": false,
 //    "antigens": "<select-antigens>", "sera": "<select-sera>",
-//    "threshold": 0.005, -- do not show arrows shorter than this value in units
-//    "arrow": {"line_width": 1, "outline": "black", "head": {"width": 5, "outline": "black", "outline_width": 1, "fill": "black"}}
 // }
 
 bool acmacs::mapi::v1::Settings::apply_procrustes()
@@ -59,6 +56,13 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
 
     Pixels line_width{1};
     acmacs::color::Modifier outline{BLACK};
+    if (const auto& arrow_data = getenv("arrow"sv); arrow_data.is_object()) {
+        line_width = rjson::v3::read_number(arrow_data["line_width"sv], line_width);
+        outline = rjson::v3::read_color(arrow_data["outline"sv], outline);
+        // "head": {"width": 5, "outline": "black", "outline_width": 1, "fill": "black"}}
+    }
+    else if (!arrow_data.is_null())
+        AD_WARNING("invalid \"arrow\": {} (object expected)", arrow_data);
 
     CommonAntigensSera common(chart_draw().chart(), secondary_chart, match_level);
     std::vector<CommonAntigensSera::common_t> common_points;
@@ -106,7 +110,7 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     }
 
     if (rjson::v3::read_bool(getenv("report"sv), false))
-        AD_INFO("Procrustes");
+        AD_INFO("Procrustes\n  common antigens: {}\n  common sera:     {}\n  RMS:          {:.6f}", common.common_antigens(), common.common_sera(), procrustes_data.rms);
 
     return true;
 
