@@ -38,7 +38,7 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
     const auto match_level = acmacs::chart::CommonAntigensSera::match_level(rjson::get_or(args(), "match", ""));
     acmacs::chart::CommonAntigensSera common(aChartDraw.chart(), *secondary_chart, match_level);
     if (verbose)
-        common.report();
+        fmt::print("{}\n", common.report());
     std::vector<acmacs::chart::CommonAntigensSera::common_t> common_points;
     if (!antigen_indexes->empty())
         common_points = common.points_for_primary_antigens(antigen_indexes);

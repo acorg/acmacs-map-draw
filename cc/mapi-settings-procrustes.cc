@@ -47,13 +47,12 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     const auto secondary_projection_no = rjson::v3::read_number(getenv("projection"sv), 0ul);
 
     // const auto subset = CommonAntigensSera::subset::all;
-    const auto antigen_indexes = select_antigens(getenv("antigens"sv), if_null::all);
-    const auto serum_indexes = select_sera(getenv("sera"sv), if_null::all);
     const auto threshold = rjson::v3::read_number(getenv("threshold"sv), 0.005);
 
     const auto& secondary_chart = get_chart(getenv("chart"sv));
-    const auto match_level = CommonAntigensSera::match_level(rjson::v3::read_string(getenv("match"sv), "i auto"sv));
+    const auto match_level = CommonAntigensSera::match_level(rjson::v3::read_string(getenv("match"sv), "auto"sv));
 
+    // arrow plot spec
     Pixels line_width{1}, arrow_width{5}, arrow_outline_width{1};
     acmacs::color::Modifier outline{BLACK}, arrow_fill{BLACK}, arrow_outline{BLACK};
     if (const auto& arrow_data = getenv("arrow"sv); arrow_data.is_object()) {
@@ -71,6 +70,9 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     else if (!arrow_data.is_null())
         AD_WARNING("invalid \"arrow\": {} (object expected)", arrow_data);
 
+    // common points
+    const auto antigen_indexes = select_antigens(getenv("antigens"sv), if_null::all);
+    const auto serum_indexes = select_sera(getenv("sera"sv), if_null::all);
     CommonAntigensSera common(chart_draw().chart(), secondary_chart, match_level);
     std::vector<CommonAntigensSera::common_t> common_points;
     common_points = common.points(CommonAntigensSera::subset::all);
@@ -80,7 +82,6 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     //     common_points = common.points_for_primary_sera(serum_indexes);
     // else
     //     common_points = common.points(subset);
-    // common.report();
 
     auto secondary_projection = secondary_chart.projection(secondary_projection_no);
     const auto procrustes_data = procrustes(chart_draw().projection(), *secondary_projection, common_points, scaling);
@@ -91,7 +92,6 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     // }
     auto secondary_layout = procrustes_data.apply(*secondary_projection->layout());
     auto primary_layout = chart_draw().projection().transformed_layout();
-    // const auto& arrow_config = args()["arrow"];
     AD_DEBUG("common_points {}", common_points.size());
     for (size_t point_no = 0; point_no < common_points.size(); ++point_no) {
         const auto primary_coords = primary_layout->at(common_points[point_no].primary), secondary_coords = secondary_layout->at(common_points[point_no].secondary);
@@ -111,8 +111,10 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
         }
     }
 
-    if (rjson::v3::read_bool(getenv("report"sv), false))
-        AD_INFO("Procrustes\n  common antigens: {}\n  common sera:     {}\n  RMS:          {:.6f}", common.common_antigens(), common.common_sera(), procrustes_data.rms);
+    if (rjson::v3::read_bool(getenv("report"sv), false)) {
+        AD_INFO("Procrustes\n  common antigens: {}\n  common sera:     {}\n  RMS:             {:.6f}\n\n{}", common.common_antigens(), common.common_sera(), procrustes_data.rms,
+                common.report(2, verbose::no));
+    }
 
     return true;
 
