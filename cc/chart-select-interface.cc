@@ -37,7 +37,8 @@ void ChartSelectInterface::load_chart(size_t index) const
 {
     if (index >= number_of_charts())
         throw std::runtime_error{fmt::format("ChartSelectInterface: invalid chart index {} (available: 0..{})", index, number_of_charts() - 1)};
-    charts_[index] = std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(chart_filenames_[index]));
+    if (!charts_[index])
+        charts_[index] = std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(chart_filenames_[index]));
 
 } // ChartSelectInterface::load_chart
 

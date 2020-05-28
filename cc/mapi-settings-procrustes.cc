@@ -112,10 +112,6 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
 } // acmacs::mapi::v1::Settings::apply_procrustes
 
 // ----------------------------------------------------------------------
-
-
-
-// ----------------------------------------------------------------------
 /// Local Variables:
 /// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
 /// End:
