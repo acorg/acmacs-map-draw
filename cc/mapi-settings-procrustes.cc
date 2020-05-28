@@ -44,13 +44,9 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     using namespace acmacs::chart;
 
     const auto scaling = rjson::v3::read_bool(getenv("scaling"sv), false) ? procrustes_scaling_t::yes : procrustes_scaling_t::no;
-    const auto secondary_projection_no = rjson::v3::read_number(getenv("projection"sv), 0ul);
-
-    // const auto subset = CommonAntigensSera::subset::all;
-    const auto threshold = rjson::v3::read_number(getenv("threshold"sv), 0.005);
-
     const auto& secondary_chart = get_chart(getenv("chart"sv));
-    const auto match_level = CommonAntigensSera::match_level(rjson::v3::read_string(getenv("match"sv), "auto"sv));
+    const auto secondary_projection_no = rjson::v3::read_number(getenv("projection"sv), 0ul);
+    const auto threshold = rjson::v3::read_number(getenv("threshold"sv), 0.005);
 
     // arrow plot spec
     Pixels line_width{1}, arrow_width{5}, arrow_outline_width{1};
@@ -71,6 +67,7 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
         AD_WARNING("invalid \"arrow\": {} (object expected)", arrow_data);
 
     // common points
+    const auto match_level = CommonAntigensSera::match_level(rjson::v3::read_string(getenv("match"sv), "auto"sv));
     const auto antigen_indexes = select_antigens(getenv("antigens"sv), if_null::all);
     const auto serum_indexes = select_sera(getenv("sera"sv), if_null::all);
     CommonAntigensSera common(chart_draw().chart(), secondary_chart, match_level);
@@ -92,7 +89,6 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     // }
     auto secondary_layout = procrustes_data.apply(*secondary_projection->layout());
     auto primary_layout = chart_draw().projection().transformed_layout();
-    AD_DEBUG("common_points {}", common_points.size());
     for (size_t point_no = 0; point_no < common_points.size(); ++point_no) {
         const auto primary_coords = primary_layout->at(common_points[point_no].primary), secondary_coords = secondary_layout->at(common_points[point_no].secondary);
         if (acmacs::distance(primary_coords, secondary_coords) > threshold) {
