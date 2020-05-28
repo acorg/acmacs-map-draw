@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-28 10:15:15 eu>
+# Time-stamp: <2020-05-28 16:48:42 eu>
 
 * Command line defines
 
@@ -32,6 +32,8 @@ To print environment use:
 #+BEGIN_SRC json
   {"name": "SWITZERLAND/9715293/2013", "passage": "reassortant"} -- multiple keys means all must match (conjunction)
 
+  "none"
+  null -- means "all"
   "all"
   "reference"
   {"reference": true} -- to combine with other criteria
@@ -330,7 +332,7 @@ http://geomalgorithms.com/a03-_inclusion.html
    "chart": <filename or index>, "projection": 0,
    "match": "auto", -- "auto", "strict", "relaxed", "ignored"
    "scaling": false,
-   "antigens": "<select-antigens>", "sera": "<select-sera>",
+   "antigens": "<select-antigens>", "sera": "<select-sera>", -- use "antigens": "none" to use just sera, if "antigens" absent, all are matched
    "threshold": 0.005, -- do not show arrows shorter than this value in units
    "arrow": {"line_width": 1, "outline": "black", "head": {"width": 5, "outline": "black", "outline_width": 1, "fill": "black"}}
   }

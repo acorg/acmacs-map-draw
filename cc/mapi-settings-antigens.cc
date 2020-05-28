@@ -90,6 +90,11 @@ template <typename AgSr> static bool check_reference(const AgSr& ag_sr, acmacs::
         if (!expected_bool.is_bool() || !expected_bool.template to<bool>())
             throw acmacs::mapi::unrecognized{fmt::format("unsupported \"{}\" value of {}", key, expected_bool)};
     }
+    else if (key == "none"sv) {
+        if (!expected_bool.is_bool() || !expected_bool.template to<bool>())
+            throw acmacs::mapi::unrecognized{fmt::format("unsupported \"{}\" value of {}", key, expected_bool)};
+        indexes.clear();
+    }
     else if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
         if (key == "reference"sv) {
             if (!expected_bool.is_bool() || !expected_bool.template to<bool>())

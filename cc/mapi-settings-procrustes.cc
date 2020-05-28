@@ -69,23 +69,13 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     // common points
     const auto match_level = CommonAntigensSera::match_level(rjson::v3::read_string(getenv("match"sv), "auto"sv));
     CommonAntigensSera common(chart_draw().chart(), secondary_chart, match_level);
-    common.keep_only(select_antigens(getenv("antigens"sv), if_null::empty), select_sera(getenv("sera"sv), if_null::empty)); // if a list is empty, all are kept
+    common.keep_only(select_antigens(getenv("antigens"sv), if_null::all), select_sera(getenv("sera"sv), if_null::all));
     std::vector<CommonAntigensSera::common_t> common_points;
     common_points = common.points(CommonAntigensSera::subset::all);
-    // if (!antigen_indexes->empty())
-    //     common_points = common.points_for_primary_antigens(antigen_indexes);
-    // else if (!serum_indexes->empty())
-    //     common_points = common.points_for_primary_sera(serum_indexes);
-    // else
-    //     common_points = common.points(subset);
 
     auto secondary_projection = secondary_chart.projection(secondary_projection_no);
     const auto procrustes_data = procrustes(chart_draw().projection(), *secondary_projection, common_points, scaling);
-    // if (aChartDraw.has_title()) {
-    //     auto& title = aChartDraw.title();
-    //     title.add_line(secondary_chart->make_name(secondary_projection_no));
-    //     title.add_line("RMS: " + std::to_string(procrustes_data.rms));
-    // }
+
     auto secondary_layout = procrustes_data.apply(*secondary_projection->layout());
     auto primary_layout = chart_draw().projection().transformed_layout();
     for (size_t point_no = 0; point_no < common_points.size(); ++point_no) {
@@ -105,6 +95,12 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
             arrow.outline_width(arrow_outline_width);
         }
     }
+
+    auto& titl = title();
+    if (titl.number_of_lines() == 0)
+        titl.add_line(chart_draw().chart().make_name(chart_draw().projection_no()));
+    titl.add_line(secondary_chart.make_name(secondary_projection_no));
+    titl.add_line(fmt::format("RMS: {:.6f}", procrustes_data.rms));
 
     if (rjson::v3::read_bool(getenv("report"sv), false)) {
         AD_INFO("Procrustes\n  common antigens: {}\n  common sera:     {}\n  RMS:             {:.6f}\n\n{}", common.common_antigens(), common.common_sera(), procrustes_data.rms,

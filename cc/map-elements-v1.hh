@@ -101,6 +101,8 @@ namespace map_elements::v1
         void draw(acmacs::surface::Surface& aSurface, const ChartDraw&) const override { draw(aSurface); }
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
+        size_t number_of_lines() const { return mLines.size(); }
+
         Title& show(bool aShow) { mShow = aShow; return *this; }
         Title& offset(const acmacs::PointCoordinates& aOrigin) { mOrigin = aOrigin; return *this; }
           // Title& offset(double x, double y) { mOrigin = acmacs::PointCoordinates(x, y); return *this; }
