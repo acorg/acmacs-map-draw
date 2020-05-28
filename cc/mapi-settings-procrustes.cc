@@ -68,9 +68,8 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
 
     // common points
     const auto match_level = CommonAntigensSera::match_level(rjson::v3::read_string(getenv("match"sv), "auto"sv));
-    const auto antigen_indexes = select_antigens(getenv("antigens"sv), if_null::all);
-    const auto serum_indexes = select_sera(getenv("sera"sv), if_null::all);
     CommonAntigensSera common(chart_draw().chart(), secondary_chart, match_level);
+    common.keep_only(select_antigens(getenv("antigens"sv), if_null::empty), select_sera(getenv("sera"sv), if_null::empty)); // if a list is empty, all are kept
     std::vector<CommonAntigensSera::common_t> common_points;
     common_points = common.points(CommonAntigensSera::subset::all);
     // if (!antigen_indexes->empty())
