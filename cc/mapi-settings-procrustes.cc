@@ -1,5 +1,6 @@
 #include "acmacs-base/rjson-v3-helper.hh"
 #include "acmacs-chart-2/procrustes.hh"
+#include "acmacs-chart-2/serum-line.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/map-elements-v2.hh"
@@ -109,7 +110,6 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
 
 // ----------------------------------------------------------------------
 
-//     "flip_over_line": [{"v": [0, 8]}, {"v": [1, 8]}],
 //    # "flip_over_serum_line": 1 -- scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)
 //            }
 
@@ -140,11 +140,10 @@ bool acmacs::mapi::v1::Settings::apply_move()
         else
             throw error{fmt::format("unrecognized \"move\" \"relative\": {} (expected array of two numbers)", relative)};
     }
-    else if (const auto flip_over = getenv("flip-over-line"sv, "flip_over_line"sv); !flip_over.is_null()) {
-        if (flip_over.is_array() && flip_over.size() == 2) {
-            const auto p1{read_coordinates(flip_over[0])->get_not_transformed(chart_draw())}, p2{read_coordinates(flip_over[1])->get_not_transformed(chart_draw())};
+    else if (const auto flip_over_line = getenv("flip-over-line"sv, "flip_over_line"sv); !flip_over_line.is_null()) {
+        if (flip_over_line.is_array() && flip_over_line.size() == 2) {
+            const auto p1{read_coordinates(flip_over_line[0])->get_not_transformed(chart_draw())}, p2{read_coordinates(flip_over_line[1])->get_not_transformed(chart_draw())};
             const acmacs::LineDefinedByEquation line(p1, p2);
-            AD_DEBUG("flip_over {} {} -> {}", p1, p2, line);
             auto layout = projection.layout();
             for (auto index : antigen_indexes)
                 projection.move_point(index, line.flip_over(layout->at(index), 1.0));
@@ -152,8 +151,23 @@ bool acmacs::mapi::v1::Settings::apply_move()
                 projection.move_point(index + number_of_antigens, line.flip_over(layout->at(index + number_of_antigens), 1.0));
         }
         else
-            throw error{fmt::format("unrecognized \"move\" \"flip-over-line\": {} (expected array of two point locations, e.g. [{\"v\": [0, 8]}, {\"v\": [1, 8]}])", relative)};
+            throw error{fmt::format("unrecognized \"move\" \"flip-over-line\": {} (expected array of two point locations, e.g. [{\"v\": [0, 8]}, {\"v\": [1, 8]}])", flip_over_line)};
     }
+    else if (const auto flip_over_serum_line = getenv("flip-over-serum-line"sv, "flip_over_serum_line"sv); !flip_over_serum_line.is_null()) {
+        if (flip_over_serum_line.is_number()) {
+            const auto flip_scale{flip_over_serum_line.to<double>()};
+            const acmacs::chart::SerumLine serum_line(projection);
+            auto layout = projection.layout();
+            for (auto index : antigen_indexes)
+                projection.move_point(index, serum_line.line().flip_over(layout->at(index), flip_scale));
+            for (auto index : serum_indexes)
+                projection.move_point(index + number_of_antigens, serum_line.line().flip_over(layout->at(index + number_of_antigens), flip_scale));
+        }
+        else
+            throw error{fmt::format("unrecognized \"move\" \"flip-over-serum-line\": {} (expected scale (number), e.g. 1.0)", flip_over_serum_line)};
+    }
+    else
+        throw error{fmt::format(R"(unrecognized "move": neither of "to", "relative", "flip-over-line", "flip-over-serum-line" provided)")};
 
     if (rjson::v3::read_bool(getenv("report"sv), false))
         AD_INFO("Moved AG:{} SR:{}", antigen_indexes.size(), serum_indexes.size());
