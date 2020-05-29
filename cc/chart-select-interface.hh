@@ -36,9 +36,16 @@ class ChartSelectInterface
     size_t projection_no() const { return projection().projection_no(); }
     acmacs::number_of_dimensions_t number_of_dimensions() const { return projection().number_of_dimensions(); }
     std::shared_ptr<acmacs::Layout> layout() const { return projection().layout(); }
-    acmacs::Transformation transformation() const { return projection().transformation(); }
     std::shared_ptr<acmacs::Layout> transformed_layout() const { return projection().transformed_layout(); }
     bool point_has_coordinates(size_t point_no) const { return projection().layout()->point_has_coordinates(point_no); }
+
+    acmacs::Transformation transformation() const { return projection().transformation(); }
+    const acmacs::Transformation& inversed_transformation() const
+    {
+        if (!inversed_transformation_)
+            inversed_transformation_ = transformation().inverse();
+        return *inversed_transformation_;
+    }
 
     const acmacs::chart::PlotSpecModify& plot_spec() const { return *mPlotSpec; }
     acmacs::chart::PlotSpecModify& plot_spec() { return *mPlotSpec; }
@@ -56,6 +63,7 @@ class ChartSelectInterface
     acmacs::chart::PlotSpecModifyP mPlotSpec;
     acmacs::chart::ChartP mPreviousChart;
     mutable std::optional<acmacs::seqdb::subset> matched_seqdb_;
+    mutable std::optional<acmacs::Transformation> inversed_transformation_;
 
     void load_chart(size_t index) const;
 
