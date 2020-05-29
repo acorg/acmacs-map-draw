@@ -34,13 +34,7 @@ struct MapiOptions : public acmacs::argv::v2::argv
     option<str_array> settings_files{*this, 's'};
     option<str_array> defines{*this, 'D', "define", desc{"see {ACMACSD_ROOT}/share/doc/mapi.org"}};
     option<str_array> apply{*this, 'a', "apply", dflt{str_array{"main"}}, desc{"comma separated names or json array to use as \"apply\", e.g. [\"/all-grey\",\"/egg\",\"/clades\",\"/labels\"]"}};
-    // option<str>       apply_from{*this, "apply-from", desc{"read json array to use as \"apply\" from file (or stdin if \"-\""}};
-    // option<bool>      clade{*this, "clade"};
-    // option<double>    point_scale{*this, "point-scale", dflt{1.0}};
-    // option<double>    rotate_degrees{*this, 'r', "rotate-degrees", dflt{0.0}, desc{"counter clockwise"}};
-    // option<bool>      flip_ew{*this, "flip-ew"};
-    // option<bool>      flip_ns{*this, "flip-ns"};
-    // option<str>       save{*this, "save", desc{"save resulting chart with modified projection and plot spec"}};
+    option<bool>      interactive{*this, 'i', "interactive"};
     // option<str>       previous{*this, "previous"};
     option<size_t>    projection{*this, 'p', "projection", dflt{0ul}};
     option<size_t>    secondary_projection{*this, 'r', "secondary-projection", dflt{static_cast<size_t>(-1)}};
@@ -51,6 +45,14 @@ struct MapiOptions : public acmacs::argv::v2::argv
 
     argument<str_array> files{*this, arg_name{"input: chart.ace, chart.save, chart.acd1; output: map.pdf, /"}, mandatory};
 };
+
+    // option<str>       apply_from{*this, "apply-from", desc{"read json array to use as \"apply\" from file (or stdin if \"-\""}};
+    // option<bool>      clade{*this, "clade"};
+    // option<double>    point_scale{*this, "point-scale", dflt{1.0}};
+    // option<double>    rotate_degrees{*this, 'r', "rotate-degrees", dflt{0.0}, desc{"counter clockwise"}};
+    // option<bool>      flip_ew{*this, "flip-ew"};
+    // option<bool>      flip_ns{*this, "flip-ns"};
+    // option<str>       save{*this, "save", desc{"save resulting chart with modified projection and plot spec"}};
 
 // ----------------------------------------------------------------------
 
@@ -72,35 +74,45 @@ int main(int argc, char* const argv[])
 
         acmacs::mapi::Settings settings{chart_draw};
         settings.load(opt.settings_files, opt.defines);
-        settings.setenv_toplevel("primary-chart-name"sv, inputs[0]);
-        if (inputs.size() > 1)
-            settings.setenv_toplevel("secondary-chart-name"sv, inputs[1]);
-        for (const auto& to_apply : opt.apply) {
-            if (!to_apply.empty()) {
-                if (to_apply[0] == '{' || to_apply[0] == '[') {
-                    settings.apply(to_apply);
-                }
-                else {
-                    for (const auto& to_apply_one : acmacs::string::split(to_apply))
-                        settings.apply(to_apply_one);
+        for (size_t chart_no = 0; chart_no < chart_draw.number_of_charts(); ++chart_no)
+            settings.setenv_toplevel(fmt::format("chart[{}]", chart_no), chart_draw.chart(chart_no).filename());
+
+        for (;;) {
+            for (const auto& to_apply : opt.apply) {
+                if (!to_apply.empty()) {
+                    if (to_apply[0] == '{' || to_apply[0] == '[') {
+                        settings.apply(to_apply);
+                    }
+                    else {
+                        for (const auto& to_apply_one : acmacs::string::split(to_apply))
+                            settings.apply(to_apply_one);
+                    }
                 }
             }
-        }
 
-        chart_draw.calculate_viewport();
-        AD_INFO("{:.2f}", chart_draw.viewport("mapi main"));
-        AD_INFO("transformation: {}", chart_draw.chart(0).modified_transformation());
+            chart_draw.calculate_viewport();
+            AD_INFO("{:.2f}", chart_draw.viewport("mapi main"));
+            AD_INFO("transformation: {}", chart_draw.chart(0).modified_transformation());
 
-        if (outputs.empty()) {
-            acmacs::file::temp output{fmt::format("{}--p{}.pdf", fs::path(inputs[0]).stem(), opt.projection)};
-            chart_draw.draw(output, 800, report_time::yes);
-            acmacs::quicklook(output, 2);
-        }
-        else if (outputs[0] == "/dev/null"sv || outputs[0] == "/"sv) { // do not generate pdf
-        }
-        else {
-            chart_draw.draw(outputs[0], 800, report_time::yes);
-            acmacs::open_or_quicklook(opt.open, opt.ql, outputs[0]);
+            if (outputs.empty()) {
+                acmacs::file::temp output{fmt::format("{}--p{}.pdf", fs::path(inputs[0]).stem(), opt.projection)};
+                chart_draw.draw(output, 800, report_time::yes);
+                acmacs::quicklook(output, 2);
+            }
+            else if (outputs[0] == "/dev/null"sv || outputs[0] == "/"sv) { // do not generate pdf
+            }
+            else {
+                chart_draw.draw(outputs[0], 800, report_time::yes);
+                acmacs::open_or_quicklook(opt.open, opt.ql, outputs[0]);
+            }
+            if (opt.interactive) {
+                // sleep
+            }
+            else
+                break;
+
+            chart_draw.reset();
+            settings.reload();
         }
     }
     catch (std::exception& err) {
