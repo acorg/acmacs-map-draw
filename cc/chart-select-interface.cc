@@ -49,6 +49,7 @@ const acmacs::chart::ChartModify& ChartSelectInterface::chart(std::string_view f
     if (const auto found = std::find(std::begin(chart_filenames_), std::end(chart_filenames_), filename); found != std::end(chart_filenames_))
         return chart(static_cast<size_t>(found - std::begin(chart_filenames_)));
     chart_filenames_.push_back(filename);
+    charts_.emplace_back();
     return chart(chart_filenames_.size() - 1);
 
 } // ChartSelectInterface::chart

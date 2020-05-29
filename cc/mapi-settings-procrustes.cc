@@ -32,12 +32,6 @@ const acmacs::chart::Chart& acmacs::mapi::v1::Settings::get_chart(const rjson::v
 
 // ----------------------------------------------------------------------
 
-// {"N": "procrustes-arrows",
-//    "chart": <filename or index>, "projection": 0,
-//    "match": "auto", -- "auto", "strict", "relaxed", "ignored"
-//    "antigens": "<select-antigens>", "sera": "<select-sera>",
-// }
-
 bool acmacs::mapi::v1::Settings::apply_procrustes()
 {
     using namespace std::string_view_literals;
@@ -46,6 +40,8 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     const auto scaling = rjson::v3::read_bool(getenv("scaling"sv), false) ? procrustes_scaling_t::yes : procrustes_scaling_t::no;
     const auto& secondary_chart = get_chart(getenv("chart"sv));
     const auto secondary_projection_no = rjson::v3::read_number(getenv("projection"sv), 0ul);
+    if (secondary_projection_no >= secondary_chart.number_of_projections())
+        throw error{fmt::format("invalid secondary chart projection number {} (chart has just {} projection(s))", secondary_projection_no, secondary_chart.number_of_projections())};
     const auto threshold = rjson::v3::read_number(getenv("threshold"sv), 0.005);
 
     // arrow plot spec
