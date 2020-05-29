@@ -132,6 +132,7 @@ int main(int argc, char* const argv[])
                 break;
 
             chart_draw.reset();
+            chart_draw.remove_legend();
             try {
                 settings.reload();
             }
