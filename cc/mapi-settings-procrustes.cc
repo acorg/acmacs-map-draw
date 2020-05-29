@@ -121,10 +121,14 @@ bool acmacs::mapi::v1::Settings::apply_move()
     auto antigen_indexes = select_antigens(getenv("antigens"sv), if_null::empty);
     auto serum_indexes = select_sera(getenv("sera"sv), if_null::empty);
     auto& projection = chart_draw().projection();
+    const auto number_of_antigens{chart_draw().number_of_antigens()};
 
     if (const auto to = read_coordinates(getenv("to"sv)); to.has_value()) {
-        // for (auto index : antigen_indexes)
-        //     projection.move_point(index, move_to);
+        const auto move_to{to->get_not_transformed(chart_draw())};
+        for (auto index : antigen_indexes)
+            projection.move_point(index, move_to);
+        for (auto index : serum_indexes)
+            projection.move_point(index + number_of_antigens, move_to);
     }
 
     if (rjson::v3::read_bool(getenv("report"sv), false))

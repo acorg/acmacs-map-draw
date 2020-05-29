@@ -14,25 +14,28 @@ namespace map_elements::v2
       public:
         struct viewport : public acmacs::PointCoordinates
         {
-            acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
+            acmacs::PointCoordinates get_transformed(const ChartDraw& chart_draw) const;
+            acmacs::PointCoordinates get_not_transformed(const ChartDraw& chart_draw) const;
         };
 
         struct not_transformed : public acmacs::PointCoordinates
         {
-            acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
+            acmacs::PointCoordinates get_transformed(const ChartDraw& chart_draw) const;
+            acmacs::PointCoordinates get_not_transformed(const ChartDraw& chart_draw) const;
         };
 
         struct transformed : public acmacs::PointCoordinates
         {
-            acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
+            acmacs::PointCoordinates get_transformed(const ChartDraw& chart_draw) const;
+            acmacs::PointCoordinates get_not_transformed(const ChartDraw& chart_draw) const;
         };
 
         struct points : public acmacs::chart::PointIndexList
         {
             points(size_t index) { push_back(index); }
             points(const acmacs::chart::PointIndexList& index_list) : acmacs::chart::PointIndexList{index_list} {}
-            using acmacs::chart::PointIndexList::get;
-            acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
+            acmacs::PointCoordinates get_transformed(const ChartDraw& chart_draw) const;
+            acmacs::PointCoordinates get_not_transformed(const ChartDraw& chart_draw) const;
         };
 
         using coordinates_t = std::variant<viewport, not_transformed, transformed, points>;
@@ -40,7 +43,8 @@ namespace map_elements::v2
         coordinates_t coordinates;
 
         template <typename Src> Coordinates(const Src& src) : coordinates{src} {}
-        acmacs::PointCoordinates get(const ChartDraw& chart_draw) const;
+        acmacs::PointCoordinates get_transformed(const ChartDraw& chart_draw) const;
+        acmacs::PointCoordinates get_not_transformed(const ChartDraw& chart_draw) const;
 
         bool operator==(const Coordinates& rhs) const { return coordinates == rhs.coordinates; }
 

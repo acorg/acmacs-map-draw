@@ -151,7 +151,7 @@ void acmacs::mapi::v1::Settings::filter_inside_path(acmacs::chart::PointIndexLis
     std::vector<map_elements::v2::Coordinates> path_vertices;
     read_path_vertices(path_vertices, points);
     std::vector<acmacs::PointCoordinates> path;
-    std::transform(std::begin(path_vertices), std::end(path_vertices), std::back_inserter(path), [this](const auto& vertex) { return vertex.get(chart_draw()); });
+    std::transform(std::begin(path_vertices), std::end(path_vertices), std::back_inserter(path), [this](const auto& vertex) { return vertex.get_transformed(chart_draw()); });
     // AD_DEBUG("filter_inside_path {}", path);
 
     auto layout = chart_draw().transformed_layout();
