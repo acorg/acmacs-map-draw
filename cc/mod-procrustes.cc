@@ -34,7 +34,7 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
     if (const auto& chart_filename = args()["chart"]; !chart_filename.is_null())
         secondary_chart = acmacs::chart::import_from_file(chart_filename.to<std::string_view>(), acmacs::chart::Verify::None, do_report_time(verbose));
     else
-        secondary_chart = aChartDraw.chartp();
+        secondary_chart = aChartDraw.chart(0).modified_chartp();
     const auto match_level = acmacs::chart::CommonAntigensSera::match_level(rjson::get_or(args(), "match", ""));
     acmacs::chart::CommonAntigensSera common(aChartDraw.chart(), *secondary_chart, match_level);
     if (verbose)
@@ -47,14 +47,14 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
     else
         common_points = common.points(subset);
     auto secondary_projection = secondary_chart->projection(secondary_projection_no);
-    const auto procrustes_data = acmacs::chart::procrustes(aChartDraw.projection(), *secondary_projection, common_points, scaling);
+    const auto procrustes_data = acmacs::chart::procrustes(aChartDraw.chart(0).modified_projection(), *secondary_projection, common_points, scaling);
     if (aChartDraw.has_title()) {
         auto& title = aChartDraw.title();
         title.add_line(secondary_chart->make_name(secondary_projection_no));
         title.add_line("RMS: " + std::to_string(procrustes_data.rms));
     }
     auto secondary_layout = procrustes_data.apply(*secondary_projection->layout());
-    auto primary_layout = aChartDraw.projection().transformed_layout();
+    auto primary_layout = aChartDraw.chart(0).modified_projection().transformed_layout();
     const auto& arrow_config = args()["arrow"];
     const auto threshold = rjson::get_or(args(), "threshold", 0.005);
     for (size_t point_no = 0; point_no < common_points.size(); ++point_no) {

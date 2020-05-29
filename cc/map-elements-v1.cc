@@ -214,8 +214,8 @@ void map_elements::v1::Title::draw(acmacs::draw::DrawElements& aDrawElements, co
 void map_elements::v1::SerumCircle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const
 {
     if (mSerumNo != static_cast<size_t>(-1)) {
-        auto transformed_layout = aChartDraw.transformed_layout();
-        const auto& coord = transformed_layout->at(mSerumNo + aChartDraw.number_of_antigens());
+        auto transformed_layout = aChartDraw.chart(0).modified_transformed_layout();
+        const auto& coord = transformed_layout->at(mSerumNo + aChartDraw.chart().number_of_antigens());
         if (coord.exists()) {
             if (mStart == mEnd) {
                 aSurface.circle_filled(coord, mRadius * 2.0, AspectNormal, NoRotation, mOutlineColor, mOutlineWidth, mOutlineDash, mFillColor);
@@ -234,8 +234,8 @@ void map_elements::v1::SerumCircle::draw(acmacs::surface::Surface& aSurface, con
 
 void map_elements::v1::SerumCircle::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const
 {
-    if (const auto& coord = aChartDraw.layout()->at(mSerumNo + aChartDraw.number_of_antigens()); coord.exists())
-        aDrawElements.serum_circle(coord, aChartDraw.transformation(), mRadius * 2.0, mFillColor, mOutlineColor, mOutlineWidth, mOutlineDash, mRadiusColor, mRadiusWidth, mRadiusDash, mStart, mEnd);
+    if (const auto& coord = aChartDraw.chart(0).modified_layout()->at(mSerumNo + aChartDraw.chart().number_of_antigens()); coord.exists())
+        aDrawElements.serum_circle(coord, aChartDraw.chart(0).modified_transformation(), mRadius * 2.0, mFillColor, mOutlineColor, mOutlineWidth, mOutlineDash, mRadiusColor, mRadiusWidth, mRadiusDash, mStart, mEnd);
     else
         AD_WARNING("SerumCircle::draw(draw_elements): cannot draw serum circle, center coordinates: {}", coord);
 

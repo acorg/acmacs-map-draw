@@ -13,8 +13,8 @@ std::string report_antigens(const acmacs::chart::PointIndexList& indexes, const 
     if (threshold >= indexes.size()) {
         const auto& chart = aChartSelectInterface.chart();
         const auto& seqdb = acmacs::seqdb::get();
-        const auto& matched_seqdb = aChartSelectInterface.match_seqdb();
-        auto layout = aChartSelectInterface.layout();
+        const auto& matched_seqdb = aChartSelectInterface.chart(0).match_seqdb();
+        auto layout = aChartSelectInterface.chart(0).modified_layout();
         auto antigens = chart.antigens();
         auto titers = chart.titers();
         auto info = chart.info();
@@ -65,11 +65,11 @@ std::string report_sera(const acmacs::chart::PointIndexList& indexes, const Char
         auto sera = chart.sera();
         const auto number_of_antigens = chart.number_of_antigens();
         const auto full_name_max{acmacs::chart::max_full_name(*sera, indexes)};
-        auto layout = aChartSelectInterface.layout();
+        auto layout = aChartSelectInterface.chart(0).modified_layout();
         auto titers = chart.titers();
         auto info = chart.info();
 
-        const auto& matched_seqdb = aChartSelectInterface.match_seqdb();
+        const auto& matched_seqdb = aChartSelectInterface.chart(0).match_seqdb();
         using seq_data_t = std::pair<acmacs::seqdb::seq_id_t, std::string>;
         acmacs::small_map_with_unique_keys_t<size_t, seq_data_t> seq_clades;
         size_t seq_max{0}, clades_max{0};

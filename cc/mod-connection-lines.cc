@@ -19,13 +19,13 @@ void ModConnectionLines::apply(ChartDraw& aChartDraw, const rjson::value& /*aMod
     const Color line_color{rjson::get_or(args(), "color", "black")};
     const double line_width{rjson::get_or(args(), "line_width", 1.0)};
 
-    auto layout = aChartDraw.transformed_layout();
+    auto layout = aChartDraw.chart(0).modified_transformed_layout();
     auto titers = aChartDraw.chart().titers();
     for (const auto ag_no : antigen_indexes) {
         for (const auto sr_no : serum_indexes) {
             if (const auto titer = titers->titer(ag_no, sr_no); !titer.is_dont_care()) {
                 // std::cerr << "DEBUG: " << ag_no << ' ' << sr_no << ' ' << titer << '\n';
-                if (const auto from = layout->at(ag_no), to = layout->at(sr_no + aChartDraw.number_of_antigens()); from.exists() && to.exists())
+                if (const auto from = layout->at(ag_no), to = layout->at(sr_no + aChartDraw.chart().number_of_antigens()); from.exists() && to.exists())
                     aChartDraw.line(from, to).color(line_color).line_width(line_width);
             }
         }
@@ -85,7 +85,7 @@ void ModErrorLines::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*
     const Color  line_color_td_less{rjson::get_or(args(), "color", "blue")};
     const double line_width{rjson::get_or(args(), "line_width", 1.0)};
     const bool   report{rjson::get_or(args(), "report", false)};
-    const auto error_lines = aChartDraw.projection().error_lines();
+    const auto error_lines = aChartDraw.chart(0).modified_projection().error_lines();
 
     // if (report) {
     //     fmt::print("INFO: antigens for error lines: {}\nINFO: sera for error lines: {}\n", antigen_indexes, serum_indexes);
@@ -93,7 +93,7 @@ void ModErrorLines::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*
     //         fmt::print("INFO: error line {} {} : {}\n", errl.point_1, errl.point_2, errl.error_line);
     // }
 
-    auto layout = aChartDraw.transformed_layout();
+    auto layout = aChartDraw.chart(0).modified_transformed_layout();
     auto titers = aChartDraw.chart().titers();
     auto antigens = aChartDraw.chart().antigens();
     auto sera = aChartDraw.chart().sera();

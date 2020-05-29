@@ -154,7 +154,7 @@ void acmacs::mapi::v1::Settings::filter_inside_path(acmacs::chart::PointIndexLis
     std::transform(std::begin(path_vertices), std::end(path_vertices), std::back_inserter(path), [this](const auto& vertex) { return vertex.get_transformed(chart_draw()); });
     // AD_DEBUG("filter_inside_path {}", path);
 
-    auto layout = chart_draw().transformed_layout();
+    auto layout = chart_draw().chart(0).modified_transformed_layout();
     const auto outside = [index_base, &path, &layout](auto index) -> bool { return winding_number(layout->at(index + index_base), path) == 0; };
     indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), outside), indexes.end());
 
@@ -296,7 +296,7 @@ bool acmacs::mapi::v1::Settings::apply_connection_lines()
     auto antigen_indexes = select_antigens(getenv("antigens"sv), if_null::all);
     auto serum_indexes = select_sera(getenv("sera"sv), if_null::all);
     const auto number_of_antigens = chart_draw().chart().number_of_antigens();
-    auto layout = chart_draw().layout();
+    auto layout = chart_draw().chart(0).modified_layout();
     antigen_indexes.remove_if([&layout](size_t index) { return !layout->point_has_coordinates(index); });
     serum_indexes.remove_if([&layout, number_of_antigens](size_t index) { return !layout->point_has_coordinates(index + number_of_antigens); });
 
@@ -326,7 +326,7 @@ bool acmacs::mapi::v1::Settings::apply_connection_lines()
 bool acmacs::mapi::v1::Settings::apply_error_lines()
 {
     using namespace std::string_view_literals;
-    auto layout = chart_draw().layout();
+    auto layout = chart_draw().chart(0).modified_layout();
     auto antigens = chart_draw().chart().antigens();
     auto sera = chart_draw().chart().sera();
     auto antigen_indexes = select_antigens(getenv("antigens"sv), if_null::all);
@@ -334,7 +334,7 @@ bool acmacs::mapi::v1::Settings::apply_error_lines()
     const auto number_of_antigens = chart_draw().chart().number_of_antigens();
     antigen_indexes.remove_if([&layout](size_t index) { return !layout->point_has_coordinates(index); });
     serum_indexes.remove_if([&layout, number_of_antigens](size_t index) { return !layout->point_has_coordinates(index + number_of_antigens); });
-    const auto error_lines = chart_draw().projection().error_lines();
+    const auto error_lines = chart_draw().chart(0).modified_projection().error_lines();
 
     const auto line_width{rjson::v3::read_number(getenv("line_width"sv), Pixels{0.5})};
     const acmacs::color::Modifier more{RED, rjson::v3::read_color_or_empty(getenv("more"sv))};

@@ -19,7 +19,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
     auto antigens = chart.antigens();
     auto sera = chart.sera();
     auto titers = chart.titers();
-    auto layout = chart_draw().layout();
+    auto layout = chart_draw().chart(0).modified_layout();
 
     const auto serum_indexes = select_sera(getenv("serum"sv, "sera"sv));
     const auto fold = rjson::v3::read_number(getenv("fold"sv), 2.0);
@@ -35,7 +35,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
             fmt::format_to(report, "{:{}c}  *** serum is disconnected\n", ' ', indent);
         }
         else if (const auto antigen_indexes = select_antigens_for_serum_circle(serum_index, antigen_selector); !antigen_indexes.empty()) {
-            const auto column_basis = chart.column_basis(serum_index, chart_draw().projection_no());
+            const auto column_basis = chart.column_basis(serum_index, chart_draw().chart(0).projection_no());
             acmacs::chart::SerumCircle empirical, theoretical;
             if (forced_homologous_titer.has_value()) {
                 empirical = acmacs::chart::serum_circle_empirical(antigen_indexes, *forced_homologous_titer, serum_index, *layout, column_basis, *titers, fold, verb);
@@ -238,7 +238,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_coverage()
     auto antigens = chart.antigens();
     auto sera = chart.sera();
     auto titers = chart.titers();
-    auto layout = chart_draw().layout();
+    auto layout = chart_draw().chart(0).modified_layout();
 
     const auto serum_indexes = select_sera(getenv("serum"sv, "sera"sv));
     const auto fold = rjson::v3::read_number(getenv("fold"sv), 2.0);

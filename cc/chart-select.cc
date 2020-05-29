@@ -42,28 +42,27 @@ int main(int argc, char* const argv[])
 int do_select(const Options& opt)
 {
     const auto selector = rjson::parse_string(opt.command);
-    auto chart = acmacs::chart::import_from_file(opt.chart);
-    if (chart->number_of_projections() < 1 || chart->number_of_projections() < *opt.projection)
-        throw std::runtime_error(fmt::format("chart has too few projections: {}", chart->number_of_projections()));
-    ChartSelectInterface chart_select(std::make_shared<acmacs::chart::ChartModify>(chart), opt.projection);
+    ChartSelectInterface chart_select(opt.chart, opt.projection);
+    if (chart_select.chart().number_of_projections() < 1 || chart_select.chart().number_of_projections() < *opt.projection)
+        throw std::runtime_error(fmt::format("chart has too few projections: {}", chart_select.chart().number_of_projections()));
     if (!opt.sera) {
-        const auto num_digits = static_cast<int>(std::log10(chart->number_of_antigens())) + 1;
+        const auto num_digits = static_cast<int>(std::log10(chart_select.chart().number_of_antigens())) + 1;
         const auto indices = SelectAntigens(acmacs::verbose_from(opt.verbose)).select(chart_select, selector);
         std::cout << acmacs::string::join(acmacs::string::join_comma, indices) << '\n';
         if (!opt.just_indexes) {
             for (auto index : indices)
-                fmt::print("AG {:{}d} {}\n", index, num_digits, chart->antigen(index)->full_name());
+                fmt::print("AG {:{}d} {}\n", index, num_digits, chart_select.chart().antigen(index)->full_name());
         }
     }
     else {
-        const auto num_digits = static_cast<int>(std::log10(chart->number_of_sera())) + 1;
+        const auto num_digits = static_cast<int>(std::log10(chart_select.chart().number_of_sera())) + 1;
         const auto indices = SelectSera(acmacs::verbose_from(opt.verbose)).select(chart_select, selector);
         if (!opt.just_indexes) {
             fmt::print("{}\n", acmacs::string::join(acmacs::string::join_comma, indices));
         }
         else {
             for (auto index : indices)
-                fmt::print("SR {:{}d} {}\n", index, num_digits, chart->serum(index)->full_name());
+                fmt::print("SR {:{}d} {}\n", index, num_digits, chart_select.chart().serum(index)->full_name());
         }
     }
     return 0;

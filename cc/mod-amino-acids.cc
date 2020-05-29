@@ -37,7 +37,7 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool
 {
     std::vector<size_t> positions;
     rjson::copy(aPos, positions);
-    const auto aa_indices = aChartDraw.aa_at_pos1_for_antigens(positions);
+    const auto aa_indices = aChartDraw.chart(0).aa_at_pos1_for_antigens(positions);
     // aa_indices is std::map<std::string, std::vector<size_t>>
     std::vector<std::string> aa_sorted(aa_indices.size()); // most frequent aa first
     std::transform(std::begin(aa_indices), std::end(aa_indices), std::begin(aa_sorted), [](const auto& entry) -> std::string { return entry.first; });
@@ -61,7 +61,7 @@ void ModAminoAcids::aa_pos(ChartDraw& aChartDraw, const rjson::value& aPos, bool
     }
 
     if (auto make_centroid = rjson::get_or(args(), "centroid", false); make_centroid) {
-        auto layout = aChartDraw.projection().transformed_layout();
+        auto layout = aChartDraw.chart(0).modified_transformed_layout();
         for (auto [aa, indexes] : aa_indices) {
             if (indexes.size() > 1) {
                 const auto sum_vectors = [](acmacs::PointCoordinates sum, const auto& point) {
@@ -130,7 +130,7 @@ void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, 
     rjson::transform(pos_aa, std::begin(positions), [](const rjson::value& src) -> size_t { return std::stoul(src.to<std::string>()); });
     std::string target_aas(pos_aa.size(), ' ');
     rjson::transform(pos_aa, std::begin(target_aas), [](const rjson::value& src) { return src.to<std::string_view>().back(); });
-    const auto aa_indices = aChartDraw.aa_at_pos1_for_antigens(positions);
+    const auto aa_indices = aChartDraw.chart(0).aa_at_pos1_for_antigens(positions);
     if (const auto aap = aa_indices.find(target_aas); aap != aa_indices.end()) {
         auto styl = style();
         styl = point_style_from_json(aGroup);
@@ -183,7 +183,7 @@ void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& aModD
     else
         throw unrecognized_mod{fmt::format("no select2 in mod: {}", args())};
 
-    const auto& matched = aChartDraw.match_seqdb();
+    const auto& matched = aChartDraw.chart(0).match_seqdb();
     auto set1 = matched.filter_by_indexes(indexes1);
     auto set2 = matched.filter_by_indexes(indexes2);
 

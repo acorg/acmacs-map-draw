@@ -89,7 +89,7 @@ int main(int argc, char* const argv[])
 
         chart_draw.calculate_viewport();
         AD_INFO("{:.2f}", chart_draw.viewport("mapi main"));
-        AD_INFO("transformation: {}", chart_draw.transformation());
+        AD_INFO("transformation: {}", chart_draw.chart(0).modified_transformation());
 
         if (outputs.empty()) {
             acmacs::file::temp output{fmt::format("{}--p{}.pdf", fs::path(inputs[0]).stem(), opt.projection)};

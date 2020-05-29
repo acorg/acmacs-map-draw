@@ -12,18 +12,18 @@ const acmacs::chart::Chart& acmacs::mapi::v1::Settings::get_chart(const rjson::v
     return source.visit([this]<typename Val>(const Val& val) -> const acmacs::chart::Chart& {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::null>) {
             if (chart_draw().number_of_charts() > 1)
-                return chart_draw().chart(1);
+                return chart_draw().chart(1).chart();
             else
-                return chart_draw().chart(0); // internal procrustes
+                return chart_draw().chart(0).chart(); // internal procrustes
         }
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::number>) {
             if (const auto no{val.template to<size_t>()}; chart_draw().number_of_charts() > no)
-                return chart_draw().chart(no);
+                return chart_draw().chart(no).chart();
             else
                 throw error{fmt::format("cannot make procrustes, too few charts provided, required chart {} but just {} available", no, chart_draw().number_of_charts())};
         }
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
-            return chart_draw().chart(val.template to<std::string_view>());
+            return chart_draw().chart(val.template to<std::string_view>()).chart();
         }
         else
             throw error{fmt::format("unrecognized \"chart\" for procrustes: {} (expected integer or name)", val)};
@@ -71,10 +71,10 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     common_points = common.points(CommonAntigensSera::subset::all);
 
     auto secondary_projection = secondary_chart.projection(secondary_projection_no);
-    const auto procrustes_data = procrustes(chart_draw().projection(), *secondary_projection, common_points, scaling);
+    const auto procrustes_data = procrustes(chart_draw().chart(0).modified_projection(), *secondary_projection, common_points, scaling);
 
     auto secondary_layout = procrustes_data.apply(*secondary_projection->layout());
-    auto primary_layout = chart_draw().projection().transformed_layout();
+    auto primary_layout = chart_draw().chart(0).modified_projection().transformed_layout();
     for (size_t point_no = 0; point_no < common_points.size(); ++point_no) {
         const auto primary_coords = primary_layout->at(common_points[point_no].primary), secondary_coords = secondary_layout->at(common_points[point_no].secondary);
         if (acmacs::distance(primary_coords, secondary_coords) > threshold) {
@@ -95,7 +95,7 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
 
     auto& titl = title();
     if (titl.number_of_lines() == 0)
-        titl.add_line(chart_draw().chart().make_name(chart_draw().projection_no()));
+        titl.add_line(chart_draw().chart().make_name(chart_draw().chart(0).projection_no()));
     titl.add_line(secondary_chart.make_name(secondary_projection_no));
     titl.add_line(fmt::format("RMS: {:.6f}", procrustes_data.rms));
 
@@ -118,8 +118,8 @@ bool acmacs::mapi::v1::Settings::apply_move()
     using namespace std::string_view_literals;
     auto antigen_indexes = select_antigens(getenv("antigens"sv), if_null::empty);
     auto serum_indexes = select_sera(getenv("sera"sv), if_null::empty);
-    auto& projection = chart_draw().projection();
-    const auto number_of_antigens{chart_draw().number_of_antigens()};
+    auto& projection = chart_draw().chart(0).modified_projection();
+    const auto number_of_antigens{chart_draw().chart(0).number_of_antigens()};
 
     if (const auto to = read_coordinates(getenv("to"sv)); to.has_value()) {
         const auto move_to{to->get_not_transformed(chart_draw())};
@@ -130,7 +130,7 @@ bool acmacs::mapi::v1::Settings::apply_move()
     }
     else if (const auto relative = getenv("relative"sv); !relative.is_null()) {
         if (relative.is_array() && relative.size() == 2) {
-            const auto offset{chart_draw().inversed_transformation().transform(PointCoordinates{relative[0].to<double>(), relative[1].to<double>()})};
+            const auto offset{chart_draw().chart(0).modified_inverted_transformation().transform(PointCoordinates{relative[0].to<double>(), relative[1].to<double>()})};
             auto layout = projection.layout();
             for (auto index : antigen_indexes)
                 projection.move_point(index, layout->at(index) + offset);

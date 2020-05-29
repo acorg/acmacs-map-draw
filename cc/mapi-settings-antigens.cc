@@ -1013,7 +1013,7 @@ bool acmacs::mapi::v1::Settings::color_according_to_aa_at_pos(const acmacs::char
 
     const auto make = [&indexes, this](const std::optional<passage_color_t>& data, bool fill) -> bool {
         if (data.has_value() && data->pos.has_value()) {
-            const auto& entries = chart_draw().match_seqdb();
+            const auto& entries = chart_draw().chart(0).match_seqdb();
             const auto& seqdb = acmacs::seqdb::get();
             acmacs::small_map_with_unique_keys_t<char, std::pair<acmacs::chart::PointIndexList, PointStyleModified>> per_aa;
             for (const auto index : indexes) {

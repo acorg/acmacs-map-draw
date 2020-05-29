@@ -11,13 +11,13 @@ void ModBlobs::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
     //  "fill": "transparent", "color": "pink", "line_width": 1}
 
     const auto verbose = rjson::get_or(args(), "report", false);
-    auto& projection = aChartDraw.projection();
+    auto& projection = aChartDraw.chart(0).modified_projection();
     const auto& select = args()["select"];
     const auto antigen_indexes = SelectAntigens(acmacs::verbose_from(verbose)).select(aChartDraw, select.is_null() ? rjson::value{"all"} : select);
 
     const auto blobs = projection.blobs(rjson::get_or(args(), "stress_diff", 0.5), antigen_indexes, rjson::get_or(args(), "number_of_drections", 36UL), rjson::get_or(args(), "stress_diff_precision", 1e-5));
-    const auto transformation = aChartDraw.projection().transformation();
-    const auto layout = aChartDraw.projection().layout();
+    const auto transformation = aChartDraw.chart(0).modified_projection().transformation();
+    const auto layout = aChartDraw.chart(0).modified_projection().layout();
     for (auto index : antigen_indexes) {
         const auto coords = layout->at(index);
         const auto& data = blobs.data_for_point(index);

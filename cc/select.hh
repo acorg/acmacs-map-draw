@@ -97,11 +97,11 @@ class SelectAntigens : public SelectAntigensSera
     void filter_rectangle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::Rectangle& aRectangle, transformed_t transformed,
                           Rotation rotation) override
     {
-        acmacs::map_draw::select::filter::rectangle_in(indexes, 0, transformed == transformed_t::yes ? *aChartSelectInterface.transformed_layout() : *aChartSelectInterface.layout(), aRectangle, rotation);
+        acmacs::map_draw::select::filter::rectangle_in(indexes, 0, transformed == transformed_t::yes ? *aChartSelectInterface.chart(0).modified_transformed_layout() : *aChartSelectInterface.chart(0).modified_layout(), aRectangle, rotation);
     }
     void filter_circle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::Circle& aCircle) override
     {
-        acmacs::map_draw::select::filter::circle_in(indexes, 0, *aChartSelectInterface.layout(), aCircle);
+        acmacs::map_draw::select::filter::circle_in(indexes, 0, *aChartSelectInterface.chart(0).modified_layout(), aCircle);
     }
     void filter_outline(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, Color outline) override { acmacs::map_draw::select::filter::outline_in(aChartSelectInterface, indexes, 0, outline); }
     void filter_outline_width(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, Pixels outline_width) override
@@ -154,11 +154,11 @@ class SelectSera : public SelectAntigensSera
                           Rotation rotation) override
     {
         acmacs::map_draw::select::filter::rectangle_in(indexes, aChartSelectInterface.chart().number_of_antigens(),
-                            transformed == transformed_t::yes ? *aChartSelectInterface.transformed_layout() : *aChartSelectInterface.layout(), aRectangle, rotation);
+                            transformed == transformed_t::yes ? *aChartSelectInterface.chart(0).modified_transformed_layout() : *aChartSelectInterface.chart(0).modified_layout(), aRectangle, rotation);
     }
     void filter_circle(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::Circle& aCircle) override
     {
-        acmacs::map_draw::select::filter::circle_in(indexes, aChartSelectInterface.chart().number_of_antigens(), *aChartSelectInterface.layout(), aCircle);
+        acmacs::map_draw::select::filter::circle_in(indexes, aChartSelectInterface.chart().number_of_antigens(), *aChartSelectInterface.chart(0).modified_layout(), aCircle);
     }
     void filter_outline(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, Color outline) override
     {

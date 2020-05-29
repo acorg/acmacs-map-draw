@@ -22,7 +22,7 @@ acmacs::PointCoordinates map_elements::v2::Coordinates::not_transformed::get_tra
 
 acmacs::PointCoordinates map_elements::v2::Coordinates::transformed::get_transformed(const ChartDraw& chart_draw) const
 {
-    return chart_draw.transformation().transform(*this);
+    return chart_draw.chart(0).modified_transformation().transform(*this);
 
 } // map_elements::v2::Coordinates::transformed::get_transformed
 
@@ -30,7 +30,7 @@ acmacs::PointCoordinates map_elements::v2::Coordinates::transformed::get_transfo
 
 acmacs::PointCoordinates map_elements::v2::Coordinates::points::get_transformed(const ChartDraw& chart_draw) const
 {
-    auto layout = chart_draw.transformed_layout();
+    auto layout = chart_draw.chart(0).modified_transformed_layout();
     acmacs::PointCoordinates coord{layout->number_of_dimensions(), 0.0};
     for (const auto point_index : get())
         coord += layout->at(point_index);
@@ -51,7 +51,7 @@ acmacs::PointCoordinates map_elements::v2::Coordinates::get_transformed(const Ch
 
 acmacs::PointCoordinates map_elements::v2::Coordinates::viewport::get_not_transformed(const ChartDraw& chart_draw) const
 {
-    return chart_draw.inversed_transformation().transform(get_transformed(chart_draw));
+    return chart_draw.chart(0).modified_inverted_transformation().transform(get_transformed(chart_draw));
 
 } // map_elements::v2::Coordinates::viewport::get_not_transformed
 
@@ -59,7 +59,7 @@ acmacs::PointCoordinates map_elements::v2::Coordinates::viewport::get_not_transf
 
 acmacs::PointCoordinates map_elements::v2::Coordinates::not_transformed::get_not_transformed(const ChartDraw& chart_draw) const
 {
-    return chart_draw.inversed_transformation().transform(*this);
+    return chart_draw.chart(0).modified_inverted_transformation().transform(*this);
 
 } // map_elements::v2::Coordinates::not_transformed::get_not_transformed
 
@@ -75,7 +75,7 @@ acmacs::PointCoordinates map_elements::v2::Coordinates::transformed::get_not_tra
 
 acmacs::PointCoordinates map_elements::v2::Coordinates::points::get_not_transformed(const ChartDraw& chart_draw) const
 {
-    auto layout = chart_draw.layout();
+    auto layout = chart_draw.chart(0).modified_layout();
     acmacs::PointCoordinates coord{layout->number_of_dimensions(), 0.0};
     for (const auto point_index : get())
         coord += layout->at(point_index);

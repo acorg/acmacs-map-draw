@@ -17,7 +17,7 @@ void ModSera::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
         const auto styl = style();
         aChartDraw.modify_sera(indices, styl, drawing_order());
         if (const auto& label = args()["label"]; !label.is_null())
-            add_labels(aChartDraw, indices, aChartDraw.number_of_antigens(), label);
+            add_labels(aChartDraw, indices, aChartDraw.chart().number_of_antigens(), label);
     }
     else {
         throw unrecognized_mod{fmt::format("no \"select\" in \"sera\" mod: {}", args())};
@@ -64,7 +64,7 @@ void ModSerumHomologous::mark_serum(ChartDraw& aChartDraw, size_t serum_index)
     if (const auto& mark_serum = args()["mark_serum"]; !mark_serum.is_null()) {
         aChartDraw.modify_serum(serum_index, point_style_from_json(mark_serum, aChartDraw.chart().serum(serum_index)->is_egg(acmacs::chart::reassortant_as_egg::yes) ? Color("#FF4040") : Color("#4040FF")), drawing_order_from_json(mark_serum));
         if (const auto& label = mark_serum["label"]; !label.is_null())
-            add_label(aChartDraw, serum_index, aChartDraw.number_of_antigens(), label);
+            add_label(aChartDraw, serum_index, aChartDraw.chart().number_of_antigens(), label);
     }
 
 } // ModSerumHomologous::mark_serum
@@ -281,9 +281,9 @@ double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumInde
     auto get_circle_data = [&]() {
         switch (radius_type) {
             case serum_circle_radius_type::empirical:
-                return aChartDraw.chart().serum_circle_radius_empirical(aAntigenIndices, aHomologousTiter, aSerumIndex, aChartDraw.projection_no(), fold);
+                return aChartDraw.chart().serum_circle_radius_empirical(aAntigenIndices, aHomologousTiter, aSerumIndex, aChartDraw.chart(0).projection_no(), fold);
             case serum_circle_radius_type::theoretical:
-                return aChartDraw.chart().serum_circle_radius_theoretical(aAntigenIndices, aHomologousTiter, aSerumIndex, aChartDraw.projection_no(), fold);
+                return aChartDraw.chart().serum_circle_radius_theoretical(aAntigenIndices, aHomologousTiter, aSerumIndex, aChartDraw.chart(0).projection_no(), fold);
         }
         throw std::exception{};
     };
@@ -309,9 +309,9 @@ double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumInde
     auto get_circle_data = [&]() {
         switch (radius_type) {
             case serum_circle_radius_type::empirical:
-                return aChartDraw.chart().serum_circle_radius_empirical(aAntigenIndices, aSerumIndex, aChartDraw.projection_no(), fold);
+                return aChartDraw.chart().serum_circle_radius_empirical(aAntigenIndices, aSerumIndex, aChartDraw.chart(0).projection_no(), fold);
             case serum_circle_radius_type::theoretical:
-                return aChartDraw.chart().serum_circle_radius_theoretical(aAntigenIndices, aSerumIndex, aChartDraw.projection_no(), fold);
+                return aChartDraw.chart().serum_circle_radius_theoretical(aAntigenIndices, aSerumIndex, aChartDraw.chart(0).projection_no(), fold);
         }
         throw std::exception{};
     };
@@ -417,7 +417,7 @@ void ModSerumCoverageCircle::apply(ChartDraw& aChartDraw, const rjson::value& /*
 
 void ModSerumLine::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
 {
-    acmacs::chart::SerumLine serum_line(aChartDraw.projection());
+    acmacs::chart::SerumLine serum_line(aChartDraw.chart(0).modified_projection());
     std::cerr << "INFO: " << serum_line << '\n';
 
     auto& line = aChartDraw.line(serum_line.line(), ChartDraw::apply_map_transformation::yes);

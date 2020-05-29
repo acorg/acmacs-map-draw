@@ -87,7 +87,7 @@ int main(int argc, char* const argv[])
         }
 
         chart_draw.calculate_viewport();
-        AD_INFO("{}\n{}", chart_draw.viewport("map-procrustes main"), chart_draw.transformation());
+        AD_INFO("{}\n{}", chart_draw.viewport("map-procrustes main"), chart_draw.chart(0).modified_transformation());
 
         const std::string output_file{!opt.chart2->empty() && acmacs::string::endswith(*opt.chart2, ".pdf"sv) ? *opt.chart2 : *opt.pdf};
         acmacs::file::temp temp_file(".pdf");

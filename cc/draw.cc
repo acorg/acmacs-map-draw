@@ -74,7 +74,7 @@ void ChartDraw::MapViewport::calculate(const acmacs::Layout& layout)
 
 void ChartDraw::calculate_viewport() const
 {
-    viewport_.calculate(*transformed_layout());
+    viewport_.calculate(*chart(0).modified_transformed_layout());
 
 } // ChartDraw::calculate_viewport
 
@@ -84,7 +84,7 @@ void ChartDraw::rotate(double aAngle)
 {
     if (!float_zero(aAngle)) {
         //     log("rotate radians:", aAngle, " degrees:", 180.0 * aAngle / M_PI, " ", aAngle > 0 ? "counter-" : "", "clockwise");
-        projection().rotate_radians(aAngle);
+        chart(0).modified_projection().rotate_radians(aAngle);
         viewport_.set_recalculate();
     }
 
@@ -95,7 +95,7 @@ void ChartDraw::rotate(double aAngle)
 void ChartDraw::flip(double aX, double aY)
 {
     // log("flip ", aX, " ", aY);
-    projection().flip(aX, aY); // reflect about a line specified with vector [aX, aY]
+    chart(0).modified_projection().flip(aX, aY); // reflect about a line specified with vector [aX, aY]
     viewport_.set_recalculate();
 
 } // ChartDraw::flip
@@ -113,10 +113,10 @@ void ChartDraw::draw(acmacs::surface::Surface& aSurface) const
     acmacs::surface::Surface& rescaled_surface = aSurface.subsurface(acmacs::PointCoordinates::zero2D, Scaled{aSurface.viewport().size.width}, viewport_.use("ChartDraw::draw(Surface)"), true);
     mMapElements.draw(rescaled_surface, map_elements::Elements::BeforePoints, *this);
 
-    const auto layout_p = transformed_layout();
+    const auto layout_p = chart(0).modified_transformed_layout();
     const auto& layout = *layout_p;
 
-    for (auto index: drawing_order()) {
+    for (auto index: chart(0).modified_drawing_order()) {
         auto style = plot_spec().style(index);
         // std::cerr << index << ' ' << style << '\n';
         draw_point(rescaled_surface, style, layout[index]);
@@ -188,7 +188,7 @@ void ChartDraw::draw(acmacs::draw::DrawElements& painter) const
         throw std::runtime_error("Call calculate_viewport() before draw()");
     painter.viewport(viewport_.use("ChartDraw::draw(DrawElements)"));
     mMapElements.draw(painter, *this);
-    auto& points = painter.points(layout(), transformation()).drawing_order(*drawing_order()).styles(plot_spec_ptr()).labels(mLabels);
+    auto& points = painter.points(chart(0).modified_layout(), chart(0).modified_transformation()).drawing_order(*chart(0).modified_drawing_order()).styles(chart(0).modified_plot_spec_ptr()).labels(mLabels);
     if (painter.add_all_labels()) {
         add_all_labels();
         points.labels(mLabels);
@@ -203,7 +203,7 @@ void ChartDraw::hide_all_except(const acmacs::chart::Indexes& aNotHide)
 {
     acmacs::PointStyleModified style;
     style.shown(false);
-    for (size_t index = 0; index < number_of_points(); ++index ) {
+    for (size_t index = 0; index < chart(0).number_of_points(); ++index ) {
         if (std::find(aNotHide.begin(), aNotHide.end(), index) == aNotHide.end())
             plot_spec().modify(index, style);
     }

@@ -12,7 +12,7 @@
 #include "acmacs-map-draw/mod-applicator.hh"
 #include "acmacs-map-draw/setup-dbs.hh"
 
-static std::string draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<std::string_view>& settings_files, std::string_view output_pdf, bool name_after_mod);
+static std::string draw(ChartDraw& chart_draw, const std::vector<std::string_view>& settings_files, std::string_view output_pdf, bool name_after_mod);
 static std::string mod_name(const rjson::value& aMods);
 
 // ----------------------------------------------------------------------
@@ -65,10 +65,9 @@ int main(int argc, char* const argv[])
         const auto cmd = fmt::format("fswatch --latency=0.1 '{}'", acmacs::string::join(acmacs::string::join_sep_t{"' '"}, *opt.settings_files));
         std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
 
-        Timeit ti_chart(fmt::format("DEBUG: chart loading from {}: ", *opt.chart), report_time::yes);
-        auto chart = std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart));
-        ti_chart.report();
-        [[maybe_unused]] const auto& hidb = hidb::get(chart->info()->virus_type(), report_time::yes);
+        // auto chart = std::make_shared<acmacs::chart::ChartModify>(acmacs::chart::import_from_file(opt.chart));
+        ChartDraw chart_draw{opt.chart, 0};
+        [[maybe_unused]] const auto& hidb = hidb::get(chart_draw.chart().info()->virus_type(), report_time::yes);
         acmacs::seqdb::get();
 
         if (opt.previous) {
@@ -80,7 +79,7 @@ int main(int argc, char* const argv[])
 
         std::array<char, 1024> buffer;
         for (;;) {
-            if (const auto output_name = draw(chart, *opt.settings_files, output_pdf, opt.name_after_mod); !output_name.empty()) {
+            if (const auto output_name = draw(chart_draw, *opt.settings_files, output_pdf, opt.name_after_mod); !output_name.empty()) {
                 acmacs::run_and_detach({"tink"}, 0);
                 if (opt.preview_pos)
                     acmacs::run_and_detach({"preview", "-p", opt.preview_pos->data(), output_name.data()}, 0);
@@ -103,6 +102,7 @@ int main(int argc, char* const argv[])
             if (!fgets(buffer.data(), buffer.size(), pipe.get()))
                 throw std::runtime_error{"fgets error"};
             acmacs::run_and_detach({"tink"}, 0);
+            chart_draw.reset();
         }
     }
     catch (std::exception& err) {
@@ -114,16 +114,15 @@ int main(int argc, char* const argv[])
 
 // ----------------------------------------------------------------------
 
-std::string draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::vector<std::string_view>& settings_files, std::string_view output_pdf, bool name_after_mod)
+std::string draw(ChartDraw& chart_draw, const std::vector<std::string_view>& settings_files, std::string_view output_pdf, bool name_after_mod)
 {
     using namespace std::string_view_literals;
     Timeit ti_chart("DEBUG: drawing: ", report_time::yes);
 
     try {
-        const size_t projection_no = 0;
-        const acmacs::Layout orig_layout(*chart->projection_modify(projection_no)->layout());
-        const auto orig_transformation = chart->projection_modify(projection_no)->transformation();
-        ChartDraw chart_draw{chart, projection_no};
+        // const size_t projection_no = 0;
+        // const acmacs::Layout orig_layout(*chart->projection_modify(projection_no)->layout());
+        // const auto orig_transformation = chart->projection_modify(projection_no)->transformation();
 
         rjson::value settings{rjson::object{{"apply", rjson::array{"title"}}}};
         for (const auto& settings_file_name : {"acmacs-map-draw.json"sv}) {
@@ -142,9 +141,9 @@ std::string draw(std::shared_ptr<acmacs::chart::ChartModify> chart, const std::v
 
         apply_mods(chart_draw, settings["apply"], settings);
         chart_draw.calculate_viewport();
-        AD_INFO("{}\n{}", chart_draw.viewport("map-draw-interactive main"), chart_draw.transformation());
+        AD_INFO("{}\n{}", chart_draw.viewport("map-draw-interactive main"), chart_draw.chart(0).modified_transformation());
         chart_draw.draw(output, 800, report_time::yes);
-        chart->projection_modify(projection_no)->transformation(orig_transformation);
+        // chart->projection_modify(projection_no)->transformation(orig_transformation);
         return output;
     }
     catch (std::exception& err) {
