@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-29 10:53:22 eu>
+# Time-stamp: <2020-05-29 18:17:32 eu>
 
 * Common usage
 
@@ -6,6 +6,7 @@ mapi chart.ace output.pdf -- plot spec stored in chart
 mapi chart.ace output.pdf -a //clades -- by clade
 mapi primary.ace secondary.ace output.pdf -a /pc -- procrustes
 mapi primary.ace secondary.ace output.pdf -a //clades,/pc -- color by clade and procrustes
+mapi -i -s draw.json chart.ace output.pdf -- interactive
 
 * Command line defines
 
@@ -348,6 +349,18 @@ http://geomalgorithms.com/a03-_inclusion.html
    "arrow": {"line_width": 1, "outline": "black", "head": {"width": 5, "outline": "black", "outline_width": 1, "fill": "black"}}
   }
 #+END_SRC
+
+* TODO export
+
+#+BEGIN_SRC json
+{"N": "export", "chart": <index>, "filename": "<original file overwritten if not provided>"}
+
+{"N": "pdf", "filename": "", "open": false}
+
+#+END_SRC
+
+
+* TODO relax
 
 * TODO compare with previous
 
