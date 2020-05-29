@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-29 08:49:23 eu>
+# Time-stamp: <2020-05-29 10:05:15 eu>
 
 * Common usage
 
@@ -304,7 +304,7 @@ http://geomalgorithms.com/a03-_inclusion.html
 
 #+BEGIN_SRC json
   {"N": "move", "antigens": {<antigen-select>}, "sera": {<serum-select>}, "report": true,  
-   "?to": <point-position>, "?relative": [1, 1], 
+   "to": <point-position>, "?relative": [1, 1], 
    # "flip_over_line": {"from": <point-position>, "to": <point-position>}, 
    # "flip_over_serum_line": 1 -- scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)
   }

@@ -109,8 +109,6 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
 
 // ----------------------------------------------------------------------
 
-// {"N": "move", "antigens": {<antigen-select>}, "sera": {<serum-select>}, "report": true,
-//    "?to": <point>, "?relative": [1, 1],
 //    # "flip_over_line": {"from": <point>, "to": <point>},
 //    # "flip_over_serum_line": 1 -- scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)
 //            }
@@ -129,6 +127,18 @@ bool acmacs::mapi::v1::Settings::apply_move()
             projection.move_point(index, move_to);
         for (auto index : serum_indexes)
             projection.move_point(index + number_of_antigens, move_to);
+    }
+    else if (const auto relative = getenv("relative"sv); !relative.is_null()) {
+        if (relative.is_array() && relative.size() == 2) {
+            const auto offset{chart_draw().inversed_transformation().transform(PointCoordinates{relative[0].to<double>(), relative[1].to<double>()})};
+            auto layout = projection.layout();
+            for (auto index : antigen_indexes)
+                projection.move_point(index, layout->at(index) + offset);
+            for (auto index : serum_indexes)
+                projection.move_point(index + number_of_antigens, layout->at(index + number_of_antigens) + offset);
+        }
+        else
+            throw error{fmt::format("unrecognized \"move\" \"relative\": {} (expected array of two numbers)", relative)};
     }
 
     if (rjson::v3::read_bool(getenv("report"sv), false))
