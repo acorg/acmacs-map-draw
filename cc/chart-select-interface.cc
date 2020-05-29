@@ -8,6 +8,7 @@ void ChartAccess::reset()
     modified_.reset();
     modified_projection_.reset();
     inverted_transformation_ = std::nullopt;
+    modified_plot_spec_.reset();
 
 } // ChartAccess::reset
 
