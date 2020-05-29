@@ -108,6 +108,33 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
 } // acmacs::mapi::v1::Settings::apply_procrustes
 
 // ----------------------------------------------------------------------
+
+// {"N": "move", "antigens": {<antigen-select>}, "sera": {<serum-select>}, "report": true,
+//    "?to": <point>, "?relative": [1, 1],
+//    # "flip_over_line": {"from": <point>, "to": <point>},
+//    # "flip_over_serum_line": 1 -- scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)
+//            }
+
+bool acmacs::mapi::v1::Settings::apply_move()
+{
+    using namespace std::string_view_literals;
+    auto antigen_indexes = select_antigens(getenv("antigens"sv), if_null::empty);
+    auto serum_indexes = select_sera(getenv("sera"sv), if_null::empty);
+    auto& projection = chart_draw().projection();
+
+    if (const auto to = read_coordinates(getenv("to"sv)); to.has_value()) {
+        // for (auto index : antigen_indexes)
+        //     projection.move_point(index, move_to);
+    }
+
+    if (rjson::v3::read_bool(getenv("report"sv), false))
+        AD_INFO("Moved AG:{} SR:{}", antigen_indexes.size(), serum_indexes.size());
+
+    return true;
+
+} // acmacs::mapi::v1::Settings::apply_move
+
+// ----------------------------------------------------------------------
 /// Local Variables:
 /// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
 /// End:

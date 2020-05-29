@@ -43,6 +43,7 @@ ACMACS_MAP_DRAW_SOURCES =        \
   map-elements-v1.cc             \
   map-elements-v2.cc             \
   hemisphering-data.cc           \
+  coordinates.cc                 \
   geographic-settings.cc
 
 ACMACS_MAP_DRAW_LIB_MAJOR = 2

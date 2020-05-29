@@ -4,6 +4,7 @@
 #include "acmacs-base/point-style.hh"
 #include "seqdb-3/sequence.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
+#include "acmacs-map-draw/coordinates.hh"
 
 // ----------------------------------------------------------------------
 
@@ -27,6 +28,11 @@ namespace map_elements::v1
     class LegendPointLabel;
     class Title;
     class SerumCircle;
+}
+
+namespace map_elements::v2
+{
+    struct PathData;
 }
 
 // ----------------------------------------------------------------------
@@ -120,6 +126,9 @@ namespace acmacs::mapi::inline v1
         bool apply_point_scale();
         bool apply_connection_lines();
         bool apply_error_lines();
+        std::optional<map_elements::v2::Coordinates> read_coordinates(const rjson::v3::value& source) const;
+        void read_path_vertices(std::vector<map_elements::v2::Coordinates>& path, const rjson::v3::value& points) const;
+        void read_path_data(map_elements::v2::PathData& path, const rjson::v3::value& points, const rjson::v3::value& close) const;
 
         // ----------------------------------------------------------------------
         // mapi-settings-labels.cc
@@ -152,6 +161,7 @@ namespace acmacs::mapi::inline v1
 
         bool apply_procrustes();
         const acmacs::chart::Chart& get_chart(const rjson::v3::value& source);
+        bool apply_move();
 
         // bool apply_time_series();
 

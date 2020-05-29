@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-28 17:24:52 eu>
+# Time-stamp: <2020-05-29 08:49:23 eu>
 
 * Common usage
 
@@ -102,7 +102,7 @@ To print environment use:
   # "vaccine"
   # {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}}
 
-  {"inside": {"points": : [<point>, ...]}} -- see "path" in Drawing below, path is closed
+  {"inside": {"points": : [<point-position>, ...]}} -- see point-position in Drawing below, path is closed
   # {"in-circle": <Circle in Drawing>}
 
   # {"outlier": 1.0} # threshold in units (distance from centroid of pre-selected points), must be after other select args, e.g. after "clade"
@@ -267,11 +267,11 @@ line, arrow, rectangle, circle
 http://geomalgorithms.com/a03-_inclusion.html
 
 #+BEGIN_SRC json
-  {"N": "path", "points": [<point>, ...], "close": true, "outline_width": 1, "outline": "red", "fill": "transparent",
+  {"N": "path", "points": [<point-position>, ...], "close": true, "outline_width": 1, "outline": "red", "fill": "transparent",
    "arrows": [{"at": <point-index>, "from": <point-index>, "width": 5, "outline": "magenta", "outline_width": 1, "fill": "magenta"}]},
-  {"N": "circle", "center": <point>, "radius": 1, "aspect": 1.0, "rotation": 0, "fill": "#80FFA500", "outline": "#80FF0000", "outline_width": 10}
+  {"N": "circle", "center": <point-position>, "radius": 1, "aspect": 1.0, "rotation": 0, "fill": "#80FFA500", "outline": "#80FF0000", "outline_width": 10}
 
-  -- point
+  -- point-position
   {"v": [x, y]} -- viewport based, top left corner of viewport is 0,0  WARNING: works only after setting the viewport!
   {"l": [x, y]} -- x,y without map transformation
   {"t": [x, y]} -- map transformation will be applied to x,y
@@ -303,9 +303,15 @@ http://geomalgorithms.com/a03-_inclusion.html
 * TODO Move
 
 #+BEGIN_SRC json
-# {"N": "move_antigens", "select": {"reference": true}, "?to": <point>, "?relative": [1, 1], "flip_over_line": {"from": <point>, "to": <point>}, "?flip_over_serum_line": 1, "report": true, "?flip_over_serum_line": "scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)"},
-# {"N": "move_sera", "select": {"reference": true}, "?to": <point>, "?relative": [1, 1], "flip_over_line": {"from": <point>, "to": <point>}, "?flip_over_serum_line": 1, "report": true, "?flip_over_serum_line": "scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)"},
-# {"N": "move_antigens_stress", "select": {"reference": true}, "?to": [5, 5], "?relative": [1, 1], "?fill": "pink", "?outline": "grey", "?order": "raise", "?size": 1, "report": true},
+  {"N": "move", "antigens": {<antigen-select>}, "sera": {<serum-select>}, "report": true,  
+   "?to": <point-position>, "?relative": [1, 1], 
+   # "flip_over_line": {"from": <point-position>, "to": <point-position>}, 
+   # "flip_over_serum_line": 1 -- scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)
+  }
+
+  # {"N": "move_antigens", "select": {"reference": true}, "?to": <point-position>, "?relative": [1, 1], "flip_over_line": {"from": <point-position>, "to": <point-position>}, "?flip_over_serum_line": 1, "report": true, "?flip_over_serum_line": "scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)"},
+  # {"N": "move_sera", "select": {"reference": true}, "?to": <point-position>, "?relative": [1, 1], "flip_over_line": {"from": <point-position>, "to": <point-position>}, "?flip_over_serum_line": 1, "report": true, "?flip_over_serum_line": "scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)"},
+  # {"N": "move_antigens_stress", "select": {"reference": true}, "?to": [5, 5], "?relative": [1, 1], "?fill": "pink", "?outline": "grey", "?order": "raise", "?size": 1, "report": true},
 #+END_SRC
 
 
@@ -332,7 +338,7 @@ http://geomalgorithms.com/a03-_inclusion.html
 #+END_SRC
 
 
-* TODO Procrustes
+* Procrustes
 
 #+BEGIN_SRC json
 {"N": "procrustes-arrows", "report": true, "verbose": false,

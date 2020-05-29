@@ -5,66 +5,6 @@
 
 // ----------------------------------------------------------------------
 
-    // # {"v": [x, y]} -- viewport based, top left corner of viewport is 0,0
-    // # {"l": [x, y]} -- non transformed layout based
-    // # {"t": [x, y]} -- transformed layout based
-    // # {"a": {<antigen-select>}} -- if multiple antigens selected, middle point of them used
-    // # {"s": {<serum-select>}} -- if multiple antigens selected, middle point of them used
-
-static inline std::optional<map_elements::v2::Coordinates> read_coordinates(const rjson::v3::value& source, const acmacs::mapi::v1::Settings& settings)
-{
-    using namespace std::string_view_literals;
-
-    const auto read_values = [](const rjson::v3::value& array) -> acmacs::PointCoordinates {
-        return array.visit([]<typename Value>(const Value& value) -> acmacs::PointCoordinates {
-            if constexpr (std::is_same_v<Value, rjson::v3::detail::array>) {
-                switch (value.size()) {
-                    case 2:
-                        return acmacs::PointCoordinates{value[0].template to<double>(), value[1].template to<double>()};
-                    case 3:
-                        return acmacs::PointCoordinates{value[0].template to<double>(), value[1].template to<double>(), value[2].template to<double>()};
-                }
-            }
-            throw std::exception{};
-        });
-    };
-
-    const auto read = [read_values, &settings](const rjson::v3::detail::object& obj) -> map_elements::v2::Coordinates {
-        if (const auto& v_val = obj["v"sv]; !v_val.is_null())
-            return map_elements::v2::Coordinates::viewport{read_values(v_val)};
-        else if (const auto& l_val = obj["l"sv]; !l_val.is_null())
-            return map_elements::v2::Coordinates::not_transformed{read_values(l_val)};
-        else if (const auto& t_val = obj["t"sv]; !t_val.is_null())
-            return map_elements::v2::Coordinates::transformed{read_values(t_val)};
-        else if (const auto& a_val = obj["a"sv]; !a_val.is_null())
-            return map_elements::v2::Coordinates::points{settings.select_antigens(a_val)};
-        else if (const auto& s_val = obj["s"sv]; !s_val.is_null()) {
-            return map_elements::v2::Coordinates::points{settings.select_sera(s_val).serum_index_to_point(settings.chart_draw().chart().number_of_antigens())};
-        }
-        else
-            throw std::exception{};
-    };
-
-    try {
-        return source.visit([read]<typename Value>(const Value& value) -> std::optional<map_elements::v2::Coordinates> {
-            if constexpr (std::is_same_v<Value, rjson::v3::detail::object>)
-                return read(value);
-            else if constexpr (std::is_same_v<Value, rjson::v3::detail::null>)
-                return std::nullopt;
-            else
-                throw std::exception{};
-        });
-    }
-    catch (std::exception&) {
-        throw acmacs::mapi::unrecognized{fmt::format("cannot read map/viewport coordinates from {}", source)};
-    }
-
-} // read_coordinates
-
-// ----------------------------------------------------------------------
-
-// ----------------------------------------------------------------------
-
 template <typename Target> static inline void read_fill_outline(Target& target, const rjson::v3::value& fill, const rjson::v3::value& outline, const rjson::v3::value& outline_width)
 {
     if (const auto fill_v = rjson::v3::read_color(fill); fill_v.has_value())
@@ -84,7 +24,7 @@ bool acmacs::mapi::v1::Settings::apply_circle()
 
     auto& circle = chart_draw().map_elements().add<map_elements::v2::Circle>();
 
-    if (const auto coord = ::read_coordinates(getenv("center"sv), *this); coord.has_value())
+    if (const auto coord = read_coordinates(getenv("center"sv)); coord.has_value())
         circle.center(*coord);
     ::read_fill_outline(circle, getenv("fill"sv), getenv("outline"sv), getenv("outline_width"sv));
 
@@ -101,12 +41,12 @@ bool acmacs::mapi::v1::Settings::apply_circle()
 
 // ----------------------------------------------------------------------
 
-static inline void read_path_vertices(std::vector<map_elements::v2::Coordinates>& path, const rjson::v3::value& points, const acmacs::mapi::v1::Settings& settings)
+void acmacs::mapi::v1::Settings::read_path_vertices(std::vector<map_elements::v2::Coordinates>& path, const rjson::v3::value& points) const
 {
-    points.visit([&path, &settings]<typename Val>(const Val& value) {
+    points.visit([&path, this]<typename Val>(const Val& value) {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
             for (const auto& en : value) {
-                if (const auto coord = ::read_coordinates(en, settings); coord.has_value())
+                if (const auto coord = read_coordinates(en); coord.has_value())
                     path.push_back(std::move(*coord));
                 else
                     throw acmacs::mapi::unrecognized{fmt::format("cannot read vertex from {}", value)};
@@ -120,9 +60,9 @@ static inline void read_path_vertices(std::vector<map_elements::v2::Coordinates>
 
 // ----------------------------------------------------------------------
 
-static inline void read_path_data(map_elements::v2::PathData& path, const rjson::v3::value& points, const rjson::v3::value& close, const acmacs::mapi::v1::Settings& settings)
+void acmacs::mapi::v1::Settings::read_path_data(map_elements::v2::PathData& path, const rjson::v3::value& points, const rjson::v3::value& close) const
 {
-    read_path_vertices(path.vertices, points, settings);
+    read_path_vertices(path.vertices, points);
 
     close.visit([&path]<typename Val>(const Val& value) {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::boolean> || std::is_same_v<Val, rjson::v3::detail::number>)
@@ -161,7 +101,7 @@ bool acmacs::mapi::v1::Settings::apply_path()
 {
     using namespace std::string_view_literals;
     auto& path = chart_draw().map_elements().add<map_elements::v2::Path>();
-    ::read_path_data(path.data(), getenv("points"sv), getenv("close"sv), *this);
+    read_path_data(path.data(), getenv("points"sv), getenv("close"sv));
     ::read_fill_outline(path, getenv("fill"sv), getenv("outline"sv), getenv("outline_width"sv));
 
     getenv("arrows"sv).visit([&path]<typename Val>(const Val& value) {
@@ -209,7 +149,7 @@ static inline int winding_number(const acmacs::PointCoordinates& point, const st
 void acmacs::mapi::v1::Settings::filter_inside_path(acmacs::chart::PointIndexList& indexes, const rjson::v3::value& points, size_t index_base) const
 {
     std::vector<map_elements::v2::Coordinates> path_vertices;
-    ::read_path_vertices(path_vertices, points, *this);
+    read_path_vertices(path_vertices, points);
     std::vector<acmacs::PointCoordinates> path;
     std::transform(std::begin(path_vertices), std::end(path_vertices), std::back_inserter(path), [this](const auto& vertex) { return vertex.get(chart_draw()); });
     // AD_DEBUG("filter_inside_path {}", path);
@@ -423,6 +363,61 @@ bool acmacs::mapi::v1::Settings::apply_error_lines()
 
 // ----------------------------------------------------------------------
 
+    // # {"v": [x, y]} -- viewport based, top left corner of viewport is 0,0
+    // # {"l": [x, y]} -- non transformed layout based
+    // # {"t": [x, y]} -- transformed layout based
+    // # {"a": {<antigen-select>}} -- if multiple antigens selected, middle point of them used
+    // # {"s": {<serum-select>}} -- if multiple antigens selected, middle point of them used
+
+std::optional<map_elements::v2::Coordinates> acmacs::mapi::v1::Settings::read_coordinates(const rjson::v3::value& source) const
+{
+    using namespace std::string_view_literals;
+
+    const auto read_values = [](const rjson::v3::value& array) -> acmacs::PointCoordinates {
+        return array.visit([]<typename Value>(const Value& value) -> acmacs::PointCoordinates {
+            if constexpr (std::is_same_v<Value, rjson::v3::detail::array>) {
+                switch (value.size()) {
+                    case 2:
+                        return acmacs::PointCoordinates{value[0].template to<double>(), value[1].template to<double>()};
+                    case 3:
+                        return acmacs::PointCoordinates{value[0].template to<double>(), value[1].template to<double>(), value[2].template to<double>()};
+                }
+            }
+            throw std::exception{};
+        });
+    };
+
+    const auto read = [read_values, this](const rjson::v3::detail::object& obj) -> map_elements::v2::Coordinates {
+        if (const auto& v_val = obj["v"sv]; !v_val.is_null())
+            return map_elements::v2::Coordinates::viewport{read_values(v_val)};
+        else if (const auto& l_val = obj["l"sv]; !l_val.is_null())
+            return map_elements::v2::Coordinates::not_transformed{read_values(l_val)};
+        else if (const auto& t_val = obj["t"sv]; !t_val.is_null())
+            return map_elements::v2::Coordinates::transformed{read_values(t_val)};
+        else if (const auto& a_val = obj["a"sv]; !a_val.is_null())
+            return map_elements::v2::Coordinates::points{select_antigens(a_val)};
+        else if (const auto& s_val = obj["s"sv]; !s_val.is_null()) {
+            return map_elements::v2::Coordinates::points{select_sera(s_val).serum_index_to_point(chart_draw().chart().number_of_antigens())};
+        }
+        else
+            throw std::exception{};
+    };
+
+    try {
+        return source.visit([read]<typename Value>(const Value& value) -> std::optional<map_elements::v2::Coordinates> {
+            if constexpr (std::is_same_v<Value, rjson::v3::detail::object>)
+                return read(value);
+            else if constexpr (std::is_same_v<Value, rjson::v3::detail::null>)
+                return std::nullopt;
+            else
+                throw std::exception{};
+        });
+    }
+    catch (std::exception&) {
+        throw acmacs::mapi::unrecognized{fmt::format("cannot read map/viewport coordinates from {}", source)};
+    }
+
+} // read_coordinates
 
 // ----------------------------------------------------------------------
 /// Local Variables:

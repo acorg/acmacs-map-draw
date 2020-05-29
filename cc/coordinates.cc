@@ -1,0 +1,54 @@
+#include "acmacs-map-draw/coordinates.hh"
+#include "acmacs-map-draw/draw.hh"
+
+// ----------------------------------------------------------------------
+
+acmacs::PointCoordinates map_elements::v2::Coordinates::viewport::get(const ChartDraw& chart_draw) const
+{
+    chart_draw.calculate_viewport();
+    return chart_draw.viewport("map_elements::v2::Coordinates::viewport::get").origin + *this;
+
+} // map_elements::v2::Coordinates::viewport::get
+
+// ----------------------------------------------------------------------
+
+acmacs::PointCoordinates map_elements::v2::Coordinates::not_transformed::get(const ChartDraw& /*chart_draw*/) const
+{
+    return *this;
+
+} // map_elements::v2::Coordinates::not_transformed::get
+
+// ----------------------------------------------------------------------
+
+acmacs::PointCoordinates map_elements::v2::Coordinates::transformed::get(const ChartDraw& chart_draw) const
+{
+    return chart_draw.transformation().transform(*this);
+
+} // map_elements::v2::Coordinates::transformed::get
+
+// ----------------------------------------------------------------------
+
+acmacs::PointCoordinates map_elements::v2::Coordinates::points::get(const ChartDraw& chart_draw) const
+{
+    auto layout = chart_draw.transformed_layout();
+    acmacs::PointCoordinates coord{layout->number_of_dimensions(), 0.0};
+    for (const auto point_index : get())
+        coord += layout->at(point_index);
+    coord /= static_cast<double>(size());
+    // AD_DEBUG("point {} : {}", get(), coord);
+    return coord;
+
+} // map_elements::v2::Coordinates::points::get
+
+// ----------------------------------------------------------------------
+
+acmacs::PointCoordinates map_elements::v2::Coordinates::get(const ChartDraw& chart_draw) const
+{
+    return std::visit([&chart_draw](const auto& coord) { return coord.get(chart_draw); }, coordinates);
+
+} // map_elements::v2::Coordinates::get
+
+// ----------------------------------------------------------------------
+/// Local Variables:
+/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
+/// End:
