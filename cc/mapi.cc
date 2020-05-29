@@ -57,6 +57,7 @@ struct MapiOptions : public acmacs::argv::v2::argv
 // ----------------------------------------------------------------------
 
 static std::pair<std::vector<std::string_view>, std::vector<std::string_view>> parse_files(const argument<str_array>& files);
+static void signal_handler(int sig_num);
 
 int main(int argc, char* const argv[])
 {
@@ -76,6 +77,9 @@ int main(int argc, char* const argv[])
         settings.load(opt.settings_files, opt.defines);
         for (size_t chart_no = 0; chart_no < chart_draw.number_of_charts(); ++chart_no)
             settings.setenv_toplevel(fmt::format("chart[{}]", chart_no), chart_draw.chart(chart_no).filename());
+
+        if (opt.interactive)
+            signal(SIGHUP, signal_handler);
 
         for (;;) {
             for (const auto& to_apply : opt.apply) {
@@ -115,7 +119,13 @@ int main(int argc, char* const argv[])
                 break;
 
             chart_draw.reset();
-            settings.reload();
+            try {
+                settings.reload();
+            }
+            catch (std::exception& err) {
+                AD_ERROR("{}", err);
+                acmacs::run_and_detach({"submarine"}, 0);
+            }
         }
     }
     catch (std::exception& err) {
@@ -148,6 +158,14 @@ std::pair<std::vector<std::string_view>, std::vector<std::string_view>> parse_fi
     return {inputs, outputs};
 
 } // parse_files
+
+// ----------------------------------------------------------------------
+
+void signal_handler(int sig_num)
+{
+    fmt::print("SIGNAL {}\n", sig_num);
+
+} // signal_handler
 
 // ----------------------------------------------------------------------
 
