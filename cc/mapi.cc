@@ -106,7 +106,10 @@ int main(int argc, char* const argv[])
                 acmacs::open_or_quicklook(opt.open, opt.ql, outputs[0]);
             }
             if (opt.interactive) {
-                // sleep
+                std::cout << "mapi-i >> " << std::flush;
+                std::string input;
+                std::getline(std::cin, input);
+                acmacs::run_and_detach({"tink"}, 0);
             }
             else
                 break;
