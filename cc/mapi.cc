@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <signal.h>
 
 #include "acmacs-base/argv.hh"
 #include "acmacs-base/temp-file.hh"
