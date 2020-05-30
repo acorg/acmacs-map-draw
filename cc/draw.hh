@@ -31,6 +31,8 @@ class ChartDraw : public ChartSelectInterface
     std::string draw_json(report_time aTimer = report_time::no) const;
     std::string draw_pdf(double aSize, report_time aTimer = report_time::no) const;
 
+    void reset();
+
     template <typename T> void modify_drawing_order(const T& aPoints, PointDrawingOrder aPointDrawingOrder)
     {
         switch (aPointDrawingOrder) {

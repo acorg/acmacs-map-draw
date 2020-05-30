@@ -14,6 +14,18 @@
 
 // ----------------------------------------------------------------------
 
+void ChartDraw::reset()
+{
+    ChartSelectInterface::reset();
+
+    viewport_ = MapViewport{};
+    mMapElements.reset();
+    mLabels.reset();
+
+} // ChartDraw::reset
+
+// ----------------------------------------------------------------------
+
 const acmacs::Viewport& ChartDraw::MapViewport::use(std::string_view by) const
 {
     if (recalculate_)

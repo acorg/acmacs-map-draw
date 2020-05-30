@@ -11,6 +11,15 @@ map_elements::Elements::Elements()
 
 // ----------------------------------------------------------------------
 
+void map_elements::Elements::reset()
+{
+    mElements.clear();
+    add_basic_elements_v1();
+
+} // map_elements::Elements::reset
+
+// ----------------------------------------------------------------------
+
 bool map_elements::Elements::exists(std::string keyword) const
 {
     return std::find_if(mElements.begin(), mElements.end(), [&keyword](const auto& element) { return element->keyword() == keyword; }) != mElements.end();

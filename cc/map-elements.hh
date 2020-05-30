@@ -31,6 +31,8 @@ namespace map_elements
         Elements();
         Element& operator[](std::string keyword);
 
+        void reset();
+
         void remove(std::string keyword);
         bool exists(std::string keyword) const;
 
