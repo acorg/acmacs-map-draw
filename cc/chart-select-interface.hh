@@ -9,6 +9,7 @@ class ChartAccess
 {
   public:
     ChartAccess(std::string_view filename, size_t projection_no) : filename_{filename}, projection_no_{projection_no} {}
+    ChartAccess(acmacs::chart::ChartP chart, size_t projection_no) : projection_no_{projection_no}, original_{chart} {}
     void reset();
 
     constexpr std::string_view filename() const { return filename_; }
@@ -71,6 +72,7 @@ class ChartSelectInterface
  public:
     ChartSelectInterface(std::string_view filename, size_t projection_no) : charts_{ChartAccess{filename, projection_no}} {}
     ChartSelectInterface(const std::vector<std::string_view>& filenames, size_t projection_no);
+    ChartSelectInterface(acmacs::chart::ChartP chart, size_t projection_no) : charts_{ChartAccess{chart, projection_no}} {}
 
     size_t number_of_charts() const { return charts_.size(); }
     ChartAccess& chart(size_t index);
