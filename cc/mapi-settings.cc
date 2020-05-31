@@ -178,40 +178,8 @@ constexpr static const char* sUpdateEnvPattern = R"({{
 void acmacs::mapi::v1::Settings::update_env()
 {
     const auto json{substitute_chart_metadata(sUpdateEnvPattern, chart_draw().chart(0))};
-    AD_DEBUG("update_env\n{}", json);
-    load_from_string(json);
-
-    // using namespace std::string_view_literals;
-
-    // const auto& chart{chart_draw().chart()};
-    // auto info{chart.info()};
-    // auto titers{chart.titers()};
-
-    // const std::string virus_type{info->virus_type()}, lineage{chart.lineage()};
-    // std::string virus_type_lineage;
-    // if (lineage.empty())
-    //     virus_type_lineage = virus_type;
-    // else
-    //     virus_type_lineage = fmt::format("{}/{}", virus_type, ::string::capitalize(lineage.substr(0, 3)));
-    // const auto assay{info->assay()};
-    // const auto json{fmt::format(sUpdateEnvPattern,
-    //                             fmt::arg("virus", info->virus()),
-    //                             fmt::arg("virus_type", virus_type),
-    //                             fmt::arg("virus_type_lineage", virus_type_lineage),
-    //                             fmt::arg("lineage", lineage),
-    //                             fmt::arg("subset", info->subset(chart::Info::Compute::Yes)),
-    //                             fmt::arg("assay", assay.hi_or_neut()),
-    //                             fmt::arg("assay_full", assay),
-    //                             fmt::arg("lab", info->lab()),
-    //                             fmt::arg("rbc", info->rbc_species()),
-    //                             fmt::arg("table_date", info->date(chart::Info::Compute::Yes)),
-    //                             fmt::arg("number_of_antigens", chart.number_of_antigens()),
-    //                             fmt::arg("number_of_sera", chart.number_of_sera()),
-    //                             fmt::arg("number_of_layers", titers->number_of_layers())
-    //                             )};
-
     // AD_DEBUG("update_env\n{}", json);
-    // load_from_string(json);
+    load_from_string(json);
 
 } // acmacs::mapi::v1::Settings::update_env
 
