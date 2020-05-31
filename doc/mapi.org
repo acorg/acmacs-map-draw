@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-31 11:01:43 eu>
+# Time-stamp: <2020-05-31 11:24:50 eu>
 
 * Common usage
 
@@ -376,7 +376,12 @@ http://geomalgorithms.com/a03-_inclusion.html
   }
 #+END_SRC
 
-* TODO relax
+* TODO Research
+
+#+BEGIN_SRC json
+{"N": "relax"}
+#+END_SRC
+
 
 * TODO compare sequences
 

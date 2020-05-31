@@ -56,6 +56,8 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
             return apply_export();
         else if (name == "pdf"sv)
             return apply_pdf();
+        else if (name == "relax"sv)
+            return apply_relax();
         // else if (name == "time-series"sv || name == "time_series"sv)
         //     return apply_time_series();
         // else if (name == ""sv)

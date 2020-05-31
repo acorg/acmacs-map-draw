@@ -48,6 +48,17 @@ bool acmacs::mapi::v1::Settings::apply_pdf()
 
 // ----------------------------------------------------------------------
 
+bool acmacs::mapi::v1::Settings::apply_relax()
+{
+    auto& projection = chart_draw().chart(0).modified_projection();
+    const auto status = projection.relax(acmacs::chart::optimization_options{});
+    AD_INFO("relaxed {:.3f} <-- {:.3f}", status.final_stress, status.initial_stress);
+    return true;
+
+} // acmacs::mapi::v1::Settings::apply_relax
+
+// ----------------------------------------------------------------------
+
 const ChartAccess& acmacs::mapi::v1::Settings::get_chart(const rjson::v3::value& source, size_t dflt)
 {
     return source.visit([dflt, this]<typename Val>(const Val& val) -> const ChartAccess& {
