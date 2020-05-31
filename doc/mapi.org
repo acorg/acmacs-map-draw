@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-31 09:02:59 eu>
+# Time-stamp: <2020-05-31 09:28:56 eu>
 
 * Common usage
 
@@ -235,42 +235,60 @@ See [[file:~/AD/share/doc/color.org][color.org]]
 * Map data
 
 #+BEGIN_SRC json
-{"N": "reset"},
-{"N": "rotate", "degrees": 30, "radians": 1, "?positive": "counter-clockwise"},
-{"N": "flip", "direction": "ew|ns"},
-{"N": "viewport", "rel": [-1, 1, -5], "?abs": [-5, -5, 10]},
-{"N": "background", "color": "white"},
-{"N": "border", "color": "black", "line_width": 1},
-{"N": "grid", "color": "grey80", "line_width": 1},
-{"N": "point-scale", "scale": 1, "outline_scale": 1},
+  {"N": "reset"},
+
+  {"N": "rotate", "degrees": 30, "radians": 1, "?positive": "counter-clockwise"},
+  {"N": "flip", "direction": "ew|ns"},
+  {"N": "viewport", "rel": [-1, 1, -5], "?abs": [-5, -5, 10]},
+  {"N": "background", "color": "white"},
+  {"N": "border", "color": "black", "line_width": 1},
+  {"N": "grid", "color": "grey80", "line_width": 1},
+  {"N": "point-scale", "scale": 1, "outline_scale": 1},
+
+  {"N": "export", "chart": <index, 0 by default>, "filename": "<substitute-chart-metadata> (original file overwritten by default)"}
 #+END_SRC
 
-~Title~
-#+BEGIN_SRC json
-  {"N": "title", "show": true, "offset": [10, 10], "lines": ["Line 1 {lab} {assay} {assay_short} {virus_type} {lineage} {rbc} {subset} {date} {name}", "Line 2", "Another line"],
-   "padding": 10, "background": "transparent", "border_color": "black", "border_width": 0.0, "text_color": "black", "text_size": 12, "interline": 2, "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif"
-  }
-#+END_SRC
+- ~Title~
+  #+BEGIN_SRC json
+    {"N": "title", "show": true, "offset": [10, 10], "lines": ["Line 1 {lab} {assay} {assay_short} {virus_type} {lineage} {rbc} {subset} {date} {name}", "Line 2", "Another line"],
+     "padding": 10, "background": "transparent", "border_color": "black", "border_width": 0.0, "text_color": "black", "text_size": 12, "interline": 2, "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif"
+    }
+  #+END_SRC
 
-~Legend~
-#+BEGIN_SRC json
-  {
-      "N": "legend",
-      "offset": [-10, 10],
-      "show": true,
-      "label_size": 14,
-      "point_size": 10,
-      "title": "<format>" -- ["<format>", ...]
-      "lines": [{"text": "163-del", "outline": "black", "fill": "red"}] -- additional lines added after the ones added by {"N": antigens, "legend": ...}
-  }
+- ~Legend~
+  #+BEGIN_SRC json
+    {
+        "N": "legend",
+        "offset": [-10, 10],
+        "show": true,
+        "label_size": 14,
+        "point_size": 10,
+        "title": "<format>" -- ["<format>", ...]
+        "lines": [{"text": "163-del", "outline": "black", "fill": "red"}] -- additional lines added after the ones added by {"N": antigens, "legend": ...}
+    }
 
-  {
-      "N": "legend",
-      "type": "continent-map",
-      "offset": [-10, 10],
-      "show": true
-  }
-#+END_SRC
+    {
+        "N": "legend",
+        "type": "continent-map",
+        "offset": [-10, 10],
+        "show": true
+    }
+  #+END_SRC
+
+- ~<substitute-chart-metadata>~
+  {virus}
+  {virus_type}
+  {virus_type_lineage}
+  {lineage}
+  {subset}
+  {assay}
+  {assay_full}
+  {lab}
+  {rbc}
+  {table_date}
+  {number_of_antigens}
+  {number_of_sera}
+  {number_of_layers}
 
 
 * Drawing
@@ -360,7 +378,6 @@ http://geomalgorithms.com/a03-_inclusion.html
 * TODO export
 
 #+BEGIN_SRC json
-{"N": "export", "chart": <index>, "filename": "<original file overwritten if not provided> {lab} etc. substitution"}
 
 {"N": "pdf", "filename": "", "open": false}
 

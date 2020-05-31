@@ -1,4 +1,5 @@
 #include "acmacs-chart-2/factory-import.hh"
+#include "acmacs-chart-2/factory-export.hh"
 #include "acmacs-map-draw/chart-select-interface.hh"
 
 // ----------------------------------------------------------------------
@@ -63,6 +64,22 @@ bool ChartAccess::modified_plot_spec_access() const
         return false;
 
 } // ChartAccess::modified_plot_spec_access
+
+// ----------------------------------------------------------------------
+
+void ChartAccess::export_chart(std::string_view filename) const
+{
+    using namespace std::string_view_literals;
+    const auto to_export = [this]() -> const acmacs::chart::Chart& {
+        if (modified_)
+            return *modified_;
+        else
+            return *original_;
+    };
+    AD_INFO("Exporting chart to {}", filename);
+    acmacs::chart::export_factory(to_export(), filename, "mapi"sv);
+
+} // ChartAccess::export_chart
 
 // ----------------------------------------------------------------------
 

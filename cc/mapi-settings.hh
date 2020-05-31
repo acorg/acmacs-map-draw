@@ -13,7 +13,7 @@ namespace acmacs::chart
     class PointIndexList;
     class Antigens;
     class Sera;
-    class Chart;
+    // class Chart;
 }
 
 class ChartDraw;
@@ -34,6 +34,8 @@ namespace map_elements::v2
 {
     struct PathData;
 }
+
+class ChartAccess;
 
 // ----------------------------------------------------------------------
 
@@ -70,6 +72,7 @@ namespace acmacs::mapi::inline v1
       private:
         ChartDraw& chart_draw_;
 
+        std::string substitute_chart_metadata(std::string_view pattern, const ChartAccess& chart_access) const;
         void update_env();
 
         // ----------------------------------------------------------------------
@@ -160,8 +163,9 @@ namespace acmacs::mapi::inline v1
         // mapi-settings-procrustes.cc
 
         bool apply_reset();
+        bool apply_export();
         bool apply_procrustes();
-        const acmacs::chart::Chart& get_chart(const rjson::v3::value& source);
+        const ChartAccess& get_chart(const rjson::v3::value& source, size_t dflt);
         bool apply_move();
 
         // bool apply_time_series();

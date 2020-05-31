@@ -16,23 +16,36 @@ bool acmacs::mapi::v1::Settings::apply_reset()
 
 // ----------------------------------------------------------------------
 
-const acmacs::chart::Chart& acmacs::mapi::v1::Settings::get_chart(const rjson::v3::value& source)
+bool acmacs::mapi::v1::Settings::apply_export()
 {
-    return source.visit([this]<typename Val>(const Val& val) -> const acmacs::chart::Chart& {
+    using namespace std::string_view_literals;
+    const auto& chart_access = get_chart(getenv("chart"sv), 0);
+    const auto filename_pattern = rjson::v3::read_string(getenv("filename"sv, toplevel_only::no, throw_if_partial_substitution::no), chart_access.filename());
+    const auto filename{substitute_chart_metadata(filename_pattern, chart_access)};
+    chart_access.export_chart(filename);
+    return true;
+
+} // acmacs::mapi::v1::Settings::apply_reset
+
+// ----------------------------------------------------------------------
+
+const ChartAccess& acmacs::mapi::v1::Settings::get_chart(const rjson::v3::value& source, size_t dflt)
+{
+    return source.visit([dflt, this]<typename Val>(const Val& val) -> const ChartAccess& {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::null>) {
-            if (chart_draw().number_of_charts() > 1)
-                return chart_draw().chart(1).chart();
+            if (chart_draw().number_of_charts() > dflt)
+                return chart_draw().chart(dflt);
             else
-                return chart_draw().chart(0).chart(); // internal procrustes
+                return chart_draw().chart(0); // internal procrustes
         }
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::number>) {
             if (const auto no{val.template to<size_t>()}; chart_draw().number_of_charts() > no)
-                return chart_draw().chart(no).chart();
+                return chart_draw().chart(no);
             else
                 throw error{fmt::format("cannot make procrustes, too few charts provided, required chart {} but just {} available", no, chart_draw().number_of_charts())};
         }
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
-            return chart_draw().chart(val.template to<std::string_view>()).chart();
+            return chart_draw().chart(val.template to<std::string_view>());
         }
         else
             throw error{fmt::format("unrecognized \"chart\" for procrustes: {} (expected integer or name)", val)};
@@ -48,7 +61,7 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     using namespace acmacs::chart;
 
     const auto scaling = rjson::v3::read_bool(getenv("scaling"sv), false) ? procrustes_scaling_t::yes : procrustes_scaling_t::no;
-    const auto& secondary_chart = get_chart(getenv("chart"sv));
+    const auto& secondary_chart = get_chart(getenv("chart"sv), 1).chart();
     const auto secondary_projection_no = rjson::v3::read_number(getenv("projection"sv), 0ul);
     if (secondary_projection_no >= secondary_chart.number_of_projections())
         throw error{fmt::format("invalid secondary chart projection number {} (chart has just {} projection(s))", secondary_projection_no, secondary_chart.number_of_projections())};

@@ -48,6 +48,8 @@ class ChartAccess
     const acmacs::seqdb::subset& match_seqdb() const;
     acmacs::seqdb::v3::Seqdb::aas_indexes_t aa_at_pos1_for_antigens(const std::vector<size_t>& aPositions1) const;
 
+    void export_chart(std::string_view filename) const;
+
   private:
     const std::string_view filename_;
     const size_t projection_no_;
