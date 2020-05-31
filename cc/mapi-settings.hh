@@ -159,6 +159,7 @@ namespace acmacs::mapi::inline v1
         // ----------------------------------------------------------------------
         // mapi-settings-procrustes.cc
 
+        bool apply_reset();
         bool apply_procrustes();
         const acmacs::chart::Chart& get_chart(const rjson::v3::value& source);
         bool apply_move();

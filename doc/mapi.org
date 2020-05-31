@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-30 09:39:28 eu>
+# Time-stamp: <2020-05-31 09:02:59 eu>
 
 * Common usage
 
@@ -190,9 +190,17 @@ To print environment use:
   }
 #+END_SRC
 
+~<Label>~
+#+BEGIN_SRC json
+  {"show": true,
+   "format": "{name-abbreviated} <run chart-name-format-help to list formats>",
+   "color": "black", "size": 12.0, "offset": [0, 1],
+   "weight": "bold", "slant": "italic", "font_family": "monospace"}
+#+END_SRC
 
-* Color and Color modifier (<color-modifier>)
+~<color-modifier>~
 
+color and color modifier 
 See [[file:~/AD/share/doc/color.org][color.org]]
 
 "fill": "red"
@@ -223,17 +231,28 @@ See [[file:~/AD/share/doc/color.org][color.org]]
   {"N": "antigens", "select": {"sequenced": true}, "outline": "black"},
 #+END_SRC
 
-* Label
+
+* Map data
 
 #+BEGIN_SRC json
-  {"show": true,
-   "format": "{name-abbreviated} <run chart-name-format-help to list formats>",
-   "color": "black", "size": 12.0, "offset": [0, 1],
-   "weight": "bold", "slant": "italic", "font_family": "monospace"}
+{"N": "reset"},
+{"N": "rotate", "degrees": 30, "radians": 1, "?positive": "counter-clockwise"},
+{"N": "flip", "direction": "ew|ns"},
+{"N": "viewport", "rel": [-1, 1, -5], "?abs": [-5, -5, 10]},
+{"N": "background", "color": "white"},
+{"N": "border", "color": "black", "line_width": 1},
+{"N": "grid", "color": "grey80", "line_width": 1},
+{"N": "point-scale", "scale": 1, "outline_scale": 1},
 #+END_SRC
 
-* Legend
+~Title~
+#+BEGIN_SRC json
+  {"N": "title", "show": true, "offset": [10, 10], "lines": ["Line 1 {lab} {assay} {assay_short} {virus_type} {lineage} {rbc} {subset} {date} {name}", "Line 2", "Another line"],
+   "padding": 10, "background": "transparent", "border_color": "black", "border_width": 0.0, "text_color": "black", "text_size": 12, "interline": 2, "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif"
+  }
+#+END_SRC
 
+~Legend~
 #+BEGIN_SRC json
   {
       "N": "legend",
@@ -250,14 +269,6 @@ See [[file:~/AD/share/doc/color.org][color.org]]
       "type": "continent-map",
       "offset": [-10, 10],
       "show": true
-  }
-#+END_SRC
-
-* Title
-
-#+BEGIN_SRC json
-  {"N": "title", "show": true, "offset": [10, 10], "lines": ["Line 1 {lab} {assay} {assay_short} {virus_type} {lineage} {rbc} {subset} {date} {name}", "Line 2", "Another line"],
-   "padding": 10, "background": "transparent", "border_color": "black", "border_width": 0.0, "text_color": "black", "text_size": 12, "interline": 2, "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif"
   }
 #+END_SRC
 
@@ -290,15 +301,6 @@ http://geomalgorithms.com/a03-_inclusion.html
 
 * Whole map manipulation
 
-#+BEGIN_SRC json
-{"N": "rotate", "degrees": 30, "radians": 1, "?positive": "counter-clockwise"},
-{"N": "flip", "direction": "ew|ns"},
-{"N": "viewport", "rel": [-1, 1, -5], "?abs": [-5, -5, 10]},
-{"N": "background", "color": "white"},
-{"N": "border", "color": "black", "line_width": 1},
-{"N": "grid", "color": "grey80", "line_width": 1},
-{"N": "point-scale", "scale": 1, "outline_scale": 1},
-#+END_SRC
 
 
 * Move
@@ -351,12 +353,14 @@ http://geomalgorithms.com/a03-_inclusion.html
 #+END_SRC
 
 
-* TODO reset, break
+* TODO break
+
+
 
 * TODO export
 
 #+BEGIN_SRC json
-{"N": "export", "chart": <index>, "filename": "<original file overwritten if not provided>"}
+{"N": "export", "chart": <index>, "filename": "<original file overwritten if not provided> {lab} etc. substitution"}
 
 {"N": "pdf", "filename": "", "open": false}
 

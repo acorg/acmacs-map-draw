@@ -7,6 +7,15 @@
 
 // ----------------------------------------------------------------------
 
+bool acmacs::mapi::v1::Settings::apply_reset()
+{
+    chart_draw().reset();
+    return true;
+
+} // acmacs::mapi::v1::Settings::apply_reset
+
+// ----------------------------------------------------------------------
+
 const acmacs::chart::Chart& acmacs::mapi::v1::Settings::get_chart(const rjson::v3::value& source)
 {
     return source.visit([this]<typename Val>(const Val& val) -> const acmacs::chart::Chart& {
