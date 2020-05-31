@@ -1,4 +1,6 @@
 #include "acmacs-base/rjson-v3-helper.hh"
+#include "acmacs-base/string-compare.hh"
+#include "acmacs-base/quicklook.hh"
 #include "acmacs-chart-2/procrustes.hh"
 #include "acmacs-chart-2/serum-line.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
@@ -26,6 +28,23 @@ bool acmacs::mapi::v1::Settings::apply_export()
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_reset
+
+// ----------------------------------------------------------------------
+
+bool acmacs::mapi::v1::Settings::apply_pdf()
+{
+    using namespace std::string_view_literals;
+    const auto& chart_access = chart_draw().chart(0); // can draw just the chart 0 // get_chart(getenv("chart"sv), 0);
+    const auto filename_pattern = rjson::v3::read_string(getenv("filename"sv, toplevel_only::no, throw_if_partial_substitution::no), chart_access.filename());
+    auto filename{substitute_chart_metadata(filename_pattern, chart_access)};
+    if (!acmacs::string::endswith_ignore_case(filename, ".pdf"sv))
+        filename = fmt::format("{}.pdf", filename);
+    chart_draw().calculate_viewport();
+    chart_draw().draw(filename, rjson::v3::read_number(getenv("width"sv), 800.0), report_time::no);
+    acmacs::open_or_quicklook(rjson::v3::read_bool(getenv("open"sv), false), false, filename);
+    return true;
+
+} // acmacs::mapi::v1::Settings::apply_pdf
 
 // ----------------------------------------------------------------------
 

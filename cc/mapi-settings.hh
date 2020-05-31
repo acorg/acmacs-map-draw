@@ -164,6 +164,7 @@ namespace acmacs::mapi::inline v1
 
         bool apply_reset();
         bool apply_export();
+        bool apply_pdf();
         bool apply_procrustes();
         const ChartAccess& get_chart(const rjson::v3::value& source, size_t dflt);
         bool apply_move();

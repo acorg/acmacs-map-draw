@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-31 10:11:04 eu>
+# Time-stamp: <2020-05-31 10:28:59 eu>
 
 * Common usage
 
@@ -246,6 +246,8 @@ See [[file:~/AD/share/doc/color.org][color.org]]
   {"N": "point-scale", "scale": 1, "outline_scale": 1},
 
   {"N": "export", "chart": <index, 0 by default>, "filename": "<substitute-chart-metadata> (original file overwritten by default)"}
+
+  {"N": "pdf", "filename": "<substitute-chart-metadata> (original filename and path with .pdf at the end by default)", "open": false, "width": 800}
 #+END_SRC
 
 - ~Title~
@@ -372,24 +374,13 @@ http://geomalgorithms.com/a03-_inclusion.html
   }
 #+END_SRC
 
-
-* TODO break
-
-
-
-* TODO export
-
-#+BEGIN_SRC json
-
-{"N": "pdf", "filename": "", "open": false}
-
-#+END_SRC
-
 * TODO relax
 
 * TODO compare sequences
 
 * TODO compare with previous
+
+* TODO break
 
 * TODO Time series
 
