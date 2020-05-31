@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-31 10:28:59 eu>
+# Time-stamp: <2020-05-31 11:01:43 eu>
 
 * Common usage
 
@@ -200,7 +200,7 @@ To print environment use:
 
 ~<color-modifier>~
 
-color and color modifier 
+color and color modifier
 See [[file:~/AD/share/doc/color.org][color.org]]
 
 "fill": "red"
@@ -252,7 +252,7 @@ See [[file:~/AD/share/doc/color.org][color.org]]
 
 - ~Title~
   #+BEGIN_SRC json
-    {"N": "title", "show": true, "offset": [10, 10], "lines": ["Line 1 {lab} {assay} {assay_short} {virus_type} {lineage} {rbc} {subset} {date} {name}", "Line 2", "Another line"],
+    {"N": "title", "show": true, "offset": [10, 10], "lines": ["Line 1 <substitute-chart-metadata> ", "Line 2", "Another line"],
      "padding": 10, "background": "transparent", "border_color": "black", "border_width": 0.0, "text_color": "black", "text_size": 12, "interline": 2, "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif"
     }
   #+END_SRC
@@ -287,13 +287,15 @@ See [[file:~/AD/share/doc/color.org][color.org]]
   {assay}                           -- hi, neut
   {assay_full}                      -- HI, FOCUS REDUCTION
   {lab}                             -- VIDRL, Crick
-  {lab_lower}                       -- vidrl 
+  {lab_lower}                       -- vidrl
   {rbc}
   {table_date}                      -- 20150101-20200203
+  {minimum_column_basis}            -- none, 1280
+  {stress:.4f}
   {number_of_antigens}
   {number_of_sera}
   {number_of_layers}
-
+  {name}                            -- VIDRL A(H3N2) HI guinea-pig 20150101-20200203 >=none 9654.398226
 
 * Drawing
 

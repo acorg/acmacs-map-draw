@@ -110,8 +110,6 @@ map_elements::v1::Title& acmacs::mapi::v1::Settings::title()
 
 bool acmacs::mapi::v1::Settings::apply_title()
 {
-    //      "lines": ["Line 1 {lab} {assay} {assay_short} {virus_type} {lineage} {date} {name}", "Line 2", "Another line"]}
-
     using namespace std::string_view_literals;
 
     auto& title_element = title();
@@ -129,25 +127,14 @@ bool acmacs::mapi::v1::Settings::apply_title()
     title_element.font_family(rjson::v3::read_string(getenv("font_family"sv), "sans serif"sv));
 
     getenv("lines"sv).visit([&title_element, this]<typename Val>(const Val& lines) {
-            if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-                auto info = chart_draw().chart().info();
-                    for (const auto& line : lines) {
-                        title_element.add_line(fmt::format(line.template to<std::string_view>(),
-                                                            fmt::arg("lab", info->lab(acmacs::chart::Info::Compute::Yes, acmacs::chart::Info::FixLab::reverse)),
-                                                            fmt::arg("assay", info->assay(acmacs::chart::Info::Compute::Yes)),
-                                                            fmt::arg("assay_short", info->assay(acmacs::chart::Info::Compute::Yes).hi_or_neut()),
-                                                            fmt::arg("virus_type", info->virus_type(acmacs::chart::Info::Compute::Yes)),
-                                                            fmt::arg("lineage", chart_draw().chart().lineage()),
-                                                            fmt::arg("rbc", info->rbc_species(acmacs::chart::Info::Compute::Yes)),
-                                                            fmt::arg("subset", info->subset(acmacs::chart::Info::Compute::Yes)),
-                                                            fmt::arg("date", info->date(acmacs::chart::Info::Compute::Yes)),
-                                                            fmt::arg("name", chart_draw().chart().make_name())
-                                                            ));
-                    }
-                }
-                else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
-                    throw error{fmt::format("unrecognized: {} (expected array of strings)", lines)};
-            });
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+            const auto& chart_access = chart_draw().chart(0);
+            for (const auto& line : lines)
+                title_element.add_line(substitute_chart_metadata(line.template to<std::string_view>(), chart_access));
+        }
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
+            throw error{fmt::format("unrecognized: {} (expected array of strings)", lines)};
+    });
 
     return true;
 

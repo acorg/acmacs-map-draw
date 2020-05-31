@@ -112,6 +112,7 @@ std::string acmacs::mapi::v1::Settings::substitute_chart_metadata(std::string_vi
     const auto& chart{chart_access.chart()};
     auto info{chart.info()};
     auto titers{chart.titers()};
+    const auto& projection = chart_access.modified_projection();
 
     const std::string virus_type{info->virus_type()}, lineage{chart.lineage()};
     const auto assay{info->assay()};
@@ -136,23 +137,32 @@ std::string acmacs::mapi::v1::Settings::substitute_chart_metadata(std::string_vi
     else
         virus_type_lineage_subset_short = ::string::lower(virus_type);
 
-    return fmt::format(pattern,
-                       fmt::arg("virus", info->virus()),
-                       fmt::arg("virus_type", virus_type),
-                       fmt::arg("virus_type_lineage", virus_type_lineage),
-                       fmt::arg("lineage", lineage),
-                       fmt::arg("subset", subset),
-                       fmt::arg("virus_type_lineage_subset_short", virus_type_lineage_subset_short),
-                       fmt::arg("assay", assay.hi_or_neut()),
-                       fmt::arg("assay_full", assay),
-                       fmt::arg("lab", info->lab()),
-                       fmt::arg("lab_lower", ::string::lower(info->lab())),
-                       fmt::arg("rbc", info->rbc_species()),
-                       fmt::arg("table_date", info->date(chart::Info::Compute::Yes)),
-                       fmt::arg("number_of_antigens", chart.number_of_antigens()),
-                       fmt::arg("number_of_sera", chart.number_of_sera()),
-                       fmt::arg("number_of_layers", titers->number_of_layers())
-                       );
+    try {
+        return fmt::format(pattern,
+                           fmt::arg("virus", info->virus()),
+                           fmt::arg("virus_type", virus_type),
+                           fmt::arg("virus_type_lineage", virus_type_lineage),
+                           fmt::arg("lineage", lineage),
+                           fmt::arg("subset", subset),
+                           fmt::arg("virus_type_lineage_subset_short", virus_type_lineage_subset_short),
+                           fmt::arg("assay", assay.hi_or_neut()),
+                           fmt::arg("assay_full", assay),
+                           fmt::arg("lab", info->lab()),
+                           fmt::arg("lab_lower", ::string::lower(info->lab())),
+                           fmt::arg("rbc", info->rbc_species()),
+                           fmt::arg("table_date", info->date(chart::Info::Compute::Yes)),
+                           fmt::arg("number_of_antigens", chart.number_of_antigens()),
+                           fmt::arg("number_of_sera", chart.number_of_sera()),
+                           fmt::arg("number_of_layers", titers->number_of_layers()),
+                           fmt::arg("minimum_column_basis", static_cast<std::string>(projection.minimum_column_basis())),
+                           fmt::arg("stress", projection.stress()),
+                           fmt::arg("name", chart.make_name())
+                           );
+    }
+    catch (std::exception& err) {
+        AD_ERROR("fmt cannot substitute in \"{}\": {}", pattern, err);
+        throw;
+    }
 
 } // acmacs::mapi::v1::Settings::substitute_chart_metadata
 
