@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-31 12:07:02 eu>
+# Time-stamp: <2020-05-31 16:33:39 eu>
 
 * Common usage
 
@@ -379,11 +379,12 @@ http://geomalgorithms.com/a03-_inclusion.html
 * Research
 
 #+BEGIN_SRC json
-{"N": "relax"}
+{"N": "relax"},
+
+# {"N": "compare-sequences", "groups": [{"select": <Select Antigens>, "name": "group-1"} ...], "html": "filename.html (filename.js is generated as well)", "json": "filename.json", "report": true, "open": true},
+
 #+END_SRC
 
-
-* TODO compare sequences
 
 * TODO compare with previous
 
