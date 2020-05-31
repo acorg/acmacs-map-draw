@@ -112,22 +112,39 @@ std::string acmacs::mapi::v1::Settings::substitute_chart_metadata(std::string_vi
     auto titers{chart.titers()};
 
     const std::string virus_type{info->virus_type()}, lineage{chart.lineage()};
+    const auto assay{info->assay()};
+    const auto subset{info->subset(chart::Info::Compute::Yes)};
+
     std::string virus_type_lineage;
     if (lineage.empty())
         virus_type_lineage = virus_type;
     else
         virus_type_lineage = fmt::format("{}/{}", virus_type, ::string::capitalize(lineage.substr(0, 3)));
-    const auto assay{info->assay()};
+    std::string virus_type_lineage_subset_short;
+    if (virus_type == "A(H1N1)"sv) {
+        if (subset == "2009pdm"sv)
+            virus_type_lineage_subset_short = "h1pdm";
+        else
+            virus_type_lineage_subset_short = "h1";
+    }
+    else if (virus_type == "A(H3N2)"sv)
+        virus_type_lineage_subset_short = "h3";
+    else if (virus_type == "B"sv)
+        virus_type_lineage_subset_short = fmt::format("b{}", ::string::lower(lineage.substr(0, 3)));
+    else
+        virus_type_lineage_subset_short = ::string::lower(virus_type);
 
     return fmt::format(pattern,
                        fmt::arg("virus", info->virus()),
                        fmt::arg("virus_type", virus_type),
                        fmt::arg("virus_type_lineage", virus_type_lineage),
                        fmt::arg("lineage", lineage),
-                       fmt::arg("subset", info->subset(chart::Info::Compute::Yes)),
+                       fmt::arg("subset", subset),
+                       fmt::arg("virus_type_lineage_subset_short", virus_type_lineage_subset_short),
                        fmt::arg("assay", assay.hi_or_neut()),
                        fmt::arg("assay_full", assay),
                        fmt::arg("lab", info->lab()),
+                       fmt::arg("lab_lower", ::string::lower(info->lab())),
                        fmt::arg("rbc", info->rbc_species()),
                        fmt::arg("table_date", info->date(chart::Info::Compute::Yes)),
                        fmt::arg("number_of_antigens", chart.number_of_antigens()),

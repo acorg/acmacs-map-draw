@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-31 09:28:56 eu>
+# Time-stamp: <2020-05-31 10:11:04 eu>
 
 * Common usage
 
@@ -277,15 +277,17 @@ See [[file:~/AD/share/doc/color.org][color.org]]
 
 - ~<substitute-chart-metadata>~
   {virus}
-  {virus_type}
-  {virus_type_lineage}
-  {lineage}
-  {subset}
-  {assay}
-  {assay_full}
-  {lab}
+  {virus_type}                      -- A(H3N2)
+  {virus_type_lineage}              -- B/Vic
+  {lineage}                         -- VICTORIA
+  {subset}                          -- 2009pdm
+  {virus_type_lineage_subset_short} -- h1pdm, bvic
+  {assay}                           -- hi, neut
+  {assay_full}                      -- HI, FOCUS REDUCTION
+  {lab}                             -- VIDRL, Crick
+  {lab_lower}                       -- vidrl 
   {rbc}
-  {table_date}
+  {table_date}                      -- 20150101-20200203
   {number_of_antigens}
   {number_of_sera}
   {number_of_layers}
