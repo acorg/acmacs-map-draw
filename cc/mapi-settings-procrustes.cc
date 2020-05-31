@@ -1,6 +1,7 @@
 #include "acmacs-base/rjson-v3-helper.hh"
 #include "acmacs-base/string-compare.hh"
 #include "acmacs-base/quicklook.hh"
+#include "acmacs-base/timeit.hh"
 #include "acmacs-chart-2/procrustes.hh"
 #include "acmacs-chart-2/serum-line.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
@@ -52,7 +53,7 @@ bool acmacs::mapi::v1::Settings::apply_relax()
 {
     auto& projection = chart_draw().chart(0).modified_projection();
     const auto status = projection.relax(acmacs::chart::optimization_options{});
-    AD_INFO("relaxed {:.3f} <-- {:.3f}", status.final_stress, status.initial_stress);
+    AD_INFO("relaxed {:.3f} <-- {:.3f} (elapsed: {})", status.final_stress, status.initial_stress, acmacs::format(status.time));
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_relax
