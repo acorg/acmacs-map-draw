@@ -1,4 +1,4 @@
-# Time-stamp: <2020-05-31 16:33:39 eu>
+# Time-stamp: <2020-06-02 18:36:44 eu>
 
 * Common usage
 
@@ -323,10 +323,6 @@ http://geomalgorithms.com/a03-_inclusion.html
 #+END_SRC
 
 
-* Whole map manipulation
-
-
-
 * Move
 
 #+BEGIN_SRC json
@@ -381,7 +377,7 @@ http://geomalgorithms.com/a03-_inclusion.html
 #+BEGIN_SRC json
 {"N": "relax"},
 
-# {"N": "compare-sequences", "groups": [{"select": <Select Antigens>, "name": "group-1"} ...], "html": "filename.html (filename.js is generated as well)", "json": "filename.json", "report": true, "open": true},
+{"N": "compare-sequences", "groups": [{"select": <Select Antigens>, "name": "group-1"} ...], "html": "filename.html (filename.data.js is generated as well)", "json": "filename.json", "report": true, "open": true},
 
 #+END_SRC
 

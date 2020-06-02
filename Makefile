@@ -40,6 +40,7 @@ ACMACS_MAP_DRAW_SOURCES =        \
   point-style-draw.cc            \
   chart-select-interface.cc      \
   mapi-settings-procrustes.cc    \
+  mapi-settings-sequences.cc     \
   map-elements-v1.cc             \
   map-elements-v2.cc             \
   hemisphering-data.cc           \

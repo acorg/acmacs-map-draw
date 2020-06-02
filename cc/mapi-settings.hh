@@ -170,6 +170,11 @@ namespace acmacs::mapi::inline v1
         const ChartAccess& get_chart(const rjson::v3::value& source, size_t dflt);
         bool apply_move();
 
+        // ----------------------------------------------------------------------
+        // mapi-settings-sequences.cc
+
+        bool apply_compare_sequences();
+
         // bool apply_time_series();
 
     }; // class Settings
