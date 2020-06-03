@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-03 18:08:04 eu>
+# Time-stamp: <2020-06-03 18:24:14 eu>
 
 * Common usage
 
@@ -411,11 +411,6 @@ http://geomalgorithms.com/a03-_inclusion.html
 {"N": "vaccine", "name": "HONG KONG/2671/2019",  "passage": "egg",         "vaccine_type": "current", "vaccine_year": "2020-02", "?clade": "2a1b"},
 #+END_SRC
 
-
-* TODO compare with previous
-
-* TODO break
-
 * TODO Time series
 
 Use {ts-name} in title
@@ -431,6 +426,7 @@ Use {ts-name} in title
 #+END_SRC
 
 
+* TODO compare with previous
 
 * TODO VCM SSM
 :PROPERTIES:
@@ -447,6 +443,9 @@ Use {ts-name} in title
 # {"N": "point_scale", "scale": 2.5, "outline_scale": 1},
 # {"N": "viewport", "rel": [6.5, 7.5, -11]},
 #+END_SRC
+
+
+* TODO break
 
 
 * Built-in ~/AD/share/conf/mapi.json

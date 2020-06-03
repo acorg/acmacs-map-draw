@@ -6,12 +6,11 @@
 
 // ----------------------------------------------------------------------
 
-    // {"N": "time-series",
-    //  "?start": "2019-01", "?end": "2019-11",
-    //  "interval": {"month": 1}, "?": "month, week, year, day (interval: month also supported)",
-    //  "output": "/path/name-{ts-name}.pdf",
-    //  "report": true
-    // },
+//  "?start": "2019-01", "?end": "2019-11",
+//  "interval": {"month": 1}, "?": "month, week, year, day (interval: month also supported)",
+//  "output": "/path/name-{ts-name}.pdf",
+// "shown-on-all": <Select Antigens>, -- reference antigens and sera are shown on all maps, select here other antigens to show on all the maps
+//  "report": true
 
 bool acmacs::mapi::v1::Settings::apply_time_series()
 {
@@ -39,6 +38,9 @@ bool acmacs::mapi::v1::Settings::apply_time_series()
         ts_params.first = date::from_string(start.to<std::string_view>(), date::allow_incomplete::yes, date::throw_on_error::yes);
     if (const auto& end = getenv("end"sv); !end.is_null())
         ts_params.after_last = date::from_string(end.to<std::string_view>(), date::allow_incomplete::yes, date::throw_on_error::yes);
+
+    // const auto ts_stat = acmacs::time_series::stat(ts_params, tal().tree().all_dates());
+    auto series = acmacs::time_series::make(ts_params);
 
     // rjson::v3::copy_if_not_null(getenv("report"sv), param.report);
 
