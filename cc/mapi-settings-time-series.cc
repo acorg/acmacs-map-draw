@@ -1,7 +1,17 @@
 #include "acmacs-base/time-series.hh"
+#include "acmacs-base/rjson-v3-helper.hh"
+#include "acmacs-base/string-compare.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
+#include "acmacs-map-draw/draw.hh"
 
 // ----------------------------------------------------------------------
+
+    // {"N": "time-series",
+    //  "?start": "2019-01", "?end": "2019-11",
+    //  "interval": {"month": 1}, "?": "month, week, year, day (interval: month also supported)",
+    //  "output": "/path/name-{ts-name}.pdf",
+    //  "report": true
+    // },
 
 bool acmacs::mapi::v1::Settings::apply_time_series()
 {
@@ -30,9 +40,18 @@ bool acmacs::mapi::v1::Settings::apply_time_series()
     if (const auto& end = getenv("end"sv); !end.is_null())
         ts_params.after_last = date::from_string(end.to<std::string_view>(), date::allow_incomplete::yes, date::throw_on_error::yes);
 
-
     // rjson::v3::copy_if_not_null(getenv("report"sv), param.report);
 
+    const auto& chart_access = chart_draw().chart(0); // can draw just the chart 0 // get_chart(getenv("chart"sv), 0);
+    if (const auto filename_pattern = rjson::v3::read_string(getenv("output"sv, toplevel_only::no, throw_if_partial_substitution::no)); filename_pattern.has_value()) {
+        auto filename{substitute_chart_metadata(*filename_pattern, chart_access)};
+        if (!acmacs::string::endswith_ignore_case(filename, ".pdf"sv))
+            filename = fmt::format("{}.pdf", filename);
+        chart_draw().calculate_viewport();
+        chart_draw().draw(filename, rjson::v3::read_number(getenv("width"sv), 800.0), report_time::no);
+    }
+    else
+        AD_WARNING("Cannot make time series: no \"output\" in {}", getenv_toplevel());
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_time_series
