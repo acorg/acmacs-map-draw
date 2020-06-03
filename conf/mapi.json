@@ -138,5 +138,12 @@
         {"N": "procrustes-arrows", "chart": 1, "projection": 0, "match": "auto", "report": true}
     ],
 
+    "/vaccines": [
+    "vaccines-{virus-type}{lineage}{subset}",
+        {"N": "antigens", "select": {"vaccine": {"type": "previous"},  "most-used": true, "report": true}, "fill": "blue", "outline": "black", "size": 30, "label": {"format": "{abbreviated_name} {passage}"}, "order": "raise"},
+        {"N": "antigens", "select": {"vaccine": {"type": "current"},   "most-used": true, "report": true}, "fill": "red",  "outline": "black", "size": 30, "label": {"format": "{abbreviated_name} {passage}"}, "order": "raise"},
+        {"N": "antigens", "select": {"vaccine": {"type": "surrogate"}, "most-used": true, "report": true}, "fill": "pink", "outline": "black", "size": 30, "label": {"format": "{abbreviated_name} {passage}"}, "order": "raise"}
+    ],
+
     "? end": "*********************** END ***************************"
 }
