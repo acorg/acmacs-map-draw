@@ -26,7 +26,7 @@ bool acmacs::mapi::v1::Settings::apply_vaccine()
             }
             if (!indexes.empty()) {
                 if (const auto vaccine_type = rjson::v3::read_string(getenv("vaccine_type"sv)); vaccine_type.has_value()) {
-                    AD_DEBUG("vaccine \"{}\": {}", *name, indexes);
+                    // AD_DEBUG("vaccine \"{}\": {}", *name, indexes);
                     chart_draw().vaccines().emplace_back(*vaccine_type, indexes);
                 }
                 else

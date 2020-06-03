@@ -123,7 +123,7 @@ namespace acmacs::map_draw::select::filter
         }
         std::sort(std::begin(index_num_tables), std::end(index_num_tables), [](const auto& e1, const auto& e2) { return e1.second > e2.second; }); // most used first
         acmacs::Indexes to_remove;
-        std::transform(std::begin(index_num_tables), std::next(std::begin(index_num_tables), static_cast<ssize_t>(std::min(number_of_most_used, index_num_tables.size()))), std::back_inserter(to_remove), [](const auto& en) { return en.first; });
+        std::transform(std::next(std::begin(index_num_tables), static_cast<ssize_t>(std::min(number_of_most_used, index_num_tables.size()))), std::end(index_num_tables), std::back_inserter(to_remove), [](const auto& en) { return en.first; });
         indexes.remove(ReverseSortedIndexes{to_remove});
     }
 
