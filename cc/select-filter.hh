@@ -112,6 +112,21 @@ namespace acmacs::map_draw::select::filter
 
     void serum_id_in(const acmacs::chart::Sera& sera, acmacs::chart::Indexes& indexes, std::string_view serum_id);
 
+    template <typename AgSrPerIndex> void most_used(const AgSrPerIndex& ag_sr_per_index, acmacs::chart::Indexes& indexes, size_t number_of_most_used)
+    {
+        std::vector<std::pair<size_t, size_t>> index_num_tables;
+        for (size_t index_no{0}; index_no < indexes.size(); ++index_no) {
+            if (ag_sr_per_index[index_no])
+                index_num_tables.emplace_back(indexes[index_no], ag_sr_per_index[index_no]->number_of_tables());
+            else
+                index_num_tables.emplace_back(indexes[index_no], 0);
+        }
+        std::sort(std::begin(index_num_tables), std::end(index_num_tables), [](const auto& e1, const auto& e2) { return e1.second > e2.second; }); // most used first
+        acmacs::Indexes to_remove;
+        std::transform(std::begin(index_num_tables), std::next(std::begin(index_num_tables), static_cast<ssize_t>(std::min(number_of_most_used, index_num_tables.size()))), std::back_inserter(to_remove), [](const auto& en) { return en.first; });
+        indexes.remove(ReverseSortedIndexes{to_remove});
+    }
+
 } // namespace acmacs::map_draw::select::filter
 
 // ----------------------------------------------------------------------

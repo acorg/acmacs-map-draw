@@ -555,7 +555,7 @@ template <typename AgSr> static inline void check_inside(const acmacs::mapi::v1:
     else
         throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"{}\" clause: {}", key, value)};
 
-} // check_location
+} // check_inside
 
 // ----------------------------------------------------------------------
 
@@ -585,6 +585,32 @@ static inline void check_vaccine(const ChartSelectInterface& aChartSelectInterfa
         indexes.clear();
 
 } // check_vaccine
+
+// ----------------------------------------------------------------------
+
+template <typename AgSr>
+static inline void check_most_used(const AgSr& ag_sr, const ChartSelectInterface& aChartSelectInterface, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+{
+    using namespace std::string_view_literals;
+
+    const auto number_of_most_used = value.visit([key, &value]<typename Val>(const Val& val) -> size_t {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::boolean>)
+            return val.template to<bool>() ? 1 : 0;
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::number>)
+            return val.template to<size_t>();
+        else
+            throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"{}\" clause: {}", key, value)};
+    });
+
+    if (number_of_most_used > 0) { // otherwise ignored (e.g. "most-used": false)
+        const auto& hidb = hidb::get(aChartSelectInterface.chart().info()->virus_type());
+        if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>)
+            acmacs::map_draw::select::filter::most_used(hidb.antigens()->find(ag_sr, indexes), indexes, number_of_most_used);
+        else
+            acmacs::map_draw::select::filter::most_used(hidb.sera()->find(ag_sr, indexes), indexes, number_of_most_used);
+    }
+
+} // check_most_used
 
 // ----------------------------------------------------------------------
 
@@ -648,6 +674,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                         check_location(ag_sr, indexes, key, value);
                     else if (key == "inside"sv)
                         check_inside<AgSr>(*this, indexes, key, value);
+                    else if (key == "most-used"sv || key == "most_used"sv)
+                        check_most_used(ag_sr, chart_draw(), indexes, key, value);
                     else if (key == "vaccine"sv) {
                         if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>)
                             check_vaccine(chart_draw(), indexes, key, value);

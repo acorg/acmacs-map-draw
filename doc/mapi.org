@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-03 15:16:21 eu>
+# Time-stamp: <2020-06-03 15:19:48 eu>
 
 * Common usage
 
@@ -103,7 +103,8 @@ To print environment use:
 
   {"vaccine": {"type": "previous"}} -- type: "previous", "current", "surrogate", "any"
 
-  # TODO {"most-used": true} -- single antigen/serum which is the most used according to hidb
+  {"most-used": true} -- single antigen/serum which is the most used according to hidb
+  {"most-used": 2} -- two antigen/serum which is the most used according to hidb
 
   {"inside": {"points": : [<point-position>, ...]}} -- see point-position in Drawing below, path is closed
   # {"in-circle": <Circle in Drawing>}
