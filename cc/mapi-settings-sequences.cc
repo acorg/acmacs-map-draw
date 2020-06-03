@@ -4,6 +4,7 @@
 #include "acmacs-base/string.hh"
 #include "acmacs-base/rjson-v3-helper.hh"
 #include "acmacs-base/color-amino-acid.hh"
+#include "acmacs-base/acmacsd.hh"
 #include "acmacs-base/quicklook.hh"
 #include "seqdb-3/compare.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
@@ -70,15 +71,6 @@ bool acmacs::mapi::v1::Settings::apply_compare_sequences()
 
 // ----------------------------------------------------------------------
 
-constexpr static std::string_view sHtmlBody{R"(<h2>Compare sequences</h2>
-<div id="compare-sequences" class="compare-sequences">
-    <div class="most-frequent-per-group"></div>
-    <div class="frequency-per-group"></div>
-    <div class="positions-with-diversity"></div>
-    <div class="full-sequences"></div>
-</div>
-)"};
-
 void acmacs::mapi::v1::Settings::compare_sequences_generate_html(std::string_view filename, std::string_view data)
 {
     using namespace std::string_view_literals;
@@ -95,11 +87,12 @@ void acmacs::mapi::v1::Settings::compare_sequences_generate_html(std::string_vie
     if (const auto pos = std::string_view{data_filename}.find_last_of('/'); pos != std::string_view::npos)
         data_filename_name.erase(0, pos + 1);
 
+    const auto templates_dir{fmt::format("{}/share/templates/mapi", acmacs::acmacsd_root())};
     acmacs::html::Generator html;
     html.title("Compare sequences"sv);
     html.add_css(acmacs::amino_acid_nucleotide_color_css());
     html.add_script_link(data_filename_name);
-    html.add_to_body(sHtmlBody);
+    html.add_to_body(static_cast<std::string>(acmacs::file::read(fmt::format("{}/compare-sequences.body.html", templates_dir))));
     acmacs::file::write(html_filename, html.generate());
 
     if (rjson::v3::read_bool(getenv("open"sv), false))
