@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-03 17:10:45 eu>
+# Time-stamp: <2020-06-03 17:12:08 eu>
 
 * Common usage
 
@@ -388,6 +388,11 @@ http://geomalgorithms.com/a03-_inclusion.html
 
 * Vaccines
 
+** Simple behavior (defined by mapi.json)
+#+BEGIN_SRC json
+"/vaccines",
+#+END_SRC
+
 ** Show detected vaccines
 
 #+BEGIN_SRC json
@@ -400,12 +405,6 @@ http://geomalgorithms.com/a03-_inclusion.html
 {"N": "antigens", "select": {"vaccine": {"type": "surrogate"}, "passage": "cell",        "most-used-for-name": true, "report": true}, "fill": "pink", "outline": "black", "size": 30, "label": {"format": "{abbreviated_name} {passage}"}, "order": "raise"},
 {"N": "antigens", "select": {"vaccine": {"type": "surrogate"}, "passage": "reassortant", "most-used-for-name": true, "report": true}, "fill": "pink", "outline": "black", "size": 30, "label": {"format": "{abbreviated_name} {passage}"}, "order": "raise"},
 #+END_SRC
-
-** Simple behavior (defined by mapi.json)
-#+BEGIN_SRC json
-"/vaccines",
-#+END_SRC
-
 
 ** Obtain vaccine data from ${ACMACSD_ROOT}/share/conf/vaccines.json
 #+BEGIN_SRC json
