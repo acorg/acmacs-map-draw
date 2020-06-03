@@ -19,6 +19,8 @@ struct group_t
     group_t(std::string_view a_name, acmacs::chart::PointIndexList&& a_antigens) : name{a_name}, antigens{std::move(a_antigens)} {}
 };
 
+// ----------------------------------------------------------------------
+
 bool acmacs::mapi::v1::Settings::apply_compare_sequences()
 {
     using namespace std::string_view_literals;
@@ -67,7 +69,8 @@ bool acmacs::mapi::v1::Settings::apply_compare_sequences()
         fmt::print("{}\n", subsets_to_compare.format_summary());
 
     return true;
-}
+
+} // acmacs::mapi::v1::Settings::apply_compare_sequences
 
 // ----------------------------------------------------------------------
 /// Local Variables:

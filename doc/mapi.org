@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-02 18:36:44 eu>
+# Time-stamp: <2020-06-03 11:17:53 eu>
 
 * Common usage
 
@@ -21,6 +21,7 @@ mapi -i -s draw.json chart.ace output.pdf -- interactive
 {lineage}                     "VICTORIA"
 {virus-type/lineage}          "B/Vic"
 {subset}                      "2009pdm"
+{SUBSET}                      "2009PDM"
 {lab}                         "VIDRL" "Crick"
 {table-date}                  "20150101-20200203"
 {assay}                       "hi" "neut"
@@ -100,8 +101,7 @@ To print environment use:
   {"lineage": "VIC"}
   {"lineage": "V"}
 
-  # "vaccine"
-  # {"vaccine": {"type": "previous", "no": 0, "passage": "egg", "name": "SWITZERLAND"}}
+  {"vaccine": {"type": "previous", "no": 0, "passage": "egg"}}
 
   {"inside": {"points": : [<point-position>, ...]}} -- see point-position in Drawing below, path is closed
   # {"in-circle": <Circle in Drawing>}
@@ -379,6 +379,23 @@ http://geomalgorithms.com/a03-_inclusion.html
 
 {"N": "compare-sequences", "groups": [{"select": <Select Antigens>, "name": "group-1"} ...], "html": "filename.html (filename.data.js is generated as well)", "json": "filename.json", "report": true, "open": true},
 
+#+END_SRC
+
+* Vaccines
+
+** Show detected vaccines
+
+#+BEGIN_SRC json
+"vaccines-{virus-type}{lineage}{subset}", -- find vaccines in the chart
+{"N": "antigens", "select": {"vaccine": {"type": "previous"}}, "fill": "blue", "size": 20, "label": {"format": "{name-abbreviated}"}},
+{"N": "antigens", "select": {"vaccine": {"type": "current"}}, "fill": "red", "size": 20, "label": {"format": "{name-abbreviated}"}},
+#+END_SRC
+
+
+
+** Obtain vaccine data from ${ACMACSD_ROOT}/share/conf/vaccines.json
+#+BEGIN_SRC json
+{"N": "vaccine", "name": "HONG KONG/2671/2019",  "passage": "egg",         "vaccine_type": "current", "vaccine_year": "2020-02", "?clade": "2a1b"},
 #+END_SRC
 
 

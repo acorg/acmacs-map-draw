@@ -41,6 +41,7 @@ ACMACS_MAP_DRAW_SOURCES =        \
   chart-select-interface.cc      \
   mapi-settings-procrustes.cc    \
   mapi-settings-sequences.cc     \
+  mapi-settings-vaccine.cc       \
   map-elements-v1.cc             \
   map-elements-v2.cc             \
   hemisphering-data.cc           \
@@ -82,8 +83,9 @@ install: install-headers install-acmacs-map-draw-lib $(TARGETS)
 	$(call symbolic_link_wildcard,$(abspath doc)/*.org,$(AD_DOC))
 	$(call make_dir,$(AD_SHARE)/js/map-draw)
 	$(call symbolic_link_wildcard,$(abspath js)/ace-view,$(AD_SHARE)/js/map-draw)
-	$(call make_dir,$(AD_TEMPLATES)/mapi)
-	$(call symbolic_link_wildcard,$(abspath templates)/*,$(AD_TEMPLATES)/mapi)
+
+# $(call make_dir,$(AD_TEMPLATES)/mapi)
+# $(call symbolic_link_wildcard,$(abspath templates)/*,$(AD_TEMPLATES)/mapi)
 
 install-acmacs-map-draw-lib: $(ACMACS_MAP_DRAW_LIB)
 	$(call install_lib,$(ACMACS_MAP_DRAW_LIB))

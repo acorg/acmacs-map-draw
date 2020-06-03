@@ -175,6 +175,11 @@ namespace acmacs::mapi::inline v1
 
         bool apply_compare_sequences();
 
+        // ----------------------------------------------------------------------
+        // mapi-settings-vaccine.cc
+
+        bool apply_vaccine();
+
         // bool apply_time_series();
 
     }; // class Settings

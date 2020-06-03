@@ -199,7 +199,7 @@ static inline void check_lab(const acmacs::chart::Chart& chart, acmacs::chart::P
             report_error();
     });
 
-} // check_name
+} // check_lab
 
 // ----------------------------------------------------------------------
 
@@ -221,7 +221,7 @@ static inline void check_lineage(const acmacs::chart::Chart& chart, acmacs::char
     if (chart.info()->virus_type(acmacs::chart::Info::Compute::Yes).h_or_b() != "B"sv || !lineage_is(chart.lineage()))
         indexes.clear();
 
-} // check_name
+} // check_lineage
 
 // ----------------------------------------------------------------------
 
@@ -538,7 +538,7 @@ static inline void check_color(const ChartSelectInterface& aChartSelectInterface
     else
         throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"{}\" clause: {}", key, value)};
 
-} // check_name
+} // check_color
 
 // ----------------------------------------------------------------------
 

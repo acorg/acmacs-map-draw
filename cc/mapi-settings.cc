@@ -16,6 +16,8 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
             return apply_antigens();
         else if (name == "sera"sv)
             return apply_sera();
+        else if (name == "vaccine"sv)
+            return apply_vaccine();
         else if (name == "circle"sv)
             return apply_circle();
         else if (name == "path"sv)
@@ -148,6 +150,7 @@ std::string acmacs::mapi::v1::Settings::substitute_chart_metadata(std::string_vi
                            fmt::arg("virus_type_lineage", virus_type_lineage),
                            fmt::arg("lineage", lineage),
                            fmt::arg("subset", subset),
+                           fmt::arg("SUBSET", ::string::upper(subset)),
                            fmt::arg("virus_type_lineage_subset_short", virus_type_lineage_subset_short),
                            fmt::arg("assay", assay.hi_or_neut()),
                            fmt::arg("assay_full", assay),
@@ -180,6 +183,7 @@ constexpr static const char* sUpdateEnvPattern = R"({{
 "virus-type/lineage": "{virus_type_lineage}",
 "lineage": "{lineage}",
 "subset": "{subset}",
+"SUBSET": "{SUBSET}",
 "assay": "{assay}",
 "assay-full": "{assay_full}",
 "lab": "{lab}",
