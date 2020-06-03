@@ -255,6 +255,115 @@ std::map<std::string_view, size_t> acmacs::map_draw::select::clades(const ChartS
 } // acmacs::map_draw::select::clades
 
 // ----------------------------------------------------------------------
+
+template <typename AgSr> void acmacs::map_draw::select::filter::name_in(const AgSr& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aName)
+{
+    // Timeit ti("filter_name_in " + aName + ": ", do_report_time(mVerbose));
+    acmacs::chart::Indexes result(indexes->size());
+    acmacs::chart::Indexes by_name;
+    if (!aName.empty() && aName[0] == '~')
+        by_name = aAgSr.find_by_name(std::regex{std::next(std::begin(aName), 1), std::end(aName), acmacs::regex::icase});
+    else
+        by_name = aAgSr.find_by_name(::string::upper(aName));
+    // std::cerr << "DEBUG: SelectAntigensSera::filter_name_in \"" << aName << "\": " << by_name << '\n';
+    const auto end = std::set_intersection(indexes.begin(), indexes.end(), by_name.begin(), by_name.end(), result.begin());
+    indexes.get().erase(std::copy(result.begin(), end, indexes.begin()), indexes.end());
+
+} // acmacs::map_draw::select::filter::name_in<>
+
+template void acmacs::map_draw::select::filter::name_in(const acmacs::chart::Antigens& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aName);
+template void acmacs::map_draw::select::filter::name_in(const acmacs::chart::Sera& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aName);
+
+// ----------------------------------------------------------------------
+
+template <typename AgSr> void acmacs::map_draw::select::filter::table_ag_sr(const AgSr& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aTable, std::shared_ptr<hidb::Tables> aHidbTables)
+{
+    auto not_in_table = [aTable, &aAgSr, hidb_tables = *aHidbTables](size_t index) {
+        if (auto ag_sr = aAgSr[index]; ag_sr) { // found in hidb
+            for (auto table_no : ag_sr->tables()) {
+                auto table = hidb_tables[table_no];
+                // AD_DEBUG("{} {} [{}] \"{}\" {}", index, table_no, table->date(), table->name(), table->name() == aTable);
+                if (table->date() == aTable || table->name() == aTable)
+                    return false;
+            }
+        }
+        return true;
+    };
+    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_table), indexes.end());
+
+} // acmacs::map_draw::select::filter::table_ag_sr
+
+template void acmacs::map_draw::select::filter::table_ag_sr(const std::vector<std::shared_ptr<hidb::Antigen>>& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aTable, std::shared_ptr<hidb::Tables> aHidbTables);
+template void acmacs::map_draw::select::filter::table_ag_sr(const std::vector<std::shared_ptr<hidb::Serum>>& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aTable, std::shared_ptr<hidb::Tables> aHidbTables);
+
+// ----------------------------------------------------------------------
+
+template <typename AgSrPerIndex> void acmacs::map_draw::select::filter::most_used(const AgSrPerIndex& ag_sr_per_index, acmacs::chart::Indexes& indexes, size_t number_of_most_used)
+{
+    std::vector<std::pair<size_t, size_t>> index_num_tables;
+    for (size_t index_no{0}; index_no < indexes.size(); ++index_no) {
+        if (ag_sr_per_index[index_no])
+            index_num_tables.emplace_back(indexes[index_no], ag_sr_per_index[index_no]->number_of_tables());
+        else
+            index_num_tables.emplace_back(indexes[index_no], 0);
+    }
+    std::sort(std::begin(index_num_tables), std::end(index_num_tables), [](const auto& e1, const auto& e2) { return e1.second > e2.second; }); // most used first
+    acmacs::Indexes to_remove;
+    std::transform(std::next(std::begin(index_num_tables), static_cast<ssize_t>(std::min(number_of_most_used, index_num_tables.size()))), std::end(index_num_tables), std::back_inserter(to_remove),
+                   [](const auto& en) { return en.first; });
+    indexes.remove(ReverseSortedIndexes{to_remove});
+
+} // acmacs::map_draw::select::filter::most_used<>
+
+template void acmacs::map_draw::select::filter::most_used(const std::vector<std::shared_ptr<hidb::Antigen>>& ag_sr_per_index, acmacs::chart::Indexes& indexes, size_t number_of_most_used);
+template void acmacs::map_draw::select::filter::most_used(const std::vector<std::shared_ptr<hidb::Serum>>& ag_sr_per_index, acmacs::chart::Indexes& indexes, size_t number_of_most_used);
+
+// ----------------------------------------------------------------------
+
+template <typename AgSrPerIndex> void acmacs::map_draw::select::filter::most_used_for_name(const AgSrPerIndex& ag_sr_per_index, acmacs::chart::Indexes& indexes, size_t number_of_most_used)
+{
+    struct data_t
+    {
+        size_t index;
+        acmacs::virus::name_t name{""};
+        size_t num_tables{0};
+    };
+
+    std::vector<data_t> data;
+    for (size_t index_no{0}; index_no < indexes.size(); ++index_no) {
+        if (ag_sr_per_index[index_no])
+            data.push_back(data_t{indexes[index_no], ag_sr_per_index[index_no]->name(), ag_sr_per_index[index_no]->number_of_tables()});
+        else
+            data.push_back(data_t{indexes[index_no]});
+    }
+
+    std::sort(std::begin(data), std::end(data), [](const auto& e1, const auto& e2) {
+        if (e1.name == e2.name)
+            return e1.num_tables > e2.num_tables; // most used first
+        else
+            return e1.name < e2.name; // (names order is not improtant)
+    });
+
+    acmacs::Indexes to_remove;
+    const acmacs::virus::name_t* prev_name{nullptr};
+    size_t num_found{0};
+    for (const auto& en : data) {
+        if (!prev_name || *prev_name != en.name) {
+            prev_name = &en.name;
+            num_found = 0;
+        }
+        if (num_found >= number_of_most_used)
+            to_remove.push_back(en.index);
+        ++num_found;
+    }
+    indexes.remove(ReverseSortedIndexes{to_remove});
+
+} // acmacs::map_draw::select::filter::most_used_for_name<>
+
+template void acmacs::map_draw::select::filter::most_used_for_name(const std::vector<std::shared_ptr<hidb::Antigen>>& ag_sr_per_index, acmacs::chart::Indexes& indexes, size_t number_of_most_used);
+template void acmacs::map_draw::select::filter::most_used_for_name(const std::vector<std::shared_ptr<hidb::Serum>>& ag_sr_per_index, acmacs::chart::Indexes& indexes, size_t number_of_most_used);
+
+// ----------------------------------------------------------------------
 /// Local Variables:
 /// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
 /// End:

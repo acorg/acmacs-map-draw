@@ -588,12 +588,9 @@ static inline void check_vaccine(const ChartSelectInterface& aChartSelectInterfa
 
 // ----------------------------------------------------------------------
 
-template <typename AgSr>
-static inline void check_most_used(const AgSr& ag_sr, const ChartSelectInterface& aChartSelectInterface, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+inline size_t number_of_most_used(std::string_view key, const rjson::v3::value& value)
 {
-    using namespace std::string_view_literals;
-
-    const auto number_of_most_used = value.visit([key, &value]<typename Val>(const Val& val) -> size_t {
+    return value.visit([key, &value]<typename Val>(const Val& val) -> size_t {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::boolean>)
             return val.template to<bool>() ? 1 : 0;
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::number>)
@@ -601,16 +598,35 @@ static inline void check_most_used(const AgSr& ag_sr, const ChartSelectInterface
         else
             throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"{}\" clause: {}", key, value)};
     });
+}
 
-    if (number_of_most_used > 0) { // otherwise ignored (e.g. "most-used": false)
+template <typename AgSr>
+static inline void check_most_used(const AgSr& ag_sr, const ChartSelectInterface& aChartSelectInterface, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+{
+    if (const auto most_used = number_of_most_used(key, value); most_used > 0) { // otherwise ignored (e.g. "most-used": false)
         const auto& hidb = hidb::get(aChartSelectInterface.chart().info()->virus_type());
         if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>)
-            acmacs::map_draw::select::filter::most_used(hidb.antigens()->find(ag_sr, indexes), indexes, number_of_most_used);
+            acmacs::map_draw::select::filter::most_used(hidb.antigens()->find(ag_sr, indexes), indexes, most_used);
         else
-            acmacs::map_draw::select::filter::most_used(hidb.sera()->find(ag_sr, indexes), indexes, number_of_most_used);
+            acmacs::map_draw::select::filter::most_used(hidb.sera()->find(ag_sr, indexes), indexes, most_used);
     }
 
 } // check_most_used
+
+// ----------------------------------------------------------------------
+
+template <typename AgSr>
+static inline void check_most_used_for_name(const AgSr& ag_sr, const ChartSelectInterface& aChartSelectInterface, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+{
+    if (const auto most_used = number_of_most_used(key, value); most_used > 0) { // otherwise ignored (e.g. "most-used": false)
+        const auto& hidb = hidb::get(aChartSelectInterface.chart().info()->virus_type());
+        if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>)
+            acmacs::map_draw::select::filter::most_used_for_name(hidb.antigens()->find(ag_sr, indexes), indexes, most_used);
+        else
+            acmacs::map_draw::select::filter::most_used_for_name(hidb.sera()->find(ag_sr, indexes), indexes, most_used);
+    }
+
+} // check_most_used_for_name
 
 // ----------------------------------------------------------------------
 
@@ -676,6 +692,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                         check_inside<AgSr>(*this, indexes, key, value);
                     else if (key == "most-used"sv || key == "most_used"sv)
                         check_most_used(ag_sr, chart_draw(), indexes, key, value);
+                    else if (key == "most-used-for-name"sv || key == "most_used_for_name"sv)
+                        check_most_used_for_name(ag_sr, chart_draw(), indexes, key, value);
                     else if (key == "vaccine"sv) {
                         if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>)
                             check_vaccine(chart_draw(), indexes, key, value);
