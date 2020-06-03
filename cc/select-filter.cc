@@ -329,12 +329,13 @@ template <typename AgSrPerIndex> void acmacs::map_draw::select::filter::most_use
         size_t num_tables{0};
     };
 
+    acmacs::Indexes to_remove;
     std::vector<data_t> data;
     for (size_t index_no{0}; index_no < indexes.size(); ++index_no) {
         if (ag_sr_per_index[index_no])
             data.push_back(data_t{indexes[index_no], ag_sr_per_index[index_no]->name(), ag_sr_per_index[index_no]->number_of_tables()});
-        else
-            data.push_back(data_t{indexes[index_no]});
+        else                    // ignore if not found in hidb and remove it from the indexes
+            to_remove.push_back(indexes[index_no]);
     }
 
     std::sort(std::begin(data), std::end(data), [](const auto& e1, const auto& e2) {
@@ -344,10 +345,10 @@ template <typename AgSrPerIndex> void acmacs::map_draw::select::filter::most_use
             return e1.name < e2.name; // (names order is not improtant)
     });
 
-    acmacs::Indexes to_remove;
     const acmacs::virus::name_t* prev_name{nullptr};
     size_t num_found{0};
     for (const auto& en : data) {
+        // AD_DEBUG("most_used_for_name {} {} {}", en.index, en.name, en.num_tables);
         if (!prev_name || *prev_name != en.name) {
             prev_name = &en.name;
             num_found = 0;
