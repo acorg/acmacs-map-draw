@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-03 11:17:53 eu>
+# Time-stamp: <2020-06-03 11:33:29 eu>
 
 * Common usage
 
@@ -102,6 +102,7 @@ To print environment use:
   {"lineage": "V"}
 
   {"vaccine": {"type": "previous", "no": 0, "passage": "egg"}}
+  # TODO {"most-used": true} -- single antigen/serum which is the most used according to hidb
 
   {"inside": {"points": : [<point-position>, ...]}} -- see point-position in Drawing below, path is closed
   # {"in-circle": <Circle in Drawing>}
@@ -115,7 +116,7 @@ To print environment use:
   {"layer": 0} -- >=0: from the beginning, <0: from end
   {"layer": [0, -1]} -- disjunction
 
-  # {"relative-to-serum-line": {"distance-min": 0, "distance-max": 10000, "direction": 1}, "?direction": [1, -1, 0]}
+  # TODO {"relative-to-serum-line": {"distance-min": 0, "distance-max": 10000, "direction": 1}, "?direction": [1, -1, 0]}
 
   {"titrated-against-sera": <select sera>}
   {"titrated-against": <select sera>} -- same as above
@@ -387,8 +388,8 @@ http://geomalgorithms.com/a03-_inclusion.html
 
 #+BEGIN_SRC json
 "vaccines-{virus-type}{lineage}{subset}", -- find vaccines in the chart
-{"N": "antigens", "select": {"vaccine": {"type": "previous"}}, "fill": "blue", "size": 20, "label": {"format": "{name-abbreviated}"}},
-{"N": "antigens", "select": {"vaccine": {"type": "current"}}, "fill": "red", "size": 20, "label": {"format": "{name-abbreviated}"}},
+{"N": "antigens", "select": {"vaccine": {"type": "previous"}, "?most-used": true}, "fill": "blue", "size": 20, "label": {"format": "{name-abbreviated}"}},
+{"N": "antigens", "select": {"vaccine": {"type": "current"}, "?most-used": true}, "fill": "red", "size": 20, "label": {"format": "{name-abbreviated}"}},
 #+END_SRC
 
 
