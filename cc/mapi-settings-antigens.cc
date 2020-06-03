@@ -565,6 +565,25 @@ static inline void check_vaccine(const ChartSelectInterface& aChartSelectInterfa
 
     const enum VaccineData::type type{VaccineData::type_from(rjson::v3::read_string(value["type"sv], "any"sv))};
 
+    const auto orig{indexes};
+    bool first{true};
+    for (const auto& en : aChartSelectInterface.vaccines()) {
+        if (type == VaccineData::type::any || en.type == VaccineData::type::any || type == en.type) {
+            const auto not_in = [&en](size_t index) { return !en.indexes.contains(index); };
+            if (first) {
+                indexes.remove_if(not_in);
+                first = false;
+            }
+            else {
+                auto ind{orig};
+                ind.remove_if(not_in);
+                indexes.extend(ind);
+            }
+        }
+    }
+    if (first)                  // nothing matched
+        indexes.clear();
+
 } // check_vaccine
 
 // ----------------------------------------------------------------------

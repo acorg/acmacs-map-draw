@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-03 11:38:16 eu>
+# Time-stamp: <2020-06-03 12:07:10 eu>
 
 * Common usage
 
@@ -388,9 +388,9 @@ http://geomalgorithms.com/a03-_inclusion.html
 
 #+BEGIN_SRC json
 "vaccines-{virus-type}{lineage}{subset}", -- find vaccines in the chart
-{"N": "antigens", "select": {"vaccine": {"type": "previous"}, "?most-used": true}, "fill": "blue", "size": 20, "label": {"format": "{name-abbreviated}"}},
-{"N": "antigens", "select": {"vaccine": {"type": "current"}, "?most-used": true}, "fill": "red", "size": 20, "label": {"format": "{name-abbreviated}"}},
-{"N": "antigens", "select": {"vaccine": {"type": "surrogate"}}, "fill": "pink", "size": 20, "label": {"format": "{name-abbreviated}"}},
+{"N": "antigens", "select": {"vaccine": {"type": "previous"},  "report": true}, "fill": "blue", "outline": "black", "size": 30, "?label": {"format": "{name-abbreviated}"}, "order": "raise"},
+{"N": "antigens", "select": {"vaccine": {"type": "current"},   "report": true}, "fill": "red",  "outline": "black", "size": 30, "?label": {"format": "{name-abbreviated}"}, "order": "raise"},
+{"N": "antigens", "select": {"vaccine": {"type": "surrogate"}, "report": true}, "fill": "pink", "outline": "black", "size": 30, "?label": {"format": "{name-abbreviated}"}, "order": "raise"},
 #+END_SRC
 
 
