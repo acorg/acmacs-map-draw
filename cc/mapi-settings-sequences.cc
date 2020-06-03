@@ -1,4 +1,9 @@
 #include "acmacs-base/html.hh"
+#include "acmacs-base/read-file.hh"
+#include "acmacs-base/string-compare.hh"
+#include "acmacs-base/string.hh"
+#include "acmacs-base/rjson-v3-helper.hh"
+#include "acmacs-base/quicklook.hh"
 #include "seqdb-3/compare.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/draw.hh"
@@ -44,11 +49,38 @@ bool acmacs::mapi::v1::Settings::apply_compare_sequences()
         }
     }
     subsets_to_compare.make_counters();
-    fmt::print("{}\n", subsets_to_compare.format_json(2));
+    const auto json_output = subsets_to_compare.format_json(2);
 
-    acmacs::html::Generator html;
-    html.title("Compare sequences"sv);
-    fmt::print("{}\n", html.generate());
+    if (std::string json_filename{rjson::v3::read_string(getenv("json"sv), ""sv)}; !json_filename.empty()) {
+        if (json_filename != "-"sv && !acmacs::string::endswith(json_filename, ".json"sv))
+            json_filename.append(".json"sv);
+        acmacs::file::write(json_filename, json_output);
+    }
+
+    if (std::string html_filename{rjson::v3::read_string(getenv("html"sv), ""sv)}; !html_filename.empty()) {
+        if (!acmacs::string::endswith(html_filename, ".html"sv))
+            html_filename.append(".html"sv);
+        const auto prefix{html_filename.substr(0, html_filename.size() - 5)};
+        const auto data_filename{fmt::format("{}.data.js", prefix)};
+        const auto data_var_name{fmt::format("compare_sequences_{}", ::string::replace(prefix, "/"sv, "_"sv, "-"sv, "_"sv))};
+        acmacs::file::write(data_filename, fmt::format("const {} =\n{}", data_var_name, json_output));
+
+        std::string data_filename_name{data_filename};
+        if (const auto pos = std::string_view{data_filename}.find_last_of('/'); pos != std::string_view::npos)
+            data_filename_name.erase(0, pos + 1);
+
+        acmacs::html::Generator html;
+        html.title("Compare sequences"sv);
+        html.add_script_link(data_filename_name);
+        acmacs::file::write(html_filename, html.generate());
+
+        if (rjson::v3::read_bool(getenv("open"sv), false))
+            acmacs::open(html_filename);
+    }
+
+    if (rjson::v3::read_bool(getenv("report"sv), false)) {
+    }
+
 
     return true;
 }
