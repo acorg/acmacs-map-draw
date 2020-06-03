@@ -3,6 +3,7 @@
 #include "acmacs-base/string-compare.hh"
 #include "acmacs-base/string.hh"
 #include "acmacs-base/rjson-v3-helper.hh"
+#include "acmacs-base/color-amino-acid.hh"
 #include "acmacs-base/quicklook.hh"
 #include "seqdb-3/compare.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
@@ -57,26 +58,8 @@ bool acmacs::mapi::v1::Settings::apply_compare_sequences()
         acmacs::file::write(json_filename, json_output);
     }
 
-    if (std::string html_filename{rjson::v3::read_string(getenv("html"sv), ""sv)}; !html_filename.empty()) {
-        if (!acmacs::string::endswith(html_filename, ".html"sv))
-            html_filename.append(".html"sv);
-        const auto prefix{html_filename.substr(0, html_filename.size() - 5)};
-        const auto data_filename{fmt::format("{}.data.js", prefix)};
-        const auto data_var_name{fmt::format("compare_sequences_{}", ::string::replace(prefix, "/"sv, "_"sv, "-"sv, "_"sv))};
-        acmacs::file::write(data_filename, fmt::format("const {} =\n{}", data_var_name, json_output));
-
-        std::string data_filename_name{data_filename};
-        if (const auto pos = std::string_view{data_filename}.find_last_of('/'); pos != std::string_view::npos)
-            data_filename_name.erase(0, pos + 1);
-
-        acmacs::html::Generator html;
-        html.title("Compare sequences"sv);
-        html.add_script_link(data_filename_name);
-        acmacs::file::write(html_filename, html.generate());
-
-        if (rjson::v3::read_bool(getenv("open"sv), false))
-            acmacs::open(html_filename);
-    }
+    if (const auto html_filename{rjson::v3::read_string(getenv("html"sv), ""sv)}; !html_filename.empty())
+        compare_sequences_generate_html(html_filename, json_output);
 
     if (rjson::v3::read_bool(getenv("report"sv), false)) {
     }
@@ -84,6 +67,45 @@ bool acmacs::mapi::v1::Settings::apply_compare_sequences()
 
     return true;
 }
+
+// ----------------------------------------------------------------------
+
+constexpr static std::string_view sHtmlBody{R"(<h2>Compare sequences</h2>
+<div id="compare-sequences" class="compare-sequences">
+    <div class="most-frequent-per-group"></div>
+    <div class="frequency-per-group"></div>
+    <div class="positions-with-diversity"></div>
+    <div class="full-sequences"></div>
+</div>
+)"};
+
+void acmacs::mapi::v1::Settings::compare_sequences_generate_html(std::string_view filename, std::string_view data)
+{
+    using namespace std::string_view_literals;
+
+    std::string html_filename{filename};
+    if (!acmacs::string::endswith(html_filename, ".html"sv))
+        html_filename.append(".html"sv);
+    const auto prefix{html_filename.substr(0, html_filename.size() - 5)};
+    const auto data_filename{fmt::format("{}.data.js", prefix)};
+    const auto data_var_name{fmt::format("compare_sequences_{}", ::string::replace(prefix, "/"sv, "_"sv, "-"sv, "_"sv))};
+    acmacs::file::write(data_filename, fmt::format("const {} =\n{}", data_var_name, data));
+
+    std::string data_filename_name{data_filename};
+    if (const auto pos = std::string_view{data_filename}.find_last_of('/'); pos != std::string_view::npos)
+        data_filename_name.erase(0, pos + 1);
+
+    acmacs::html::Generator html;
+    html.title("Compare sequences"sv);
+    html.add_css(acmacs::amino_acid_nucleotide_color_css());
+    html.add_script_link(data_filename_name);
+    html.add_to_body(sHtmlBody);
+    acmacs::file::write(html_filename, html.generate());
+
+    if (rjson::v3::read_bool(getenv("open"sv), false))
+        acmacs::open(html_filename);
+
+} // acmacs::mapi::v1::Settings::compare_sequences_generate_html
 
 // ----------------------------------------------------------------------
 /// Local Variables:

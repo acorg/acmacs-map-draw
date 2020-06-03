@@ -174,6 +174,7 @@ namespace acmacs::mapi::inline v1
         // mapi-settings-sequences.cc
 
         bool apply_compare_sequences();
+        void compare_sequences_generate_html(std::string_view filename, std::string_view data);
 
         // bool apply_time_series();
 
