@@ -110,6 +110,26 @@ acmacs::seqdb::v3::Seqdb::aas_indexes_t ChartAccess::aa_at_pos1_for_antigens(con
 
 // ======================================================================
 
+enum VaccineData::type VaccineData::type_from(std::string_view source)
+{
+    using namespace std::string_view_literals;
+
+    if (source == "previous"sv)
+        return VaccineData::type::previous;
+    else if (source == "current"sv)
+        return VaccineData::type::current;
+    else if (source == "surrogate"sv)
+        return VaccineData::type::surrogate;
+    else if (source == "any"sv)
+        return VaccineData::type::any;
+    else
+        AD_WARNING("Unrecognized vaccine type: \"{}\" (any assumed)", source);
+    return VaccineData::type::any;
+
+} // VaccineData::type_from
+
+// ----------------------------------------------------------------------
+
 ChartSelectInterface::ChartSelectInterface(const std::vector<std::string_view>& filenames, size_t projection_no)
 {
     for (const auto& filename : filenames)

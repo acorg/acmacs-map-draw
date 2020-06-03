@@ -559,6 +559,16 @@ template <typename AgSr> static inline void check_inside(const acmacs::mapi::v1:
 
 // ----------------------------------------------------------------------
 
+static inline void check_vaccine(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::PointIndexList& indexes, std::string_view /*key*/, const rjson::v3::value& value)
+{
+    using namespace std::string_view_literals;
+
+    const enum VaccineData::type type{VaccineData::type_from(rjson::v3::read_string(value["type"sv], "any"sv))};
+
+} // check_vaccine
+
+// ----------------------------------------------------------------------
+
 template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select(const AgSr& ag_sr, const rjson::v3::value& select_clause, if_null ifnull) const
 {
     using namespace std::string_view_literals;
@@ -619,6 +629,12 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                         check_location(ag_sr, indexes, key, value);
                     else if (key == "inside"sv)
                         check_inside<AgSr>(*this, indexes, key, value);
+                    else if (key == "vaccine"sv) {
+                        if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>)
+                            check_vaccine(chart_draw(), indexes, key, value);
+                        else
+                            AD_WARNING("\"select\" key: \"{}\" not applicable for sera", key);
+                    }
                     else if (!key.empty() && key[0] != '?')
                         AD_WARNING("unrecognized \"select\" key: \"{}\"", key);
                 }

@@ -26,17 +26,8 @@ bool acmacs::mapi::v1::Settings::apply_vaccine()
             }
             if (!indexes.empty()) {
                 if (const auto vaccine_type = rjson::v3::read_string(getenv("vaccine_type"sv)); vaccine_type.has_value()) {
-                    enum VaccineData::type type{VaccineData::type::surrogate};
-                    if (*vaccine_type == "previous"sv)
-                        type = VaccineData::type::previous;
-                    else if (*vaccine_type == "current"sv)
-                        type = VaccineData::type::current;
-                    else if (*vaccine_type == "surrogate"sv)
-                        type = VaccineData::type::surrogate;
-                    else
-                        AD_WARNING("Unrecognized \"N\": \"vaccine\" \"vaccine_type\": \"{}\" (surrogate assumed)", *vaccine_type);
                     AD_DEBUG("vaccine \"{}\": {}", *name, indexes);
-                    chart_draw().vaccines().push_back(VaccineData{type, indexes});
+                    chart_draw().vaccines().emplace_back(*vaccine_type, indexes);
                 }
                 else
                     AD_WARNING("\"N\": \"vaccine\" provides no \"vaccine_type\" (ignored): {}", getenv_toplevel());

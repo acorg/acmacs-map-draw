@@ -71,10 +71,13 @@ class ChartAccess
 
 struct VaccineData
 {
-    enum class type { previous, current, surrogate };
+    enum class type { any, previous, current, surrogate };
 
     enum type type;
     acmacs::chart::Indexes indexes;
+
+    static enum type type_from(std::string_view source);
+    VaccineData(std::string_view a_type, const acmacs::chart::Indexes& a_indexes) : type{type_from(a_type)}, indexes{a_indexes} {}
 
 }; // struct VaccineData
 

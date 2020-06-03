@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-03 11:33:29 eu>
+# Time-stamp: <2020-06-03 11:38:16 eu>
 
 * Common usage
 
@@ -390,6 +390,7 @@ http://geomalgorithms.com/a03-_inclusion.html
 "vaccines-{virus-type}{lineage}{subset}", -- find vaccines in the chart
 {"N": "antigens", "select": {"vaccine": {"type": "previous"}, "?most-used": true}, "fill": "blue", "size": 20, "label": {"format": "{name-abbreviated}"}},
 {"N": "antigens", "select": {"vaccine": {"type": "current"}, "?most-used": true}, "fill": "red", "size": 20, "label": {"format": "{name-abbreviated}"}},
+{"N": "antigens", "select": {"vaccine": {"type": "surrogate"}}, "fill": "pink", "size": 20, "label": {"format": "{name-abbreviated}"}},
 #+END_SRC
 
 
