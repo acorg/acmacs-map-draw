@@ -63,9 +63,8 @@ bool acmacs::mapi::v1::Settings::apply_compare_sequences()
             acmacs::open(html_filename);
     }
 
-    if (rjson::v3::read_bool(getenv("report"sv), false)) {
-    }
-
+    if (rjson::v3::read_bool(getenv("report"sv), false))
+        fmt::print("{}\n", subsets_to_compare.format_summary());
 
     return true;
 }
