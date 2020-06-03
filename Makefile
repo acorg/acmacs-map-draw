@@ -42,6 +42,7 @@ ACMACS_MAP_DRAW_SOURCES =        \
   mapi-settings-procrustes.cc    \
   mapi-settings-sequences.cc     \
   mapi-settings-vaccine.cc       \
+  mapi-settings-time-series.cc   \
   map-elements-v1.cc             \
   map-elements-v2.cc             \
   hemisphering-data.cc           \

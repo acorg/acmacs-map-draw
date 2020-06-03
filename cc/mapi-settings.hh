@@ -180,7 +180,10 @@ namespace acmacs::mapi::inline v1
 
         bool apply_vaccine();
 
-        // bool apply_time_series();
+        // ----------------------------------------------------------------------
+        // mapi-settings-time-series.cc
+
+        bool apply_time_series();
 
     }; // class Settings
 

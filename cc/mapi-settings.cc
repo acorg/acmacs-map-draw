@@ -62,8 +62,8 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
             return apply_relax();
         else if (name == "compare-sequences"sv || name == "compare_sequences"sv)
             return apply_compare_sequences();
-        // else if (name == "time-series"sv || name == "time_series"sv)
-        //     return apply_time_series();
+        else if (name == "time-series"sv || name == "time_series"sv)
+            return apply_time_series();
         // else if (name == ""sv)
         //     return apply_();
         return acmacs::settings::Settings::apply_built_in(name);

@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-03 17:12:08 eu>
+# Time-stamp: <2020-06-03 17:44:29 eu>
 
 * Common usage
 
@@ -257,7 +257,7 @@ See [[file:~/AD/share/doc/color.org][color.org]]
 
 - ~Title~
   #+BEGIN_SRC json
-    {"N": "title", "show": true, "offset": [10, 10], "lines": ["Line 1 <substitute-chart-metadata> ", "Line 2", "Another line"],
+    {"N": "title", "show": true, "offset": [10, 10], "lines": ["Line 1 <substitute-chart-metadata> <substitute time series name>", "Line 2", "Another line"],
      "padding": 10, "background": "transparent", "border_color": "black", "border_width": 0.0, "text_color": "black", "text_size": 12, "interline": 2, "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif"
     }
   #+END_SRC
@@ -418,10 +418,18 @@ http://geomalgorithms.com/a03-_inclusion.html
 
 * TODO Time series
 
-#+BEGIN_SRC json
+Use {ts-name} in title
 
+#+BEGIN_SRC json
+{"N": "time-series",
+ "?start": "2019-01", "?end": "2019-11", -- start is inclusive, end is exclusive
+ "interval": {"month": 1}, -- month, week, year, day ("interval": "month" also supported)
+ "output": "/path/name-{ts-name}.pdf", -- output pattern (mandatory)
+ "report": true
+}
 #+END_SRC
 
+Reference antigens and everything modified after (e.g. "/vaccines") are shown on all maps.
 
 * TODO VCM SSM
 :PROPERTIES:
