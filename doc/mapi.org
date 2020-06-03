@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-03 17:44:29 eu>
+# Time-stamp: <2020-06-03 18:08:04 eu>
 
 * Common usage
 
@@ -425,11 +425,12 @@ Use {ts-name} in title
  "?start": "2019-01", "?end": "2019-11", -- start is inclusive, end is exclusive
  "interval": {"month": 1}, -- month, week, year, day ("interval": "month" also supported)
  "output": "/path/name-{ts-name}.pdf", -- output pattern (mandatory)
+ "shown-on-all": <Select Antigens>, -- reference antigens and sera are shown on all maps, select here other antigens to show on all the maps
  "report": true
 }
 #+END_SRC
 
-Reference antigens and everything modified after (e.g. "/vaccines") are shown on all maps.
+
 
 * TODO VCM SSM
 :PROPERTIES:
