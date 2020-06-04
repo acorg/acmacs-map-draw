@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-03 18:24:14 eu>
+# Time-stamp: <2020-06-04 11:03:33 eu>
 
 * Common usage
 
@@ -419,8 +419,10 @@ Use {ts-name} in title
 {"N": "time-series",
  "?start": "2019-01", "?end": "2019-11", -- start is inclusive, end is exclusive
  "interval": {"month": 1}, -- month, week, year, day ("interval": "month" also supported)
- "output": "/path/name-{ts-name}.pdf", -- output pattern (mandatory)
+ "output": "/path/name-{ts_numeric}.pdf", -- output pattern (mandatory), {ts_numeric} (-> 2017-06) and {ts_text} (-> June 2017) can be used in addition to <substitute-chart-metadata>
+ "title": "{ts_text}", -- replaces {"N": "title", "lines" ...}, can be either string or array of strings
  "shown-on-all": <Select Antigens>, -- reference antigens and sera are shown on all maps, select here other antigens to show on all the maps
+ "width": 800, -- pdf size in points
  "report": true
 }
 #+END_SRC

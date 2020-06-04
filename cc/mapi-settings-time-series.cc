@@ -9,6 +9,7 @@
 //  "?start": "2019-01", "?end": "2019-11",
 //  "interval": {"month": 1}, "?": "month, week, year, day (interval: month also supported)",
 //  "output": "/path/name-{ts-name}.pdf",
+//     "title": "{ts_text}",
 // "shown-on-all": <Select Antigens>, -- reference antigens and sera are shown on all maps, select here other antigens to show on all the maps
 //  "report": true
 
@@ -56,13 +57,23 @@ bool acmacs::mapi::v1::Settings::apply_time_series()
     if (rjson::v3::read_bool(getenv("report"sv), false))
         AD_INFO("time series report:\n{}", ts_stat.report("    {value}  {counter:6d}\n"));
 
-
     if (const auto filename_pattern = rjson::v3::read_string(getenv("output"sv, toplevel_only::no, throw_if_partial_substitution::no)); filename_pattern.has_value()) {
-        auto filename{substitute_chart_metadata(*filename_pattern, chart_access)};
-        if (!acmacs::string::endswith_ignore_case(filename, ".pdf"sv))
-            filename = fmt::format("{}.pdf", filename);
-        chart_draw().calculate_viewport();
-        chart_draw().draw(filename, rjson::v3::read_number(getenv("width"sv), 800.0), report_time::no);
+        try {
+            fmt::dynamic_format_arg_store<fmt::format_context> fmt_args;
+            chart_metadata(fmt_args, chart_access);
+            fmt_args.push_back(fmt::arg("ts_text", acmacs::time_series::text_name(series[0])));
+            fmt_args.push_back(fmt::arg("ts_numeric", acmacs::time_series::numeric_name(series[0])));
+            auto filename{fmt::vformat(*filename_pattern, fmt_args)};
+            if (!acmacs::string::endswith_ignore_case(filename, ".pdf"sv))
+                filename = fmt::format("{}.pdf", filename);
+            chart_draw().calculate_viewport();
+            chart_draw().draw(filename, rjson::v3::read_number(getenv("width"sv), 800.0), report_time::no);
+            AD_INFO("time series {}: {}", acmacs::time_series::numeric_name(series[0]), filename);
+        }
+        catch (fmt::format_error& err) {
+            AD_ERROR("fmt cannot substitute in \"{}\": {}", *filename_pattern, err);
+            throw;
+        }
     }
     else
         AD_WARNING("Cannot make time series: no \"output\" in {}", getenv_toplevel());
