@@ -2,6 +2,7 @@
 #include "acmacs-base/string-compare.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/draw.hh"
+#include "acmacs-map-draw/select-filter.hh"
 
 // ----------------------------------------------------------------------
 
@@ -17,22 +18,24 @@ bool acmacs::mapi::v1::Settings::apply_time_series()
     using namespace std::string_view_literals;
     const auto ts{time_series_settings()};
     if (!ts.filename_pattern.empty()) {
-        for (const auto& ts_slot : ts.series) {
+        auto antigens{chart_draw().chart().antigens()};
+        auto indexes = antigens->test_indexes();
+        acmacs::map_draw::select::filter::shown_in(chart_draw(), indexes);
 
-            std::string filename;
-            try {
-                fmt::dynamic_format_arg_store<fmt::format_context> fmt_args;
-                chart_metadata(fmt_args, chart_draw().chart(0));
-                fmt_args.push_back(fmt::arg("ts_text", acmacs::time_series::text_name(ts_slot)));
-                fmt_args.push_back(fmt::arg("ts_numeric", acmacs::time_series::numeric_name(ts_slot)));
-                filename = fmt::vformat(ts.filename_pattern, fmt_args);
-            }
-            catch (std::exception& err) {
-                AD_ERROR("fmt cannot substitute in \"{}\": {}", ts.filename_pattern, err);
-                throw;
-            }
-            make_pdf(filename, rjson::v3::read_number(getenv("width"sv), 800.0), false);
-            AD_INFO("time series {}: {}", acmacs::time_series::numeric_name(ts_slot), filename);
+        for (const auto& ts_slot : ts.series) {
+            auto to_hide{indexes};
+            // TODO remove shown on all
+            antigens->filter_date_not_in_range(indexes, date::display(ts_slot.first), date::display(ts_slot.after_last));
+
+            acmacs::PointStyleModified style;
+            style.shown(false);
+            chart_draw().modify(to_hide, style);
+
+            // TODO: title
+            time_series_generate(ts.filename_pattern, ts_slot);
+
+            style.shown(true);
+            chart_draw().modify(to_hide, style);
         }
     }
     return true;
@@ -41,7 +44,7 @@ bool acmacs::mapi::v1::Settings::apply_time_series()
 
 // ----------------------------------------------------------------------
 
-acmacs::mapi::v1::Settings::time_series_data acmacs::mapi::v1::Settings::time_series_settings()
+acmacs::mapi::v1::Settings::time_series_data acmacs::mapi::v1::Settings::time_series_settings() const
 {
     using namespace std::string_view_literals;
 
@@ -68,7 +71,7 @@ acmacs::mapi::v1::Settings::time_series_data acmacs::mapi::v1::Settings::time_se
     if (const auto& end = getenv("end"sv); !end.is_null())
         ts_params.after_last = date::from_string(end.to<std::string_view>(), date::allow_incomplete::yes, date::throw_on_error::yes);
 
-    const auto ts_stat = acmacs::time_series::stat(ts_params, chart_draw().chart(0).chart().antigens()->all_dates(acmacs::chart::Antigens::include_reference::no));
+    const auto ts_stat = acmacs::time_series::stat(ts_params, chart_draw().chart().antigens()->all_dates(acmacs::chart::Antigens::include_reference::no));
     const auto [first, after_last] = acmacs::time_series::suggest_start_end(ts_params, ts_stat);
     if (ts_params.first == date::invalid_date())
         ts_params.first = first;
@@ -91,6 +94,28 @@ acmacs::mapi::v1::Settings::time_series_data acmacs::mapi::v1::Settings::time_se
     return {std::string{*filename_pattern}, series};
 
 } // acmacs::mapi::v1::Settings::time_series_settings
+
+// ----------------------------------------------------------------------
+
+void acmacs::mapi::v1::Settings::time_series_generate(std::string_view filename_pattern, const acmacs::time_series::slot& slot) const
+{
+    using namespace std::string_view_literals;
+    std::string filename;
+    try {
+        fmt::dynamic_format_arg_store<fmt::format_context> fmt_args;
+        chart_metadata(fmt_args, chart_draw().chart(0));
+        fmt_args.push_back(fmt::arg("ts_text", acmacs::time_series::text_name(slot)));
+        fmt_args.push_back(fmt::arg("ts_numeric", acmacs::time_series::numeric_name(slot)));
+        filename = fmt::vformat(filename_pattern, fmt_args);
+    }
+    catch (std::exception& err) {
+        AD_ERROR("fmt cannot substitute in \"{}\": {}", filename_pattern, err);
+        throw;
+    }
+    make_pdf(filename, rjson::v3::read_number(getenv("width"sv), 800.0), false);
+    AD_INFO("time series {}: {}", acmacs::time_series::numeric_name(slot), filename);
+
+} // acmacs::mapi::v1::Settings::time_series_generate
 
 // ----------------------------------------------------------------------
 

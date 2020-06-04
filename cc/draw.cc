@@ -211,16 +211,16 @@ void ChartDraw::draw(acmacs::draw::DrawElements& painter) const
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::hide_all_except(const acmacs::chart::Indexes& aNotHide)
-{
-    acmacs::PointStyleModified style;
-    style.shown(false);
-    for (size_t index = 0; index < chart(0).number_of_points(); ++index ) {
-        if (std::find(aNotHide.begin(), aNotHide.end(), index) == aNotHide.end())
-            plot_spec().modify(index, style);
-    }
+// void ChartDraw::hide_all_except(const acmacs::chart::Indexes& aNotHide)
+// {
+//     acmacs::PointStyleModified style;
+//     style.shown(false);
+//     for (size_t index = 0; index < chart(0).number_of_points(); ++index ) {
+//         if (std::find(aNotHide.begin(), aNotHide.end(), index) == aNotHide.end())
+//             plot_spec().modify(index, style);
+//     }
 
-} // ChartDraw::hide_all_except
+// } // ChartDraw::hide_all_except
 
 // ----------------------------------------------------------------------
 
@@ -244,18 +244,18 @@ void ChartDraw::mark_reassortant_antigens()
 
 // ----------------------------------------------------------------------
 
-void ChartDraw::mark_all_grey(Color aColor)
-{
-    acmacs::PointStyleModified ref_antigen;
-    ref_antigen.outline(acmacs::color::Modifier{aColor});
-    plot_spec().modify(chart().antigens()->reference_indexes(), ref_antigen);
-    acmacs::PointStyleModified test_antigen;
-    test_antigen.fill(acmacs::color::Modifier{aColor});
-    test_antigen.outline(acmacs::color::Modifier{aColor});
-    plot_spec().modify(chart().antigens()->test_indexes(), test_antigen);
-    plot_spec().modify(chart().sera()->all_indexes(), ref_antigen);
+// void ChartDraw::mark_all_grey(Color aColor)
+// {
+//     acmacs::PointStyleModified ref_antigen;
+//     ref_antigen.outline(acmacs::color::Modifier{aColor});
+//     plot_spec().modify(chart().antigens()->reference_indexes(), ref_antigen);
+//     acmacs::PointStyleModified test_antigen;
+//     test_antigen.fill(acmacs::color::Modifier{aColor});
+//     test_antigen.outline(acmacs::color::Modifier{aColor});
+//     plot_spec().modify(chart().antigens()->test_indexes(), test_antigen);
+//     plot_spec().modify(chart().sera()->all_indexes(), ref_antigen);
 
-} // ChartDraw::mark_all_grey
+// } // ChartDraw::mark_all_grey
 
 // ----------------------------------------------------------------------
 

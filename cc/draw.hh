@@ -85,10 +85,10 @@ class ChartDraw : public ChartSelectInterface
         modify_sera_drawing_order(aSerumNo, aPointDrawingOrder);
     }
 
-    void hide_all_except(const acmacs::chart::Indexes& aNotHide);
+    // void hide_all_except(const acmacs::chart::Indexes& aNotHide);
     void mark_egg_antigens();
     void mark_reassortant_antigens();
-    void mark_all_grey(Color aColor);
+    // void mark_all_grey(Color aColor);
     void scale_points(double aPointScale, double aOulineScale) { plot_spec().scale_all(aPointScale, aOulineScale); }
     void modify_all_sera(const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
     {

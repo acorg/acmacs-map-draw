@@ -44,7 +44,7 @@ bool acmacs::mapi::v1::Settings::apply_pdf()
 
 // ----------------------------------------------------------------------
 
-void acmacs::mapi::v1::Settings::make_pdf(std::string_view filename, double width, bool open)
+void acmacs::mapi::v1::Settings::make_pdf(std::string_view filename, double width, bool open) const
 {
     using namespace std::string_view_literals;
     std::string fn;

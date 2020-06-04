@@ -172,7 +172,7 @@ namespace acmacs::mapi::inline v1
         bool apply_procrustes();
         const ChartAccess& get_chart(const rjson::v3::value& source, size_t dflt);
         bool apply_move();
-        void make_pdf(std::string_view filename, double width, bool open);
+        void make_pdf(std::string_view filename, double width, bool open) const;
 
         // ----------------------------------------------------------------------
         // mapi-settings-sequences.cc
@@ -192,9 +192,10 @@ namespace acmacs::mapi::inline v1
         struct time_series_data
         {
             std::string filename_pattern;
-            const acmacs::time_series::v2::series series;
+            const acmacs::time_series::series series;
         };
-        time_series_data time_series_settings();
+        time_series_data time_series_settings() const;
+        void time_series_generate(std::string_view filename_pattern, const acmacs::time_series::slot& slot) const;
 
     }; // class Settings
 
