@@ -40,7 +40,7 @@ bool acmacs::mapi::v1::Settings::apply_time_series()
         ts_params.after_last = date::from_string(end.to<std::string_view>(), date::allow_incomplete::yes, date::throw_on_error::yes);
 
     const auto& chart_access = chart_draw().chart(0); // can draw just the chart 0 // get_chart(getenv("chart"sv), 0);
-    const auto ts_stat = acmacs::time_series::stat(ts_params, chart_access.chart().antigens()->all_dates());
+    const auto ts_stat = acmacs::time_series::stat(ts_params, chart_access.chart().antigens()->all_dates(acmacs::chart::Antigens::include_reference::no));
     const auto [first, after_last] = acmacs::time_series::suggest_start_end(ts_params, ts_stat);
 
     auto series = acmacs::time_series::make(ts_params);
