@@ -175,7 +175,7 @@ std::string acmacs::mapi::v1::Settings::substitute_chart_metadata(std::string_vi
         chart_metadata(store, chart_access);
         return fmt::vformat(pattern, store);
     }
-    catch (fmt::format_error& err) {
+    catch (std::exception& err) {
         AD_ERROR("fmt cannot substitute in \"{}\": {}", pattern, err);
         throw;
     }

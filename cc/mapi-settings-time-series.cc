@@ -58,22 +58,23 @@ bool acmacs::mapi::v1::Settings::apply_time_series()
         AD_INFO("time series report:\n{}", ts_stat.report("    {value}  {counter:6d}\n"));
 
     if (const auto filename_pattern = rjson::v3::read_string(getenv("output"sv, toplevel_only::no, throw_if_partial_substitution::no)); filename_pattern.has_value()) {
+        std::string filename;
         try {
             fmt::dynamic_format_arg_store<fmt::format_context> fmt_args;
             chart_metadata(fmt_args, chart_access);
             fmt_args.push_back(fmt::arg("ts_text", acmacs::time_series::text_name(series[0])));
             fmt_args.push_back(fmt::arg("ts_numeric", acmacs::time_series::numeric_name(series[0])));
-            auto filename{fmt::vformat(*filename_pattern, fmt_args)};
-            if (!acmacs::string::endswith_ignore_case(filename, ".pdf"sv))
-                filename = fmt::format("{}.pdf", filename);
-            chart_draw().calculate_viewport();
-            chart_draw().draw(filename, rjson::v3::read_number(getenv("width"sv), 800.0), report_time::no);
-            AD_INFO("time series {}: {}", acmacs::time_series::numeric_name(series[0]), filename);
+            filename = fmt::vformat(*filename_pattern, fmt_args);
         }
-        catch (fmt::format_error& err) {
+        catch (std::exception& err) {
             AD_ERROR("fmt cannot substitute in \"{}\": {}", *filename_pattern, err);
             throw;
         }
+        if (!acmacs::string::endswith_ignore_case(filename, ".pdf"sv))
+            filename = fmt::format("{}.pdf", filename);
+        chart_draw().calculate_viewport();
+        chart_draw().draw(filename, rjson::v3::read_number(getenv("width"sv), 800.0), report_time::no);
+        AD_INFO("time series {}: {}", acmacs::time_series::numeric_name(series[0]), filename);
     }
     else
         AD_WARNING("Cannot make time series: no \"output\" in {}", getenv_toplevel());
