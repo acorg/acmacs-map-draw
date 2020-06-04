@@ -111,7 +111,7 @@ void acmacs::mapi::v1::Settings::load(const std::vector<std::string_view>& setti
 
 // ----------------------------------------------------------------------
 
-std::string acmacs::mapi::v1::Settings::substitute_chart_metadata(std::string_view pattern, const ChartAccess& chart_access) const
+void acmacs::mapi::v1::Settings::chart_metadata(fmt::dynamic_format_arg_store<fmt::format_context>& store, const ChartAccess& chart_access) const
 {
     using namespace std::string_view_literals;
 
@@ -143,28 +143,37 @@ std::string acmacs::mapi::v1::Settings::substitute_chart_metadata(std::string_vi
     else
         virus_type_lineage_subset_short = ::string::lower(virus_type);
 
+    // https://stackoverflow.com/questions/61635042/c-how-can-i-formatting-stdstring-with-collection-efficiently
+    store.push_back(fmt::arg("virus", info->virus()));
+    store.push_back(fmt::arg("virus_type", virus_type));
+    store.push_back(fmt::arg("virus_type_lineage", virus_type_lineage));
+    store.push_back(fmt::arg("lineage", lineage));
+    store.push_back(fmt::arg("subset", subset));
+    store.push_back(fmt::arg("SUBSET", ::string::upper(subset)));
+    store.push_back(fmt::arg("virus_type_lineage_subset_short", virus_type_lineage_subset_short));
+    store.push_back(fmt::arg("assay", assay.hi_or_neut()));
+    store.push_back(fmt::arg("assay_full", assay));
+    store.push_back(fmt::arg("lab", info->lab()));
+    store.push_back(fmt::arg("lab_lower", ::string::lower(info->lab())));
+    store.push_back(fmt::arg("rbc", info->rbc_species()));
+    store.push_back(fmt::arg("table_date", info->date(chart::Info::Compute::Yes)));
+    store.push_back(fmt::arg("number_of_antigens", chart.number_of_antigens()));
+    store.push_back(fmt::arg("number_of_sera", chart.number_of_sera()));
+    store.push_back(fmt::arg("number_of_layers", titers->number_of_layers()));
+    store.push_back(fmt::arg("minimum_column_basis", static_cast<std::string>(projection.minimum_column_basis())));
+    store.push_back(fmt::arg("stress", projection.stress()));
+    store.push_back(fmt::arg("name", chart.make_name()));
+
+} // acmacs::mapi::v1::Settings::chart_metadata
+
+// ----------------------------------------------------------------------
+
+std::string acmacs::mapi::v1::Settings::substitute_chart_metadata(std::string_view pattern, const ChartAccess& chart_access) const
+{
     try {
-        return fmt::format(pattern,
-                           fmt::arg("virus", info->virus()),
-                           fmt::arg("virus_type", virus_type),
-                           fmt::arg("virus_type_lineage", virus_type_lineage),
-                           fmt::arg("lineage", lineage),
-                           fmt::arg("subset", subset),
-                           fmt::arg("SUBSET", ::string::upper(subset)),
-                           fmt::arg("virus_type_lineage_subset_short", virus_type_lineage_subset_short),
-                           fmt::arg("assay", assay.hi_or_neut()),
-                           fmt::arg("assay_full", assay),
-                           fmt::arg("lab", info->lab()),
-                           fmt::arg("lab_lower", ::string::lower(info->lab())),
-                           fmt::arg("rbc", info->rbc_species()),
-                           fmt::arg("table_date", info->date(chart::Info::Compute::Yes)),
-                           fmt::arg("number_of_antigens", chart.number_of_antigens()),
-                           fmt::arg("number_of_sera", chart.number_of_sera()),
-                           fmt::arg("number_of_layers", titers->number_of_layers()),
-                           fmt::arg("minimum_column_basis", static_cast<std::string>(projection.minimum_column_basis())),
-                           fmt::arg("stress", projection.stress()),
-                           fmt::arg("name", chart.make_name())
-                           );
+        fmt::dynamic_format_arg_store<fmt::format_context> store;
+        chart_metadata(store, chart_access);
+        return fmt::vformat(pattern, store);
     }
     catch (std::exception& err) {
         AD_ERROR("fmt cannot substitute in \"{}\": {}", pattern, err);

@@ -42,16 +42,20 @@ bool acmacs::mapi::v1::Settings::apply_time_series()
     const auto& chart_access = chart_draw().chart(0); // can draw just the chart 0 // get_chart(getenv("chart"sv), 0);
     const auto ts_stat = acmacs::time_series::stat(ts_params, chart_access.chart().antigens()->all_dates(acmacs::chart::Antigens::include_reference::no));
     const auto [first, after_last] = acmacs::time_series::suggest_start_end(ts_params, ts_stat);
+    if (ts_params.first == date::invalid_date())
+        ts_params.first = first;
+    if (ts_params.after_last == date::invalid_date())
+        ts_params.after_last = after_last;
 
     auto series = acmacs::time_series::make(ts_params);
 
     if (!ts_stat.counter().empty())
         AD_INFO("time series full range {} .. {}", ts_stat.counter().begin()->first, ts_stat.counter().rbegin()->first);
     AD_INFO("time series suggested  {} .. {}", first, after_last);
-    AD_INFO("time series used       {} .. {}", ts_params.first, ts_params.after_last);
-    if (rjson::v3::read_bool(getenv("report"sv), false)) {
+    AD_INFO("time series used       {} .. {} ({} slots)", ts_params.first, ts_params.after_last, series.size());
+    if (rjson::v3::read_bool(getenv("report"sv), false))
         AD_INFO("time series report:\n{}", ts_stat.report("    {value}  {counter:6d}\n"));
-    }
+
 
     if (const auto filename_pattern = rjson::v3::read_string(getenv("output"sv, toplevel_only::no, throw_if_partial_substitution::no)); filename_pattern.has_value()) {
         auto filename{substitute_chart_metadata(*filename_pattern, chart_access)};

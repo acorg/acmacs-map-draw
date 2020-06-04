@@ -73,6 +73,8 @@ namespace acmacs::mapi::inline v1
         ChartDraw& chart_draw_;
 
         std::string substitute_chart_metadata(std::string_view pattern, const ChartAccess& chart_access) const;
+        void chart_metadata(fmt::dynamic_format_arg_store<fmt::format_context>& store, const ChartAccess& chart_access) const;
+
         void update_env();
 
         // ----------------------------------------------------------------------
