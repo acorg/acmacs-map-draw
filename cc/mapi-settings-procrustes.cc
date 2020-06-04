@@ -37,15 +37,27 @@ bool acmacs::mapi::v1::Settings::apply_pdf()
     using namespace std::string_view_literals;
     const auto& chart_access = chart_draw().chart(0); // can draw just the chart 0 // get_chart(getenv("chart"sv), 0);
     const auto filename_pattern = rjson::v3::read_string(getenv("filename"sv, toplevel_only::no, throw_if_partial_substitution::no), chart_access.filename());
-    auto filename{substitute_chart_metadata(filename_pattern, chart_access)};
-    if (!acmacs::string::endswith_ignore_case(filename, ".pdf"sv))
-        filename = fmt::format("{}.pdf", filename);
-    chart_draw().calculate_viewport();
-    chart_draw().draw(filename, rjson::v3::read_number(getenv("width"sv), 800.0), report_time::no);
-    acmacs::open_or_quicklook(rjson::v3::read_bool(getenv("open"sv), false), false, filename);
+    make_pdf(substitute_chart_metadata(filename_pattern, chart_access), rjson::v3::read_number(getenv("width"sv), 800.0), rjson::v3::read_bool(getenv("open"sv), false));
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_pdf
+
+// ----------------------------------------------------------------------
+
+void acmacs::mapi::v1::Settings::make_pdf(std::string_view filename, double width, bool open)
+{
+    using namespace std::string_view_literals;
+    std::string fn;
+    if (!acmacs::string::endswith_ignore_case(filename, ".pdf"sv))
+        fn = fmt::format("{}.pdf", filename);
+    else
+        fn = filename;
+    chart_draw().calculate_viewport();
+    chart_draw().draw(fn, width, report_time::no);
+    if (open)
+        acmacs::open_or_quicklook(true, false, fn);
+
+} // acmacs::mapi::v1::Settings::make_pdf
 
 // ----------------------------------------------------------------------
 

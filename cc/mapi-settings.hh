@@ -2,6 +2,7 @@
 
 #include "acmacs-base/settings.hh"
 #include "acmacs-base/point-style.hh"
+#include "acmacs-base/time-series.hh"
 #include "seqdb-3/sequence.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 #include "acmacs-map-draw/coordinates.hh"
@@ -171,6 +172,7 @@ namespace acmacs::mapi::inline v1
         bool apply_procrustes();
         const ChartAccess& get_chart(const rjson::v3::value& source, size_t dflt);
         bool apply_move();
+        void make_pdf(std::string_view filename, double width, bool open);
 
         // ----------------------------------------------------------------------
         // mapi-settings-sequences.cc
@@ -186,6 +188,13 @@ namespace acmacs::mapi::inline v1
         // mapi-settings-time-series.cc
 
         bool apply_time_series();
+
+        struct time_series_data
+        {
+            std::string filename_pattern;
+            const acmacs::time_series::v2::series series;
+        };
+        time_series_data time_series_settings();
 
     }; // class Settings
 
