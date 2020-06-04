@@ -35,10 +35,7 @@ std::string acmacs::mapi::v1::Settings::time_series_substitute(std::string_view 
 
 // ----------------------------------------------------------------------
 
-//  "?start": "2019-01", "?end": "2019-11",
     //  "interval": {"month": 1}, "?": "month, week, year, day (interval: month also supported)",
-    //  "output": "/path/name-{ts-name}.pdf",
-    //     "title": "{ts_text}",
     // "shown-on-all": <Select Antigens>, -- reference antigens and sera are shown on all maps, select here other antigens to show on all the maps
     //  "report": true
 
