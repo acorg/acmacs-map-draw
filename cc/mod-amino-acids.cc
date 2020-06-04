@@ -184,8 +184,10 @@ void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& aModD
         throw unrecognized_mod{fmt::format("no select2 in mod: {}", args())};
 
     const auto& matched = aChartDraw.chart(0).match_seqdb();
-    auto set1 = matched.filter_by_indexes(indexes1);
-    auto set2 = matched.filter_by_indexes(indexes2);
+    acmacs::seqdb::v3::subsets_to_compare_t subsets_to_compare{acmacs::seqdb::compare::aa};
+    subsets_to_compare.subsets.emplace_back("1", matched.filter_by_indexes(indexes1));
+    subsets_to_compare.subsets.emplace_back("2", matched.filter_by_indexes(indexes2));
+    subsets_to_compare.make_counters();
 
     if (const auto& format = args()["format"]; !format.is_null() && format.to<std::string_view>() == "html") {
         std::string filename{"-"};
@@ -198,17 +200,14 @@ void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& aModD
         else {
             filename = "/d/a.html";
         }
-        acmacs::file::write(filename, acmacs::seqdb::compare_report_html(filename, set1, set2, acmacs::seqdb::compare::aa));
+        acmacs::seqdb::compare_sequences_generate_html(filename, subsets_to_compare);
         if (const auto& open = args()["open"]; open.is_null() || open.to<bool>())
             acmacs::open_or_quicklook(true, false, filename, 0, 0);
     }
     else
-        fmt::print("{}\n\n", acmacs::seqdb::compare_report_text(set1, set2, acmacs::seqdb::compare::aa));
+        fmt::print("{}\n\n", subsets_to_compare.format_summary());
 
 } // ModCompareSequences::apply
-
-// ----------------------------------------------------------------------
-
 
 // ----------------------------------------------------------------------
 /// Local Variables:
