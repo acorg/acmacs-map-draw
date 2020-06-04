@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-04 11:04:34 eu>
+# Time-stamp: <2020-06-04 13:33:35 eu>
 
 * Common usage
 
@@ -411,7 +411,7 @@ http://geomalgorithms.com/a03-_inclusion.html
 {"N": "vaccine", "name": "HONG KONG/2671/2019",  "passage": "egg",         "vaccine_type": "current", "vaccine_year": "2020-02", "?clade": "2a1b"},
 #+END_SRC
 
-* TODO Time series
+* Time series
 
 Use {ts-name} in title
 

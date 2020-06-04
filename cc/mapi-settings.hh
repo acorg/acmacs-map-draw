@@ -194,6 +194,7 @@ namespace acmacs::mapi::inline v1
             const std::string filename_pattern;
             const std::vector<std::string_view> title;
             const acmacs::time_series::series series;
+            const acmacs::chart::PointIndexList shown_on_all;
         };
         time_series_data time_series_settings() const;
         std::string time_series_substitute(std::string_view pattern, const acmacs::time_series::slot& slot) const;

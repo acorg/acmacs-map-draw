@@ -35,10 +35,6 @@ std::string acmacs::mapi::v1::Settings::time_series_substitute(std::string_view 
 
 // ----------------------------------------------------------------------
 
-    //  "interval": {"month": 1}, "?": "month, week, year, day (interval: month also supported)",
-    // "shown-on-all": <Select Antigens>, -- reference antigens and sera are shown on all maps, select here other antigens to show on all the maps
-    //  "report": true
-
 bool acmacs::mapi::v1::Settings::apply_time_series()
 {
     using namespace std::string_view_literals;
@@ -47,10 +43,11 @@ bool acmacs::mapi::v1::Settings::apply_time_series()
         auto antigens{chart_draw().chart().antigens()};
         auto indexes = antigens->test_indexes();
         acmacs::map_draw::select::filter::shown_in(chart_draw(), indexes);
+        if (!ts.shown_on_all.empty())
+            indexes.remove(ReverseSortedIndexes{*ts.shown_on_all});
 
         for (const auto& ts_slot : ts.series) {
             auto to_hide{indexes};
-            // TODO remove shown on all
             antigens->filter_date_not_in_range(to_hide, date::display(ts_slot.first), date::display(ts_slot.after_last));
 
             acmacs::PointStyleModified style;
@@ -134,7 +131,9 @@ acmacs::mapi::v1::Settings::time_series_data acmacs::mapi::v1::Settings::time_se
             throw error{fmt::format("\"time-series\" \"title\": unrecognized: {} (expected string or array of strings)", lines)};
     });
 
-    return {std::string{*filename_pattern}, std::move(title), std::move(series)};
+    auto shown_on_all{select_antigens(getenv("shown-on-all"sv), if_null::empty)};
+
+    return {std::string{*filename_pattern}, std::move(title), std::move(series), std::move(shown_on_all)};
 
 } // acmacs::mapi::v1::Settings::time_series_settings
 
