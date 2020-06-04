@@ -25,7 +25,7 @@ bool acmacs::mapi::v1::Settings::apply_time_series()
         for (const auto& ts_slot : ts.series) {
             auto to_hide{indexes};
             // TODO remove shown on all
-            antigens->filter_date_not_in_range(indexes, date::display(ts_slot.first), date::display(ts_slot.after_last));
+            antigens->filter_date_not_in_range(to_hide, date::display(ts_slot.first), date::display(ts_slot.after_last));
 
             acmacs::PointStyleModified style;
             style.shown(false);
