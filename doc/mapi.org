@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-04 13:33:35 eu>
+# Time-stamp: <2020-06-05 09:35:37 eu>
 
 * Common usage
 
@@ -130,6 +130,9 @@ To print environment use:
   {"fill": "red", "outline": "green", "outline-width": 3}
 
   {"exclude-distinct": true}
+
+  {"found-in": <chart filename or index>}
+  {"not-found-in": <chart filename or index>} -- compare with previous
 
   {"report": true, "report-threshold": 20}
 #+END_SRC
@@ -322,9 +325,9 @@ http://geomalgorithms.com/a03-_inclusion.html
   {"N": "connection_lines", "antigens": {<select>}, "sera": {<select>}, "color": "grey", "line_width": 0.5, "report": false},
   {"N": "error_lines", "antigens": {<select>}, "sera": {<select>}, "more": "red", "less": "blue", "line_width": 0.5, "report": false},
 
-  # {"N": "serum_line", "color": "red", "line_width": 1},
-  # {"N": "color_by_number_of_connection_lines", "antigens": {<select>}, "sera": {<select>}, "start": "", "end": ""},
-  # {"N": "blobs", "select": {<select-antigens>}, "stress_diff": 0.5, "number_of_drections": 36, "stress_diff_precision": 1e-5, "fill": "transparent", "color": "pink", "line_width": 1, "report": false},
+  # TODO {"N": "serum_line", "color": "red", "line_width": 1},
+  # TODO {"N": "color_by_number_of_connection_lines", "antigens": {<select>}, "sera": {<select>}, "start": "", "end": ""},
+  # TODO {"N": "blobs", "select": {<select-antigens>}, "stress_diff": 0.5, "number_of_drections": 36, "stress_diff_precision": 1e-5, "fill": "transparent", "color": "pink", "line_width": 1, "report": false},
 #+END_SRC
 
 
@@ -337,7 +340,7 @@ http://geomalgorithms.com/a03-_inclusion.html
    "flip-over-serum-line": 1 -- scale (1 - mirror, 0.1 - close to serum line, 0 - move to serum line)
   }
 
-  # {"N": "move_antigens_stress", "select": {"reference": true}, "?to": [5, 5], "?relative": [1, 1], "?fill": "pink", "?outline": "grey", "?order": "raise", "?size": 1, "report": true},
+  # TODO {"N": "move_antigens_stress", "select": {"reference": true}, "?to": [5, 5], "?relative": [1, 1], "?fill": "pink", "?outline": "grey", "?order": "raise", "?size": 1, "report": true},
 #+END_SRC
 
 
@@ -368,7 +371,7 @@ http://geomalgorithms.com/a03-_inclusion.html
 
 #+BEGIN_SRC json
 {"N": "procrustes-arrows", "report": true, "verbose": false,
-   "chart": <filename or index>, "projection": 0,
+   "chart": <chart filename or index>, "projection": 0,
    "match": "auto", -- "auto", "strict", "relaxed", "ignored"
    "scaling": false,
    "antigens": "<select-antigens>", "sera": "<select-sera>", -- use "antigens": "none" to use just sera, if "antigens" absent, all are matched

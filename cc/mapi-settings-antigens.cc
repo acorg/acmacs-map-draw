@@ -630,6 +630,26 @@ static inline void check_most_used_for_name(const AgSr& ag_sr, const ChartSelect
 
 // ----------------------------------------------------------------------
 
+template <typename AgSr> static inline void check_found_in(const AgSr& ag_sr, const ChartAccess& other_chart_access, acmacs::chart::PointIndexList& indexes, std::string_view key)
+{
+    using namespace std::string_view_literals;
+
+    const auto filter = [&ag_sr, &indexes, key](const auto& previous) {
+        if (acmacs::string::startswith(key, "not"sv))
+            ag_sr.filter_not_found_in(indexes, previous);
+        else
+            ag_sr.filter_found_in(indexes, previous);
+    };
+
+    if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>)
+        filter(*other_chart_access.chart().antigens());
+    else
+        filter(*other_chart_access.chart().sera());
+
+} // check_found_in
+
+// ----------------------------------------------------------------------
+
 template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select(const AgSr& ag_sr, const rjson::v3::value& select_clause, if_null ifnull) const
 {
     using namespace std::string_view_literals;
@@ -700,6 +720,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                         else
                             AD_WARNING("\"select\" key: \"{}\" not applicable for sera", key);
                     }
+                    else if (key == "found-in"sv || key == "found_in"sv || key == "not-found-in"sv || key == "not_found_in"sv)
+                        check_found_in(ag_sr, get_chart(value, 1), indexes, key);
                     else if (!key.empty() && key[0] != '?')
                         AD_WARNING("unrecognized \"select\" key: \"{}\"", key);
                 }

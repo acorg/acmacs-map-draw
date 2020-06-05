@@ -72,7 +72,7 @@ bool acmacs::mapi::v1::Settings::apply_relax()
 
 // ----------------------------------------------------------------------
 
-const ChartAccess& acmacs::mapi::v1::Settings::get_chart(const rjson::v3::value& source, size_t dflt)
+const ChartAccess& acmacs::mapi::v1::Settings::get_chart(const rjson::v3::value& source, size_t dflt) const
 {
     return source.visit([dflt, this]<typename Val>(const Val& val) -> const ChartAccess& {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::null>) {
