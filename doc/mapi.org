@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-05 09:35:37 eu>
+# Time-stamp: <2020-06-05 10:18:49 eu>
 
 * Common usage
 
@@ -166,6 +166,9 @@ To print environment use:
   {"fill": "red", "outline": "green", "outline-width": 3}
 
   {"exclude-distinct": true}
+
+  {"found-in": <chart filename or index>}
+  {"not-found-in": <chart filename or index>} -- compare with previous
 
   {"report": true, "report_threshold": 20}
 #+END_SRC
@@ -431,8 +434,6 @@ Use {ts-name} in title
 #+END_SRC
 
 
-* TODO compare with previous
-
 * TODO VCM SSM
 :PROPERTIES:
 :VISIBILITY: folded
@@ -466,34 +467,6 @@ Use {ts-name} in title
   "/clades-12m"
   "/continents"
 #+END_SRC
-
-
-* Rest
-:PROPERTIES:
-:VISIBILITY: folded
-:END:
-
-"==================== sequences ====================",
-
-{"N": "amino-acids", "pos": [159], "?colors": {"K": "#FF0000", "R": "#0000FF", "X": "grey25"},
- "color_set": "ana|google", "outline": "black", "outline_width": 1.0,
- "aspect": 1.0, "rotation": 0.0, "size": 8.0, "order": "raise|lower",
- "legend": {"count": true},
- "centroid": false,
- "report": false},
-
-{"N": "compare-sequences",
- "select1": {"?": "master group select"}, "select2": {"?": "to compare group select"},
- "format": "text|html", "output": "filename.html - if has no /, generated in the same dir as output pdf", "open": true
-},
-
-"==================== ====================",
-
-{obsolete! "N": "serum_circle", "serum": {"index": 0}, "?antigen": {"index": 0}, "?homologous_titer": "1280", "report": true,
- "type": "empirical (default) | theoretical",
- "circle": {"fill": "#C08080FF", "outline": "blue", "outline_width": 2, "angle_degrees": [0, 30], "radius_line_dash": "dash2", "?radius_line_color": "red", "?radius_line_width": 1},
- "mark_serum": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}},
- "mark_antigen": {"fill": "lightblue", "outline": "black", "order": "raise", "label": {"name_type": "full", "offset": [0, 1.2], "color": "black", "size": 12}}},
 
 
 * COMMENT ====== local vars
