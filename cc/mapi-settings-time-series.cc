@@ -115,12 +115,12 @@ acmacs::mapi::v1::Settings::time_series_data acmacs::mapi::v1::Settings::time_se
     if (rjson::v3::read_bool(getenv("report"sv), false))
         AD_INFO("time series report:\n{}", ts_stat.report("    {value}  {counter:6d}\n"));
 
-    const auto filename_pattern = rjson::v3::read_string(getenv("output"sv, toplevel_only::no, throw_if_partial_substitution::no));
+    const auto filename_pattern = rjson::v3::read_string(getenv("output"sv, toplevel_only::no, if_no_substitution_found::null, throw_if_partial_substitution::no));
     if (!filename_pattern.has_value())
         AD_WARNING("Cannot make time series: no \"output\" in {}", getenv_toplevel());
 
     std::vector<std::string_view> title;
-    getenv("title"sv, toplevel_only::yes, throw_if_partial_substitution::no).visit([&title]<typename Val>(const Val& lines) {
+    getenv("title"sv, toplevel_only::yes, if_no_substitution_found::null, throw_if_partial_substitution::no).visit([&title]<typename Val>(const Val& lines) {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
             for (const auto& line : lines)
                 title.push_back(line.template to<std::string_view>());
