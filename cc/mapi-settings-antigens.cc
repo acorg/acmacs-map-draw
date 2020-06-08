@@ -916,6 +916,8 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
                     if (!res->is_null())
                         return color::Modifier{res->template to<std::string_view>()};
                 }
+                else if constexpr (std::is_same_v<Res, no_substitution_request>)
+                    return color::Modifier{*res};
                 else
                     return color::Modifier{res};
                 return std::nullopt;
@@ -969,6 +971,8 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
                             throw std::exception{};
                     });
                 }
+                else if constexpr (std::is_same_v<Value, no_substitution_request>)
+                    return make_color(*substituted_val);
                 else
                     return make_color(substituted_val);
             },
