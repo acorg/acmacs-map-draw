@@ -36,7 +36,7 @@ struct MapiOptions : public acmacs::argv::v2::argv
 
     option<str_array> settings_files{*this, 's'};
     option<str_array> defines{*this, 'D', "define", desc{"see {ACMACSD_ROOT}/share/doc/mapi.org"}};
-    option<str_array> apply{*this, 'a', "apply", dflt{str_array{"main"}}, desc{"comma separated names or json array to use as \"apply\", e.g. [\"/all-grey\",\"/egg\",\"/clades\",\"/labels\"]"}};
+    option<str_array> apply{*this, 'a', "apply", desc{"comma separated names or json array to use as \"apply\", e.g. [\"/all-grey\",\"/egg\",\"/clades\",\"/labels\"]"}};
     option<bool>      interactive{*this, 'i', "interactive"};
     // option<str>       previous{*this, "previous"};
     option<size_t>    projection{*this, 'p', "projection", dflt{0ul}};
@@ -85,16 +85,31 @@ int main(int argc, char* const argv[])
             signal(SIGHUP, signal_handler);
 
         for (;;) {
-            for (const auto& to_apply : opt.apply) {
-                if (!to_apply.empty()) {
-                    if (to_apply[0] == '{' || to_apply[0] == '[') {
-                        settings.apply(to_apply);
-                    }
-                    else {
-                        for (const auto& to_apply_one : acmacs::string::split(to_apply))
-                            settings.apply(to_apply_one);
+            if (!opt.apply.empty()) {
+                for (const auto& to_apply : opt.apply) {
+                    if (!to_apply.empty()) {
+                        if (to_apply[0] == '{' || to_apply[0] == '[') {
+                            settings.apply(to_apply);
+                        }
+                        else {
+                            for (const auto& to_apply_one : acmacs::string::split(to_apply))
+                                settings.apply(to_apply_one);
+                        }
                     }
                 }
+            }
+            else {
+                bool applied{false};
+                const std::array default_apply_order{"mapi"sv, "mapi-default"sv};
+                for (const auto& to_apply : default_apply_order) {
+                    if (!settings.get(to_apply).is_null()) {
+                        settings.apply(to_apply);
+                        applied = true;
+                        break;
+                    }
+                }
+                if (!applied)
+                    throw std::runtime_error{fmt::format("-a is not in the command line and neither of {} found in settings", default_apply_order)};
             }
 
             chart_draw.calculate_viewport();
