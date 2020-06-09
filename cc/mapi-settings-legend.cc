@@ -113,18 +113,18 @@ bool acmacs::mapi::v1::Settings::apply_title()
     using namespace std::string_view_literals;
 
     auto& title_element = title();
-    title_element.show(rjson::v3::read_bool(getenv("show"sv), true));
-    title_element.offset(rjson::v3::read_point_coordinates(getenv("offset"sv), acmacs::PointCoordinates{10, 10}));
-    title_element.padding(rjson::v3::read_number(getenv("padding"sv), Pixels{10}));
-    title_element.text_size(rjson::v3::read_number(getenv("text_size"sv), Pixels{12}));
-    title_element.text_color(rjson::v3::read_color(getenv("text_color"sv), BLACK));
-    title_element.interline(rjson::v3::read_number(getenv("interline"sv), 2.0));
-    title_element.background(rjson::v3::read_color(getenv("background"sv), TRANSPARENT));
-    title_element.border_color(rjson::v3::read_color(getenv("border_color"sv), BLACK));
-    title_element.border_width(rjson::v3::read_number(getenv("border_width"sv), Pixels{0}));
-    title_element.weight(rjson::v3::read_string(getenv("font_weight"sv), "normal"sv));
-    title_element.slant(rjson::v3::read_string(getenv("font_slant"sv), "normal"sv));
-    title_element.font_family(rjson::v3::read_string(getenv("font_family"sv), "sans serif"sv));
+    rjson::v3::call_if_not_null<bool>(getenv("show"sv), [&title_element](bool val) { title_element.show(val); });
+    rjson::v3::call_if_not_null<Pixels>(getenv("padding"sv), [&title_element](Pixels val) { title_element.padding(val); });
+    rjson::v3::call_if_not_null<double>(getenv("interline"sv), [&title_element](double val) { title_element.interline(val); });
+    rjson::v3::call_if_not_null<Pixels>(getenv("text_size"sv), [&title_element](Pixels val) { title_element.text_size(val); });
+    rjson::v3::call_if_not_null<Pixels>(getenv("border_width"sv), [&title_element](Pixels val) { title_element.border_width(val); });
+    rjson::v3::call_if_not_null<acmacs::PointCoordinates>(getenv("offset"sv), [&title_element](const acmacs::PointCoordinates& val) { title_element.offset(val); });
+    rjson::v3::call_if_not_null<acmacs::color::Modifier>(getenv("text_color"sv), [&title_element](const acmacs::color::Modifier& val) { title_element.text_color(val); });
+    rjson::v3::call_if_not_null<acmacs::color::Modifier>(getenv("background"sv), [&title_element](const acmacs::color::Modifier& val) { title_element.background(val); });
+    rjson::v3::call_if_not_null<acmacs::color::Modifier>(getenv("border_color"sv), [&title_element](const acmacs::color::Modifier& val) { title_element.border_color(val); });
+    rjson::v3::call_if_not_null<std::string_view>(getenv("font_weight"sv), [&title_element](std::string_view val) { title_element.weight(val); });
+    rjson::v3::call_if_not_null<std::string_view>(getenv("font_slant"sv), [&title_element](std::string_view val) { title_element.slant(val); });
+    rjson::v3::call_if_not_null<std::string_view>(getenv("font_family"sv), [&title_element](std::string_view val) { title_element.font_family(val); });
 
     if (rjson::v3::read_bool(getenv("remove-lines"sv), false))
         title_element.remove_all_lines();
