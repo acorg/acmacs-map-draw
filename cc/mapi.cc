@@ -99,17 +99,7 @@ int main(int argc, char* const argv[])
                 }
             }
             else {
-                bool applied{false};
-                const std::array default_apply_order{"mapi"sv, "mapi-default"sv};
-                for (const auto& to_apply : default_apply_order) {
-                    if (!settings.get(to_apply).is_null()) {
-                        settings.apply(to_apply);
-                        applied = true;
-                        break;
-                    }
-                }
-                if (!applied)
-                    throw std::runtime_error{fmt::format("-a is not in the command line and neither of {} found in settings", default_apply_order)};
+                settings.apply_first({"mapi"sv, "mapi-default"sv}, acmacs::mapi::Settings::throw_if_nothing_applied::yes);
             }
 
             chart_draw.calculate_viewport();
