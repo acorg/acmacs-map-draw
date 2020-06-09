@@ -26,8 +26,9 @@ class ChartDraw : public ChartSelectInterface
 
     enum class apply_map_transformation { no, yes };
 
-    void draw(acmacs::surface::Surface& aSurface) const;
+    void draw(acmacs::draw::DrawElements& painter) const;
     void draw(std::string_view aFilename, double aSize, report_time aTimer = report_time::no) const;
+    [[deprecated("use draw(acmacs::draw::DrawElements&)")]] void draw(acmacs::surface::Surface& aSurface) const;
     std::string draw_json(report_time aTimer = report_time::no) const;
     std::string draw_pdf(double aSize, report_time aTimer = report_time::no) const;
 
@@ -172,8 +173,6 @@ class ChartDraw : public ChartSelectInterface
     mutable MapViewport viewport_;
     map_elements::Elements mMapElements;
     map_elements::Labels mLabels;
-
-    void draw(acmacs::draw::DrawElements& painter) const;
 
 }; // class ChartDraw
 

@@ -147,7 +147,7 @@ void ChartDraw::draw(std::string_view aFilename, double aSize, report_time aTime
 {
     Timeit ti(fmt::format("drawing map to {}: ", aFilename), aTimer);
 
-    acmacs::draw::DrawElements painter(aFilename, aSize);
+    acmacs::draw::DrawElementsToFile painter(aFilename, aSize);
     draw(painter);
 
     // }
@@ -186,7 +186,7 @@ std::string ChartDraw::draw_pdf(double aSize, report_time aTimer) const
 std::string ChartDraw::draw_json(report_time aTimer) const
 {
     Timeit ti("drawing map to json: ", aTimer);
-    acmacs::draw::DrawElements painter("//.json", 0);
+    acmacs::draw::DrawElementsToFile painter("//.json", 0);
     draw(painter);
     return painter.output();
 
