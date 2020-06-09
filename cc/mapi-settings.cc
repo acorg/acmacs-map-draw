@@ -1,5 +1,3 @@
-#include "acmacs-base/acmacsd.hh"
-#include "acmacs-base/filesystem.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/draw.hh"
 
@@ -73,41 +71,6 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
     }
 
 } // acmacs::mapi::v1::Settings::apply_built_in
-
-// ----------------------------------------------------------------------
-
-void acmacs::mapi::v1::Settings::load(const std::vector<std::string_view>& setting_files, const std::vector<std::string_view>& defines)
-{
-    using namespace std::string_view_literals;
-    for (const auto& settings_file_name : {"clades.json"sv, "vaccines.json"sv, "mapi.json"sv}) {
-        if (const auto filename = fmt::format("{}/share/conf/{}", acmacs::acmacsd_root(), settings_file_name); fs::exists(filename)) {
-            AD_LOG(acmacs::log::settings, "loading {}", filename);
-            load(filename);
-        }
-        else
-            AD_WARNING("cannot load \"{}\": file not found", filename);
-    }
-    load(setting_files);
-    for (const auto& def : defines) {
-        if (const auto pos = def.find('='); pos != std::string_view::npos) {
-            const auto val_s = def.substr(pos + 1);
-            if (val_s == "-") { // parsed as -0
-                setenv(def.substr(0, pos), rjson::v3::parse_string(fmt::format("\"{}\"", val_s)));
-            }
-            else {
-                try {
-                    setenv(def.substr(0, pos), rjson::v3::parse_string(val_s));
-                }
-                catch (std::exception&) {
-                    setenv(def.substr(0, pos), rjson::v3::parse_string(fmt::format("\"{}\"", val_s)));
-                }
-            }
-        }
-        else
-            setenv(def, "true"sv);
-    }
-
-} // acmacs::mapi::v1::Settings::load
 
 // ----------------------------------------------------------------------
 

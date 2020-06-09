@@ -77,7 +77,9 @@ int main(int argc, char* const argv[])
         ChartDraw chart_draw{inputs, opt.projection};
 
         acmacs::mapi::Settings settings{chart_draw};
-        settings.load(opt.settings_files, opt.defines);
+        settings.load_from_conf({"mapi.json"sv, "clades.json"sv, "vaccines.json"sv});
+        settings.load(opt.settings_files);
+        settings.set_defines(opt.defines);
         for (size_t chart_no = 0; chart_no < chart_draw.number_of_charts(); ++chart_no)
             settings.setenv_toplevel(fmt::format("chart[{}]", chart_no), chart_draw.chart(chart_no).filename());
 
