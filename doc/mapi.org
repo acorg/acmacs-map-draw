@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-05 10:18:49 eu>
+# Time-stamp: <2020-06-09 16:42:37 eu>
 
 * Common usage
 
@@ -263,7 +263,9 @@ See [[file:~/AD/share/doc/color.org][color.org]]
 
 - ~Title~
   #+BEGIN_SRC json
-    {"N": "title", "show": true, "offset": [10, 10], "lines": ["Line 1 <substitute-chart-metadata> <substitute time series name>", "Line 2", "Another line"],
+    {"N": "title", "show": true, "offset": [10, 10], 
+     "remove-lines": false, -- remove old lines
+     "lines": ["Line 1 <substitute-chart-metadata> <substitute time series name>", "Line 2", "Another line"],
      "padding": 10, "background": "transparent", "border_color": "black", "border_width": 0.0, "text_color": "black", "text_size": 12, "interline": 2, "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif"
     }
   #+END_SRC

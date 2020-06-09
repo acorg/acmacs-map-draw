@@ -126,6 +126,9 @@ bool acmacs::mapi::v1::Settings::apply_title()
     title_element.slant(rjson::v3::read_string(getenv("font_slant"sv), "normal"sv));
     title_element.font_family(rjson::v3::read_string(getenv("font_family"sv), "sans serif"sv));
 
+    if (rjson::v3::read_bool(getenv("remove-lines"sv), false))
+        title_element.remove_all_lines();
+
     getenv("lines"sv).visit([&title_element, this]<typename Val>(const Val& lines) {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
             const auto& chart_access = chart_draw().chart(0);
