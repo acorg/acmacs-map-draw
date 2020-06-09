@@ -23,9 +23,9 @@ bool acmacs::mapi::v1::Settings::apply_legend()
         }
         else {
             auto& legend_element = legend();
-            legend_element.offset(rjson::v3::read_point_coordinates(getenv("offset"sv), acmacs::PointCoordinates{-10, -10}));
-            legend_element.label_size(rjson::v3::read_number(getenv("label_size"sv), Pixels{12}));
-            legend_element.point_size(rjson::v3::read_number(getenv("point_size"sv), Pixels{8}));
+            rjson::v3::call_if_not_null<acmacs::PointCoordinates>(getenv("offset"sv), [&legend_element](const acmacs::PointCoordinates& val) { legend_element.offset(val); });
+            rjson::v3::call_if_not_null<Pixels>(getenv("label_size"sv), [&legend_element](Pixels val) { legend_element.label_size(val); });
+            rjson::v3::call_if_not_null<Pixels>(getenv("point_size"sv), [&legend_element](Pixels val) { legend_element.point_size(val); });
 
             getenv("title"sv).visit([&legend_element]<typename Val>(const Val& title) {
                 auto insertion_point{legend_element.lines().begin()};
