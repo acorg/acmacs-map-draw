@@ -3,7 +3,7 @@
 #include "acmacs-virus/type-subtype.hh"
 #include "acmacs-chart-2/chart.hh"
 #include "hidb-5/hidb.hh"
-#include "acmacs-map-draw/chart-select-interface.hh"
+#include "acmacs-map-draw/draw.hh"
 
 // ----------------------------------------------------------------------
 
@@ -67,6 +67,13 @@ namespace acmacs::map_draw::select::filter
         const auto& all_styles = aChartSelectInterface.plot_spec().all_styles();
         const auto not_shown = [&all_styles, aIndexBase](auto index) -> bool { return !all_styles[index + aIndexBase].shown(); };
         indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_shown), indexes.end());
+    }
+
+    inline void with_label_in(const ChartDraw& chart_draw, acmacs::chart::Indexes& indexes, size_t aIndexBase, bool with_label)
+    {
+        const auto& labels = chart_draw.labels();
+        const auto is_remove = [&labels, with_label, aIndexBase](auto index) -> bool { return labels.exists(index + aIndexBase) != with_label; };
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), is_remove), indexes.end());
     }
 
     void rectangle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::Layout& aLayout, const acmacs::Rectangle& aRectangle, Rotation rotation);

@@ -126,7 +126,8 @@ class ChartDraw : public ChartSelectInterface
     }
     map_elements::v1::Title& title() { return dynamic_cast<map_elements::v1::Title&>(mMapElements["title"]); }
     bool has_title() const { return mMapElements.exists("title"); }
-    map_elements::Labels& labels() { return mLabels; }
+    constexpr map_elements::Labels& labels() { return mLabels; }
+    constexpr const map_elements::Labels& labels() const { return mLabels; }
     acmacs::draw::PointLabel& add_label(size_t aIndex) { return mLabels.add(aIndex, chart()); }
     void add_all_labels() const { const_cast<ChartDraw*>(this)->mLabels.add_all(chart()); }
     void remove_label(size_t aIndex) { return mLabels.remove(aIndex); }

@@ -542,6 +542,14 @@ static inline void check_color(const ChartSelectInterface& aChartSelectInterface
 
 // ----------------------------------------------------------------------
 
+static inline void check_with_label(const ChartDraw& chart_draw, acmacs::chart::PointIndexList& indexes, std::string_view /*key*/, const rjson::v3::value& value)
+{
+    acmacs::map_draw::select::filter::with_label_in(chart_draw, indexes, 0, rjson::v3::read_bool(value, false));
+
+} // check_color
+
+// ----------------------------------------------------------------------
+
 template <typename AgSr> static inline void check_inside(const acmacs::mapi::v1::Settings& settings, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
 {
     using namespace std::string_view_literals;
@@ -689,6 +697,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                         check_lineage(chart_draw().chart(), indexes, key, value);
                     else if (key == "fill"sv || key == "outline"sv || key == "outline-width"sv || key == "outline_width"sv)
                         check_color(chart_draw(), indexes, key, value);
+                    else if (key == "with-label"sv)
+                        check_with_label(chart_draw(), indexes, key, value);
                     else if (key == "exclude-distinct"sv || key == "exclude_distinct"sv)
                         acmacs::map_draw::select::filter::out_distinct_in(ag_sr, indexes);
                     else if (key == "serum-id"sv || key == "serum_id"sv) {
