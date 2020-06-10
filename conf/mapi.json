@@ -29,6 +29,11 @@
         {"N": "sera",     "select": "all",       "size": 8.0, "outline_width": 1.0}
     ],
 
+    "/no-labels": [
+        {"N": "antigens", "select": "all", "label": {"show": false}},
+        {"N": "sera",     "select": "all", "label": {"show": false}}
+    ],
+
     "/egg": [
         {"N": "antigens", "select": {"passage": "egg"}, "shape": "egg", "aspect": 1.0, "?aspect": 0.75},
         {"N": "antigens", "select": {"passage": "reassortant"}, "shape": "egg", "aspect": 1.0, "rotation": 0.2},
