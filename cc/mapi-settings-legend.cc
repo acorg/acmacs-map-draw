@@ -52,7 +52,7 @@ bool acmacs::mapi::v1::Settings::apply_legend()
         }
     }
     else {
-        AD_DEBUG("remove_legend");
+        // AD_DEBUG("remove_legend");
         chart_draw().remove_legend();
     }
 

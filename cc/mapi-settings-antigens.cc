@@ -658,7 +658,7 @@ template <typename AgSr> static inline void check_found_in(const AgSr& ag_sr, co
 
 // ----------------------------------------------------------------------
 
-template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select(const AgSr& ag_sr, const rjson::v3::value& select_clause, if_null ifnull) const
+template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_mapi(const AgSr& ag_sr, const rjson::v3::value& select_clause, if_null ifnull) const
 {
     using namespace std::string_view_literals;
 
@@ -769,6 +769,22 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
         }
     }
     return indexes;
+
+} // acmacs::mapi::v1::Settings::select_mapi
+
+// ----------------------------------------------------------------------
+
+acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select(const acmacs::chart::Antigens& antigens, const rjson::v3::value& select_clause, if_null ifnull) const
+{
+    return select_mapi(antigens, select_clause, ifnull);
+
+} // acmacs::mapi::v1::Settings::select
+
+// ----------------------------------------------------------------------
+
+acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select(const acmacs::chart::Sera& sera, const rjson::v3::value& select_clause, if_null ifnull) const
+{
+    return select_mapi(sera, select_clause, ifnull);
 
 } // acmacs::mapi::v1::Settings::select
 
