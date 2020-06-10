@@ -658,7 +658,7 @@ template <typename AgSr> static inline void check_found_in(const AgSr& ag_sr, co
 
 // ----------------------------------------------------------------------
 
-template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_mapi(const AgSr& ag_sr, const rjson::v3::value& select_clause, if_null ifnull) const
+template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select(const AgSr& ag_sr, const rjson::v3::value& select_clause, if_null ifnull) const
 {
     using namespace std::string_view_literals;
 
@@ -679,7 +679,9 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
             else if constexpr (std::is_same_v<Value, rjson::v3::detail::object>) {
                 for (const auto& [key, value_raw] : select_clause_v) {
                     const auto& value{substitute_to_value(value_raw)};
-                    if (check_reference(ag_sr, indexes, key, value))
+                    if (select(ag_sr, indexes, key, value)) // to process in derived class (e.g. tal)
+                        ; // processed
+                    else if (check_reference(ag_sr, indexes, key, value))
                         ; // processed
                     else if (key == "date"sv || key == "dates"sv || key == "date_range"sv)
                         check_date(chart_draw().chart(), ag_sr, indexes, key, value);
@@ -770,21 +772,21 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
     }
     return indexes;
 
-} // acmacs::mapi::v1::Settings::select_mapi
+} // acmacs::mapi::v1::Settings::select
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select(const acmacs::chart::Antigens& antigens, const rjson::v3::value& select_clause, if_null ifnull) const
+bool acmacs::mapi::v1::Settings::select(const acmacs::chart::Antigens& /*antigens*/, acmacs::chart::PointIndexList& /*indexes*/, std::string_view /*key*/, const rjson::v3::value& /*value*/) const
 {
-    return select_mapi(antigens, select_clause, ifnull);
+    return false;
 
 } // acmacs::mapi::v1::Settings::select
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select(const acmacs::chart::Sera& sera, const rjson::v3::value& select_clause, if_null ifnull) const
+bool acmacs::mapi::v1::Settings::select(const acmacs::chart::Sera& /*sera*/, acmacs::chart::PointIndexList& /*indexes*/, std::string_view /*key*/, const rjson::v3::value& /*value*/) const
 {
-    return select_mapi(sera, select_clause, ifnull);
+    return false;
 
 } // acmacs::mapi::v1::Settings::select
 

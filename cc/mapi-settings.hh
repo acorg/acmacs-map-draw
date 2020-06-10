@@ -69,6 +69,14 @@ namespace acmacs::mapi::inline v1
 
         void filter_inside_path(acmacs::chart::PointIndexList& indexes, const rjson::v3::value& points, size_t index_base) const; // mapi-settings-drawing.cc
 
+      protected:
+        // ----------------------------------------------------------------------
+        // mapi-settings-antigens.cc
+
+        // returns if key has been processed
+        virtual bool select(const acmacs::chart::Antigens& antigens, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value) const;
+        virtual bool select(const acmacs::chart::Sera& sera, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value) const;
+
       private:
         ChartDraw& chart_draw_;
 
@@ -82,9 +90,7 @@ namespace acmacs::mapi::inline v1
 
         bool apply_antigens();
         bool apply_sera();
-        virtual acmacs::chart::PointIndexList select(const acmacs::chart::Antigens& antigens, const rjson::v3::value& select_clause, if_null ifnull) const;
-        virtual acmacs::chart::PointIndexList select(const acmacs::chart::Sera& sera, const rjson::v3::value& select_clause, if_null ifnull) const;
-        template <typename AgSr> acmacs::chart::PointIndexList select_mapi(const AgSr& ag_sr, const rjson::v3::value& select_clause, if_null ifnull) const;
+        template <typename AgSr> acmacs::chart::PointIndexList select(const AgSr& ag_sr, const rjson::v3::value& select_clause, if_null ifnull) const;
         template <typename AgSr> void check_titrated_against(acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value) const;
         void mark_serum(size_t serum_index, const rjson::v3::value& style);
 
