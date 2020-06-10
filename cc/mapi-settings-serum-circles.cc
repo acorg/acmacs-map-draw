@@ -181,12 +181,14 @@ void acmacs::mapi::v1::Settings::make_circle(map_elements::v1::SerumCircle& circ
                     std::optional<acmacs::color::Modifier> color;
                     if constexpr (std::is_same_v<Val, acmacs::color::Modifier>)
                         color = value;
-                    else if (serum_passage == "egg"sv) // Val = passage_color_t
-                        color = value.egg;
-                    else if (serum_passage == "cell"sv)
-                        color = value.cell;
-                    else if (serum_passage == "reassortant"sv)
-                        color = value.reassortant;
+                    else if constexpr (std::is_same_v<Val, passage_color_t>) {
+                        if (serum_passage == "egg"sv) // Val = passage_color_t
+                            color = value.egg;
+                        else if (serum_passage == "cell"sv)
+                            color = value.cell;
+                        else if (serum_passage == "reassortant"sv)
+                            color = value.reassortant;
+                    } // const rjson::v3::value* variant is not handled (it's extension)
                     if (color.has_value())
                         return *color;
                     else

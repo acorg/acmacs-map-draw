@@ -834,8 +834,9 @@ void acmacs::mapi::v1::Settings::update_style(point_style_t& style, std::string_
             [&style]<typename Modifier>(const Modifier& modifier) {
                 if constexpr (std::is_same_v<Modifier, acmacs::color::Modifier>)
                     style.style.fill(modifier);
-                else
+                else if constexpr (std::is_same_v<Modifier, passage_color_t>)
                     style.passage_fill = modifier;
+                // const rjson::v3::value* variant not handled (extension)
             },
             color(val));
     }
@@ -844,8 +845,9 @@ void acmacs::mapi::v1::Settings::update_style(point_style_t& style, std::string_
             [&style]<typename Modifier>(const Modifier& modifier) {
                 if constexpr (std::is_same_v<Modifier, acmacs::color::Modifier>)
                     style.style.outline(modifier);
-                else
+                else if constexpr (std::is_same_v<Modifier, passage_color_t>)
                     style.passage_outline = modifier;
+                // const rjson::v3::value* variant not handled (extension)
             },
             color(val));
     }
@@ -994,9 +996,10 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
                             passage_color_t passage_color;
                             bool used = make_color_passage(passage_color, val["egg"sv], val["reassortant"sv], val["cell"sv]);
                             used |= make_color_aa_at(passage_color, val["aa-at"sv], val["colors"sv]);
-                            if (!used && !val.empty())
-                                AD_WARNING("unrecognized color specification: {}", *substituted_val);
-                            return passage_color;
+                            if (used || val.empty())
+                                return passage_color;
+                            else
+                                return substituted_val;
                         }
                         else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>) {
                             if (if_null.has_value())
