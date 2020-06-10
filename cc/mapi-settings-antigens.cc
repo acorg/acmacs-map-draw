@@ -953,18 +953,24 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
             substituted);
     };
 
-    const auto make_color_passage = [this, make_color_passage_helper](passage_color_t& result, const rjson::v3::value& egg, const rjson::v3::value& reassortant, const rjson::v3::value& cell) {
-        if (!egg.is_null() || !reassortant.is_null() || !cell.is_null())
+    const auto make_color_passage = [this, make_color_passage_helper](passage_color_t& result, const rjson::v3::value& egg, const rjson::v3::value& reassortant, const rjson::v3::value& cell) -> bool {
+        if (!egg.is_null() || !reassortant.is_null() || !cell.is_null()) {
             result.init_passage_colors();
-        if (const auto egg_val = make_color_passage_helper(substitute(egg)); egg_val.has_value())
-            result.egg = result.reassortant = *egg_val;
-        if (const auto reassortant_val = make_color_passage_helper(substitute(reassortant)); reassortant_val.has_value())
-            result.reassortant = *reassortant_val;
-        if (const auto cell_val = make_color_passage_helper(substitute(cell)); cell_val.has_value())
-            result.cell = *cell_val;
+            if (const auto egg_val = make_color_passage_helper(substitute(egg)); egg_val.has_value())
+                result.egg = result.reassortant = *egg_val;
+            if (const auto reassortant_val = make_color_passage_helper(substitute(reassortant)); reassortant_val.has_value())
+                result.reassortant = *reassortant_val;
+            if (const auto cell_val = make_color_passage_helper(substitute(cell)); cell_val.has_value())
+                result.cell = *cell_val;
+            return true;
+        }
+        else
+            return false;
     };
 
-    const auto make_color_aa_at = [](passage_color_t& result, const rjson::v3::value& aa_at, const rjson::v3::value& colors) {
+    const auto make_color_aa_at = [](passage_color_t& result, const rjson::v3::value& aa_at, const rjson::v3::value& colors) -> bool {
+        if (aa_at.is_null())
+            return false;
         result.pos = rjson::v3::read_number<acmacs::seqdb::pos1_t>(aa_at);
         colors.visit([&result]<typename Val>(const Val& color_values) {
             if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
@@ -974,19 +980,22 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
             else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
                 AD_WARNING("invalid \"colors\": {} (array of colors expected)", color_values);
         });
+        return true;
     };
 
     try {
         return std::visit(
             [make_color, make_color_passage, make_color_aa_at, &if_null]<typename Value>(const Value& substituted_val) -> modifier_or_passage_t {
                 if constexpr (std::is_same_v<Value, const rjson::v3::value*>) {
-                    return substituted_val->visit([make_color, make_color_passage, make_color_aa_at, &if_null]<typename Val>(const Val& val) -> modifier_or_passage_t {
+                    return substituted_val->visit([make_color, make_color_passage, make_color_aa_at, &if_null, substituted_val]<typename Val>(const Val& val) -> modifier_or_passage_t {
                         if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
                             return make_color(val.template to<std::string_view>());
                         else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
                             passage_color_t passage_color;
-                            make_color_passage(passage_color, val["egg"sv], val["reassortant"sv], val["cell"sv]);
-                            make_color_aa_at(passage_color, val["aa-at"sv], val["colors"sv]);
+                            bool used = make_color_passage(passage_color, val["egg"sv], val["reassortant"sv], val["cell"sv]);
+                            used |= make_color_aa_at(passage_color, val["aa-at"sv], val["colors"sv]);
+                            if (!used && !val.empty())
+                                AD_WARNING("unrecognized color specification: {}", *substituted_val);
                             return passage_color;
                         }
                         else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>) {
