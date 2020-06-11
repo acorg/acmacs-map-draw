@@ -7,8 +7,6 @@
 namespace acmacs::log
 {
     // enum {
-    //     clades = 16,
-    //     hz_sections
     // };
 
 }
