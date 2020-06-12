@@ -101,7 +101,7 @@ int main(int argc, char* const argv[])
                 }
             }
             else {
-                settings.apply_first({"mapi"sv, "mapi-default"sv}, acmacs::mapi::Settings::throw_if_nothing_applied::yes);
+                settings.apply("mapi"sv);
             }
 
             chart_draw.calculate_viewport();
