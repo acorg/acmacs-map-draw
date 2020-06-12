@@ -129,11 +129,10 @@ bool acmacs::mapi::v1::Settings::apply_title()
     if (rjson::v3::read_bool(getenv("remove-lines"sv), false))
         title_element.remove_all_lines();
 
-    getenv("lines"sv).visit([&title_element, this]<typename Val>(const Val& lines) {
+    getenv("lines"sv).visit([&title_element]<typename Val>(const Val& lines) {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-            const auto& chart_access = chart_draw().chart(0);
             for (const auto& line : lines)
-                title_element.add_line(substitute_chart_metadata(line.template to<std::string_view>(), chart_access));
+                title_element.add_line(line.template to<std::string_view>());
         }
         else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
             throw error{fmt::format("unrecognized: {} (expected array of strings)", lines)};

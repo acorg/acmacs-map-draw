@@ -24,7 +24,7 @@ bool acmacs::mapi::v1::Settings::apply_export()
     using namespace std::string_view_literals;
     const auto& chart_access = get_chart(getenv("chart"sv), 0);
     const auto filename_pattern = rjson::v3::read_string(getenv("filename"sv, toplevel_only::no, if_no_substitution_found::null, throw_if_partial_substitution::no), chart_access.filename());
-    const auto filename{substitute_chart_metadata(filename_pattern, chart_access)};
+    const auto filename{chart_access.substitute_metadata(filename_pattern)};
     chart_access.export_chart(filename);
     return true;
 
@@ -37,7 +37,7 @@ bool acmacs::mapi::v1::Settings::apply_pdf()
     using namespace std::string_view_literals;
     const auto& chart_access = chart_draw().chart(0); // can draw just the chart 0 // get_chart(getenv("chart"sv), 0);
     const auto filename_pattern = rjson::v3::read_string(getenv("filename"sv, toplevel_only::no, if_no_substitution_found::null, throw_if_partial_substitution::no), chart_access.filename());
-    make_pdf(substitute_chart_metadata(filename_pattern, chart_access), rjson::v3::read_number(getenv("width"sv), 800.0), rjson::v3::read_bool(getenv("open"sv), false));
+    make_pdf(chart_access.substitute_metadata(filename_pattern), rjson::v3::read_number(getenv("width"sv), 800.0), rjson::v3::read_bool(getenv("open"sv), false));
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_pdf

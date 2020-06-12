@@ -150,7 +150,28 @@ void map_elements::v1::LegendPointLabel::draw(acmacs::draw::DrawElements& aDrawE
 
 // ----------------------------------------------------------------------
 
-// obsolete
+void map_elements::v1::Title::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& chart_draw) const
+{
+    if (mShow && (mLines.size() > 1 || (!mLines.empty() && !mLines.front().empty()))) {
+        std::vector<std::string> lines(mLines.size());
+        std::transform(std::begin(mLines), std::end(mLines), std::begin(lines), [&chart_draw](const auto& line) { return chart_draw.chart(0).substitute_metadata(line); });
+        aDrawElements.title(lines)
+            .text_color(mTextColor)
+            .text_size(mTextSize)
+            .text_style(mTextStyle)
+            .interline(mInterline)
+            .padding(mPadding)
+            .origin(mOrigin)
+            .background(mBackground)
+            .border_color(mBorderColor)
+            .border_width(mBorderWidth);
+    }
+
+} // map_elements::v1::Title::draw
+
+// ----------------------------------------------------------------------
+
+// !!! obsolete !!!
 void map_elements::v1::Title::draw(acmacs::surface::Surface& aSurface) const
 {
     // obsolete
@@ -191,26 +212,7 @@ void map_elements::v1::Title::draw(acmacs::surface::Surface& aSurface) const
 
 // ----------------------------------------------------------------------
 
-void map_elements::v1::Title::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
-{
-    if (mShow && (mLines.size() > 1 || (!mLines.empty() && !mLines.front().empty()))) {
-        aDrawElements.title(mLines)
-                .text_color(mTextColor)
-                .text_size(mTextSize)
-                .text_style(mTextStyle)
-                .interline(mInterline)
-                .padding(mPadding)
-                .origin(mOrigin)
-                .background(mBackground)
-                .border_color(mBorderColor)
-                .border_width(mBorderWidth);
-    }
-
-} // map_elements::v1::Title::draw
-
-// ----------------------------------------------------------------------
-
-// obsolete
+// !!! obsolete !!!
 void map_elements::v1::SerumCircle::draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const
 {
     if (mSerumNo != static_cast<size_t>(-1)) {

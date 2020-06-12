@@ -50,6 +50,9 @@ class ChartAccess
 
     void export_chart(std::string_view filename) const;
 
+    void chart_metadata(fmt::dynamic_format_arg_store<fmt::format_context>& store) const;
+    std::string substitute_metadata(std::string_view pattern) const;
+
   private:
     const std::string_view filename_;
     const size_t projection_no_;

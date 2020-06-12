@@ -108,6 +108,78 @@ acmacs::seqdb::v3::Seqdb::aas_indexes_t ChartAccess::aa_at_pos1_for_antigens(con
 
 } // ChartAccess::aa_at_pos1_for_antigens
 
+// ----------------------------------------------------------------------
+
+void ChartAccess::chart_metadata(fmt::dynamic_format_arg_store<fmt::format_context>& store) const
+{
+    using namespace std::string_view_literals;
+
+    auto info{chart().info()};
+    auto titers{chart().titers()};
+    const auto& projection = modified_projection();
+
+    const std::string virus_type{info->virus_type()}, lineage{chart().lineage()};
+    const auto assay{info->assay()};
+    const auto subset{info->subset(acmacs::chart::Info::Compute::Yes)};
+
+    std::string virus_type_lineage;
+    if (lineage.empty())
+        virus_type_lineage = virus_type;
+    else
+        virus_type_lineage = fmt::format("{}/{}", virus_type, ::string::capitalize(lineage.substr(0, 3)));
+    std::string virus_type_lineage_subset_short;
+    if (virus_type == "A(H1N1)"sv) {
+        if (subset == "2009pdm"sv)
+            virus_type_lineage_subset_short = "h1pdm";
+        else
+            virus_type_lineage_subset_short = "h1";
+    }
+    else if (virus_type == "A(H3N2)"sv)
+        virus_type_lineage_subset_short = "h3";
+    else if (virus_type == "B"sv)
+        virus_type_lineage_subset_short = fmt::format("b{}", ::string::lower(lineage.substr(0, 3)));
+    else
+        virus_type_lineage_subset_short = ::string::lower(virus_type);
+
+    // https://stackoverflow.com/questions/61635042/c-how-can-i-formatting-stdstring-with-collection-efficiently
+    store.push_back(fmt::arg("virus", info->virus()));
+    store.push_back(fmt::arg("virus_type", virus_type));
+    store.push_back(fmt::arg("virus_type_lineage", virus_type_lineage));
+    store.push_back(fmt::arg("lineage", lineage));
+    store.push_back(fmt::arg("subset", subset));
+    store.push_back(fmt::arg("SUBSET", ::string::upper(subset)));
+    store.push_back(fmt::arg("virus_type_lineage_subset_short", virus_type_lineage_subset_short));
+    store.push_back(fmt::arg("assay", assay.hi_or_neut()));
+    store.push_back(fmt::arg("assay_full", assay));
+    store.push_back(fmt::arg("lab", info->lab()));
+    store.push_back(fmt::arg("lab_lower", ::string::lower(info->lab())));
+    store.push_back(fmt::arg("rbc", info->rbc_species()));
+    store.push_back(fmt::arg("table_date", info->date(acmacs::chart::Info::Compute::Yes)));
+    store.push_back(fmt::arg("number_of_antigens", chart().number_of_antigens()));
+    store.push_back(fmt::arg("number_of_sera", chart().number_of_sera()));
+    store.push_back(fmt::arg("number_of_layers", titers->number_of_layers()));
+    store.push_back(fmt::arg("minimum_column_basis", static_cast<std::string>(projection.minimum_column_basis())));
+    store.push_back(fmt::arg("stress", projection.stress()));
+    store.push_back(fmt::arg("name", chart().make_name()));
+
+} // ChartAccess::chart_metadata
+
+// ----------------------------------------------------------------------
+
+std::string ChartAccess::substitute_metadata(std::string_view pattern) const
+{
+    try {
+        fmt::dynamic_format_arg_store<fmt::format_context> store;
+        chart_metadata(store);
+        return fmt::vformat(pattern, store);
+    }
+    catch (std::exception& err) {
+        AD_ERROR("fmt cannot substitute in \"{}\": {}", pattern, err);
+        throw;
+    }
+
+} // ChartAccess::substitute_metadata
+
 // ======================================================================
 
 enum VaccineData::type VaccineData::type_from(std::string_view source)

@@ -21,7 +21,7 @@ std::string acmacs::mapi::v1::Settings::time_series_substitute(std::string_view 
 {
     try {
         fmt::dynamic_format_arg_store<fmt::format_context> fmt_args;
-        chart_metadata(fmt_args, chart_draw().chart(0));
+        chart_draw().chart(0).chart_metadata(fmt_args);
         fmt_args.push_back(fmt::arg("ts_text", acmacs::time_series::text_name(slot)));
         fmt_args.push_back(fmt::arg("ts_numeric", acmacs::time_series::numeric_name(slot)));
         return fmt::vformat(pattern, fmt_args);
