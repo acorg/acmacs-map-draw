@@ -1,5 +1,6 @@
 #include "acmacs-base/rjson-v3-helper.hh"
 #include "acmacs-base/string-compare.hh"
+#include "acmacs-base/string-substitute.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/select-filter.hh"
@@ -20,11 +21,8 @@ void acmacs::mapi::v1::Settings::time_series_generate(std::string_view filename_
 std::string acmacs::mapi::v1::Settings::time_series_substitute(std::string_view pattern, const acmacs::time_series::slot& slot) const
 {
     try {
-        fmt::dynamic_format_arg_store<fmt::format_context> fmt_args;
-        chart_draw().chart(0).chart_metadata(fmt_args);
-        fmt_args.push_back(fmt::arg("ts_text", acmacs::time_series::text_name(slot)));
-        fmt_args.push_back(fmt::arg("ts_numeric", acmacs::time_series::numeric_name(slot)));
-        return fmt::vformat(pattern, fmt_args);
+        const auto sub1 = chart_draw().chart(0).substitute_metadata(pattern);
+        return acmacs::string::substitute(sub1, std::pair("ts_text", acmacs::time_series::text_name(slot)), std::pair("ts_numeric", acmacs::time_series::numeric_name(slot)));
     }
     catch (std::exception& err) {
         AD_ERROR("fmt cannot substitute in \"{}\": {}", pattern, err);

@@ -1,3 +1,4 @@
+#include "acmacs-base/string-substitute.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-chart-2/factory-export.hh"
 #include "acmacs-map-draw/chart-select-interface.hh"
@@ -171,7 +172,7 @@ std::string ChartAccess::substitute_metadata(std::string_view pattern) const
     try {
         fmt::dynamic_format_arg_store<fmt::format_context> store;
         chart_metadata(store);
-        return fmt::vformat(pattern, store);
+        return acmacs::string::substitute_from_store(pattern, store, acmacs::string::if_no_substitution_found::leave_as_is);
     }
     catch (std::exception& err) {
         AD_ERROR("fmt cannot substitute in \"{}\": {}", pattern, err);
