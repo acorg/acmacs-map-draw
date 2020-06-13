@@ -79,9 +79,6 @@ namespace acmacs::mapi::inline v1
         virtual bool select(const acmacs::chart::Antigens& antigens, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value) const;
         virtual bool select(const acmacs::chart::Sera& sera, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value) const;
 
-      private:
-        ChartDraw& chart_draw_;
-
         // std::string substitute_chart_metadata(std::string_view pattern, const ChartAccess& chart_access) const;
         // void chart_metadata(fmt::dynamic_format_arg_store<fmt::format_context>& store, const ChartAccess& chart_access) const;
 
@@ -206,6 +203,9 @@ namespace acmacs::mapi::inline v1
         time_series_data time_series_settings() const;
         std::string time_series_substitute(std::string_view pattern, const acmacs::time_series::slot& slot) const;
         void time_series_generate(std::string_view filename_pattern, const acmacs::time_series::slot& slot) const;
+
+      private:
+        ChartDraw& chart_draw_;
 
     }; // class Settings
 
