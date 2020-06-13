@@ -155,7 +155,7 @@ namespace acmacs::mapi::inline v1
         void add_legend(const acmacs::chart::PointIndexList& indexes, const acmacs::PointStyleModified& style, const rjson::v3::value& legend_data);
         void add_legend(const acmacs::chart::PointIndexList& indexes, const acmacs::PointStyleModified& style, std::string_view label, const rjson::v3::value& legend_data);
 
-        map_elements::v1::Title& title();
+        virtual map_elements::v1::Title& title();
         bool apply_title();
 
         // ----------------------------------------------------------------------
