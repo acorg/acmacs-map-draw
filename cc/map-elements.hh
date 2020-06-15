@@ -29,22 +29,34 @@ namespace map_elements
         enum Order { BeforePoints, AfterPoints };
 
         Elements();
-        Element& operator[](std::string keyword);
 
         void reset();
 
         void remove(std::string keyword);
         bool exists(std::string keyword) const;
 
-        Element& add(std::string_view keyword);
-        template <typename ElementType> ElementType& find_or_add(std::string_view keyword) { return dynamic_cast<ElementType&>(find_or_add_raw(keyword)); }
-
-        template <typename Elt> Elt& add()
+        template <typename ElementType> ElementType& find(std::string_view keyword)
         {
-            auto ptr = std::make_unique<Elt>();
+            if (auto* found = find_base(keyword); found)
+                return dynamic_cast<ElementType&>(*found);
+            else
+                throw std::runtime_error{fmt::format("no map element for \"{}\"", keyword)};
+        }
+
+        template <typename ElementType, typename ... Arg> ElementType& add(Arg&& ... arg)
+        {
+            auto ptr = std::make_unique<ElementType>(std::forward<Arg>(arg) ...);
             auto& elt = *ptr;
             mElements.push_back(std::move(ptr));
             return elt;
+        }
+
+        template <typename ElementType, typename ... Arg> ElementType& find_or_add(std::string_view keyword, Arg&& ... arg)
+        {
+            if (auto* found = find_base(keyword); found)
+                return dynamic_cast<ElementType&>(*found);
+            else
+                return add<ElementType>(std::forward<Arg>(arg) ...);
         }
 
         void draw(acmacs::surface::Surface& aSurface, Order aOrder, const ChartDraw& aChartDraw) const;
@@ -54,8 +66,8 @@ namespace map_elements
         std::vector<std::shared_ptr<Element>> mElements;
 
         void add_basic_elements_v1();
-        bool add_v1(std::string_view keyword);
-        Element& find_or_add_raw(std::string_view keyword);
+
+        Element* find_base(std::string_view keyword);
 
     }; // class Elements
 

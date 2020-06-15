@@ -6,44 +6,6 @@
 
 // ----------------------------------------------------------------------
 
-bool map_elements::Elements::add_v1(std::string_view aKeyword)
-{
-    using namespace std::string_view_literals;
-    using namespace map_elements::v1;
-
-    if (aKeyword == "line"sv || aKeyword == "line_from_to"sv)
-        add<LineFromTo>();
-    else if (aKeyword == "path"sv)
-        add<Path>();
-    else if (aKeyword == "line_slope"sv)
-        add<LineSlope>();
-    else if (aKeyword == "arrow"sv)
-        add<Arrow>();
-    else if (aKeyword == "point"sv)
-        add<Point>();
-    else if (aKeyword == "rectangle"sv)
-        add<Rectangle>();
-    else if (aKeyword == "circle"sv)
-        add<Circle>();
-    else if (aKeyword == "continent-map"sv)
-        add<ContinentMap>();
-    else if (aKeyword == "legend-point-label"sv)
-        add<LegendPointLabel>();
-    else if (aKeyword == "title"sv)
-        add<Title>();
-    else if (aKeyword == "serum-circle"sv)
-        add<SerumCircle>();
-    // else if (aKeyword == "background-border-grid"sv)
-    //     return add<BackgroundBorderGrid>();
-    else
-        return false;
-
-    return true;
-
-} // map_elements::Elements::add_v1
-
-// ----------------------------------------------------------------------
-
 void map_elements::Elements::add_basic_elements_v1()
 {
     add<map_elements::v1::BackgroundBorderGrid>();
@@ -150,11 +112,19 @@ void map_elements::v1::LegendPointLabel::draw(acmacs::draw::DrawElements& aDrawE
 
 // ----------------------------------------------------------------------
 
+std::string map_elements::v1::Title::update_line_before_drawing(std::string_view line, const ChartDraw& chart_draw) const
+{
+    return chart_draw.chart(0).substitute_metadata(line);
+
+} // map_elements::v1::Title::update_line_before_drawing
+
+// ----------------------------------------------------------------------
+
 void map_elements::v1::Title::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& chart_draw) const
 {
     if (mShow && (mLines.size() > 1 || (!mLines.empty() && !mLines.front().empty()))) {
         std::vector<std::string> lines(mLines.size());
-        std::transform(std::begin(mLines), std::end(mLines), std::begin(lines), [&chart_draw](const auto& line) { return chart_draw.chart(0).substitute_metadata(line); });
+        std::transform(std::begin(mLines), std::end(mLines), std::begin(lines), [&chart_draw, this](const auto& line) { return update_line_before_drawing(line, chart_draw); });
         aDrawElements.title(lines)
             .text_color(mTextColor)
             .text_size(mTextSize)

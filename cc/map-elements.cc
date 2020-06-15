@@ -28,37 +28,14 @@ bool map_elements::Elements::exists(std::string keyword) const
 
 // ----------------------------------------------------------------------
 
-map_elements::Element& map_elements::Elements::operator[](std::string keyword)
+map_elements::Element* map_elements::Elements::find_base(std::string_view keyword)
 {
     if (auto found = std::find_if(mElements.begin(), mElements.end(), [&keyword](const auto& element) { return element->keyword() == keyword; }); found != mElements.end())
-        return **found;
+        return found->get();
     else
-        return add(keyword);
+        return nullptr;
 
-} // map_elements::Elements::operator[]
-
-// ----------------------------------------------------------------------
-
-map_elements::Element& map_elements::Elements::add(std::string_view keyword)
-{
-    using namespace std::string_view_literals;
-    if (add_v1(keyword))
-        return *mElements.back();
-    else
-        throw std::runtime_error{fmt::format("Don't know how to make map element {}", keyword)};
-
-} // map_elements::Elements::add
-
-// ----------------------------------------------------------------------
-
-map_elements::Element& map_elements::Elements::find_or_add_raw(std::string_view keyword)
-{
-    if (auto found = std::find_if(mElements.begin(), mElements.end(), [&keyword](const auto& element) { return element->keyword() == keyword; }); found != mElements.end())
-        return **found;
-    else
-        return add(keyword);
-
-} // map_elements::Elements::find_or_add
+} // map_elements::Elements::find_base
 
 // ----------------------------------------------------------------------
 
@@ -103,10 +80,6 @@ acmacs::PointCoordinates map_elements::Element::subsurface_origin(acmacs::surfac
     return subsurface_origin;
 
 } // map_elements::Element::subsurface_origin
-
-// ----------------------------------------------------------------------
-
-
 
 // ----------------------------------------------------------------------
 /// Local Variables:

@@ -105,26 +105,26 @@ class ChartDraw : public ChartSelectInterface
     void set_viewport(const acmacs::Viewport& viewport) { viewport_.set(viewport); }
     void set_viewport(const acmacs::PointCoordinates& origin, double size) { viewport_.set(origin, size); }
 
-    void background_color(Color aBackground) { dynamic_cast<map_elements::v1::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).background_color(aBackground); }
-    void grid(Color aGridColor, double aGridLineWidth) { dynamic_cast<map_elements::v1::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).grid(aGridColor, aGridLineWidth); }
-    void border(Color aBorderColor, double aBorderWidth) { dynamic_cast<map_elements::v1::BackgroundBorderGrid&>(mMapElements["background-border-grid"]).border(aBorderColor, aBorderWidth); }
-    auto& continent_map(const acmacs::PointCoordinates& aOffset, Pixels aWidth) { return dynamic_cast<map_elements::v1::ContinentMap&>(mMapElements["continent-map"]).offset_width(aOffset, aWidth); }
-    auto& continent_map() { return dynamic_cast<map_elements::v1::ContinentMap&>(mMapElements["continent-map"]); }
+    void background_color(Color aBackground) { mMapElements.find<map_elements::v1::BackgroundBorderGrid>("background-border-grid").background_color(aBackground); }
+    void grid(Color aGridColor, double aGridLineWidth) { mMapElements.find<map_elements::v1::BackgroundBorderGrid>("background-border-grid").grid(aGridColor, aGridLineWidth); }
+    void border(Color aBorderColor, double aBorderWidth) { mMapElements.find<map_elements::v1::BackgroundBorderGrid>("background-border-grid").border(aBorderColor, aBorderWidth); }
+    auto& continent_map(const acmacs::PointCoordinates& aOffset, Pixels aWidth) { return mMapElements.find<map_elements::v1::ContinentMap>("continent-map").offset_width(aOffset, aWidth); }
+    auto& continent_map() { return mMapElements.find<map_elements::v1::ContinentMap>("continent-map"); }
     map_elements::v1::LegendPointLabel& legend_point_label(const acmacs::PointCoordinates& aOffset)
     {
-        auto& legend = dynamic_cast<map_elements::v1::LegendPointLabel&>(mMapElements["legend-point-label"]);
+        auto& legend = mMapElements.find<map_elements::v1::LegendPointLabel>("legend-point-label");
         legend.offset(aOffset);
         return legend;
     }
-    map_elements::v1::LegendPointLabel& legend_point_label() { return dynamic_cast<map_elements::v1::LegendPointLabel&>(mMapElements["legend-point-label"]); }
+    map_elements::v1::LegendPointLabel& legend_point_label() { return mMapElements.find<map_elements::v1::LegendPointLabel>("legend-point-label"); }
     void remove_legend() { mMapElements.remove("legend-point-label"); }
     map_elements::v1::Title& title(const acmacs::PointCoordinates& aOffset)
     {
-        auto& title = dynamic_cast<map_elements::v1::Title&>(mMapElements["title"]);
+        auto& title = mMapElements.find<map_elements::v1::Title>("title");
         title.offset(aOffset);
         return title;
     }
-    map_elements::v1::Title& title() { return dynamic_cast<map_elements::v1::Title&>(mMapElements["title"]); }
+    map_elements::v1::Title& title() { return mMapElements.find<map_elements::v1::Title>("title"); }
     bool has_title() const { return mMapElements.exists("title"); }
     constexpr map_elements::Labels& labels() { return mLabels; }
     constexpr const map_elements::Labels& labels() const { return mLabels; }

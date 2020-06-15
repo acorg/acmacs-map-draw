@@ -261,7 +261,7 @@ void ChartDraw::mark_reassortant_antigens()
 
 map_elements::v1::SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled aRadius)
 {
-    auto& serum_circle = dynamic_cast<map_elements::v1::SerumCircle&>(mMapElements.add("serum-circle"));
+    auto& serum_circle = mMapElements.add<map_elements::v1::SerumCircle>();
     serum_circle.serum_no(aSerumNo);
     serum_circle.radius(aRadius);
     return serum_circle;
@@ -272,7 +272,7 @@ map_elements::v1::SerumCircle& ChartDraw::serum_circle(size_t aSerumNo, Scaled a
 
 map_elements::v1::Line& ChartDraw::line(const acmacs::PointCoordinates& aBegin, const acmacs::PointCoordinates& aEnd)
 {
-    auto& line = dynamic_cast<map_elements::v1::LineFromTo&>(mMapElements.add("line_from_to"));
+    auto& line = mMapElements.add<map_elements::v1::LineFromTo>();
     line.from_to(aBegin, aEnd);
     return line;
 
@@ -282,7 +282,7 @@ map_elements::v1::Line& ChartDraw::line(const acmacs::PointCoordinates& aBegin, 
 
 // map_elements::Line& ChartDraw::line(double slope, double intercept, apply_map_transformation a_apply_map_transformation)
 // {
-//     auto& line = dynamic_cast<map_elements::LineSlope&>(mMapElements.add("line_slope"));
+//     auto& line = dynamic_cast<mMapElements.add::LineSlope>();
 //     line.slope_intercept(slope, intercept);
 //     if (a_apply_map_transformation == apply_map_transformation::yes)
 //         line.apply_map_transformation(true);
@@ -294,7 +294,7 @@ map_elements::v1::Line& ChartDraw::line(const acmacs::PointCoordinates& aBegin, 
 
 map_elements::v1::Line& ChartDraw::line(const acmacs::LineDefinedByEquation& line, apply_map_transformation a_apply_map_transformation)
 {
-    auto& line_slope = dynamic_cast<map_elements::v1::LineSlope&>(mMapElements.add("line_slope"));
+    auto& line_slope = mMapElements.add<map_elements::v1::LineSlope>();
     line_slope.line(line);
     if (a_apply_map_transformation == apply_map_transformation::yes)
         line_slope.apply_map_transformation(true);
@@ -306,7 +306,7 @@ map_elements::v1::Line& ChartDraw::line(const acmacs::LineDefinedByEquation& lin
 
 map_elements::v1::Path& ChartDraw::path()
 {
-    return dynamic_cast<map_elements::v1::Path&>(mMapElements.add("path"));
+    return mMapElements.add<map_elements::v1::Path>();
 
 } // ChartDraw::path
 
@@ -314,7 +314,7 @@ map_elements::v1::Path& ChartDraw::path()
 
 map_elements::v1::Arrow& ChartDraw::arrow(const acmacs::PointCoordinates& aBegin, const acmacs::PointCoordinates& aEnd)
 {
-    auto& arrow = dynamic_cast<map_elements::v1::Arrow&>(mMapElements.add("arrow"));
+    auto& arrow = mMapElements.add<map_elements::v1::Arrow>();
     arrow.from_to(aBegin, aEnd);
     return arrow;
 
@@ -324,7 +324,7 @@ map_elements::v1::Arrow& ChartDraw::arrow(const acmacs::PointCoordinates& aBegin
 
 map_elements::v1::Point& ChartDraw::point(const acmacs::PointCoordinates& aCenter, Pixels aSize)
 {
-    auto& point = dynamic_cast<map_elements::v1::Point&>(mMapElements.add("point"));
+    auto& point = mMapElements.add<map_elements::v1::Point>();
     point.center(aCenter);
     point.size(aSize);
     return point;
@@ -335,7 +335,7 @@ map_elements::v1::Point& ChartDraw::point(const acmacs::PointCoordinates& aCente
 
 map_elements::v1::Rectangle& ChartDraw::rectangle(const acmacs::PointCoordinates& aCorner1, const acmacs::PointCoordinates& aCorner2)
 {
-    auto& rectangle = dynamic_cast<map_elements::v1::Rectangle&>(mMapElements.add("rectangle"));
+    auto& rectangle = mMapElements.add<map_elements::v1::Rectangle>();
     rectangle.corners(aCorner1, aCorner2);
     return rectangle;
 
@@ -345,7 +345,7 @@ map_elements::v1::Rectangle& ChartDraw::rectangle(const acmacs::PointCoordinates
 
 map_elements::v1::Circle& ChartDraw::circle(const acmacs::PointCoordinates& aCenter, Scaled aSize)
 {
-    auto& point = dynamic_cast<map_elements::v1::Circle&>(mMapElements.add("circle-v1"));
+    auto& point = mMapElements.add<map_elements::v1::Circle>();
     point.center(aCenter);
     point.size(aSize);
     return point;
