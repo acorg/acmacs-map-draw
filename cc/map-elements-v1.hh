@@ -150,6 +150,8 @@ namespace map_elements::v1
         void draw(acmacs::surface::Surface& aSurface, const ChartDraw& aChartDraw) const override;
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
+        auto radius() const { return mRadius; }
+
         SerumCircle& serum_no(size_t aSerumNo) { mSerumNo = aSerumNo; return *this; }
         SerumCircle& radius(Scaled aRadius) { mRadius = aRadius; return *this; }
         SerumCircle& fill(Color aFill) { mFillColor = aFill; return *this; }

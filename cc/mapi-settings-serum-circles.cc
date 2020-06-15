@@ -51,19 +51,19 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
             std::optional<size_t> mark_antigen;
             bool do_mark_serum{false};
             if (empirical.valid()) {
-                make_circle(chart_draw().serum_circle(serum_index, Scaled{empirical.radius()}), serum_passage, getenv("empirical"sv));
+                make_circle(serum_index, Scaled{empirical.radius()}, serum_passage, getenv("empirical"sv));
                 mark_antigen = empirical.per_antigen().front().antigen_no;
                 do_mark_serum = true;
             }
             if (theoretical.valid()) {
-                make_circle(chart_draw().serum_circle(serum_index, Scaled{theoretical.radius()}), serum_passage, getenv("theoretical"sv));
+                make_circle(serum_index, Scaled{theoretical.radius()}, serum_passage, getenv("theoretical"sv));
                 if (!mark_antigen.has_value())
                     mark_antigen = theoretical.per_antigen().front().antigen_no;
                 do_mark_serum = true;
             }
             if (!empirical.valid() && !theoretical.valid()) {
                 if (const auto& fallback = getenv("fallback"sv); !fallback.is_null() && rjson::v3::read_bool(fallback["show"sv], true)) {
-                    make_circle(chart_draw().serum_circle(serum_index, rjson::v3::read_number(fallback["radius"sv], Scaled{3.0})), serum_passage, fallback);
+                    make_circle(serum_index, rjson::v3::read_number(fallback["radius"sv], Scaled{3.0}), serum_passage, fallback);
                     do_mark_serum = true;
                 }
             }
@@ -161,11 +161,13 @@ static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Anti
 
 // ----------------------------------------------------------------------
 
-void acmacs::mapi::v1::Settings::make_circle(map_elements::v1::SerumCircle& circle, std::string_view serum_passage, const rjson::v3::value& plot)
+void acmacs::mapi::v1::Settings::make_circle(size_t serum_index, Scaled radius, std::string_view serum_passage, const rjson::v3::value& plot)
 {
     using namespace std::string_view_literals;
 
     if (rjson::v3::read_bool(plot["show"sv], true)) {
+        auto& circle = chart_draw().serum_circle(serum_index, radius);
+
         if (const auto outline_dash = rjson::v3::read_string(plot["outline_dash"sv], ""sv); outline_dash == "dash1"sv)
             circle.outline_dash1();
         else if (outline_dash == "dash2"sv)
@@ -201,6 +203,8 @@ void acmacs::mapi::v1::Settings::make_circle(map_elements::v1::SerumCircle& circ
         const auto outline_width{rjson::v3::read_number(plot["outline_width"sv], Pixels{1.0})};
         circle.outline(outline, outline_width);
         circle.fill(get_color(plot["fill"sv], TRANSPARENT));
+
+        // AD_DEBUG("make_circle {} {}", circle.radius(), outline);
 
         if (const auto& angles = plot["angles"sv]; !angles.is_null())
             circle.angles(rjson::v3::read_number<Rotation>(angles[0], Rotation{0}), rjson::v3::read_number<Rotation>(angles[1], Rotation{0}));

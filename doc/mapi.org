@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-09 18:48:02 eu>
+# Time-stamp: <2020-06-15 18:35:44 eu>
 
 * Common usage
 
@@ -353,17 +353,17 @@ http://geomalgorithms.com/a03-_inclusion.html
 * Serum Circles
 
 #+BEGIN_SRC json
-  {"N": "serum_circle", "serum": {<Select Sera>}, "?antigen": {<Select Antigens>}, "?homologous_titer": "1280",
+  {"N": "serum-circle", "serum": {<Select Sera>}, "?antigen": {<Select Antigens>}, "?homologous_titer": "1280",
    "report": true, "verbose": false,
    "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
-   "empirical":   {"fill":  "<color-modifier>", "outline": "<color-modifier>", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "<color-modifier>", "line_width": 1}},
-   "theoretical": {"fill":  "<color-modifier>", "outline": "<color-modifier>", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "<color-modifier>", "line_width": 1}},
-   "fallback":    {"fill":  "<color-modifier>", "outline": "<color-modifier>", "outline_width": 2, "outline_dash": "dash3",  "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "<color-modifier>", "line_width": 1}},
+   "empirical":    {"show": true, "fill": "<color-modifier>", "outline": "<color-modifier>", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "<color-modifier>", "line_width": 1}},
+   "theoretical":  {"show": true, "fill": "<color-modifier>", "outline": "<color-modifier>", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "<color-modifier>", "line_width": 1}},
+   "fallback":     {"show": true, "fill": "<color-modifier>", "outline": "<color-modifier>", "outline_width": 2, "outline_dash": "dash3",  "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "<color-modifier>", "line_width": 1}},
    "mark_serum":   {"fill": "<color-modifier>", "outline": "<color-modifier>", "order": "raise", "label": {"format": "{full_name}", "offset": [0, 1.2], "color": "black", "size": 12}},
    "mark_antigen": {"fill": "<color-modifier>", "outline": "<color-modifier>", "order": "raise", "label": {"format": "{full_name}", "offset": [0, 1.2], "color": "black", "size": 12}}
   }
 
-  {"N": "serum_coverage", "serum": {<select>}, "?antigen": {<select>}, "?homologous_titer": "1280",
+  {"N": "serum-coverage", "serum": {<select>}, "?antigen": {<select>}, "?homologous_titer": "1280",
    "report": true,
    "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
    "within_4fold": {"outline": "pink", "outline_width": 3, "order": "raise"},

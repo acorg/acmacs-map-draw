@@ -163,7 +163,7 @@ namespace acmacs::mapi::inline v1
 
         bool apply_serum_circles();
         acmacs::chart::PointIndexList select_antigens_for_serum_circle(size_t serum_index, const rjson::v3::value& antigen_selector);
-        void make_circle(map_elements::v1::SerumCircle& circle, std::string_view serum_passage, const rjson::v3::value& plot);
+        void make_circle(size_t serum_index, Scaled radius, std::string_view serum_passage, const rjson::v3::value& plot);
         bool apply_serum_coverage();
 
         // ----------------------------------------------------------------------
