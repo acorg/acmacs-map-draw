@@ -87,37 +87,43 @@ int main(int argc, char* const argv[])
             signal(SIGHUP, signal_handler);
 
         for (;;) {
-            if (!opt.apply.empty()) {
-                for (const auto& to_apply : opt.apply) {
-                    if (!to_apply.empty()) {
-                        if (to_apply[0] == '{' || to_apply[0] == '[') {
-                            settings.apply(to_apply);
-                        }
-                        else {
-                            for (const auto& to_apply_one : acmacs::string::split(to_apply))
-                                settings.apply(to_apply_one);
+            try {
+                if (!opt.apply.empty()) {
+                    for (const auto& to_apply : opt.apply) {
+                        if (!to_apply.empty()) {
+                            if (to_apply[0] == '{' || to_apply[0] == '[') {
+                                settings.apply(to_apply);
+                            }
+                            else {
+                                for (const auto& to_apply_one : acmacs::string::split(to_apply))
+                                    settings.apply(to_apply_one);
+                            }
                         }
                     }
                 }
-            }
-            else {
-                settings.apply("mapi"sv);
-            }
+                else {
+                    settings.apply("mapi"sv);
+                }
 
-            chart_draw.calculate_viewport();
-            AD_INFO("{:.2f}", chart_draw.viewport("mapi main"));
-            AD_INFO("transformation: {}", chart_draw.chart(0).modified_transformation());
+                chart_draw.calculate_viewport();
+                AD_INFO("{:.2f}", chart_draw.viewport("mapi main"));
+                AD_INFO("transformation: {}", chart_draw.chart(0).modified_transformation());
 
-            if (outputs.empty()) {
-                acmacs::file::temp output{fmt::format("{}--p{}.pdf", fs::path(inputs[0]).stem(), opt.projection)};
-                chart_draw.draw(output, 800, report_time::yes);
-                acmacs::quicklook(output, 2);
+                if (outputs.empty()) {
+                    acmacs::file::temp output{fmt::format("{}--p{}.pdf", fs::path(inputs[0]).stem(), opt.projection)};
+                    chart_draw.draw(output, 800, report_time::yes);
+                    acmacs::quicklook(output, 2);
+                }
+                else if (outputs[0] == "/dev/null"sv || outputs[0] == "/"sv) { // do not generate pdf
+                }
+                else {
+                    chart_draw.draw(outputs[0], 800, report_time::yes);
+                    acmacs::open_or_quicklook(opt.open, opt.ql, outputs[0]);
+                }
             }
-            else if (outputs[0] == "/dev/null"sv || outputs[0] == "/"sv) { // do not generate pdf
-            }
-            else {
-                chart_draw.draw(outputs[0], 800, report_time::yes);
-                acmacs::open_or_quicklook(opt.open, opt.ql, outputs[0]);
+            catch (std::exception& err) {
+                AD_ERROR("{}", err);
+                acmacs::run_and_detach({"submarine"}, 0);
             }
             if (opt.interactive) {
                 fmt::print(stderr, "mapi-i >> ");
@@ -139,8 +145,8 @@ int main(int argc, char* const argv[])
             else
                 break;
 
-            chart_draw.reset();
             try {
+                chart_draw.reset();
                 settings.reload();
             }
             catch (std::exception& err) {

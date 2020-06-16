@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-15 18:35:44 eu>
+# Time-stamp: <2020-06-16 17:04:30 eu>
 
 * Common usage
 
@@ -108,7 +108,7 @@ To print environment use:
   {"most-used-for-name": true} -- one antigen/serum per name (without passage, reassortant) which is the most used according to hidb
   {"most-used-for-name": 2} -- two antigens/sera per (without passage, reassortant) which are the most used according to hidb
 
-  {"inside": {"points": : [<point-position>, ...]}} -- see point-position in Drawing below, path is closed
+  {"inside": {"points": [<point-position>, ...]}} -- see point-position in Drawing below, path is closed
   # {"in-circle": <Circle in Drawing>}
 
   # {"outlier": 1.0} # threshold in units (distance from centroid of pre-selected points), must be after other select args, e.g. after "clade"
@@ -233,10 +233,10 @@ See [[file:~/AD/share/doc/color.org][color.org]]
 ** outline and fill depends on aa at pos
 
 #+BEGIN_SRC json
-  "fill": {"aa-at": 159}
+  "fill": {"aa-at": 159}, "legend": {"show": true, "label": "{pos}{aa} ({count})"}
   "fill": {"aa-at": 159, "colors": ["#FF4040", "#4040FF", "#40FF40"]} -- ordered by frequency, X is always grey
 
-  "outline": {"aa-at": 159}
+  "outline": {"aa-at": 159}, "legend": {"show": true, "label": "{pos}{aa} ({count})"}
   "outline": {"aa-at": 159, "colors": ["#FF4040", "#4040FF", "#40FF40"]} -- ordered by frequency, X is always grey
 
   -- NOTE to change fill and make outline black for just sequenced antigens, add another entry afterwards
@@ -321,7 +321,7 @@ http://geomalgorithms.com/a03-_inclusion.html
    "arrows": [{"at": <point-index>, "from": <point-index>, "width": 5, "outline": "magenta", "outline_width": 1, "fill": "magenta"}]},
   {"N": "circle", "center": <point-position>, "radius": 1, "aspect": 1.0, "rotation": 0, "fill": "#80FFA500", "outline": "#80FF0000", "outline_width": 10}
 
-  -- point-position
+  -- <point-position>
   {"v": [x, y]} -- viewport based, top left corner of viewport is 0,0  WARNING: works only after setting the viewport!
   {"l": [x, y]} -- x,y without map transformation
   {"t": [x, y]} -- map transformation will be applied to x,y
