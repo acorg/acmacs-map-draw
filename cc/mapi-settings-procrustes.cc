@@ -36,7 +36,9 @@ bool acmacs::mapi::v1::Settings::apply_pdf()
 {
     using namespace std::string_view_literals;
     const auto& chart_access = chart_draw().chart(0); // can draw just the chart 0 // get_chart(getenv("chart"sv), 0);
-    const auto filename_pattern = rjson::v3::read_string(getenv("filename"sv, toplevel_only::no, if_no_substitution_found::null, throw_if_partial_substitution::no), chart_access.filename());
+    auto filename_pattern = getenv_to_string("filename"sv, toplevel_only::no, if_no_substitution_found::leave_as_is);
+    if (filename_pattern.empty())
+        filename_pattern = chart_access.filename();
     make_pdf(chart_access.substitute_metadata(filename_pattern), rjson::v3::read_number(getenv("width"sv), 800.0), rjson::v3::read_bool(getenv("open"sv), false));
     return true;
 
@@ -52,6 +54,7 @@ void acmacs::mapi::v1::Settings::make_pdf(std::string_view filename, double widt
         fn = fmt::format("{}.pdf", filename);
     else
         fn = filename;
+    AD_INFO("generating \"{}\"", fn);
     chart_draw().calculate_viewport();
     chart_draw().draw(fn, width, report_time::no);
     if (open)
