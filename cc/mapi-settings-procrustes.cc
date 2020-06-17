@@ -21,27 +21,32 @@ bool acmacs::mapi::v1::Settings::apply_reset()
 
 // ----------------------------------------------------------------------
 
-bool acmacs::mapi::v1::Settings::apply_export()
-{
-    using namespace std::string_view_literals;
-    const auto& chart_access = get_chart(getenv("chart"sv), 0);
-    const auto filename_pattern = rjson::v3::read_string(getenv("filename"sv, toplevel_only::no, if_no_substitution_found::null, throw_if_partial_substitution::no), chart_access.filename());
-    const auto filename{chart_access.substitute_metadata(filename_pattern)};
-    chart_access.export_chart(filename);
-    return true;
-
-} // acmacs::mapi::v1::Settings::apply_reset
-
-// ----------------------------------------------------------------------
-
-bool acmacs::mapi::v1::Settings::apply_pdf()
+std::string acmacs::mapi::v1::Settings::get_filename() const
 {
     using namespace std::string_view_literals;
     const auto& chart_access = chart_draw().chart(0); // can draw just the chart 0 // get_chart(getenv("chart"sv), 0);
     auto filename_pattern = getenv_to_string("filename"sv, toplevel_only::no, if_no_substitution_found::leave_as_is);
     if (filename_pattern.empty())
         filename_pattern = chart_access.filename();
-    make_pdf(chart_access.substitute_metadata(filename_pattern), rjson::v3::read_number(getenv("width"sv), 800.0), rjson::v3::read_bool(getenv("open"sv), false));
+    return chart_access.substitute_metadata(filename_pattern);
+
+} // acmacs::mapi::v1::Settings::get_filename
+
+// ----------------------------------------------------------------------
+
+bool acmacs::mapi::v1::Settings::apply_export() const
+{
+    chart_draw().chart(0).export_chart(get_filename());
+    return true;
+
+} // acmacs::mapi::v1::Settings::apply_reset
+
+// ----------------------------------------------------------------------
+
+bool acmacs::mapi::v1::Settings::apply_pdf() const
+{
+    using namespace std::string_view_literals;
+    make_pdf(get_filename(), rjson::v3::read_number(getenv("width"sv), 800.0), rjson::v3::read_bool(getenv("open"sv), false));
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_pdf

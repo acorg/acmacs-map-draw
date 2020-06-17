@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-17 11:01:55 eu>
+# Time-stamp: <2020-06-17 11:54:07 eu>
 
 * Common usage
 
@@ -317,6 +317,9 @@ line, arrow, rectangle, circle
 http://geomalgorithms.com/a03-_inclusion.html
 
 #+BEGIN_SRC json
+  {"N": "path", "points": [<point-position>, ...], "close": true, "outline_width": 1, "outline": "red", "fill": "transparent"},
+
+  -- path with arrows
   {"N": "path", "points": [<point-position>, ...], "close": true, "outline_width": 1, "outline": "red", "fill": "transparent",
    "arrows": [{"at": <point-index>, "from": <point-index>, "width": 5, "outline": "magenta", "outline_width": 1, "fill": "magenta"}]},
   {"N": "circle", "center": <point-position>, "radius": 1, "aspect": 1.0, "rotation": 0, "fill": "#80FFA500", "outline": "#80FF0000", "outline_width": 10}

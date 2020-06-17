@@ -170,14 +170,15 @@ namespace acmacs::mapi::inline v1
         // mapi-settings-procrustes.cc
 
         bool apply_reset();
-        bool apply_export();
-        bool apply_pdf();
+        bool apply_export() const;
+        bool apply_pdf() const;
         bool apply_relax();
         bool apply_procrustes();
         bool apply_remove_procrustes();
         const ChartAccess& get_chart(const rjson::v3::value& source, size_t dflt) const;
         bool apply_move();
         void make_pdf(std::string_view filename, double width, bool open) const;
+        std::string get_filename() const;
 
         // ----------------------------------------------------------------------
         // mapi-settings-sequences.cc
