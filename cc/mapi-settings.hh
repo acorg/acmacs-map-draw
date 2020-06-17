@@ -179,6 +179,7 @@ namespace acmacs::mapi::inline v1
         bool apply_move();
         void make_pdf(std::string_view filename, double width, bool open) const;
         std::string get_filename() const;
+        std::string substitute_in_filename(std::string_view filename) const;
 
         // ----------------------------------------------------------------------
         // mapi-settings-sequences.cc

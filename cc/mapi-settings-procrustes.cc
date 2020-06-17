@@ -21,14 +21,21 @@ bool acmacs::mapi::v1::Settings::apply_reset()
 
 // ----------------------------------------------------------------------
 
+std::string acmacs::mapi::v1::Settings::substitute_in_filename(std::string_view filename) const
+{
+    const auto& chart_access = chart_draw().chart(0); // can draw just the chart 0 // get_chart(getenv("chart"sv), 0);
+    if (filename.empty())
+        filename = chart_access.filename();
+    return chart_access.substitute_metadata(filename);
+
+} // sacmacs::mapi::v1::Settings::ubstitute_in_filename
+
+// ----------------------------------------------------------------------
+
 std::string acmacs::mapi::v1::Settings::get_filename() const
 {
     using namespace std::string_view_literals;
-    const auto& chart_access = chart_draw().chart(0); // can draw just the chart 0 // get_chart(getenv("chart"sv), 0);
-    auto filename_pattern = getenv_to_string("filename"sv, toplevel_only::no, if_no_substitution_found::leave_as_is);
-    if (filename_pattern.empty())
-        filename_pattern = chart_access.filename();
-    return chart_access.substitute_metadata(filename_pattern);
+    return substitute_in_filename(getenv_to_string("filename"sv, toplevel_only::no, if_no_substitution_found::leave_as_is));
 
 } // acmacs::mapi::v1::Settings::get_filename
 
@@ -98,7 +105,7 @@ const ChartAccess& acmacs::mapi::v1::Settings::get_chart(const rjson::v3::value&
                 throw error{fmt::format("cannot make procrustes, too few charts provided, required chart {} but just {} available", no, chart_draw().number_of_charts())};
         }
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
-            return chart_draw().chart(val.template to<std::string_view>());
+            return chart_draw().chart(substitute_in_filename(val.template to<std::string_view>()));
         }
         else
             throw error{fmt::format("unrecognized \"chart\" for procrustes: {} (expected integer or name)", val)};
@@ -114,7 +121,7 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     using namespace acmacs::chart;
 
     const auto scaling = rjson::v3::read_bool(getenv("scaling"sv), false) ? procrustes_scaling_t::yes : procrustes_scaling_t::no;
-    const auto& secondary_chart = get_chart(getenv("chart"sv), 1).chart();
+    const auto& secondary_chart = get_chart(getenv("chart"sv, toplevel_only::no, if_no_substitution_found::leave_as_is, throw_if_partial_substitution::no), 1).chart();
     const auto secondary_projection_no = rjson::v3::read_number(getenv("projection"sv), 0ul);
     if (secondary_projection_no >= secondary_chart.number_of_projections())
         throw error{fmt::format("invalid secondary chart projection number {} (chart has just {} projection(s))", secondary_projection_no, secondary_chart.number_of_projections())};
