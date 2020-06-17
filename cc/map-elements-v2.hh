@@ -49,6 +49,7 @@ namespace map_elements::v2
     {
       public:
         Path() : Element{"path-v2", Elements::AfterPoints} {}
+        Path(std::string_view name) : Element{name, Elements::AfterPoints} {}
 
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 

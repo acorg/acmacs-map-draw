@@ -48,6 +48,8 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
             return apply_serum_coverage();
         else if (name == "procrustes-arrows"sv || name == "procrustes_arrows"sv)
             return apply_procrustes();
+        else if (name == "remove-procrustes-arrows"sv || name == "remove_procrustes_arrows"sv)
+            return apply_remove_procrustes();
         else if (name == "move"sv)
             return apply_move();
         else if (name == "reset"sv)

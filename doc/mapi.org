@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-16 17:04:30 eu>
+# Time-stamp: <2020-06-17 11:01:55 eu>
 
 * Common usage
 
@@ -376,14 +376,22 @@ http://geomalgorithms.com/a03-_inclusion.html
 * Procrustes
 
 #+BEGIN_SRC json
-{"N": "procrustes-arrows", "report": true, "verbose": false,
-   "chart": <chart filename or index>, "projection": 0,
-   "match": "auto", -- "auto", "strict", "relaxed", "ignored"
-   "scaling": false,
-   "antigens": "<select-antigens>", "sera": "<select-sera>", -- use "antigens": "none" to use just sera, if "antigens" absent, all are matched
-   "threshold": 0.005, -- do not show arrows shorter than this value in units
-   "arrow": {"line_width": 1, "outline": "black", "head": {"width": 5, "outline": "black", "outline_width": 1, "fill": "black"}}
-  }
+  {"N": "procrustes-arrows", "report": true, "verbose": false, "chart": "<chart filename or index>", "projection": 0, "threshold": 0.005},
+
+  -- procrustes with original (e.g. upon moving and perhaps relaxing)
+  {"N": "procrustes-arrows", "report": false, "verbose": false, "threshold": 0.005},
+
+  {"N": "procrustes-arrows", "report": true, "verbose": false,
+     "chart": <chart filename or index>, "projection": 0,
+     "match": "auto", -- "auto", "strict", "relaxed", "ignored"
+     "scaling": false,
+     "antigens": "<select-antigens>", "sera": "<select-sera>", -- use "antigens": "none" to use just sera, if "antigens" absent, all are matched
+     "threshold": 0.005, -- do not show arrows shorter than this value in units
+     "arrow": {"line_width": 1, "outline": "black", "head": {"width": 5, "outline": "black", "outline_width": 1, "fill": "black"}}
+    }
+
+  -- remove arrows before relaxing
+  {"N": "remove-procrustes-arrows", "clear-title": true},
 #+END_SRC
 
 * Research

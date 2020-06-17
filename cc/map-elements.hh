@@ -32,8 +32,8 @@ namespace map_elements
 
         void reset();
 
-        void remove(std::string keyword);
-        bool exists(std::string keyword) const;
+        void remove(std::string_view keyword);
+        bool exists(std::string_view keyword) const;
 
         template <typename ElementType> ElementType& find(std::string_view keyword)
         {

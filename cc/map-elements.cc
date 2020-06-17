@@ -20,9 +20,9 @@ void map_elements::Elements::reset()
 
 // ----------------------------------------------------------------------
 
-bool map_elements::Elements::exists(std::string keyword) const
+bool map_elements::Elements::exists(std::string_view keyword) const
 {
-    return std::find_if(mElements.begin(), mElements.end(), [&keyword](const auto& element) { return element->keyword() == keyword; }) != mElements.end();
+    return std::find_if(mElements.begin(), mElements.end(), [keyword](const auto& element) { return element->keyword() == keyword; }) != mElements.end();
 
 } // map_elements::Elements::exists
 
@@ -39,9 +39,9 @@ map_elements::Element* map_elements::Elements::find_base(std::string_view keywor
 
 // ----------------------------------------------------------------------
 
-void map_elements::Elements::remove(std::string keyword)
+void map_elements::Elements::remove(std::string_view keyword)
 {
-    mElements.erase(std::remove_if(mElements.begin(), mElements.end(), [&keyword](const auto& e) { return e->keyword() == keyword; }), mElements.end());
+    mElements.erase(std::remove_if(mElements.begin(), mElements.end(), [keyword](const auto& e) { return e->keyword() == keyword; }), mElements.end());
 
 } // map_elements::Elements::remove
 

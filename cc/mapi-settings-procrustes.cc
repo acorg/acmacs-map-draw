@@ -8,6 +8,8 @@
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/map-elements-v2.hh"
 
+constexpr const std::string_view sProcrustesArrowElementKeyword{"procrustes-arrow"};
+
 // ----------------------------------------------------------------------
 
 bool acmacs::mapi::v1::Settings::apply_reset()
@@ -146,7 +148,7 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     for (size_t point_no = 0; point_no < common_points.size(); ++point_no) {
         const auto primary_coords = primary_layout->at(common_points[point_no].primary), secondary_coords = secondary_layout->at(common_points[point_no].secondary);
         if (acmacs::distance(primary_coords, secondary_coords) > threshold) {
-            auto& path = chart_draw().map_elements().add<map_elements::v2::Path>();
+            auto& path = chart_draw().map_elements().add<map_elements::v2::Path>(sProcrustesArrowElementKeyword);
             path.outline(outline);
             path.outline_width(line_width);
             path.data().close = false;
@@ -175,6 +177,21 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_procrustes
+
+// ----------------------------------------------------------------------
+
+bool acmacs::mapi::v1::Settings::apply_remove_procrustes()
+{
+    using namespace std::string_view_literals;
+
+    chart_draw().map_elements().remove(sProcrustesArrowElementKeyword);
+
+    if (rjson::v3::read_bool(getenv("clear-title"sv), true))
+        title().remove_all_lines();
+
+    return true;
+
+} // acmacs::mapi::v1::Settings::apply_remove_procrustes
 
 // ----------------------------------------------------------------------
 
