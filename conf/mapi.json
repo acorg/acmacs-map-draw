@@ -121,10 +121,10 @@
     "/clades-B/Vic": [
         "/sequenced",
         {"N": "antigens", "select": {"clade": "V1",       "date": "{date-recent}", "report": true}, "fill": "blue",    "outline": "black", "legend": {"label": "1 ({count})"}, "order": "raise"},
-        {"N": "antigens", "select": {"clade": "V1A",      "date": "{date-recent}", "report": true}, "fill": "#6495ED", "outline": "black", "legend": {"label": "1A ({count})"}, "order": "raise"},
-        {"N": "antigens", "select": {"clade": "V1B",      "date": "{date-recent}", "report": true}, "fill": "red",     "outline": "black", "legend": {"label": "1B ({count})"}, "order": "raise"},
-        {"N": "antigens", "select": {"clade": "2DEL2017", "date": "{date-recent}", "report": true}, "fill": "#DE8244", "outline": "black", "legend": {"label": "2-Del ({count})"}, "order": "raise"},
-        {"N": "antigens", "select": {"clade": "3DEL2017", "date": "{date-recent}", "report": true}, "fill": "#BF3EFF", "outline": "black", "legend": {"label": "3-Del ({count})"}, "order": "raise"},
+        {"N": "antigens", "select": {"clade": "V1A",      "date": "{date-recent}", "report": true}, "fill": "#6495ED", "outline": "black", "legend": {"label": "V1.A ({count})"}, "order": "raise"},
+        {"N": "antigens", "select": {"clade": "V1B",      "date": "{date-recent}", "report": true}, "fill": "red",     "outline": "black", "legend": {"label": "V1.B ({count})"}, "order": "raise"},
+        {"N": "antigens", "select": {"clade": "2DEL2017", "date": "{date-recent}", "report": true}, "fill": "#DE8244", "outline": "black", "legend": {"label": "2-Del mutants ({count})"}, "order": "raise"},
+        {"N": "antigens", "select": {"clade": "3DEL2017", "date": "{date-recent}", "report": true}, "fill": "#BF3EFF", "outline": "black", "legend": {"label": "3-Del mutants ({count})"}, "order": "raise"},
 
         {"N": "antigens", "select": {"clade": "3DEL2017", "amino_acid": ["133G"], "date": "{date-recent}"}, "fill": "#ee0000", "legend": {"label": "3-Del 133G ({count})"}, "outline": "black", "order": "raise"},
         {"N": "antigens", "select": {"clade": "3DEL2017", "amino_acid": ["133R"], "date": "{date-recent}"}, "fill": "#70ff70", "legend": {"label": "3-Del 133R ({count})"}, "outline": "black", "order": "raise"},
