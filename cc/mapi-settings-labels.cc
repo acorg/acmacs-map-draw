@@ -9,14 +9,8 @@ void acmacs::mapi::v1::Settings::add_labels(const acmacs::chart::PointIndexList&
 {
     using namespace std::string_view_literals;
 
-    if (rjson::v3::read_bool(label_data["show"sv], true)) { // show by default
-        for (auto index : indexes)
-            add_label(index, index_base, label_data);
-    }
-    else {
-        for (auto index : indexes)
-            chart_draw().remove_label(index + index_base);
-    }
+    for (auto index : indexes)
+        add_label(index, index_base, label_data);
 
 } // acmacs::mapi::v1::Settings::add_labels
 
@@ -28,6 +22,8 @@ void acmacs::mapi::v1::Settings::add_label(size_t index, size_t index_base, cons
 
     const auto point_index = index + index_base;
     auto& label = chart_draw().add_label(point_index);
+
+    label.show(rjson::v3::read_bool(label_data["show"sv], true)); // show by default
 
     for (const auto key : {"name_type"sv, "name-type"sv, "display_name"sv, "display-name"sv}) {
         if (!label_data[key].is_null())
@@ -57,10 +53,6 @@ void acmacs::mapi::v1::Settings::add_label(size_t index, size_t index_base, cons
         label.font_family(*font_family);
 
 } // acmacs::mapi::v1::Settings::add_label
-
-// ----------------------------------------------------------------------
-
-
 
 // ----------------------------------------------------------------------
 /// Local Variables:

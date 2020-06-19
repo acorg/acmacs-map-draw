@@ -40,6 +40,7 @@ namespace map_elements
             std::for_each(begin(), end(), [&, this](const auto& aLabel) { this->draw(aLabel, aSurface, aLayout, aPlotSpec); });
         }
 
+        // obsolete
         void draw(const acmacs::draw::PointLabel& label, acmacs::surface::Surface& aSurface, const acmacs::Layout& aLayout, const acmacs::chart::PlotSpecModify& aPlotSpec) const;
 
     }; // class Labels
