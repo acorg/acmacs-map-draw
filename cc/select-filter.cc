@@ -28,8 +28,20 @@ void acmacs::map_draw::select::filter::clade(const ChartSelectInterface& aChartS
 {
     const auto& entries = aChartSelectInterface.chart(0).match_seqdb();
     const auto& seqdb = acmacs::seqdb::get();
-    auto not_in_clade = [&entries,aClade,&seqdb](auto index) -> bool { const auto& entry = entries[index]; return !entry || !entry.has_clade(seqdb, aClade); };
-    indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_clade), indexes.end());
+    if (aClade[0] == '!') {
+        const auto in_clade = [&entries, clade = aClade.substr(1), &seqdb](auto index) -> bool {
+            const auto& entry = entries[index];
+            return entry && entry.has_clade(seqdb, clade);
+        };
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), in_clade), indexes.end());
+    }
+    else {
+        const auto not_in_clade = [&entries, aClade, &seqdb](auto index) -> bool {
+            const auto& entry = entries[index];
+            return !entry || !entry.has_clade(seqdb, aClade);
+        };
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_clade), indexes.end());
+    }
 
 } // acmacs::map_draw::select::filter::clade
 

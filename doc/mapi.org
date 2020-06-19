@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-17 11:54:07 eu>
+# Time-stamp: <2020-06-19 12:53:15 eu>
 
 * Common usage
 
@@ -88,6 +88,7 @@ To print environment use:
   {"sequenced": true}, {"sequenced": false}
   {"clade": "3C.3A"} -- ~/AD/share/conf/clades.json
   {"clade": ["3C.3A", "3C.2A2"]} -- disjunction
+  {"clade-all": ["3C.2A", "!3C.2A2"]} -- 2a and not 2a2, negation and conjunction
   {"amino-acid": "144R"}
   {"amino-acid": ["144R", "93A", "!160K"]} -- conjunction
   # sort aa at pos by frequency and set ana/google colors, X is always grey

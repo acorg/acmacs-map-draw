@@ -391,7 +391,7 @@ static inline void check_sequence(const ChartSelectInterface& aChartSelectInterf
     const auto report_error = [key, &value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"{}\" clause: {}", key, value)}; };
 
     const auto sequence_one = [&aChartSelectInterface, report_error, key](acmacs::chart::PointIndexList& ind, std::string_view name) {
-        if (key == "clade"sv || key == "clades"sv)
+        if (acmacs::string::startswith(key, "clade"sv))
             acmacs::map_draw::select::filter::clade(aChartSelectInterface, ind, name);
         else if (key == "amino-acid"sv || key == "amino-acids"sv || key == "amino_acid"sv || key == "amino_acids"sv)
             acmacs::map_draw::select::filter::amino_acid_at_pos(aChartSelectInterface, ind, acmacs::seqdb::extract_aa_at_pos1_eq(name));
@@ -414,10 +414,10 @@ static inline void check_sequence(const ChartSelectInterface& aChartSelectInterf
                 report_error();
         }
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-            if (key == "clade"sv || key == "clades"sv)
-                check_disjunction<std::string_view>(indexes, val, sequence_one);
-            else if (key == "amino-acid"sv || key == "amino-acids"sv || key == "amino_acid"sv || key == "amino_acids"sv)
+            if (acmacs::string::startswith(key, "amino"sv) || (acmacs::string::startswith(key, "clade"sv) && acmacs::string::endswith(key, "all"sv)))
                 check_conjunction<std::string_view>(indexes, val, sequence_one);
+            else if (key == "clade"sv || key == "clades"sv)
+                check_disjunction<std::string_view>(indexes, val, sequence_one);
             else
                 report_error();
         }
@@ -691,13 +691,13 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                         check_name(ag_sr, indexes, key, value);
                     else if (key == "passage"sv)
                         check_passage(ag_sr, indexes, key, value, throw_if_unprocessed::yes);
-                    else if (key == "sequenced"sv || key == "clade"sv || key == "clades"sv || key == "amino_acid"sv || key == "amino_acids"sv || key == "amino-acid"sv || key == "amino-acids"sv)
+                    else if (key == "sequenced"sv || acmacs::string::startswith(key, "clade"sv) || acmacs::string::startswith(key, "amino"sv))
                         check_sequence(chart_draw(), ag_sr, indexes, key, value);
                     else if (key == "lab"sv || key == "labs"sv)
                         check_lab(chart_draw().chart(), indexes, key, value);
                     else if (key == "lineage"sv)
                         check_lineage(chart_draw().chart(), indexes, key, value);
-                    else if (key == "fill"sv || key == "outline"sv || key == "outline-width"sv || key == "outline_width"sv)
+                    else if (key == "fill"sv || acmacs::string::startswith(key, "outline"sv))
                         check_color(chart_draw(), indexes, key, value);
                     else if (key == "with-label"sv)
                         check_with_label(chart_draw(), indexes, key, value);
