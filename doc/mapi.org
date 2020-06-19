@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-19 12:53:15 eu>
+# Time-stamp: <2020-06-19 17:58:31 eu>
 
 * Common usage
 
@@ -274,6 +274,8 @@ See [[file:~/AD/share/doc/color.org][color.org]]
 
 - ~Legend~
   #+BEGIN_SRC json
+    {"N": "legend", "offset": [-10, 10], "show": true}
+
     {
         "N": "legend",
         "offset": [-10, 10],
