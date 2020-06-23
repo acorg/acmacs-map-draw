@@ -1,4 +1,4 @@
-# Time-stamp: <2020-06-19 17:58:31 eu>
+# Time-stamp: <2020-06-22 18:48:45 eu>
 
 * Common usage
 
@@ -436,7 +436,7 @@ http://geomalgorithms.com/a03-_inclusion.html
 
 * Time series
 
-Use {ts-name} in title
+-- ? Use {ts-name} in title
 
 #+BEGIN_SRC json
 {"N": "time-series",
