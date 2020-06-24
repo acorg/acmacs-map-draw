@@ -87,6 +87,7 @@ int main(int argc, char* const argv[])
             signal(SIGHUP, signal_handler);
 
         for (;;) {
+            exit_code = 0;
             try {
                 if (!opt.apply.empty()) {
                     for (const auto& to_apply : opt.apply) {
@@ -124,6 +125,7 @@ int main(int argc, char* const argv[])
             catch (std::exception& err) {
                 AD_ERROR("{}", err);
                 acmacs::run_and_detach({"submarine"}, 0);
+                exit_code = 1;
             }
             if (opt.interactive) {
                 fmt::print(stderr, "mapi-i >> ");
