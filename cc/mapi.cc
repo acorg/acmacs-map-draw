@@ -43,7 +43,8 @@ struct MapiOptions : public acmacs::argv::v2::argv
     option<size_t>    secondary_projection{*this, 'r', "secondary-projection", dflt{static_cast<size_t>(-1)}};
 
     option<bool>      open{*this, "open"};
-    option<bool>      ql{*this, "ql"};
+    option<str>       preview{*this, "preview"};
+    // option<bool>      ql{*this, "ql"};
     option<str_array> verbose{*this, 'v', "verbose", desc{"comma separated list (or multiple switches) of enablers"}};
 
     argument<str_array> files{*this, arg_name{"input: chart.ace, chart.save, chart.acd1; output: map.pdf, /"}, mandatory};
@@ -86,6 +87,7 @@ int main(int argc, char* const argv[])
         if (opt.interactive)
             signal(SIGHUP, signal_handler);
 
+        bool opened{false};
         for (;;) {
             exit_code = 0;
             try {
@@ -119,7 +121,12 @@ int main(int argc, char* const argv[])
                 }
                 else {
                     chart_draw.draw(outputs[0], 800, report_time::yes);
-                    acmacs::open_or_quicklook(opt.open, opt.ql, outputs[0]);
+                    if (opt.open && opened)
+                        acmacs::open(outputs[0]);
+                    else if (opt.preview) {
+                        acmacs::preview(outputs[0], opt.preview);
+                        opened = true;
+                    }
                 }
             }
             catch (std::exception& err) {
