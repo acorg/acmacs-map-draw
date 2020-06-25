@@ -87,6 +87,7 @@ constexpr static const char* sUpdateEnvPattern = R"({{
 "SUBSET": "{SUBSET}",
 "assay": "{assay}",
 "assay-full": "{assay_full}",
+"assay-neut": "{assay_neut}",
 "lab": "{lab}",
 "rbc": "{rbc}",
 "table-date": "{table_date}",
