@@ -29,6 +29,11 @@
         {"N": "sera",     "select": "all",       "size": 8.0, "outline_width": 1.0}
     ],
 
+    "/show-all": [
+        {"N": "antigens", "select": "all", "show": true},
+        {"N": "sera",     "select": "all", "show": true}
+    ],
+
     "/no-labels": [
         {"N": "antigens", "select": "all", "label": {"show": false}},
         {"N": "sera",     "select": "all", "label": {"show": false}}
