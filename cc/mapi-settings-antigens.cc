@@ -542,6 +542,19 @@ static inline void check_color(const ChartSelectInterface& aChartSelectInterface
 
 // ----------------------------------------------------------------------
 
+static inline void check_shown(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::PointIndexList& indexes, std::string_view /*key*/, const rjson::v3::value& value)
+{
+    using namespace std::string_view_literals;
+
+    if (value.to<bool>())
+        acmacs::map_draw::select::filter::shown_in(aChartSelectInterface, indexes, 0);
+    else
+        acmacs::map_draw::select::filter::not_shown_in(aChartSelectInterface, indexes, 0);
+
+} // check_color
+
+// ----------------------------------------------------------------------
+
 static inline void check_with_label(const ChartDraw& chart_draw, acmacs::chart::PointIndexList& indexes, std::string_view /*key*/, const rjson::v3::value& value)
 {
     acmacs::map_draw::select::filter::with_label_in(chart_draw, indexes, 0, rjson::v3::read_bool(value, false));
@@ -699,6 +712,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                         check_lineage(chart_draw().chart(), indexes, key, value);
                     else if (key == "fill"sv || acmacs::string::startswith(key, "outline"sv))
                         check_color(chart_draw(), indexes, key, value);
+                    else if (key == "shown"sv)
+                        check_shown(chart_draw(), indexes, key, value);
                     else if (key == "with-label"sv)
                         check_with_label(chart_draw(), indexes, key, value);
                     else if (key == "exclude-distinct"sv || key == "exclude_distinct"sv)

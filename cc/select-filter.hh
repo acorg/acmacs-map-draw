@@ -69,6 +69,13 @@ namespace acmacs::map_draw::select::filter
         indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_shown), indexes.end());
     }
 
+    inline void not_shown_in(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, size_t aIndexBase = 0)
+    {
+        const auto& all_styles = aChartSelectInterface.plot_spec().all_styles();
+        const auto shown = [&all_styles, aIndexBase](auto index) -> bool { return all_styles[index + aIndexBase].shown(); };
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), shown), indexes.end());
+    }
+
     inline void with_label_in(const ChartDraw& chart_draw, acmacs::chart::Indexes& indexes, size_t aIndexBase, bool with_label)
     {
         const auto& labels = chart_draw.labels();
