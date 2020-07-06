@@ -121,7 +121,7 @@ int main(int argc, char* const argv[])
                 }
                 else {
                     chart_draw.draw(outputs[0], 800, report_time::yes);
-                    if (opt.open && !opened)
+                    if ((opt.open || opt.interactive) && (!opt.preview || !opened))
                         acmacs::open(outputs[0]);
                     else if (opt.preview) {
                         acmacs::preview(outputs[0], opt.preview);
