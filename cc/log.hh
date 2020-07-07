@@ -1,6 +1,6 @@
 #pragma once
 
-#include "acmacs-base/debug.hh"
+#include "seqdb-3/log.hh"
 
 // ----------------------------------------------------------------------
 
@@ -9,6 +9,10 @@ namespace acmacs::log
     // enum {
     // };
 
+    inline void register_enabler_acmacs_map_draw()
+    {
+        register_enabler_seqdb3();
+    }
 }
 
 // ----------------------------------------------------------------------
