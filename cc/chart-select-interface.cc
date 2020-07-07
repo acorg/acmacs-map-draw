@@ -86,8 +86,15 @@ void ChartAccess::export_chart(std::string_view filename) const
 
 const acmacs::seqdb::subset& ChartAccess::match_seqdb() const
 {
-    if (!matched_seqdb_)
-        matched_seqdb_ = acmacs::seqdb::get().match(*chart().antigens(), chart().info()->virus_type(acmacs::chart::Info::Compute::Yes));
+    if (!matched_seqdb_) {
+        auto antigens = chart().antigens();
+        matched_seqdb_ = acmacs::seqdb::get().match(*antigens, chart().info()->virus_type(acmacs::chart::Info::Compute::Yes));
+
+        // for (size_t ag_no{0}; ag_no < matched_seqdb_->size(); ++ag_no) {
+        //     if (const auto& en{(*matched_seqdb_)[ag_no]}; !en.empty())
+        //         AD_DEBUG("AG {:3d} {:50s} -- {:50s} -- {}", ag_no, antigens->at(ag_no)->full_name(), en.seq_id(), en.seq_with_sequence(acmacs::seqdb::get()).clades);
+        // }
+    }
     return *matched_seqdb_;
 
 } // ChartAccess::match_seqdb
