@@ -4,7 +4,7 @@
         {"N": "set",
          "whocc": false,
          "report-common": false,
-         "report-longest-arrows": true
+         "report-longest-arrows": 0
         }
     ],
 
