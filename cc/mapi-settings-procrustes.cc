@@ -157,9 +157,12 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
 
     auto secondary_layout = procrustes_data.apply(*secondary_projection->layout());
     auto primary_layout = chart_draw().chart(0).modified_projection().transformed_layout();
+    std::vector<std::pair<size_t, double>> distances; // point_no in primary chart and its arrow distance
     for (size_t point_no = 0; point_no < common_points.size(); ++point_no) {
         const auto primary_coords = primary_layout->at(common_points[point_no].primary), secondary_coords = secondary_layout->at(common_points[point_no].secondary);
-        if (acmacs::distance(primary_coords, secondary_coords) > threshold) {
+        const auto distance{acmacs::distance(primary_coords, secondary_coords)};
+        distances.emplace_back(common_points[point_no].primary, distance);
+        if (distance > threshold) {
             auto& path = chart_draw().map_elements().add<map_elements::v2::Path>(sProcrustesArrowElementKeyword);
             path.outline(outline);
             path.outline_width(line_width);
@@ -185,6 +188,21 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
         AD_INFO("Procrustes  AG:{}  SR:{}  RMS: {:.6f}\n\n{}", common.common_antigens(), common.common_sera(), procrustes_data.rms, common.report(2, verbose_from(rjson::v3::read_bool(getenv("verbose"sv), false))));
     else
         AD_INFO("Procrustes  AG:{}  SR:{}  RMS: {:.6f}", common.common_antigens(), common.common_sera(), procrustes_data.rms);
+
+    AD_DEBUG("report-longest-arrows: {} report: {}", getenv("report_longest_arrows"sv), getenv("report"sv));
+    if (const auto report_longest_arrows = rjson::v3::read_number(getenv("report_longest_arrows"sv), 0ul); report_longest_arrows > 0) {
+        std::sort(std::begin(distances), std::end(distances), [](const auto& e1, const auto& e2) { return e1.second > e2.second; }); // longest first
+        auto antigens = chart_draw().chart(0).chart().antigens();
+        auto sera = chart_draw().chart(0).chart().sera();
+        fmt::memory_buffer arrows;
+        for (size_t p_no{0}; p_no < std::min(report_longest_arrows, distances.size()); ++p_no) {
+            if (distances[p_no].first < antigens->size())
+                fmt::format_to(arrows, "    {:.2f} AG {:4d} {}", distances[p_no].second, distances[p_no].first, antigens->at(distances[p_no].first)->full_name());
+            else
+                fmt::format_to(arrows, "    {:.2f} AG {:4d} {}", distances[p_no].second, distances[p_no].first - antigens->size(), sera->at(distances[p_no].first - antigens->size())->full_name());
+        }
+        AD_INFO("Longest arrows (max {} requested of {} available)\n{}", report_longest_arrows, distances.size(), fmt::to_string(arrows));
+    }
 
     return true;
 

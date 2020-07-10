@@ -1,11 +1,18 @@
-# Time-stamp: <2020-07-06 17:06:39 eu>
+# Time-stamp: <2020-07-10 15:45:57 eu>
 
 * Common usage
 
+** maps
 mapi chart.ace output.pdf -- plot spec stored in chart
 mapi chart.ace output.pdf -a //clades -- by clade
-mapi primary.ace secondary.ace output.pdf -a /pc -- procrustes
-mapi primary.ace secondary.ace output.pdf -a //clades,/pc -- color by clade and procrustes
+
+** procrustes
+mapi primary.ace secondary.ace output.pdf -a /pc 
+mapi primary.ace secondary.ace output.pdf -a /pc -D report-common=true
+mapi primary.ace secondary.ace output.pdf -a /pc -D report-longest-arrows=10
+mapi primary.ace secondary.ace output.pdf -a //clades,/pc
+
+** interactive
 mapi -i -s draw.json chart.ace output.pdf -- interactive
 
 * Command line defines

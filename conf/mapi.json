@@ -2,7 +2,9 @@
 
     "init": [
         {"N": "set",
-         "whocc": false
+         "whocc": false,
+         "report-common": false,
+         "report-longest-arrows": true
         }
     ],
 
@@ -145,7 +147,7 @@
     "? commands": "----------------------------------------------------------------------",
 
     "/pc": [
-        {"N": "procrustes-arrows", "chart": 1, "projection": 0, "match": "auto", "report": true}
+        {"N": "procrustes-arrows", "chart": 1, "projection": 0, "match": "auto", "report": "{report-common}", "report_longest_arrows": "{report-longest-arrows}"}
     ],
 
     "/vaccines": [
