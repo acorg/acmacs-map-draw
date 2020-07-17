@@ -5,6 +5,7 @@
          "whocc": false,
          "report-common": false,
          "report-longest-arrows": 0,
+         "pc-arrows-threshold": 0.05,
          "vaccine-size": 30
         }
     ],
@@ -148,7 +149,7 @@
     "? commands": "----------------------------------------------------------------------",
 
     "/pc": [
-        {"N": "procrustes-arrows", "chart": 1, "projection": 0, "match": "auto", "report": "{report-common}", "report_longest_arrows": "{report-longest-arrows}"}
+        {"N": "procrustes-arrows", "chart": 1, "projection": 0, "match": "auto", "threshold": "{pc-arrows-threshold}", "report": "{report-common}", "report_longest_arrows": "{report-longest-arrows}"}
     ],
 
     "/vaccines": [
