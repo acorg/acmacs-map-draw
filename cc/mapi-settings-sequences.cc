@@ -29,7 +29,7 @@ bool acmacs::mapi::v1::Settings::apply_compare_sequences()
     if (const auto& groups_v = getenv("groups"sv); groups_v.is_array()) {
         for (const auto& grp : groups_v.array()) {
             try {
-                groups.emplace_back(grp["name"sv].to<std::string_view>(), select_antigens(grp["select"sv]));
+                groups.emplace_back(substitute_to_value(grp["name"sv]).to<std::string_view>(), select_antigens(substitute_to_value(grp["select"sv])));
             }
             catch (std::exception& err) {
                 throw acmacs::mapi::unrecognized{AD_FORMAT("unrecognized \"groups\" entry: {}: {}", grp, err)};

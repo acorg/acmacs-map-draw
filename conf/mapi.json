@@ -81,6 +81,10 @@
         "/clades"
     ],
 
+    "//clade": [
+        "//clades"
+    ],
+
     "/clades": [
         "/clades-{virus-type/lineage}{subset}"
     ],
