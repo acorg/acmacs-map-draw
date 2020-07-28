@@ -1,4 +1,4 @@
-# Time-stamp: <2020-07-17 11:26:07 eu>
+# Time-stamp: <2020-07-28 18:40:35 eu>
 
 * Common usage
 
@@ -7,11 +7,14 @@ mapi chart.ace output.pdf -- plot spec stored in chart
 mapi chart.ace output.pdf -a //clades -- by clade
 
 ** procrustes
-mapi primary.ace secondary.ace output.pdf -a /pc 
+mapi primary.ace secondary.ace output.pdf -a /pc
 mapi primary.ace secondary.ace output.pdf -a /pc -D report-common=true
 mapi primary.ace secondary.ace output.pdf -a /pc -D report-longest-arrows=10
 mapi primary.ace secondary.ace output.pdf -a /pc -D pc-arrows-threshold=0.1
 mapi primary.ace secondary.ace output.pdf -a //clades,/pc
+
+mapi chart.ace output.pdf -a /pc01 -D pc-arrows-threshold=0.5
+mapi chart.ace output.pdf -a /pc02 -D pc-arrows-threshold=0.5
 
 ** interactive
 mapi -i -s draw.json chart.ace output.pdf -- interactive
@@ -273,7 +276,7 @@ See [[file:~/AD/share/doc/color.org][color.org]]
 
 - ~Title~
   #+BEGIN_SRC json
-    {"N": "title", "show": true, "offset": [10, 10], 
+    {"N": "title", "show": true, "offset": [10, 10],
      "remove-lines": false, -- remove old lines
      "lines": ["Line 1 <substitute-chart-metadata> <substitute time series name>", "Line 2", "Another line"],
      "padding": 10, "background": "transparent", "border_color": "black", "border_width": 0.0, "text_color": "black", "text_size": 12, "interline": 2, "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif"
