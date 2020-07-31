@@ -1,4 +1,4 @@
-# Time-stamp: <2020-07-28 18:40:35 eu>
+# Time-stamp: <2020-07-31 12:30:53 eu>
 
 * Common usage
 
@@ -36,7 +36,8 @@ mapi -i -s draw.json chart.ace output.pdf -- interactive
 {lab}                         "VIDRL" "Crick"
 {table-date}                  "20150101-20200203"
 {assay}                       "hi" "neut"
-{assay-full}                  "HI" "PLAQUE REDUCTION NEUTRALISATION"
+{Assay}                       "HI" "Neut"
+{assay_full}                  "HI" "PLAQUE REDUCTION NEUTRALISATION"
 {rbc}                         "guinea-pig"
 {number-of-antigens}          2838
 {number-of-sera}              105

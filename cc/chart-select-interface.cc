@@ -167,6 +167,7 @@ void ChartAccess::chart_metadata(fmt::dynamic_format_arg_store<fmt::format_conte
     store.push_back(fmt::arg("virus_type_lineage_subset_short", virus_type_lineage_subset_short));
     store.push_back(fmt::arg("virus_type_lineage_short", virus_type_lineage_short));
     store.push_back(fmt::arg("assay", assay.hi_or_neut()));
+    store.push_back(fmt::arg("Assay", assay.HI_or_Neut()));
     store.push_back(fmt::arg("assay_full", assay));
     store.push_back(fmt::arg("assay_neut", assay_neut));
     store.push_back(fmt::arg("lab", info->lab()));
