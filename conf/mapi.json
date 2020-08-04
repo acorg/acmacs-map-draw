@@ -164,6 +164,14 @@
         {"N": "procrustes-arrows", "projection": 2, "threshold": "{pc-arrows-threshold}", "report_longest_arrows": "{report-longest-arrows}"}
     ],
 
+    "/pc03": [
+        {"N": "procrustes-arrows", "projection": 3, "threshold": "{pc-arrows-threshold}", "report_longest_arrows": "{report-longest-arrows}"}
+    ],
+
+    "/pc04": [
+        {"N": "procrustes-arrows", "projection": 4, "threshold": "{pc-arrows-threshold}", "report_longest_arrows": "{report-longest-arrows}"}
+    ],
+
     "/vaccines": [
         "vaccines-{virus-type}{lineage}{subset}",
         {"N": "antigens", "select": {"vaccine": {"type": "previous"},  "passage": "cell",        "most-used-for-name": true, "report": true}, "fill": "blue", "outline": "black", "size": "{vaccine-size}", "label": {"format": "{abbreviated_name} {passage}"}, "order": "raise"},
