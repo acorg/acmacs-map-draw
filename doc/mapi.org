@@ -1,4 +1,4 @@
-# Time-stamp: <2020-07-31 12:30:53 eu>
+# Time-stamp: <2020-08-06 12:27:16 eu>
 
 * Common usage
 
@@ -314,7 +314,7 @@ See [[file:~/AD/share/doc/color.org][color.org]]
   {subset}                          -- 2009pdm
   {virus_type_lineage_subset_short} -- h1pdm, h3, bvic, byam
   {virus_type_lineage_short}        -- h1, h3, bvic, byam
-  {assay}                           -- hi, neut
+  {assay}                           -- hi, neut, hint
   {assay_full}                      -- HI, FOCUS REDUCTION
   {lab}                             -- VIDRL, Crick
   {lab_lower}                       -- vidrl

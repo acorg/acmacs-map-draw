@@ -153,9 +153,9 @@ void ChartAccess::chart_metadata(fmt::dynamic_format_arg_store<fmt::format_conte
     if (virus_type == "A(H1N1)"sv)
         virus_type_lineage_short = "h1";
 
-    std::string assay_neut;
-    if (assay.hi_or_neut() == "neut"sv)
-        assay_neut = "neut";
+    std::string assay_neut{assay.hi_or_neut()};
+    if (assay_neut == "hi")
+        assay_neut.clear();
 
     // https://stackoverflow.com/questions/61635042/c-how-can-i-formatting-stdstring-with-collection-efficiently
     store.push_back(fmt::arg("virus", info->virus()));
