@@ -83,6 +83,12 @@ namespace acmacs::map_draw::select::filter
         indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), is_remove), indexes.end());
     }
 
+    inline void not_disconnected(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::Layout& aLayout)
+    {
+        const auto disconnected = [&](auto index) -> bool { return !aLayout[index + aIndexBase].exists(); };
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), disconnected), indexes.end());
+    }
+
     void rectangle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::Layout& aLayout, const acmacs::Rectangle& aRectangle, Rotation rotation);
 
     void sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes);

@@ -45,7 +45,7 @@ std::string report_antigens(const acmacs::chart::PointIndexList& indexes, const 
                 std::vector<std::string> layers;
                 for (size_t layer_no : titers->layers_with_antigen(index))
                     layers.emplace_back(info->source(layer_no)->date());
-                fmt::format_to(output, " {:3d}{}", layers.size(), layers);
+                fmt::format_to(output, " layers:{}{}", layers.size(), layers);
             }
             fmt::format_to(output, "\n");
         }

@@ -626,10 +626,14 @@ static inline void check_most_used(const AgSr& ag_sr, const ChartSelectInterface
 {
     if (const auto most_used = number_of_most_used(key, value); most_used > 0) { // otherwise ignored (e.g. "most-used": false)
         const auto& hidb = hidb::get(aChartSelectInterface.chart().info()->virus_type());
-        if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>)
+        if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
+            acmacs::map_draw::select::filter::not_disconnected(indexes, 0, *aChartSelectInterface.chart(0).modified_layout());
             acmacs::map_draw::select::filter::most_used(hidb.antigens()->find(ag_sr, indexes), indexes, most_used);
-        else
+        }
+        else {
+            acmacs::map_draw::select::filter::not_disconnected(indexes, aChartSelectInterface.chart().number_of_antigens(), *aChartSelectInterface.chart(0).modified_layout());
             acmacs::map_draw::select::filter::most_used(hidb.sera()->find(ag_sr, indexes), indexes, most_used);
+        }
     }
 
 } // check_most_used
@@ -641,10 +645,14 @@ static inline void check_most_used_for_name(const AgSr& ag_sr, const ChartSelect
 {
     if (const auto most_used = number_of_most_used(key, value); most_used > 0) { // otherwise ignored (e.g. "most-used": false)
         const auto& hidb = hidb::get(aChartSelectInterface.chart().info()->virus_type());
-        if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>)
+        if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
+            acmacs::map_draw::select::filter::not_disconnected(indexes, 0, *aChartSelectInterface.chart(0).modified_layout());
             acmacs::map_draw::select::filter::most_used_for_name(hidb.antigens()->find(ag_sr, indexes), indexes, most_used);
-        else
+        }
+        else {
+            acmacs::map_draw::select::filter::not_disconnected(indexes, aChartSelectInterface.chart().number_of_antigens(), *aChartSelectInterface.chart(0).modified_layout());
             acmacs::map_draw::select::filter::most_used_for_name(hidb.sera()->find(ag_sr, indexes), indexes, most_used);
+        }
     }
 
 } // check_most_used_for_name

@@ -334,6 +334,9 @@ template void acmacs::map_draw::select::filter::most_used(const std::vector<std:
 
 template <typename AgSrPerIndex> void acmacs::map_draw::select::filter::most_used_for_name(const AgSrPerIndex& ag_sr_per_index, acmacs::chart::Indexes& indexes, size_t number_of_most_used)
 {
+    if (indexes.size() < 2)
+        return;
+
     struct data_t
     {
         size_t index;
