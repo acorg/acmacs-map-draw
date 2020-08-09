@@ -65,7 +65,7 @@
         {"N": "antigens", "select": {"continent": "CHINA-NORTH",       "date": "{date-recent}"}, "fill": "#6495ED", "outline": "black"},
         {"N": "antigens", "select": {"continent": "CHINA-UNKNOWN",     "date": "{date-recent}"}, "fill": "#808080", "outline": "black"},
         {"N": "antigens", "select": {"continent": "UNKNOWN",           "date": "{date-recent}"}, "fill": "#808080", "outline": "black"},
-        {"N": "legend", "type": "continent_map", "size": 100}
+        {"N": "legend", "type": "continent_map", "size": 100, "show": false}
     ],
 
     "? clades": "----------------------------------------------------------------------",
