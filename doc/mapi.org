@@ -1,4 +1,4 @@
-# Time-stamp: <2020-08-06 12:27:16 eu>
+# Time-stamp: <2020-08-10 22:11:17 eu>
 
 * Common usage
 
@@ -201,7 +201,7 @@ To print environment use:
    "size": 1.0, "show": true, "shape": "circle|box|triangle",
    "order": "raise|lower",
    "label": <Label>,
-   "legend": {"show": true, "label": "name ({count})", "replace": false},
+   "legend": {"show": true, "label": "name ({count})", "replace": false, "show_if_none_selected": false},
    }
 
   {"N": "sera", "select": {<Select Sera>},

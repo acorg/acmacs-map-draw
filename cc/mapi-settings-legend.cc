@@ -80,7 +80,7 @@ void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList&
 void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList& indexes, const acmacs::PointStyleModified& style, std::string_view label, const rjson::v3::value& legend_data)
 {
     using namespace std::string_view_literals;
-    if (rjson::v3::read_bool(legend_data["show"sv], true) && !indexes->empty()) { // show is true by default
+    if (rjson::v3::read_bool(legend_data["show"sv], true) && (!indexes->empty() || rjson::v3::read_bool(legend_data["show_if_none_selected"sv], false))) { // show is true by default
         legend().add_line(acmacs::color::Modifier{style.outline()}, acmacs::color::Modifier{style.fill()}, label);
     }
 
