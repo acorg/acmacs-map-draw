@@ -30,6 +30,8 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
     const size_t indent{2};
     for (auto serum_index : serum_indexes) {
         auto serum = sera->at(serum_index);
+        const auto serum_passage = serum->passage_type(acmacs::chart::reassortant_as_egg::no);
+        bool do_mark_serum{false};
         fmt::format_to(report, "{:{}c}SR {} {} {}\n", ' ', indent, serum_index, serum->full_name(), serum->passage_type(acmacs::chart::reassortant_as_egg::no));
         if (!layout->point_has_coordinates(serum_index + antigens->size())) {
             fmt::format_to(report, "{:{}c}  *** serum is disconnected\n", ' ', indent);
@@ -47,9 +49,8 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
             }
             report_circles(report, *antigens, antigen_indexes, empirical, theoretical);
 
-            const auto serum_passage = serum->passage_type(acmacs::chart::reassortant_as_egg::no);
             std::optional<size_t> mark_antigen;
-            bool do_mark_serum{false};
+            // AD_DEBUG("SERUM {} {}", serum_index, serum->full_name());
             if (empirical.valid()) {
                 make_circle(serum_index, Scaled{empirical.radius()}, serum_passage, getenv("empirical"sv));
                 mark_antigen = empirical.per_antigen().front().antigen_no;
@@ -77,13 +78,19 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
                 if (const auto& label = antigen_style["label"sv]; !label.is_null())
                     add_labels(indexes, 0, label);
             }
-
-            // mark serum
-            if (do_mark_serum)
-                mark_serum(serum_index, getenv("mark_serum"sv));
         }
-        else
+        else {
             fmt::format_to(report, "{:{}c}  *** no homologous antigens selected (selector: {})\n", ' ', indent, antigen_selector);
+
+            if (const auto& fallback = getenv("fallback"sv); !fallback.is_null() && rjson::v3::read_bool(fallback["show"sv], true)) {
+                make_circle(serum_index, rjson::v3::read_number(fallback["radius"sv], Scaled{3.0}), serum_passage, fallback);
+                do_mark_serum = true;
+            }
+        }
+
+        // mark serum
+        if (do_mark_serum)
+            mark_serum(serum_index, getenv("mark_serum"sv));
         fmt::format_to(report, "\n");
     }
     if (rjson::v3::read_bool(getenv("report"sv), false))
