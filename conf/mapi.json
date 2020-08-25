@@ -74,15 +74,27 @@
         {"N": "antigens", "select": {"sequenced": true, "date": "{date-recent}", "report": true}, "?fill": "#C0C000",  "outline": "black", "legend": {"label": "sequenced ({count})"}, "order": "raise"}
     ],
 
-    "//clades": [
+    "//clades1": [
         "/size-reset",
         "/all-grey",
         "/egg",
         "/clades"
     ],
 
+    "//clades": [
+        "/size-reset",
+        "/all-grey",
+        "/egg",
+        "/clades",
+        {"N": "point-scale", "scale": 2, "outline_scale": 1}
+    ],
+
     "//clade": [
         "//clades"
+    ],
+
+    "//clade1": [
+        "//clades1"
     ],
 
     "/clades": [
