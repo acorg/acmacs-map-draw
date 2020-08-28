@@ -49,7 +49,7 @@ void acmacs::mapi::v1::Settings::add_label(size_t index, size_t index_base, cons
 
     if (const auto color = rjson::v3::read_color(label_data["color"sv]); color.has_value())
         label.color(*color);
-    if (const auto size = rjson::v3::read_number<Pixels>(label_data["size"sv]); size.has_value())
+    if (const auto size = rjson::v3::read_number<Pixels>(substitute_to_value(label_data["size"sv])); size.has_value())
         label.size(*size);
     if (const auto weight = rjson::v3::read_string(label_data["weight"sv]); weight.has_value())
         label.weight(*weight);
