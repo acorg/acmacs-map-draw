@@ -37,25 +37,25 @@ void acmacs::mapi::v1::Settings::add_label(size_t index, size_t index_base, cons
     }
 
     std::string pattern{"{abbreviated_name_with_passage_type}"};
-    if (const auto name_format = rjson::v3::read_string(label_data["format"sv]); name_format.has_value())
+    if (const auto name_format = rjson::v3::read_string(substitute_to_value(label_data["format"sv])); name_format.has_value())
         pattern = *name_format;
     if (index_base == 0)
         label.display_name(acmacs::chart::format_antigen(pattern, chart_draw().chart(), index));
     else
         label.display_name(acmacs::chart::format_serum(pattern, chart_draw().chart(), index));
 
-    if (const auto offset = rjson::v3::read_point_coordinates(label_data["offset"sv]); offset.has_value())
+    if (const auto offset = rjson::v3::read_point_coordinates(substitute_to_value(label_data["offset"sv])); offset.has_value())
         label.offset(*offset);
 
-    if (const auto color = rjson::v3::read_color(label_data["color"sv]); color.has_value())
+    if (const auto color = rjson::v3::read_color(substitute_to_value(label_data["color"sv])); color.has_value())
         label.color(*color);
     if (const auto size = rjson::v3::read_number<Pixels>(substitute_to_value(label_data["size"sv])); size.has_value())
         label.size(*size);
-    if (const auto weight = rjson::v3::read_string(label_data["weight"sv]); weight.has_value())
+    if (const auto weight = rjson::v3::read_string(substitute_to_value(label_data["weight"sv])); weight.has_value())
         label.weight(*weight);
-    if (const auto slant = rjson::v3::read_string(label_data["slant"sv]); slant.has_value())
+    if (const auto slant = rjson::v3::read_string(substitute_to_value(label_data["slant"sv])); slant.has_value())
         label.slant(*slant);
-    if (const auto font_family = rjson::v3::read_string(label_data["font_family"sv]); font_family.has_value())
+    if (const auto font_family = rjson::v3::read_string(substitute_to_value(label_data["font_family"sv])); font_family.has_value())
         label.font_family(*font_family);
 
 } // acmacs::mapi::v1::Settings::add_label
