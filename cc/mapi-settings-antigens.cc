@@ -684,6 +684,7 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
     using namespace std::string_view_literals;
 
     auto indexes = ag_sr.all_indexes();
+    ag_sr.filter_out_distinct(indexes);
     bool report{false};
     size_t report_threshold{20};
 
