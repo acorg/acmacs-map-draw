@@ -170,6 +170,7 @@ void ChartAccess::chart_metadata(fmt::dynamic_format_arg_store<fmt::format_conte
     store.push_back(fmt::arg("Assay", assay.HI_or_Neut()));
     store.push_back(fmt::arg("assay_full", assay));
     store.push_back(fmt::arg("assay_neut", assay_neut));
+    store.push_back(fmt::arg("assay_HI_Neut", assay.HI_or_Neut()));
     store.push_back(fmt::arg("lab", info->lab()));
     store.push_back(fmt::arg("lab_lower", ::string::lower(info->lab())));
     store.push_back(fmt::arg("rbc", info->rbc_species()));
