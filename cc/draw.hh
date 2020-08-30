@@ -62,17 +62,8 @@ class ChartDraw : public ChartSelectInterface
         }
     }
 
-    void modify(const acmacs::chart::Indexes& aPoints, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
-    {
-        plot_spec().modify(aPoints, aStyle);
-        modify_drawing_order(aPoints, aPointDrawingOrder);
-    }
-
-    void modify(size_t aPointNo, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
-    {
-        plot_spec().modify(aPointNo, aStyle);
-        modify_drawing_order(aPointNo, aPointDrawingOrder);
-    }
+    void modify(const acmacs::chart::Indexes& aPoints, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange);
+    void modify(size_t aPointNo, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange);
 
     void modify_sera(const acmacs::chart::Indexes& aSera, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
     {

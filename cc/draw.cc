@@ -194,6 +194,24 @@ std::string ChartDraw::draw_json(report_time aTimer) const
 
 // ----------------------------------------------------------------------
 
+void ChartDraw::modify(const acmacs::chart::Indexes& aPoints, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder)
+{
+    plot_spec().modify(aPoints, aStyle);
+    modify_drawing_order(aPoints, aPointDrawingOrder);
+
+} // ChartDraw::modify
+
+// ----------------------------------------------------------------------
+
+void ChartDraw::modify(size_t aPointNo, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder)
+{
+    plot_spec().modify(aPointNo, aStyle);
+    modify_drawing_order(aPointNo, aPointDrawingOrder);
+
+} // ChartDraw::modify
+
+// ----------------------------------------------------------------------
+
 void ChartDraw::draw(acmacs::draw::DrawElements& painter) const
 {
     if (viewport_.empty())

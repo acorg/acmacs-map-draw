@@ -1,3 +1,4 @@
+#include "acmacs-tal/log.hh"
 #include "acmacs-base/date.hh"
 #include "acmacs-base/string-compare.hh"
 #include "acmacs-base/rjson-v3-helper.hh"
@@ -17,6 +18,8 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
     using namespace std::string_view_literals;
 
     const auto indexes = select_antigens(getenv("select"sv));
+    AD_LOG(acmacs::log::settings, "antigens selected: {} {}", indexes.size(), getenv_toplevel());
+
     const auto style = style_from_toplevel_environment();
     chart_draw().modify(indexes, style.style, drawing_order_from_toplevel_environment());
     if (!color_according_to_passage(*chart_draw().chart().antigens(), indexes, style) && !color_according_to_aa_at_pos(indexes, style)) {
@@ -684,7 +687,6 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
     using namespace std::string_view_literals;
 
     auto indexes = ag_sr.all_indexes();
-    ag_sr.filter_out_distinct(indexes);
     bool report{false};
     size_t report_threshold{20};
 
