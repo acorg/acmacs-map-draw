@@ -1,4 +1,3 @@
-#include "acmacs-tal/log.hh"
 #include "acmacs-base/date.hh"
 #include "acmacs-base/string-compare.hh"
 #include "acmacs-base/rjson-v3-helper.hh"
@@ -8,6 +7,7 @@
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/report-antigens.hh"
 #include "acmacs-map-draw/select-filter.hh"
+#include "acmacs-map-draw/log.hh"
 
 enum class throw_if_unprocessed { no, yes };
 
