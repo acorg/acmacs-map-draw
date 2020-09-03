@@ -50,7 +50,7 @@ static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-
     "3C.2A1A":           {"fill": "#E040FB",         "outline": "black", "outline_width": 0},
     "3C.2A1B":           {"fill": "#CD5C5C",         "outline": "black", "outline_width": 0},
     "3C.2A2":            {"fill": "#EEB422",         "outline": "black", "outline_width": 0},
-    "3C.3A":             {"fill": "green",           "outline": "black", "outline_width": 0},
+    "3C.3A":             {"fill": "#00B000",         "outline": "black", "outline_width": 0},
     "3C.3B":             {"fill": "blue",            "outline": "black", "outline_width": 0},
 
     "?": "========== H1pdm",
