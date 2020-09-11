@@ -124,7 +124,8 @@
         {"N": "antigens", "select": {"clade": "3C.2A2",  "date": "{date-recent}"}, "fill": "#EEB422", "outline": "black", "legend": {"label": "2a2 ({count})"},  "order": "raise"},
         {"N": "antigens", "select": {"clade": "3C.3A",   "date": "{date-recent}"}, "fill": "green",   "outline": "black", "legend": {"label": "3a ({count})"},   "order": "raise"},
         {"N": "antigens", "select": {"clade": "3C.2A1B", "date": "{date-recent}"}, "fill": "#CD5C5C", "outline": "black", "legend": {"label": "2a1b ({count})"}, "order": "raise"},
-        {"N": "antigens", "select": {"clade": "3C.2A1B", "date": "{date-recent}", "amino_acid": ["131T", "135K", "137F"]}, "fill": "pink",    "outline": "black", "legend": {"label": "2a1b 131T 135K 137F ({count})"}, "order": "raise"}
+        {"?N": "antigens", "select": {"clade": "3C.2A1B", "date": "{date-recent}", "amino_acid": ["131T", "135K", "137F"]}, "fill": "pink",    "outline": "black", "legend": {"label": "2a1b 131T 135K 137F ({count})"}, "order": "raise"},
+        {"N": "antigens", "select": {"clade": "3C.2A1B", "amino_acid": ["193S"], "date": "{date-recent}"}, "fill": "pink{clade-pale}",           "outline": "black{clade-pale}", "legend": {"label": "2a1b 193S ({count})", "show_if_none_selected": true}, "order": "raise", "report": true}
     ],
 
     "/clades-A(H1N1)2009pdm": [
