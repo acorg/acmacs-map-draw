@@ -34,7 +34,7 @@ struct MapiOptions : public acmacs::argv::v2::argv
     option<str> db_dir{*this, "db-dir"};
     // option<str> seqdb{*this, "seqdb"};
 
-    option<str_array> settings_files{*this, 's'};
+    option<str_array> settings_files{*this, 's', desc{"settings"}};
     option<str_array> defines{*this, 'D', "define", desc{"see {ACMACSD_ROOT}/share/doc/mapi.org"}};
     option<str_array> apply{*this, 'a', "apply", desc{"comma separated names or json array to use as \"apply\", e.g. [\"/all-grey\",\"/egg\",\"/clades\",\"/labels\"]"}};
     option<bool>      interactive{*this, 'i', "interactive"};
