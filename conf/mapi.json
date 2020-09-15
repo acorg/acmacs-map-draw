@@ -86,7 +86,8 @@
         "/all-grey",
         "/egg",
         "/clades",
-        {"N": "point-scale", "scale": 2, "outline_scale": 1}
+        {"N": "point-scale", "scale": 2, "outline_scale": 1},
+        {"N": "title", "show": true, "lines": ["{lab} {virus_type_lineage} {Assay} {table_date}     {stress:.4f}"]}
     ],
 
     "//clade": [
@@ -166,6 +167,7 @@
     "? commands": "----------------------------------------------------------------------",
 
     "/pc": [
+        {"N": "title", "show": true, "remove-lines": true},
         {"N": "procrustes-arrows", "chart": 1, "projection": 0, "match": "auto", "threshold": "{pc-arrows-threshold}", "report": "{report-common}", "report_longest_arrows": "{report-longest-arrows}"}
     ],
 
