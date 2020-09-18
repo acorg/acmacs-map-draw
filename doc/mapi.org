@@ -1,4 +1,4 @@
-# Time-stamp: <2020-08-10 22:11:17 eu>
+# Time-stamp: <2020-09-18 12:02:58 eu>
 
 * Common usage
 
@@ -374,6 +374,7 @@ http://geomalgorithms.com/a03-_inclusion.html
 #+BEGIN_SRC json
   {"N": "serum-circle", "serum": {<Select Sera>}, "?antigen": {<Select Antigens>}, "?homologous_titer": "1280",
    "report": true, "verbose": false,
+   "hide_if_bigger_than": 5.5,
    "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
    "empirical":    {"show": true, "fill": "<color-modifier>", "outline": "<color-modifier>", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "<color-modifier>", "line_width": 1}},
    "theoretical":  {"show": true, "fill": "<color-modifier>", "outline": "<color-modifier>", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "<color-modifier>", "line_width": 1}},

@@ -7,7 +7,7 @@
 // ----------------------------------------------------------------------
 
 static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Antigens& antigens, const acmacs::chart::PointIndexList& antigen_indexes, const acmacs::chart::SerumCircle& empirical,
-                           const acmacs::chart::SerumCircle& theoretical);
+                           const acmacs::chart::SerumCircle& theoretical, double hide_if_bigger_than);
 
 // ----------------------------------------------------------------------
 
@@ -26,6 +26,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
     const auto forced_homologous_titer = rjson::v3::read_string(getenv("homologous_titer"sv));
     const auto verb = verbose_from(rjson::v3::read_bool(getenv("verbose"sv), false));
     const auto& antigen_selector{getenv("antigen"sv, "antigens"sv)};
+    const auto hide_if_bigger = rjson::v3::read_number(getenv("hide_if_bigger_than"sv), 5.5);
     fmt::memory_buffer report;
     const size_t indent{2};
     for (auto serum_index : serum_indexes) {
@@ -47,16 +48,16 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
                 empirical = acmacs::chart::serum_circle_empirical(antigen_indexes, serum_index, *layout, column_basis, *titers, fold, verb);
                 theoretical = acmacs::chart::serum_circle_theoretical(antigen_indexes, serum_index, column_basis, *titers, fold);
             }
-            report_circles(report, *antigens, antigen_indexes, empirical, theoretical);
+            report_circles(report, *antigens, antigen_indexes, empirical, theoretical, hide_if_bigger);
 
             std::optional<size_t> mark_antigen;
             // AD_DEBUG("SERUM {} {}", serum_index, serum->full_name());
-            if (empirical.valid()) {
+            if (empirical.valid() && empirical.radius() <= hide_if_bigger) {
                 make_circle(serum_index, Scaled{empirical.radius()}, serum_passage, getenv("empirical"sv));
                 mark_antigen = empirical.per_antigen().front().antigen_no;
                 do_mark_serum = true;
             }
-            if (theoretical.valid()) {
+            if (theoretical.valid() && theoretical.radius() <= hide_if_bigger) {
                 make_circle(serum_index, Scaled{theoretical.radius()}, serum_passage, getenv("theoretical"sv));
                 if (!mark_antigen.has_value())
                     mark_antigen = theoretical.per_antigen().front().antigen_no;
@@ -122,7 +123,7 @@ acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens_for_se
 // ----------------------------------------------------------------------
 
 static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Antigens& antigens, const acmacs::chart::PointIndexList& antigen_indexes, const acmacs::chart::SerumCircle& empirical,
-                           const acmacs::chart::SerumCircle& theoretical)
+                           const acmacs::chart::SerumCircle& theoretical, double hide_if_bigger_than)
 {
     const auto find_data = [](const acmacs::chart::SerumCircle& data, size_t antigen_index) -> const acmacs::chart::detail::SerumCirclePerAntigen& {
         if (const auto found = find_if(std::begin(data.per_antigen()), std::end(data.per_antigen()), [antigen_index](const auto& en) { return en.antigen_no == antigen_index; });
@@ -159,10 +160,17 @@ static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Anti
         fmt::format_to(report, "\n");
     }
     std::string empirical_radius(6, ' '), theoretical_radius(6, ' ');
-    if (empirical.valid())
+    if (empirical.valid()) {
         empirical_radius = fmt::format("{:.4f}", empirical.radius());
-    if (theoretical.valid())
+        if (empirical.radius() > hide_if_bigger_than)
+            empirical_radius += " (too big, hidden)";
+
+    }
+    if (theoretical.valid()) {
         theoretical_radius = fmt::format("{:.4f}", theoretical.radius());
+        if (theoretical.radius() > hide_if_bigger_than)
+            theoretical_radius += " (too big, hidden)";
+    }
     fmt::format_to(report, "  > {}  {}\n", empirical_radius, theoretical_radius);
 }
 
