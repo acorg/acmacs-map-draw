@@ -1,4 +1,4 @@
-# Time-stamp: <2020-09-18 12:02:58 eu>
+# Time-stamp: <2020-09-18 14:32:33 eu>
 
 * Common usage
 
@@ -326,6 +326,7 @@ See [[file:~/AD/share/doc/color.org][color.org]]
   {number_of_sera}
   {number_of_layers}
   {name}                            -- VIDRL A(H3N2) HI guinea-pig 20150101-20200203 >=none 9654.398226
+  {antigen}
 
 * Drawing
 

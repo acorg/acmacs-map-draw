@@ -182,6 +182,17 @@ void ChartAccess::chart_metadata(fmt::dynamic_format_arg_store<fmt::format_conte
     store.push_back(fmt::arg("stress", projection.stress()));
     store.push_back(fmt::arg("name", chart().make_name()));
 
+    auto sera = chart().sera();
+    for (auto [no, serum] : acmacs::enumerate(*sera)) {
+        store.push_back(fmt::arg(fmt::format("serum_{}_full_name", no).c_str(), serum->full_name()));
+        store.push_back(fmt::arg(fmt::format("serum_{}_full_name_without_passage", no).c_str(), serum->full_name_without_passage()));
+        store.push_back(fmt::arg(fmt::format("serum_{}_full_name_with_passage", no).c_str(), serum->full_name_with_passage()));
+        store.push_back(fmt::arg(fmt::format("serum_{}_abbreviated_name", no).c_str(), serum->abbreviated_name()));
+        store.push_back(fmt::arg(fmt::format("serum_{}_abbreviated_name_with_serum_id", no).c_str(), serum->abbreviated_name_with_serum_id()));
+        store.push_back(fmt::arg(fmt::format("serum_{}_designation", no).c_str(), serum->designation()));
+        store.push_back(fmt::arg(fmt::format("serum_{}_designation_without_serum_id", no).c_str(), serum->designation_without_serum_id()));
+    }
+
 } // ChartAccess::chart_metadata
 
 // ----------------------------------------------------------------------
