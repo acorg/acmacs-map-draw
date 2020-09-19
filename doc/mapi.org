@@ -1,4 +1,4 @@
-# Time-stamp: <2020-09-18 14:32:33 eu>
+# Time-stamp: <2020-09-19 16:26:37 eu>
 
 * Common usage
 
@@ -295,7 +295,7 @@ See [[file:~/AD/share/doc/color.org][color.org]]
         "label_size": 14,
         "point_size": 10,
         "title": "<format>" -- ["<format>", ...]
-        "lines": [{"text": "163-del", "outline": "black", "fill": "red"}] -- additional lines added after the ones added by {"N": antigens, "legend": ...}
+        "lines": [{"text": "163-del", "outline": "black", "outline_width": 1, "fill": "red"}] -- additional lines added after the ones added by {"N": antigens, "legend": ...}
     }
 
     {

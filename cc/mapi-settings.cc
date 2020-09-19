@@ -69,7 +69,7 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
         return acmacs::settings::Settings::apply_built_in(name);
     }
     catch (std::exception& err) {
-        throw error{fmt::format("cannot apply \"{}\": {} while reading {}", name, err, getenv_toplevel())};
+        throw error{fmt::format("cannot apply mapi built in \"{}\": {}\n    while reading {}", name, err, getenv_toplevel())};
     }
 
 } // acmacs::mapi::v1::Settings::apply_built_in
