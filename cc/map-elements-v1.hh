@@ -53,9 +53,14 @@ namespace map_elements::v1
      public:
         struct Line
         {
-            Line(const acmacs::color::Modifier& aOutline, const acmacs::color::Modifier& aFill, std::string_view aLabel) : outline{aOutline}, fill{aFill}, label{aLabel} {}
+            Line(const acmacs::color::Modifier& aOutline, Pixels aOutlineWidth, const acmacs::color::Modifier& aFill, std::string_view aLabel)
+                : outline{aOutline}, outline_width{aOutlineWidth}, fill{aFill}, label{aLabel}
+            {
+            }
             Line(std::string_view aLabel) : outline{TRANSPARENT}, fill{TRANSPARENT}, label{aLabel} {}
-            acmacs::color::Modifier outline, fill;
+            acmacs::color::Modifier outline;
+            Pixels outline_width{1};
+            acmacs::color::Modifier fill;
             std::string label;
         };
 
@@ -65,7 +70,7 @@ namespace map_elements::v1
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
         void offset(const acmacs::PointCoordinates& aOrigin) { mOrigin = aOrigin; }
-        void add_line(const acmacs::color::Modifier& outline, const acmacs::color::Modifier& fill, std::string_view label) { mLines.emplace_back(outline, fill, label); }
+        void add_line(const acmacs::color::Modifier& outline, const acmacs::color::Modifier& fill, std::string_view label) { mLines.emplace_back(outline, Pixels{1},  fill, label); }
         void remove_line(std::string_view label) { mLines.erase(std::remove_if(mLines.begin(), mLines.end(), [&label](const auto& elt) { return elt.label == label; }), mLines.end()); }
         void label_size(Pixels aLabelSize) { mLabelSize = aLabelSize; }
         void point_size(Pixels aPointSize) { mPointSize = aPointSize; }

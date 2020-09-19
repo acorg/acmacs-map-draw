@@ -42,8 +42,8 @@ bool acmacs::mapi::v1::Settings::apply_legend()
             getenv("lines"sv).visit([&legend_element]<typename Val>(const Val& lines) {
                 if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
                     for (const auto& line : lines) {
-                        legend_element.lines().emplace_back(rjson::v3::read_color(line["outline"sv], TRANSPARENT), rjson::v3::read_color(line["fill"sv], TRANSPARENT),
-                                                            rjson::v3::read_string(line["text"sv], "\"text\""sv));
+                        legend_element.lines().emplace_back(rjson::v3::read_color(line["outline"sv], TRANSPARENT), rjson::v3::read_number(line["outline_width"sv], Pixels{1}),
+                                                            rjson::v3::read_color(line["fill"sv], TRANSPARENT), rjson::v3::read_string(line["text"sv], "\"text\""sv));
                     }
                 }
                 else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
