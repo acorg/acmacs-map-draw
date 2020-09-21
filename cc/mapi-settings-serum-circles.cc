@@ -7,7 +7,7 @@
 // ----------------------------------------------------------------------
 
 static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Antigens& antigens, const acmacs::chart::PointIndexList& antigen_indexes, const acmacs::chart::SerumCircle& empirical,
-                           const acmacs::chart::SerumCircle& theoretical, double hide_if_bigger_than);
+                           const acmacs::chart::SerumCircle& theoretical, double hide_if_bigger_than, std::optional<std::string_view> forced_homologous_titer);
 
 // ----------------------------------------------------------------------
 
@@ -34,10 +34,11 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
         const auto serum_passage = serum->passage_type(acmacs::chart::reassortant_as_egg::no);
         bool do_mark_serum{false};
         fmt::format_to(report, "{:{}c}SR {} {} {}\n", ' ', indent, serum_index, serum->full_name(), serum->passage_type(acmacs::chart::reassortant_as_egg::no));
+
         if (!layout->point_has_coordinates(serum_index + antigens->size())) {
             fmt::format_to(report, "{:{}c}  *** serum is disconnected\n", ' ', indent);
         }
-        else if (const auto antigen_indexes = select_antigens_for_serum_circle(serum_index, antigen_selector); !antigen_indexes.empty()) {
+        else if (const auto antigen_indexes = select_antigens_for_serum_circle(serum_index, antigen_selector); !antigen_indexes.empty() || forced_homologous_titer.has_value()) {
             const auto column_basis = chart.column_basis(serum_index, chart_draw().chart(0).projection_no());
             acmacs::chart::SerumCircle empirical, theoretical;
             if (forced_homologous_titer.has_value()) {
@@ -48,18 +49,19 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
                 empirical = acmacs::chart::serum_circle_empirical(antigen_indexes, serum_index, *layout, column_basis, *titers, fold, verb);
                 theoretical = acmacs::chart::serum_circle_theoretical(antigen_indexes, serum_index, column_basis, *titers, fold);
             }
-            report_circles(report, *antigens, antigen_indexes, empirical, theoretical, hide_if_bigger);
+            report_circles(report, *antigens, antigen_indexes, empirical, theoretical, hide_if_bigger, forced_homologous_titer);
 
             std::optional<size_t> mark_antigen;
             // AD_DEBUG("SERUM {} {}", serum_index, serum->full_name());
             if (empirical.valid() && empirical.radius() <= hide_if_bigger) {
                 make_circle(serum_index, Scaled{empirical.radius()}, serum_passage, getenv("empirical"sv));
-                mark_antigen = empirical.per_antigen().front().antigen_no;
+                if (theoretical.per_antigen().front().antigen_no != static_cast<size_t>(-1))
+                    mark_antigen = empirical.per_antigen().front().antigen_no;
                 do_mark_serum = true;
             }
             if (theoretical.valid() && theoretical.radius() <= hide_if_bigger) {
                 make_circle(serum_index, Scaled{theoretical.radius()}, serum_passage, getenv("theoretical"sv));
-                if (!mark_antigen.has_value())
+                if (!mark_antigen.has_value() && theoretical.per_antigen().front().antigen_no != static_cast<size_t>(-1))
                     mark_antigen = theoretical.per_antigen().front().antigen_no;
                 do_mark_serum = true;
             }
@@ -123,7 +125,7 @@ acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens_for_se
 // ----------------------------------------------------------------------
 
 static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Antigens& antigens, const acmacs::chart::PointIndexList& antigen_indexes, const acmacs::chart::SerumCircle& empirical,
-                           const acmacs::chart::SerumCircle& theoretical, double hide_if_bigger_than)
+                           const acmacs::chart::SerumCircle& theoretical, double hide_if_bigger_than, std::optional<std::string_view> forced_homologous_titer)
 {
     const auto find_data = [](const acmacs::chart::SerumCircle& data, size_t antigen_index) -> const acmacs::chart::detail::SerumCirclePerAntigen& {
         if (const auto found = find_if(std::begin(data.per_antigen()), std::end(data.per_antigen()), [antigen_index](const auto& en) { return en.antigen_no == antigen_index; });
@@ -139,32 +141,43 @@ static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Anti
     };
 
     fmt::format_to(report, "     empir   theor   titer\n");
-    for (const auto antigen_index : antigen_indexes) {
-        const auto& empirical_data = find_data(empirical, antigen_index);
-        const auto& theoretical_data = find_data(theoretical, antigen_index);
-        std::string empirical_radius(6, ' '), theoretical_radius(6, ' '), empirical_report, theoretical_report;
+    if (forced_homologous_titer) {
+        const auto& empirical_data = empirical.per_antigen().front();
+        const auto& theoretical_data = theoretical.per_antigen().front();
+        std::string empirical_radius(6, ' '), theoretical_radius(6, ' ');
         if (empirical_data.valid())
             empirical_radius = fmt::format("{:.4f}", *empirical_data.radius);
-        else
-            empirical_report.assign(empirical_data.report_reason());
         if (theoretical_data.valid())
             theoretical_radius = fmt::format("{:.4f}", *theoretical_data.radius);
-        else
-            theoretical_report.assign(theoretical_data.report_reason());
-        fmt::format_to(report, "    {}  {}  {:>6s}   AG {:4d} {:40s}", empirical_radius, theoretical_radius, theoretical_data.titer, antigen_index, antigens[antigen_index]->full_name(),
-                       empirical_report);
-        if (!empirical_report.empty())
-            fmt::format_to(report, " -- {}", empirical_report);
-        else if (!theoretical_report.empty())
-            fmt::format_to(report, " -- {}", theoretical_report);
-        fmt::format_to(report, "\n");
+        fmt::format_to(report, "    {}  {}  {:>6s} (titer forced)\n", empirical_radius, theoretical_radius, theoretical_data.titer);
+    }
+    else {
+        for (const auto antigen_index : antigen_indexes) {
+            const auto& empirical_data = find_data(empirical, antigen_index);
+            const auto& theoretical_data = find_data(theoretical, antigen_index);
+            std::string empirical_radius(6, ' '), theoretical_radius(6, ' '), empirical_report, theoretical_report;
+            if (empirical_data.valid())
+                empirical_radius = fmt::format("{:.4f}", *empirical_data.radius);
+            else
+                empirical_report.assign(empirical_data.report_reason());
+            if (theoretical_data.valid())
+                theoretical_radius = fmt::format("{:.4f}", *theoretical_data.radius);
+            else
+                theoretical_report.assign(theoretical_data.report_reason());
+            fmt::format_to(report, "    {}  {}  {:>6s}   AG {:4d} {:40s}", empirical_radius, theoretical_radius, theoretical_data.titer, antigen_index, antigens[antigen_index]->full_name(),
+                           empirical_report);
+            if (!empirical_report.empty())
+                fmt::format_to(report, " -- {}", empirical_report);
+            else if (!theoretical_report.empty())
+                fmt::format_to(report, " -- {}", theoretical_report);
+            fmt::format_to(report, "\n");
+        }
     }
     std::string empirical_radius(6, ' '), theoretical_radius(6, ' ');
     if (empirical.valid()) {
         empirical_radius = fmt::format("{:.4f}", empirical.radius());
         if (empirical.radius() > hide_if_bigger_than)
             empirical_radius += " (too big, hidden)";
-
     }
     if (theoretical.valid()) {
         theoretical_radius = fmt::format("{:.4f}", theoretical.radius());
@@ -273,7 +286,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_coverage()
         if (!layout->point_has_coordinates(serum_index + antigens->size())) {
             fmt::format_to(report, "{:{}c}  *** serum is disconnected\n", ' ', indent);
         }
-        else if (const auto antigen_indexes = select_antigens_for_serum_circle(serum_index, antigen_selector); !antigen_indexes.empty()) {
+        else if (const auto antigen_indexes = select_antigens_for_serum_circle(serum_index, antigen_selector); !antigen_indexes.empty() || forced_homologous_titer.has_value()) {
             acmacs::chart::PointIndexList within, outside;
             if (forced_homologous_titer.has_value()) {
                 chart.serum_coverage(*forced_homologous_titer, serum_index, within, outside, fold);
