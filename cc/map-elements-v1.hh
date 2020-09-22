@@ -107,6 +107,7 @@ namespace map_elements::v1
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
         size_t number_of_lines() const { return mLines.size(); }
+        const auto& lines() const { return mLines; }
 
         Title& show(bool aShow) { mShow = aShow; return *this; }
         Title& offset(const acmacs::PointCoordinates& aOrigin) { mOrigin = aOrigin; return *this; }
