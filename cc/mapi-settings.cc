@@ -66,7 +66,7 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
             return apply_time_series();
         // else if (name == ""sv)
         //     return apply_();
-        return acmacs::settings::Settings::apply_built_in(name);
+        return acmacs::settings::v2::Settings::apply_built_in(name);
     }
     catch (std::exception& err) {
         throw error{fmt::format("cannot apply mapi built in \"{}\": {}\n    while reading {}", name, err, getenv_toplevel())};

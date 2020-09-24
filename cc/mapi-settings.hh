@@ -1,6 +1,6 @@
 #pragma once
 
-#include "acmacs-base/settings.hh"
+#include "acmacs-base/settings-v2.hh"
 #include "acmacs-base/point-style.hh"
 #include "acmacs-base/time-series.hh"
 #include "seqdb-3/sequence.hh"
@@ -42,7 +42,7 @@ class ChartAccess;
 
 namespace acmacs::mapi::inline v1
 {
-    using error = settings::error;
+    using error = settings::v2::error;
 
     class unrecognized : public error
     {
@@ -53,12 +53,12 @@ namespace acmacs::mapi::inline v1
 
     // ----------------------------------------------------------------------
 
-    class Settings : public settings::Settings
+    class Settings : public settings::v2::Settings
     {
       public:
         Settings(ChartDraw& chart_draw) : chart_draw_{chart_draw} { update_env(); }
 
-        using settings::Settings::load;
+        using settings::v2::Settings::load;
         bool apply_built_in(std::string_view name) override; // returns true if built-in command with that name found and applied
 
         enum class if_null { empty, warn_empty, raise, all }; // return empty, return empty and print warning, throw exception, return all indexes
