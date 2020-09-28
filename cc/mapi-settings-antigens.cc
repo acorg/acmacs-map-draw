@@ -17,8 +17,9 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
 {
     using namespace std::string_view_literals;
 
-    const auto indexes = select_antigens(getenv("select"sv));
-    AD_LOG(acmacs::log::settings, "antigens selected: {} {}", indexes.size(), getenv_toplevel());
+    const auto& select_clause = getenv("select"sv);
+    const auto indexes = select_antigens(select_clause);
+    AD_LOG(acmacs::log::settings, "antigens selected: {} {}", indexes.size(), select_clause);
 
     const auto style = style_from_toplevel_environment();
     chart_draw().modify(indexes, style.style, drawing_order_from_toplevel_environment());
@@ -574,7 +575,7 @@ template <typename AgSr> static inline void check_inside(const acmacs::mapi::v1:
     if constexpr (std::is_same_v<AgSr, acmacs::chart::Sera>)
         index_base = settings.chart_draw().chart().number_of_antigens();
 
-    if (const auto& points = settings.substitute_to_value(value["points"sv]); !points.is_null())
+    if (const auto& points = settings.substitute(value["points"sv]); !points.is_null())
         settings.filter_inside_path(indexes, points, index_base);
     else
         throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"{}\" clause: {}", key, value)};
@@ -702,7 +703,7 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
             }
             else if constexpr (std::is_same_v<Value, rjson::v3::detail::object>) {
                 for (const auto& [key, value_raw] : select_clause_v) {
-                    const auto& value{substitute_to_value(value_raw)};
+                    const auto& value{substitute(value_raw)};
                     if (select(ag_sr, indexes, key, value)) // to process in derived class (e.g. tal)
                         ; // processed
                     else if (check_reference(ag_sr, indexes, key, value))
@@ -878,19 +879,19 @@ void acmacs::mapi::v1::Settings::update_style(point_style_t& style, std::string_
             color(val));
     }
     else if (key == "show"sv)
-        style.style.shown(substitute_to_bool(val));
+        style.style.shown(substitute(val).to<bool>());
     else if (key == "hide"sv)
-        style.style.shown(!substitute_to_bool(val));
+        style.style.shown(!substitute(val).to<bool>());
     else if (key == "shape"sv)
-        style.style.shape(PointShape{substitute_to_string(val)});
+        style.style.shape(PointShape{substitute(val).to<std::string_view>()});
     else if (key == "size"sv)
-        style.style.size(Pixels{substitute_to_double(val)});
+        style.style.size(Pixels{substitute(val).to<double>()});
     else if (key == "outline_width"sv)
-        style.style.outline_width(Pixels{substitute_to_double(val)});
+        style.style.outline_width(Pixels{substitute(val).to<double>()});
     else if (key == "aspect"sv)
-        style.style.aspect(Aspect{substitute_to_double(val)});
+        style.style.aspect(Aspect{substitute(val).to<double>()});
     else if (key == "rotation"sv)
-        style.style.rotation(Rotation{substitute_to_double(val)});
+        style.style.rotation(Rotation{substitute(val).to<double>()});
     else if (key == "fill_saturation"sv || key == "fill_brightness"sv || key == "outline_saturation"sv || key == "outline_brightness"sv)
         AD_WARNING("\"{}\" is not supported, use color modificators, e.g. \":s-0.5\"", key);
 
@@ -1056,7 +1057,7 @@ PointDrawingOrder acmacs::mapi::v1::Settings::drawing_order_from(std::string_vie
 {
     using namespace std::string_view_literals;
     if (key == "order"sv) {
-        if (const auto order = substitute_to_string(val); order == "raise"sv)
+        if (const auto order = substitute(val).to<std::string_view>(); order == "raise"sv)
             return PointDrawingOrder::Raise;
         else if (order == "lower"sv)
             return PointDrawingOrder::Lower;

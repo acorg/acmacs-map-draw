@@ -30,12 +30,12 @@ bool acmacs::mapi::v1::Settings::apply_vaccine()
                     chart_draw().vaccines().emplace_back(*vaccine_type, indexes);
                 }
                 else
-                    AD_WARNING("\"N\": \"vaccine\" provides no \"vaccine_type\" (ignored): {}", getenv_toplevel());
+                    AD_WARNING("\"N\": \"vaccine\" provides no \"vaccine_type\" (ignored): {}", format_toplevel());
             }
         }
     }
     else
-        AD_WARNING("\"N\": \"vaccine\" provides no \"name\" (ignored): {}", getenv_toplevel());
+        AD_WARNING("\"N\": \"vaccine\" provides no \"name\" (ignored): {}", format_toplevel());
 
     return true;
 

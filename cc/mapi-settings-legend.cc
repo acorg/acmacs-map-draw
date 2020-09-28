@@ -132,7 +132,7 @@ bool acmacs::mapi::v1::Settings::apply_title()
     getenv("lines"sv).visit([&title_element, this]<typename Val>(const Val& lines) {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
             for (const auto& line : lines)
-                title_element.add_line(substitute_to_string(line, if_no_substitution_found::leave_as_is));
+                title_element.add_line(substitute(line).template to<std::string_view>());
         }
         else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
             throw error{fmt::format("unrecognized: {} (expected array of strings)", lines)};

@@ -21,11 +21,11 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
     auto titers = chart.titers();
     auto layout = chart_draw().chart(0).modified_layout();
 
-    const auto serum_indexes = select_sera(getenv("serum"sv, "sera"sv));
+    const auto serum_indexes = select_sera(getenv("sera"sv));
     const auto fold = rjson::v3::read_number(getenv("fold"sv), 2.0);
     const auto forced_homologous_titer = rjson::v3::read_string(getenv("homologous_titer"sv));
     const auto verb = verbose_from(rjson::v3::read_bool(getenv("verbose"sv), false));
-    const auto& antigen_selector{getenv("antigen"sv, "antigens"sv)};
+    const auto& antigen_selector{getenv("antigens"sv)};
     const auto hide_if_bigger = rjson::v3::read_number(getenv("hide_if_bigger_than"sv), 5.5);
     fmt::memory_buffer report;
     const size_t indent{2};
@@ -274,10 +274,10 @@ bool acmacs::mapi::v1::Settings::apply_serum_coverage()
     auto titers = chart.titers();
     auto layout = chart_draw().chart(0).modified_layout();
 
-    const auto serum_indexes = select_sera(getenv("serum"sv, "sera"sv));
+    const auto serum_indexes = select_sera(getenv("sera"sv));
     const auto fold = rjson::v3::read_number(getenv("fold"sv), 2.0);
     const auto forced_homologous_titer = rjson::v3::read_string(getenv("homologous_titer"sv));
-    const auto& antigen_selector{getenv("antigen"sv, "antigens"sv)};
+    const auto& antigen_selector{getenv("antigens"sv)};
     fmt::memory_buffer report;
     const size_t indent{2};
     for (auto serum_index : serum_indexes) {

@@ -113,12 +113,12 @@ acmacs::mapi::v1::Settings::time_series_data acmacs::mapi::v1::Settings::time_se
     if (rjson::v3::read_bool(getenv("report"sv), false))
         AD_INFO("time series report:\n{}", ts_stat.report("    {value}  {counter:6d}\n"));
 
-    auto filename_pattern = getenv_to_string("output"sv, toplevel_only::no, if_no_substitution_found::leave_as_is);
+    auto filename_pattern = getenv("output"sv).to<std::string_view>();
     if (filename_pattern.empty())
-        throw error{fmt::format("Cannot make time series: no \"output\" in {}", getenv_toplevel())};
+        throw error{fmt::format("Cannot make time series: no \"output\" in {}", format_toplevel())};
 
     std::vector<std::string_view> title;
-    getenv("title"sv, toplevel_only::yes, if_no_substitution_found::leave_as_is, throw_if_partial_substitution::no).visit([&title]<typename Val>(const Val& lines) {
+    getenv("title"sv).visit([&title]<typename Val>(const Val& lines) {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
             for (const auto& line : lines)
                 title.push_back(line.template to<std::string_view>());
@@ -131,7 +131,7 @@ acmacs::mapi::v1::Settings::time_series_data acmacs::mapi::v1::Settings::time_se
 
     auto shown_on_all{select_antigens(getenv("shown-on-all"sv), if_null::empty)};
 
-    return {std::move(filename_pattern), std::move(title), std::move(series), std::move(shown_on_all)};
+    return {std::string{filename_pattern}, std::move(title), std::move(series), std::move(shown_on_all)};
 
 } // acmacs::mapi::v1::Settings::time_series_settings
 

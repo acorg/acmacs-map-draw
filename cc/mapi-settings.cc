@@ -66,43 +66,45 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
             return apply_time_series();
         // else if (name == ""sv)
         //     return apply_();
-        return acmacs::settings::v2::Settings::apply_built_in(name);
+        return acmacs::settings::v3::Data::apply_built_in(name);
     }
     catch (std::exception& err) {
-        throw error{fmt::format("cannot apply mapi built in \"{}\": {}\n    while reading {}", name, err, getenv_toplevel())};
+        throw error{fmt::format("cannot apply mapi built in \"{}\": {}", name, err)};
     }
 
 } // acmacs::mapi::v1::Settings::apply_built_in
 
 // ----------------------------------------------------------------------
 
-constexpr static const char* sUpdateEnvPattern = R"({{
-"init": [
-{{"N": "set",
-"virus": "{virus}",
-"virus-type": "{virus_type}",
-"virus-type/lineage": "{virus_type_lineage}",
-"lineage": "{lineage}",
-"subset": "{subset}",
-"SUBSET": "{SUBSET}",
-"assay": "{assay}",
-"assay-full": "{assay_full}",
-"assay-neut": "{assay_neut}",
-"assay-HI-Neut": "{assay_HI_Neut}",
-"lab": "{lab}",
-"rbc": "{rbc}",
-"table-date": "{table_date}",
-"number-of-antigens": {number_of_antigens},
-"number-of-sera": {number_of_sera},
-"number-of-layers": {number_of_layers}
-}}
-]}})";
+// constexpr static const char* sUpdateEnvPattern = R"({{
+// "init": [
+// {{"N": "set",
+// "virus": "{virus}",
+// "virus-type": "{virus_type}",
+// "virus-type/lineage": "{virus_type_lineage}",
+// "lineage": "{lineage}",
+// "subset": "{subset}",
+// "SUBSET": "{SUBSET}",
+// "assay": "{assay}",
+// "assay-full": "{assay_full}",
+// "assay-neut": "{assay_neut}",
+// "assay-HI-Neut": "{assay_HI_Neut}",
+// "lab": "{lab}",
+// "rbc": "{rbc}",
+// "table-date": "{table_date}",
+// "number-of-antigens": {number_of_antigens},
+// "number-of-sera": {number_of_sera},
+// "number-of-layers": {number_of_layers}
+// }}
+// ]}})";
 
 void acmacs::mapi::v1::Settings::update_env()
 {
-    const auto json{chart_draw().chart(0).substitute_metadata(sUpdateEnvPattern)};
-    // AD_DEBUG("update_env\n{}", json);
-    load_from_string(json);
+    int not_implemented;
+
+    // const auto json{chart_draw().chart(0).substitute_metadata(sUpdateEnvPattern)};
+    // // AD_DEBUG("update_env\n{}", json);
+    // load_from_string(json);
 
 } // acmacs::mapi::v1::Settings::update_env
 

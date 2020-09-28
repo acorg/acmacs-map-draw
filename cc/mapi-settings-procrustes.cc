@@ -35,7 +35,7 @@ std::string acmacs::mapi::v1::Settings::substitute_in_filename(std::string_view 
 std::string acmacs::mapi::v1::Settings::get_filename() const
 {
     using namespace std::string_view_literals;
-    return substitute_in_filename(getenv_to_string("filename"sv, toplevel_only::no, if_no_substitution_found::leave_as_is));
+    return substitute_in_filename(getenv("filename"sv).to<std::string_view>());
 
 } // acmacs::mapi::v1::Settings::get_filename
 
@@ -121,7 +121,7 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     using namespace acmacs::chart;
 
     const auto scaling = rjson::v3::read_bool(getenv("scaling"sv), false) ? procrustes_scaling_t::yes : procrustes_scaling_t::no;
-    const auto& secondary_chart = get_chart(getenv("chart"sv, toplevel_only::no, if_no_substitution_found::leave_as_is, throw_if_partial_substitution::no), 1).chart();
+    const auto& secondary_chart = get_chart(getenv("chart"sv), 1).chart();
     const auto secondary_projection_no = rjson::v3::read_number(getenv("projection"sv), 0ul);
     if (secondary_projection_no >= secondary_chart.number_of_projections())
         throw error{fmt::format("invalid secondary chart projection number {} (chart has just {} projection(s))", secondary_projection_no, secondary_chart.number_of_projections())};
@@ -254,7 +254,7 @@ bool acmacs::mapi::v1::Settings::apply_move()
         else
             throw error{fmt::format("unrecognized \"move\" \"relative\": {} (expected array of two numbers)", relative)};
     }
-    else if (const auto flip_over_line = getenv("flip-over-line"sv, "flip_over_line"sv); !flip_over_line.is_null()) {
+    else if (const auto flip_over_line = getenv("flip-over-line"sv); !flip_over_line.is_null()) {
         if (flip_over_line.is_array() && flip_over_line.size() == 2) {
             const auto p1{read_coordinates(flip_over_line[0])->get_not_transformed(chart_draw())}, p2{read_coordinates(flip_over_line[1])->get_not_transformed(chart_draw())};
             const acmacs::LineDefinedByEquation line(p1, p2);
@@ -267,7 +267,7 @@ bool acmacs::mapi::v1::Settings::apply_move()
         else
             throw error{fmt::format("unrecognized \"move\" \"flip-over-line\": {} (expected array of two point locations, e.g. [{\"v\": [0, 8]}, {\"v\": [1, 8]}])", flip_over_line)};
     }
-    else if (const auto flip_over_serum_line = getenv("flip-over-serum-line"sv, "flip_over_serum_line"sv); !flip_over_serum_line.is_null()) {
+    else if (const auto flip_over_serum_line = getenv("flip-over-serum-line"sv); !flip_over_serum_line.is_null()) {
         if (flip_over_serum_line.is_number()) {
             const auto flip_scale{flip_over_serum_line.to<double>()};
             const acmacs::chart::SerumLine serum_line(projection);
