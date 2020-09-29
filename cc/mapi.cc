@@ -81,10 +81,9 @@ int main(int argc, char* const argv[])
         settings.load_from_conf({"mapi.json"sv, "clades.json"sv, "vaccines.json"sv});
         settings.load(opt.settings_files);
         settings.set_defines(opt.defines);
-        for (size_t chart_no = 0; chart_no < chart_draw.number_of_charts(); ++chart_no) {
-            int not_implemented;
-            // settings.setenv_toplevel(fmt::format("chart[{}]", chart_no), chart_draw.chart(chart_no).filename());
-        }
+        // for (size_t chart_no = 0; chart_no < chart_draw.number_of_charts(); ++chart_no) {
+        //     settings.setenv(fmt::format("chart[{}]", chart_no), chart_draw.chart(chart_no).filename());
+        // }
 
         if (opt.interactive)
             signal(SIGHUP, signal_handler);

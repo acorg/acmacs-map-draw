@@ -201,8 +201,6 @@ namespace acmacs::mapi::inline v1
             const acmacs::chart::PointIndexList shown_on_all;
         };
         time_series_data time_series_settings() const;
-        // std::string time_series_substitute(std::string_view pattern, const acmacs::time_series::slot& slot) const;
-        // void time_series_generate(std::string_view filename_pattern, const acmacs::time_series::slot& slot) const;
 
       private:
         ChartDraw& chart_draw_;

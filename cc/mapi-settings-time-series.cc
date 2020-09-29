@@ -7,32 +7,6 @@
 
 // ----------------------------------------------------------------------
 
-// void acmacs::mapi::v1::Settings::time_series_generate(std::string_view filename_pattern, const acmacs::time_series::slot& slot) const
-// {
-//     using namespace std::string_view_literals;
-//     const auto filename{time_series_substitute(filename_pattern, slot)};
-//     make_pdf(filename, rjson::v3::read_number(getenv("width"sv), 800.0), false);
-//     AD_INFO("time series {}: {}", acmacs::time_series::numeric_name(slot), filename);
-
-// } // acmacs::mapi::v1::Settings::time_series_generate
-
-// // ----------------------------------------------------------------------
-
-// std::string acmacs::mapi::v1::Settings::time_series_substitute(std::string_view pattern, const acmacs::time_series::slot& slot) const
-// {
-//     try {
-//         const auto sub1 = chart_draw().chart(0).substitute_metadata(pattern);
-//         return acmacs::string::substitute(sub1, std::pair("ts_text", acmacs::time_series::text_name(slot)), std::pair("ts_numeric", acmacs::time_series::numeric_name(slot)));
-//     }
-//     catch (std::exception& err) {
-//         AD_ERROR("fmt cannot substitute in \"{}\": {}", pattern, err);
-//         throw;
-//     }
-
-// } // acmacs::mapi::v1::Settings::time_series_substitute
-
-// ----------------------------------------------------------------------
-
 bool acmacs::mapi::v1::Settings::apply_time_series()
 {
     using namespace std::string_view_literals;
