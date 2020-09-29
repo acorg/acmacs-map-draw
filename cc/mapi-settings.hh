@@ -91,7 +91,7 @@ namespace acmacs::mapi::inline v1
         template <typename AgSr> void check_titrated_against(acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value) const;
         void mark_serum(size_t serum_index, const rjson::v3::value& style);
 
-        PointDrawingOrder drawing_order_from_toplevel_environment() const;
+        PointDrawingOrder drawing_order_from_environment() const;
         PointDrawingOrder drawing_order_from(const rjson::v3::value& source) const;
         PointDrawingOrder drawing_order_from(std::string_view key, const rjson::v3::value& val) const;
 
@@ -113,7 +113,7 @@ namespace acmacs::mapi::inline v1
             std::optional<passage_color_t> passage_outline;
         };
 
-        point_style_t style_from_toplevel_environment() const;
+        point_style_t style_from_environment() const;
         point_style_t style_from(const rjson::v3::value& source) const;
         void update_style(point_style_t& style, std::string_view key, const rjson::v3::value& val) const;
         template <typename AgSr> bool color_according_to_passage(const AgSr& ag_sr, const acmacs::chart::PointIndexList& indexes, const point_style_t& point_style);

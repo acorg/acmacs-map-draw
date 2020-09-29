@@ -21,8 +21,8 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
     const auto indexes = select_antigens(select_clause);
     AD_LOG(acmacs::log::settings, "antigens selected: {} {}", indexes.size(), select_clause);
 
-    const auto style = style_from_toplevel_environment();
-    chart_draw().modify(indexes, style.style, drawing_order_from_toplevel_environment());
+    const auto style = style_from_environment();
+    chart_draw().modify(indexes, style.style, drawing_order_from_environment());
     if (!color_according_to_passage(*chart_draw().chart().antigens(), indexes, style) && !color_according_to_aa_at_pos(indexes, style)) {
         if (const auto& legend = getenv("legend"sv); !legend.is_null())
             add_legend(indexes, style.style, legend);
@@ -41,8 +41,8 @@ bool acmacs::mapi::v1::Settings::apply_sera()
     using namespace std::string_view_literals;
 
     const auto indexes = select_sera(getenv("select"sv));
-    const auto style = style_from_toplevel_environment();
-    chart_draw().modify_sera(indexes, style.style, drawing_order_from_toplevel_environment());
+    const auto style = style_from_environment();
+    chart_draw().modify_sera(indexes, style.style, drawing_order_from_environment());
     if (!color_according_to_passage(*chart_draw().chart().sera(), indexes, style)) {
         if (const auto& legend = getenv("legend"sv); !legend.is_null())
             add_legend(indexes, style.style, legend);
@@ -892,21 +892,24 @@ void acmacs::mapi::v1::Settings::update_style(point_style_t& style, std::string_
         style.style.aspect(Aspect{substitute(val).to<double>()});
     else if (key == "rotation"sv)
         style.style.rotation(Rotation{substitute(val).to<double>()});
-    else if (key == "fill_saturation"sv || key == "fill_brightness"sv || key == "outline_saturation"sv || key == "outline_brightness"sv)
-        AD_WARNING("\"{}\" is not supported, use color modificators, e.g. \":s-0.5\"", key);
+    else
+        AD_WARNING("update_style: \"{}\" is not supported", key);
 
 } // acmacs::mapi::v1::Settings::update_style
 
 // ----------------------------------------------------------------------
 
-acmacs::mapi::v1::Settings::point_style_t acmacs::mapi::v1::Settings::style_from_toplevel_environment() const
+acmacs::mapi::v1::Settings::point_style_t acmacs::mapi::v1::Settings::style_from_environment() const
 {
+    using namespace std::string_view_literals;
     point_style_t result;
-    for (const auto& [key, val] : getenv_toplevel())
-        update_style(result, key, val);
+    for (const auto key : {"fill"sv, "outline"sv, "outline_width"sv, "show"sv, "hide"sv, "size"sv, "shape"sv, "aspect"sv, "rotation"sv}) {
+        if (const auto& val = getenv(key); !val.is_null())
+            update_style(result, key, val);
+    }
     return result;
 
-} // acmacs::mapi::v1::Settings::style_from_toplevel_environment
+} // acmacs::mapi::v1::Settings::style_from_environment
 
 // ----------------------------------------------------------------------
 
@@ -966,20 +969,11 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
             return acmacs::color::Modifier{source};
     };
 
-    const auto make_color_passage_helper = [](const auto& substituted) -> std::optional<color::Modifier> {
-        return std::visit(
-            []<typename Res>(const Res& res) -> std::optional<color::Modifier> {
-                if constexpr (std::is_same_v<Res, const rjson::v3::value*>) {
-                    if (!res->is_null())
-                        return color::Modifier{res->template to<std::string_view>()};
-                }
-                else if constexpr (std::is_same_v<Res, no_substitution_request>)
-                    return color::Modifier{*res};
-                else
-                    return color::Modifier{res};
-                return std::nullopt;
-            },
-            substituted);
+    const auto make_color_passage_helper = [](const rjson::v3::value& substituted) -> std::optional<color::Modifier> {
+        if (!substituted.is_null())
+            return color::Modifier{substituted.to<std::string_view>()};
+        else
+            return std::nullopt;
     };
 
     const auto make_color_passage = [this, make_color_passage_helper](passage_color_t& result, const rjson::v3::value& egg, const rjson::v3::value& reassortant, const rjson::v3::value& cell) -> bool {
@@ -1013,37 +1007,28 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
     };
 
     try {
-        return std::visit(
-            [make_color, make_color_passage, make_color_aa_at, &if_null]<typename Value>(const Value& substituted_val) -> modifier_or_passage_t {
-                if constexpr (std::is_same_v<Value, const rjson::v3::value*>) {
-                    return substituted_val->visit([make_color, make_color_passage, make_color_aa_at, &if_null, substituted_val]<typename Val>(const Val& val) -> modifier_or_passage_t {
-                        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
-                            return make_color(val.template to<std::string_view>());
-                        else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
-                            passage_color_t passage_color;
-                            bool used = make_color_passage(passage_color, val["egg"sv], val["reassortant"sv], val["cell"sv]);
-                            used |= make_color_aa_at(passage_color, val["aa-at"sv], val["colors"sv]);
-                            if (used || val.empty())
-                                return passage_color;
-                            else
-                                return substituted_val;
-                        }
-                        else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>) {
-                            if (if_null.has_value())
-                                return acmacs::color::Modifier{*if_null};
-                            else
-                                throw std::exception{};
-                        }
-                        else
-                            throw std::exception{};
-                    });
-                }
-                else if constexpr (std::is_same_v<Value, no_substitution_request>)
-                    return make_color(*substituted_val);
+        const auto& substituted_val = substitute(value);
+        return substituted_val.visit([make_color, make_color_passage, make_color_aa_at, &if_null, &substituted_val]<typename Val>(const Val& val) -> modifier_or_passage_t {
+            if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
+                return make_color(val.template to<std::string_view>());
+            else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
+                passage_color_t passage_color;
+                bool used = make_color_passage(passage_color, val["egg"sv], val["reassortant"sv], val["cell"sv]);
+                used |= make_color_aa_at(passage_color, val["aa-at"sv], val["colors"sv]);
+                if (used || val.empty())
+                    return passage_color;
                 else
-                    return make_color(substituted_val);
-            },
-            substitute(value));
+                    return &substituted_val;
+            }
+            else if constexpr (std::is_same_v<Val, rjson::v3::detail::null>) {
+                if (if_null.has_value())
+                    return acmacs::color::Modifier{*if_null};
+                else
+                    throw std::exception{};
+            }
+            else
+                throw std::exception{};
+        });
     }
     catch (std::exception&) {
         throw unrecognized{AD_FORMAT("cannot get color from {}", value)};
@@ -1077,15 +1062,18 @@ PointDrawingOrder acmacs::mapi::v1::Settings::drawing_order_from(std::string_vie
 
 // ----------------------------------------------------------------------
 
-PointDrawingOrder acmacs::mapi::v1::Settings::drawing_order_from_toplevel_environment() const
+PointDrawingOrder acmacs::mapi::v1::Settings::drawing_order_from_environment() const
 {
-    for (const auto& [key, val] : getenv_toplevel()) {
-        if (const auto result = drawing_order_from(key, val); result != PointDrawingOrder::NoChange)
-            return result;
+    using namespace std::string_view_literals;
+    for (const auto key : {"order"sv}) {
+        if (const auto& val = getenv(key); !val.is_null()) {
+            if (const auto result = drawing_order_from(key, val); result != PointDrawingOrder::NoChange)
+                return result;
+        }
     }
     return PointDrawingOrder::NoChange;
 
-} // acmacs::mapi::v1::Settings::drawing_order_from_toplevel_environment
+} // acmacs::mapi::v1::Settings::drawing_order_from_environment
 
 // ----------------------------------------------------------------------
 
