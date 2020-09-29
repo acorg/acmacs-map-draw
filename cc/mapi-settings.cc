@@ -98,7 +98,7 @@ void acmacs::mapi::v1::Settings::update_env()
     }
 
     const auto subset{info->subset(acmacs::chart::Info::Compute::Yes)};
-    setenv("subset-low"sv, subset);
+    setenv("subset"sv, subset);
     setenv("subset-up"sv, ::string::upper(subset));
     if (virus_type == "A(H1N1)"sv) {
         if (subset == "2009pdm"sv)
@@ -115,13 +115,18 @@ void acmacs::mapi::v1::Settings::update_env()
 
     const auto assay{info->assay()};
     setenv("assay-full"sv, *assay);
+    const std::string assay_cap{assay.HI_or_Neut()};
+    setenv("assay-cap"sv, assay_cap);
     const std::string assay_neut{assay.hi_or_neut()};
     setenv("assay-low"sv, assay_neut);
-    if (assay_neut == "hi")
+    if (assay_neut == "hi") {
         setenv("assay-no-hi-low"sv, ""sv);
-    else
+        setenv("assay-no-hi-cap"sv, ""sv);
+    }
+    else {
         setenv("assay-no-hi-low"sv, assay_neut);
-    setenv("assay-cap"sv, assay.HI_or_Neut());
+        setenv("assay-no-hi-cap"sv, assay_cap);
+    }
 
     const auto lab {info->lab()};
     setenv("lab"sv, lab);
