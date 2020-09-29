@@ -23,10 +23,14 @@ bool acmacs::mapi::v1::Settings::apply_reset()
 
 std::string acmacs::mapi::v1::Settings::substitute_in_filename(std::string_view filename) const
 {
-    const auto& chart_access = chart_draw().chart(0); // can draw just the chart 0 // get_chart(getenv("chart"sv), 0);
     if (filename.empty())
-        filename = chart_access.filename();
-    return chart_access.substitute_metadata(filename);
+        filename = chart_draw().chart(0).filename(); // can draw just the chart 0 // get_chart(getenv("chart"sv), 0);
+    return substitute(filename);
+
+    // const auto& chart_access = chart_draw().chart(0); // can draw just the chart 0 // get_chart(getenv("chart"sv), 0);
+    // if (filename.empty())
+    //     filename = chart_access.filename();
+    // return chart_access.substitute_metadata(filename);
 
 } // sacmacs::mapi::v1::Settings::ubstitute_in_filename
 

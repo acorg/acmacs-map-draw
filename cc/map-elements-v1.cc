@@ -112,20 +112,10 @@ void map_elements::v1::LegendPointLabel::draw(acmacs::draw::DrawElements& aDrawE
 
 // ----------------------------------------------------------------------
 
-std::string map_elements::v1::Title::update_line_before_drawing(std::string_view line, const ChartDraw& chart_draw) const
-{
-    return chart_draw.chart(0).substitute_metadata(line);
-
-} // map_elements::v1::Title::update_line_before_drawing
-
-// ----------------------------------------------------------------------
-
-void map_elements::v1::Title::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& chart_draw) const
+void map_elements::v1::Title::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
 {
     if (mShow && (mLines.size() > 1 || (!mLines.empty() && !mLines.front().empty()))) {
-        std::vector<std::string> lines(mLines.size());
-        std::transform(std::begin(mLines), std::end(mLines), std::begin(lines), [&chart_draw, this](const auto& line) { return update_line_before_drawing(line, chart_draw); });
-        aDrawElements.title(lines)
+        aDrawElements.title(mLines)
             .text_color(mTextColor)
             .text_size(mTextSize)
             .text_style(mTextStyle)

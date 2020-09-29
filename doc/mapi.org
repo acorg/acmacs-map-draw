@@ -1,4 +1,4 @@
-# Time-stamp: <2020-09-28 18:13:00 eu>
+# Time-stamp: <2020-09-29 10:35:53 eu>
 
 * Common usage
 
@@ -457,8 +457,8 @@ http://geomalgorithms.com/a03-_inclusion.html
 {"N": "time-series",
  "?start": "2019-01", "?end": "2019-11", -- start is inclusive, end is exclusive
  "interval": {"month": 1}, -- month, week, year, day ("interval": "month" also supported)
- "output": "/path/name-{ts_numeric}.pdf", -- output pattern (mandatory), {ts_numeric} (-> 2017-06) and {ts_text} (-> June 2017) can be used in addition to <substitute-chart-metadata>
- "title": "{ts_text}", -- replaces {"N": "title", "lines" ...}, can be either string or array of strings, {ts_numeric}, {ts_text}, <substitute-chart-metadata> substituted
+ "output": "/path/name-{ts-numeric}.pdf", -- output pattern (mandatory), {ts_numeric} (-> 2017-06) and {ts_text} (-> June 2017) can be used in addition to <substitute-chart-metadata>
+ "title": "{ts-text}", -- replaces {"N": "title", "lines" ...}, can be either string or array of strings, {ts_numeric}, {ts_text}, <substitute-chart-metadata> substituted
  "shown-on-all": <Select Antigens>, -- reference antigens and sera are shown on all maps, select here other antigens to show on all the maps
  "width": 800, -- pdf size in points
  "report": true

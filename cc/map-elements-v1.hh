@@ -125,9 +125,6 @@ namespace map_elements::v1
         Title& slant(std::string_view aSlant) { mTextStyle.slant = aSlant; return *this; }
         Title& font_family(std::string_view aFamily) { mTextStyle.font_family = aFamily; return *this; }
 
-     protected:
-        virtual std::string update_line_before_drawing(std::string_view line, const ChartDraw& aChartDraw) const;
-
      private:
        bool mShow{true};
        acmacs::PointCoordinates mOrigin{10, 10};
