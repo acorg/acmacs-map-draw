@@ -120,6 +120,8 @@ acmacs::seqdb::v3::Seqdb::aas_indexes_t ChartAccess::aa_at_pos1_for_antigens(con
 
 void ChartAccess::chart_metadata(fmt::dynamic_format_arg_store<fmt::format_context>& store) const
 {
+    int is_this_function_necessary;
+
     using namespace std::string_view_literals;
 
     auto info{chart().info()};
@@ -199,6 +201,8 @@ void ChartAccess::chart_metadata(fmt::dynamic_format_arg_store<fmt::format_conte
 
 std::string ChartAccess::substitute_metadata(std::string_view pattern) const
 {
+    int is_this_function_necessary;
+
     try {
         fmt::dynamic_format_arg_store<fmt::format_context> store;
         chart_metadata(store);

@@ -79,9 +79,6 @@ namespace acmacs::mapi::inline v1
         virtual bool select(const acmacs::chart::Antigens& antigens, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value) const;
         virtual bool select(const acmacs::chart::Sera& sera, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value) const;
 
-        // std::string substitute_chart_metadata(std::string_view pattern, const ChartAccess& chart_access) const;
-        // void chart_metadata(fmt::dynamic_format_arg_store<fmt::format_context>& store, const ChartAccess& chart_access) const;
-
         void update_env();
 
         // ----------------------------------------------------------------------

@@ -76,40 +76,95 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
 
 // ----------------------------------------------------------------------
 
-// constexpr static const char* sUpdateEnvPattern = R"({{
-// "init": [
-// {{"N": "set",
-// "virus": "{virus}",
-// "virus-type": "{virus_type}",
-// "virus-type/lineage": "{virus_type_lineage}",
-// "lineage": "{lineage}",
-// "subset": "{subset}",
-// "SUBSET": "{SUBSET}",
-// "assay": "{assay}",
-// "assay-full": "{assay_full}",
-// "assay-neut": "{assay_neut}",
-// "assay-HI-Neut": "{assay_HI_Neut}",
-// "lab": "{lab}",
-// "rbc": "{rbc}",
-// "table-date": "{table_date}",
-// "number-of-antigens": {number_of_antigens},
-// "number-of-sera": {number_of_sera},
-// "number-of-layers": {number_of_layers}
-// }}
-// ]}})";
-
 void acmacs::mapi::v1::Settings::update_env()
 {
-    int not_implemented;
+    using namespace std::string_view_literals;
+    const auto& chart = chart_draw().chart(0).chart();
+    setenv("name"sv, chart.make_name());
 
-    // const auto json{chart_draw().chart(0).substitute_metadata(sUpdateEnvPattern)};
-    // // AD_DEBUG("update_env\n{}", json);
-    // load_from_string(json);
+    auto info{chart.info()};
+    setenv("virus"sv, info->virus());
+
+    const std::string virus_type{info->virus_type()};
+    setenv("virus-type"sv, virus_type);
+    const std::string lineage{chart.lineage()};
+    setenv("lineage"sv, lineage);
+    setenv("lineage-cap"sv, ::string::capitalize(lineage));
+    if (lineage.empty()) {
+        setenv("virus-type/lineage"sv, virus_type);
+    }
+    else {
+        setenv("virus-type/lineage"sv, fmt::format("{}/{}", virus_type, ::string::capitalize(lineage.substr(0, 3))));
+    }
+
+    const auto subset{info->subset(acmacs::chart::Info::Compute::Yes)};
+    setenv("subset-low"sv, subset);
+    setenv("subset-up"sv, ::string::upper(subset));
+    if (virus_type == "A(H1N1)"sv) {
+        if (subset == "2009pdm"sv)
+            setenv("virus-type-lineage-subset-short-low"sv, "h1pdm"sv);
+        else
+            setenv("virus-type-lineage-subset-short-low"sv, "h1"sv);
+    }
+    else if (virus_type == "A(H3N2)"sv)
+        setenv("virus-type-lineage-subset-short-low"sv, "h3"sv);
+    else if (virus_type == "B"sv)
+        setenv("virus-type-lineage-subset-short-low"sv, fmt::format("b{}", ::string::lower(lineage.substr(0, 3))));
+    else
+        setenv("virus-type-lineage-subset-short-low"sv, ::string::lower(virus_type));
+
+    const auto assay{info->assay()};
+    setenv("assay-full"sv, *assay);
+    const std::string assay_neut{assay.hi_or_neut()};
+    setenv("assay-low"sv, assay_neut);
+    if (assay_neut == "hi")
+        setenv("assay-no-hi-low"sv, ""sv);
+    else
+        setenv("assay-no-hi-low"sv, assay_neut);
+    setenv("assay-cap"sv, assay.HI_or_Neut());
+
+    const auto lab {info->lab()};
+    setenv("lab"sv, lab);
+    setenv("lab-low"sv, ::string::lower(lab));
+
+    setenv("rbc"sv, info->rbc_species());
+
+    setenv("table-date"sv, info->date(acmacs::chart::Info::Compute::Yes));
+
+    setenv("num-ag"sv, fmt::format("{}", chart.number_of_antigens()));
+    setenv("num-sr"sv, fmt::format("{}", chart.number_of_sera()));
+
+    auto titers{chart.titers()};
+    setenv("num-layers"sv, fmt::format("{}", titers->number_of_layers()));
+
+    const auto& projection = chart_draw().chart(0).modified_projection();
+    const auto minimum_column_basis = static_cast<std::string>(projection.minimum_column_basis());
+    setenv("minimum-column-basis"sv, minimum_column_basis);
+    setenv("mcb"sv, minimum_column_basis);
+    setenv("stress"sv, fmt::format("{:.4f}", projection.stress()));
+    setenv("stress-full"sv, fmt::format("{}", projection.stress()));
+
+    auto antigens = chart.antigens();
+    for (auto [no, antigen] : acmacs::enumerate(*antigens)) {
+        setenv(fmt::format("ag-{}-full-name", no), antigen->full_name());
+        setenv(fmt::format("ag-{}-full-name-without-passage", no), antigen->full_name_without_passage());
+        setenv(fmt::format("ag-{}-full-name-with-passage", no), antigen->full_name_with_passage());
+        setenv(fmt::format("ag-{}-abbreviated-name", no), antigen->abbreviated_name());
+        setenv(fmt::format("ag-{}-designation", no), antigen->designation());
+    }
+
+    auto sera = chart.sera();
+    for (auto [no, serum] : acmacs::enumerate(*sera)) {
+        setenv(fmt::format("sr-{}-full-name", no), serum->full_name());
+        setenv(fmt::format("sr-{}-full-name-without-passage", no), serum->full_name_without_passage());
+        setenv(fmt::format("sr-{}-full-name-with-passage", no), serum->full_name_with_passage());
+        setenv(fmt::format("sr-{}-abbreviated-name", no), serum->abbreviated_name());
+        setenv(fmt::format("sr-{}-abbreviated-name-with-serum-id", no), serum->abbreviated_name_with_serum_id());
+        setenv(fmt::format("sr-{}-designation", no), serum->designation());
+        setenv(fmt::format("sr-{}-designation-without-serum-id", no), serum->designation_without_serum_id());
+    }
 
 } // acmacs::mapi::v1::Settings::update_env
-
-// ----------------------------------------------------------------------
-
 
 // ----------------------------------------------------------------------
 /// Local Variables:
