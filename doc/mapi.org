@@ -1,4 +1,4 @@
-# Time-stamp: <2020-09-29 10:35:53 eu>
+# Time-stamp: <2020-09-29 11:05:26 eu>
 
 * Common usage
 
@@ -46,7 +46,7 @@ mapi -i -s draw.json chart.ace output.pdf -- interactive
 {secondary-chart-name}        "/path/chart.ace"
 
 To print environment use:
--a :print-all-environment
+-a -print-environment
 
 * Select Antigens
 
