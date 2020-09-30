@@ -1,4 +1,4 @@
-# Time-stamp: <2020-09-29 14:28:55 eu>
+# Time-stamp: <2020-09-30 16:07:41 eu>
 
 * Common usage
 
@@ -440,7 +440,7 @@ http://geomalgorithms.com/a03-_inclusion.html
 * Research
 
 #+BEGIN_SRC json
-{"N": "relax"},
+{"N": "relax", "re-orient": true},
 
 {"N": "compare-sequences", "groups": [{"select": <Select Antigens>, "name": "group-1"} ...], "html": "filename.html (filename.data.js is generated as well)", "json": "filename.json", "report": true, "open": true},
 

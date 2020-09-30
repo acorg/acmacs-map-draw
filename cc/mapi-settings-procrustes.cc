@@ -84,9 +84,12 @@ void acmacs::mapi::v1::Settings::make_pdf(std::string_view filename, double widt
 
 bool acmacs::mapi::v1::Settings::apply_relax()
 {
+    using namespace std::string_view_literals;
     auto& projection = chart_draw().chart(0).modified_projection();
     const auto status = projection.relax(acmacs::chart::optimization_options{});
     AD_INFO("relaxed {:.3f} <-- {:.3f} (elapsed: {})", status.final_stress, status.initial_stress, acmacs::format(status.time));
+    if (rjson::v3::read_bool(getenv("re-orient"sv), false))
+        AD_WARNING("re-orient not implemeted");
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_relax
