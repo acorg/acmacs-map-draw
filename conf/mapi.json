@@ -83,7 +83,7 @@
         "/egg",
         "/clades",
         {"N": "point-scale", "scale": "$//clades:point-scale:scale", "outline_scale": 1},
-        {"N": "title", "show": true, "remove-lines": true, "lines": ["{lab} {virus-type/lineage} {assay-cap} {table-date}     {stress}"]}
+        {"N": "title", "show": true, "remove-lines": true, "lines": ["{lab} {virus-type/lineage} {assay-no-hi-cap} {table-date}     {stress}"]}
     ],
 
     "//clades1": [

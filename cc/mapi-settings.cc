@@ -146,8 +146,6 @@ void acmacs::mapi::v1::Settings::update_env()
     const auto minimum_column_basis = static_cast<std::string>(projection.minimum_column_basis());
     setenv("minimum-column-basis"sv, minimum_column_basis);
     setenv("mcb"sv, minimum_column_basis);
-    setenv("stress"sv, fmt::format("{:.4f}", projection.stress()));
-    setenv("stress-full"sv, fmt::format("{}", projection.stress()));
 
     auto antigens = chart.antigens();
     for (auto [no, antigen] : acmacs::enumerate(*antigens)) {
@@ -169,7 +167,21 @@ void acmacs::mapi::v1::Settings::update_env()
         setenv(fmt::format("sr-{}-designation-without-serum-id", no), serum->designation_without_serum_id());
     }
 
+    update_env_upon_projection_change();
+
 } // acmacs::mapi::v1::Settings::update_env
+
+// ----------------------------------------------------------------------
+
+void acmacs::mapi::v1::Settings::update_env_upon_projection_change()
+{
+    using namespace std::string_view_literals;
+    const auto& projection = chart_draw().chart(0).modified_projection();
+
+    setenv("stress"sv, fmt::format("{:.4f}", projection.stress()));
+    setenv("stress-full"sv, fmt::format("{}", projection.stress()));
+
+} // acmacs::mapi::v1::Settings::update_env_upon_projection_change
 
 // ----------------------------------------------------------------------
 /// Local Variables:

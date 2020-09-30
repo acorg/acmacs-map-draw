@@ -94,6 +94,7 @@ bool acmacs::mapi::v1::Settings::apply_relax()
         const auto procrustes_data = acmacs::chart::procrustes(*master_projection, projection, common.points(), acmacs::chart::procrustes_scaling_t::no);
         projection.transformation(procrustes_data.transformation);
     }
+    update_env_upon_projection_change();
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_relax
@@ -296,6 +297,9 @@ bool acmacs::mapi::v1::Settings::apply_move()
 
     if (rjson::v3::read_bool(getenv("report"sv), false))
         AD_INFO("Moved AG:{} SR:{}", antigen_indexes.size(), serum_indexes.size());
+
+    // stress changed, update environment
+    update_env_upon_projection_change();
 
     return true;
 
