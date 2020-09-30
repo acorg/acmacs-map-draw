@@ -88,8 +88,12 @@ bool acmacs::mapi::v1::Settings::apply_relax()
     auto& projection = chart_draw().chart(0).modified_projection();
     const auto status = projection.relax(acmacs::chart::optimization_options{});
     AD_INFO("relaxed {:.3f} <-- {:.3f} (elapsed: {})", status.final_stress, status.initial_stress, acmacs::format(status.time));
-    if (rjson::v3::read_bool(getenv("re-orient"sv), false))
-        AD_WARNING("re-orient not implemeted");
+    if (rjson::v3::read_bool(getenv("re-orient"sv), false)) {
+        acmacs::chart::CommonAntigensSera common(chart_draw().chart(0).chart());
+        auto master_projection = (*chart_draw().chart(0).chart().projections())[chart_draw().chart(0).projection_no()];
+        const auto procrustes_data = acmacs::chart::procrustes(*master_projection, projection, common.points(), acmacs::chart::procrustes_scaling_t::no);
+        projection.transformation(procrustes_data.transformation);
+    }
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_relax
