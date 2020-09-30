@@ -40,10 +40,11 @@ const acmacs::Viewport& ChartDraw::MapViewport::use(std::string_view by) const
 void ChartDraw::MapViewport::set(const acmacs::PointCoordinates& origin, double size)
 {
     if (!used_by_.empty()) {
-        AD_ERROR("map viewport change ({} {}) requested, but it was used by {}", origin, size, used_by_);
+        AD_ERROR("map viewport change ({:.2f} {:.2f}) requested, but it was used by {}", origin, size, used_by_);
         used_by_.clear();
     }
     viewport_.set(origin, size);
+    AD_INFO("Set {:.2f}", viewport_);
     recalculate_ = false;
 
 } // ChartDraw::MapViewport::set
@@ -53,10 +54,11 @@ void ChartDraw::MapViewport::set(const acmacs::PointCoordinates& origin, double 
 void ChartDraw::MapViewport::set(const acmacs::Viewport& aViewport)
 {
     if (!used_by_.empty()) {
-        AD_ERROR("map report change ({}) requested, but it was used by {}", aViewport, used_by_);
+        AD_ERROR("map report change ({:.2f}) requested, but it was used by {}", aViewport, used_by_);
         used_by_.clear();
     }
     viewport_ = aViewport;
+    AD_INFO("Set {:.2f}", viewport_);
     recalculate_ = false;
 
 } // ChartDraw::MapViewport::set
