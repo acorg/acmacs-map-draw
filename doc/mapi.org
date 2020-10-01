@@ -1,4 +1,4 @@
-# Time-stamp: <2020-09-30 16:07:41 eu>
+# Time-stamp: <2020-10-01 18:13:19 eu>
 
 * Common usage
 
@@ -301,7 +301,7 @@ See [[file:~/AD/share/doc/color.org][color.org]]
   #+BEGIN_SRC json
     {"N": "title", "show": true, "offset": [10, 10],
      "remove-lines": false, -- remove old lines
-     "lines": ["Line 1 <substitute-chart-metadata> <substitute time series name>", "Line 2", "Another line"],
+     "lines": ["Line 1 <substitute-env> <substitute time series name>", "Line 2", "Another line"],
      "padding": 10, "background": "transparent", "border_color": "black", "border_width": 0.0, "text_color": "black", "text_size": 12, "interline": 2, "font_weight": "normal", "font_slant": "normal", "font_family": "sans serif"
     }
   #+END_SRC
@@ -327,28 +327,6 @@ See [[file:~/AD/share/doc/color.org][color.org]]
         "show": true
     }
   #+END_SRC
-
-- ~<substitute-chart-metadata>~
-  {virus}
-  {virus_type}                      -- A(H3N2)
-  {virus_type_lineage}              -- B/Vic
-  {lineage}                         -- VICTORIA
-  {subset}                          -- 2009pdm
-  {virus_type_lineage_subset_short} -- h1pdm, h3, bvic, byam
-  {virus_type_lineage_short}        -- h1, h3, bvic, byam
-  {assay}                           -- hi, neut, hint
-  {assay_full}                      -- HI, FOCUS REDUCTION
-  {lab}                             -- VIDRL, Crick
-  {lab_lower}                       -- vidrl
-  {rbc}
-  {table_date}                      -- 20150101-20200203
-  {minimum_column_basis}            -- none, 1280
-  {stress:.4f}
-  {number_of_antigens}
-  {number_of_sera}
-  {number_of_layers}
-  {name}                            -- VIDRL A(H3N2) HI guinea-pig 20150101-20200203 >=none 9654.398226
-  {antigen}
 
 * Drawing
 
@@ -479,8 +457,8 @@ http://geomalgorithms.com/a03-_inclusion.html
 {"N": "time-series",
  "?start": "2019-01", "?end": "2019-11", -- start is inclusive, end is exclusive
  "interval": {"month": 1}, -- month, week, year, day ("interval": "month" also supported)
- "output": "/path/name-{ts-numeric}.pdf", -- output pattern (mandatory), {ts_numeric} (-> 2017-06) and {ts_text} (-> June 2017) can be used in addition to <substitute-chart-metadata>
- "title": "{ts-text}", -- replaces {"N": "title", "lines" ...}, can be either string or array of strings, {ts_numeric}, {ts_text}, <substitute-chart-metadata> substituted
+ "output": "/path/name-{ts-numeric}.pdf", -- output pattern (mandatory), {ts_numeric} (-> 2017-06) and {ts_text} (-> June 2017) can be used in addition to <substitute-env>
+ "title": "{ts-text}", -- replaces {"N": "title", "lines" ...}, can be either string or array of strings, {ts_numeric}, {ts_text}, <substitute-env> substituted
  "shown-on-all": <Select Antigens>, -- reference antigens and sera are shown on all maps, select here other antigens to show on all the maps
  "width": 800, -- pdf size in points
  "report": true
