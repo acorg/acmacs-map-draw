@@ -191,7 +191,7 @@ void acmacs::mapi::v1::Settings::update_env_upon_projection_change()
     setenv("stress"sv, fmt::format("{:.4f}", projection.stress()), settings::v3::replace::yes);
     setenv("stress-full"sv, fmt::format("{}", projection.stress()), settings::v3::replace::yes);
 
-    AD_DEBUG("env stress: {}", getenv("stress"sv));
+    // AD_DEBUG("env stress: {}", getenv("stress"sv));
 
 } // acmacs::mapi::v1::Settings::update_env_upon_projection_change
 

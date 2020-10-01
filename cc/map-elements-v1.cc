@@ -118,7 +118,7 @@ void map_elements::v1::Title::draw(acmacs::draw::DrawElements& aDrawElements, co
 {
     using namespace std::string_view_literals;
     if (mShow && (mLines.size() > 1 || (!mLines.empty() && !mLines.front().empty()))) {
-        AD_DEBUG("env stress: {}", chart_draw.settings().getenv("stress"sv));
+        // AD_DEBUG("env stress: {}", chart_draw.settings().getenv("stress"sv));
         std::vector<std::string> lines(mLines.size());
         std::transform(std::begin(mLines), std::end(mLines), std::begin(lines), [&chart_draw](const auto& line) -> std::string { return chart_draw.settings().substitute(line); });
         aDrawElements.title(lines)
