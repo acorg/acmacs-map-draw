@@ -1,8 +1,10 @@
+#include "acmacs-base/rjson-v3.hh"
 #include "acmacs-draw/continent-map.hh"
 #include "acmacs-draw/draw-legend.hh"
-#include "acmacs-map-draw/map-elements-v1.hh"
 #include "acmacs-draw/draw-elements.hh"
+#include "acmacs-map-draw/map-elements-v1.hh"
 #include "acmacs-map-draw/draw.hh"
+#include "acmacs-map-draw/mapi-settings.hh"
 
 // ----------------------------------------------------------------------
 
@@ -112,10 +114,14 @@ void map_elements::v1::LegendPointLabel::draw(acmacs::draw::DrawElements& aDrawE
 
 // ----------------------------------------------------------------------
 
-void map_elements::v1::Title::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw&) const
+void map_elements::v1::Title::draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& chart_draw) const
 {
+    using namespace std::string_view_literals;
     if (mShow && (mLines.size() > 1 || (!mLines.empty() && !mLines.front().empty()))) {
-        aDrawElements.title(mLines)
+        AD_DEBUG("env stress: {}", chart_draw.settings().getenv("stress"sv));
+        std::vector<std::string> lines(mLines.size());
+        std::transform(std::begin(mLines), std::end(mLines), std::begin(lines), [&chart_draw](const auto& line) -> std::string { return chart_draw.settings().substitute(line); });
+        aDrawElements.title(lines)
             .text_color(mTextColor)
             .text_size(mTextSize)
             .text_style(mTextStyle)

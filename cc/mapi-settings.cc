@@ -1,5 +1,15 @@
+#include "acmacs-base/rjson-v3.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/draw.hh"
+
+// ----------------------------------------------------------------------
+
+acmacs::mapi::v1::Settings::Settings(ChartDraw& chart_draw) : chart_draw_{chart_draw}
+{
+    chart_draw_.settings(this);
+    update_env();
+
+} // acmacs::mapi::v1::Settings::Settings
 
 // ----------------------------------------------------------------------
 
@@ -119,7 +129,7 @@ void acmacs::mapi::v1::Settings::update_env()
     setenv("assay-cap"sv, assay_cap);
     const std::string assay_neut{assay.hi_or_neut()};
     setenv("assay-low"sv, assay_neut);
-    if (assay_neut == "hi") {
+    if (assay_neut == "hi" && virus_type != "A(H3N2)") {
         setenv("assay-no-hi-low"sv, ""sv);
         setenv("assay-no-hi-cap"sv, ""sv);
     }
@@ -178,8 +188,10 @@ void acmacs::mapi::v1::Settings::update_env_upon_projection_change()
     using namespace std::string_view_literals;
     const auto& projection = chart_draw().chart(0).modified_projection();
 
-    setenv("stress"sv, fmt::format("{:.4f}", projection.stress()));
-    setenv("stress-full"sv, fmt::format("{}", projection.stress()));
+    setenv("stress"sv, fmt::format("{:.4f}", projection.stress()), settings::v3::replace::yes);
+    setenv("stress-full"sv, fmt::format("{}", projection.stress()), settings::v3::replace::yes);
+
+    AD_DEBUG("env stress: {}", getenv("stress"sv));
 
 } // acmacs::mapi::v1::Settings::update_env_upon_projection_change
 

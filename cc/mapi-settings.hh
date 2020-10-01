@@ -56,7 +56,7 @@ namespace acmacs::mapi::inline v1
     class Settings : public settings::v3::Data
     {
       public:
-        Settings(ChartDraw& chart_draw) : chart_draw_{chart_draw} { update_env(); }
+        Settings(ChartDraw& chart_draw);
 
         using settings::v3::Data::load;
         bool apply_built_in(std::string_view name) override; // returns true if built-in command with that name found and applied
