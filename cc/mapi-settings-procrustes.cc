@@ -298,8 +298,8 @@ bool acmacs::mapi::v1::Settings::apply_move()
     if (rjson::v3::read_bool(getenv("report"sv), false))
         AD_INFO("Moved AG:{} SR:{}", antigen_indexes.size(), serum_indexes.size());
 
-    // stress changed, update environment
-    update_env_upon_projection_change();
+    chart_draw().viewport_reset_used_by(); // to avoid warning when viewport is later changed (e.g. set)
+    update_env_upon_projection_change(); // stress changed, update environment
 
     return true;
 

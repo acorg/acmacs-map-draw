@@ -39,10 +39,7 @@ const acmacs::Viewport& ChartDraw::MapViewport::use(std::string_view by) const
 
 void ChartDraw::MapViewport::set(const acmacs::PointCoordinates& origin, double size)
 {
-    if (!used_by_.empty()) {
-        AD_ERROR("map viewport change ({:.2f} {:.2f}) requested, but it was used by {}", origin, size, used_by_);
-        used_by_.clear();
-    }
+    reset_used_by(fmt::format("map viewport change ({:.2f} {:.2f}) requested", origin, size));
     viewport_.set(origin, size);
     AD_INFO("Set {:.2f}", viewport_);
     recalculate_ = false;
@@ -53,10 +50,7 @@ void ChartDraw::MapViewport::set(const acmacs::PointCoordinates& origin, double 
 
 void ChartDraw::MapViewport::set(const acmacs::Viewport& aViewport)
 {
-    if (!used_by_.empty()) {
-        AD_ERROR("map report change ({:.2f}) requested, but it was used by {}", aViewport, used_by_);
-        used_by_.clear();
-    }
+    reset_used_by(fmt::format("map viewport change ({:.2f}) requested", aViewport));
     viewport_ = aViewport;
     AD_INFO("Set {:.2f}", viewport_);
     recalculate_ = false;
@@ -67,11 +61,9 @@ void ChartDraw::MapViewport::set(const acmacs::Viewport& aViewport)
 
 void ChartDraw::MapViewport::calculate(const acmacs::Layout& layout)
 {
+    using namespace std::string_view_literals;
     if (recalculate_) {
-        if (!used_by_.empty()) {
-            AD_ERROR("map report recalculation requested, but it was used by {}", used_by_);
-            used_by_.clear();
-        }
+        reset_used_by("map viewport recalculation requested"sv);
         if (layout.number_of_dimensions() != acmacs::number_of_dimensions_t{2})
             throw std::runtime_error{fmt::format("{}D maps are not supported", layout.number_of_dimensions())};
         const acmacs::BoundingBall bb{minimum_bounding_ball(layout)};
@@ -83,6 +75,18 @@ void ChartDraw::MapViewport::calculate(const acmacs::Layout& layout)
     }
 
 } // ChartDraw::MapViewport::calculate
+
+// ----------------------------------------------------------------------
+
+void ChartDraw::MapViewport::reset_used_by(std::string_view message) const
+{
+    if (!used_by_.empty()) {
+        if (!message.empty())
+            AD_ERROR("{}, but viewport was used by {}", message, used_by_);
+        used_by_.clear();
+    }
+
+} // ChartDraw::MapViewport::reset_used_by
 
 // ----------------------------------------------------------------------
 

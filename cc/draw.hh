@@ -94,6 +94,7 @@ class ChartDraw : public ChartSelectInterface
     void calculate_viewport() const;
     const acmacs::Viewport& viewport(std::string_view by) const { return viewport_.use(by); }
     const acmacs::Viewport& viewport_before_changing() const { return viewport_.use_before_changing(); }
+    void viewport_reset_used_by() const { return viewport_.reset_used_by(); }
     void set_viewport(const acmacs::Viewport& viewport) { viewport_.set(viewport); }
     void set_viewport(const acmacs::PointCoordinates& origin, double size) { viewport_.set(origin, size); }
 
@@ -153,6 +154,7 @@ class ChartDraw : public ChartSelectInterface
 
         const acmacs::Viewport& use_before_changing() const { return viewport_; }
         const acmacs::Viewport& use(std::string_view by) const;
+        void reset_used_by(std::string_view message = {}) const;
 
         void set(const acmacs::PointCoordinates& origin, double size);
         void set(const acmacs::Viewport& aViewport);

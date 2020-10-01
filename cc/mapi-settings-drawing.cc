@@ -152,6 +152,7 @@ void acmacs::mapi::v1::Settings::filter_inside_path(acmacs::chart::PointIndexLis
     read_path_vertices(path_vertices, points);
     std::vector<acmacs::PointCoordinates> path;
     std::transform(std::begin(path_vertices), std::end(path_vertices), std::back_inserter(path), [this](const auto& vertex) { return vertex.get_transformed(chart_draw()); });
+    chart_draw().viewport_reset_used_by(); // to avoid warning when viewport is later changed (e.g. set)
     // AD_DEBUG("filter_inside_path {}", path);
 
     auto layout = chart_draw().chart(0).modified_transformed_layout();
