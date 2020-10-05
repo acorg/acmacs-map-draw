@@ -2,6 +2,7 @@
 #include "acmacs-base/statistics.hh"
 //#include "acmacs-base/timeit.hh"
 #include "acmacs-chart-2/serum-line.hh"
+#include "acmacs-chart-2/serum-circle.hh"
 #include "acmacs-map-draw/mod-serum.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/select.hh"
@@ -281,9 +282,9 @@ double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumInde
     auto get_circle_data = [&]() {
         switch (radius_type) {
             case serum_circle_radius_type::empirical:
-                return aChartDraw.chart().serum_circle_radius_empirical(aAntigenIndices, aHomologousTiter, aSerumIndex, aChartDraw.chart(0).projection_no(), fold);
+                return acmacs::chart::serum_circle_empirical(aAntigenIndices, aHomologousTiter, aSerumIndex, aChartDraw.chart(), aChartDraw.chart(0).projection_no(), fold);
             case serum_circle_radius_type::theoretical:
-                return aChartDraw.chart().serum_circle_radius_theoretical(aAntigenIndices, aHomologousTiter, aSerumIndex, aChartDraw.chart(0).projection_no(), fold);
+                return acmacs::chart::serum_circle_theoretical(aAntigenIndices, aHomologousTiter, aSerumIndex, aChartDraw.chart(), aChartDraw.chart(0).projection_no(), fold);
         }
         throw std::exception{};
     };
@@ -309,9 +310,9 @@ double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumInde
     auto get_circle_data = [&]() {
         switch (radius_type) {
             case serum_circle_radius_type::empirical:
-                return aChartDraw.chart().serum_circle_radius_empirical(aAntigenIndices, aSerumIndex, aChartDraw.chart(0).projection_no(), fold);
+                return acmacs::chart::serum_circle_empirical(aAntigenIndices, aSerumIndex, aChartDraw.chart(), aChartDraw.chart(0).projection_no(), fold);
             case serum_circle_radius_type::theoretical:
-                return aChartDraw.chart().serum_circle_radius_theoretical(aAntigenIndices, aSerumIndex, aChartDraw.chart(0).projection_no(), fold);
+                return acmacs::chart::serum_circle_theoretical(aAntigenIndices, aSerumIndex, aChartDraw.chart(), aChartDraw.chart(0).projection_no(), fold);
         }
         throw std::exception{};
     };

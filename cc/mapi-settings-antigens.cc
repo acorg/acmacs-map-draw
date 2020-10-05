@@ -18,7 +18,7 @@ bool acmacs::mapi::v1::Settings::apply_antigens()
     using namespace std::string_view_literals;
 
     const auto& select_clause = getenv("select"sv);
-    const auto indexes = select_antigens(select_clause);
+    const auto indexes = select_antigens(select_clause, if_null::all);
     AD_LOG(acmacs::log::settings, "antigens selected: {} {}", indexes.size(), select_clause);
 
     const auto style = style_from_environment();
@@ -40,7 +40,10 @@ bool acmacs::mapi::v1::Settings::apply_sera()
 {
     using namespace std::string_view_literals;
 
-    const auto indexes = select_sera(getenv("select"sv));
+    const auto& select_clause = getenv("select"sv);
+    const auto indexes = select_sera(select_clause, if_null::all);
+    AD_LOG(acmacs::log::settings, "sera selected: {} {}", indexes.size(), select_clause);
+
     const auto style = style_from_environment();
     chart_draw().modify_sera(indexes, style.style, drawing_order_from_environment());
     if (!color_according_to_passage(*chart_draw().chart().sera(), indexes, style)) {
@@ -892,6 +895,8 @@ void acmacs::mapi::v1::Settings::update_style(point_style_t& style, std::string_
         style.style.aspect(Aspect{substitute(val).to<double>()});
     else if (key == "rotation"sv)
         style.style.rotation(Rotation{substitute(val).to<double>()});
+    else if (key.empty() || key[0] == '?' || key == "order"sv)
+        ;                       // ignore
     else
         AD_WARNING("update_style: \"{}\" is not supported", key);
 

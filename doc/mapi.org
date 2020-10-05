@@ -1,4 +1,4 @@
-# Time-stamp: <2020-10-01 18:13:19 eu>
+# Time-stamp: <2020-10-05 11:12:02 eu>
 
 * Common usage
 
@@ -125,7 +125,7 @@ To print environment use:
   {"clade-all": ["3C.2A", "!3C.2A2"]} -- 2a and not 2a2, negation and conjunction
   {"amino-acid": "144R"}
   {"amino-acid": ["144R", "93A", "!160K"]} -- conjunction
-  # sort aa at pos by frequency and set ana/google colors, X is always grey
+  # sort aa at pos by frequency and set ana/google colors, X is always grey -> "fill": {"aa-at": 159}
 
   {"lab": "CDC"}
   {"lab": ["CDC", "MELB"]} -- disjunction
@@ -265,7 +265,7 @@ See [[file:~/AD/share/doc/color.org][color.org]]
   "outline": {"egg": "#FF4040", "reassortant": "#FF4040", "cell": "#4040FF"}
 #+END_SRC
 
-** outline and fill depends on aa at pos
+** outline and fill depends on amino acid at pos
 
 #+BEGIN_SRC json
   "fill": {"aa-at": 159}, "legend": {"show": true, "label": "{pos}{aa} ({count})"}

@@ -33,7 +33,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
         auto serum = sera->at(serum_index);
         const auto serum_passage = serum->passage_type(acmacs::chart::reassortant_as_egg::no);
         bool do_mark_serum{false};
-        fmt::format_to(report, "{:{}c}SR {} {} {}\n", ' ', indent, serum_index, serum->full_name(), serum->passage_type(acmacs::chart::reassortant_as_egg::no));
+        fmt::format_to(report, "{:{}c}SR {} {} {} titrations:{}\n", ' ', indent, serum_index, serum->full_name(), serum->passage_type(acmacs::chart::reassortant_as_egg::no), titers->titrations_for_serum(serum_index));
 
         if (!layout->point_has_coordinates(serum_index + antigens->size())) {
             fmt::format_to(report, "{:{}c}  *** serum is disconnected\n", ' ', indent);
@@ -135,7 +135,7 @@ static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Anti
         else {
             AD_ERROR("per_antigen: {}  looking for antigen {}", data.per_antigen().size(), antigen_index);
             for (const auto& en : data.per_antigen())
-                AD_ERROR("AG {} titter:{}", en.antigen_no, en.titer);
+                AD_ERROR("AG {} titer:{}", en.antigen_no, en.titer);
             throw std::runtime_error{"internal error in report_circles..find_data"};
         }
     };
