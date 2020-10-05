@@ -272,11 +272,7 @@ template <typename AgSr> void acmacs::map_draw::select::filter::name_in(const Ag
 {
     // Timeit ti("filter_name_in " + aName + ": ", do_report_time(mVerbose));
     acmacs::chart::Indexes result(indexes->size());
-    acmacs::chart::Indexes by_name;
-    if (!aName.empty() && aName[0] == '~')
-        by_name = aAgSr.find_by_name(std::regex{std::next(std::begin(aName), 1), std::end(aName), acmacs::regex::icase});
-    else
-        by_name = aAgSr.find_by_name(::string::upper(aName));
+    const acmacs::chart::Indexes by_name = aAgSr.find_by_name(aName);
     // std::cerr << "DEBUG: SelectAntigensSera::filter_name_in \"" << aName << "\": " << by_name << '\n';
     const auto end = std::set_intersection(indexes.begin(), indexes.end(), by_name.begin(), by_name.end(), result.begin());
     indexes.get().erase(std::copy(result.begin(), end, indexes.begin()), indexes.end());

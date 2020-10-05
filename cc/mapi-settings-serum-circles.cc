@@ -112,7 +112,7 @@ bool acmacs::mapi::v1::Settings::hide_serum_circle(const rjson::v3::value& crite
         const auto more_than = rjson::v3::read_number(obj[">"sv], 99999.0);
         const auto name = rjson::v3::read_string(obj["name"sv]);
         const auto lab = rjson::v3::read_string(obj["lab"sv]);
-        if ((radius < less_than || radius > more_than) && (!lab || info->lab() == *lab) && (!name || sera->at(serum_no)->name() == *name))
+        if ((radius < less_than || radius > more_than) && (!lab || info->lab() == *lab) && (!name || sera->name_matches(serum_no, *name)))
             return true;
     }
     return false;
