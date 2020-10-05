@@ -104,10 +104,15 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
 bool acmacs::mapi::v1::Settings::hide_serum_circle(const rjson::v3::value& criteria, size_t serum_no, double radius) const
 {
     using namespace std::string_view_literals;
+    auto& chart = chart_draw().chart();
+    auto sera = chart.sera();
+    auto info = chart.info();
     for (const auto& obj : criteria.array()) {
         const auto less_than = rjson::v3::read_number(obj["<"sv], 0.0);
         const auto more_than = rjson::v3::read_number(obj[">"sv], 99999.0);
-        if (radius < less_than || radius > more_than)
+        const auto name = rjson::v3::read_string(obj["name"sv]);
+        const auto lab = rjson::v3::read_string(obj["lab"sv]);
+        if ((radius < less_than || radius > more_than) && (!lab || info->lab() == *lab) && (!name || sera->at(serum_no)->name() == *name))
             return true;
     }
     return false;
