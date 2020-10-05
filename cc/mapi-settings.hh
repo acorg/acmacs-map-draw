@@ -14,7 +14,7 @@ namespace acmacs::chart
     class PointIndexList;
     class Antigens;
     class Sera;
-    // class Chart;
+    class SerumCircle;
 }
 
 class ChartDraw;
@@ -100,7 +100,7 @@ namespace acmacs::mapi::inline v1
             std::optional<acmacs::color::Modifier> egg;
             std::optional<acmacs::color::Modifier> reassortant;
             std::optional<acmacs::color::Modifier> cell;
-            std::optional<acmacs::seqdb::pos1_t> pos; // coloring by aa at pos
+            std::optional<acmacs::seqdb::pos1_t> pos;         // coloring by aa at pos
             std::vector<acmacs::color::Modifier> color_order; // coloring by aa at pos
         };
 
@@ -117,7 +117,7 @@ namespace acmacs::mapi::inline v1
         template <typename AgSr> bool color_according_to_passage(const AgSr& ag_sr, const acmacs::chart::PointIndexList& indexes, const point_style_t& point_style);
         bool color_according_to_aa_at_pos(const acmacs::chart::PointIndexList& indexes, const point_style_t& point_style);
 
-        using modifier_or_passage_t  = std::variant<acmacs::color::Modifier, passage_color_t, const rjson::v3::value*>; // value* is to support extensions
+        using modifier_or_passage_t = std::variant<acmacs::color::Modifier, passage_color_t, const rjson::v3::value*>; // value* is to support extensions
         modifier_or_passage_t color(const rjson::v3::value& value, std::optional<Color> if_null = std::nullopt) const;
 
         // ----------------------------------------------------------------------
@@ -160,9 +160,13 @@ namespace acmacs::mapi::inline v1
         // mapi-settings-serum-circles.cc
 
         bool apply_serum_circles();
+        bool hide_serum_circle(const rjson::v3::value& criteria, size_t serum_no, double radius) const;
         acmacs::chart::PointIndexList select_antigens_for_serum_circle(size_t serum_index, const rjson::v3::value& antigen_selector);
         void make_circle(size_t serum_index, Scaled radius, std::string_view serum_passage, const rjson::v3::value& plot);
         bool apply_serum_coverage();
+        void report_circles(fmt::memory_buffer& report, size_t serum_index, const acmacs::chart::Antigens& antigens, const acmacs::chart::PointIndexList& antigen_indexes,
+                            const acmacs::chart::SerumCircle& empirical, const acmacs::chart::SerumCircle& theoretical, const rjson::v3::value& hide_if,
+                            std::optional<std::string_view> forced_homologous_titer) const;
 
         // ----------------------------------------------------------------------
         // mapi-settings-procrustes.cc

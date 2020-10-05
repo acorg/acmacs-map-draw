@@ -6,11 +6,6 @@
 
 // ----------------------------------------------------------------------
 
-static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Antigens& antigens, const acmacs::chart::PointIndexList& antigen_indexes, const acmacs::chart::SerumCircle& empirical,
-                           const acmacs::chart::SerumCircle& theoretical, double hide_if_bigger_than, std::optional<std::string_view> forced_homologous_titer);
-
-// ----------------------------------------------------------------------
-
 bool acmacs::mapi::v1::Settings::apply_serum_circles()
 {
     using namespace std::string_view_literals;
@@ -23,17 +18,18 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
 
     const auto serum_indexes = select_sera(getenv("sera"sv));
     const auto fold = rjson::v3::read_number(getenv("fold"sv), 2.0);
-    const auto forced_homologous_titer = rjson::v3::read_string(getenv("homologous_titer"sv));
+    const auto forced_homologous_titer = rjson::v3::read_string(getenv("homologous-titer"sv));
     const auto verb = verbose_from(rjson::v3::read_bool(getenv("verbose"sv), false));
     const auto& antigen_selector{getenv("antigens"sv)};
-    const auto hide_if_bigger = rjson::v3::read_number(getenv("hide_if_bigger_than"sv), 5.5);
+    const auto& hide_if = getenv("hide-if"sv);
     fmt::memory_buffer report;
     const size_t indent{2};
     for (auto serum_index : serum_indexes) {
         auto serum = sera->at(serum_index);
         const auto serum_passage = serum->passage_type(acmacs::chart::reassortant_as_egg::no);
         bool do_mark_serum{false};
-        fmt::format_to(report, "{:{}c}SR {} {} {} titrations:{}\n", ' ', indent, serum_index, serum->full_name(), serum->passage_type(acmacs::chart::reassortant_as_egg::no), titers->titrations_for_serum(serum_index));
+        fmt::format_to(report, "{:{}c}SR {} {} {} titrations:{}\n", ' ', indent, serum_index, serum->full_name(), serum->passage_type(acmacs::chart::reassortant_as_egg::no),
+                       titers->titrations_for_serum(serum_index));
 
         if (!layout->point_has_coordinates(serum_index + antigens->size())) {
             fmt::format_to(report, "{:{}c}  *** serum is disconnected\n", ' ', indent);
@@ -49,17 +45,17 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
                 empirical = acmacs::chart::serum_circle_empirical(antigen_indexes, serum_index, *layout, column_basis, *titers, fold, verb);
                 theoretical = acmacs::chart::serum_circle_theoretical(antigen_indexes, serum_index, column_basis, *titers, fold);
             }
-            report_circles(report, *antigens, antigen_indexes, empirical, theoretical, hide_if_bigger, forced_homologous_titer);
+            report_circles(report, serum_index, *antigens, antigen_indexes, empirical, theoretical, hide_if, forced_homologous_titer);
 
             std::optional<size_t> mark_antigen;
             // AD_DEBUG("SERUM {} {}", serum_index, serum->full_name());
-            if (empirical.valid() && empirical.radius() <= hide_if_bigger) {
+            if (empirical.valid() && !hide_serum_circle(hide_if, serum_index, empirical.radius())) {
                 make_circle(serum_index, Scaled{empirical.radius()}, serum_passage, getenv("empirical"sv));
                 if (theoretical.per_antigen().front().antigen_no != static_cast<size_t>(-1))
                     mark_antigen = empirical.per_antigen().front().antigen_no;
                 do_mark_serum = true;
             }
-            if (theoretical.valid() && theoretical.radius() <= hide_if_bigger) {
+            if (theoretical.valid() && !hide_serum_circle(hide_if, serum_index, theoretical.radius())) {
                 make_circle(serum_index, Scaled{theoretical.radius()}, serum_passage, getenv("theoretical"sv));
                 if (!mark_antigen.has_value() && theoretical.per_antigen().front().antigen_no != static_cast<size_t>(-1))
                     mark_antigen = theoretical.per_antigen().front().antigen_no;
@@ -105,6 +101,21 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
 
 // ----------------------------------------------------------------------
 
+bool acmacs::mapi::v1::Settings::hide_serum_circle(const rjson::v3::value& criteria, size_t serum_no, double radius) const
+{
+    using namespace std::string_view_literals;
+    for (const auto& obj : criteria.array()) {
+        const auto less_than = rjson::v3::read_number(obj["<"sv], 0.0);
+        const auto more_than = rjson::v3::read_number(obj[">"sv], 99999.0);
+        if (radius < less_than || radius > more_than)
+            return true;
+    }
+    return false;
+
+} // acmacs::mapi::v1::Settings::hide_serum_circle
+
+// ----------------------------------------------------------------------
+
 acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens_for_serum_circle(size_t serum_index, const rjson::v3::value& antigen_selector)
 {
     acmacs::chart::PointIndexList antigen_indexes;
@@ -124,8 +135,9 @@ acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens_for_se
 
 // ----------------------------------------------------------------------
 
-static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Antigens& antigens, const acmacs::chart::PointIndexList& antigen_indexes, const acmacs::chart::SerumCircle& empirical,
-                           const acmacs::chart::SerumCircle& theoretical, double hide_if_bigger_than, std::optional<std::string_view> forced_homologous_titer)
+void acmacs::mapi::v1::Settings::report_circles(fmt::memory_buffer& report, size_t serum_index, const acmacs::chart::Antigens& antigens, const acmacs::chart::PointIndexList& antigen_indexes,
+                                                const acmacs::chart::SerumCircle& empirical, const acmacs::chart::SerumCircle& theoretical, const rjson::v3::value& hide_if,
+                                                std::optional<std::string_view> forced_homologous_titer) const
 {
     const auto find_data = [](const acmacs::chart::SerumCircle& data, size_t antigen_index) -> const acmacs::chart::detail::SerumCirclePerAntigen& {
         if (const auto found = find_if(std::begin(data.per_antigen()), std::end(data.per_antigen()), [antigen_index](const auto& en) { return en.antigen_no == antigen_index; });
@@ -176,16 +188,17 @@ static void report_circles(fmt::memory_buffer& report, const acmacs::chart::Anti
     std::string empirical_radius(6, ' '), theoretical_radius(6, ' ');
     if (empirical.valid()) {
         empirical_radius = fmt::format("{:.4f}", empirical.radius());
-        if (empirical.radius() > hide_if_bigger_than)
-            empirical_radius += " (too big, hidden)";
+        if (hide_serum_circle(hide_if, serum_index, empirical.radius()))
+            empirical_radius += " (hidden)";
     }
     if (theoretical.valid()) {
         theoretical_radius = fmt::format("{:.4f}", theoretical.radius());
-        if (theoretical.radius() > hide_if_bigger_than)
-            theoretical_radius += " (too big, hidden)";
+        if (hide_serum_circle(hide_if, serum_index, theoretical.radius()))
+            theoretical_radius += " (hidden)";
     }
     fmt::format_to(report, "  > {}  {}\n", empirical_radius, theoretical_radius);
-}
+
+} // acmacs::mapi::v1::Settings::report_circles
 
 // ----------------------------------------------------------------------
 
@@ -276,7 +289,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_coverage()
 
     const auto serum_indexes = select_sera(getenv("sera"sv));
     const auto fold = rjson::v3::read_number(getenv("fold"sv), 2.0);
-    const auto forced_homologous_titer = rjson::v3::read_string(getenv("homologous_titer"sv));
+    const auto forced_homologous_titer = rjson::v3::read_string(getenv("homologous-titer"sv));
     const auto& antigen_selector{getenv("antigens"sv)};
     fmt::memory_buffer report;
     const size_t indent{2};
