@@ -138,6 +138,7 @@ class ChartDraw : public ChartSelectInterface
 
     constexpr auto& map_elements() { return mMapElements; }
     constexpr const auto& map_elements() const { return mMapElements; }
+    constexpr bool settings_present() const { return settings_ != nullptr; }
     constexpr const acmacs::mapi::Settings& settings() const { return *settings_; }
 
   private:

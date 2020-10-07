@@ -1,4 +1,4 @@
-{ "_":"-*- js-indent-level: 2 -*-",
+{
   "apply": [
     "egg",
     "all_grey",
