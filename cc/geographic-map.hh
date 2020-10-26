@@ -231,7 +231,7 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
     GeographicMapWithPointsFromHidb(std::string aVirusType, double aPointSizeInPixels, double aPointDensity, Color aOutlineColor, double aOutlineWidth)
         : GeographicMapDraw(aOutlineColor, Pixels{aOutlineWidth}), mVirusType{aVirusType}, mPointSize(aPointSizeInPixels), mDensity(aPointDensity) {}
 
-    virtual void prepare(acmacs::surface::Surface& aSurface);
+    void prepare(acmacs::surface::Surface& aSurface) override;
 
     void add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, const std::vector<std::string>& aPriority, std::string_view aStartDate, std::string_view aEndDate);
 
