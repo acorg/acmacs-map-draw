@@ -8,7 +8,7 @@
 #include "acmacs-base/rjson-forward.hh"
 #include "acmacs-base/timeit.hh"
 #include "acmacs-base/size.hh"
-#include "acmacs-base/debug.hh"
+#include "acmacs-base/log.hh"
 #include "seqdb-3/aa-at-pos.hh"
 #include "acmacs-map-draw/select-filter.hh"
 

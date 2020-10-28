@@ -68,7 +68,6 @@ int main(int argc, char* const argv[])
     using namespace std::string_view_literals;
     int exit_code = 0;
     try {
-        acmacs::log::register_enabler_acmacs_map_draw();
         MapiOptions opt(argc, argv);
         acmacs::log::enable(opt.verbose);
         setup_dbs(opt.db_dir, !opt.verbose.empty());
@@ -167,7 +166,7 @@ int main(int argc, char* const argv[])
         }
     }
     catch (std::exception& err) {
-        fmt::print(stderr, "ERROR: {}\n", err);
+        AD_ERROR("{}", err);
         exit_code = 2;
     }
     return exit_code;
@@ -204,9 +203,6 @@ void signal_handler(int sig_num)
     fmt::print("SIGNAL {}\n", sig_num);
 
 } // signal_handler
-
-// ----------------------------------------------------------------------
-
 
 // ----------------------------------------------------------------------
 /// Local Variables:

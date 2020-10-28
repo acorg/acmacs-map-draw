@@ -1,4 +1,4 @@
-#include "acmacs-base/debug.hh"
+#include "acmacs-base/log.hh"
 #include "acmacs-base/rjson-v2.hh"
 #include "acmacs-draw/surface.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
