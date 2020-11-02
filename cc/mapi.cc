@@ -37,6 +37,7 @@ struct MapiOptions : public acmacs::argv::v2::argv
     option<str_array> settings_files{*this, 's', desc{"settings"}};
     option<str_array> defines{*this, 'D', "define", desc{"see {ACMACSD_ROOT}/share/doc/mapi.org"}};
     option<str_array> apply{*this, 'a', "apply", desc{"comma separated names or json array to apply instead of \"mapi\", e.g. [\"/all-grey\",\"/egg\",\"/clades\",\"/labels\"]"}};
+    option<str>       export_filename{*this, "export", desc{"write ace file (only if non-temp pdf is generated)"}};
     option<bool>      interactive{*this, 'i', "interactive"};
     // option<str>       previous{*this, "previous"};
     option<size_t>    projection{*this, 'p', "projection", dflt{0ul}};
@@ -121,6 +122,8 @@ int main(int argc, char* const argv[])
                 }
                 else {
                     chart_draw.draw(outputs[0], 800, report_time::yes);
+                    if (opt.export_filename)
+                        chart_draw.chart(0).export_chart(opt.export_filename);
                     if ((opt.open || opt.interactive) && (!opt.preview || !opened))
                         acmacs::open(outputs[0]);
                     else if (opt.preview) {
