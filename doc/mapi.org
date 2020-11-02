@@ -1,4 +1,4 @@
-# Time-stamp: <2020-10-05 15:22:08 eu>
+# Time-stamp: <2020-11-02 13:02:46 eu>
 
 * Common usage
 
@@ -15,6 +15,9 @@ mapi primary.ace secondary.ace output.pdf -a //clades,/pc
 
 mapi chart.ace output.pdf -a /pc01 -D pc-arrows-threshold=0.5
 mapi chart.ace output.pdf -a /pc02 -D pc-arrows-threshold=0.5
+
+mapi chart.ace output.pdf -a //clades -D flip=ew
+mapi chart.ace output.pdf -a //clades -D rotation-angle=30
 
 ** interactive
 mapi -i -s draw.json chart.ace output.pdf -- interactive
@@ -284,7 +287,7 @@ See [[file:~/AD/share/doc/color.org][color.org]]
 #+BEGIN_SRC json
   {"N": "reset"},
 
-  {"N": "rotate", "degrees": 30, "radians": 1, "?positive": "counter-clockwise"},
+  {"N": "rotate", "angle": 30, "?angle": "abs(angle) < 4: radians, else degrees, positive: counter-clockwise"},
   {"N": "flip", "direction": "ew|ns"},
   {"N": "viewport", "rel": [-1, 1, -5], "?abs": [-5, -5, 10]},
   {"N": "background", "color": "white"},

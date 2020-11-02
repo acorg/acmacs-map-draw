@@ -166,12 +166,20 @@ void acmacs::mapi::v1::Settings::filter_inside_path(acmacs::chart::PointIndexLis
 bool acmacs::mapi::v1::Settings::apply_rotate()
 {
     using namespace std::string_view_literals;
+    AD_DEBUG("apply_rotate {}", getenv("angle"sv));
     if (const auto degrees = rjson::v3::read_number<double>(getenv("degrees"sv)); degrees.has_value())
         chart_draw().rotate(*degrees * std::acos(-1) / 180.0);
     else if (const auto radians = rjson::v3::read_number<double>(getenv("radians"sv)); radians.has_value())
         chart_draw().rotate(*radians);
+    else if (const auto angle = rjson::v3::read_number<double>(getenv("angle"sv)); angle.has_value()) {
+        AD_DEBUG("angle {} -> {}", getenv("angle"sv), *angle);
+        if (std::abs(*angle) < 4.0)
+            chart_draw().rotate(*angle);
+        else
+            chart_draw().rotate(*angle * std::acos(-1) / 180.0);
+    }
     else
-        throw acmacs::mapi::unrecognized{"neither \"degrees\" nor \"radians\" found"};
+        throw acmacs::mapi::unrecognized{"neither of \"angle\", \"degrees\", \"radians\" found"};
     return true;
 
 } // acmacs::mapi::v1::Settings::apply_rotate

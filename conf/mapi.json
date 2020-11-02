@@ -8,6 +8,7 @@
          "pc-arrows-threshold": 0.05,
          "vaccine-size": 30,
          "clade-pale": "",
+         "rotation-angle": 0,
          "//clades:point-scale:scale": 2
         }
     ],
@@ -78,6 +79,7 @@
     ],
 
     "//clades": [
+        "/rotate",
         "/size-reset",
         "/all-grey",
         "/egg",
@@ -157,6 +159,15 @@
     ],
 
     "? commands": "----------------------------------------------------------------------",
+
+    "/rotate": [
+        {"N": "if", "condition": {"not-empty": "$flip"}, "then": [
+            {"N": "flip", "direction": "$flip"}
+        ]},
+        {"N": "if", "condition": {"not-equal": ["$rotation-angle", 0]}, "then": [
+            {"N": "rotate", "angle": "$rotation-angle"}
+        ]}
+    ],
 
     "/pc": [
         {"N": "title", "show": true, "remove-lines": true},
