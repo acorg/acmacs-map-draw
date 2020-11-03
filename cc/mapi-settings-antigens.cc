@@ -352,7 +352,7 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
         else if (passage_key == "reassortant"sv)
             ag_sr.filter_reassortant(ind);
         else if (bas == basic::no) {
-            if (!passage_key.empty() && passage_key[0] == '~') {
+            if (passage_key.size() > 1 && passage_key[0] == '~') {
                 const std::regex re{std::next(std::begin(passage_key), 1), std::end(passage_key), acmacs::regex::icase};
                 ag_sr.filter_passage(ind, re);
             }
