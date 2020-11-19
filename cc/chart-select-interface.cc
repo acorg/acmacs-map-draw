@@ -20,6 +20,8 @@ bool ChartAccess::chart_access() const
 {
     if (!original_) {
         original_ = acmacs::chart::import_from_file(filename_);
+        if (original_->number_of_projections() <= projection_no_)
+            throw std::runtime_error{fmt::format("chart \"{}\" has too few projections: {}", filename_, original_->number_of_projections())};
         return true;
     }
     else
