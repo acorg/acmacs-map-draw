@@ -41,7 +41,7 @@ class ChartAccess
 
     const acmacs::chart::PlotSpecModify& modified_plot_spec() const { modified_plot_spec_access(); return *modified_plot_spec_; }
     acmacs::chart::PlotSpecModify& modified_plot_spec() { modified_plot_spec_access(); return *modified_plot_spec_; }
-    acmacs::chart::PlotSpecModifyP modified_plot_spec_ptr() const { modified_plot_spec_access(); return modified_plot_spec_; }
+    std::shared_ptr<acmacs::chart::PlotSpecModify> modified_plot_spec_ptr() const { modified_plot_spec_access(); return modified_plot_spec_; }
     acmacs::chart::DrawingOrder& modified_drawing_order() { return modified_plot_spec().drawing_order_modify(); }
     const acmacs::chart::DrawingOrder modified_drawing_order() const { return modified_plot_spec().drawing_order(); }
 
@@ -60,7 +60,7 @@ class ChartAccess
     mutable acmacs::chart::ChartModifyP modified_;
     mutable acmacs::chart::ProjectionModifyP modified_projection_;
     mutable std::optional<acmacs::Transformation> inverted_transformation_;
-    mutable acmacs::chart::PlotSpecModifyP modified_plot_spec_;
+    mutable std::shared_ptr<acmacs::chart::PlotSpecModify> modified_plot_spec_;
     mutable std::optional<acmacs::seqdb::subset> matched_seqdb_;
 
     bool chart_access() const;

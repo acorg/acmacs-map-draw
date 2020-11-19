@@ -58,7 +58,7 @@ bool ChartAccess::modified_projection_access() const
 bool ChartAccess::modified_plot_spec_access() const
 {
     if (modified_chart_access() || !modified_plot_spec_) {
-        modified_plot_spec_ = modified_->plot_spec_modify();
+        modified_plot_spec_ = modified_->plot_spec_modify_ptr();
         return true;
     }
     else
