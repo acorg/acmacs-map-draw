@@ -89,6 +89,12 @@ namespace acmacs::map_draw::select::filter
         indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), disconnected), indexes.end());
     }
 
+    template <typename AgSr> void not_distinct(const AgSr& aAgSr, acmacs::chart::Indexes& indexes)
+    {
+        const auto distinct = [&aAgSr](auto index) -> bool { return aAgSr[index]->annotations().distinct(); };
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), distinct), indexes.end());
+    }
+
     void rectangle_in(acmacs::chart::Indexes& indexes, size_t aIndexBase, const acmacs::Layout& aLayout, const acmacs::Rectangle& aRectangle, Rotation rotation);
 
     void sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes);

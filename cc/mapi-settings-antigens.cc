@@ -654,6 +654,7 @@ static inline void check_most_used_for_name(const AgSr& ag_sr, const ChartSelect
         const auto& hidb = hidb::get(aChartSelectInterface.chart().info()->virus_type());
         if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
             acmacs::map_draw::select::filter::not_disconnected(indexes, 0, *aChartSelectInterface.chart(0).modified_layout());
+            acmacs::map_draw::select::filter::not_distinct(*aChartSelectInterface.chart(0).chart().antigens(), indexes);
             acmacs::map_draw::select::filter::most_used_for_name(hidb.antigens()->find(ag_sr, indexes), indexes, most_used);
         }
         else {
