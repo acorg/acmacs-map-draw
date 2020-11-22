@@ -1,4 +1,4 @@
-# Time-stamp: <2020-11-02 13:02:46 eu>
+# Time-stamp: <2020-11-22 10:01:46 eu>
 
 * Common usage
 
@@ -460,7 +460,7 @@ http://geomalgorithms.com/a03-_inclusion.html
 {"N": "time-series",
  "?start": "2019-01", "?end": "2019-11", -- start is inclusive, end is exclusive
  "interval": {"month": 1}, -- month, week, year, day ("interval": "month" also supported)
- "output": "/path/name-{ts-numeric}.pdf", -- output pattern (mandatory), {ts_numeric} (-> 2017-06) and {ts_text} (-> June 2017) can be used in addition to <substitute-env>
+ "output": "/path/name-{ts-numeric}.pdf", -- output pattern (mandatory), {ts-numeric} (-> 2017-06) and {ts-text} (-> June 2017) can be used in addition to <substitute-env>
  "title": "{ts-text}", -- replaces {"N": "title", "lines" ...}, can be either string or array of strings, {ts_numeric}, {ts_text}, <substitute-env> substituted
  "shown-on-all": <Select Antigens>, -- reference antigens and sera are shown on all maps, select here other antigens to show on all the maps
  "width": 800, -- pdf size in points
