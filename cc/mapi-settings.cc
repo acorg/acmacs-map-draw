@@ -138,7 +138,9 @@ void acmacs::mapi::v1::Settings::update_env()
         setenv("assay-no-hi-cap"sv, assay_cap);
     }
 
-    const auto lab {info->lab()};
+    auto lab{info->lab()};
+    if (lab == "MELB"sv || lab == "MELB+VIDRL"sv)
+        lab = Lab{"VIDRL"};
     setenv("lab"sv, lab);
     setenv("lab-low"sv, ::string::lower(lab));
 
