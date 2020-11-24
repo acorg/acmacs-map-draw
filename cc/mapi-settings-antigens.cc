@@ -104,14 +104,16 @@ template <typename AgSr> static bool check_reference(const AgSr& ag_sr, acmacs::
     }
     else if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
         if (key == "reference"sv) {
-            if (!expected_bool.is_bool() || !expected_bool.template to<bool>())
+            if (!expected_bool.is_bool())
                 throw acmacs::mapi::unrecognized{fmt::format("unsupported \"{}\" value of {}", key, expected_bool)};
-            ag_sr.filter_reference(indexes);
+            if (expected_bool.template to<bool>()) // "reference": false is allowed but nothing filtered
+                ag_sr.filter_reference(indexes);
         }
         else if (key == "test"sv) {
-            if (!expected_bool.is_bool() || !expected_bool.template to<bool>())
+            if (!expected_bool.is_bool())
                 throw acmacs::mapi::unrecognized{fmt::format("unsupported \"{}\" value of {}", key, expected_bool)};
-            ag_sr.filter_test(indexes);
+            if (expected_bool.template to<bool>()) // "test": false is allowed but nothing filtered
+                ag_sr.filter_test(indexes);
         }
         else
             return false;

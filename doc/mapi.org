@@ -1,4 +1,4 @@
-# Time-stamp: <2020-11-22 10:01:46 eu>
+# Time-stamp: <2020-11-24 09:30:05 eu>
 
 * Common usage
 
@@ -82,9 +82,9 @@ To print environment use:
   null -- means "all"
   "all"
   "reference"
-  {"reference": true} -- to combine with other criteria
+  {"reference": true} -- to combine with other criteria, "reference": false is allowed and has no effect
   "test"
-  {"test": true} -- to combine with other criteria
+  {"test": true} -- to combine with other criteria, "test": false is allowed and has no effect
 
   {"index": 11}
   {"index": [55, 66]} -- disjunction
