@@ -116,6 +116,7 @@ else
   APXS_LIBS_NAMES_FIXED = $(basename $(APXS_LIBS_NAMES))
   APXS_LIBS = -L$(AD_LIB) $(APXS_LIBS_NAMES_FIXED:%=-l%)
 endif
+APXS_CXXFLAGS = $(CXXFLAGS) -Wno-missing-field-initializers
 
 $(DIST)/mod_acmacs.so: $(BUILD)/.libs/apache-mod-acmacs.so
 	$(call symbolic_link,$^,$@)
@@ -123,7 +124,7 @@ $(DIST)/mod_acmacs.so: $(BUILD)/.libs/apache-mod-acmacs.so
 $(BUILD)/.libs/apache-mod-acmacs.so: cc/apache-mod-acmacs.cc | install-acmacs-map-draw-lib
 	echo apxs does not not understand any file suffixes besides .c, so we have to use .c for C++
 	$(call symbolic_link,$(abspath $^),$(BUILD)/$(basename $(notdir $^)).c)
-	env $(APXS_ENV) apxs $(APXS_CXX) $(CXXFLAGS:%=-Wc,%) -n acmacs_module $(APXS_LIBS) -c $(BUILD)/$(basename $(notdir $^)).c
+	env $(APXS_ENV) apxs $(APXS_CXX) $(APXS_CXXFLAGS:%=-Wc,%) -n acmacs_module $(APXS_LIBS) -c $(BUILD)/$(basename $(notdir $^)).c
 
 # ======================================================================
 ### Local Variables:
