@@ -1,7 +1,7 @@
 #include <tuple>
 
+#include "acmacs-base/log.hh"
 #include "acmacs-base/enumerate.hh"
-#include "acmacs-base/fmt.hh"
 #include "acmacs-base/read-file.hh"
 #include "acmacs-base/filesystem.hh"
 #include "acmacs-base/quicklook.hh"
@@ -138,12 +138,12 @@ void ModAminoAcids::aa_group(ChartDraw& aChartDraw, const rjson::value& aGroup, 
         if (const auto& legend = args()["legend"]; !legend.is_null())
             add_legend(aChartDraw, acmacs::chart::Indexes{aap->second}, styl, acmacs::string::join(acmacs::string::join_space, positions), legend);
         if (aVerbose) {
-            fmt::print(stderr, "INFO: amino-acids group {}: {}\n", pos_aa, aap->second.size());
+            AD_INFO("amino-acids group {}: {}", pos_aa, aap->second.size());
             fmt::print(stderr, "{}", report_antigens(acmacs::chart::Indexes{aap->second}, aChartDraw, report_names_threshold));
         }
     }
     else {
-        std::cerr << "WARNING: no \"" << target_aas << "\" in " << aa_indices << '\n';
+        AD_WARNING("no \"{}\" in {}", target_aas, aa_indices);
     }
 
 } // ModAminoAcids::aa_group

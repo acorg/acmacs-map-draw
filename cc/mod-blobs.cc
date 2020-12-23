@@ -1,5 +1,4 @@
 #include <cmath>
-#include "acmacs-base/stream.hh"
 #include "acmacs-map-draw/mod-blobs.hh"
 #include "acmacs-map-draw/select.hh"
 

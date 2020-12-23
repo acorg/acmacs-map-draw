@@ -1,5 +1,5 @@
+#include "acmacs-base/log.hh"
 #include "acmacs-base/range.hh"
-#include "acmacs-base/fmt.hh"
 #include "acmacs-base/counter.hh"
 #include "acmacs-base/string-from-chars.hh"
 #include "acmacs-virus/virus-name-v1.hh"
@@ -125,7 +125,7 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
                     tag = "2A2"; // 2A2 has higher priority over 3C.2A
                 }
                 else {
-                    std::cerr << "DEBUG: multi-clades: " << clade_data << '\n';
+                    AD_DEBUG("multi-clades: {}", clade_data);
                     tag = clade_data.front();
                 }
             }
@@ -135,10 +135,10 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
         }
     }
     catch (std::exception& err) {
-        fmt::print(stderr, "ERROR: ColoringByClade {}: {}\n", aAntigen.full_name(), err);
+        AD_ERROR("ColoringByClade {}: {}", aAntigen.full_name(), err);
     }
     catch (...) {
-        fmt::print(stderr, "ERROR: ColoringByClade {}: unknown exception\n", aAntigen.full_name());
+        AD_ERROR("ColoringByClade {}: unknown exception", aAntigen.full_name());
     }
     // std::cerr << "DEBUG: ColoringByClade " << aAntigen.full_name() << ": " << (tag == "UNKNOWN" ? "Not Sequenced" : tag) << ' ' << result.fill << '\n';
     return {tag, result};
