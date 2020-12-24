@@ -75,15 +75,17 @@ LDLIBS = \
 # ----------------------------------------------------------------------
 
 install: install-headers install-acmacs-map-draw-lib $(TARGETS)
-	$(call symbolic_link_wildcard,$(abspath conf)/*.json,$(AD_CONF))
-	$(call symbolic_link_wildcard,$(abspath bin)/*,$(AD_BIN))
-	$(call symbolic_link_wildcard,$(DIST)/map*,$(AD_BIN))
-	$(call symbolic_link_wildcard,$(DIST)/chart-*,$(AD_BIN))
-	$(call symbolic_link_wildcard,$(DIST)/geographic-*,$(AD_BIN))
-	$(call symbolic_link,$(DIST)/mod_acmacs.so,$(AD_LIB))
-	$(call symbolic_link_wildcard,$(abspath doc)/*.org,$(AD_DOC))
-	$(call make_dir,$(AD_SHARE)/js/map-draw)
-	$(call symbolic_link_wildcard,$(abspath js)/ace-view,$(AD_SHARE)/js/map-draw)
+	$(call install_all,$(AD_PACKAGE_NAME))
+	$(call install_wildcard,$(abspath js)/ace-view,$(AD_SHARE)/js/map-draw)
+	# $(call symbolic_link_wildcard,$(abspath conf)/*.json,$(AD_CONF))
+	# $(call symbolic_link_wildcard,$(abspath bin)/*,$(AD_BIN))
+	# $(call symbolic_link_wildcard,$(DIST)/map*,$(AD_BIN))
+	# $(call symbolic_link_wildcard,$(DIST)/chart-*,$(AD_BIN))
+	# $(call symbolic_link_wildcard,$(DIST)/geographic-*,$(AD_BIN))
+	# $(call symbolic_link,$(DIST)/mod_acmacs.so,$(AD_LIB))
+	# $(call symbolic_link_wildcard,$(abspath doc)/*.org,$(AD_DOC))
+    # $(call make_dir,$(AD_SHARE)/js/map-draw)
+	# $(call symbolic_link_wildcard,$(abspath js)/ace-view,$(AD_SHARE)/js/map-draw)
 
 # $(call make_dir,$(AD_TEMPLATES)/mapi)
 # $(call symbolic_link_wildcard,$(abspath templates)/*,$(AD_TEMPLATES)/mapi)
@@ -97,11 +99,11 @@ test: install
 
 # ----------------------------------------------------------------------
 
-$(ACMACS_MAP_DRAW_LIB): $(patsubst %.cc,$(BUILD)/%.o,$(ACMACS_MAP_DRAW_SOURCES)) | $(DIST)
+$(ACMACS_MAP_DRAW_LIB): $(patsubst %.cc,$(BUILD)/%.o,$(ACMACS_MAP_DRAW_SOURCES)) | $(DIST) install-headers
 	$(call echo_shared_lib,$@)
 	$(call make_shared_lib,$(ACMACS_MAP_DRAW_LIB_NAME),$(ACMACS_MAP_DRAW_LIB_MAJOR),$(ACMACS_MAP_DRAW_LIB_MINOR)) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-$(DIST)/%: $(BUILD)/%.o | $(ACMACS_MAP_DRAW_LIB)
+$(DIST)/%: $(BUILD)/%.o | $(ACMACS_MAP_DRAW_LIB) install-headers
 	$(call echo_link_exe,$@)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(ACMACS_MAP_DRAW_LIB) $(LDLIBS) $(AD_RPATH)
 
@@ -121,7 +123,7 @@ APXS_CXXFLAGS = $(CXXFLAGS) -Wno-missing-field-initializers
 $(DIST)/mod_acmacs.so: $(BUILD)/.libs/apache-mod-acmacs.so
 	$(call symbolic_link,$^,$@)
 
-$(BUILD)/.libs/apache-mod-acmacs.so: cc/apache-mod-acmacs.cc | install-acmacs-map-draw-lib
+$(BUILD)/.libs/apache-mod-acmacs.so: cc/apache-mod-acmacs.cc | $(ACMACS_MAP_DRAW_LIB)
 	echo apxs does not not understand any file suffixes besides .c, so we have to use .c for C++
 	$(call symbolic_link,$(abspath $^),$(BUILD)/$(basename $(notdir $^)).c)
 	env $(APXS_ENV) apxs $(APXS_CXX) $(APXS_CXXFLAGS:%=-Wc,%) -n acmacs_module $(APXS_LIBS) -c $(BUILD)/$(basename $(notdir $^)).c
