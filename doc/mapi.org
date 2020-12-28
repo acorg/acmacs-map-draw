@@ -1,4 +1,4 @@
-# Time-stamp: <2020-11-24 09:30:05 eu>
+# Time-stamp: <2020-12-28 16:38:05 eu>
 
 * Common usage
 
@@ -504,7 +504,7 @@ http://geomalgorithms.com/a03-_inclusion.html
 #+END_SRC
 
 
-* COMMENT ====== local vars
+* -- local vars --------------------------------------------------
 :PROPERTIES:
 :VISIBILITY: folded
 :END:

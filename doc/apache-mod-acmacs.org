@@ -1,0 +1,20 @@
+# Time-stamp: <2020-12-28 16:40:09 eu>
+
+* /etc/apache2/mods-enabled/acmacs.conf
+
+AddHandler acmacs .ace .save .save.xz .acd1 .acd1.xz
+
+* /etc/apache2/mods-enabled/acmacs.load
+
+LoadModule acmacs_module "/syn/eu/apache-modules/mod_acmacs.so"
+
+* -- local vars --------------------------------------------------
+:PROPERTIES:
+:VISIBILITY: folded
+:END:
+#+STARTUP: showall indent
+Local Variables:
+eval: (auto-fill-mode 0)
+eval: (add-hook 'before-save-hook 'time-stamp)
+no-eval: (set (make-local-variable org-confirm-elisp-link-function) nil)
+End:
