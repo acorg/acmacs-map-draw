@@ -1,4 +1,12 @@
-# Time-stamp: <2020-12-28 16:40:09 eu>
+# Time-stamp: <2020-12-28 17:06:12 eu>
+
+* install
+
+/syn/eu/AD/bin/install-apache-mod-acmacs
+
+* /etc/apache2/envvars
+
+export ACMACSD_ROOT="/syn/eu/AD"
 
 * /etc/apache2/mods-enabled/acmacs.conf
 
