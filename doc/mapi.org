@@ -1,4 +1,4 @@
-# Time-stamp: <2020-12-29 11:52:58 eu>
+# Time-stamp: <2021-01-02 11:05:15 eu>
 
 * Common usage
 
@@ -39,7 +39,8 @@ To print environment use:
 "{virus-type}": "A(H1N1)" "A(H3N2)" "B"
 "{lineage}": "" "VICTORIA"
 "{lineage-cap}": "" "Victoria"
-"{virus-type/lineage}": "A(H1N1)" "A(H3N2)" "B/Vic"
+"{virus-type/lineage}": "A(H1N1)" "A(H3N2)" "B/Vic" "B/Yam"
+"{virus-type/lineage-subset}": "A(H1N1)2009pdm" "A(H3N2)" "B/Vic" "B/Yam"
 "{subset}": "" "2009pdm"
 "{subset-up}": "" "2009PDM"
 "{virus-type-lineage-subset-short-low}": "h1pdm" "h3" "bvic"

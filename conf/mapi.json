@@ -93,20 +93,20 @@
     ],
 
     "/clades": [
-        "/clades-{virus-type/lineage}{subset}"
+        "/clades-{virus-type/lineage-subset}"
     ],
 
     "/clades-pale": [
-        {"N": "/clades-{virus-type/lineage}{subset}"},
+        {"N": "/clades-{virus-type/lineage-subset}"},
         {"N": "antigens", "select": {"sequenced": true, "date": "$date-recent"}, "fill": ":p0.5",  "outline": ":p0.8"}
     ],
 
     "/clades-6m": [
-        {"N": "/clades-{virus-type/lineage}{subset}", "date-recent": {"younger-than-days": 183}}
+        {"N": "/clades-{virus-type/lineage-subset}", "date-recent": {"younger-than-days": 183}}
     ],
 
     "/clades-12m": [
-        {"N": "/clades-{virus-type/lineage}{subset}", "date-recent": {"younger-than-days": 365}}
+        {"N": "/clades-{virus-type/lineage-subset}", "date-recent": {"younger-than-days": 365}}
     ],
 
     "/clades-A(H3N2)": [
@@ -191,7 +191,7 @@
     ],
 
     "/vaccines": [
-        "vaccines-{virus-type}{lineage}{subset}",
+        "vaccines-{virus-type/lineage-subset}",
         {"N": "antigens", "select": {"vaccine": {"type": "previous"},  "passage": "cell",        "most-used-for-name": true, "report": true}, "fill": "blue", "outline": "black", "size": "$vaccine-size", "label": {"format": "{abbreviated_name} {passage}"}, "order": "raise"},
 
         {"N": "antigens", "select": {"vaccine": {"type": "current"},   "passage": "egg",         "most-used-for-name": true, "report": true}, "fill": "red",  "outline": "black", "size": "$vaccine-size", "label": {"format": "{abbreviated_name} {passage}"}, "order": "raise"},

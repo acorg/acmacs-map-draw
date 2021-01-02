@@ -97,31 +97,39 @@ void acmacs::mapi::v1::Settings::update_env()
 
     const std::string virus_type{info->virus_type()};
     setenv("virus-type"sv, virus_type);
+
     const std::string lineage{chart.lineage()};
+    const auto subset{info->subset(acmacs::chart::Info::Compute::Yes)};
     setenv("lineage"sv, lineage);
     setenv("lineage-cap"sv, ::string::capitalize(lineage));
-    if (lineage.empty()) {
-        setenv("virus-type/lineage"sv, virus_type);
-    }
-    else {
-        setenv("virus-type/lineage"sv, fmt::format("{}/{}", virus_type, ::string::capitalize(lineage.substr(0, 3))));
-    }
-
-    const auto subset{info->subset(acmacs::chart::Info::Compute::Yes)};
     setenv("subset"sv, subset);
     setenv("subset-up"sv, ::string::upper(subset));
     if (virus_type == "A(H1N1)"sv) {
+        setenv("virus-type/lineage"sv, virus_type);
+        setenv("virus-type/lineage-subset"sv, virus_type + subset);
         if (subset == "2009pdm"sv)
             setenv("virus-type-lineage-subset-short-low"sv, "h1pdm"sv);
         else
             setenv("virus-type-lineage-subset-short-low"sv, "h1"sv);
     }
-    else if (virus_type == "A(H3N2)"sv)
+    else if (virus_type == "A(H3N2)"sv) {
+        setenv("virus-type/lineage"sv, virus_type);
         setenv("virus-type-lineage-subset-short-low"sv, "h3"sv);
-    else if (virus_type == "B"sv)
+    }
+    else if (virus_type == "B"sv) {
+        const auto vtl = fmt::format("{}/{}", virus_type, ::string::capitalize(lineage.substr(0, 3)));
+        setenv("virus-type/lineage"sv, vtl);
+        setenv("virus-type/lineage-subset"sv, vtl);
         setenv("virus-type-lineage-subset-short-low"sv, fmt::format("b{}", ::string::lower(lineage.substr(0, 3))));
-    else
+    }
+    else {
+        std::string vtl{virus_type};
+        if (!lineage.empty())
+          vtl = fmt::format("{}/{}", virus_type, ::string::capitalize(lineage.substr(0, 3)));
+        setenv("virus-type/lineage"sv, vtl);
+        setenv("virus-type/lineage-subset"sv, fmt::format("{}{}", vtl, subset));
         setenv("virus-type-lineage-subset-short-low"sv, ::string::lower(virus_type));
+    }
 
     const auto assay{info->assay()};
     setenv("assay-full"sv, *assay);
