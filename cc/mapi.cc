@@ -114,9 +114,9 @@ int main(int argc, char* const argv[])
                 AD_INFO("transformation: {}", chart_draw.chart(0).modified_transformation());
 
                 if (outputs.empty()) {
-                    acmacs::file::temp output{fmt::format("{}--p{}.pdf", fs::path(inputs[0]).stem(), opt.projection)};
+                    acmacs::file::temp output(fmt::format("{}--p{}.pdf", fs::path(inputs[0]).stem(), opt.projection), false);
                     chart_draw.draw(output, 800, report_time::yes);
-                    acmacs::quicklook(output, 2);
+                    acmacs::open(output, 0, 0, 5);
                 }
                 else if (outputs[0] == "/dev/null"sv || outputs[0] == "/"sv) { // do not generate pdf
                 }
@@ -134,7 +134,7 @@ int main(int argc, char* const argv[])
             }
             catch (std::exception& err) {
                 AD_ERROR("{}", err);
-                acmacs::run_and_detach({"submarine"}, 0);
+                acmacs::run_and_detach("submarine");
                 exit_code = 1;
             }
             if (opt.interactive) {
@@ -152,7 +152,7 @@ int main(int argc, char* const argv[])
                     }
                 }
 
-                acmacs::run_and_detach({"tink"}, 0);
+                acmacs::run_and_detach("tink");
                 fmt::print(stderr, "\n> ======================================================================================================================================================\n\n");
             }
             else
@@ -164,7 +164,7 @@ int main(int argc, char* const argv[])
             }
             catch (std::exception& err) {
                 AD_ERROR("{}", err);
-                acmacs::run_and_detach({"submarine"}, 0);
+                acmacs::run_and_detach("submarine");
             }
         }
     }

@@ -72,20 +72,19 @@ int main(int argc, char* const argv[])
 
         if (opt.previous) {
             if (opt.previous_pos)
-                acmacs::run_and_detach({"preview", "-p", opt.previous_pos->data(), opt.previous->data()}, 0);
+                acmacs::preview(opt.previous, *opt.previous_pos);
             else
-                acmacs::run_and_detach({"preview", opt.previous->data()}, 0);
+                acmacs::open(opt.previous);
         }
 
         std::array<char, 1024> buffer;
         for (;;) {
             if (const auto output_name = draw(chart_draw, *opt.settings_files, output_pdf, opt.name_after_mod); !output_name.empty()) {
-                acmacs::run_and_detach({"tink"}, 0);
+                acmacs::run_and_detach("tink");
                 if (opt.preview_pos)
-                    acmacs::run_and_detach({"preview", "-p", opt.preview_pos->data(), output_name.data()}, 0);
+                    acmacs::preview(output_name, *opt.preview_pos);
                 else
-                    acmacs::run_and_detach({"preview", output_name.data()}, 0);
-                // acmacs::open_or_quicklook(true, false, "/Applications/Emacs.app", 0);
+                    acmacs::open(output_name.data());
                 // for (auto sf = opt.settings_files->rbegin(); sf != opt.settings_files->rend(); ++sf) {
                 //     std::string name{*sf};
                 //     name.push_back('\0');
@@ -93,7 +92,7 @@ int main(int argc, char* const argv[])
                 // }
             }
             else
-                acmacs::run_and_detach({"submarine"}, 0);
+                acmacs::run_and_detach("submarine");
 
             fmt::print("\nSETTINGS:\n");
             for (const auto& sf : *opt.settings_files)
@@ -101,7 +100,7 @@ int main(int argc, char* const argv[])
 
             if (!fgets(buffer.data(), buffer.size(), pipe.get()))
                 throw std::runtime_error{"fgets error"};
-            acmacs::run_and_detach({"tink"}, 0);
+            acmacs::run_and_detach("tink");
             chart_draw.reset();
         }
     }
