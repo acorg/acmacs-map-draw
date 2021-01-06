@@ -114,6 +114,7 @@ void acmacs::mapi::v1::Settings::update_env()
     }
     else if (virus_type == "A(H3N2)"sv) {
         setenv("virus-type/lineage"sv, virus_type);
+        setenv("virus-type/lineage-subset"sv, virus_type);
         setenv("virus-type-lineage-subset-short-low"sv, "h3"sv);
     }
     else if (virus_type == "B"sv) {
