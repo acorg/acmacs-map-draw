@@ -69,6 +69,14 @@ namespace acmacs::mapi::inline v1
 
         void filter_inside_path(acmacs::chart::PointIndexList& indexes, const rjson::v3::value& points, size_t index_base) const; // mapi-settings-drawing.cc
 
+        struct time_series_data
+        {
+            const std::string filename_pattern;
+            const std::vector<std::string_view> title;
+            const acmacs::time_series::series series;
+            const acmacs::chart::PointIndexList shown_on_all;
+        };
+
       protected:
         // ----------------------------------------------------------------------
         // mapi-settings-antigens.cc
@@ -198,13 +206,6 @@ namespace acmacs::mapi::inline v1
 
         bool apply_time_series();
 
-        struct time_series_data
-        {
-            const std::string filename_pattern;
-            const std::vector<std::string_view> title;
-            const acmacs::time_series::series series;
-            const acmacs::chart::PointIndexList shown_on_all;
-        };
         time_series_data time_series_settings() const;
 
       private:
@@ -216,6 +217,14 @@ namespace acmacs::mapi::inline v1
 
 extern template bool acmacs::mapi::v1::Settings::color_according_to_passage(const acmacs::chart::Antigens&, const acmacs::chart::PointIndexList& indexes, const point_style_t& style);
 extern template bool acmacs::mapi::v1::Settings::color_according_to_passage(const acmacs::chart::Sera&, const acmacs::chart::PointIndexList& indexes, const point_style_t& style);
+
+template <> struct fmt::formatter<acmacs::mapi::v1::Settings::time_series_data> : fmt::formatter<acmacs::fmt_helper::default_formatter> {
+    template <typename FormatCtx> auto format(const acmacs::mapi::v1::Settings::time_series_data& value, FormatCtx& ctx)
+    {
+        return format_to(ctx.out(), "time_series_data {{\n    filename_pattern: {}\n    title: {}\n    series: {}\n}}", //
+                         value.filename_pattern, value.title, value.series);
+    }
+};
 
 // ----------------------------------------------------------------------
 /// Local Variables:

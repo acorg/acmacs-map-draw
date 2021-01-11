@@ -11,6 +11,7 @@ bool acmacs::mapi::v1::Settings::apply_time_series()
 {
     using namespace std::string_view_literals;
     const auto ts{time_series_settings()};
+    AD_DEBUG("apply_time_series {}", ts);
     if (!ts.filename_pattern.empty()) {
         auto antigens{chart_draw().chart().antigens()};
         auto indexes = antigens->test_indexes();
@@ -94,7 +95,7 @@ acmacs::mapi::v1::Settings::time_series_data acmacs::mapi::v1::Settings::time_se
     if (rjson::v3::read_bool(getenv("report"sv), false))
         AD_INFO("time series report:\n{}", ts_stat.report("    {value}  {counter:6d}\n"));
 
-    auto filename_pattern = getenv("output"sv).to<std::string_view>();
+    std::string filename_pattern{getenv("output"sv).to<std::string_view>()}; // returned std::string_view is killed if string not extracted
     if (filename_pattern.empty())
         throw error{fmt::format("Cannot make time series: no \"output\" in {}", format_toplevel())};
 
@@ -112,7 +113,7 @@ acmacs::mapi::v1::Settings::time_series_data acmacs::mapi::v1::Settings::time_se
 
     auto shown_on_all{select_antigens(getenv("shown-on-all"sv), if_null::empty)};
 
-    return {std::string{filename_pattern}, std::move(title), std::move(series), std::move(shown_on_all)};
+    return {std::move(filename_pattern), std::move(title), std::move(series), std::move(shown_on_all)};
 
 } // acmacs::mapi::v1::Settings::time_series_settings
 
