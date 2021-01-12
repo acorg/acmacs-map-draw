@@ -154,7 +154,7 @@ void acmacs::mapi::v1::Settings::update_env()
     setenv("lab-low"sv, ::string::lower(lab));
 
     setenv("rbc"sv, info->rbc_species());
-    if (!info->rbc_species().empty())
+    if (assay_neut == "hi" && !info->rbc_species().empty())
         setenv("assay-rbc"sv, fmt::format("{}-{}", assay_neut, ::string::lower(info->rbc_species())));
     else
         setenv("assay-rbc"sv, assay_neut);
