@@ -62,8 +62,8 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
                 do_mark_serum = true;
             }
             if (!empirical.valid() && !theoretical.valid()) {
-                if (const auto& fallback = getenv("fallback"sv); !fallback.is_null() && rjson::v3::read_bool(fallback["show"sv], true)) {
-                    make_circle(serum_index, rjson::v3::read_number(fallback["radius"sv], Scaled{3.0}), serum_passage, fallback);
+                if (const auto& fallback = getenv("fallback"sv); !fallback.is_null() && rjson::v3::read_bool(substitute(fallback["show"sv]), true)) {
+                    make_circle(serum_index, rjson::v3::read_number(substitute(fallback["radius"sv]), Scaled{3.0}), serum_passage, fallback);
                     do_mark_serum = true;
                 }
             }
@@ -74,15 +74,15 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
                 chart_draw().modify(*mark_antigen, style.style, drawing_order_from(antigen_style));
                 const acmacs::chart::PointIndexList indexes{*mark_antigen};
                 color_according_to_passage(*antigens, indexes, style);
-                if (const auto& label = antigen_style["label"sv]; !label.is_null())
+                if (const auto& label = substitute(antigen_style["label"sv]); !label.is_null())
                     add_labels(indexes, 0, label);
             }
         }
         else {
             fmt::format_to(report, "{:{}c}  *** no homologous antigens selected (selector: {})\n", ' ', indent, antigen_selector);
 
-            if (const auto& fallback = getenv("fallback"sv); !fallback.is_null() && rjson::v3::read_bool(fallback["show"sv], true)) {
-                make_circle(serum_index, rjson::v3::read_number(fallback["radius"sv], Scaled{3.0}), serum_passage, fallback);
+            if (const auto& fallback = getenv("fallback"sv); !fallback.is_null() && rjson::v3::read_bool(substitute(fallback["show"sv]), true)) {
+                make_circle(serum_index, rjson::v3::read_number(substitute(fallback["radius"sv]), Scaled{3.0}), serum_passage, fallback);
                 do_mark_serum = true;
             }
         }
@@ -108,10 +108,10 @@ bool acmacs::mapi::v1::Settings::hide_serum_circle(const rjson::v3::value& crite
     auto sera = chart.sera();
     auto info = chart.info();
     for (const auto& obj : criteria.array()) {
-        const auto less_than = rjson::v3::read_number(obj["<"sv], 0.0);
-        const auto more_than = rjson::v3::read_number(obj[">"sv], 99999.0);
-        const auto name = rjson::v3::read_string(obj["name"sv]);
-        const auto lab = rjson::v3::read_string(obj["lab"sv]);
+        const auto less_than = rjson::v3::read_number(substitute(obj["<"sv]), 0.0);
+        const auto more_than = rjson::v3::read_number(substitute(obj[">"sv]), 99999.0);
+        const auto name = rjson::v3::read_string(substitute(obj["name"sv]));
+        const auto lab = rjson::v3::read_string(substitute(obj["lab"sv]));
         if ((radius < less_than || radius > more_than) && (!lab || info->lab() == *lab) && (!name || sera->name_matches(serum_no, *name)))
             return true;
     }
@@ -211,10 +211,10 @@ void acmacs::mapi::v1::Settings::make_circle(size_t serum_index, Scaled radius, 
 {
     using namespace std::string_view_literals;
 
-    if (rjson::v3::read_bool(plot["show"sv], true)) {
+    if (rjson::v3::read_bool(substitute(plot["show"sv]), true)) {
         auto& circle = chart_draw().serum_circle(serum_index, radius);
 
-        if (const auto outline_dash = rjson::v3::read_string(plot["outline_dash"sv], ""sv); outline_dash == "dash1"sv)
+        if (const auto outline_dash = rjson::v3::read_string(substitute(plot["outline_dash"sv]), ""sv); outline_dash == "dash1"sv)
             circle.outline_dash1();
         else if (outline_dash == "dash2"sv)
             circle.outline_dash2();
@@ -245,17 +245,17 @@ void acmacs::mapi::v1::Settings::make_circle(size_t serum_index, Scaled radius, 
                 color(source, dflt));
         };
 
-        const auto outline{get_color(plot["outline"sv], PINK)};
-        const auto outline_width{rjson::v3::read_number(plot["outline_width"sv], Pixels{1.0})};
+        const auto outline{get_color(substitute(plot["outline"sv]), PINK)};
+        const auto outline_width{rjson::v3::read_number(substitute(plot["outline_width"sv]), Pixels{1.0})};
         circle.outline(outline, outline_width);
-        circle.fill(get_color(plot["fill"sv], TRANSPARENT));
+        circle.fill(get_color(substitute(plot["fill"sv]), TRANSPARENT));
 
         // AD_DEBUG("make_circle {} {}", circle.radius(), outline);
 
-        if (const auto& angles = plot["angles"sv]; !angles.is_null())
+        if (const auto& angles = substitute(plot["angles"sv]); !angles.is_null())
             circle.angles(rjson::v3::read_number<Rotation>(angles[0], Rotation{0}), rjson::v3::read_number<Rotation>(angles[1], Rotation{0}));
-        if (const auto& radius_line = plot["radius_line"sv]; !radius_line.is_null()) {
-            if (const auto dash = rjson::v3::read_string(radius_line["dash"sv], ""sv); dash == "dash1"sv)
+        if (const auto& radius_line = substitute(plot["radius_line"sv]); !radius_line.is_null()) {
+            if (const auto dash = rjson::v3::read_string(substitute(radius_line["dash"sv]), ""sv); dash == "dash1"sv)
                 circle.radius_line_dash1();
             else if (dash == "dash2"sv)
                 circle.radius_line_dash2();
@@ -266,7 +266,7 @@ void acmacs::mapi::v1::Settings::make_circle(size_t serum_index, Scaled radius, 
             circle.radius_line(get_color(radius_line["color"sv], outline), rjson::v3::read_number(radius_line["line_width"sv], outline_width));
         }
 
-        if (!plot["angle_degrees"sv].is_null() || !plot["radius_line_dash"sv].is_null() || !plot["radius_line_color"sv].is_null())
+        if (!substitute(plot["angle_degrees"sv]).is_null() || !substitute(plot["radius_line_dash"sv]).is_null() || !substitute(plot["radius_line_color"sv]).is_null())
             AD_WARNING("\"angle_degrees\", \"radius_line_dash\", \"radius_line_color\" are deprecated and not supported");
     }
 
