@@ -85,7 +85,7 @@ template <typename Conv, typename Callback> void check_conjunction(acmacs::chart
     for (const auto& name : arr)
         callback(indexes, name.template to<Conv>());
 
-} // check_disjunction
+} // check_conjunction
 
 // ----------------------------------------------------------------------
 
@@ -497,10 +497,17 @@ template <typename AgSr> static void check_layer(const acmacs::chart::Chart& cha
                 report_error();
         }
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
-            if (key == "layer"sv || key == "layers"sv)
-                check_disjunction<int>(indexes, val, layer_one);
-            else if (key == "table"sv || key == "tables"sv)
-                check_disjunction<std::string_view>(indexes, val, table_one);
+            if (key == "layer"sv || key == "layers"sv) {
+                if (val.empty()) // empty list -> select nothing
+                    indexes.clear();
+                else
+                    check_disjunction<int>(indexes, val, layer_one);
+            }
+            else if (key == "table"sv || key == "tables"sv) {
+                if (val.empty()) // empty list -> select nothing
+                    indexes.clear();
+                else
+                    check_disjunction<std::string_view>(indexes, val, table_one);
             else
                 report_error();
         }

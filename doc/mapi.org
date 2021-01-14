@@ -1,4 +1,4 @@
-# Time-stamp: <2021-01-13 16:36:04 eu>
+# Time-stamp: <2021-01-14 11:37:29 eu>
 
 * Common usage
 
@@ -118,22 +118,22 @@ To print environment use:
   {"date": {"after": "2016-09-01", "older-than-days": 183}} -- (conjunction)
 
   {"country": "sweden"} -- case insensetive
-  {"country": ["sweden", "norway"]} -- disjunction
+  {"country": ["sweden", "norway"]} -- disjunction (or)
   {"continent": "europe"} -- case insensetive
-  {"continent": ["europe", "russia"]} -- disjunction
+  {"continent": ["europe", "russia"]} -- disjunction (or)
   {"localtion": "HONG KONG"}
-  {"localtion": ["HONG KONG", "CHINA"]} -- disjunction
+  {"localtion": ["HONG KONG", "CHINA"]} -- disjunction (or)
 
   {"sequenced": true}, {"sequenced": false}
   {"clade": "3C.3A"} -- ~/AD/share/conf/clades.json
-  {"clade": ["3C.3A", "3C.2A2"]} -- disjunction
+  {"clade": ["3C.3A", "3C.2A2"]} -- disjunction (or)
   {"clade-all": ["3C.2A", "!3C.2A2"]} -- 2a and not 2a2, negation and conjunction
   {"amino-acid": "144R"}
-  {"amino-acid": ["144R", "93A", "!160K"]} -- conjunction
+  {"amino-acid": ["144R", "93A", "!160K"]} -- conjunction (and)
   # sort aa at pos by frequency and set ana/google colors, X is always grey -> "fill": {"aa-at": 159}
 
   {"lab": "CDC"}
-  {"lab": ["CDC", "MELB"]} -- disjunction
+  {"lab": ["CDC", "MELB"]} -- disjunction (or)
   {"lab": ["CDC", "VIDRL"]} -- old and new lab name
 
   # {"subtype": "H1 A(H1N1) H3 A(H3N2) B BV BVIC BY BYAM"}, --?
@@ -154,11 +154,13 @@ To print environment use:
   # {"outlier": 1.0} # threshold in units (distance from centroid of pre-selected points), must be after other select args, e.g. after "clade"
 
   {"table": "20170216"}
-  {"table": ["20170216", "20170221"]} -- disjunction
+  {"table": ["20170216", "20170221"]} -- disjunction (or)
   {"table": "MELB:HI:turkey:20170216"} -- table name is from hidb, it is not from chart layers
-  {"table": ["MELB:HI:turkey:20170216", "NIID:HI:YAMAGATA:turkey:20191003.002"]} -- disjunction
+  {"table": ["MELB:HI:turkey:20170216", "NIID:HI:YAMAGATA:turkey:20191003.002"]} -- disjunction (or)
+  {"table": []} -- empty list -> select nothing
   {"layer": 0} -- >=0: from the beginning, <0: from end
-  {"layer": [0, -1]} -- disjunction
+  {"layer": [0, -1]} -- disjunction (or)
+  {"layer": []} -- empty list -> select nothing
 
   # TODO {"relative-to-serum-line": {"distance-min": 0, "distance-max": 10000, "direction": 1}, "?direction": [1, -1, 0]}
 
