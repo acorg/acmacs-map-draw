@@ -508,6 +508,7 @@ template <typename AgSr> static void check_layer(const acmacs::chart::Chart& cha
                     indexes.clear();
                 else
                     check_disjunction<std::string_view>(indexes, val, table_one);
+            }
             else
                 report_error();
         }
