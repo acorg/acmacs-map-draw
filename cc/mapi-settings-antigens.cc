@@ -272,7 +272,7 @@ static inline void check_date(const acmacs::chart::Chart& /*chart*/, const acmac
                 else
                     AD_WARNING("unrecognized \"date\" key \"{}\"", key);
             }
-            AD_INFO("date range for selecting antigens/sera by {}: \"{}\" .. \"{}\"", value, first_date, last_date);
+            // AD_INFO("date range for selecting antigens/sera by {}: \"{}\" .. \"{}\"", value, first_date, last_date);
             antigens.filter_date_range(indexes, first_date, last_date);
         }
         else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
