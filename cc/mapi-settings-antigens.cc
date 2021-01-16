@@ -243,7 +243,7 @@ static inline void check_date(const acmacs::chart::Chart& /*chart*/, const acmac
     if (key != "date"sv)
         AD_WARNING("Selecting antigen/serum with \"{}\" deprecated, use \"date\"", key);
 
-    value.visit([&antigens, &indexes, report_error, &value]<typename Val>(const Val& val) {
+    value.visit([&antigens, &indexes, report_error /*, &value */]<typename Val>(const Val& val) {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
             report_error();
         }
