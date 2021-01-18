@@ -5,7 +5,7 @@
          "whocc": false,
          "report-common": false,
          "report-longest-arrows": 0,
-         "pc-arrows-threshold": 0.05,
+         "pc-arrows-threshold": 0.2,
          "vaccine-size": 30,
          "clade-pale": "",
          "rotation-angle": 0,
@@ -119,8 +119,17 @@
         {"N": "antigens", "select": {"clade": "3C.2A2",  "date": "$date-recent"}, "fill": "#EEB422{clade-pale}", "outline": "black{clade-pale}", "legend": {"label": "2a2 ({count})", "replace": true},  "order": "raise"},
         {"N": "antigens", "select": {"clade": "3C.3A",   "date": "$date-recent"}, "fill": "green{clade-pale}",   "outline": "black{clade-pale}", "legend": {"label": "3a ({count})", "replace": true},   "order": "raise"},
         {"N": "antigens", "select": {"clade": "3C.2A1B", "date": "$date-recent"}, "fill": "#CD5C5C{clade-pale}", "outline": "black{clade-pale}", "legend": {"label": "2a1b ({count})", "replace": true}, "order": "raise"},
+
         {"?N": "antigens", "select": {"clade": "3C.2A1B", "date": "$date-recent", "amino_acid": ["131T", "135K", "137F"]}, "fill": "pink",    "outline": "black", "legend": {"label": "2a1b 131T 135K 137F ({count})", "replace": true}, "order": "raise"},
-        {"N": "antigens", "select": {"clade": "3C.2A1B", "amino_acid": ["193S"], "date": "$date-recent"}, "fill": "pink{clade-pale}",           "outline": "black{clade-pale}", "legend": {"label": "2a1b 193S ({count})", "show_if_none_selected": true, "replace": true}, "order": "raise", "report": true}
+        {"?N": "antigens", "select": {"clade": "3C.2A1B", "amino_acid": ["193S"], "date": "$date-recent"}, "fill": "pink{clade-pale}",           "outline": "black{clade-pale}", "legend": {"label": "2a1b 193S ({count})", "show_if_none_selected": true, "replace": true}, "order": "raise", "report": true},
+
+        {"?N": "TC1 2021-01-19"},
+        {"N": "antigens", "select": {"clade": "3C.2A1B", "amino_acid": ["193S"], "date": "$date-recent"},                                   "fill": "pink{clade-pale}",           "outline": "black{clade-pale}", "legend": {"label": " +193S ({count})", "?label": "2a1b 193S ({count})", "show_if_none_selected": true}, "order": "raise", "report": true},
+        {"N": "antigens", "select": {"clade": "3C.2A1B", "amino_acid": ["193S", "94Y", "137S", "198P"], "date": "$date-recent"},            "fill": "#eaaee8{clade-pale}",        "outline": "black{clade-pale}", "legend": {"label": "   +94Y 137S 198P({count})", "?label": "2a1b 193S 94Y 137S 198P({count})", "show_if_none_selected": true}, "order": "raise", "report": true},
+        {"N": "antigens", "select": {"clade": "3C.2A1B", "amino_acid": ["193S", "137F"], "date": "$date-recent"},                           "fill": "#ff99cc{clade-pale}",        "outline": "black{clade-pale}", "legend": {"label": "   +137F ({count})", "?label": "2a1b 193S 137F ({count})", "show_if_none_selected": true}, "order": "raise", "report": true},
+        {"N": "antigens", "select": {"amino_acid": ["92R", "121K", "158N", "159Y", "311Q", "406V", "193S", "94N"], "date": "$date-recent"}, "fill": "#ff99ff{clade-pale}",        "outline": "black{clade-pale}", "legend": {"label": "   +94N ({count})", "?label": "2a1b 193S 94N ({count})", "show_if_none_selected": true}, "order": "raise", "report": true},
+        {"N": "antigens", "select": {"clade": "3C.2A1B+131K-A",                  "date": "$date-recent"},                                   "fill": "#ff6300{clade-pale}",        "outline": "black{clade-pale}", "legend": {"label": " +131K-A ({count})",      "show_if_none_selected": true}, "order": "raise", "report": true},
+        {"N": "antigens", "select": {"clade": "3C.2A1B+131K-B",                  "date": "$date-recent"},                                   "fill": "#FFA500{clade-pale}",        "outline": "black{clade-pale}", "legend": {"label": " +131K-B ({count})",      "show_if_none_selected": true}, "order": "raise", "report": true},
     ],
 
     "/clades-A(H1N1)2009pdm": [

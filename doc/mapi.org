@@ -1,4 +1,4 @@
-# Time-stamp: <2021-01-14 11:37:29 eu>
+# Time-stamp: <2021-01-18 10:50:44 eu>
 
 * Common usage
 
@@ -74,6 +74,8 @@ To print environment use:
 "{sr-0-abbreviated-name-with-serum-id}": "NC/4/16 CDC 2017-014"
 "{sr-0-designation}": "A(H3N2)/NORTH CAROLINA/4/2016 CDC 2017-014"
 "{sr-0-designation-without-serum-id}": "A(H3N2)/NORTH CAROLINA/4/2016"
+
+** TODO {ag-0-clade} {sr-0-clade} {ag-0-aa-at-193}
 
 * Select Antigens
 
