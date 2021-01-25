@@ -1,4 +1,4 @@
-# Time-stamp: <2021-01-18 10:50:44 eu>
+# Time-stamp: <2021-01-25 11:37:42 eu>
 
 * Common usage
 
@@ -52,6 +52,7 @@ To print environment use:
 "{lab}": "CDC"
 "{lab-low}": "cdc"
 "{rbc}": "" "turkey"
+"{assay-rbc}": "hi-turkey" "neut"
 "{table-date}": "20200122-20200828"
 "{num-ag}": "251"
 "{num-sr}": "16"
