@@ -193,8 +193,8 @@ std::pair<std::vector<std::string_view>, std::vector<std::string_view>> parse_fi
     }
     if (inputs.empty())
         throw std::runtime_error{"no input files (charts) found in the command line"};
-    if (inputs.size() > 2)
-        throw std::runtime_error{fmt::format("too many input files () found in the command line", inputs)};
+    // if (inputs.size() > 3)
+    //     throw std::runtime_error{fmt::format("too many input files () found in the command line", inputs)};
     return {inputs, outputs};
 
 } // parse_files

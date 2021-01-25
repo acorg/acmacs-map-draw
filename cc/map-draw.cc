@@ -137,7 +137,7 @@ int draw(const Options& opt)
     AD_INFO("{}\n{}", chart_draw.viewport("map-draw main"), chart_draw.chart(0).modified_transformation());
 
     if (opt.output_pdf->empty()) {
-        acmacs::file::temp output(static_cast<std::string>(fs::path(*opt.chart).stem()) + "--p" + std::to_string(opt.projection), ".pdf");
+        acmacs::file::temp output(static_cast<std::string>(fs::path(*opt.chart).stem()) + "--p" + std::to_string(opt.projection), std::string{".pdf"});
         chart_draw.draw(output, 800, report_time::yes);
         acmacs::quicklook(output, 2);
     }
