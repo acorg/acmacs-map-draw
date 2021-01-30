@@ -110,7 +110,25 @@
     ],
 
     "/clades-A(H3N2)": [
-        "? TC1 2021-01-19",
+        "? TC2 2021-02-02",
+        "/sequenced",
+
+        {"N": "antigens",  "fill": "#FF0000{clade-pale}",        "select": {"clade": "3C.2A",                             "date": "$date-recent"}, "legend": {"label": "2a ({count})",             "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
+        {"N": "antigens",  "fill": "#8B0000{clade-pale}",        "select": {"clade": "3C.2A1",                            "date": "$date-recent"}, "legend": {"label": "2a1 ({count})",            "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
+        {"N": "antigens",  "fill": "#F8EF54{clade-pale}",        "select": {"clade": "3C.2A2",                            "date": "$date-recent"}, "legend": {"label": "2a2 ({count})",            "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
+        {"N": "antigens",  "fill": "green{clade-pale}",          "select": {"clade": "3C.3A",                             "date": "$date-recent"}, "legend": {"label": "3a ({count})",             "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
+        {"N": "antigens",  "fill": "#CD5C5C{clade-pale}",        "select": {"clade": "3C.2A1B",                           "date": "$date-recent"}, "legend": {"label": "2a1b ({count})",           "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
+
+        {"N": "antigens",  "fill": "#ff8200{clade-pale}",        "select": {"clade": "3C.2A1B", "amino_acid": ["131K"],   "date": "$date-recent"}, "legend": {"label": "2a1b+131K ({count})",      "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
+        {"N": "antigens",  "fill": "#FFA500{clade-pale}",        "select": {"clade": "3C.2A1B", "amino_acid": ["135K"],   "date": "$date-recent"}, "legend": {"label": "2a1b+135K ({count})",      "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
+
+        {"N": "antigens",  "fill": "pink{clade-pale}",           "select": {"clade": "3C.2A1B", "amino_acid": ["193S"],   "date": "$date-recent"}, "legend": {"label": "2a1b+193S",                "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
+        {"N": "antigens",  "fill": "#ff99ff{clade-pale}",        "select": {"clade": "3C.2A1B2A", "amino_acid": ["193S"], "date": "$date-recent"}, "legend": {"label": "3C.2a1b2a+193S ({count})", "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
+        {"N": "antigens",  "fill": "#eaaee8{clade-pale}",        "select": {"clade": "3C.2A1B1A",                         "date": "$date-recent"}, "legend": {"label": "3C.2a1b1a ({count})",      "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
+        {"N": "antigens",  "fill": "#ff99cc{clade-pale}",        "select": {"clade": "3C.2A1B1B",                         "date": "$date-recent"}, "legend": {"label": "3C.2a1b1b ({count})",      "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
+    ],
+
+    "? TC1 2021-01-19 /clades-A(H3N2)": [
         "/sequenced",
 
         {"N": "antigens",  "fill": "#FF0000{clade-pale}",        "select": {"clade": "3C.2A",                           "date": "$date-recent"},                                           "legend": {"label": "2a ({count})",                                                              "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
