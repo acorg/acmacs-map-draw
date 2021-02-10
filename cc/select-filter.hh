@@ -17,6 +17,10 @@ namespace acmacs::map_draw::select::filter
     extern template void name_in(const acmacs::chart::Antigens& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aName);
     extern template void name_in(const acmacs::chart::Sera& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aName);
 
+    template <typename AgSr> void name_not_in(const AgSr& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aName);
+    extern template void name_not_in(const acmacs::chart::Antigens& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aName);
+    extern template void name_not_in(const acmacs::chart::Sera& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aName);
+
     template <typename AgSr> void full_name_in(const AgSr& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aFullName)
     {
         indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return aAgSr[index]->full_name() != aFullName; }), indexes.end());

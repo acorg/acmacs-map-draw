@@ -186,6 +186,31 @@ template <typename AgSr> static void check_name(const AgSr& ag_sr, acmacs::chart
 
 // ----------------------------------------------------------------------
 
+template <typename AgSr> static void check_not_name(const AgSr& ag_sr, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+{
+    using namespace std::string_view_literals;
+
+    const auto report_error = [&value]() { throw acmacs::mapi::unrecognized{fmt::format("unrecognized \"not-name\" clause: {}", value)}; };
+
+    const auto name_one = [&ag_sr](acmacs::chart::PointIndexList& ind, std::string_view name) {
+        acmacs::map_draw::select::filter::name_not_in(ag_sr, ind, name);
+    };
+
+    value.visit([&indexes, name_one, report_error]<typename Val>(const Val& val) {
+        if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
+            name_one(indexes, val.template to<std::string_view>());
+        }
+        else if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
+            check_disjunction<std::string_view>(indexes, val, name_one);
+        }
+        else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
+            report_error();
+    });
+
+} // check_not_name
+
+// ----------------------------------------------------------------------
+
 static inline void check_lab(const acmacs::chart::Chart& chart, acmacs::chart::PointIndexList& indexes, std::string_view /*key*/, const rjson::v3::value& value)
 {
     using namespace std::string_view_literals;
@@ -728,6 +753,8 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                         check_index(ag_sr, indexes, key, value);
                     else if (key == "name"sv || key == "names"sv)
                         check_name(ag_sr, indexes, key, value);
+                    else if (key == "not-name"sv)
+                        check_not_name(ag_sr, indexes, key, value);
                     else if (key == "passage"sv)
                         check_passage(ag_sr, indexes, key, value, throw_if_unprocessed::yes);
                     else if (key == "sequenced"sv || acmacs::string::startswith(key, "clade"sv) || acmacs::string::startswith(key, "amino"sv))

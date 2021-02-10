@@ -1,4 +1,4 @@
-# Time-stamp: <2021-01-25 11:37:42 eu>
+# Time-stamp: <2021-02-10 11:26:13 eu>
 
 * Common usage
 
@@ -98,6 +98,7 @@ To print environment use:
   {"name": "SWITZERLAND/9715293/2013"}
   {"name": "~/971529\d/"} -- regex search in FULL name (~ in front removed before compiling regex, use single \)
   {"name": ["SWITZERLAND/9715293/2013", "~/2/2009"]} -- either matched (disjunction)
+  {"not-name": "~/971529\d/"} -- regex search in FULL name, EXCLUDE matching names (~ in front removed before compiling regex, use single \)
 
   "egg" -- wildtype only
   "cell"

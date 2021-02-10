@@ -284,6 +284,22 @@ template void acmacs::map_draw::select::filter::name_in(const acmacs::chart::Ser
 
 // ----------------------------------------------------------------------
 
+template <typename AgSr> void acmacs::map_draw::select::filter::name_not_in(const AgSr& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aName)
+{
+    // Timeit ti("filter_name_in " + aName + ": ", do_report_time(mVerbose));
+    acmacs::chart::Indexes result(indexes->size());
+    const acmacs::chart::Indexes by_name = aAgSr.find_by_name(aName);
+    // std::cerr << "DEBUG: SelectAntigensSera::filter_name_in \"" << aName << "\": " << by_name << '\n';
+    const auto end = std::set_difference(indexes.begin(), indexes.end(), by_name.begin(), by_name.end(), result.begin());
+    indexes.get().erase(std::copy(result.begin(), end, indexes.begin()), indexes.end());
+
+} // acmacs::map_draw::select::filter::name_in<>
+
+template void acmacs::map_draw::select::filter::name_not_in(const acmacs::chart::Antigens& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aName);
+template void acmacs::map_draw::select::filter::name_not_in(const acmacs::chart::Sera& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aName);
+
+// ----------------------------------------------------------------------
+
 template <typename AgSr> void acmacs::map_draw::select::filter::table_ag_sr(const AgSr& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aTable, std::shared_ptr<hidb::Tables> aHidbTables)
 {
     auto not_in_table = [aTable, &aAgSr, hidb_tables = *aHidbTables](size_t index) {
