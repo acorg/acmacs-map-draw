@@ -305,39 +305,38 @@ bool acmacs::mapi::v1::Settings::apply_serum_coverage()
             fmt::format_to(report, "{:{}c}  *** serum is disconnected\n", ' ', indent);
         }
         else if (const auto antigen_indexes = select_antigens_for_serum_circle(serum_index, antigen_selector); !antigen_indexes.empty() || forced_homologous_titer.has_value()) {
-            acmacs::chart::PointIndexList within, outside;
-            if (forced_homologous_titer.has_value()) {
-                chart.serum_coverage(*forced_homologous_titer, serum_index, within, outside, fold);
-                fmt::format_to(report, "{:{}c}  forced homologous titer: {}\n", ' ', indent, *forced_homologous_titer);
-            }
-            else {
-                std::optional<size_t> used_antigen_index;
-                for (const auto antigen_index : antigen_indexes) {
-                    try {
-                        chart.serum_coverage(antigen_index, serum_index, within, outside, fold);
-                        used_antigen_index = antigen_index;
-                        break;
-                    }
-                    catch (acmacs::chart::serum_coverage_error& err) {
-                        AD_WARNING("cannot use homologous AG {}: {} ", antigen_index, err);
-                        within.get().clear();
-                        outside.get().clear();
-                    }
-                }
-                if (used_antigen_index.has_value())
-                    fmt::format_to(report, "{:{}c}  AG {} {}\n", ' ', indent, *used_antigen_index, antigens->at(*used_antigen_index)->full_name());
-                else
-                    AD_WARNING("cannot apply serum_coverage for SR {} {}: no suitable antigen found?", serum_index, serum->full_name());
-            }
-            fmt::format_to(report, "{:{}c}  within 4fold: {} antigens     outside 4fold: {} antigens\n", ' ', indent, within->size(), outside->size());
 
-            if (!within->empty()) {
+            const auto serum_coverage = [&]() {
+                if (forced_homologous_titer.has_value()) {
+                    fmt::format_to(report, "{:{}c}  forced homologous titer: {}\n", ' ', indent, *forced_homologous_titer);
+                    return acmacs::chart::serum_coverage(*titers, *forced_homologous_titer, serum_index, fold);
+                }
+                else {
+                    for (const auto antigen_index : antigen_indexes) {
+                        try {
+                            return acmacs::chart::serum_coverage(*titers, antigen_index, serum_index, fold);
+                        }
+                        catch (acmacs::chart::serum_coverage_error& err) {
+                            AD_WARNING("cannot use homologous AG {}: {} ", antigen_index, err);
+                        }
+                    }
+                    AD_WARNING("cannot apply serum_coverage for SR {} {}: no suitable antigen found?", serum_index, serum->full_name());
+                    return acmacs::chart::SerumCoverageIndexes{};
+                }
+            };
+
+            const auto serum_coverage_data = serum_coverage();
+            if (serum_coverage_data.antigen_index.has_value())
+                fmt::format_to(report, "{:{}c}  AG {} {}\n", ' ', indent, *serum_coverage_data.antigen_index, antigens->at(*serum_coverage_data.antigen_index)->full_name());
+            fmt::format_to(report, "{:{}c}  within 4fold: {} antigens     outside 4fold: {} antigens\n", ' ', indent, serum_coverage_data.within->size(), serum_coverage_data.outside->size());
+
+            if (!serum_coverage_data.within->empty()) {
                 const auto& within_4fold{getenv("within_4fold"sv)};
-                chart_draw().modify(within, style_from(within_4fold).style, drawing_order_from(within_4fold));
+                chart_draw().modify(serum_coverage_data.within, style_from(within_4fold).style, drawing_order_from(within_4fold));
             }
-            if (!outside->empty()) {
+            if (!serum_coverage_data.outside->empty()) {
                 const auto& outside_4fold{getenv("outside_4fold"sv)};
-                chart_draw().modify(outside, style_from(outside_4fold).style, drawing_order_from(outside_4fold));
+                chart_draw().modify(serum_coverage_data.outside, style_from(outside_4fold).style, drawing_order_from(outside_4fold));
             }
             mark_serum(serum_index, getenv("mark_serum"sv));
         }

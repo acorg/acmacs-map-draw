@@ -349,42 +349,42 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, const rjson::value& /*aModDa
 
 // ----------------------------------------------------------------------
 
-void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, const rjson::value& homologous_titer, double fold, const rjson::value& within_4fold,
-                             const rjson::value& outside_4fold, bool verbose)
+void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const acmacs::chart::PointIndexList& antigen_indices, const rjson::value& homologous_titer, double fold,
+                             const rjson::value& within_4fold, const rjson::value& outside_4fold, bool verbose)
 {
-    acmacs::chart::PointIndexList within, outside;
-    std::optional<size_t> antigen_index;
-    if (!homologous_titer.is_null()) {
-        aChartDraw.chart().serum_coverage(acmacs::chart::Titer(homologous_titer.to<std::string_view>()), serum_index, within, outside, fold);
-    }
-    else {
-        for (auto ai = antigen_indices.begin(); ai != antigen_indices.end() && !antigen_index; ++ai) {
-            try {
-                aChartDraw.chart().serum_coverage(*ai, serum_index, within, outside, fold);
-                antigen_index = *ai;
-            }
-            catch (acmacs::chart::serum_coverage_error& err) {
-                std::cerr << "WARNING: cannot use homologous antigen " << *ai << ": " << err.what() << '\n';
-                within.get().clear();
-                outside.get().clear();
-            }
-        }
-        if (!antigen_index)
-            throw std::runtime_error("cannot apply serum_coverage mod: no suitable antigen found?");
-    }
+    auto titers = aChartDraw.chart().titers();
 
+    const auto serum_coverage = [&]() {
+        if (!homologous_titer.is_null()) {
+            return acmacs::chart::serum_coverage(*titers, acmacs::chart::Titer(homologous_titer.to<std::string_view>()), serum_index, fold);
+        }
+        else {
+            for (const auto antigen_index : antigen_indices) {
+                try {
+                    return acmacs::chart::serum_coverage(*titers, antigen_index, serum_index, fold);
+                }
+                catch (acmacs::chart::serum_coverage_error& err) {
+                    AD_WARNING("cannot use homologous AG {}: {} ", antigen_index, err);
+                }
+            }
+            AD_WARNING("cannot apply serum_coverage_mod for SR {}: no suitable antigen found?", serum_index);
+            return acmacs::chart::SerumCoverageIndexes{};
+        }
+    };
+
+    const auto serum_coverage_data = serum_coverage();
     if (verbose) {
         fmt::print("INFO: serum coverage\n  SR {} {}\n", serum_index, aChartDraw.chart().serum(serum_index)->full_name());
-        if (antigen_index.has_value())
-            fmt::print("  AG {} {}\n", *antigen_index, aChartDraw.chart().antigen(*antigen_index)->full_name());
+        if (serum_coverage_data.antigen_index.has_value())
+            fmt::print("  AG {} {}\n", *serum_coverage_data.antigen_index, aChartDraw.chart().antigen(*serum_coverage_data.antigen_index)->full_name());
         else
             fmt::print("  forced homologous titer: {}\n", homologous_titer);
-        fmt::print("  within 4fold:  {}\n  outside 4fold: \n", within->size(), outside->size());
+        fmt::print("  within 4fold:  {}\n  outside 4fold: \n", serum_coverage_data.within->size(), serum_coverage_data.outside->size());
     }
-    if (!within->empty())
-        aChartDraw.modify(within, point_style_from_json(within_4fold), drawing_order_from_json(within_4fold));
-    if (!outside->empty())
-        aChartDraw.modify(outside, point_style_from_json(outside_4fold), drawing_order_from_json(outside_4fold));
+    if (!serum_coverage_data.within->empty())
+        aChartDraw.modify(serum_coverage_data.within, point_style_from_json(within_4fold), drawing_order_from_json(within_4fold));
+    if (!serum_coverage_data.outside->empty())
+        aChartDraw.modify(serum_coverage_data.outside, point_style_from_json(outside_4fold), drawing_order_from_json(outside_4fold));
     mark_serum(aChartDraw, serum_index);
 
 } // ModSerumCoverage::apply
