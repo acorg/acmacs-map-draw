@@ -312,31 +312,27 @@ bool acmacs::mapi::v1::Settings::apply_serum_coverage()
                     return acmacs::chart::serum_coverage(*titers, *forced_homologous_titer, serum_index, fold);
                 }
                 else {
-                    for (const auto antigen_index : antigen_indexes) {
-                        try {
-                            return acmacs::chart::serum_coverage(*titers, antigen_index, serum_index, fold);
-                        }
-                        catch (acmacs::chart::serum_coverage_error& err) {
-                            AD_WARNING("cannot use homologous AG {}: {} ", antigen_index, err);
-                        }
-                    }
-                    AD_WARNING("cannot apply serum_coverage for SR {} {}: no suitable antigen found?", serum_index, serum->full_name());
-                    return acmacs::chart::SerumCoverageIndexes{};
+                    return acmacs::chart::serum_coverage(*titers, antigen_indexes, serum_index, *layout, chart.column_basis(serum_index, chart_draw().chart(0).projection_no()), fold);
                 }
             };
 
-            const auto serum_coverage_data = serum_coverage();
-            if (serum_coverage_data.antigen_index.has_value())
-                fmt::format_to(report, "{:{}c}  AG {} {}\n", ' ', indent, *serum_coverage_data.antigen_index, antigens->at(*serum_coverage_data.antigen_index)->full_name());
-            fmt::format_to(report, "{:{}c}  within 4fold: {} antigens     outside 4fold: {} antigens\n", ' ', indent, serum_coverage_data.within->size(), serum_coverage_data.outside->size());
+            try {
+                const auto serum_coverage_data = serum_coverage();
+                if (serum_coverage_data.antigen_index.has_value())
+                    fmt::format_to(report, "{:{}c}  AG {} {}\n", ' ', indent, *serum_coverage_data.antigen_index, antigens->at(*serum_coverage_data.antigen_index)->full_name());
+                fmt::format_to(report, "{:{}c}  within 4fold: {} antigens     outside 4fold: {} antigens\n", ' ', indent, serum_coverage_data.within->size(), serum_coverage_data.outside->size());
 
-            if (!serum_coverage_data.within->empty()) {
-                const auto& within_4fold{getenv("within_4fold"sv)};
-                chart_draw().modify(serum_coverage_data.within, style_from(within_4fold).style, drawing_order_from(within_4fold));
+                if (!serum_coverage_data.within->empty()) {
+                    const auto& within_4fold{getenv("within_4fold"sv)};
+                    chart_draw().modify(serum_coverage_data.within, style_from(within_4fold).style, drawing_order_from(within_4fold));
+                }
+                if (!serum_coverage_data.outside->empty()) {
+                    const auto& outside_4fold{getenv("outside_4fold"sv)};
+                    chart_draw().modify(serum_coverage_data.outside, style_from(outside_4fold).style, drawing_order_from(outside_4fold));
+                }
             }
-            if (!serum_coverage_data.outside->empty()) {
-                const auto& outside_4fold{getenv("outside_4fold"sv)};
-                chart_draw().modify(serum_coverage_data.outside, style_from(outside_4fold).style, drawing_order_from(outside_4fold));
+            catch (acmacs::chart::serum_coverage_error& err) {
+                AD_WARNING("cannot apply serum_coverage for SR {} {}: {}", serum_index, serum->full_name(), err.what());
             }
             mark_serum(serum_index, getenv("mark_serum"sv));
         }

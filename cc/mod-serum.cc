@@ -359,6 +359,7 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const ac
             return acmacs::chart::serum_coverage(*titers, acmacs::chart::Titer(homologous_titer.to<std::string_view>()), serum_index, fold);
         }
         else {
+            AD_WARNING("ModSerumCoverage::apply may give incorrect result, if there are multiple suitable antigens, use acmacs::mapi::v1::Settings::apply_serum_coverage");
             for (const auto antigen_index : antigen_indices) {
                 try {
                     return acmacs::chart::serum_coverage(*titers, antigen_index, serum_index, fold);
