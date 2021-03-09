@@ -28,7 +28,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
         auto serum = sera->at(serum_index);
         const auto serum_passage = serum->passage_type(acmacs::chart::reassortant_as_egg::no);
         bool do_mark_serum{false};
-        fmt::format_to(report, "{:{}c}SR {} {} {} titrations:{}\n", ' ', indent, serum_index, serum->full_name(), serum->passage_type(acmacs::chart::reassortant_as_egg::no),
+        fmt::format_to(report, "{:{}c}SR {} {} {} titrations:{}\n", ' ', indent, serum_index, serum->format("{name_full}"), serum->passage_type(acmacs::chart::reassortant_as_egg::no),
                        titers->titrations_for_serum(serum_index));
 
         if (!layout->point_has_coordinates(serum_index + antigens->size())) {
@@ -48,7 +48,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
             report_circles(report, serum_index, *antigens, antigen_indexes, empirical, theoretical, hide_if, forced_homologous_titer);
 
             std::optional<size_t> mark_antigen;
-            // AD_DEBUG("SERUM {} {}", serum_index, serum->full_name());
+            // AD_DEBUG("SERUM {} {}", serum_index, serum->format("{name_full}"));
             if (empirical.valid() && !hide_serum_circle(hide_if, serum_index, empirical.radius())) {
                 make_circle(serum_index, Scaled{empirical.radius()}, serum_passage, getenv("empirical"sv));
                 if (theoretical.per_antigen().front().antigen_no != static_cast<size_t>(-1))
@@ -181,7 +181,7 @@ void acmacs::mapi::v1::Settings::report_circles(fmt::memory_buffer& report, size
                 theoretical_radius = fmt::format("{:.4f}", *theoretical_data.radius);
             else
                 theoretical_report.assign(theoretical_data.report_reason());
-            fmt::format_to(report, "    {}  {}  {:>6s}   AG {:4d} {:40s}", empirical_radius, theoretical_radius, theoretical_data.titer, antigen_index, antigens[antigen_index]->full_name(),
+            fmt::format_to(report, "    {}  {}  {:>6s}   AG {:4d} {:40s}", empirical_radius, theoretical_radius, theoretical_data.titer, antigen_index, antigens[antigen_index]->format("{name_full}"),
                            empirical_report);
             if (!empirical_report.empty())
                 fmt::format_to(report, " -- {}", empirical_report);
@@ -300,7 +300,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_coverage()
     const size_t indent{2};
     for (auto serum_index : serum_indexes) {
         auto serum = sera->at(serum_index);
-        fmt::format_to(report, "{:{}c}SR {} {} {}\n", ' ', indent, serum_index, serum->full_name(), serum->passage_type(acmacs::chart::reassortant_as_egg::no));
+        fmt::format_to(report, "{:{}c}SR {} {} {}\n", ' ', indent, serum_index, serum->format("{name_full}"), serum->passage_type(acmacs::chart::reassortant_as_egg::no));
         if (!layout->point_has_coordinates(serum_index + antigens->size())) {
             fmt::format_to(report, "{:{}c}  *** serum is disconnected\n", ' ', indent);
         }
@@ -319,7 +319,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_coverage()
             try {
                 const auto serum_coverage_data = serum_coverage();
                 if (serum_coverage_data.antigen_index.has_value())
-                    fmt::format_to(report, "{:{}c}  AG {} {}\n", ' ', indent, *serum_coverage_data.antigen_index, antigens->at(*serum_coverage_data.antigen_index)->full_name());
+                    fmt::format_to(report, "{:{}c}  AG {} {}\n", ' ', indent, *serum_coverage_data.antigen_index, antigens->at(*serum_coverage_data.antigen_index)->format("{name_full}"));
                 fmt::format_to(report, "{:{}c}  within 4fold: {} antigens     outside 4fold: {} antigens\n", ' ', indent, serum_coverage_data.within->size(), serum_coverage_data.outside->size());
 
                 if (!serum_coverage_data.within->empty()) {
@@ -332,7 +332,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_coverage()
                 }
             }
             catch (acmacs::chart::serum_coverage_error& err) {
-                AD_WARNING("cannot apply serum_coverage for SR {} {}: {}", serum_index, serum->full_name(), err.what());
+                AD_WARNING("cannot apply serum_coverage for SR {} {}: {}", serum_index, serum->format("{name_full}"), err.what());
             }
             mark_serum(serum_index, getenv("mark_serum"sv));
         }

@@ -32,7 +32,7 @@ std::string report_antigens(const acmacs::chart::PointIndexList& indexes, const 
         for (auto index : indexes) {
             const auto antigen = antigens->at(index);
             const auto coord = layout->at(index);
-            fmt::format_to(output, "  AG {:5d} {: <{}} {:10s} {: <6s}", index, fmt::format("\"{}\"", antigen->full_name()), full_name_max + 2, antigen->date(), antigen->passage().passage_type());
+            fmt::format_to(output, "  AG {:5d} {: <{}} {:10s} {: <6s}", index, fmt::format("\"{}\"", antigen->format("{name_full}")), full_name_max + 2, antigen->date(), antigen->passage().passage_type());
             if (const auto& ref = matched_seqdb[index]; ref)
                 fmt::format_to(output, " {:<{}s} {:<{}s}", ref.seq_id(), seq_max, fmt::format("{}", ref.seq_with_sequence(seqdb).clades), clades_max);
             else
@@ -90,7 +90,7 @@ std::string report_sera(const acmacs::chart::PointIndexList& indexes, const Char
         for (auto index : indexes) {
             const auto serum = sera->at(index);
             const auto coord = layout->at(index + number_of_antigens);
-            fmt::format_to(output, "  SR {:5d} {: <{}} {: <6s}", index, fmt::format("\"{}\"", serum->full_name()), full_name_max + 2, serum->passage().passage_type());
+            fmt::format_to(output, "  SR {:5d} {: <{}} {: <6s}", index, fmt::format("\"{}\"", serum->format("{name_full}")), full_name_max + 2, serum->passage().passage_type());
             const auto& seq_data = seq_clades.get_or(index, seq_data_t{});
             fmt::format_to(output, " {:<{}s} {:<{}s}", seq_data.first, seq_max, seq_data.second, clades_max);
             if (coord.exists())

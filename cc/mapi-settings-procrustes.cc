@@ -208,9 +208,9 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
         fmt::memory_buffer arrows;
         for (size_t p_no{0}; p_no < std::min(report_longest_arrows, distances.size()); ++p_no) {
             if (distances[p_no].first < antigens->size())
-                fmt::format_to(arrows, "    {:.2f} AG {:4d} {}\n", distances[p_no].second, distances[p_no].first, antigens->at(distances[p_no].first)->full_name());
+                fmt::format_to(arrows, "    {:.2f} AG {:4d} {}\n", distances[p_no].second, distances[p_no].first, antigens->at(distances[p_no].first)->format("{name_full}"));
             else
-                fmt::format_to(arrows, "    {:.2f} AG {:4d} {}\n", distances[p_no].second, distances[p_no].first - antigens->size(), sera->at(distances[p_no].first - antigens->size())->full_name());
+                fmt::format_to(arrows, "    {:.2f} AG {:4d} {}\n", distances[p_no].second, distances[p_no].first - antigens->size(), sera->at(distances[p_no].first - antigens->size())->format("{name_full}"));
         }
         AD_INFO("Longest arrows (max {} requested of {} available)\n{}", report_longest_arrows, distances.size(), fmt::to_string(arrows));
     }

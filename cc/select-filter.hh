@@ -1,6 +1,7 @@
 #pragma once
 
 #include "acmacs-virus/type-subtype.hh"
+#include "acmacs-virus/virus-name.hh"
 #include "acmacs-chart-2/chart.hh"
 #include "hidb-5/hidb.hh"
 #include "acmacs-map-draw/draw.hh"
@@ -23,12 +24,12 @@ namespace acmacs::map_draw::select::filter
 
     template <typename AgSr> void full_name_in(const AgSr& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aFullName)
     {
-        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return aAgSr[index]->full_name() != aFullName; }), indexes.end());
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return aAgSr[index]->format("{name_full}") != aFullName; }), indexes.end());
     }
 
     template <typename AgSr> void location_in(const AgSr& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aLocation)
     {
-        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return aAgSr[index]->location() != aLocation; }), indexes.end());
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return acmacs::virus::location(aAgSr[index]->name()) != aLocation; }), indexes.end());
     }
 
     template <typename AgSr> void out_distinct_in(const AgSr& aAgSr, acmacs::chart::Indexes& indexes)

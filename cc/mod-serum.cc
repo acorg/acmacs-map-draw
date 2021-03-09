@@ -112,7 +112,7 @@ acmacs::chart::PointIndexList ModSerumHomologous::select_homologous_antigens(Cha
         auto antigens = aChartDraw.chart().antigens();
         std::cerr << "INFO: homologous antigens selected: " << std::setfill(' ') << std::setw(4) << antigen_indexes->size() << '\n';
         for (auto index: antigen_indexes)
-            std::cerr << "  AG " << std::setw(5) << index << ' ' << (*antigens)[index]->full_name() << '\n';
+            std::cerr << "  AG " << std::setw(5) << index << ' ' << (*antigens)[index]->format("{name_full}") << '\n';
     }
     return antigen_indexes;
 }
@@ -296,7 +296,7 @@ double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumInde
             std::cout << " serum circle radius: " << circle_data.radius();
         else
             std::cout << " NO serum circle radius";
-        std::cout << "\n  SR " << aSerumIndex << ' ' << aChartDraw.chart().serum(aSerumIndex)->full_name() << '\n';
+        std::cout << "\n  SR " << aSerumIndex << ' ' << aChartDraw.chart().serum(aSerumIndex)->format("{name_full}") << '\n';
         std::cout << "  Forced homologous titer: " << *aHomologousTiter << '\n';
     }
     return circle_data.valid() ? circle_data.radius() : 0.0;
@@ -324,14 +324,14 @@ double ModSerumCircle::calculate_radius(ChartDraw& aChartDraw, size_t aSerumInde
             std::cout << " serum circle radius: " << circle_data.radius();
         else
             std::cout << " NO serum circle radius";
-        std::cout << "\n  SR " << aSerumIndex << ' ' << aChartDraw.chart().serum(aSerumIndex)->full_name() << '\n';
+        std::cout << "\n  SR " << aSerumIndex << ' ' << aChartDraw.chart().serum(aSerumIndex)->format("{name_full}") << '\n';
         for (const auto& per_antigen : circle_data.per_antigen()) {
             std::cout << "    ";
             if (per_antigen.valid())
                 std::cout << "radius:" << *per_antigen.radius;
             else
                 std::cout << per_antigen.report_reason();
-            std::cout << "  AG " << per_antigen.antigen_no << ' ' << aChartDraw.chart().antigen(per_antigen.antigen_no)->full_name() << " titer:" << *per_antigen.titer << '\n';
+            std::cout << "  AG " << per_antigen.antigen_no << ' ' << aChartDraw.chart().antigen(per_antigen.antigen_no)->format("{name_full}") << " titer:" << *per_antigen.titer << '\n';
         }
     }
     return circle_data.valid() ? circle_data.radius() : 0.0;
@@ -375,9 +375,9 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const ac
 
     const auto serum_coverage_data = serum_coverage();
     if (verbose) {
-        fmt::print("INFO: serum coverage\n  SR {} {}\n", serum_index, aChartDraw.chart().serum(serum_index)->full_name());
+        fmt::print("INFO: serum coverage\n  SR {} {}\n", serum_index, aChartDraw.chart().serum(serum_index)->format("{name_full}"));
         if (serum_coverage_data.antigen_index.has_value())
-            fmt::print("  AG {} {}\n", *serum_coverage_data.antigen_index, aChartDraw.chart().antigen(*serum_coverage_data.antigen_index)->full_name());
+            fmt::print("  AG {} {}\n", *serum_coverage_data.antigen_index, aChartDraw.chart().antigen(*serum_coverage_data.antigen_index)->format("{name_full}"));
         else
             fmt::print("  forced homologous titer: {}\n", homologous_titer);
         fmt::print("  within 4fold:  {}\n  outside 4fold: \n", serum_coverage_data.within->size(), serum_coverage_data.outside->size());

@@ -176,22 +176,22 @@ void acmacs::mapi::v1::Settings::update_env()
 
     auto antigens = chart.antigens();
     for (auto [no, antigen] : acmacs::enumerate(*antigens)) {
-        setenv(fmt::format("ag-{}-full-name", no), antigen->full_name());
-        setenv(fmt::format("ag-{}-full-name-without-passage", no), antigen->full_name_without_passage());
-        setenv(fmt::format("ag-{}-full-name-with-passage", no), antigen->full_name_with_passage());
-        setenv(fmt::format("ag-{}-abbreviated-name", no), antigen->abbreviated_name());
-        setenv(fmt::format("ag-{}-designation", no), antigen->designation());
+        setenv(fmt::format("ag-{}-full-name", no), antigen->format("{name_full}"));
+        setenv(fmt::format("ag-{}-full-name-without-passage", no), antigen->format("{name_full}"));
+        setenv(fmt::format("ag-{}-full-name-with-passage", no), antigen->format("{name_full}"));
+        setenv(fmt::format("ag-{}-abbreviated-name", no), antigen->format("{name_abbreviated}"));
+        setenv(fmt::format("ag-{}-designation", no), antigen->format("{designation}"));
     }
 
     auto sera = chart.sera();
     for (auto [no, serum] : acmacs::enumerate(*sera)) {
-        setenv(fmt::format("sr-{}-full-name", no), serum->full_name());
-        setenv(fmt::format("sr-{}-full-name-without-passage", no), serum->full_name_without_passage());
-        setenv(fmt::format("sr-{}-full-name-with-passage", no), serum->full_name_with_passage());
-        setenv(fmt::format("sr-{}-abbreviated-name", no), serum->abbreviated_name());
-        setenv(fmt::format("sr-{}-abbreviated-name-with-serum-id", no), serum->abbreviated_name_with_serum_id());
-        setenv(fmt::format("sr-{}-designation", no), serum->designation());
-        setenv(fmt::format("sr-{}-designation-without-serum-id", no), serum->designation_without_serum_id());
+        setenv(fmt::format("sr-{}-full-name", no), serum->format("{name_full}"));
+        setenv(fmt::format("sr-{}-full-name-without-passage", no), serum->format("{name_full}"));
+        setenv(fmt::format("sr-{}-full-name-with-passage", no), serum->format("{name_full} {passage}"));
+        setenv(fmt::format("sr-{}-abbreviated-name", no), serum->format("{name_abbreviated}"));
+        setenv(fmt::format("sr-{}-abbreviated-name-with-serum-id", no), serum->format("{name_full} {serum_id}"));
+        setenv(fmt::format("sr-{}-designation", no), serum->format("{designation}"));
+        setenv(fmt::format("sr-{}-designation-without-serum-id", no), serum->format("{designation_without_serum_id}"));
     }
 
     update_env_upon_projection_change();

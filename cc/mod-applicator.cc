@@ -51,32 +51,32 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
                 auto antigen = aChartDraw.chart().antigen(aIndex);
                 std::string name;
                 if (name_type == "abbreviated")
-                    name = antigen->abbreviated_name();
+                    name = antigen->format("{name_abbreviated}");
                 else if (name_type == "abbreviated_name_with_passage_type" || name_type == "abbreviated_with_passage_type")
-                    name = antigen->abbreviated_name_with_passage_type();
+                    name = antigen->format("{abbreviated_with_passage_type}");
                 else if (name_type == "abbreviated_location_with_passage_type")
-                    name = antigen->abbreviated_location_with_passage_type();
+                    name = antigen->format("{abbreviated_location_with_passage_type}");
                 else if (name_type == "abbreviated_location_year")
-                    name = antigen->abbreviated_location_year();
+                    name = antigen->format("{location_abbreviated}/{year2}");
                 else {
                     if (name_type != "full")
                         std::cerr << "WARNING: unrecognized \"name_type\" for label for antigen " << aIndex << '\n';
-                    name = antigen->full_name();
+                    name = antigen->format("{name_full}");
                 }
                 label.display_name(name);
             }
             else { // serum
                 auto serum = aChartDraw.chart().serum(aIndex);
                 if (name_type == "abbreviated")
-                    label.display_name(serum->abbreviated_name());
+                    label.display_name(serum->format("{name_abbreviated}"));
                 else if (name_type == "abbreviated_name_with_serum_id")
-                    label.display_name(serum->abbreviated_name_with_serum_id());
+                    label.display_name(serum->format("{name_abbreviated}{ }{annotations}{ }{reassortant}{ }{serum_id}"));
                 else if (name_type == "abbreviated_location_year")
-                    label.display_name(serum->abbreviated_location_year());
+                    label.display_name(serum->format("{location_abbreviated}/{year2}"));
                 else {
                     if (name_type != "full")
                         std::cerr << "WARNING: unrecognized \"name_type\" for label for serum " << aIndex << '\n';
-                    label.display_name(serum->full_name());
+                    label.display_name(serum->format("{name_full}"));
                 }
             }
         }

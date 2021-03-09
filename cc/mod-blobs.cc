@@ -46,7 +46,7 @@ void ModBlobs::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*/)
         // }
         // path.close(Color(rjson::get_or(args(), "fill", "transparent")));
 
-        // std::cerr << ">>> AG " << index << ' ' << aChartDraw.chart().antigen(index)->full_name() << '\n'
+        // std::cerr << ">>> AG " << index << ' ' << aChartDraw.chart().antigen(index)->format("{name_full}") << '\n'
         //           << ">>>     " << data << '\n';
     }
 

@@ -75,7 +75,7 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
         }
         writer.add_field(*antigen->date());
         writer.add_field(*antigen->reassortant());
-        writer.add_field(antigen->annotations().join());
+        writer.add_field(fmt::format("{: }", antigen->annotations()));
         writer.add_field(*antigen->passage());
         writer.add_field(antigen->lab_ids().join());
         add_location_data(*antigen->name());
@@ -84,7 +84,7 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
                 writer.add_field(std::string{entry_seq.aa_aligned(seqdb)});
             }
             catch (std::exception& err) {
-                fmt::print(stderr, "WARNING: {} {}: {}\n", ag_no, antigen->full_name(), err);
+                fmt::print(stderr, "WARNING: {} {}: {}\n", ag_no, antigen->format("{name_full}"), err);
                 writer.add_field("");
             }
         }
@@ -105,7 +105,7 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
         }
         writer.add_field(""); // date
         writer.add_field(*serum->reassortant());
-        writer.add_field(serum->annotations().join());
+        writer.add_field(fmt::format("{: }", serum->annotations()));
         writer.add_field(*serum->serum_id());
         writer.add_field(""); // lab_id
         add_location_data(*serum->name());

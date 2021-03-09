@@ -139,7 +139,7 @@ void ChartDraw::draw(acmacs::surface::Surface& aSurface) const
         // std::cerr << index << ' ' << style << '\n';
         draw_point(rescaled_surface, style, layout[index]);
         // if (index < number_of_antigens())
-        //     std::cout << "AG: " << index << ' ' << layout[index] << ' ' << mPointStyles[index] << " \"" << chart().antigen(index)->full_name() << "\"\n";
+        //     std::cout << "AG: " << index << ' ' << layout[index] << ' ' << mPointStyles[index] << " \"" << chart().antigen(index)->format("{name_full}") << "\"\n";
     }
     mLabels.draw(rescaled_surface, layout, plot_spec());
 

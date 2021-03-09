@@ -32,9 +32,9 @@ acmacs::draw::PointLabel& Labels::add(size_t aIndex, const acmacs::chart::Chart&
     acmacs::draw::PointLabel& added = add(aIndex);
     const auto number_of_antigens = aChart.number_of_antigens();
     if (aIndex < number_of_antigens)
-        added.display_name(aChart.antigen(aIndex)->full_name());
+        added.display_name(aChart.antigen(aIndex)->format("{name_full}"));
     else
-        added.display_name(aChart.serum(aIndex - number_of_antigens)->full_name());
+        added.display_name(aChart.serum(aIndex - number_of_antigens)->format("{name_full}"));
     return added;
 
 } // Labels::add
