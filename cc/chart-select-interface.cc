@@ -1,4 +1,3 @@
-#include "acmacs-base/string-substitute.hh"
 #include "acmacs-chart-2/factory-import.hh"
 #include "acmacs-chart-2/factory-export.hh"
 #include "acmacs-map-draw/chart-select-interface.hh"

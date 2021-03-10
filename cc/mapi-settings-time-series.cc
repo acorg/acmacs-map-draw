@@ -1,6 +1,5 @@
 #include "acmacs-base/rjson-v3-helper.hh"
 #include "acmacs-base/string-compare.hh"
-#include "acmacs-base/string-substitute.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/select-filter.hh"
