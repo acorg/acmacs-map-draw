@@ -81,7 +81,7 @@ static inline std::string location_of_antigen(const hidb::Antigen& antigen)
     if (location == "GEORGIA") {
         const auto& hidb = hidb::get(acmacs::virus::type_subtype_t{virus_name::virus_type(name)});
         if (hidb.tables()->most_recent(antigen.tables())->lab() == "CDC") {
-              // std::cerr << "WARNING: GEORGIA: " << antigen->format("{name_full}") << '\n';
+              // std::cerr << "WARNING: GEORGIA: " << antigen->name_full() << '\n';
             location = "GEORGIA STATE"; // somehow disambiguate
         }
     }
@@ -109,7 +109,7 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
     ColoringData result(GREY50);
     std::string tag{"UNKNOWN"};
     try {
-        if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.format("{name_full}")); ref) {
+        if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.name_full()); ref) {
             tag = "SEQUENCED";
             const auto& clades_of_seq = ref.seq_with_sequence(acmacs::seqdb::get()).clades;
             std::vector<std::string_view> clade_data;
@@ -131,16 +131,16 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
             }
             if (tag != "UNKNOWN")
                 result = mColors.at(tag);
-            // AD_DEBUG("{:10s} {:50s} {:50s} {}", tag, aAntigen.format("{name_full}"), ref.seq_id(), clades_of_seq);
+            // AD_DEBUG("{:10s} {:50s} {:50s} {}", tag, aAntigen.name_full(), ref.seq_id(), clades_of_seq);
         }
     }
     catch (std::exception& err) {
-        AD_ERROR("ColoringByClade {}: {}", aAntigen.format("{name_full}"), err);
+        AD_ERROR("ColoringByClade {}: {}", aAntigen.name_full(), err);
     }
     catch (...) {
-        AD_ERROR("ColoringByClade {}: unknown exception", aAntigen.format("{name_full}"));
+        AD_ERROR("ColoringByClade {}: unknown exception", aAntigen.name_full());
     }
-    // std::cerr << "DEBUG: ColoringByClade " << aAntigen.format("{name_full}") << ": " << (tag == "UNKNOWN" ? "Not Sequenced" : tag) << ' ' << result.fill << '\n';
+    // std::cerr << "DEBUG: ColoringByClade " << aAntigen.name_full() << ": " << (tag == "UNKNOWN" ? "Not Sequenced" : tag) << ' ' << result.fill << '\n';
     return {tag, result};
 
 } // ColoringByClade::color
@@ -154,7 +154,7 @@ ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen
     try {
         const auto& seqdb = acmacs::seqdb::get();
         std::string aa_report;
-        if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.format("{name_full}")); ref) {
+        if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.name_full()); ref) {
             rjson::for_each(settings_["apply"], [sequence = ref.aa_aligned(seqdb),&result,&tag,&aa_report](const rjson::value& apply_entry) {
                 if (rjson::get_or(apply_entry, "sequenced", false)) {
                     result = rjson::get_or(apply_entry, "color", "pink");
@@ -186,13 +186,13 @@ ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen
             });
         }
         if (rjson::get_or(settings_, "report", false))
-            fmt::print(stderr, "DEBUG: ColoringByAminoAcid {}: {} <-- {} {}\n", aAntigen.format("{name_full}"), tag, aa_report, result.fill);
+            fmt::print(stderr, "DEBUG: ColoringByAminoAcid {}: {} <-- {} {}\n", aAntigen.name_full(), tag, aa_report, result.fill);
     }
     catch (std::exception& err) {
-        fmt::print(stderr, "ERROR: ColoringByAminoAcid {}: {}\n", aAntigen.format("{name_full}"), err);
+        fmt::print(stderr, "ERROR: ColoringByAminoAcid {}: {}\n", aAntigen.name_full(), err);
     }
     catch (...) {
-        fmt::print(stderr, "ERROR: ColoringByAminoAcid {}: unknown exception\n", aAntigen.format("{name_full}"));
+        fmt::print(stderr, "ERROR: ColoringByAminoAcid {}: unknown exception\n", aAntigen.name_full());
     }
 
     return {tag, result};
@@ -279,17 +279,17 @@ GeographicMapColoring::TagColor ColoringByLineageAndDeletionMutants::color(const
 {
     try {
         const auto& seqdb = acmacs::seqdb::get();
-        if (const auto ref_2del = acmacs::seqdb::get().find_hi_name(aAntigen.format("{name_full}")); ref_2del && ref_2del.has_clade(seqdb, "2DEL2017")) {
-            // fmt::print(stderr, "DEBUG: 2del {}\n", aAntigen.format("{name_full}"));
+        if (const auto ref_2del = acmacs::seqdb::get().find_hi_name(aAntigen.name_full()); ref_2del && ref_2del.has_clade(seqdb, "2DEL2017")) {
+            // fmt::print(stderr, "DEBUG: 2del {}\n", aAntigen.name_full());
             return {"VICTORIA_2DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_2DEL") : ColoringData{mDeletionMutantColor}};
         }
-        else if (const auto ref_3del = acmacs::seqdb::get().find_hi_name(aAntigen.format("{name_full}")); ref_3del && ref_3del.has_clade(seqdb, "3DEL2017")) {
-            // fmt::print(stderr, "DEBUG: 3del {}\n", aAntigen.format("{name_full}"));
+        else if (const auto ref_3del = acmacs::seqdb::get().find_hi_name(aAntigen.name_full()); ref_3del && ref_3del.has_clade(seqdb, "3DEL2017")) {
+            // fmt::print(stderr, "DEBUG: 3del {}\n", aAntigen.name_full());
             return {"VICTORIA_3DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_3DEL") : ColoringData{mDeletionMutantColor}};
         }
         else {
             const auto lineage = aAntigen.lineage().to_string();
-            // fmt::print(stderr, "DEBUG: {}  {}\n", lineage.substr(0, 3), aAntigen.format("{name_full}"));
+            // fmt::print(stderr, "DEBUG: {}  {}\n", lineage.substr(0, 3), aAntigen.name_full());
             return {lineage, mColors.at(lineage)};
         }
     }

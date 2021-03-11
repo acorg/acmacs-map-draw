@@ -24,7 +24,7 @@ namespace acmacs::map_draw::select::filter
 
     template <typename AgSr> void full_name_in(const AgSr& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aFullName)
     {
-        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return aAgSr[index]->format("{name_full}") != aFullName; }), indexes.end());
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [&](auto index) { return aAgSr[index]->name_full() != aFullName; }), indexes.end());
     }
 
     template <typename AgSr> void location_in(const AgSr& aAgSr, acmacs::chart::Indexes& indexes, std::string_view aLocation)

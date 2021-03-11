@@ -51,7 +51,7 @@ int do_select(const Options& opt)
         std::cout << acmacs::string::join(acmacs::string::join_comma, indices) << '\n';
         if (!opt.just_indexes) {
             for (auto index : indices)
-                fmt::print("AG {:{}d} {}\n", index, num_digits, chart_select.chart().antigen(index)->format("{name_full}"));
+                fmt::print("AG {:{}d} {}\n", index, num_digits, chart_select.chart().antigen(index)->name_full());
         }
     }
     else {
@@ -62,7 +62,7 @@ int do_select(const Options& opt)
         }
         else {
             for (auto index : indices)
-                fmt::print("SR {:{}d} {}\n", index, num_digits, chart_select.chart().serum(index)->format("{name_full}"));
+                fmt::print("SR {:{}d} {}\n", index, num_digits, chart_select.chart().serum(index)->name_full());
         }
     }
     return 0;

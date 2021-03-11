@@ -40,9 +40,9 @@ void acmacs::mapi::v1::Settings::add_label(size_t index, size_t index_base, cons
     if (const auto name_format = rjson::v3::read_string(substitute(label_data["format"sv])); name_format.has_value())
         pattern = *name_format;
     if (index_base == 0)
-        label.display_name(acmacs::chart::format_antigen(pattern, chart_draw().chart(), index));
+        label.display_name(acmacs::chart::format_antigen(pattern, chart_draw().chart(), index, acmacs::chart::collapse_spaces_t::yes));
     else
-        label.display_name(acmacs::chart::format_serum(pattern, chart_draw().chart(), index));
+        label.display_name(acmacs::chart::format_serum(pattern, chart_draw().chart(), index, acmacs::chart::collapse_spaces_t::yes));
 
     if (const auto offset = rjson::v3::read_point_coordinates(substitute(label_data["offset"sv])); offset.has_value())
         label.offset(*offset);

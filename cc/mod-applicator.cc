@@ -61,7 +61,7 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
                 else {
                     if (name_type != "full")
                         std::cerr << "WARNING: unrecognized \"name_type\" for label for antigen " << aIndex << '\n';
-                    name = antigen->format("{name_full}");
+                    name = antigen->name_full();
                 }
                 label.display_name(name);
             }
@@ -76,7 +76,7 @@ void Mod::add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, con
                 else {
                     if (name_type != "full")
                         std::cerr << "WARNING: unrecognized \"name_type\" for label for serum " << aIndex << '\n';
-                    label.display_name(serum->format("{name_full}"));
+                    label.display_name(serum->name_full());
                 }
             }
         }

@@ -16,7 +16,7 @@ VaccineMatcherLabel& VaccineMatcherLabel::name_type(std::string aNameType)
         else {
             if (aNameType != "full")
                 AD_WARNING("unsupported name_type \"{}\" (\"full\" is used)", aNameType);
-            name = antigen->format("{name_full}");
+            name = antigen->name_full();
         }
           // std::cerr << "DEBUG: name " << aNameType << ": \"" << name << '"' << std::endl;
         mChartDraw.add_label(ve.chart_antigen_index).display_name(name);

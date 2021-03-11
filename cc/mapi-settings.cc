@@ -187,9 +187,9 @@ void acmacs::mapi::v1::Settings::update_env()
     for (auto [no, serum] : acmacs::enumerate(*sera)) {
         setenv(fmt::format("sr-{}-full-name", no), serum->format("{name_full}"));
         setenv(fmt::format("sr-{}-full-name-without-passage", no), serum->format("{name_full}"));
-        setenv(fmt::format("sr-{}-full-name-with-passage", no), serum->format("{name_full} {passage}"));
+        setenv(fmt::format("sr-{}-full-name-with-passage", no), serum->format("{name_full_passage}"));
         setenv(fmt::format("sr-{}-abbreviated-name", no), serum->format("{name_abbreviated}"));
-        setenv(fmt::format("sr-{}-abbreviated-name-with-serum-id", no), serum->format("{name_full} {serum_id}"));
+        setenv(fmt::format("sr-{}-abbreviated-name-with-serum-id", no), serum->format("{name_full}{ }{serum_id}", acmacs::chart::collapse_spaces_t::yes));
         setenv(fmt::format("sr-{}-designation", no), serum->format("{designation}"));
         setenv(fmt::format("sr-{}-designation-without-serum-id", no), serum->format("{designation_without_serum_id}"));
     }

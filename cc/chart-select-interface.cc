@@ -93,7 +93,7 @@ const acmacs::seqdb::subset& ChartAccess::match_seqdb() const
 
         // for (size_t ag_no{0}; ag_no < matched_seqdb_->size(); ++ag_no) {
         //     if (const auto& en{(*matched_seqdb_)[ag_no]}; !en.empty())
-        //         AD_DEBUG("AG {:3d} {:50s} -- {:50s} -- {}", ag_no, antigens->at(ag_no)->format("{name_full}"), en.seq_id(), en.seq_with_sequence(acmacs::seqdb::get()).clades);
+        //         AD_DEBUG("AG {:3d} {:50s} -- {:50s} -- {}", ag_no, antigens->at(ag_no)->name_full(), en.seq_id(), en.seq_with_sequence(acmacs::seqdb::get()).clades);
         // }
     }
     return *matched_seqdb_;
@@ -187,7 +187,7 @@ acmacs::seqdb::v3::Seqdb::aas_indexes_t ChartAccess::aa_at_pos1_for_antigens(con
 
 //     auto sera = chart().sera();
 //     for (auto [no, serum] : acmacs::enumerate(*sera)) {
-//         store.push_back(fmt::arg(fmt::format("serum_{}_full_name", no).c_str(), serum->format("{name_full}")));
+//         store.push_back(fmt::arg(fmt::format("serum_{}_full_name", no).c_str(), serum->name_full()));
 //         store.push_back(fmt::arg(fmt::format("serum_{}_full_name_without_passage", no).c_str(), serum->full_name_without_passage()));
 //         store.push_back(fmt::arg(fmt::format("serum_{}_full_name_with_passage", no).c_str(), serum->full_name_with_passage()));
 //         store.push_back(fmt::arg(fmt::format("serum_{}_abbreviated_name", no).c_str(), serum->abbreviated_name()));

@@ -105,7 +105,7 @@ void ModErrorLines::apply(ChartDraw& aChartDraw, const rjson::value& /*aModData*
                 found != std::end(error_lines)) {
                 if (const auto p1 = layout->at(ag_no), p2 = layout->at(p2_no); p1.exists() && p2.exists()) {
                     if (report)
-                        fmt::print("INFO: error line {} {} -- {} {} : {}\n", ag_no, antigens->at(ag_no)->format("{name_full}"), sr_no, sera->at(sr_no)->format("{name_full}"), found->error_line);
+                        fmt::print("INFO: error line {} {} -- {} {} : {}\n", ag_no, antigens->at(ag_no)->name_full(), sr_no, sera->at(sr_no)->name_full(), found->error_line);
                     //aChartDraw.line(p1, p2).color(GREY).line_width(line_width * 3);
                     const auto v3 = (p2 - p1) / distance(p1, p2) * (- found->error_line) / 2.0;
                     const auto& color = found->error_line > 0 ? line_color_td_more : line_color_td_less;

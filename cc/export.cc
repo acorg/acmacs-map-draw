@@ -84,7 +84,7 @@ std::string export_layout_sequences_into_csv(std::string_view filename, const ac
                 writer.add_field(std::string{entry_seq.aa_aligned(seqdb)});
             }
             catch (std::exception& err) {
-                fmt::print(stderr, "WARNING: {} {}: {}\n", ag_no, antigen->format("{name_full}"), err);
+                fmt::print(stderr, "WARNING: {} {}: {}\n", ag_no, antigen->name_full(), err);
                 writer.add_field("");
             }
         }
