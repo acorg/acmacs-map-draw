@@ -45,8 +45,8 @@ int do_select(const Options& opt)
     ChartSelectInterface chart_select(opt.chart, opt.projection);
     if (chart_select.chart().number_of_projections() < 1 || chart_select.chart().number_of_projections() < *opt.projection)
         throw std::runtime_error(fmt::format("chart has too few projections: {}", chart_select.chart().number_of_projections()));
+    const auto num_digits = chart_select.chart().number_of_digits_for_antigen_serum_index_formatting();
     if (!opt.sera) {
-        const auto num_digits = static_cast<int>(std::log10(chart_select.chart().number_of_antigens())) + 1;
         const auto indices = SelectAntigens(acmacs::verbose_from(opt.verbose)).select(chart_select, selector);
         std::cout << acmacs::string::join(acmacs::string::join_comma, indices) << '\n';
         if (!opt.just_indexes) {
@@ -55,7 +55,6 @@ int do_select(const Options& opt)
         }
     }
     else {
-        const auto num_digits = static_cast<int>(std::log10(chart_select.chart().number_of_sera())) + 1;
         const auto indices = SelectSera(acmacs::verbose_from(opt.verbose)).select(chart_select, selector);
         if (!opt.just_indexes) {
             fmt::print("{}\n", acmacs::string::join(acmacs::string::join_comma, indices));
