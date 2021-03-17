@@ -1,5 +1,4 @@
 #include "acmacs-base/date.hh"
-#include "acmacs-base/string-compare.hh"
 #include "acmacs-base/rjson-v3-helper.hh"
 #include "acmacs-base/color-amino-acid.hh"
 #include "acmacs-whocc-data/labs.hh"
@@ -897,28 +896,10 @@ void acmacs::mapi::v1::Settings::update_style(point_style_t& style, std::string_
 {
     using namespace std::string_view_literals;
     // AD_DEBUG("apply_antigens {}: {}", key, val);
-    if (key == "fill"sv) {
-        std::visit(
-            [&style]<typename Modifier>(const Modifier& modifier) {
-                if constexpr (std::is_same_v<Modifier, acmacs::color::Modifier>)
-                    style.style.fill(modifier);
-                else if constexpr (std::is_same_v<Modifier, passage_color_t>)
-                    style.passage_fill = modifier;
-                // const rjson::v3::value* variant not handled (extension)
-            },
-            color(val));
-    }
-    else if (key == "outline"sv) {
-        std::visit(
-            [&style]<typename Modifier>(const Modifier& modifier) {
-                if constexpr (std::is_same_v<Modifier, acmacs::color::Modifier>)
-                    style.style.outline(modifier);
-                else if constexpr (std::is_same_v<Modifier, passage_color_t>)
-                    style.passage_outline = modifier;
-                // const rjson::v3::value* variant not handled (extension)
-            },
-            color(val));
-    }
+    if (key == "fill"sv)
+        style.fill(color(val));
+    else if (key == "outline"sv)
+        style.outline(color(val));
     else if (key == "show"sv)
         style.style.shown(substitute(val).to<bool>());
     else if (key == "hide"sv)
@@ -973,21 +954,9 @@ acmacs::mapi::v1::point_style_t acmacs::mapi::v1::Settings::style_from(const rjs
 
 // ----------------------------------------------------------------------
 
-acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::color(const rjson::v3::value& value, std::optional<Color> if_null) const
+acmacs::mapi::v1::modifier_or_passage_t acmacs::mapi::v1::Settings::color(const rjson::v3::value& value, std::optional<Color> if_null) const
 {
     using namespace std::string_view_literals;
-    const auto make_color = [](std::string_view source) -> modifier_or_passage_t {
-        constexpr std::string_view passage_key{"passage"};
-        if (acmacs::string::startswith(source, passage_key)) {
-            passage_color_t colors;
-            colors.init_passage_colors();
-            if (source.size() > passage_key.size())
-                colors.apply(acmacs::color::Modifier{source.substr(passage_key.size())});
-            return colors;
-        }
-        else
-            return acmacs::color::Modifier{source};
-    };
 
     const auto make_color_passage_helper = [](const rjson::v3::value& substituted) -> std::optional<color::Modifier> {
         if (!substituted.is_null())
@@ -1028,9 +997,9 @@ acmacs::mapi::v1::Settings::modifier_or_passage_t acmacs::mapi::v1::Settings::co
 
     try {
         const auto& substituted_val = substitute(value);
-        return substituted_val.visit([make_color, make_color_passage, make_color_aa_at, &if_null, &substituted_val]<typename Val>(const Val& val) -> modifier_or_passage_t {
+        return substituted_val.visit([make_color_passage, make_color_aa_at, &if_null, &substituted_val]<typename Val>(const Val& val) -> modifier_or_passage_t {
             if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
-                return make_color(val.template to<std::string_view>());
+                return make_modifier_or_passage(val.template to<std::string_view>());
             else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
                 passage_color_t passage_color;
                 bool used = make_color_passage(passage_color, val["egg"sv], val["reassortant"sv], val["cell"sv]);

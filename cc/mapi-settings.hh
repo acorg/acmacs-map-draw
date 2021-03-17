@@ -19,11 +19,6 @@ namespace acmacs::chart
 
 class ChartDraw;
 
-namespace rjson::v3
-{
-    class value;
-};
-
 namespace map_elements::v1
 {
     class LegendPointLabel;
@@ -107,7 +102,6 @@ namespace acmacs::mapi::inline v1
         template <typename AgSr> bool color_according_to_passage(const AgSr& ag_sr, const acmacs::chart::PointIndexList& indexes, const point_style_t& point_style);
         bool color_according_to_aa_at_pos(const acmacs::chart::PointIndexList& indexes, const point_style_t& point_style);
 
-        using modifier_or_passage_t = std::variant<acmacs::color::Modifier, passage_color_t, const rjson::v3::value*>; // value* is to support extensions
         modifier_or_passage_t color(const rjson::v3::value& value, std::optional<Color> if_null = std::nullopt) const;
 
         // ----------------------------------------------------------------------
