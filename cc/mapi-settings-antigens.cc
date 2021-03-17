@@ -185,7 +185,7 @@ template <typename AgSr> static void check_name(const AgSr& ag_sr, acmacs::chart
 
 // ----------------------------------------------------------------------
 
-template <typename AgSr> static void check_not_name(const AgSr& ag_sr, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+template <typename AgSr> static void check_not_name(const AgSr& ag_sr, acmacs::chart::PointIndexList& indexes, std::string_view /*key*/, const rjson::v3::value& value)
 {
     using namespace std::string_view_literals;
 
@@ -913,7 +913,7 @@ void acmacs::mapi::v1::Settings::update_style(point_style_t& style, std::string_
     else if (key == "aspect"sv)
         style.style.aspect(Aspect{substitute(val).to<double>()});
     else if (key == "rotation"sv)
-        style.style.rotation(Rotation{substitute(val).to<double>()});
+        style.style.rotation(RotationRadiansOrDegrees(substitute(val).to<double>()));
     else if (key.empty() || key[0] == '?' || key == "order"sv)
         ;                       // ignore
     else

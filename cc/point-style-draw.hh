@@ -17,7 +17,9 @@ void draw_point(acmacs::surface::Surface& aSurface, const acmacs::PointStyle& aS
 
 enum class PointDrawingOrder { NoChange, Raise, Lower };
 
-PointDrawingOrder drawing_order_from_json(const rjson::value& aSource);
+PointDrawingOrder drawing_order_from(const rjson::value& aSource);
+PointDrawingOrder drawing_order_from(std::string_view order);
+inline PointDrawingOrder drawing_order_from(const std::string& order) { return drawing_order_from(std::string_view{order}); }
 
 // ----------------------------------------------------------------------
 /// Local Variables:

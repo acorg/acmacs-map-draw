@@ -63,7 +63,7 @@ size_t ModSerumHomologous::select_serum(ChartDraw& aChartDraw, bool aVerbose) co
 void ModSerumHomologous::mark_serum(ChartDraw& aChartDraw, size_t serum_index)
 {
     if (const auto& mark_serum = args()["mark_serum"]; !mark_serum.is_null()) {
-        aChartDraw.modify_serum(serum_index, point_style_from_json(mark_serum, aChartDraw.chart().serum(serum_index)->is_egg(acmacs::chart::reassortant_as_egg::yes) ? Color("#FF4040") : Color("#4040FF")), drawing_order_from_json(mark_serum));
+        aChartDraw.modify_serum(serum_index, point_style_from_json(mark_serum, aChartDraw.chart().serum(serum_index)->is_egg(acmacs::chart::reassortant_as_egg::yes) ? Color("#FF4040") : Color("#4040FF")), drawing_order_from(mark_serum));
         if (const auto& label = mark_serum["label"]; !label.is_null())
             add_label(aChartDraw, serum_index, aChartDraw.chart().number_of_antigens(), label);
     }
@@ -76,7 +76,7 @@ acmacs::chart::PointIndexList ModSerumHomologous::select_mark_antigens(ChartDraw
 {
     const auto antigen_indices = select_antigens(aChartDraw, aSerumIndex, find_homologous_options, aVerbose);
     if (const auto& mark_antigen = args()["mark_antigen"]; !mark_antigen.is_null()) {
-        aChartDraw.modify(antigen_indices, point_style_from_json(mark_antigen), drawing_order_from_json(mark_antigen));
+        aChartDraw.modify(antigen_indices, point_style_from_json(mark_antigen), drawing_order_from(mark_antigen));
         if (const auto& label = mark_antigen["label"]; !label.is_null())
             add_labels(aChartDraw, antigen_indices, 0, label);
     }
@@ -383,9 +383,9 @@ void ModSerumCoverage::apply(ChartDraw& aChartDraw, size_t serum_index, const ac
         fmt::print("  within 4fold:  {}\n  outside 4fold: \n", serum_coverage_data.within->size(), serum_coverage_data.outside->size());
     }
     if (!serum_coverage_data.within->empty())
-        aChartDraw.modify(serum_coverage_data.within, point_style_from_json(within_4fold), drawing_order_from_json(within_4fold));
+        aChartDraw.modify(serum_coverage_data.within, point_style_from_json(within_4fold), drawing_order_from(within_4fold));
     if (!serum_coverage_data.outside->empty())
-        aChartDraw.modify(serum_coverage_data.outside, point_style_from_json(outside_4fold), drawing_order_from_json(outside_4fold));
+        aChartDraw.modify(serum_coverage_data.outside, point_style_from_json(outside_4fold), drawing_order_from(outside_4fold));
     mark_serum(aChartDraw, serum_index);
 
 } // ModSerumCoverage::apply

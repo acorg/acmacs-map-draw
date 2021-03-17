@@ -36,7 +36,7 @@ class Mod
     const rjson::value& args() const { return mArgs; }
 
     acmacs::PointStyleModified style() const { return point_style_from_json(args()); }
-    PointDrawingOrder drawing_order() const { return drawing_order_from_json(args()); }
+    PointDrawingOrder drawing_order() const { return drawing_order_from(args()); }
     void add_labels(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, size_t aBaseIndex, const rjson::value& aLabelData);
     void add_label(ChartDraw& aChartDraw, size_t aIndex, size_t aBaseIndex, const rjson::value& aLabelData);
     void add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList& aIndices, const acmacs::PointStyleModified& aStyle, const rjson::value& aLegendData);

@@ -92,25 +92,27 @@ acmacs::PointStyleModified point_style_from_json(const rjson::value& aSource, Co
 
 // ----------------------------------------------------------------------
 
-PointDrawingOrder drawing_order_from_json(const rjson::value& aSource)
+PointDrawingOrder drawing_order_from(std::string_view order)
 {
-    PointDrawingOrder result{PointDrawingOrder::NoChange};
-    if (rjson::get_or(aSource, "raise_", false)) {
-        result = PointDrawingOrder::Raise;
-    }
-    else if (rjson::get_or(aSource, "lower", false)) {
-        result = PointDrawingOrder::Lower;
-    }
-    else {
-        const auto order = rjson::get_or(aSource, "order", "");
-        if (order == "raise")
-            result = PointDrawingOrder::Raise;
-        else if (order == "lower")
-            result = PointDrawingOrder::Lower;
-    }
-    return result;
+    if (order == "raise")
+        return PointDrawingOrder::Raise;
+    if (order == "lower")
+        return PointDrawingOrder::Lower;
+    return PointDrawingOrder::NoChange;
 
-} // drawing_order_from_json
+} // drawing_order_from
+
+// ----------------------------------------------------------------------
+
+PointDrawingOrder drawing_order_from(const rjson::value& aSource)
+{
+    if (rjson::get_or(aSource, "raise_", false))
+        return PointDrawingOrder::Raise;
+    if (rjson::get_or(aSource, "lower", false))
+        return PointDrawingOrder::Lower;
+    return drawing_order_from(rjson::get_or(aSource, "order", std::string_view{}));
+
+} // drawing_order_from
 
 // ----------------------------------------------------------------------
 /// Local Variables:
