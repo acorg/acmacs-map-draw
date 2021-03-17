@@ -2,13 +2,7 @@
 
 #include "acmacs-base/size-scale.hh"
 #include "acmacs-base/color-modifier.hh"
-
-namespace acmacs::chart
-{
-    class Projection;
-    class CommonAntigensSera;
-    class ProcrustesData;
-}
+#include "acmacs-chart-2/procrustes.hh"
 
 class ChartDraw;
 
@@ -30,6 +24,7 @@ namespace acmacs::mapi::inline v1
     using distances_t = std::vector<std::pair<size_t, double>>; // point_no in primary chart and its arrow distance
 
     distances_t procrustes_arrows(ChartDraw& chart_draw, const acmacs::chart::Projection& secondary_projection, const acmacs::chart::CommonAntigensSera& common, const acmacs::chart::ProcrustesData& procrustes_data, const ArrowPlotSpec& arrow_plot_spec);
+    std::pair<distances_t, acmacs::chart::ProcrustesData> procrustes_arrows(ChartDraw& chart_draw, const acmacs::chart::Projection& secondary_projection, const acmacs::chart::CommonAntigensSera& common, acmacs::chart::procrustes_scaling_t scaling, const ArrowPlotSpec& arrow_plot_spec);
 
 } // namespace acmacs::mapi::inline v1
 

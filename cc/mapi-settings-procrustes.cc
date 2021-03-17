@@ -179,12 +179,14 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     const auto match_level = CommonAntigensSera::match_level(rjson::v3::read_string(getenv("match"sv), "auto"sv));
     CommonAntigensSera common(chart_draw().chart(), secondary_chart, match_level);
     common.keep_only(select_antigens(getenv("antigens"sv), if_null::all), select_sera(getenv("sera"sv), if_null::all));
-    const std::vector<CommonAntigensSera::common_t> common_points = common.points(CommonAntigensSera::subset::all);
+    // const std::vector<CommonAntigensSera::common_t> common_points = common.points(CommonAntigensSera::subset::all);
 
-    auto secondary_projection = secondary_chart.projection(secondary_projection_no);
-    const auto procrustes_data = procrustes(chart_draw().chart(0).modified_projection(), *secondary_projection, common_points, scaling);
+    auto [distances, procrustes_data] = procrustes_arrows(chart_draw(), *secondary_chart.projection(secondary_projection_no), common, scaling, arrow_plot_spec);
 
-    auto distances = procrustes_arrows(chart_draw(), *secondary_projection, common, procrustes_data, arrow_plot_spec);
+    // auto secondary_projection = secondary_chart.projection(secondary_projection_no);
+    // const auto procrustes_data = procrustes(chart_draw().chart(0).modified_projection(), *secondary_projection, common_points, scaling);
+
+    // auto distances = procrustes_arrows(chart_draw(), *secondary_projection, common, procrustes_data, arrow_plot_spec);
 
     // auto secondary_layout = procrustes_data.apply(*secondary_projection->layout());
     // auto primary_layout = chart_draw().chart(0).modified_projection().transformed_layout();

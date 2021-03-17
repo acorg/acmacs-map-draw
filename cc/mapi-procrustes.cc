@@ -38,6 +38,15 @@ acmacs::mapi::v1::distances_t acmacs::mapi::v1::procrustes_arrows(ChartDraw& cha
 } // acmacs::mapi::v1::procrustes_arrows
 
 // ----------------------------------------------------------------------
+
+std::pair<acmacs::mapi::v1::distances_t, acmacs::chart::ProcrustesData> acmacs::mapi::v1::procrustes_arrows(ChartDraw& chart_draw, const acmacs::chart::Projection& secondary_projection, const acmacs::chart::CommonAntigensSera& common, acmacs::chart::procrustes_scaling_t scaling, const ArrowPlotSpec& arrow_plot_spec)
+{
+    auto procrustes_data = acmacs::chart::procrustes(chart_draw.chart(0).modified_projection(), secondary_projection, common.points(acmacs::chart::CommonAntigensSera::subset::all), scaling);
+    return {procrustes_arrows(chart_draw, secondary_projection, common, procrustes_data, arrow_plot_spec), procrustes_data};
+
+} // acmacs::mapi::v1::procrustes_arrows
+
+// ----------------------------------------------------------------------
 /// Local Variables:
 /// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
 /// End:
