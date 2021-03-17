@@ -15,6 +15,7 @@ class ChartAccess
     constexpr std::string_view filename() const { return filename_; }
 
     const acmacs::chart::Chart& chart() const { chart_access();  return *original_; }
+    acmacs::chart::ChartP chart_ptr() const { chart_access(); return original_; }
     size_t number_of_antigens() const { return chart().number_of_antigens(); }
     size_t number_of_sera() const { return chart().number_of_sera(); }
     size_t number_of_points() const { return number_of_antigens() + number_of_sera(); }

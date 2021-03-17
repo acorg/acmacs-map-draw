@@ -3,9 +3,9 @@
 #include "acmacs-base/settings-v3.hh"
 #include "acmacs-base/point-style.hh"
 #include "acmacs-base/time-series.hh"
-#include "seqdb-3/sequence.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 #include "acmacs-map-draw/coordinates.hh"
+#include "acmacs-map-draw/point-style.hh"
 
 // ----------------------------------------------------------------------
 
@@ -100,24 +100,6 @@ namespace acmacs::mapi::inline v1
         PointDrawingOrder drawing_order_from_environment() const;
         PointDrawingOrder drawing_order_from(const rjson::v3::value& source) const;
         PointDrawingOrder drawing_order_from(std::string_view key, const rjson::v3::value& val) const;
-
-        struct passage_color_t
-        {
-            void init_passage_colors();
-            void apply(const acmacs::color::Modifier& modifier);
-            std::optional<acmacs::color::Modifier> egg;
-            std::optional<acmacs::color::Modifier> reassortant;
-            std::optional<acmacs::color::Modifier> cell;
-            std::optional<acmacs::seqdb::pos1_t> pos;         // coloring by aa at pos
-            std::vector<acmacs::color::Modifier> color_order; // coloring by aa at pos
-        };
-
-        struct point_style_t
-        {
-            acmacs::PointStyleModified style;
-            std::optional<passage_color_t> passage_fill;
-            std::optional<passage_color_t> passage_outline;
-        };
 
         point_style_t style_from_environment() const;
         point_style_t style_from(const rjson::v3::value& source) const;

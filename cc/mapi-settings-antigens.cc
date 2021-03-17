@@ -942,7 +942,7 @@ void acmacs::mapi::v1::Settings::update_style(point_style_t& style, std::string_
 
 // ----------------------------------------------------------------------
 
-acmacs::mapi::v1::Settings::point_style_t acmacs::mapi::v1::Settings::style_from_environment() const
+acmacs::mapi::v1::point_style_t acmacs::mapi::v1::Settings::style_from_environment() const
 {
     using namespace std::string_view_literals;
     point_style_t result;
@@ -956,7 +956,7 @@ acmacs::mapi::v1::Settings::point_style_t acmacs::mapi::v1::Settings::style_from
 
 // ----------------------------------------------------------------------
 
-acmacs::mapi::v1::Settings::point_style_t acmacs::mapi::v1::Settings::style_from(const rjson::v3::value& source) const
+acmacs::mapi::v1::point_style_t acmacs::mapi::v1::Settings::style_from(const rjson::v3::value& source) const
 {
     point_style_t result;
     source.visit([&result, this]<typename Val>(const Val& val) {
@@ -970,29 +970,6 @@ acmacs::mapi::v1::Settings::point_style_t acmacs::mapi::v1::Settings::style_from
     return result;
 
 } // acmacs::mapi::v1::Settings::style_from
-
-// ----------------------------------------------------------------------
-
-void acmacs::mapi::v1::Settings::passage_color_t::init_passage_colors()
-{
-    egg = acmacs::color::Modifier{Color{0xFF4040}};
-    reassortant = acmacs::color::Modifier{Color{0xFFB040}};
-    cell = acmacs::color::Modifier{Color{0x4040FF}};
-
-} // acmacs::mapi::v1::Settings::passage_color_t::init_passage_colors
-
-// ----------------------------------------------------------------------
-
-void acmacs::mapi::v1::Settings::passage_color_t::apply(const acmacs::color::Modifier& modifier)
-{
-    if (egg)
-        egg->add(modifier);
-    if (reassortant)
-        reassortant->add(modifier);
-    if (cell)
-        cell->add(modifier);
-
-} // acmacs::mapi::v1::Settings::passage_color_t::apply
 
 // ----------------------------------------------------------------------
 
