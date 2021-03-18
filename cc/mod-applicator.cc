@@ -134,7 +134,7 @@ void Mod::add_legend(ChartDraw& aChartDraw, const acmacs::chart::PointIndexList&
             auto& legend = aChartDraw.legend_point_label();
             if (const auto& count = aLegendData["count"]; !count.is_null() && count.to<bool>())
                 aLabel += " (" + std::to_string(aIndices->size()) + ")";
-            legend.add_line(acmacs::color::Modifier{aStyle.outline()}, acmacs::color::Modifier{aStyle.fill()}, aLabel);
+            legend.add_line(acmacs::color::Modifier{aStyle.fill()}, acmacs::color::Modifier{aStyle.outline()}, Pixels{1},  aLabel);
         }
     }
 
@@ -564,7 +564,7 @@ class ModLegend : public Mod
             auto& legend = aChartDraw.legend_point_label();
             if (const auto& data = args()["data"]; !data.is_null()) {
                 rjson::for_each(data, [&legend](const rjson::value& line_data) {
-                    legend.add_line(rjson::get_or(line_data, "outline", "black"), rjson::get_or(line_data, "fill", "pink"),
+                    legend.add_line(rjson::get_or(line_data, "fill", "pink"), rjson::get_or(line_data, "outline", "black"), Pixels{1},
                                     std::string(rjson::get_or(line_data, "display_name", "* no display_name *")));
                 });
             }

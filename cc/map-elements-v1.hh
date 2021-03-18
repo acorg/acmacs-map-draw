@@ -70,7 +70,7 @@ namespace map_elements::v1
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
         void offset(const acmacs::PointCoordinates& aOrigin) { mOrigin = aOrigin; }
-        void add_line(const acmacs::color::Modifier& outline, const acmacs::color::Modifier& fill, std::string_view label) { mLines.emplace_back(outline, Pixels{1},  fill, label); }
+        void add_line(const acmacs::color::Modifier& fill, const acmacs::color::Modifier& outline, Pixels outline_width, std::string_view label) { mLines.emplace_back(outline, outline_width,  fill, label); }
         void remove_line(std::string_view label) { mLines.erase(std::remove_if(mLines.begin(), mLines.end(), [&label](const auto& elt) { return elt.label == label; }), mLines.end()); }
         void label_size(Pixels aLabelSize) { mLabelSize = aLabelSize; }
         void point_size(Pixels aPointSize) { mPointSize = aPointSize; }
