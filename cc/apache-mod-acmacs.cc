@@ -186,7 +186,7 @@ void make_ace(request_rec* r)
 {
     acmacs::chart::ChartModify chart(acmacs::chart::import_from_file(std::string(r->filename), acmacs::chart::Verify::None, report_time::no));
     chart.antigens_modify().set_continent();
-    acmacs::seqdb::get().add_clades(chart);
+    acmacs::seqdb::get().populate(chart);
 
     ap_set_content_type(r, "application/json");
     r->content_encoding = "gzip";
