@@ -34,7 +34,7 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
     if (const auto& chart_filename = args()["chart"]; !chart_filename.is_null())
         secondary_chart = acmacs::chart::import_from_file(chart_filename.to<std::string_view>(), acmacs::chart::Verify::None, do_report_time(verbose));
     else
-        secondary_chart = aChartDraw.chart(0).modified_chartp();
+        secondary_chart = aChartDraw.chart(0).modified_chart_ptr();
     const auto match_level = acmacs::chart::CommonAntigensSera::match_level(rjson::get_or(args(), "match", ""));
     acmacs::chart::CommonAntigensSera common(aChartDraw.chart(), *secondary_chart, match_level);
     if (verbose)

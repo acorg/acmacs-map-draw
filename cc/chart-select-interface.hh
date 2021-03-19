@@ -23,7 +23,7 @@ class ChartAccess
 
     acmacs::chart::ChartModify& modified_chart() { modified_chart_access();  return *modified_; }
     const acmacs::chart::ChartModify& modified_chart() const { modified_chart_access();  return *modified_; }
-    acmacs::chart::ChartModifyP modified_chartp() const { modified_chart_access();  return modified_; }
+    acmacs::chart::ChartModifyP modified_chart_ptr() const { modified_chart_access();  return modified_; }
 
     const acmacs::chart::ProjectionModify& modified_projection() const { modified_projection_access(); return *modified_projection_; }
     acmacs::chart::ProjectionModify& modified_projection() { modified_projection_access(); return *modified_projection_; }
