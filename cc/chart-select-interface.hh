@@ -23,7 +23,7 @@ class ChartAccess
 
     acmacs::chart::ChartModify& modified_chart() { modified_chart_access();  return *modified_; }
     const acmacs::chart::ChartModify& modified_chart() const { modified_chart_access();  return *modified_; }
-    acmacs::chart::ChartModifyP modified_chart_ptr() const { modified_chart_access();  return modified_; }
+    acmacs::chart::ChartModifyP modified_chart_ptr() { modified_chart_access();  return modified_; }
 
     const acmacs::chart::ProjectionModify& modified_projection() const { modified_projection_access(); return *modified_projection_; }
     acmacs::chart::ProjectionModify& modified_projection() { modified_projection_access(); return *modified_projection_; }
@@ -102,6 +102,7 @@ class ChartSelectInterface
 
     const acmacs::chart::ChartModify& chart() const { return chart(0).modified_chart(); }
     acmacs::chart::ChartModify& chart() { return chart(0).modified_chart(); }
+    acmacs::chart::ChartModifyP chart_ptr() { return chart(0).modified_chart_ptr(); }
     const acmacs::chart::PlotSpecModify& plot_spec() const { return chart(0).modified_plot_spec(); }
     acmacs::chart::PlotSpecModify& plot_spec() { return chart(0).modified_plot_spec(); }
 
