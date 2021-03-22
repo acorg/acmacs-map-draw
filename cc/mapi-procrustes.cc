@@ -89,6 +89,28 @@ void acmacs::mapi::v1::connection_lines(ChartDraw& chart_draw, const acmacs::cha
 
 void acmacs::mapi::v1::error_lines(ChartDraw& chart_draw, const acmacs::chart::SelectedAntigensModify& antigens, const acmacs::chart::SelectedSeraModify& sera, const ErrorLinePlotSpec& plot_spec)
 {
+    const auto number_of_antigens = chart_draw.chart().number_of_antigens();
+    auto c_antigens = chart_draw.chart().antigens();
+    auto c_sera = chart_draw.chart().sera();
+    auto layout = chart_draw.chart(0).modified_layout();
+    const auto error_lines = chart_draw.chart(0).modified_projection().error_lines();
+    auto titers = chart_draw.chart().titers();
+    for (const auto ag_no : ranges::views::filter(antigens.indexes, [&layout](size_t index) { return layout->point_has_coordinates(index); })) {
+        for (const auto sr_no : ranges::views::filter(sera.indexes, [&layout, number_of_antigens](size_t index) { return layout->point_has_coordinates(index + number_of_antigens); })) {
+            const auto p2_no = sr_no + number_of_antigens;
+            const auto line_present = [p1_no = ag_no, p2_no](const auto& erl) { return erl.point_1 == p1_no && erl.point_2 == p2_no; };
+            if (const auto found = std::find_if(std::begin(error_lines), std::end(error_lines), line_present); found != std::end(error_lines)) {
+                AD_INFO("error line {} {} -- {} {} : {}", ag_no, c_antigens->at(ag_no)->name_full(), sr_no, c_sera->at(sr_no)->name_full(), found->error_line);
+                const auto p1 = layout->at(ag_no), p2 = layout->at(p2_no);
+                const auto v3 = (p2 - p1) / distance(p1, p2) * (-found->error_line) / 2.0;
+                const auto& color = found->error_line > 0 ? plot_spec.more : plot_spec.less;
+                make_line(chart_draw.map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::transformed{p1}, map_elements::v2::Coordinates::transformed{p1 + v3}, color,
+                            plot_spec.line_width);
+                make_line(chart_draw.map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::transformed{p2}, map_elements::v2::Coordinates::transformed{p2 - v3}, color,
+                            plot_spec.line_width);
+            }
+        }
+    }
 
 } // acmacs::mapi::v1::error_lines
 
