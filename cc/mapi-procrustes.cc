@@ -1,3 +1,4 @@
+#include "acmacs-chart-2/selected-antigens-sera.hh"
 #include "acmacs-map-draw/mapi-procrustes.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/map-elements-v2.hh"
@@ -45,6 +46,51 @@ std::pair<acmacs::mapi::v1::distances_t, acmacs::chart::ProcrustesData> acmacs::
     return {procrustes_arrows(chart_draw, secondary_projection, common, procrustes_data, arrow_plot_spec), procrustes_data};
 
 } // acmacs::mapi::v1::procrustes_arrows
+
+// ----------------------------------------------------------------------
+
+namespace acmacs::mapi::inline v1
+{
+    static inline void make_line(map_elements::v2::Path& path, map_elements::v2::Coordinates&& p1, map_elements::v2::Coordinates&& p2, const acmacs::color::Modifier& outline, Pixels outline_width)
+    {
+        path.data().close = false;
+        path.data().vertices.emplace_back(std::move(p1));
+        path.data().vertices.emplace_back(std::move(p2));
+        path.outline(outline);
+        path.outline_width(outline_width);
+
+    } // make_line
+
+} // namespace acmacs::mapi::inline v1
+
+// ----------------------------------------------------------------------
+
+void acmacs::mapi::v1::connection_lines(ChartDraw& chart_draw, const acmacs::chart::SelectedAntigensModify& antigens, const acmacs::chart::SelectedSeraModify& sera, const ConnectionLinePlotSpec& plot_spec)
+{
+    const auto number_of_antigens = chart_draw.chart().number_of_antigens();
+    auto layout = chart_draw.chart(0).modified_layout();
+    std::vector<std::pair<size_t, size_t>> lines_to_draw;
+    auto titers = chart_draw.chart().titers();
+    for (const auto ag_no : ranges::views::filter(antigens.indexes, [&layout](size_t index) { return layout->point_has_coordinates(index); })) {
+        for (const auto sr_no : ranges::views::filter(sera.indexes, [&layout, number_of_antigens](size_t index) { return layout->point_has_coordinates(index + number_of_antigens); })) {
+            if (const auto titer = titers->titer(ag_no, sr_no); !titer.is_dont_care()) {
+                make_line(chart_draw.map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::points{ag_no}, map_elements::v2::Coordinates::points{sr_no + number_of_antigens},
+                            plot_spec.color, plot_spec.line_width);
+                lines_to_draw.emplace_back(ag_no, sr_no);
+            }
+        }
+    }
+//     if (getenv("report"sv).to<bool>())
+    AD_INFO("connection lines: ({}) {}", lines_to_draw.size(), lines_to_draw);
+
+} // acmacs::mapi::v1::connection_lines
+
+// ----------------------------------------------------------------------
+
+void acmacs::mapi::v1::error_lines(ChartDraw& chart_draw, const acmacs::chart::SelectedAntigensModify& antigens, const acmacs::chart::SelectedSeraModify& sera, const ErrorLinePlotSpec& plot_spec)
+{
+
+} // acmacs::mapi::v1::error_lines
 
 // ----------------------------------------------------------------------
 /// Local Variables:

@@ -6,6 +6,12 @@
 
 class ChartDraw;
 
+namespace acmacs::chart
+{
+    struct SelectedAntigensModify;
+    struct SelectedSeraModify;
+} // namespace acmacs::chart
+
 // ----------------------------------------------------------------------
 
 namespace acmacs::mapi::inline v1
@@ -25,6 +31,24 @@ namespace acmacs::mapi::inline v1
 
     distances_t procrustes_arrows(ChartDraw& chart_draw, const acmacs::chart::Projection& secondary_projection, const acmacs::chart::CommonAntigensSera& common, const acmacs::chart::ProcrustesData& procrustes_data, const ArrowPlotSpec& arrow_plot_spec);
     std::pair<distances_t, acmacs::chart::ProcrustesData> procrustes_arrows(ChartDraw& chart_draw, const acmacs::chart::Projection& secondary_projection, const acmacs::chart::CommonAntigensSera& common, acmacs::chart::procrustes_scaling_t scaling, const ArrowPlotSpec& arrow_plot_spec);
+
+    // ----------------------------------------------------------------------
+
+    struct ConnectionLinePlotSpec
+    {
+        acmacs::color::Modifier color{GREY};
+        Pixels line_width{0.5};
+    };
+
+    struct ErrorLinePlotSpec
+    {
+        acmacs::color::Modifier more{RED};
+        acmacs::color::Modifier less{BLUE};
+        Pixels line_width{0.5};
+    };
+
+    void connection_lines(ChartDraw& chart_draw, const acmacs::chart::SelectedAntigensModify& antigens, const acmacs::chart::SelectedSeraModify& sera, const ConnectionLinePlotSpec& plot_spec);
+    void error_lines(ChartDraw& chart_draw, const acmacs::chart::SelectedAntigensModify& antigens, const acmacs::chart::SelectedSeraModify& sera, const ErrorLinePlotSpec& plot_spec);
 
 } // namespace acmacs::mapi::inline v1
 
