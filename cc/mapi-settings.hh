@@ -3,6 +3,7 @@
 #include "acmacs-base/settings-v3.hh"
 #include "acmacs-base/point-style.hh"
 #include "acmacs-base/time-series.hh"
+#include "acmacs-chart-2/selected-antigens-sera.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 #include "acmacs-map-draw/coordinates.hh"
 #include "acmacs-map-draw/point-style.hh"
@@ -57,6 +58,9 @@ namespace acmacs::mapi::inline v1
         bool apply_built_in(std::string_view name) override; // returns true if built-in command with that name found and applied
 
         enum class if_null { empty, warn_empty, raise, all }; // return empty, return empty and print warning, throw exception, return all indexes
+        acmacs::chart::SelectedAntigensModify selected_antigens(const rjson::v3::value& select_clause, if_null ifnull = if_null::raise) const;
+        acmacs::chart::SelectedSeraModify selected_sera(const rjson::v3::value& select_clause, if_null ifnull = if_null::raise) const;
+        // OBSOLETE
         acmacs::chart::PointIndexList select_antigens(const rjson::v3::value& select_clause, if_null ifnull = if_null::raise) const;
         acmacs::chart::PointIndexList select_sera(const rjson::v3::value& select_clause, if_null ifnull = if_null::raise) const;
 

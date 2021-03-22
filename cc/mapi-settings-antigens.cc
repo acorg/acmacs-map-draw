@@ -843,6 +843,26 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
 
 // ----------------------------------------------------------------------
 
+acmacs::chart::SelectedAntigensModify acmacs::mapi::v1::Settings::selected_antigens(const rjson::v3::value& select_clause, if_null ifnull) const
+{
+    acmacs::chart::SelectedAntigensModify selected{chart_draw().chart_ptr()};
+    selected.indexes = select(*chart_draw().chart().antigens(), select_clause, ifnull);
+    return selected;
+
+} // acmacs::mapi::v1::Settings::selected_antigens
+
+// ----------------------------------------------------------------------
+
+acmacs::chart::SelectedSeraModify acmacs::mapi::v1::Settings::selected_sera(const rjson::v3::value& select_clause, if_null ifnull) const
+{
+    acmacs::chart::SelectedSeraModify selected{chart_draw().chart_ptr()};
+    selected.indexes = select(*chart_draw().chart().sera(), select_clause, ifnull);
+    return selected;
+
+} // acmacs::mapi::v1::Settings::selected_sera
+
+// ----------------------------------------------------------------------
+
 bool acmacs::mapi::v1::Settings::select(const acmacs::chart::Antigens& /*antigens*/, acmacs::chart::PointIndexList& /*indexes*/, std::string_view /*key*/, const rjson::v3::value& /*value*/) const
 {
     return false;

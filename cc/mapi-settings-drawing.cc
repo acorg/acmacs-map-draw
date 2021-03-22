@@ -2,6 +2,7 @@
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/map-elements-v2.hh"
 #include "acmacs-map-draw/draw.hh"
+#include "acmacs-map-draw/mapi-procrustes.hh"
 
 // ----------------------------------------------------------------------
 
@@ -300,31 +301,40 @@ bool acmacs::mapi::v1::Settings::apply_connection_lines()
 {
     using namespace std::string_view_literals;
 
-    auto antigen_indexes = select_antigens(getenv("antigens"sv), if_null::all);
-    auto serum_indexes = select_sera(getenv("sera"sv), if_null::all);
-    const auto number_of_antigens = chart_draw().chart().number_of_antigens();
-    auto layout = chart_draw().chart(0).modified_layout();
-    antigen_indexes.remove_if([&layout](size_t index) { return !layout->point_has_coordinates(index); });
-    serum_indexes.remove_if([&layout, number_of_antigens](size_t index) { return !layout->point_has_coordinates(index + number_of_antigens); });
+    ConnectionLinePlotSpec plot_spec;
+    plot_spec.color.add(acmacs::color::Modifier{rjson::v3::read_color_or_empty(getenv("color"sv))});
+    plot_spec.line_width = rjson::v3::read_number(getenv("line_width"sv), plot_spec.line_width);
 
-    const acmacs::color::Modifier connection_line_color{GREY, rjson::v3::read_color_or_empty(getenv("color"sv))};
-    const auto connection_line_width{rjson::v3::read_number(getenv("line_width"sv), Pixels{0.5})};
-
-    std::vector<std::pair<size_t, size_t>> lines_to_draw;
-    auto titers = chart_draw().chart().titers();
-    for (const auto ag_no : antigen_indexes) {
-        for (const auto sr_no : serum_indexes) {
-            if (const auto titer = titers->titer(ag_no, sr_no); !titer.is_dont_care()) {
-                ::make_line(chart_draw().map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::points{ag_no}, map_elements::v2::Coordinates::points{sr_no + number_of_antigens},
-                            connection_line_color, connection_line_width);
-                lines_to_draw.emplace_back(ag_no, sr_no);
-            }
-        }
-    }
-    if (getenv("report"sv).to<bool>())
-        AD_INFO("connection lines: ({}) {}", lines_to_draw.size(), lines_to_draw);
-
+    const auto s_antigens = selected_antigens(getenv("antigens"sv), if_null::all);
+    const auto s_sera = selected_sera(getenv("sera"sv), if_null::all);
+    connection_lines(chart_draw(), s_antigens, s_sera, plot_spec);
     return true;
+
+    // auto antigen_indexes = select_antigens(getenv("antigens"sv), if_null::all);
+    // auto serum_indexes = select_sera(getenv("sera"sv), if_null::all);
+    // const auto number_of_antigens = chart_draw().chart().number_of_antigens();
+    // auto layout = chart_draw().chart(0).modified_layout();
+    // antigen_indexes.remove_if([&layout](size_t index) { return !layout->point_has_coordinates(index); });
+    // serum_indexes.remove_if([&layout, number_of_antigens](size_t index) { return !layout->point_has_coordinates(index + number_of_antigens); });
+
+    // const acmacs::color::Modifier connection_line_color{GREY, rjson::v3::read_color_or_empty(getenv("color"sv))};
+    // const auto connection_line_width{rjson::v3::read_number(getenv("line_width"sv), Pixels{0.5})};
+
+    // std::vector<std::pair<size_t, size_t>> lines_to_draw;
+    // auto titers = chart_draw().chart().titers();
+    // for (const auto ag_no : antigen_indexes) {
+    //     for (const auto sr_no : serum_indexes) {
+    //         if (const auto titer = titers->titer(ag_no, sr_no); !titer.is_dont_care()) {
+    //             ::make_line(chart_draw().map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::points{ag_no}, map_elements::v2::Coordinates::points{sr_no + number_of_antigens},
+    //                         connection_line_color, connection_line_width);
+    //             lines_to_draw.emplace_back(ag_no, sr_no);
+    //         }
+    //     }
+    // }
+    // if (getenv("report"sv).to<bool>())
+    //     AD_INFO("connection lines: ({}) {}", lines_to_draw.size(), lines_to_draw);
+
+    // return true;
 
 } // acmacs::mapi::v1::Settings::apply_connection_lines
 

@@ -80,7 +80,7 @@ void acmacs::mapi::v1::connection_lines(ChartDraw& chart_draw, const acmacs::cha
             }
         }
     }
-//     if (getenv("report"sv).to<bool>())
+
     AD_INFO("connection lines: ({}) {}", lines_to_draw.size(), lines_to_draw);
 
 } // acmacs::mapi::v1::connection_lines
