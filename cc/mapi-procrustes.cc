@@ -117,9 +117,12 @@ void acmacs::mapi::v1::error_lines(ChartDraw& chart_draw, const acmacs::chart::S
         ranges::sort(line_data, [](const auto& e1, const auto& e2) { return std::abs(std::get<double>(e1)) > std::abs(std::get<double>(e2)); });
         auto c_antigens = chart_draw.chart().antigens();
         auto c_sera = chart_draw.chart().sera();
+        const auto [max_ag, max_sr] = ranges::accumulate(line_data, std::make_pair(0ul, 0ul), [&c_antigens, &c_sera](const auto& mx, const auto& en) {
+            return std::make_pair(std::max(mx.first, c_antigens->at(std::get<0>(en))->name_full().size()), std::max(mx.second, c_sera->at(std::get<1>(en))->name_full().size()));
+        });
         AD_INFO("Error lines ({}):", line_data.size());
         for (const auto& [ag_no, sr_no, line] : line_data)
-            AD_PRINT("    AG {:3d} {:<40s} -- SR {:2d} {:<40s} : {:7.4f}\n", ag_no, c_antigens->at(ag_no)->name_full(), sr_no, c_sera->at(sr_no)->name_full(), line);
+            AD_PRINT("    AG {:3d} {:<{}s} | SR {:2d} {:<{}s} | {:7.4f}\n", ag_no, c_antigens->at(ag_no)->name_full(), max_ag, sr_no, c_sera->at(sr_no)->name_full(), max_sr, line);
     }
 
 } // acmacs::mapi::v1::error_lines
