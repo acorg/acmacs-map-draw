@@ -343,38 +343,50 @@ bool acmacs::mapi::v1::Settings::apply_connection_lines()
 bool acmacs::mapi::v1::Settings::apply_error_lines()
 {
     using namespace std::string_view_literals;
-    auto layout = chart_draw().chart(0).modified_layout();
-    auto antigens = chart_draw().chart().antigens();
-    auto sera = chart_draw().chart().sera();
-    auto antigen_indexes = select_antigens(getenv("antigens"sv), if_null::all);
-    auto serum_indexes = select_sera(getenv("sera"sv), if_null::all);
-    const auto number_of_antigens = chart_draw().chart().number_of_antigens();
-    antigen_indexes.remove_if([&layout](size_t index) { return !layout->point_has_coordinates(index); });
-    serum_indexes.remove_if([&layout, number_of_antigens](size_t index) { return !layout->point_has_coordinates(index + number_of_antigens); });
-    const auto error_lines = chart_draw().chart(0).modified_projection().error_lines();
 
-    const auto line_width{rjson::v3::read_number(getenv("line_width"sv), Pixels{0.5})};
-    const acmacs::color::Modifier more{RED, rjson::v3::read_color_or_empty(getenv("more"sv))};
-    const acmacs::color::Modifier less{BLUE, rjson::v3::read_color_or_empty(getenv("less"sv))};
-    const auto report{getenv("report"sv).to<bool>()};
+    ErrorLinePlotSpec plot_spec;
+    plot_spec.more.add(acmacs::color::Modifier{rjson::v3::read_color_or_empty(getenv("more"sv))});
+    plot_spec.less.add(acmacs::color::Modifier{rjson::v3::read_color_or_empty(getenv("less"sv))});
+    plot_spec.line_width = rjson::v3::read_number(getenv("line_width"sv), plot_spec.line_width);
 
-    for (const auto ag_no : antigen_indexes) {
-        for (const auto sr_no : serum_indexes) {
-            const auto p2_no = sr_no + number_of_antigens;
-            if (const auto found = std::find_if(std::begin(error_lines), std::end(error_lines), [p1_no = ag_no, p2_no](const auto& erl) { return erl.point_1 == p1_no && erl.point_2 == p2_no; });
-                found != std::end(error_lines)) {
-                if (report)
-                    AD_INFO("error line {} {} -- {} {} : {}", ag_no, antigens->at(ag_no)->name_full(), sr_no, sera->at(sr_no)->name_full(), found->error_line);
-                const auto p1 = layout->at(ag_no), p2 = layout->at(p2_no);
-                const auto v3 = (p2 - p1) / distance(p1, p2) * (-found->error_line) / 2.0;
-                const auto& color = found->error_line > 0 ? more : less;
-                ::make_line(chart_draw().map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::transformed{p1}, map_elements::v2::Coordinates::transformed{p1 + v3}, color, line_width);
-                ::make_line(chart_draw().map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::transformed{p2}, map_elements::v2::Coordinates::transformed{p2 - v3}, color, line_width);
-            }
-        }
-    }
-
+    const auto s_antigens = selected_antigens(getenv("antigens"sv), if_null::all);
+    const auto s_sera = selected_sera(getenv("sera"sv), if_null::all);
+    error_lines(chart_draw(), s_antigens, s_sera, plot_spec);
     return true;
+
+    // using namespace std::string_view_literals;
+    // auto layout = chart_draw().chart(0).modified_layout();
+    // auto antigens = chart_draw().chart().antigens();
+    // auto sera = chart_draw().chart().sera();
+    // auto antigen_indexes = select_antigens(getenv("antigens"sv), if_null::all);
+    // auto serum_indexes = select_sera(getenv("sera"sv), if_null::all);
+    // const auto number_of_antigens = chart_draw().chart().number_of_antigens();
+    // antigen_indexes.remove_if([&layout](size_t index) { return !layout->point_has_coordinates(index); });
+    // serum_indexes.remove_if([&layout, number_of_antigens](size_t index) { return !layout->point_has_coordinates(index + number_of_antigens); });
+    // const auto error_lines = chart_draw().chart(0).modified_projection().error_lines();
+
+    // const auto line_width{rjson::v3::read_number(getenv("line_width"sv), Pixels{0.5})};
+    // const acmacs::color::Modifier more{RED, rjson::v3::read_color_or_empty(getenv("more"sv))};
+    // const acmacs::color::Modifier less{BLUE, rjson::v3::read_color_or_empty(getenv("less"sv))};
+    // const auto report{getenv("report"sv).to<bool>()};
+
+    // for (const auto ag_no : antigen_indexes) {
+    //     for (const auto sr_no : serum_indexes) {
+    //         const auto p2_no = sr_no + number_of_antigens;
+    //         if (const auto found = std::find_if(std::begin(error_lines), std::end(error_lines), [p1_no = ag_no, p2_no](const auto& erl) { return erl.point_1 == p1_no && erl.point_2 == p2_no; });
+    //             found != std::end(error_lines)) {
+    //             if (report)
+    //                 AD_INFO("error line {} {} -- {} {} : {}", ag_no, antigens->at(ag_no)->name_full(), sr_no, sera->at(sr_no)->name_full(), found->error_line);
+    //             const auto p1 = layout->at(ag_no), p2 = layout->at(p2_no);
+    //             const auto v3 = (p2 - p1) / distance(p1, p2) * (-found->error_line) / 2.0;
+    //             const auto& color = found->error_line > 0 ? more : less;
+    //             ::make_line(chart_draw().map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::transformed{p1}, map_elements::v2::Coordinates::transformed{p1 + v3}, color, line_width);
+    //             ::make_line(chart_draw().map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::transformed{p2}, map_elements::v2::Coordinates::transformed{p2 - v3}, color, line_width);
+    //         }
+    //     }
+    // }
+
+    // return true;
 
 } // acmacs::mapi::v1::Settings::apply_error_lines
 
