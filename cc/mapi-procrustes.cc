@@ -65,7 +65,7 @@ namespace acmacs::mapi::inline v1
 
 // ----------------------------------------------------------------------
 
-void acmacs::mapi::v1::connection_lines(ChartDraw& chart_draw, const acmacs::chart::SelectedAntigensModify& antigens, const acmacs::chart::SelectedSeraModify& sera, const ConnectionLinePlotSpec& plot_spec)
+void acmacs::mapi::v1::connection_lines(ChartDraw& chart_draw, const acmacs::chart::SelectedAntigensModify& antigens, const acmacs::chart::SelectedSeraModify& sera, const ConnectionLinePlotSpec& plot_spec, bool report)
 {
     const auto number_of_antigens = chart_draw.chart().number_of_antigens();
     auto layout = chart_draw.chart(0).modified_layout();
@@ -81,35 +81,45 @@ void acmacs::mapi::v1::connection_lines(ChartDraw& chart_draw, const acmacs::cha
         }
     }
 
-    AD_INFO("connection lines: ({}) {}", lines_to_draw.size(), lines_to_draw);
+    if (report)
+        AD_INFO("connection lines: ({}) {}", lines_to_draw.size(), lines_to_draw);
 
 } // acmacs::mapi::v1::connection_lines
 
 // ----------------------------------------------------------------------
 
-void acmacs::mapi::v1::error_lines(ChartDraw& chart_draw, const acmacs::chart::SelectedAntigensModify& antigens, const acmacs::chart::SelectedSeraModify& sera, const ErrorLinePlotSpec& plot_spec)
+void acmacs::mapi::v1::error_lines(ChartDraw& chart_draw, const acmacs::chart::SelectedAntigensModify& antigens, const acmacs::chart::SelectedSeraModify& sera, const ErrorLinePlotSpec& plot_spec,
+                                   bool report)
 {
     const auto number_of_antigens = chart_draw.chart().number_of_antigens();
-    auto c_antigens = chart_draw.chart().antigens();
-    auto c_sera = chart_draw.chart().sera();
     auto layout = chart_draw.chart(0).modified_layout();
     const auto error_lines = chart_draw.chart(0).modified_projection().error_lines();
     auto titers = chart_draw.chart().titers();
+    std::vector<std::tuple<size_t, size_t, double>> line_data;
     for (const auto ag_no : ranges::views::filter(antigens.indexes, [&layout](size_t index) { return layout->point_has_coordinates(index); })) {
         for (const auto sr_no : ranges::views::filter(sera.indexes, [&layout, number_of_antigens](size_t index) { return layout->point_has_coordinates(index + number_of_antigens); })) {
             const auto p2_no = sr_no + number_of_antigens;
             const auto line_present = [p1_no = ag_no, p2_no](const auto& erl) { return erl.point_1 == p1_no && erl.point_2 == p2_no; };
             if (const auto found = std::find_if(std::begin(error_lines), std::end(error_lines), line_present); found != std::end(error_lines)) {
-                AD_INFO("error line {} {} -- {} {} : {}", ag_no, c_antigens->at(ag_no)->name_full(), sr_no, c_sera->at(sr_no)->name_full(), found->error_line);
+                line_data.emplace_back(ag_no, sr_no, found->error_line);
                 const auto p1 = layout->at(ag_no), p2 = layout->at(p2_no);
                 const auto v3 = (p2 - p1) / distance(p1, p2) * (-found->error_line) / 2.0;
                 const auto& color = found->error_line > 0 ? plot_spec.more : plot_spec.less;
                 make_line(chart_draw.map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::transformed{p1}, map_elements::v2::Coordinates::transformed{p1 + v3}, color,
-                            plot_spec.line_width);
+                          plot_spec.line_width);
                 make_line(chart_draw.map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::transformed{p2}, map_elements::v2::Coordinates::transformed{p2 - v3}, color,
-                            plot_spec.line_width);
+                          plot_spec.line_width);
             }
         }
+    }
+
+    if (report) {
+        ranges::sort(line_data, [](const auto& e1, const auto& e2) { return std::abs(std::get<double>(e1)) > std::abs(std::get<double>(e2)); });
+        auto c_antigens = chart_draw.chart().antigens();
+        auto c_sera = chart_draw.chart().sera();
+        AD_INFO("Error lines ({}):", line_data.size());
+        for (const auto& [ag_no, sr_no, line] : line_data)
+            AD_PRINT("    AG {:3d} {:<40s} -- SR {:2d} {:<40s} : {:7.4f}\n", ag_no, c_antigens->at(ag_no)->name_full(), sr_no, c_sera->at(sr_no)->name_full(), line);
     }
 
 } // acmacs::mapi::v1::error_lines

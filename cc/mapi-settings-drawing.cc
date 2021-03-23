@@ -285,15 +285,15 @@ bool acmacs::mapi::v1::Settings::apply_point_scale()
 
 // ----------------------------------------------------------------------
 
-static inline void make_line(map_elements::v2::Path& path, map_elements::v2::Coordinates&& p1, map_elements::v2::Coordinates&& p2, const acmacs::color::Modifier& outline, Pixels outline_width)
-{
-    path.data().close = false;
-    path.data().vertices.emplace_back(std::move(p1));
-    path.data().vertices.emplace_back(std::move(p2));
-    path.outline(outline);
-    path.outline_width(outline_width);
+// static inline void make_line(map_elements::v2::Path& path, map_elements::v2::Coordinates&& p1, map_elements::v2::Coordinates&& p2, const acmacs::color::Modifier& outline, Pixels outline_width)
+// {
+//     path.data().close = false;
+//     path.data().vertices.emplace_back(std::move(p1));
+//     path.data().vertices.emplace_back(std::move(p2));
+//     path.outline(outline);
+//     path.outline_width(outline_width);
 
-} // make_line
+// } // make_line
 
 // ----------------------------------------------------------------------
 
@@ -307,7 +307,7 @@ bool acmacs::mapi::v1::Settings::apply_connection_lines()
 
     const auto s_antigens = selected_antigens(getenv("antigens"sv), if_null::all);
     const auto s_sera = selected_sera(getenv("sera"sv), if_null::all);
-    connection_lines(chart_draw(), s_antigens, s_sera, plot_spec);
+    connection_lines(chart_draw(), s_antigens, s_sera, plot_spec, getenv("report"sv).to<bool>());
     return true;
 
     // auto antigen_indexes = select_antigens(getenv("antigens"sv), if_null::all);
@@ -351,7 +351,7 @@ bool acmacs::mapi::v1::Settings::apply_error_lines()
 
     const auto s_antigens = selected_antigens(getenv("antigens"sv), if_null::all);
     const auto s_sera = selected_sera(getenv("sera"sv), if_null::all);
-    error_lines(chart_draw(), s_antigens, s_sera, plot_spec);
+    error_lines(chart_draw(), s_antigens, s_sera, plot_spec, getenv("report"sv).to<bool>());
     return true;
 
     // using namespace std::string_view_literals;
