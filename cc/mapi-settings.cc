@@ -4,15 +4,6 @@
 
 // ----------------------------------------------------------------------
 
-acmacs::mapi::v1::Settings::Settings(ChartDraw& chart_draw) : chart_draw_{chart_draw}
-{
-    chart_draw_.settings(this);
-    update_env();
-
-} // acmacs::mapi::v1::Settings::Settings
-
-// ----------------------------------------------------------------------
-
 bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // returns true if built-in command with that name found and applied
 {
     using namespace std::string_view_literals;

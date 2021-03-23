@@ -52,7 +52,8 @@ namespace acmacs::mapi::inline v1
     class Settings : public settings::v3::Data
     {
       public:
-        Settings(ChartDraw& chart_draw);
+        // use chart_draw.settings() to create!
+        Settings(ChartDraw& chart_draw) : chart_draw_{chart_draw} { update_env(); }
 
         using settings::v3::Data::load;
         bool apply_built_in(std::string_view name) override; // returns true if built-in command with that name found and applied
@@ -198,7 +199,8 @@ namespace acmacs::mapi::inline v1
 extern template bool acmacs::mapi::v1::Settings::color_according_to_passage(const acmacs::chart::Antigens&, const acmacs::chart::PointIndexList& indexes, const point_style_t& style);
 extern template bool acmacs::mapi::v1::Settings::color_according_to_passage(const acmacs::chart::Sera&, const acmacs::chart::PointIndexList& indexes, const point_style_t& style);
 
-template <> struct fmt::formatter<acmacs::mapi::v1::Settings::time_series_data> : fmt::formatter<acmacs::fmt_helper::default_formatter> {
+template <> struct fmt::formatter<acmacs::mapi::v1::Settings::time_series_data> : fmt::formatter<acmacs::fmt_helper::default_formatter>
+{
     template <typename FormatCtx> auto format(const acmacs::mapi::v1::Settings::time_series_data& value, FormatCtx& ctx)
     {
         return format_to(ctx.out(), "time_series_data {{\n    filename_pattern: {}\n    title: {}\n    series: {}\n}}", //

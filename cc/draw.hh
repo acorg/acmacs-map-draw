@@ -12,11 +12,12 @@
 #include "acmacs-map-draw/map-elements-v1.hh"
 #include "acmacs-map-draw/labels.hh"
 #include "acmacs-map-draw/chart-select-interface.hh"
+#include "acmacs-map-draw/mapi-settings.hh"
 
 namespace acmacs { class LineDefinedByEquation; }
 namespace acmacs::surface { class Surface; }
 namespace acmacs::draw { class DrawElements; }
-namespace acmacs::mapi::inline v1 { class Settings; }
+// namespace acmacs::mapi::inline v1 { class Settings; }
 
 // ----------------------------------------------------------------------
 
@@ -138,8 +139,15 @@ class ChartDraw : public ChartSelectInterface
 
     constexpr auto& map_elements() { return mMapElements; }
     constexpr const auto& map_elements() const { return mMapElements; }
-    constexpr bool settings_present() const { return settings_ != nullptr; }
-    constexpr const acmacs::mapi::Settings& settings() const { return *settings_; }
+
+    bool settings_present() const { return bool{settings_}; }
+    const acmacs::mapi::Settings& settings() const { return *settings_; }
+    acmacs::mapi::Settings& settings()
+        {
+            if (!settings_)
+                settings_ = std::make_unique<acmacs::mapi::Settings>(*this);
+            return *settings_;
+        }
 
   private:
     class MapViewport
@@ -170,10 +178,7 @@ class ChartDraw : public ChartSelectInterface
     mutable MapViewport viewport_;
     map_elements::Elements mMapElements;
     map_elements::Labels mLabels;
-    const acmacs::mapi::Settings* settings_{nullptr};
-
-    friend class acmacs::mapi::Settings;
-    constexpr void settings(const acmacs::mapi::Settings* settings) { settings_ = settings; }
+    std::unique_ptr<acmacs::mapi::Settings> settings_;
 
 }; // class ChartDraw
 

@@ -76,8 +76,7 @@ int main(int argc, char* const argv[])
         const auto [inputs, outputs] = parse_files(opt.files);
 
         ChartDraw chart_draw{inputs, opt.projection};
-
-        acmacs::mapi::Settings settings{chart_draw};
+        auto& settings = chart_draw.settings();
         settings.load_from_conf({"mapi.json"sv, "clades.json"sv, "vaccines.json"sv});
         settings.load(opt.settings_files);
         settings.set_defines(opt.defines);
