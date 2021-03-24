@@ -73,6 +73,8 @@ namespace acmacs::mapi::inline v1
             const acmacs::chart::PointIndexList shown_on_all;
         };
 
+        void update_env_upon_projection_change(); // update stress
+
       protected:
         // ----------------------------------------------------------------------
         // mapi-settings-antigens.cc
@@ -84,7 +86,6 @@ namespace acmacs::mapi::inline v1
         virtual bool select(const acmacs::chart::Sera& sera, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value) const;
 
         void update_env();
-        void update_env_upon_projection_change(); // update stress
 
         // ----------------------------------------------------------------------
         // mapi-settings-antigens.cc
