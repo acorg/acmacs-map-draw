@@ -7,6 +7,7 @@
 #include "acmacs-base/range.hh"
 #include "acmacs-base/timeit.hh"
 #include "acmacs-draw/viewport.hh"
+#include "acmacs-chart-2/selected-antigens-sera.hh"
 #include "acmacs-map-draw/point-style-draw.hh"
 #include "acmacs-map-draw/map-elements.hh"
 #include "acmacs-map-draw/map-elements-v1.hh"
@@ -62,6 +63,12 @@ class ChartDraw : public ChartSelectInterface
             case PointDrawingOrder::NoChange:
                 break;
         }
+    }
+
+    template <typename Selected> void modify(const Selected& selected, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange)
+    {
+        plot_spec().modify(selected.points(), aStyle);
+        modify_drawing_order(selected.points(), aPointDrawingOrder);
     }
 
     void modify(const acmacs::chart::Indexes& aPoints, const acmacs::PointStyleModified& aStyle, PointDrawingOrder aPointDrawingOrder = PointDrawingOrder::NoChange);
