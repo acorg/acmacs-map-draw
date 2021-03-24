@@ -6,19 +6,26 @@
 
 namespace acmacs::mapi::inline v1
 {
-    using vertices_t = std::vector<map_elements::v2::Coordinates>;
+    struct FigureRaw
+    {
+        std::vector<map_elements::v2::Coordinates> vertices;
+        bool close;
+    };
 
     struct Figure
     {
-        vertices_t vertices;
+        Figure() = default;
+        Figure(const FigureRaw& figure_raw, const ChartDraw& chart_draw);
+
+        std::vector<acmacs::PointCoordinates> vertices;
         bool close;
 
-        bool inside(const acmacs::PointCoordinates& point, const ChartDraw& chart_draw) const { return winding_number(point, vertices, chart_draw) != 0; }
-        bool outside(const acmacs::PointCoordinates& point, const ChartDraw& chart_draw) const { return winding_number(point, vertices, chart_draw) == 0; }
+        bool inside(const acmacs::PointCoordinates& point) const { return winding_number(point, vertices) != 0; }
+        bool outside(const acmacs::PointCoordinates& point) const { return winding_number(point, vertices) == 0; }
 
       private:
         // returns winding number, i.e. 0 if point is outside polygon defined by path, non-zero otherwise
-        static int winding_number(const acmacs::PointCoordinates& point, const vertices_t& path, const ChartDraw& chart_draw);
+        static int winding_number(const acmacs::PointCoordinates& point, const std::vector<acmacs::PointCoordinates>& path);
 
     };
 

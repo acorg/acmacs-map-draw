@@ -51,11 +51,10 @@ std::pair<acmacs::mapi::v1::distances_t, acmacs::chart::ProcrustesData> acmacs::
 
 namespace acmacs::mapi::inline v1
 {
-    static inline void make_line(map_elements::v2::Path& path, map_elements::v2::Coordinates&& p1, map_elements::v2::Coordinates&& p2, const acmacs::color::Modifier& outline, Pixels outline_width)
+    static inline void make_line(const ChartDraw& chart_draw, map_elements::v2::Path& path, map_elements::v2::Coordinates&& p1, map_elements::v2::Coordinates&& p2,
+                                 const acmacs::color::Modifier& outline, Pixels outline_width)
     {
-        path.data().close = false;
-        path.data().vertices.emplace_back(std::move(p1));
-        path.data().vertices.emplace_back(std::move(p2));
+        path.data() = Figure{FigureRaw{{p1, p2}, false}, chart_draw};
         path.outline(outline);
         path.outline_width(outline_width);
 
@@ -74,7 +73,7 @@ void acmacs::mapi::v1::connection_lines(ChartDraw& chart_draw, const acmacs::cha
     for (const auto ag_no : ranges::views::filter(antigens.indexes, [&layout](size_t index) { return layout->point_has_coordinates(index); })) {
         for (const auto sr_no : ranges::views::filter(sera.indexes, [&layout, number_of_antigens](size_t index) { return layout->point_has_coordinates(index + number_of_antigens); })) {
             if (const auto titer = titers->titer(ag_no, sr_no); !titer.is_dont_care()) {
-                make_line(chart_draw.map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::points{ag_no}, map_elements::v2::Coordinates::points{sr_no + number_of_antigens},
+                make_line(chart_draw, chart_draw.map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::points{ag_no}, map_elements::v2::Coordinates::points{sr_no + number_of_antigens},
                             plot_spec.color, plot_spec.line_width);
                 lines_to_draw.emplace_back(ag_no, sr_no);
             }
@@ -105,9 +104,9 @@ void acmacs::mapi::v1::error_lines(ChartDraw& chart_draw, const acmacs::chart::S
                 const auto p1 = layout->at(ag_no), p2 = layout->at(p2_no);
                 const auto v3 = (p2 - p1) / distance(p1, p2) * (-found->error_line) / 2.0;
                 const auto& color = found->error_line > 0 ? plot_spec.more : plot_spec.less;
-                make_line(chart_draw.map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::transformed{p1}, map_elements::v2::Coordinates::transformed{p1 + v3}, color,
+                make_line(chart_draw, chart_draw.map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::transformed{p1}, map_elements::v2::Coordinates::transformed{p1 + v3}, color,
                           plot_spec.line_width);
-                make_line(chart_draw.map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::transformed{p2}, map_elements::v2::Coordinates::transformed{p2 - v3}, color,
+                make_line(chart_draw, chart_draw.map_elements().add<map_elements::v2::Path>(), map_elements::v2::Coordinates::transformed{p2}, map_elements::v2::Coordinates::transformed{p2 - v3}, color,
                           plot_spec.line_width);
             }
         }

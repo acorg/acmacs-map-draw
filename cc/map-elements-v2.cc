@@ -18,10 +18,8 @@ void map_elements::v2::Path::draw(acmacs::draw::DrawElements& aDrawElements, con
         return;
     }
 
-    std::vector<acmacs::PointCoordinates> path;
-    std::transform(std::begin(data().vertices), std::end(data().vertices), std::back_inserter(path), [&chart_draw](const auto& vertex) { return vertex.get_transformed(chart_draw); });
     chart_draw.viewport_reset_used_by(); // to avoid warning when viewport is later changed (e.g. set)
-    aDrawElements.add<acmacs::draw::PathWithArrows>(path, data().close, fill_, outline_, outline_width_, arrows_);
+    aDrawElements.add<acmacs::draw::PathWithArrows>(data().vertices, data().close, fill_, outline_, outline_width_, arrows_);
 
 } // map_elements::v2::Path::draw
 

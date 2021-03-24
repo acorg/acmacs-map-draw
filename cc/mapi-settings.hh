@@ -7,6 +7,7 @@
 #include "acmacs-map-draw/point-style-draw.hh"
 #include "acmacs-map-draw/coordinates.hh"
 #include "acmacs-map-draw/point-style.hh"
+#include "acmacs-map-draw/figure.hh"
 
 // ----------------------------------------------------------------------
 
@@ -34,8 +35,6 @@ class ChartAccess;
 namespace acmacs::mapi::inline v1
 {
     using error = settings::v3::error;
-
-    struct Figure;
 
     class unrecognized : public error
     {
@@ -121,7 +120,7 @@ namespace acmacs::mapi::inline v1
         bool apply_connection_lines();
         bool apply_error_lines();
         std::optional<map_elements::v2::Coordinates> read_coordinates(const rjson::v3::value& source) const;
-        void read_figure(Figure& figure, const rjson::v3::value& points, const rjson::v3::value& close) const;
+        FigureRaw read_figure(const rjson::v3::value& points, const rjson::v3::value& close) const;
 
         // ----------------------------------------------------------------------
         // mapi-settings-labels.cc

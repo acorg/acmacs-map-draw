@@ -3,7 +3,6 @@
 #include "acmacs-map-draw/map-elements-v2.hh"
 #include "acmacs-map-draw/draw.hh"
 #include "acmacs-map-draw/mapi-procrustes.hh"
-#include "acmacs-map-draw/figure.hh"
 
 // ----------------------------------------------------------------------
 
@@ -43,8 +42,9 @@ bool acmacs::mapi::v1::Settings::apply_circle()
 
 // ----------------------------------------------------------------------
 
-void acmacs::mapi::v1::Settings::read_figure(Figure& figure, const rjson::v3::value& points, const rjson::v3::value& close) const
+acmacs::mapi::v1::FigureRaw acmacs::mapi::v1::Settings::read_figure(const rjson::v3::value& points, const rjson::v3::value& close) const
 {
+    FigureRaw figure;
     points.visit([&figure, this]<typename Val>(const Val& value) {
         if constexpr (std::is_same_v<Val, rjson::v3::detail::array>) {
             for (const auto& en : value) {
@@ -64,6 +64,7 @@ void acmacs::mapi::v1::Settings::read_figure(Figure& figure, const rjson::v3::va
         else if constexpr (!std::is_same_v<Val, rjson::v3::detail::null>)
             throw acmacs::mapi::unrecognized{fmt::format("cannot read figure \"close\" from {}", value)};
     });
+    return figure;
 
 } // read_figure
 
@@ -95,7 +96,7 @@ bool acmacs::mapi::v1::Settings::apply_path()
 {
     using namespace std::string_view_literals;
     auto& path = chart_draw().map_elements().add<map_elements::v2::Path>();
-    read_figure(path.data(), getenv("points"sv), getenv("close"sv));
+    path.data() = Figure{read_figure(getenv("points"sv), getenv("close"sv)), chart_draw()};
     ::read_fill_outline(path, getenv("fill"sv), getenv("outline"sv), getenv("outline_width"sv));
 
     getenv("arrows"sv).visit([&path]<typename Val>(const Val& value) {
@@ -113,49 +114,13 @@ bool acmacs::mapi::v1::Settings::apply_path()
 
 // ----------------------------------------------------------------------
 
-// // http://geomalgorithms.com/a03-_inclusion.html
-// // returns winding number, i.e. 0 if point is outside polygon defined by path, non-zero otherwise
-// static inline int winding_number(const acmacs::PointCoordinates& point, const std::vector<acmacs::PointCoordinates>& path)
-// {
-//     // >0 for point left of the line through p0 and p1
-//     // =0 for point on the line
-//     // <0 for point right of the line
-//     const auto is_left = [&point](auto p0, auto p1) -> double { return ((p1->x() - p0->x()) * (point.y() - p0->y()) - (point.x() - p0->x()) * (p1->y() - p0->y())); };
-
-//     int wn{0};
-//     auto path_end = std::prev(path.end(), path.front() == path.back() ? 1 : 0);
-//     for (auto vi = path.begin(); vi != path_end; ++vi) {
-//         auto vi_next = std::next(vi);
-//         if (vi_next == path_end)
-//             vi_next = path.begin();
-//         if (vi->y() <= point.y()) {
-//             if (vi_next->y() > point.y() && is_left(vi, vi_next) > 0)
-//                 ++wn;
-//         }
-//         else {
-//             if (vi_next->y() <= point.y() && is_left(vi, vi_next) < 0)
-//                 --wn;
-//         }
-//     }
-//     return wn;
-// }
-
 void acmacs::mapi::v1::Settings::filter_inside_path(acmacs::chart::PointIndexList& indexes, const rjson::v3::value& points, size_t index_base) const
 {
-    Figure figure;
-    read_figure(figure, points, rjson::v3::const_true);
+    const Figure figure{read_figure(points, rjson::v3::const_true), chart_draw()};
     chart_draw().viewport_reset_used_by(); // to avoid warning when viewport is later changed (e.g. set)
     auto layout = chart_draw().chart(0).modified_transformed_layout();
-    const auto outside = [index_base, &figure, &layout, this](auto index) -> bool { return figure.outside(layout->at(index + index_base), chart_draw()); };
+    const auto outside = [index_base, &figure, &layout](auto index) -> bool { return figure.outside(layout->at(index + index_base)); };
     indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), outside), indexes.end());
-
-    // std::vector<acmacs::PointCoordinates> path;
-    // std::transform(std::begin(path_vertices), std::end(path_vertices), std::back_inserter(path), [this](const auto& vertex) { return vertex.get_transformed(chart_draw()); });
-    // // AD_DEBUG("filter_inside_path {}", path);
-
-    // auto layout = chart_draw().chart(0).modified_transformed_layout();
-    // const auto outside = [index_base, &figure, &layout](auto index) -> bool { return figure.outside(layout->at(index + index_base)); };
-    // indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), outside), indexes.end());
 
 } // acmacs::mapi::v1::Settings::filter_inside_path
 
