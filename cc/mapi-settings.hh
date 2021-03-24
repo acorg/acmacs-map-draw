@@ -27,11 +27,6 @@ namespace map_elements::v1
     class SerumCircle;
 }
 
-namespace map_elements::v2
-{
-    struct PathData;
-}
-
 class ChartAccess;
 
 // ----------------------------------------------------------------------
@@ -39,6 +34,8 @@ class ChartAccess;
 namespace acmacs::mapi::inline v1
 {
     using error = settings::v3::error;
+
+    struct Figure;
 
     class unrecognized : public error
     {
@@ -124,8 +121,7 @@ namespace acmacs::mapi::inline v1
         bool apply_connection_lines();
         bool apply_error_lines();
         std::optional<map_elements::v2::Coordinates> read_coordinates(const rjson::v3::value& source) const;
-        void read_path_vertices(std::vector<map_elements::v2::Coordinates>& path, const rjson::v3::value& points) const;
-        void read_path_data(map_elements::v2::PathData& path, const rjson::v3::value& points, const rjson::v3::value& close) const;
+        void read_figure(Figure& figure, const rjson::v3::value& points, const rjson::v3::value& close) const;
 
         // ----------------------------------------------------------------------
         // mapi-settings-labels.cc

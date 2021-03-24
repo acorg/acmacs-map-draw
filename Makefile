@@ -48,6 +48,7 @@ ACMACS_MAP_DRAW_SOURCES =        \
   hemisphering-data.cc           \
   coordinates.cc                 \
   mapi-procrustes.cc             \
+  figure.cc                      \
   geographic-settings.cc
 
 ACMACS_MAP_DRAW_LIB_MAJOR = 2

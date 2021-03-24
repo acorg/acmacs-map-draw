@@ -4,6 +4,7 @@
 #include "acmacs-draw/draw-arrow.hh"
 #include "acmacs-map-draw/map-elements.hh"
 #include "acmacs-map-draw/coordinates.hh"
+#include "acmacs-map-draw/figure.hh"
 
 // ----------------------------------------------------------------------
 
@@ -37,12 +38,6 @@ namespace map_elements::v2
 
     // ----------------------------------------------------------------------
 
-    struct PathData
-    {
-        std::vector<Coordinates> vertices;
-        bool close{true};
-    };
-
     using ArrowData = acmacs::draw::PathWithArrows::ArrowData;
 
     class Path : public Element
@@ -62,7 +57,7 @@ namespace map_elements::v2
         constexpr auto& arrows() { return arrows_; }
 
       private:
-        PathData data_;
+        acmacs::mapi::Figure data_;
         acmacs::color::Modifier fill_{TRANSPARENT};
         acmacs::color::Modifier outline_{PINK};
         Pixels outline_width_{1};
