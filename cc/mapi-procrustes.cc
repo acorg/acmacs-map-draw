@@ -127,6 +127,34 @@ void acmacs::mapi::v1::error_lines(ChartDraw& chart_draw, const acmacs::chart::S
 } // acmacs::mapi::v1::error_lines
 
 // ----------------------------------------------------------------------
+
+void acmacs::mapi::v1::hemisphering_arrows(ChartDraw& chart_draw, const acmacs::chart::GridTest::Results& results, const HemisphringArrowsPlotSpec& plot_spec)
+{
+    const auto& projection = chart_draw.chart(0).modified_projection();
+    const auto transformation = projection.transformation();
+    auto layout = projection.transformed_layout();
+    for (const auto& result : results) {
+        if (result) {
+            const auto primary_coords = layout->at(result.point_no), secondary_coords = transformation.transform(result.pos);
+            auto& path = chart_draw.map_elements().add<map_elements::v2::Path>(sProcrustesArrowElementKeyword);
+            const auto color = result.diagnosis == acmacs::chart::GridTest::Result::trapped ? plot_spec.trapped : plot_spec.hemisphering;
+            path.outline(color);
+            path.outline_width(plot_spec.line_width);
+            path.data().close = false;
+            path.data().vertices.emplace_back(map_elements::v2::Coordinates::not_transformed{primary_coords});
+            path.data().vertices.emplace_back(map_elements::v2::Coordinates::not_transformed{secondary_coords});
+            auto& arrow = path.arrows().emplace_back();
+            arrow.at(1);
+            arrow.fill(color);
+            arrow.outline(color);
+            arrow.width(plot_spec.arrow_width);
+            arrow.outline_width(plot_spec.arrow_outline_width);
+        }
+    }
+
+} // acmacs::mapi::v1::hemisphering_arrows
+
+// ----------------------------------------------------------------------
 /// Local Variables:
 /// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
 /// End:

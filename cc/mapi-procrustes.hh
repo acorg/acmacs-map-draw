@@ -3,6 +3,7 @@
 #include "acmacs-base/size-scale.hh"
 #include "acmacs-base/color-modifier.hh"
 #include "acmacs-chart-2/procrustes.hh"
+#include "acmacs-chart-2/grid-test.hh"
 
 class ChartDraw;
 
@@ -10,6 +11,7 @@ namespace acmacs::chart
 {
     struct SelectedAntigensModify;
     struct SelectedSeraModify;
+
 } // namespace acmacs::chart
 
 // ----------------------------------------------------------------------
@@ -47,8 +49,18 @@ namespace acmacs::mapi::inline v1
         Pixels line_width{0.5};
     };
 
+    struct HemisphringArrowsPlotSpec
+    {
+        acmacs::color::Modifier hemisphering{0x007FFF};
+        acmacs::color::Modifier trapped{0xFF8000};
+        Pixels line_width{1};
+        Pixels arrow_width{5};
+        Pixels arrow_outline_width{1};
+    };
+
     void connection_lines(ChartDraw& chart_draw, const acmacs::chart::SelectedAntigensModify& antigens, const acmacs::chart::SelectedSeraModify& sera, const ConnectionLinePlotSpec& plot_spec, bool report);
     void error_lines(ChartDraw& chart_draw, const acmacs::chart::SelectedAntigensModify& antigens, const acmacs::chart::SelectedSeraModify& sera, const ErrorLinePlotSpec& plot_spec, bool report);
+    void hemisphering_arrows(ChartDraw& chart_draw, const acmacs::chart::GridTest::Results& results, const HemisphringArrowsPlotSpec& plot_spec);
 
 } // namespace acmacs::mapi::inline v1
 
