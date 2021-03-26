@@ -156,25 +156,6 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     else if (!arrow_data.is_null())
         AD_WARNING("invalid \"arrow\": {} (object expected)", arrow_data);
 
-    // // arrow plot spec
-    // const auto threshold = rjson::v3::read_number(getenv("threshold"sv), 0.005);
-    // Pixels line_width{1}, arrow_width{5}, arrow_outline_width{1};
-    // acmacs::color::Modifier outline{BLACK}, arrow_fill{BLACK}, arrow_outline{BLACK};
-    // if (const auto& arrow_data = getenv("arrow"sv); arrow_data.is_object()) {
-    //     line_width = rjson::v3::read_number(arrow_data["line_width"sv], line_width);
-    //     outline = rjson::v3::read_color(arrow_data["outline"sv], outline);
-    //     if (const auto& head_data = arrow_data["head"sv]; head_data.is_object()) {
-    //         arrow_width = rjson::v3::read_number(head_data["width"sv], arrow_width);
-    //         arrow_outline_width = rjson::v3::read_number(head_data["outline_width"sv], arrow_outline_width);
-    //         arrow_outline = rjson::v3::read_color(head_data["outline"sv], arrow_outline);
-    //         arrow_fill = rjson::v3::read_color(head_data["fill"sv], arrow_fill);
-    //     }
-    //     else if (!head_data.is_null())
-    //         AD_WARNING("invalid \"arrow\" \"head\": {} (object expected)", head_data);
-    // }
-    // else if (!arrow_data.is_null())
-    //     AD_WARNING("invalid \"arrow\": {} (object expected)", arrow_data);
-
     // common points
     const auto match_level = CommonAntigensSera::match_level(rjson::v3::read_string(getenv("match"sv), "auto"sv));
     CommonAntigensSera common(chart_draw().chart(), secondary_chart, match_level);
@@ -182,34 +163,6 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
     // const std::vector<CommonAntigensSera::common_t> common_points = common.points(CommonAntigensSera::subset::all);
 
     auto [distances, procrustes_data] = procrustes_arrows(chart_draw(), *secondary_chart.projection(secondary_projection_no), common, scaling, arrow_plot_spec);
-
-    // auto secondary_projection = secondary_chart.projection(secondary_projection_no);
-    // const auto procrustes_data = procrustes(chart_draw().chart(0).modified_projection(), *secondary_projection, common_points, scaling);
-
-    // auto distances = procrustes_arrows(chart_draw(), *secondary_projection, common, procrustes_data, arrow_plot_spec);
-
-    // auto secondary_layout = procrustes_data.apply(*secondary_projection->layout());
-    // auto primary_layout = chart_draw().chart(0).modified_projection().transformed_layout();
-    // std::vector<std::pair<size_t, double>> distances; // point_no in primary chart and its arrow distance
-    // for (size_t point_no = 0; point_no < common_points.size(); ++point_no) {
-    //     const auto primary_coords = primary_layout->at(common_points[point_no].primary), secondary_coords = secondary_layout->at(common_points[point_no].secondary);
-    //     const auto distance{acmacs::distance(primary_coords, secondary_coords)};
-    //     distances.emplace_back(common_points[point_no].primary, distance);
-    //     if (distance > threshold) {
-    //         auto& path = chart_draw().map_elements().add<map_elements::v2::Path>(sProcrustesArrowElementKeyword);
-    //         path.outline(outline);
-    //         path.outline_width(line_width);
-    //         path.data().close = false;
-    //         path.data().vertices.emplace_back(map_elements::v2::Coordinates::not_transformed{primary_coords});
-    //         path.data().vertices.emplace_back(map_elements::v2::Coordinates::not_transformed{secondary_coords});
-    //         auto& arrow = path.arrows().emplace_back();
-    //         arrow.at(1);
-    //         arrow.fill(arrow_fill);
-    //         arrow.outline(arrow_outline);
-    //         arrow.width(arrow_width);
-    //         arrow.outline_width(arrow_outline_width);
-    //     }
-    // }
 
     auto& titl = title();
     if (titl.number_of_lines() == 0)
