@@ -79,6 +79,7 @@ LDLIBS = \
 install: install-headers install-acmacs-map-draw-lib $(TARGETS)
 	$(call install_all,$(AD_PACKAGE_NAME))
 	$(call install_wildcard,$(abspath js)/ace-view,$(AD_SHARE)/js/map-draw)
+	$(call install_wildcard,$(abspath js)/*.js,$(AD_SHARE)/js/map-draw)
 
 # $(call make_dir,$(AD_TEMPLATES)/mapi)
 # $(call symbolic_link_wildcard,$(abspath templates)/*,$(AD_TEMPLATES)/mapi)
