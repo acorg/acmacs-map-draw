@@ -121,7 +121,7 @@ void acmacs::mapi::v1::error_lines(ChartDraw& chart_draw, const acmacs::chart::S
         });
         AD_INFO("Error lines ({}):", line_data.size());
         for (const auto& [ag_no, sr_no, line] : line_data)
-            AD_PRINT("    AG {:3d} {:<{}s} | SR {:2d} {:<{}s} | {:7.4f}\n", ag_no, c_antigens->at(ag_no)->name_full(), max_ag, sr_no, c_sera->at(sr_no)->name_full(), max_sr, line);
+            fmt::print(stderr, "    AG {:3d} {:<{}s} | SR {:2d} {:<{}s} | {:7.4f}\n", ag_no, c_antigens->at(ag_no)->name_full(), max_ag, sr_no, c_sera->at(sr_no)->name_full(), max_sr, line);
     }
 
 } // acmacs::mapi::v1::error_lines
