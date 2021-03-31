@@ -1,5 +1,5 @@
 // use <img> (safari) or <object> (chrome) to show pdf files
-// e.g. <div src="image.pdf"></div>
+// e.g. <div class="pdf" src="image.pdf"></div>
 
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
