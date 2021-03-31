@@ -13,7 +13,7 @@ export function show_antigenic_map_widget(args) {
         api: new Api({uri: args.uri}),
         on_data_load_failure: args.on_data_load_failure || (uri => console.error("failed to load antigenic map data from ", uri))
     };
-    new av_ace.AntigenicMapWidget(args.parent, args.uri + "?acv=ace", widget_options);
+    return new av_ace.AntigenicMapWidget(args.parent, args.uri + "?acv=ace", widget_options);
 }
 
 // ----------------------------------------------------------------------

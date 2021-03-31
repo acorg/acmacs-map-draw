@@ -126,6 +126,10 @@ export class AntigenicMapWidget
         this.title_.update();
     }
 
+    redraw() {
+        this.viewer_.redraw();
+    }
+
     update_title(left_arrow, right_arrow) {
         this.title_.arrows(left_arrow, right_arrow);
         this.title_.update();
@@ -616,6 +620,10 @@ class MapViewer
         this.viewing_.draw(this.coloring_);
     }
 
+    redraw() {
+        this.resize(this.surface_.canvas_.outerWidth());
+    }
+
     resize(width_diff) {
         this.surface_.resize(width_diff);
         this.widget_.title_.resize();
@@ -625,7 +633,8 @@ class MapViewer
     }
 
     _size_parent() {
-        this.surface_.canvas_.parent().css({width: this.surface_.canvas_.outerWidth(), height: this.surface_.canvas_.outerHeight()});
+        if (this.surface_.canvas_.is(":visible"))
+            this.surface_.canvas_.parent().css({width: this.surface_.canvas_.outerWidth(), height: this.surface_.canvas_.outerHeight()});
     }
 
     coloring(mode_name, redraw=false) {
