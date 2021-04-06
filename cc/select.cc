@@ -224,8 +224,8 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
                 bool clear_indexes = true;
                 if (virus_type == "B") {
                     const auto lineage = aChartSelectInterface.chart().lineage();
-                    clear_indexes = !(((val_u == "BVIC" || val_u == "BV") && lineage == acmacs::virus::lineage_t{"VICTORIA"}) ||
-                                      ((val_u == "BYAM" || val_u == "BY") && lineage == acmacs::virus::lineage_t{"YAMAGATA"}));
+                    clear_indexes = !(((val_u == "BVIC" || val_u == "BV") && lineage == acmacs::virus::lineage::VICTORIA) ||
+                                      ((val_u == "BYAM" || val_u == "BY") && lineage == acmacs::virus::lineage::YAMAGATA));
                 }
                 else {
                     clear_indexes = !((val_u == "H1" && virus_type == "A(H1N1)") || (val_u == "H3" && virus_type == "A(H3N2)"));
