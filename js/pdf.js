@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isSafari)
             element.innerHTML = `<img src="${src}">`;
         else
-            element.innerHTML = `<object data="${src}#toolbar="></object>`;
+            element.innerHTML = `<object data="${src}#toolbar=0"></object>`;
     });
 }, false);
 
