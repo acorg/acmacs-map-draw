@@ -107,7 +107,7 @@ void map_elements::v1::LegendPointLabel::draw(acmacs::draw::DrawElements& aDrawE
             .border_width(mBorderWidth);
     legend.interline(mInterline);
     for (const auto& line : mLines) {
-        legend.add(line.label, mLabelColor, mLabelSize, mLabelStyle, mPointSize, line.outline, line.outline_width, line.fill);
+        legend.add(line.label, mLabelColor, mLabelSize, mLabelStyle, mPointSize, line.outline, line.outline_width, line.fill, acmacs::PointShape::Circle);
     }
 
 } // map_elements::v1::LegendPointLabel::draw
