@@ -50,11 +50,15 @@ namespace map_elements::v1
 
     class LegendPointLabel : public Element
     {
-     public:
+      public:
         struct Line
         {
             Line(const acmacs::color::Modifier& aOutline, Pixels aOutlineWidth, const acmacs::color::Modifier& aFill, std::string_view aLabel)
                 : outline{aOutline}, outline_width{aOutlineWidth}, fill{aFill}, label{aLabel}
+            {
+            }
+            Line(acmacs::PointShape::Shape shape, const acmacs::color::Modifier& aOutline, Pixels aOutlineWidth, const acmacs::color::Modifier& aFill, std::string_view aLabel)
+                : outline{aOutline}, outline_width{aOutlineWidth}, fill{aFill}, label{aLabel}, shape_{shape}
             {
             }
             Line(std::string_view aLabel) : outline{TRANSPARENT}, fill{TRANSPARENT}, label{aLabel} {}
@@ -62,6 +66,7 @@ namespace map_elements::v1
             Pixels outline_width{1};
             acmacs::color::Modifier fill;
             std::string label;
+            acmacs::PointShape::Shape shape_{acmacs::PointShape::Circle};
         };
 
         LegendPointLabel() : Element("legend-point-label", Elements::AfterPoints) {}
@@ -70,8 +75,18 @@ namespace map_elements::v1
         void draw(acmacs::draw::DrawElements& aDrawElements, const ChartDraw& aChartDraw) const override;
 
         void offset(const acmacs::PointCoordinates& aOrigin) { mOrigin = aOrigin; }
-        void add_line(const acmacs::color::Modifier& fill, const acmacs::color::Modifier& outline, Pixels outline_width, std::string_view label) { mLines.emplace_back(outline, outline_width,  fill, label); }
-        void remove_line(std::string_view label) { mLines.erase(std::remove_if(mLines.begin(), mLines.end(), [&label](const auto& elt) { return elt.label == label; }), mLines.end()); }
+        void add_line(const acmacs::color::Modifier& fill, const acmacs::color::Modifier& outline, Pixels outline_width, std::string_view label)
+        {
+            mLines.emplace_back(outline, outline_width, fill, label);
+        }
+        void add_line(acmacs::PointShape::Shape shape, const acmacs::color::Modifier& fill, const acmacs::color::Modifier& outline, Pixels outline_width, std::string_view label)
+        {
+            mLines.emplace_back(shape, outline, outline_width, fill, label);
+        }
+        void remove_line(std::string_view label)
+        {
+            mLines.erase(std::remove_if(mLines.begin(), mLines.end(), [&label](const auto& elt) { return elt.label == label; }), mLines.end());
+        }
         void label_size(Pixels aLabelSize) { mLabelSize = aLabelSize; }
         void point_size(Pixels aPointSize) { mPointSize = aPointSize; }
         void background(Color aBackground) { mBackground = aBackground; }
