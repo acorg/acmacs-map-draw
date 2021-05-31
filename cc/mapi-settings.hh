@@ -48,8 +48,13 @@ namespace acmacs::mapi::inline v1
     class Settings : public settings::v3::Data
     {
       public:
+        enum class env_put_antigen_serum_names { no, yes };
+
         // use chart_draw.settings() to create!
-        Settings(ChartDraw& chart_draw) : chart_draw_{chart_draw} { update_env(); }
+        Settings(ChartDraw& chart_draw, env_put_antigen_serum_names epasn = env_put_antigen_serum_names::yes) : chart_draw_{chart_draw}
+        {
+            update_env(epasn);
+        }
 
         using settings::v3::Data::load;
         bool apply_built_in(std::string_view name) override; // returns true if built-in command with that name found and applied
@@ -85,7 +90,7 @@ namespace acmacs::mapi::inline v1
         virtual bool select(const acmacs::chart::Antigens& antigens, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value) const;
         virtual bool select(const acmacs::chart::Sera& sera, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value) const;
 
-        void update_env();
+        void update_env(env_put_antigen_serum_names epasn);
 
         // ----------------------------------------------------------------------
         // mapi-settings-antigens.cc

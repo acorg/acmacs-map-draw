@@ -149,10 +149,10 @@ class ChartDraw : public ChartSelectInterface
 
     bool settings_present() const { return bool{settings_}; }
     const acmacs::mapi::Settings& settings() const { return *settings_; }
-    acmacs::mapi::Settings& settings()
+    acmacs::mapi::Settings& settings(acmacs::mapi::Settings::env_put_antigen_serum_names epasn = acmacs::mapi::Settings::env_put_antigen_serum_names::yes)
         {
             if (!settings_)
-                settings_ = std::make_unique<acmacs::mapi::Settings>(*this);
+                settings_ = std::make_unique<acmacs::mapi::Settings>(*this, epasn);
             return *settings_;
         }
 

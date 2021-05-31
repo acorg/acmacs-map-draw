@@ -1,4 +1,5 @@
 #include "acmacs-base/rjson-v3.hh"
+#include "acmacs-base/timeit.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
 #include "acmacs-map-draw/draw.hh"
 
@@ -77,7 +78,7 @@ bool acmacs::mapi::v1::Settings::apply_built_in(std::string_view name) // return
 
 // ----------------------------------------------------------------------
 
-void acmacs::mapi::v1::Settings::update_env()
+void acmacs::mapi::v1::Settings::update_env(env_put_antigen_serum_names epasn)
 {
     using namespace std::string_view_literals;
     const auto& chart = chart_draw().chart(0).chart();
@@ -117,7 +118,7 @@ void acmacs::mapi::v1::Settings::update_env()
     else {
         std::string vtl{virus_type};
         if (!lineage.empty())
-          vtl = fmt::format("{}/{}", virus_type, ::string::capitalize(lineage.substr(0, 3)));
+            vtl = fmt::format("{}/{}", virus_type, ::string::capitalize(lineage.substr(0, 3)));
         setenv("virus-type/lineage"sv, vtl);
         setenv("virus-type/lineage-subset"sv, fmt::format("{}{}", vtl, subset));
         setenv("virus-type-lineage-subset-short-low"sv, ::string::lower(virus_type));
@@ -165,24 +166,26 @@ void acmacs::mapi::v1::Settings::update_env()
     setenv("minimum-column-basis"sv, minimum_column_basis);
     setenv("mcb"sv, minimum_column_basis);
 
-    auto antigens = chart.antigens();
-    for (auto [no, antigen] : acmacs::enumerate(*antigens)) {
-        setenv(fmt::format("ag-{}-full-name", no), antigen->format("{name_full}"));
-        setenv(fmt::format("ag-{}-full-name-without-passage", no), antigen->format("{name_full}"));
-        setenv(fmt::format("ag-{}-full-name-with-passage", no), antigen->format("{name_full}"));
-        setenv(fmt::format("ag-{}-abbreviated-name", no), antigen->format("{name_abbreviated}"));
-        setenv(fmt::format("ag-{}-designation", no), antigen->format("{designation}"));
-    }
+    if (epasn == env_put_antigen_serum_names::yes) {
+        auto antigens = chart.antigens();
+        for (auto [no, antigen] : acmacs::enumerate(*antigens)) {
+            setenv(fmt::format("ag-{}-full-name", no), antigen->format("{name_full}"));
+            setenv(fmt::format("ag-{}-full-name-without-passage", no), antigen->format("{name_full}"));
+            setenv(fmt::format("ag-{}-full-name-with-passage", no), antigen->format("{name_full}"));
+            setenv(fmt::format("ag-{}-abbreviated-name", no), antigen->format("{name_abbreviated}"));
+            setenv(fmt::format("ag-{}-designation", no), antigen->format("{designation}"));
+        }
 
-    auto sera = chart.sera();
-    for (auto [no, serum] : acmacs::enumerate(*sera)) {
-        setenv(fmt::format("sr-{}-full-name", no), serum->format("{name_full}"));
-        setenv(fmt::format("sr-{}-full-name-without-passage", no), serum->format("{name_full}"));
-        setenv(fmt::format("sr-{}-full-name-with-passage", no), serum->format("{name_full_passage}"));
-        setenv(fmt::format("sr-{}-abbreviated-name", no), serum->format("{name_abbreviated}"));
-        setenv(fmt::format("sr-{}-abbreviated-name-with-serum-id", no), serum->format("{name_full}{ }{serum_id}", acmacs::chart::collapse_spaces_t::yes));
-        setenv(fmt::format("sr-{}-designation", no), serum->format("{designation}"));
-        setenv(fmt::format("sr-{}-designation-without-serum-id", no), serum->format("{designation_without_serum_id}"));
+        auto sera = chart.sera();
+        for (auto [no, serum] : acmacs::enumerate(*sera)) {
+            setenv(fmt::format("sr-{}-full-name", no), serum->format("{name_full}"));
+            setenv(fmt::format("sr-{}-full-name-without-passage", no), serum->format("{name_full}"));
+            setenv(fmt::format("sr-{}-full-name-with-passage", no), serum->format("{name_full_passage}"));
+            setenv(fmt::format("sr-{}-abbreviated-name", no), serum->format("{name_abbreviated}"));
+            setenv(fmt::format("sr-{}-abbreviated-name-with-serum-id", no), serum->format("{name_full}{ }{serum_id}", acmacs::chart::collapse_spaces_t::yes));
+            setenv(fmt::format("sr-{}-designation", no), serum->format("{designation}"));
+            setenv(fmt::format("sr-{}-designation-without-serum-id", no), serum->format("{designation_without_serum_id}"));
+        }
     }
 
     update_env_upon_projection_change();
