@@ -184,9 +184,12 @@ void make_html201805(request_rec *r, const char* view_mode, const char* coloring
 
 void make_ace(request_rec* r)
 {
+    // ap_log_rerror(AP_WARN, r, "reading ace: %s", r->filename);
     acmacs::chart::ChartModify chart(acmacs::chart::import_from_file(std::string(r->filename), acmacs::chart::Verify::None, report_time::no));
+    // ap_log_rerror(AP_WARN, r, "set_continent");
     chart.antigens_modify().set_continent();
-    acmacs::seqdb::get().populate(chart);
+    // ap_log_rerror(AP_WARN, r, "populate");
+    acmacs::seqdb::populate(chart);
 
     ap_set_content_type(r, "application/json");
     r->content_encoding = "gzip";
@@ -205,6 +208,7 @@ void make_ace(request_rec* r)
         //rjson::v1 }
     };
 
+    // ap_log_rerror(AP_WARN, r, "exporting");
     const auto exported = make_ace_helper(acmacs::chart::export_ace_to_rjson(chart, "mod_acmacs"), chart.extension_field("group_sets"));
     const auto compressed = acmacs::file::gzip_compress(exported);
     ap_rwrite(compressed.data(), static_cast<int>(compressed.size()), r);
