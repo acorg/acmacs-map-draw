@@ -2,10 +2,11 @@
 
 // ----------------------------------------------------------------------
 
-acmacs::mapi::v1::Figure::Figure(const FigureRaw& figure_raw, const ChartDraw& chart_draw) : vertices(figure_raw.vertices.size(), PointCoordinates{PointCoordinates::nan2D}), close{figure_raw.close}
+acmacs::mapi::v1::Figure::Figure(const FigureRaw& figure_raw, const ChartDraw& chart_draw)
+    : vertices(figure_raw.vertices.size(), PointCoordinates{PointCoordinates::nan2D}), close{figure_raw.close}
 {
-    std::transform(std::begin(figure_raw.vertices), std::end(figure_raw.vertices), std::begin(vertices), [&chart_draw](const map_elements::v2::Coordinates& src) {
-        return src.get_transformed(chart_draw); });
+    std::transform(std::begin(figure_raw.vertices), std::end(figure_raw.vertices), std::begin(vertices),
+                   [&chart_draw](const map_elements::v2::Coordinates& src) { return src.get_transformed(chart_draw); });
 
 } // acmacs::mapi::v1::Figure::Figure
 
