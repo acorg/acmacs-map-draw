@@ -14,7 +14,7 @@ SelectAntigensSera::~SelectAntigensSera()
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::Indexes SelectAntigensSera::select(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector)
+acmacs::chart::Indexes SelectAntigensSera::select(ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector)
 {
     try {
         return std::visit(
@@ -78,7 +78,7 @@ void filter(const AgSr& ag_sr, acmacs::chart::Indexes& indexes, SelectAntigensSe
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector)
+acmacs::chart::Indexes SelectAntigens::command(ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector)
 {
     auto antigens = aChartSelectInterface.chart().antigens();
     auto indexes = antigens->all_indexes();
@@ -296,7 +296,7 @@ acmacs::chart::Indexes SelectAntigens::command(const ChartSelectInterface& aChar
 
 // ----------------------------------------------------------------------
 
-acmacs::chart::Indexes SelectSera::command(const ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector)
+acmacs::chart::Indexes SelectSera::command(ChartSelectInterface& aChartSelectInterface, const rjson::value& aSelector)
 {
     const auto& sera = aChartSelectInterface.chart().sera();
     auto indexes = sera->all_indexes();

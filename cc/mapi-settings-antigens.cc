@@ -416,7 +416,7 @@ template <typename AgSr> static bool check_passage(const AgSr& ag_sr, acmacs::ch
 
 // ----------------------------------------------------------------------
 
-static inline void check_sequence(const ChartSelectInterface& aChartSelectInterface, const acmacs::chart::Antigens& /*antigens*/, acmacs::chart::PointIndexList& indexes, std::string_view key,
+static inline void check_sequence(ChartSelectInterface& aChartSelectInterface, const acmacs::chart::Antigens& /*antigens*/, acmacs::chart::PointIndexList& indexes, std::string_view key,
                                   const rjson::v3::value& value)
 {
     using namespace std::string_view_literals;
@@ -465,7 +465,7 @@ static inline void check_sequence(const ChartSelectInterface& aChartSelectInterf
 
 // ----------------------------------------------------------------------
 
-static inline void check_sequence(const ChartSelectInterface& aChartSelectInterface, const acmacs::chart::Sera& sera, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
+static inline void check_sequence(ChartSelectInterface& aChartSelectInterface, const acmacs::chart::Sera& sera, acmacs::chart::PointIndexList& indexes, std::string_view key, const rjson::v3::value& value)
 {
     aChartSelectInterface.chart().set_homologous(acmacs::chart::find_homologous::relaxed);
 

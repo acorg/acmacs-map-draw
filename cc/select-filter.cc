@@ -6,6 +6,7 @@
 
 void acmacs::map_draw::select::filter::sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes)
 {
+    AD_DEBUG("acmacs::map_draw::select::filter::sequenced match_seqdb");
     const auto& entries = aChartSelectInterface.chart(0).match_seqdb();
     auto not_sequenced = [&entries](auto index) -> bool { return !entries[index]; };
     indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_sequenced), indexes.end());
@@ -16,6 +17,7 @@ void acmacs::map_draw::select::filter::sequenced(const ChartSelectInterface& aCh
 
 void acmacs::map_draw::select::filter::not_sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes)
 {
+    AD_DEBUG("acmacs::map_draw::select::filter::not_sequenced match_seqdb");
     const auto& entries = aChartSelectInterface.chart(0).match_seqdb();
     const auto sequenced = [&entries](auto index) -> bool { return !entries[index].empty(); };
     indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), sequenced), indexes.end());
@@ -24,24 +26,22 @@ void acmacs::map_draw::select::filter::not_sequenced(const ChartSelectInterface&
 
 // ----------------------------------------------------------------------
 
-void acmacs::map_draw::select::filter::clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aClade)
+void acmacs::map_draw::select::filter::clade(ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aClade)
 {
-    const auto& entries = aChartSelectInterface.chart(0).match_seqdb();
-    const auto& seqdb = acmacs::seqdb::get();
-    if (aClade[0] == '!') {
-        const auto in_clade = [&entries, clade = aClade.substr(1), &seqdb](auto index) -> bool {
-            const auto& entry = entries[index];
-            return entry && entry.has_clade(seqdb, clade);
-        };
-        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), in_clade), indexes.end());
-    }
-    else {
-        const auto not_in_clade = [&entries, aClade, &seqdb](auto index) -> bool {
-            const auto& entry = entries[index];
-            return !entry || !entry.has_clade(seqdb, aClade);
-        };
-        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_in_clade), indexes.end());
-    }
+    auto& chart = aChartSelectInterface.chart();
+    acmacs::seqdb::populate(chart);
+
+    const auto has_clade = [&chart, number_of_antigens = chart.number_of_antigens()](auto index, std::string_view clade) {
+        if (index < number_of_antigens)
+            return chart.antigens_modify().at(index).clades().exists(std::string{clade});
+        else
+            return chart.sera_modify().at(index - number_of_antigens).clades().exists(std::string{clade});
+    };
+
+    if (aClade[0] == '!')
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [clade = aClade.substr(1), has_clade](auto index) { return has_clade(index, clade); }), indexes.end());
+    else
+        indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), [clade = aClade, has_clade](auto index) { return !has_clade(index, clade); }), indexes.end());
 
 } // acmacs::map_draw::select::filter::clade
 
@@ -49,6 +49,7 @@ void acmacs::map_draw::select::filter::clade(const ChartSelectInterface& aChartS
 
 void acmacs::map_draw::select::filter::amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, acmacs::seqdb::pos1_t pos1, bool equal)
 {
+    AD_DEBUG("acmacs::map_draw::select::filter::amino_acid_at_pos match_seqdb");
     const auto& entries = aChartSelectInterface.chart(0).match_seqdb();
     const auto& seqdb = acmacs::seqdb::get();
     auto at_pos_neq = [amino_acid,pos1,equal,&seqdb](const auto& entry) -> bool { return equal ? entry.aa_at_pos(seqdb, pos1) != amino_acid : entry.aa_at_pos(seqdb, pos1) == amino_acid; };
@@ -255,6 +256,7 @@ void acmacs::map_draw::select::filter::sera_not_titrated_against(const ChartSele
 
 std::map<std::string_view, size_t> acmacs::map_draw::select::clades(const ChartSelectInterface& aChartSelectInterface)
 {
+    AD_DEBUG("acmacs::map_draw::select::clades match_seqdb");
     std::map<std::string_view, size_t> result;
     for (const auto& entry: aChartSelectInterface.chart(0).match_seqdb()) {
         if (entry) {
