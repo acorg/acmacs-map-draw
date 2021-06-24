@@ -269,13 +269,12 @@ void acmacs::map_draw::select::filter::sera_not_titrated_against(const ChartSele
 
 std::map<std::string_view, size_t> acmacs::map_draw::select::clades(ChartSelectInterface& aChartSelectInterface)
 {
-    AD_DEBUG("acmacs::map_draw::select::clades match_seqdb");
+    auto& chart = aChartSelectInterface.chart();
+    acmacs::seqdb::populate(chart);
     std::map<std::string_view, size_t> result;
-    for (const auto& entry: aChartSelectInterface.chart(0).match_seqdb()) {
-        if (entry) {
-            for (const auto& clade: entry.seq().clades)
-                ++result[clade];
-        }
+    for (auto antigen : aChartSelectInterface.chart().antigens_modify()) {
+        for (const auto& clade: antigen->clades())
+            ++result[clade];
     }
     return result;
 
