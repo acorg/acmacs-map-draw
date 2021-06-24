@@ -456,7 +456,7 @@ void SelectSera::filter_date_range(const ChartSelectInterface& aChartSelectInter
 // ----------------------------------------------------------------------
 
 // via seqdb.clades_for_name
-void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aClade)
+void SelectSera::filter_clade(ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string_view aClade)
 {
     const auto& chart = aChartSelectInterface.chart();
 
@@ -471,7 +471,7 @@ void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface,
 // ----------------------------------------------------------------------
 
 // via homologous antigen
-// void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string aClade)
+// void SelectSera::filter_clade(ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, std::string aClade)
 // {
 //     const auto& chart = aChartSelectInterface.chart();
 //     chart.set_homologous(acmacs::chart::find_homologous::strict);
@@ -489,7 +489,7 @@ void SelectSera::filter_clade(const ChartSelectInterface& aChartSelectInterface,
 
 // ----------------------------------------------------------------------
 
-void SelectSera::filter_amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::seqdb::amino_acid_at_pos1_eq_list_t& pos1_aa)
+void SelectSera::filter_amino_acid_at_pos(ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::seqdb::amino_acid_at_pos1_eq_list_t& pos1_aa)
 {
     const auto& chart = aChartSelectInterface.chart();
     chart.set_homologous(acmacs::chart::find_homologous::relaxed);

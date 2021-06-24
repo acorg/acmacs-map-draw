@@ -4,22 +4,36 @@
 
 // ----------------------------------------------------------------------
 
-void acmacs::map_draw::select::filter::sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes)
+void acmacs::map_draw::select::filter::sequenced(ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes)
 {
-    AD_DEBUG("acmacs::map_draw::select::filter::sequenced match_seqdb");
-    const auto& entries = aChartSelectInterface.chart(0).match_seqdb();
-    auto not_sequenced = [&entries](auto index) -> bool { return !entries[index]; };
+    auto& chart = aChartSelectInterface.chart();
+    acmacs::seqdb::populate(chart);
+
+    const auto not_sequenced = [&chart, number_of_antigens = chart.number_of_antigens()](auto index) {
+        if (index < number_of_antigens)
+            return chart.antigens_modify().at(index).sequence_aa().empty();
+        else
+            return chart.sera_modify().at(index - number_of_antigens).sequence_aa().empty();
+    };
+
     indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_sequenced), indexes.end());
 
 } // acmacs::map_draw::select::filter::sequenced
 
 // ----------------------------------------------------------------------
 
-void acmacs::map_draw::select::filter::not_sequenced(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes)
+void acmacs::map_draw::select::filter::not_sequenced(ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes)
 {
-    AD_DEBUG("acmacs::map_draw::select::filter::not_sequenced match_seqdb");
-    const auto& entries = aChartSelectInterface.chart(0).match_seqdb();
-    const auto sequenced = [&entries](auto index) -> bool { return !entries[index].empty(); };
+    auto& chart = aChartSelectInterface.chart();
+    acmacs::seqdb::populate(chart);
+
+    const auto sequenced = [&chart, number_of_antigens = chart.number_of_antigens()](auto index) {
+        if (index < number_of_antigens)
+            return ! chart.antigens_modify().at(index).sequence_aa().empty();
+        else
+            return ! chart.sera_modify().at(index - number_of_antigens).sequence_aa().empty();
+    };
+
     indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), sequenced), indexes.end());
 
 } // acmacs::map_draw::select::filter::not_sequenced
@@ -47,7 +61,7 @@ void acmacs::map_draw::select::filter::clade(ChartSelectInterface& aChartSelectI
 
 // ----------------------------------------------------------------------
 
-void acmacs::map_draw::select::filter::amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, acmacs::seqdb::pos1_t pos1, bool equal)
+void acmacs::map_draw::select::filter::amino_acid_at_pos(ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, acmacs::seqdb::pos1_t pos1, bool equal)
 {
     AD_DEBUG("acmacs::map_draw::select::filter::amino_acid_at_pos match_seqdb");
     const auto& entries = aChartSelectInterface.chart(0).match_seqdb();
@@ -60,7 +74,7 @@ void acmacs::map_draw::select::filter::amino_acid_at_pos(const ChartSelectInterf
 
 // ----------------------------------------------------------------------
 
-void acmacs::map_draw::select::filter::amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::seqdb::amino_acid_at_pos1_eq_list_t& pos1_aa)
+void acmacs::map_draw::select::filter::amino_acid_at_pos(ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::seqdb::amino_acid_at_pos1_eq_list_t& pos1_aa)
 {
     for (const auto& entry : pos1_aa)
         amino_acid_at_pos(aChartSelectInterface, indexes, std::get<char>(entry), std::get<acmacs::seqdb::pos1_t>(entry), std::get<bool>(entry));
@@ -69,7 +83,7 @@ void acmacs::map_draw::select::filter::amino_acid_at_pos(const ChartSelectInterf
 
 // ----------------------------------------------------------------------
 
-void acmacs::map_draw::select::filter::amino_acid_at_pos(const ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::seqdb::amino_acid_at_pos1_eq_t& pos1_aa)
+void acmacs::map_draw::select::filter::amino_acid_at_pos(ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, const acmacs::seqdb::amino_acid_at_pos1_eq_t& pos1_aa)
 {
     amino_acid_at_pos(aChartSelectInterface, indexes, std::get<char>(pos1_aa), std::get<acmacs::seqdb::pos1_t>(pos1_aa), std::get<bool>(pos1_aa));
 
@@ -254,7 +268,7 @@ void acmacs::map_draw::select::filter::sera_not_titrated_against(const ChartSele
 
 // ----------------------------------------------------------------------
 
-std::map<std::string_view, size_t> acmacs::map_draw::select::clades(const ChartSelectInterface& aChartSelectInterface)
+std::map<std::string_view, size_t> acmacs::map_draw::select::clades(ChartSelectInterface& aChartSelectInterface)
 {
     AD_DEBUG("acmacs::map_draw::select::clades match_seqdb");
     std::map<std::string_view, size_t> result;
