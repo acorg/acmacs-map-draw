@@ -4,18 +4,22 @@
 
 // ----------------------------------------------------------------------
 
+inline acmacs::seqdb::sequence_aligned_t sequence_aa(acmacs::chart::ChartModify& chart, size_t point_index)
+{
+    const auto number_of_antigens = chart.number_of_antigens();
+    if (point_index < number_of_antigens)
+        return acmacs::seqdb::sequence_aligned_t{chart.antigens_modify().at(point_index).sequence_aa()};
+    else
+        return acmacs::seqdb::sequence_aligned_t{chart.sera_modify().at(point_index - number_of_antigens).sequence_aa()};
+}
+
+// ----------------------------------------------------------------------
+
 void acmacs::map_draw::select::filter::sequenced(ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes)
 {
     auto& chart = aChartSelectInterface.chart();
     acmacs::seqdb::populate(chart);
-
-    const auto not_sequenced = [&chart, number_of_antigens = chart.number_of_antigens()](auto index) {
-        if (index < number_of_antigens)
-            return chart.antigens_modify().at(index).sequence_aa().empty();
-        else
-            return chart.sera_modify().at(index - number_of_antigens).sequence_aa().empty();
-    };
-
+    const auto not_sequenced = [&chart](auto index) { return sequence_aa(chart, index).empty(); };
     indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_sequenced), indexes.end());
 
 } // acmacs::map_draw::select::filter::sequenced
@@ -26,14 +30,7 @@ void acmacs::map_draw::select::filter::not_sequenced(ChartSelectInterface& aChar
 {
     auto& chart = aChartSelectInterface.chart();
     acmacs::seqdb::populate(chart);
-
-    const auto sequenced = [&chart, number_of_antigens = chart.number_of_antigens()](auto index) {
-        if (index < number_of_antigens)
-            return ! chart.antigens_modify().at(index).sequence_aa().empty();
-        else
-            return ! chart.sera_modify().at(index - number_of_antigens).sequence_aa().empty();
-    };
-
+    const auto sequenced = [&chart](auto index) { return ! sequence_aa(chart, index).empty(); };
     indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), sequenced), indexes.end());
 
 } // acmacs::map_draw::select::filter::not_sequenced
@@ -63,11 +60,13 @@ void acmacs::map_draw::select::filter::clade(ChartSelectInterface& aChartSelectI
 
 void acmacs::map_draw::select::filter::amino_acid_at_pos(ChartSelectInterface& aChartSelectInterface, acmacs::chart::Indexes& indexes, char amino_acid, acmacs::seqdb::pos1_t pos1, bool equal)
 {
-    AD_DEBUG("acmacs::map_draw::select::filter::amino_acid_at_pos match_seqdb");
-    const auto& entries = aChartSelectInterface.chart(0).match_seqdb();
-    const auto& seqdb = acmacs::seqdb::get();
-    auto at_pos_neq = [amino_acid,pos1,equal,&seqdb](const auto& entry) -> bool { return equal ? entry.aa_at_pos(seqdb, pos1) != amino_acid : entry.aa_at_pos(seqdb, pos1) == amino_acid; };
-    auto not_aa_at_pos = [&entries,&at_pos_neq](auto index) -> bool { const auto& entry = entries[index]; return !entry || at_pos_neq(entry); };
+    auto& chart = aChartSelectInterface.chart();
+    acmacs::seqdb::populate(chart);
+    auto at_pos_neq = [amino_acid,pos1,equal](const auto& seq) -> bool { return equal ? seq.at(pos1) != amino_acid : seq.at(pos1) == amino_acid; };
+    auto not_aa_at_pos = [&chart, &at_pos_neq](auto index) {
+        const auto seq = sequence_aa(chart, index);
+        return seq.empty() || at_pos_neq(seq);
+    };
     indexes.get().erase(std::remove_if(indexes.begin(), indexes.end(), not_aa_at_pos), indexes.end());
 
 } // acmacs::map_draw::select::filter::amino_acid_at_pos
