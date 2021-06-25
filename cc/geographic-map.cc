@@ -127,13 +127,13 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
                 //     tag = "2A2"; // 2A2 has higher priority over 3C.2A
                 // }
                 // else {
-                AD_DEBUG("multi-clades: {}", clade_data);
+                AD_DEBUG(debug(), "multi-clades: {} (first is used)", clade_data);
                 tag = clade_data.front();
                 // }
             }
             if (tag != "UNKNOWN")
                 result = mColors.at(tag);
-            AD_DEBUG("{:10s} {:50s} {:50s} {} {}", tag, aAntigen.name_full(), ref.seq_id(), clades_of_seq, result.fill);
+            AD_DEBUG(debug(), "{:10s} {:50s} {:50s} {} {}", tag, aAntigen.name_full(), ref.seq_id(), clades_of_seq, result.fill);
         }
     }
     catch (std::exception& err) {
@@ -187,14 +187,13 @@ ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen
                 }
             });
         }
-        if (rjson::get_or(settings_, "report", false))
-            fmt::print(stderr, "DEBUG: ColoringByAminoAcid {}: {} <-- {} {}\n", aAntigen.name_full(), tag, aa_report, result.fill);
+        AD_DEBUG(rjson::get_or(settings_, "report", false) || debug(), "ColoringByAminoAcid {}: {} <-- {} {}", aAntigen.name_full(), tag, aa_report, result.fill);
     }
     catch (std::exception& err) {
-        fmt::print(stderr, "ERROR: ColoringByAminoAcid {}: {}\n", aAntigen.name_full(), err);
+        AD_ERROR("ColoringByAminoAcid {}: {}", aAntigen.name_full(), err);
     }
     catch (...) {
-        fmt::print(stderr, "ERROR: ColoringByAminoAcid {}: unknown exception\n", aAntigen.name_full());
+        AD_ERROR("ColoringByAminoAcid {}: unknown exception", aAntigen.name_full());
     }
 
     return {tag, result};
@@ -281,16 +280,16 @@ GeographicMapColoring::TagColor ColoringByLineageAndDeletionMutants::color(const
     try {
         const auto& seqdb = acmacs::seqdb::get();
         if (const auto ref_2del = acmacs::seqdb::get().find_hi_name(aAntigen.name_full()); ref_2del && ref_2del.has_clade(seqdb, "2DEL2017")) {
-            // fmt::print(stderr, "DEBUG: 2del {}\n", aAntigen.name_full());
+            AD_DEBUG(debug(), "2del {}", aAntigen.name_full());
             return {"VICTORIA_2DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_2DEL") : ColoringData{mDeletionMutantColor}};
         }
         else if (const auto ref_3del = acmacs::seqdb::get().find_hi_name(aAntigen.name_full()); ref_3del && ref_3del.has_clade(seqdb, "3DEL2017")) {
-            // fmt::print(stderr, "DEBUG: 3del {}\n", aAntigen.name_full());
+            AD_DEBUG(debug(), "3del {}", aAntigen.name_full());
             return {"VICTORIA_3DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_3DEL") : ColoringData{mDeletionMutantColor}};
         }
         else {
             const auto lineage = aAntigen.lineage().to_string();
-            // fmt::print(stderr, "DEBUG: {}  {}\n", lineage.substr(0, 3), aAntigen.name_full());
+            AD_DEBUG(debug(), "{}  {}", lineage.substr(0, 3), aAntigen.name_full());
             return {lineage, mColors.at(lineage)};
         }
     }

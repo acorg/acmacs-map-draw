@@ -101,9 +101,16 @@ class GeographicMapColoring
     using TagToColor = std::map<std::string, ColoringData, std::less<>>;
     using TagColor = std::pair<std::string, ColoringData>;
 
+    GeographicMapColoring(bool debug) : debug_{debug} {}
     virtual ~GeographicMapColoring();
 
     virtual TagColor color(const hidb::Antigen& aAntigen) const = 0;
+
+  protected:
+    constexpr bool debug() const { return debug_; }
+
+  private:
+    bool debug_{false};
 };
 
 // ----------------------------------------------------------------------
@@ -111,8 +118,8 @@ class GeographicMapColoring
 class ColoringByContinent : public GeographicMapColoring
 {
  public:
-    ColoringByContinent(const std::map<std::string, std::string>& aContinentColor) : mColors{aContinentColor.begin(), aContinentColor.end()} {}
-    ColoringByContinent(const TagToColor& aContinentColor) : mColors{aContinentColor.begin(), aContinentColor.end()} {}
+    ColoringByContinent(const std::map<std::string, std::string>& aContinentColor, bool debug = false) : GeographicMapColoring(debug), mColors{aContinentColor.begin(), aContinentColor.end()} {}
+    ColoringByContinent(const TagToColor& aContinentColor, bool debug = false) : GeographicMapColoring(debug), mColors{aContinentColor.begin(), aContinentColor.end()} {}
 
     TagColor color(const hidb::Antigen& aAntigen) const override;
 
@@ -125,13 +132,13 @@ class ColoringByContinent : public GeographicMapColoring
 
 class ColoringByClade : public GeographicMapColoring
 {
- public:
-    ColoringByClade(const std::map<std::string, std::string>& aCladeColor) : mColors{aCladeColor.begin(), aCladeColor.end()} {}
-    ColoringByClade(const TagToColor& aCladeColor) : mColors{aCladeColor.begin(), aCladeColor.end()} {}
+  public:
+    ColoringByClade(const std::map<std::string, std::string>& aCladeColor, bool debug = false) : GeographicMapColoring(debug), mColors{aCladeColor.begin(), aCladeColor.end()} {}
+    ColoringByClade(const TagToColor& aCladeColor, bool debug = false) : GeographicMapColoring(debug), mColors{aCladeColor.begin(), aCladeColor.end()} {}
 
     TagColor color(const hidb::Antigen& aAntigen) const override;
 
- private:
+  private:
     TagToColor mColors;
 
 }; // class ColoringByClade
@@ -141,8 +148,8 @@ class ColoringByClade : public GeographicMapColoring
 class ColoringByLineage : public GeographicMapColoring
 {
  public:
-    ColoringByLineage(const std::map<std::string, std::string>& aLineageColor) : mColors{aLineageColor.begin(), aLineageColor.end()} {}
-    ColoringByLineage(const TagToColor& aLineageColor) : mColors{aLineageColor.begin(), aLineageColor.end()} {}
+    ColoringByLineage(const std::map<std::string, std::string>& aLineageColor, bool debug = false) : GeographicMapColoring(debug), mColors{aLineageColor.begin(), aLineageColor.end()} {}
+    ColoringByLineage(const TagToColor& aLineageColor, bool debug = false) : GeographicMapColoring(debug), mColors{aLineageColor.begin(), aLineageColor.end()} {}
 
     TagColor color(const hidb::Antigen& aAntigen) const override
         {
@@ -165,10 +172,10 @@ class ColoringByLineage : public GeographicMapColoring
 class ColoringByLineageAndDeletionMutants : public GeographicMapColoring
 {
  public:
-    ColoringByLineageAndDeletionMutants(const std::map<std::string, std::string>& aLineageColor, std::string aDeletionMutantColor = std::string{})
-        : mColors(aLineageColor.begin(), aLineageColor.end()), mDeletionMutantColor{aDeletionMutantColor} {}
-    ColoringByLineageAndDeletionMutants(const TagToColor& aLineageColor, std::string aDeletionMutantColor = std::string{})
-        : mColors(aLineageColor.begin(), aLineageColor.end()), mDeletionMutantColor{aDeletionMutantColor} {}
+    ColoringByLineageAndDeletionMutants(const std::map<std::string, std::string>& aLineageColor, std::string aDeletionMutantColor = std::string{}, bool debug = false)
+        : GeographicMapColoring(debug), mColors(aLineageColor.begin(), aLineageColor.end()), mDeletionMutantColor{aDeletionMutantColor} {}
+    ColoringByLineageAndDeletionMutants(const TagToColor& aLineageColor, std::string aDeletionMutantColor = std::string{}, bool debug = false)
+        : GeographicMapColoring(debug), mColors(aLineageColor.begin(), aLineageColor.end()), mDeletionMutantColor{aDeletionMutantColor} {}
 
     TagColor color(const hidb::Antigen& aAntigen) const override;
 
@@ -183,7 +190,7 @@ class ColoringByLineageAndDeletionMutants : public GeographicMapColoring
 class ColoringByAminoAcid : public GeographicMapColoring
 {
  public:
-    ColoringByAminoAcid(const rjson::value& settings) : settings_(settings) {}
+    ColoringByAminoAcid(const rjson::value& settings, bool debug = false) : GeographicMapColoring(debug), settings_(settings) {}
 
     TagColor color(const hidb::Antigen& aAntigen) const override;
 
@@ -196,27 +203,27 @@ class ColoringByAminoAcid : public GeographicMapColoring
 
 class ColorOverride : public GeographicMapColoring
 {
- public:
-    ColorOverride() = default;
-    ColorOverride(const std::map<std::string, std::string>& aNameColor)
-        {
-            for (auto [name, color]: aNameColor) {
-                if (!name.empty() && name[0] != '?' && !color.empty() && color[0] != '?')
-                    mColors.emplace(name, color);
-            }
+  public:
+    ColorOverride(bool debug = false) : GeographicMapColoring(debug) {}
+    ColorOverride(const std::map<std::string, std::string>& aNameColor, bool debug = false) : GeographicMapColoring(debug)
+    {
+        for (auto [name, color] : aNameColor) {
+            if (!name.empty() && name[0] != '?' && !color.empty() && color[0] != '?')
+                mColors.emplace(name, color);
         }
+    }
 
     TagColor color(const hidb::Antigen& aAntigen) const override
-        {
-            try {
-                return TagColor{aAntigen.name(), mColors.at(*aAntigen.name())};
-            }
-            catch (...) {
-                return TagColor{"UNKNOWN", ColoringData{}};
-            }
+    {
+        try {
+            return TagColor{aAntigen.name(), mColors.at(*aAntigen.name())};
         }
+        catch (...) {
+            return TagColor{"UNKNOWN", ColoringData{}};
+        }
+    }
 
- private:
+  private:
     std::map<std::string, Color> mColors;
 
 }; // class ColorOverride

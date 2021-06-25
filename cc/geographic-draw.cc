@@ -148,7 +148,7 @@ GeographicMapColoring* make_coloring(const rjson::value& aSettings)
         // AD_DEBUG("clade_color {}", clade_color);
         if (const auto& clade_color_override = aSettings["coloring"]["clade_color"]; !clade_color_override.is_null())
             clade_color.update(clade_color_override);
-        coloring = new ColoringByClade(make_map(clade_color));
+        coloring = new ColoringByClade(make_map(clade_color), aSettings["coloring"]["debug"].get_or_default(false));
     }
     else if (coloring_name == "lineage") {
         rjson::value lineage_color = aSettings["lineage_color"];
