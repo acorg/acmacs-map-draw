@@ -13,7 +13,7 @@ std::string report_antigens(const acmacs::chart::PointIndexList& indexes, const 
     if (threshold >= indexes.size()) {
         const auto& chart = aChartSelectInterface.chart();
         const auto& seqdb = acmacs::seqdb::get();
-        const auto& matched_seqdb = aChartSelectInterface.chart(0).match_seqdb();
+        // const auto& matched_seqdb = aChartSelectInterface.chart(0).match_seqdb();
         auto layout = aChartSelectInterface.chart(0).modified_layout();
         auto antigens = chart.antigens();
         auto titers = chart.titers();
@@ -21,22 +21,22 @@ std::string report_antigens(const acmacs::chart::PointIndexList& indexes, const 
         fmt::format_to(output, "  AG ({}) {}\n", indexes.size(), acmacs::string::join(acmacs::string::join_comma, std::begin(indexes), std::end(indexes)));
 
         size_t seq_max{0}, clades_max{0};
-        for (auto index : indexes) {
-            if (const auto& ref = matched_seqdb[index]; ref) {
-                seq_max = std::max(seq_max, ref.seq_id().size());
-                clades_max = std::max(clades_max, fmt::format("{}", ref.seq_with_sequence(seqdb).clades).size());
-            }
-        }
+        // for (auto index : indexes) {
+        //     if (const auto& ref = matched_seqdb[index]; ref) {
+        //         seq_max = std::max(seq_max, ref.seq_id().size());
+        //         clades_max = std::max(clades_max, fmt::format("{}", ref.seq_with_sequence(seqdb).clades).size());
+        //     }
+        // }
 
         const auto full_name_max{acmacs::chart::max_full_name(*antigens, indexes)};
         for (auto index : indexes) {
             const auto antigen = antigens->at(index);
             const auto coord = layout->at(index);
             fmt::format_to(output, "  AG {:5d} {: <{}} {:10s} {: <6s}", index, fmt::format("\"{}\"", antigen->name_full()), full_name_max + 2, antigen->date(), antigen->passage().passage_type());
-            if (const auto& ref = matched_seqdb[index]; ref)
-                fmt::format_to(output, " {:<{}s} {:<{}s}", ref.seq_id(), seq_max, fmt::format("{}", ref.seq_with_sequence(seqdb).clades), clades_max);
-            else
-                fmt::format_to(output, " {:{}c}", ' ', seq_max + clades_max + 1);
+            // if (const auto& ref = matched_seqdb[index]; ref)
+            //     fmt::format_to(output, " {:<{}s} {:<{}s}", ref.seq_id(), seq_max, fmt::format("{}", ref.seq_with_sequence(seqdb).clades), clades_max);
+            // else
+            //     fmt::format_to(output, " {:{}c}", ' ', seq_max + clades_max + 1);
             if (coord.exists())
                 fmt::format_to(output, " {:8.4f}", coord);
             else
