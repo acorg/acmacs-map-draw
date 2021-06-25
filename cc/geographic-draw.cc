@@ -71,16 +71,14 @@ int draw(const Options& opt)
 
     auto settings = geographic_settings_default();
     for (auto fn : *opt.settings_files) {
-        if (opt.verbose)
-            std::cerr << "DEBUG: reading settings from " << fn << '\n';
+        AD_DEBUG(*opt.verbose, "reading settings from {}", fn);
         try {
             settings.update(rjson::parse_file(fn, rjson::remove_comments::yes));
         }
         catch (std::exception& err) {
             throw std::runtime_error(acmacs::string::concat(fn, ": ", err.what()));
         }
-        // if (opt.verbose)
-        //     std::cerr << "DEBUG: reading settings DONE from " << fn << '\n';
+        // AD_DEBUG(*opt.verbose, "reading settings DONE from {}", fn);
     }
 
     const std::string_view start_date{settings["start_date"].to<std::string_view>()}, end_date{settings["end_date"].to<std::string_view>()};
@@ -147,6 +145,7 @@ GeographicMapColoring* make_coloring(const rjson::value& aSettings)
     }
     else if (coloring_name == "clade") {
         rjson::value clade_color = aSettings["clade_color"];
+        // AD_DEBUG("clade_color {}", clade_color);
         if (const auto& clade_color_override = aSettings["coloring"]["clade_color"]; !clade_color_override.is_null())
             clade_color.update(clade_color_override);
         coloring = new ColoringByClade(make_map(clade_color));
@@ -168,7 +167,7 @@ GeographicMapColoring* make_coloring(const rjson::value& aSettings)
     }
     else
         throw std::runtime_error("Unsupported coloring: " + std::string(coloring_name));
-    std::cerr << "INFO: coloring: " << coloring_name << '\n';
+    AD_INFO("coloring: {}", coloring_name);
     return coloring;
 
 } // make_coloring
