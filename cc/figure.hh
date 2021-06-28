@@ -20,6 +20,7 @@ namespace acmacs::mapi::inline v1
         std::vector<acmacs::PointCoordinates> vertices;
         bool close;
 
+        bool empty() const { return vertices.empty(); }
         bool inside(const acmacs::PointCoordinates& point) const { return winding_number(point, vertices) != 0; }
         bool outside(const acmacs::PointCoordinates& point) const { return winding_number(point, vertices) == 0; }
 
