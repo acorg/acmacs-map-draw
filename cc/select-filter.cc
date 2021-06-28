@@ -62,8 +62,8 @@ void acmacs::map_draw::select::filter::amino_acid_at_pos(ChartSelectInterface& a
 {
     auto& chart = aChartSelectInterface.chart();
     acmacs::seqdb::populate(chart);
-    auto at_pos_neq = [amino_acid,pos1,equal](const auto& seq) -> bool { return equal ? seq.at(pos1) != amino_acid : seq.at(pos1) == amino_acid; };
-    auto not_aa_at_pos = [&chart, &at_pos_neq](auto index) {
+    const auto at_pos_neq = [amino_acid,pos1,equal](const auto& seq) -> bool { return equal ? seq.at(pos1) != amino_acid : seq.at(pos1) == amino_acid; };
+    const auto not_aa_at_pos = [&chart, &at_pos_neq](auto index) {
         const auto seq = sequence_aa(chart, index);
         return seq.empty() || at_pos_neq(seq);
     };
