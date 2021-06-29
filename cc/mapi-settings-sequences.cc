@@ -41,7 +41,7 @@ bool acmacs::mapi::v1::Settings::apply_compare_sequences()
 
     const auto& matched_seqdb = chart_draw().chart(0).match_seqdb();
     const auto nuc_aa{acmacs::seqdb::compare::aa};
-    acmacs::seqdb::subsets_to_compare_t subsets_to_compare{nuc_aa};
+    acmacs::seqdb::subsets_to_compare_t<acmacs::seqdb::subset_to_compare_t> subsets_to_compare{nuc_aa};
     for (const auto& group_desc : groups) {
         auto& subset = subsets_to_compare.subsets.emplace_back(group_desc.name).subset;
         for (const auto ind : group_desc.antigens) {

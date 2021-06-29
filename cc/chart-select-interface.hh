@@ -35,8 +35,8 @@ class ChartAccess
     acmacs::Transformation modified_transformation() const { return modified_projection().transformation(); }
     const acmacs::Transformation& modified_inverted_transformation() const
     {
-        if (!inverted_transformation_)
-            inverted_transformation_ = modified_transformation().inverse();
+        // if (!inverted_transformation_)
+        inverted_transformation_ = modified_transformation().inverse();
         return *inverted_transformation_;
     }
 

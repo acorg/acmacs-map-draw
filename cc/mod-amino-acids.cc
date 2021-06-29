@@ -184,7 +184,7 @@ void ModCompareSequences::apply(ChartDraw& aChartDraw, const rjson::value& aModD
         throw unrecognized_mod{fmt::format("no select2 in mod: {}", args())};
 
     const auto& matched = aChartDraw.chart(0).match_seqdb();
-    acmacs::seqdb::v3::subsets_to_compare_t subsets_to_compare{acmacs::seqdb::compare::aa};
+    acmacs::seqdb::subsets_to_compare_t<acmacs::seqdb::subset_to_compare_t> subsets_to_compare{acmacs::seqdb::compare::aa};
     subsets_to_compare.subsets.emplace_back("1", matched.filter_by_indexes(indexes1));
     subsets_to_compare.subsets.emplace_back("2", matched.filter_by_indexes(indexes2));
     subsets_to_compare.make_counters();
