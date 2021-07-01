@@ -126,6 +126,7 @@
         {"N": "antigens",  "fill": "#ff99ff{clade-pale}",        "select": {"clade": "3C.2A1B2A", "amino_acid": ["193S"], "date": "$date-recent"}, "legend": {"label": "3C.2a1b2a+193S ({count})", "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
         {"N": "antigens",  "fill": "#6495ED{clade-pale}",        "select": {"clade": "3C.2A1B2A", "amino_acid": ["159N"], "date": "$date-recent"}, "legend": {"label": "3C.2a1b2a+159N ({count})", "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
         {"N": "antigens",  "fill": "#eaaee8{clade-pale}",        "select": {"clade": "3C.2A1B1A",                         "date": "$date-recent"}, "legend": {"label": "3C.2a1b1a ({count})",      "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
+        {"N": "antigens",  "fill": "#34B2C9{clade-pale}",        "select": {"clade": "3C.2A1B1A", "amino_acid": ["192F"], "date": "$date-recent"}, "legend": {"label": "3C.2a1b1a+192F ({count})",      "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
         {"N": "antigens",  "fill": "#ff99cc{clade-pale}",        "select": {"clade": "3C.2A1B1B",                         "date": "$date-recent"}, "legend": {"label": "3C.2a1b1b ({count})",      "show_if_none_selected": true}, "outline": "black{clade-pale}", "order": "raise", "report": true},
     ],
 
