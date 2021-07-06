@@ -121,6 +121,7 @@ void map_elements::v1::Title::draw(acmacs::draw::DrawElements& aDrawElements, co
         std::vector<std::string> lines(mLines.size());
         std::transform(std::begin(mLines), std::end(mLines), std::begin(lines),
                        [&chart_draw](const auto& line) -> std::string { return chart_draw.settings_present() ? chart_draw.settings().substitute(line) : line; });
+        // AD_DEBUG("title {}", lines);
         aDrawElements.title(lines)
             .text_color(mTextColor)
             .text_size(mTextSize)
