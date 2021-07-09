@@ -12,7 +12,7 @@ std::string report_antigens(const acmacs::chart::PointIndexList& indexes, const 
     fmt::memory_buffer output;
     if (threshold >= indexes.size()) {
         const auto& chart = aChartSelectInterface.chart();
-        const auto& seqdb = acmacs::seqdb::get();
+        // const auto& seqdb = acmacs::seqdb::get();
         // const auto& matched_seqdb = aChartSelectInterface.chart(0).match_seqdb();
         auto layout = aChartSelectInterface.chart(0).modified_layout();
         auto antigens = chart.antigens();
