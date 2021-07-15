@@ -6,6 +6,9 @@
          "report-common": false,
          "report-longest-arrows": 0,
          "pc-arrows-threshold": 0.2,
+         "test-antigen-size": 5.0,
+         "reference-antigen-size": 8.0,
+         "serum-size": 8.0,
          "vaccine-size": 30,
          "clade-pale": "",
          "rotation-angle": 0,
@@ -32,9 +35,13 @@
     ],
 
     "/size-reset": [
-        {"N": "antigens", "select": "test",      "size": 5.0, "outline_width": 1.0},
-        {"N": "antigens", "select": "reference", "size": 8.0, "outline_width": 1.0},
-        {"N": "sera",     "select": "all",       "size": 8.0, "outline_width": 1.0}
+        {"N": "antigens", "select": "test",      "size": "$test-antigen-size", "outline_width": 1.0},
+        {"N": "antigens", "select": "reference", "size": "$reference-antigen-size", "outline_width": 1.0},
+        {"N": "sera",     "select": "all",       "size": "$serum-size", "outline_width": 1.0}
+    ],
+
+    "/scale-2": [
+        {"N": "point-scale", "scale": 2, "outline_scale": 1}
     ],
 
     "/show-all": [
