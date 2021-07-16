@@ -1017,13 +1017,13 @@ acmacs::mapi::v1::modifier_or_passage_t acmacs::mapi::v1::Settings::color(const 
 
     try {
         const auto& substituted_val = substitute(value);
-        return substituted_val.visit([make_color_passage, make_color_aa_at, &if_null, &substituted_val]<typename Val>(const Val& val) -> modifier_or_passage_t {
+        return substituted_val.visit([make_color_passage, make_color_aa_at, &if_null, &substituted_val, this]<typename Val>(const Val& val) -> modifier_or_passage_t {
             if constexpr (std::is_same_v<Val, rjson::v3::detail::string>)
                 return make_modifier_or_passage(val.template to<std::string_view>());
             else if constexpr (std::is_same_v<Val, rjson::v3::detail::object>) {
                 passage_color_t passage_color;
-                bool used = make_color_passage(passage_color, val["egg"sv], val["reassortant"sv], val["cell"sv]);
-                used |= make_color_aa_at(passage_color, val["aa-at"sv], val["colors"sv]);
+                bool used = make_color_passage(passage_color, substitute(val["egg"sv]), substitute(val["reassortant"sv]), substitute(val["cell"sv]));
+                used |= make_color_aa_at(passage_color, substitute(val["aa-at"sv]), substitute(val["colors"sv]));
                 if (used || val.empty())
                     return passage_color;
                 else

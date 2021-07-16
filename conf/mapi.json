@@ -12,7 +12,9 @@
          "vaccine-size": 30,
          "clade-pale": "",
          "rotation-angle": 0,
-         "//clades:point-scale:scale": 2
+         "//clades:point-scale:scale": 2,
+         "color-by-aa-at": null,
+         "color-order": null
         }
     ],
 
@@ -146,6 +148,10 @@
 
     "/pc04": [
         {"N": "procrustes-arrows", "projection": 4, "threshold": "$pc-arrows-threshold", "report_longest_arrows": "$report-longest-arrows"}
+    ],
+
+    "color-by-aa-at-pos": [
+        {"N": "antigens", "select": "all",  "fill": {"aa-at": "$color-by-aa-at", "colors": "$color-order"}, "legend": {"show": true, "label": "{pos}{aa} ({count})"}}
     ],
 
     "/vaccines": [
