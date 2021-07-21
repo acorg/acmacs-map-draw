@@ -7,6 +7,7 @@
 #include "acmacs-base/string-split.hh"
 #include "acmacs-base/quicklook.hh"
 #include "acmacs-base/filesystem.hh"
+#include "acmacs-base/coredump.hh"
 #include "acmacs-map-draw/setup-dbs.hh"
 #include "acmacs-map-draw/log.hh"
 #include "acmacs-map-draw/mapi-settings.hh"
@@ -66,6 +67,8 @@ static void signal_handler(int sig_num);
 
 int main(int argc, char* const argv[])
 {
+    acmacs::enable_coredump();
+
     using namespace std::string_view_literals;
     int exit_code = 0;
     try {
