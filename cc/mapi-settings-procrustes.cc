@@ -115,7 +115,7 @@ const ChartAccess& acmacs::mapi::v1::Settings::get_chart(const rjson::v3::value&
             if (const auto no{val.template to<size_t>()}; chart_draw().number_of_charts() > no)
                 return chart_draw().chart(no);
             else
-                throw error{fmt::format("cannot make procrustes, too few charts provided, required chart {} but just {} available", no, chart_draw().number_of_charts())};
+                throw error{fmt::format("cannot get alterantive chart {}: just {} charts available", no, chart_draw().number_of_charts())};
         }
         else if constexpr (std::is_same_v<Val, rjson::v3::detail::string>) {
             return chart_draw().chart(substitute_in_filename(val.template to<std::string_view>()));

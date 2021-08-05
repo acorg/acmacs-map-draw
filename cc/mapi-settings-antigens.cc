@@ -799,8 +799,14 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
                         else
                             AD_WARNING("\"select\" key: \"{}\" not applicable for sera", key);
                     }
-                    else if (key == "found-in"sv || key == "found_in"sv || key == "not-found-in"sv || key == "not_found_in"sv)
-                        check_found_in(ag_sr, get_chart(value, 1), indexes, key);
+                    else if (key == "found-in"sv || key == "found_in"sv || key == "not-found-in"sv || key == "not_found_in"sv) {
+                        try {
+                            check_found_in(ag_sr, get_chart(value, 1), indexes, key);
+                        }
+                        catch (error& err) {
+                            AD_WARNING("{}", err);
+                        }
+                    }
                     else if (!key.empty() && key[0] != '?')
                         AD_WARNING("unrecognized \"select\" key: \"{}\"", key);
                 }
