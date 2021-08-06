@@ -2,6 +2,7 @@
 //
 // <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 // <script src="/js/acmacs-d/map-draw/tabs.js"></script>
+// <link rel="stylesheet" href="/js/acmacs-d/map-draw/tabs.css">
 //
 // tabs with maps (pdf), procrustes(pdf), ace-view widget (via <script src="/js/acmacs-d/map-draw/ace-view/201807/widget.js"></script>)
 //
