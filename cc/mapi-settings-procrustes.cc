@@ -182,9 +182,9 @@ bool acmacs::mapi::v1::Settings::apply_procrustes()
         fmt::memory_buffer arrows;
         for (size_t p_no{0}; p_no < std::min(report_longest_arrows, distances.size()); ++p_no) {
             if (distances[p_no].first < antigens->size())
-                fmt::format_to(arrows, "    {:.2f} AG {:4d} {}\n", distances[p_no].second, distances[p_no].first, antigens->at(distances[p_no].first)->name_full());
+                fmt::format_to_mb(arrows, "    {:.2f} AG {:4d} {}\n", distances[p_no].second, distances[p_no].first, antigens->at(distances[p_no].first)->name_full());
             else
-                fmt::format_to(arrows, "    {:.2f} AG {:4d} {}\n", distances[p_no].second, distances[p_no].first - antigens->size(), sera->at(distances[p_no].first - antigens->size())->name_full());
+                fmt::format_to_mb(arrows, "    {:.2f} AG {:4d} {}\n", distances[p_no].second, distances[p_no].first - antigens->size(), sera->at(distances[p_no].first - antigens->size())->name_full());
         }
         AD_INFO("Longest arrows (max {} requested of {} available)\n{}", report_longest_arrows, distances.size(), fmt::to_string(arrows));
     }
@@ -251,7 +251,7 @@ bool acmacs::mapi::v1::Settings::apply_move()
                 projection.move_point(index + number_of_antigens, line.flip_over(layout->at(index + number_of_antigens), 1.0));
         }
         else
-            throw error{fmt::format("unrecognized \"move\" \"flip-over-line\": {} (expected array of two point locations, e.g. [{\"v\": [0, 8]}, {\"v\": [1, 8]}])", flip_over_line)};
+            throw error{fmt::format(fmt::runtime("unrecognized \"move\" \"flip-over-line\": {} (expected array of two point locations, e.g. [{\"v\": [0, 8]}, {\"v\": [1, 8]}])"), flip_over_line)};
     }
     else if (const auto flip_over_serum_line = getenv("flip-over-serum-line"sv); !flip_over_serum_line.is_null()) {
         if (flip_over_serum_line.is_number()) {

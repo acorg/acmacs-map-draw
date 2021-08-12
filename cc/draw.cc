@@ -39,7 +39,7 @@ const acmacs::Viewport& ChartDraw::MapViewport::use(std::string_view by) const
 
 void ChartDraw::MapViewport::set(const acmacs::PointCoordinates& origin, double size)
 {
-    reset_used_by(fmt::format("map viewport change ({:.2f} {:.2f}) requested", origin, size));
+    reset_used_by(fmt::format(fmt::runtime("map viewport change ({:.2f} {:.2f}) requested"), origin, size));
     viewport_.set(origin, size);
     AD_INFO("Set {:.2f}", viewport_);
     recalculate_ = false;
@@ -50,7 +50,7 @@ void ChartDraw::MapViewport::set(const acmacs::PointCoordinates& origin, double 
 
 void ChartDraw::MapViewport::set(const acmacs::Viewport& aViewport)
 {
-    reset_used_by(fmt::format("map viewport change ({:.2f}) requested", aViewport));
+    reset_used_by(fmt::format(fmt::runtime("map viewport change ({:.2f}) requested"), aViewport));
     viewport_ = aViewport;
     AD_INFO("Set {:.2f}", viewport_);
     recalculate_ = false;

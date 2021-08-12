@@ -1164,7 +1164,7 @@ template <typename AgSr> bool acmacs::mapi::v1::Settings::color_according_to_pas
         if (const auto& legend = getenv("legend"sv); !legend.is_null()) {
             for (const auto& en : by_passage) {
                 if (const auto& indexes_of_passage = *std::get<const acmacs::chart::PointIndexList*>(en); indexes_of_passage.size() > 0) {
-                    const auto label{fmt::format(rjson::v3::get_or(legend["label"sv], "{passage} ({count})"sv),
+                    const auto label{fmt::format(fmt::runtime(rjson::v3::get_or(legend["label"sv], "{passage} ({count})"sv)),
                                                  fmt::arg("passage", std::get<std::string_view>(en)),
                                                  fmt::arg("count", indexes_of_passage.size()))};
                     add_legend(indexes_of_passage, *std::get<const PointStyleModified*>(en), label, legend);
@@ -1233,7 +1233,7 @@ bool acmacs::mapi::v1::Settings::color_according_to_aa_at_pos(const acmacs::char
             // legend lines
             if (const auto& legend = getenv("legend"sv); !legend.is_null()) {
                 for (const auto& [aa, en] : per_aa) {
-                    const auto label{fmt::format(rjson::v3::get_or(legend["label"sv], "{pos}{aa} ({count})"sv),
+                    const auto label{fmt::format(fmt::runtime(rjson::v3::get_or(legend["label"sv], "{pos}{aa} ({count})"sv)),
                                                  fmt::arg("aa", aa), fmt::arg("pos", *data->pos), fmt::arg("count", en.first.size()))};
                         add_legend(en.first, en.second, label, legend);
                 }

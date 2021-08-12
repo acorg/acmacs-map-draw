@@ -18,9 +18,9 @@ std::string report_antigens(const acmacs::chart::PointIndexList& indexes, const 
         auto antigens = chart.antigens();
         auto titers = chart.titers();
         auto info = chart.info();
-        fmt::format_to(output, "  AG ({}) {}\n", indexes.size(), acmacs::string::join(acmacs::string::join_comma, std::begin(indexes), std::end(indexes)));
+        fmt::format_to_mb(output, "  AG ({}) {}\n", indexes.size(), acmacs::string::join(acmacs::string::join_comma, std::begin(indexes), std::end(indexes)));
 
-        size_t seq_max{0}, clades_max{0};
+        // size_t seq_max{0}, clades_max{0};
         // for (auto index : indexes) {
         //     if (const auto& ref = matched_seqdb[index]; ref) {
         //         seq_max = std::max(seq_max, ref.seq_id().size());
@@ -32,22 +32,22 @@ std::string report_antigens(const acmacs::chart::PointIndexList& indexes, const 
         for (auto index : indexes) {
             const auto antigen = antigens->at(index);
             const auto coord = layout->at(index);
-            fmt::format_to(output, "  AG {:5d} {: <{}} {:10s} {: <6s}", index, fmt::format("\"{}\"", antigen->name_full()), full_name_max + 2, antigen->date(), antigen->passage().passage_type());
+            fmt::format_to_mb(output, "  AG {:5d} {: <{}} {:10s} {: <6s}", index, fmt::format("\"{}\"", antigen->name_full()), full_name_max + 2, antigen->date(), antigen->passage().passage_type());
             // if (const auto& ref = matched_seqdb[index]; ref)
-            //     fmt::format_to(output, " {:<{}s} {:<{}s}", ref.seq_id(), seq_max, fmt::format("{}", ref.seq_with_sequence(seqdb).clades), clades_max);
+            //     fmt::format_to_mb(output, " {:<{}s} {:<{}s}", ref.seq_id(), seq_max, fmt::format("{}", ref.seq_with_sequence(seqdb).clades), clades_max);
             // else
-            //     fmt::format_to(output, " {:{}c}", ' ', seq_max + clades_max + 1);
+            //     fmt::format_to_mb(output, " {:{}c}", ' ', seq_max + clades_max + 1);
             if (coord.exists())
-                fmt::format_to(output, " {:8.4f}", coord);
+                fmt::format_to_mb(output, fmt::runtime(" {:8.4f}"), coord);
             else
-                fmt::format_to(output, "    <disconnected>   ");
+                fmt::format_to_mb(output, "    <disconnected>   ");
             if (titers->number_of_layers() > 1) {
                 std::vector<std::string> layers;
                 for (size_t layer_no : titers->layers_with_antigen(index))
                     layers.emplace_back(info->source(layer_no)->date());
-                fmt::format_to(output, " layers:{}{}", layers.size(), layers);
+                fmt::format_to_mb(output, " layers:{}{}", layers.size(), layers);
             }
-            fmt::format_to(output, "\n");
+            fmt::format_to_mb(output, "\n");
         }
     }
     return fmt::to_string(output);
@@ -86,24 +86,24 @@ std::string report_sera(const acmacs::chart::PointIndexList& indexes, const Char
             }
         }
 
-        fmt::format_to(output, "  SR ({}) {}\n", indexes.size(), acmacs::string::join(acmacs::string::join_comma, std::begin(indexes), std::end(indexes)));
+        fmt::format_to_mb(output, "  SR ({}) {}\n", indexes.size(), acmacs::string::join(acmacs::string::join_comma, std::begin(indexes), std::end(indexes)));
         for (auto index : indexes) {
             const auto serum = sera->at(index);
             const auto coord = layout->at(index + number_of_antigens);
-            fmt::format_to(output, "  SR {:5d} {: <{}} {: <6s}", index, fmt::format("\"{}\"", serum->name_full()), full_name_max + 2, serum->passage().passage_type());
+            fmt::format_to_mb(output, "  SR {:5d} {: <{}} {: <6s}", index, fmt::format("\"{}\"", serum->name_full()), full_name_max + 2, serum->passage().passage_type());
             const auto& seq_data = seq_clades.get_or(index, seq_data_t{});
-            fmt::format_to(output, " {:<{}s} {:<{}s}", seq_data.first, seq_max, seq_data.second, clades_max);
+            fmt::format_to_mb(output, " {:<{}s} {:<{}s}", seq_data.first, seq_max, seq_data.second, clades_max);
             if (coord.exists())
-                fmt::format_to(output, " {:8.4f}", coord);
+                fmt::format_to_mb(output, fmt::runtime(" {:8.4f}"), coord);
             else
-                fmt::format_to(output, "    <disconnected>   ");
+                fmt::format_to_mb(output, "    <disconnected>   ");
             if (titers->number_of_layers() > 1) {
                 std::vector<std::string> layers;
                 for (size_t layer_no : titers->layers_with_serum(index))
                     layers.emplace_back(info->source(layer_no)->date());
-                fmt::format_to(output, " {:3d}{}", layers.size(), layers);
+                fmt::format_to_mb(output, " {:3d}{}", layers.size(), layers);
             }
-            fmt::format_to(output, "\n");
+            fmt::format_to_mb(output, "\n");
         }
     }
     return fmt::to_string(output);

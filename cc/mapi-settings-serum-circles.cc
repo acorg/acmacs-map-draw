@@ -28,11 +28,11 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
         auto serum = sera->at(serum_index);
         const auto serum_passage = serum->passage_type(acmacs::chart::reassortant_as_egg::no);
         bool do_mark_serum{false};
-        fmt::format_to(report, "{:{}c}SR {} {} {} titrations:{}\n", ' ', indent, serum_index, serum->name_full(), serum->passage_type(acmacs::chart::reassortant_as_egg::no),
+        fmt::format_to_mb(report, "{:{}c}SR {} {} {} titrations:{}\n", ' ', indent, serum_index, serum->name_full(), serum->passage_type(acmacs::chart::reassortant_as_egg::no),
                        titers->titrations_for_serum(serum_index));
 
         if (!layout->point_has_coordinates(serum_index + antigens->size())) {
-            fmt::format_to(report, "{:{}c}  *** serum is disconnected\n", ' ', indent);
+            fmt::format_to_mb(report, "{:{}c}  *** serum is disconnected\n", ' ', indent);
         }
         else if (const auto antigen_indexes = select_antigens_for_serum_circle(serum_index, antigen_selector); !antigen_indexes.empty() || forced_homologous_titer.has_value()) {
             const auto column_basis = chart.column_basis(serum_index, chart_draw().chart(0).projection_no());
@@ -79,7 +79,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
             }
         }
         else {
-            fmt::format_to(report, "{:{}c}  *** no homologous antigens selected (selector: {})\n", ' ', indent, antigen_selector);
+            fmt::format_to_mb(report, "{:{}c}  *** no homologous antigens selected (selector: {})\n", ' ', indent, antigen_selector);
 
             if (const auto& fallback = getenv("fallback"sv); !fallback.is_null() && rjson::v3::read_bool(substitute(fallback["show"sv]), true)) {
                 make_circle(serum_index, rjson::v3::read_number(substitute(fallback["radius"sv]), Scaled{3.0}), serum_passage, fallback);
@@ -90,7 +90,7 @@ bool acmacs::mapi::v1::Settings::apply_serum_circles()
         // mark serum
         if (do_mark_serum)
             mark_serum(serum_index, getenv("mark_serum"sv));
-        fmt::format_to(report, "\n");
+        fmt::format_to_mb(report, "\n");
     }
     if (rjson::v3::read_bool(getenv("report"sv), false))
         AD_INFO("Serum circles for {} sera\n{}", serum_indexes.size(), fmt::to_string(report));
@@ -157,7 +157,7 @@ void acmacs::mapi::v1::Settings::report_circles(fmt::memory_buffer& report, size
         }
     };
 
-    fmt::format_to(report, "     empir   theor   titer\n");
+    fmt::format_to_mb(report, "     empir   theor   titer\n");
     if (forced_homologous_titer) {
         const auto& empirical_data = empirical.per_antigen().front();
         const auto& theoretical_data = theoretical.per_antigen().front();
@@ -166,7 +166,7 @@ void acmacs::mapi::v1::Settings::report_circles(fmt::memory_buffer& report, size
             empirical_radius = fmt::format("{:.4f}", *empirical_data.radius);
         if (theoretical_data.valid())
             theoretical_radius = fmt::format("{:.4f}", *theoretical_data.radius);
-        fmt::format_to(report, "    {}  {}  {:>6s} (titer forced)\n", empirical_radius, theoretical_radius, theoretical_data.titer);
+        fmt::format_to_mb(report, "    {}  {}  {:>6s} (titer forced)\n", empirical_radius, theoretical_radius, theoretical_data.titer);
     }
     else {
         for (const auto antigen_index : antigen_indexes) {
@@ -181,13 +181,13 @@ void acmacs::mapi::v1::Settings::report_circles(fmt::memory_buffer& report, size
                 theoretical_radius = fmt::format("{:.4f}", *theoretical_data.radius);
             else
                 theoretical_report.assign(theoretical_data.report_reason());
-            fmt::format_to(report, "    {}  {}  {:>6s}   AG {:4d} {:40s}", empirical_radius, theoretical_radius, theoretical_data.titer, antigen_index, antigens[antigen_index]->name_full(),
+            fmt::format_to_mb(report, "    {}  {}  {:>6s}   AG {:4d} {:40s}", empirical_radius, theoretical_radius, theoretical_data.titer, antigen_index, antigens[antigen_index]->name_full(),
                            empirical_report);
             if (!empirical_report.empty())
-                fmt::format_to(report, " -- {}", empirical_report);
+                fmt::format_to_mb(report, " -- {}", empirical_report);
             else if (!theoretical_report.empty())
-                fmt::format_to(report, " -- {}", theoretical_report);
-            fmt::format_to(report, "\n");
+                fmt::format_to_mb(report, " -- {}", theoretical_report);
+            fmt::format_to_mb(report, "\n");
         }
     }
     std::string empirical_radius(6, ' '), theoretical_radius(6, ' ');
@@ -201,7 +201,7 @@ void acmacs::mapi::v1::Settings::report_circles(fmt::memory_buffer& report, size
         if (hide_serum_circle(hide_if, serum_index, theoretical.radius()))
             theoretical_radius += " (hidden)";
     }
-    fmt::format_to(report, "  > {}  {}\n", empirical_radius, theoretical_radius);
+    fmt::format_to_mb(report, "  > {}  {}\n", empirical_radius, theoretical_radius);
 
 } // acmacs::mapi::v1::Settings::report_circles
 
@@ -300,15 +300,15 @@ bool acmacs::mapi::v1::Settings::apply_serum_coverage()
     const size_t indent{2};
     for (auto serum_index : serum_indexes) {
         auto serum = sera->at(serum_index);
-        fmt::format_to(report, "{:{}c}SR {} {} {}\n", ' ', indent, serum_index, serum->name_full(), serum->passage_type(acmacs::chart::reassortant_as_egg::no));
+        fmt::format_to_mb(report, "{:{}c}SR {} {} {}\n", ' ', indent, serum_index, serum->name_full(), serum->passage_type(acmacs::chart::reassortant_as_egg::no));
         if (!layout->point_has_coordinates(serum_index + antigens->size())) {
-            fmt::format_to(report, "{:{}c}  *** serum is disconnected\n", ' ', indent);
+            fmt::format_to_mb(report, "{:{}c}  *** serum is disconnected\n", ' ', indent);
         }
         else if (const auto antigen_indexes = select_antigens_for_serum_circle(serum_index, antigen_selector); !antigen_indexes.empty() || forced_homologous_titer.has_value()) {
 
             const auto serum_coverage = [&]() {
                 if (forced_homologous_titer.has_value()) {
-                    fmt::format_to(report, "{:{}c}  forced homologous titer: {}\n", ' ', indent, *forced_homologous_titer);
+                    fmt::format_to_mb(report, "{:{}c}  forced homologous titer: {}\n", ' ', indent, *forced_homologous_titer);
                     return acmacs::chart::serum_coverage(*titers, *forced_homologous_titer, serum_index, fold);
                 }
                 else {
@@ -319,8 +319,8 @@ bool acmacs::mapi::v1::Settings::apply_serum_coverage()
             try {
                 const auto serum_coverage_data = serum_coverage();
                 if (serum_coverage_data.antigen_index.has_value())
-                    fmt::format_to(report, "{:{}c}  AG {} {}\n", ' ', indent, *serum_coverage_data.antigen_index, antigens->at(*serum_coverage_data.antigen_index)->name_full());
-                fmt::format_to(report, "{:{}c}  within 4fold: {} antigens     outside 4fold: {} antigens\n", ' ', indent, serum_coverage_data.within->size(), serum_coverage_data.outside->size());
+                    fmt::format_to_mb(report, "{:{}c}  AG {} {}\n", ' ', indent, *serum_coverage_data.antigen_index, antigens->at(*serum_coverage_data.antigen_index)->name_full());
+                fmt::format_to_mb(report, "{:{}c}  within 4fold: {} antigens     outside 4fold: {} antigens\n", ' ', indent, serum_coverage_data.within->size(), serum_coverage_data.outside->size());
 
                 if (!serum_coverage_data.within->empty()) {
                     const auto& within_4fold{getenv("within_4fold"sv)};
