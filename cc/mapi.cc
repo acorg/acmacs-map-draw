@@ -112,7 +112,7 @@ int main(int argc, char* const argv[])
                 }
 
                 chart_draw.calculate_viewport();
-                AD_INFO("{:.2f}", chart_draw.viewport("mapi main"));
+                AD_INFO(fmt::runtime("{:.2f}"), chart_draw.viewport("mapi main"));
                 AD_INFO("transformation: {}", chart_draw.chart(0).modified_transformation());
 
                 if (outputs.empty()) {

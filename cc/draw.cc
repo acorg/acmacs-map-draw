@@ -41,7 +41,7 @@ void ChartDraw::MapViewport::set(const acmacs::PointCoordinates& origin, double 
 {
     reset_used_by(fmt::format(fmt::runtime("map viewport change ({:.2f} {:.2f}) requested"), origin, size));
     viewport_.set(origin, size);
-    AD_INFO("Set {:.2f}", viewport_);
+    AD_INFO(fmt::runtime("Set {:.2f}"), viewport_);
     recalculate_ = false;
 
 } // ChartDraw::MapViewport::set
@@ -52,7 +52,7 @@ void ChartDraw::MapViewport::set(const acmacs::Viewport& aViewport)
 {
     reset_used_by(fmt::format(fmt::runtime("map viewport change ({:.2f}) requested"), aViewport));
     viewport_ = aViewport;
-    AD_INFO("Set {:.2f}", viewport_);
+    AD_INFO(fmt::runtime("Set {:.2f}"), viewport_);
     recalculate_ = false;
 
 } // ChartDraw::MapViewport::set

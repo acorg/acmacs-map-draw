@@ -166,7 +166,7 @@ void acmacs::mapi::v1::Settings::report_circles(fmt::memory_buffer& report, size
             empirical_radius = fmt::format("{:.4f}", *empirical_data.radius);
         if (theoretical_data.valid())
             theoretical_radius = fmt::format("{:.4f}", *theoretical_data.radius);
-        fmt::format_to_mb(report, "    {}  {}  {:>6s} (titer forced)\n", empirical_radius, theoretical_radius, theoretical_data.titer);
+        fmt::format_to_mb(report, "    {}  {}  {:>6s} (titer forced)\n", empirical_radius, theoretical_radius, fmt::format("{}", theoretical_data.titer));
     }
     else {
         for (const auto antigen_index : antigen_indexes) {
@@ -181,7 +181,7 @@ void acmacs::mapi::v1::Settings::report_circles(fmt::memory_buffer& report, size
                 theoretical_radius = fmt::format("{:.4f}", *theoretical_data.radius);
             else
                 theoretical_report.assign(theoretical_data.report_reason());
-            fmt::format_to_mb(report, "    {}  {}  {:>6s}   AG {:4d} {:40s}", empirical_radius, theoretical_radius, theoretical_data.titer, antigen_index, antigens[antigen_index]->name_full(),
+            fmt::format_to_mb(report, "    {}  {}  {:>6s}   AG {:4d} {:40s}", empirical_radius, theoretical_radius, fmt::format("{}", theoretical_data.titer), antigen_index, antigens[antigen_index]->name_full(),
                            empirical_report);
             if (!empirical_report.empty())
                 fmt::format_to_mb(report, " -- {}", empirical_report);
