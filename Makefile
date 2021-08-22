@@ -4,6 +4,7 @@
 TARGETS = \
   $(ACMACS_MAP_DRAW_LIB) \
   $(DIST)/mapi \
+  $(DIST)/mapi-rotate \
   $(DIST)/chart-select \
   $(DIST)/map-draw \
   $(DIST)/map-draw-interactive \
