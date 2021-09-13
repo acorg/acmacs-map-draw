@@ -90,7 +90,7 @@ std::string report_sera(const acmacs::chart::PointIndexList& indexes, const Char
         for (auto index : indexes) {
             const auto serum = sera->at(index);
             const auto coord = layout->at(index + number_of_antigens);
-            fmt::format_to_mb(output, "  SR {:5d} {: <{}} {: <6s}", index, fmt::format("\"{}\"", serum->name_full()), full_name_max + 2, serum->passage().passage_type());
+            fmt::format_to_mb(output, "  SR {:5d} {: <{}} {: <6s}", index, fmt::format("\"{}\"", serum->name_full()), full_name_max + 2, serum->passage_type());
             const auto& seq_data = seq_clades.get_or(index, seq_data_t{});
             fmt::format_to_mb(output, " {:<{}s} {:<{}s}", seq_data.first, seq_max, seq_data.second, clades_max);
             if (coord.exists())
