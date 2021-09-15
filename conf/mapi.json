@@ -150,6 +150,10 @@
         {"N": "procrustes-arrows", "projection": 4, "threshold": "$pc-arrows-threshold", "report_longest_arrows": "$report-longest-arrows"}
     ],
 
+    "/pc05": [
+        {"N": "procrustes-arrows", "projection": 5, "threshold": "$pc-arrows-threshold", "report_longest_arrows": "$report-longest-arrows"}
+    ],
+
     "color-by-aa-at-pos": [
         {"N": "antigens", "select": "all",  "fill": {"aa-at": "$color-by-aa-at", "colors": "$color-order"}, "legend": {"show": true, "label": "{pos}{aa} ({count})"}}
     ],

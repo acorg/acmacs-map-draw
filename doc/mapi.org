@@ -1,4 +1,4 @@
-# Time-stamp: <2021-07-16 17:09:57 eu>
+# Time-stamp: <2021-09-15 17:05:40 eu>
 
 * Common usage
 
@@ -17,6 +17,9 @@ mapi primary.ace secondary.ace output.pdf -a //clades,/pc
 
 mapi chart.ace output.pdf -a /pc01 -D pc-arrows-threshold=0.5
 mapi chart.ace output.pdf -a /pc02 -D pc-arrows-threshold=0.5
+mapi chart.ace output.pdf -a /pc03 -D pc-arrows-threshold=0.5
+mapi chart.ace output.pdf -a /pc04 -D pc-arrows-threshold=0.5
+mapi chart.ace output.pdf -a /pc05 -D pc-arrows-threshold=0.5
 
 mapi chart.ace output.pdf -a //clades -D flip=ew
 mapi chart.ace output.pdf -a //clades -D rotation-angle=30
