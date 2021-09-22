@@ -108,12 +108,15 @@ bool acmacs::mapi::v1::Settings::hide_serum_circle(const rjson::v3::value& crite
     auto sera = chart.sera();
     auto info = chart.info();
     for (const auto& obj : criteria.array()) {
-        const auto less_than = rjson::v3::read_number(substitute(obj["<"sv]), 0.0);
-        const auto more_than = rjson::v3::read_number(substitute(obj[">"sv]), 99999.0);
+        const auto less_than = rjson::v3::read_number(substitute(obj["<"sv]), -1.0);
+        const auto more_than = rjson::v3::read_number(substitute(obj[">"sv]), -1.0);
         const auto name = rjson::v3::read_string(substitute(obj["name"sv]));
         const auto lab = rjson::v3::read_string(substitute(obj["lab"sv]));
-        if ((radius < less_than || radius > more_than) && (!lab || info->lab() == *lab) && (!name || sera->name_matches(serum_no, *name)))
+        // (lab absent or matches) and at least one of less_than, more_than, name matches, then hide
+        if ((!lab || info->lab() == *lab) && ((less_than >= 0 && radius < less_than) || (more_than >= 0 && radius > more_than) || (name && sera->name_matches(serum_no, *name)))) {
+            AD_INFO("serum circle for SR {} \"{}\" with radius {:.2f} hidden by {}", serum_no, sera->at(serum_no)->name_full(), radius, obj);
             return true;
+        }
     }
     return false;
 

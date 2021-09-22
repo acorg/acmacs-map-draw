@@ -1,4 +1,4 @@
-# Time-stamp: <2021-09-15 17:05:40 eu>
+# Time-stamp: <2021-09-22 17:27:36 eu>
 
 * Common usage
 
@@ -391,7 +391,7 @@ http://geomalgorithms.com/a03-_inclusion.html
 #+BEGIN_SRC json
   {"N": "serum-circle", "sera": "{<Select Sera>}", "?antigens": "{<Select Antigens>}", "?homologous-titer": "1280",
    "report": true, "verbose": false,
-   "hide-if": [{">": 5.5, "<": 2.0, "name": "<serum-name>", "lab": "<chart lab>"}], "?": "disjunction (or) of objects, conjunction (and) of criteria within an object",
+   "hide-if": [{">": 5.5, "<": 2.0, "name": "~<regex matches serum-full-name>", "lab": "<chart lab>"}], "?": "disjunction (or) of objects, lab (if present) and one of <, >, name criterium within an object",
    "?fold": 2.0, "? fold": "2 - 4fold, 3 - 8fold",
    "empirical":    {"show": true, "fill": "<color-modifier>", "outline": "<color-modifier>", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "<color-modifier>", "line_width": 1}},
    "theoretical":  {"show": true, "fill": "<color-modifier>", "outline": "<color-modifier>", "outline_width": 2, "?outline_dash": "dash2", "?angles": [0, 30], "?radius_line": {"dash": "dash2", "color": "<color-modifier>", "line_width": 1}},
