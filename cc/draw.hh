@@ -141,6 +141,7 @@ class ChartDraw : public ChartSelectInterface
     map_elements::v1::Rectangle& rectangle(const acmacs::PointCoordinates& aCorner1, const acmacs::PointCoordinates& aCorner2);
     map_elements::v1::Circle& circle(const acmacs::PointCoordinates& aCenter, Scaled aSize);
     void remove_serum_circles();
+    void remove_paths_circles();
 
     void save(std::string_view aFilename, std::string_view aProgramName);
 

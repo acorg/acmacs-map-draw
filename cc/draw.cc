@@ -386,6 +386,21 @@ void ChartDraw::remove_serum_circles()
 
 // ----------------------------------------------------------------------
 
+void ChartDraw::remove_paths_circles()
+{
+    // mMapElements.list_keywords();
+    mMapElements.remove("serum-circle");
+    mMapElements.remove("circle-v1");
+    mMapElements.remove("circle-v2");
+    mMapElements.remove("rectangle");
+    mMapElements.remove("line");
+    mMapElements.remove("path");
+    mMapElements.remove("path-v2");
+
+} // ChartDraw::remove_serum_paths_circles
+
+// ----------------------------------------------------------------------
+
 void ChartDraw::save(std::string_view aFilename, std::string_view aProgramName)
 {
     acmacs::chart::export_factory(chart(), aFilename, aProgramName, report_time::no);

@@ -20,6 +20,16 @@ void map_elements::Elements::reset()
 
 // ----------------------------------------------------------------------
 
+void map_elements::Elements::list_keywords() const
+{
+    AD_DEBUG("map_elements {}", mElements.size());
+    for (const auto& elt : mElements)
+        AD_DEBUG("  {}", elt->keyword());
+
+} // map_elements::Elements::list_keywords
+
+// ----------------------------------------------------------------------
+
 bool map_elements::Elements::exists(std::string_view keyword) const
 {
     return std::find_if(mElements.begin(), mElements.end(), [keyword](const auto& element) { return element->keyword() == keyword; }) != mElements.end();

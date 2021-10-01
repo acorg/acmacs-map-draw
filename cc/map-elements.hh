@@ -32,6 +32,8 @@ namespace map_elements
 
         void reset();
 
+        void list_keywords() const;
+
         void remove(std::string_view keyword);
         bool exists(std::string_view keyword) const;
 
