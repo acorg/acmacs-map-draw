@@ -8,6 +8,8 @@ namespace acmacs::mapi::inline v1
 {
     struct FigureRaw
     {
+        FigureRaw(bool clos = false) : close{clos} {}
+        FigureRaw(const std::vector<map_elements::v2::Coordinates>& vert, bool clos = false) : vertices{vert},  close{clos} {}
         std::vector<map_elements::v2::Coordinates> vertices;
         bool close;
     };
