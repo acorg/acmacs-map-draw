@@ -42,6 +42,7 @@ namespace map_elements::v2
 
         coordinates_t coordinates;
 
+        Coordinates(const Coordinates&) = default;
         template <typename Src> Coordinates(const Src& src) : coordinates{src} {}
         acmacs::PointCoordinates get_transformed(const ChartDraw& chart_draw) const;
         acmacs::PointCoordinates get_not_transformed(const ChartDraw& chart_draw) const;
