@@ -284,17 +284,17 @@ static inline void check_date(const acmacs::chart::Chart& /*chart*/, const acmac
                 if (last_date.empty() || date < last_date)
                     last_date.assign(date);
             };
-            for (const auto& [key, value] : val) {
-                if (key == "younger-than-days"sv || key == "younger_than_days"sv)
-                    update_first(date::display(date::days_ago(date::today(), value.template to<int>())));
-                else if (key == "older-than-days"sv || key == "older_than_days"sv)
-                    update_last(date::display(date::days_ago(date::today(), value.template to<int>())));
-                else if (key == "before"sv)
-                    update_last(value.template to<std::string_view>());
-                else if (key == "after"sv)
-                    update_first(value.template to<std::string_view>());
+            for (const auto& [key2, value2] : val) {
+                if (key2 == "younger-than-days"sv || key2 == "younger_than_days"sv)
+                    update_first(date::display(date::days_ago(date::today(), value2.template to<int>())));
+                else if (key2 == "older-than-days"sv || key2 == "older_than_days"sv)
+                    update_last(date::display(date::days_ago(date::today(), value2.template to<int>())));
+                else if (key2 == "before"sv)
+                    update_last(value2.template to<std::string_view>());
+                else if (key2 == "after"sv)
+                    update_first(value2.template to<std::string_view>());
                 else
-                    AD_WARNING("unrecognized \"date\" key \"{}\"", key);
+                    AD_WARNING("unrecognized \"date\" key \"{}\"", key2);
             }
             // AD_INFO("date range for selecting antigens/sera by {}: \"{}\" .. \"{}\"", value, first_date, last_date);
             antigens.filter_date_range(indexes, first_date, last_date);

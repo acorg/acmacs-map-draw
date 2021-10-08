@@ -47,6 +47,7 @@ namespace map_elements::v2
         Coordinates(const not_transformed& src) : coordinates{src} {}
         Coordinates(const transformed& src) : coordinates{src} {}
         Coordinates(const points& src) : coordinates{src} {}
+        Coordinates& operator=(const Coordinates&) = default;
 
         acmacs::PointCoordinates get_transformed(const ChartDraw& chart_draw) const;
         acmacs::PointCoordinates get_not_transformed(const ChartDraw& chart_draw) const;
