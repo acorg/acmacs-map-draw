@@ -32,7 +32,7 @@ struct MapiOptions : public acmacs::argv::v2::argv
     // std::string_view help_pre() const override { return sHelpPost; }
     std::string_view help_post() const override { return sHelpPost; }
 
-    option<str> db_dir{*this, "db-dir"};
+    // option<str> db_dir{*this, "db-dir"};
     // option<str> seqdb{*this, "seqdb"};
 
     option<str_array> settings_files{*this, 's', desc{"settings"}};
@@ -74,7 +74,7 @@ int main(int argc, char* const argv[])
     try {
         MapiOptions opt(argc, argv);
         acmacs::log::enable(opt.verbose);
-        setup_dbs(opt.db_dir, !opt.verbose.empty());
+        // setup_dbs(opt.db_dir, !opt.verbose.empty());
 
         const auto [inputs, outputs] = parse_files(opt.files);
 
