@@ -7,13 +7,13 @@
 
 // ----------------------------------------------------------------------
 
-void setup_dbs(std::string_view aDbsDir, bool aVerbose)
+void setup_dbs(std::string_view /*aDbsDir*/, bool aVerbose)
 {
-    const std::string db_dir = aDbsDir.empty() ? acmacs::acmacsd_root() + "/data" : std::string{aDbsDir};
+    // const std::string db_dir = aDbsDir.empty() ? acmacs::acmacsd_root() + "/data" : std::string{aDbsDir};
 
-    locdb_setup(db_dir + "/locationdb.json.xz", aVerbose);
-    hidb::setup(db_dir, {}, aVerbose);
-    acmacs::seqdb::setup(db_dir + "/seqdb.json.xz");
+    locdb_setup(acmacs::locdb_v2(), aVerbose);
+    hidb::setup(acmacs::hidb_v5_dir(), {}, aVerbose);
+    acmacs::seqdb::setup(acmacs::seqdb_v3_dir() + "/seqdb.json.xz");
 
 } // setup_dbs
 
