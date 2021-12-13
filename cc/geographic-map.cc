@@ -151,7 +151,7 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
 
 ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen) const
 {
-    ColoringData result(GREY50);
+    ColoringData result(TRANSPARENT);
     std::string tag{"UNKNOWN"};
     try {
         const auto& seqdb = acmacs::seqdb::get();
@@ -198,6 +198,10 @@ ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen
         AD_ERROR("ColoringByAminoAcid {}: unknown exception", aAntigen.name_full());
     }
 
+    if (result.fill == TRANSPARENT) {
+        result.outline = 0xA0CCCCCC;
+        result.outline_width = Pixels{0.3};
+    }
     return {tag, result};
 
 } // ColoringByAminoAcid::color
