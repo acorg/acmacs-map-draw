@@ -170,14 +170,16 @@ ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen
                     aa_report.append(" -");
                     rjson::for_each(aa, [sequence,&satisfied,&tag_to_use,&aa_report](const rjson::value& aa_entry) {
                         const std::string_view pos_aa_s{aa_entry.to<std::string_view>()};
-                        const auto pos = acmacs::seqdb::pos1_t{acmacs::string::from_chars<size_t>(pos_aa_s.substr(0, pos_aa_s.size() - 1))};
-                        if (pos < acmacs::seqdb::pos1_t{1} || pos >= sequence.size() || sequence.at(pos) != pos_aa_s.back()) {
-                            satisfied = false;
-                            aa_report.append(fmt::format(" [{}!{}]", pos_aa_s, sequence.at(pos)));
+                        const bool not_mark = pos_aa_s[0] == '!';
+                        const size_t pos_start = not_mark ? 1 : 0;
+                        const auto pos = acmacs::seqdb::pos1_t{acmacs::string::from_chars<size_t>(pos_aa_s.substr(pos_start, pos_aa_s.size() - 1))};
+                        if (pos < acmacs::seqdb::pos1_t{1} || pos >= sequence.size() || (sequence.at(pos) == pos_aa_s.back()) == !not_mark) {
+                            tag_to_use.append(fmt::format(" {}", pos_aa_s));
+                            aa_report.append(fmt::format(" [{}]", pos_aa_s));
                         }
                         else {
-                            tag_to_use.append(fmt::format(" {}", pos_aa_s));
-                            aa_report.append(fmt::format(" [{}={}]", pos_aa_s, sequence.at(pos)));
+                            satisfied = false;
+                            aa_report.append(fmt::format(" ![{}]<-{}", pos_aa_s, sequence.at(pos)));
                         }
                     });
                     if (satisfied) {
