@@ -118,7 +118,7 @@ void ColoringUsingSeqdb::prepare(const hidb::AntigenPList& antigens, std::string
     // there are duplicates
     acmacs::file::write(list_antigens_filename, fmt::to_string(out));
 
-    const auto command = fmt::format("seqdb --from '{}' --json '{}'", list_antigens_filename, seqdb_json_filename);
+    const auto command = fmt::format("seqdb --no-print --from '{}' --json '{}'", list_antigens_filename, seqdb_json_filename);
     if (std::system(command.c_str()))
         throw std::runtime_error{AD_FORMAT("command \"{}\" failed", command)};
 
