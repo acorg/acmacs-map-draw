@@ -128,6 +128,14 @@ void ColoringUsingSeqdb::prepare(const hidb::AntigenPList& antigens, std::string
 
 // ----------------------------------------------------------------------
 
+const rjson::value& ColoringUsingSeqdb::find_name(std::string_view name) const
+{
+    return rjson::v2::ConstNull;
+
+} // ColoringUsingSeqdb::find_name
+
+// ----------------------------------------------------------------------
+
 ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) const
 {
     AD_ERROR("seqdb v3 is not available, see ColoringByAminoAcid::color for sample implementation using seqdb-v4");
@@ -178,48 +186,47 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
 
 ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen) const
 {
-    AD_ERROR("seqdb v3 is not available");
-    exit(1);
-
     ColoringData result(TRANSPARENT);
     std::string tag{"UNKNOWN"};
     try {
-        const auto& seqdb = acmacs::seqdb::get();
-        std::string aa_report;
-        if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.name_full()); ref) {
-            rjson::for_each(settings_["apply"], [sequence = ref.aa_aligned(seqdb),&result,&tag,&aa_report](const rjson::value& apply_entry) {
-                if (rjson::get_or(apply_entry, "sequenced", false)) {
-                    result = rjson::get_or(apply_entry, "color", "pink");
-                    tag = "SEQUENCED";
-                }
-                else if (const auto& aa = apply_entry["aa"]; !aa.is_null()) {
-                    if (!aa.is_array())
-                        throw std::runtime_error("invalid \"aa\" settings value, array of strings expected");
-                    bool satisfied = true;
-                    std::string tag_to_use;
-                    aa_report.append(" -");
-                    rjson::for_each(aa, [sequence,&satisfied,&tag_to_use,&aa_report](const rjson::value& aa_entry) {
-                        const std::string_view pos_aa_s{aa_entry.to<std::string_view>()};
-                        const bool not_mark = pos_aa_s[0] == '!';
-                        const size_t pos_start = not_mark ? 1 : 0;
-                        const auto pos = acmacs::seqdb::pos1_t{acmacs::string::from_chars<size_t>(pos_aa_s.substr(pos_start, pos_aa_s.size() - 1))};
-                        if (pos < acmacs::seqdb::pos1_t{1} || pos >= sequence.size() || (sequence.at(pos) == pos_aa_s.back()) == !not_mark) {
-                            tag_to_use.append(fmt::format(" {}", pos_aa_s));
-                            aa_report.append(fmt::format(" [{}]", pos_aa_s));
-                        }
-                        else {
-                            satisfied = false;
-                            aa_report.append(fmt::format(" ![{}]<-{}", pos_aa_s, sequence.at(pos)));
-                        }
-                    });
-                    if (satisfied) {
-                        result = rjson::get_or(apply_entry, "color", "pink");
-                        tag = tag_to_use.substr(1); // remove leading space
-                    }
-                }
-            });
-        }
-        AD_DEBUG(rjson::get_or(settings_, "report", false) || debug(), "ColoringByAminoAcid {}: {} <-- {} {}", aAntigen.name_full(), tag, aa_report, result.fill);
+        const auto& found = find_name(aAntigen.name());
+
+        // // const auto& seqdb = acmacs::seqdb::get();
+        // std::string aa_report;
+        // if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.name_full()); ref) {
+        //     rjson::for_each(settings_["apply"], [sequence = ref.aa_aligned(seqdb),&result,&tag,&aa_report](const rjson::value& apply_entry) {
+        //         if (rjson::get_or(apply_entry, "sequenced", false)) {
+        //             result = rjson::get_or(apply_entry, "color", "pink");
+        //             tag = "SEQUENCED";
+        //         }
+        //         else if (const auto& aa = apply_entry["aa"]; !aa.is_null()) {
+        //             if (!aa.is_array())
+        //                 throw std::runtime_error("invalid \"aa\" settings value, array of strings expected");
+        //             bool satisfied = true;
+        //             std::string tag_to_use;
+        //             aa_report.append(" -");
+        //             rjson::for_each(aa, [sequence,&satisfied,&tag_to_use,&aa_report](const rjson::value& aa_entry) {
+        //                 const std::string_view pos_aa_s{aa_entry.to<std::string_view>()};
+        //                 const bool not_mark = pos_aa_s[0] == '!';
+        //                 const size_t pos_start = not_mark ? 1 : 0;
+        //                 const auto pos = acmacs::seqdb::pos1_t{acmacs::string::from_chars<size_t>(pos_aa_s.substr(pos_start, pos_aa_s.size() - 1))};
+        //                 if (pos < acmacs::seqdb::pos1_t{1} || pos >= sequence.size() || (sequence.at(pos) == pos_aa_s.back()) == !not_mark) {
+        //                     tag_to_use.append(fmt::format(" {}", pos_aa_s));
+        //                     aa_report.append(fmt::format(" [{}]", pos_aa_s));
+        //                 }
+        //                 else {
+        //                     satisfied = false;
+        //                     aa_report.append(fmt::format(" ![{}]<-{}", pos_aa_s, sequence.at(pos)));
+        //                 }
+        //             });
+        //             if (satisfied) {
+        //                 result = rjson::get_or(apply_entry, "color", "pink");
+        //                 tag = tag_to_use.substr(1); // remove leading space
+        //             }
+        //         }
+        //     });
+        // }
+        // AD_DEBUG(rjson::get_or(settings_, "report", false) || debug(), "ColoringByAminoAcid {}: {} <-- {} {}", aAntigen.name_full(), tag, aa_report, result.fill);
     }
     catch (std::exception& err) {
         AD_ERROR("ColoringByAminoAcid {}: {}", aAntigen.name_full(), err);

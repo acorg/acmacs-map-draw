@@ -138,6 +138,7 @@ class ColoringUsingSeqdb : public GeographicMapColoring
     using GeographicMapColoring::GeographicMapColoring;
 
     void prepare(const hidb::AntigenPList& antigens, std::string_view output_prefix) const override;
+    const rjson::value& find_name(std::string_view name) const;
 
   private:
     mutable rjson::value data_;
