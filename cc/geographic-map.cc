@@ -109,20 +109,30 @@ ColorOverride::TagColor ColoringByContinent::color(const hidb::Antigen& aAntigen
 
 void ColoringUsingSeqdb::prepare(const hidb::AntigenPList& antigens, std::string_view output_prefix) const
 {
+    const auto list_antigens_filename = fmt::format("{}names-to-match-in-seqdb.txt", output_prefix);
+    const auto seqdb_json_filename = fmt::format("{}names-to-match-in-seqdb.json", output_prefix);
+
     fmt::memory_buffer out;
     for (auto antigen: antigens)
         fmt::format_to(std::back_inserter(out), "{}\n", antigen->name());
     // there are duplicates
-    acmacs::file::write(fmt::format("{}names-to-match-in-seqdb.txt", output_prefix), fmt::to_string(out));
+    acmacs::file::write(list_antigens_filename, fmt::to_string(out));
 
-    const auto command = fmt::format("seqdb ")
-    std::system
+    const auto command = fmt::format("seqdb --from '{}' --json '{}'", list_antigens_filename, seqdb_json_filename);
+    if (std::system(command.c_str()))
+        throw std::runtime_error{AD_FORMAT("command \"{}\" failed", command)};
+
+    data_ = rjson::parse_file(seqdb_json_filename);
+
 } // ColoringUsingSeqdb::prepare
 
 // ----------------------------------------------------------------------
 
 ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) const
 {
+    AD_ERROR("seqdb v3 is not available, see ColoringByAminoAcid::color for sample implementation using seqdb-v4");
+    exit(1);
+
     ColoringData result(GREY50);
     std::string tag{"UNKNOWN"};
     try {
@@ -304,6 +314,9 @@ void GeographicTimeSeries::draw(std::string_view aFilenamePrefix, const Geograph
 
 GeographicMapColoring::TagColor ColoringByLineageAndDeletionMutants::color(const hidb::Antigen& aAntigen) const
 {
+    AD_ERROR("seqdb v3 is not available, see ColoringByAminoAcid::color for sample implementation using seqdb-v4");
+    exit(1);
+
     try {
         const auto& seqdb = acmacs::seqdb::get();
         if (const auto ref_2del = acmacs::seqdb::get().find_hi_name(aAntigen.name_full()); ref_2del && ref_2del.has_clade(seqdb, "2DEL2017")) {
