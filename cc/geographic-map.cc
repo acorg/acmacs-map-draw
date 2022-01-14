@@ -8,7 +8,7 @@
 #include "acmacs-virus/virus-name-v1.hh"
 #include "acmacs-draw/surface-cairo.hh"
 #include "acmacs-draw/geographic-map.hh"
-#include "seqdb-3/seqdb.hh"
+// #include "seqdb-3/seqdb.hh"
 #include "geographic-map.hh"
 
 // ----------------------------------------------------------------------
@@ -142,17 +142,15 @@ const rjson::value& ColoringUsingSeqdb::find_name(std::string_view name) const
 
 ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) const
 {
-    AD_ERROR("seqdb v3 is not available, see ColoringByAminoAcid::color for sample implementation using seqdb-v4");
-    exit(1);
-
     ColoringData result(GREY50);
     std::string tag{"UNKNOWN"};
     try {
-        if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.name_full()); ref) {
+        if (const auto& found = find_name(aAntigen.name()); !found.is_null()) {
             tag = "SEQUENCED";
-            const auto& clades_of_seq = ref.seq_with_sequence(acmacs::seqdb::get()).clades;
-            std::vector<std::string_view> clade_data;
-            std::copy_if(clades_of_seq.begin(), clades_of_seq.end(), std::back_inserter(clade_data), [this](const auto& clade) { return this->mColors.find(clade) != this->mColors.end(); });
+            const auto& clades_of_seq = found["clades"];
+            std::vector<std::string_view> clade_data(clades_of_seq.size());
+            rjson::copy(clades_of_seq, clade_data);
+            std::erase_if(clade_data, [this](const auto& clade) { return this->mColors.find(clade) == this->mColors.end(); });
             std::sort(std::begin(clade_data), std::end(clade_data),
                       [](const auto& en1, const auto& en2) { return en1.size() > en2.size(); }); // longer name first, i.e. 3C.2A1B2A has higher priority than 3C.2A1B
             if (clade_data.size() == 1) {
@@ -172,8 +170,34 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
             }
             if (tag != "UNKNOWN")
                 result = mColors.at(tag);
-            AD_DEBUG(debug(), "{:10s} {:50s} {:50s} {} {}", tag, aAntigen.name_full(), ref.seq_id(), clades_of_seq, result.fill);
+            AD_DEBUG(debug(), "{:10s} {:50s} {:50s} {} {}", tag, aAntigen.name_full(), found["seq_id"], clades_of_seq, result.fill);
         }
+        // if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.name_full()); ref) {
+        //     tag = "SEQUENCED";
+        //     const auto& clades_of_seq = ref.seq_with_sequence(acmacs::seqdb::get()).clades;
+        //     std::vector<std::string_view> clade_data;
+        //     std::copy_if(clades_of_seq.begin(), clades_of_seq.end(), std::back_inserter(clade_data), [this](const auto& clade) { return this->mColors.find(clade) != this->mColors.end(); });
+        //     std::sort(std::begin(clade_data), std::end(clade_data),
+        //               [](const auto& en1, const auto& en2) { return en1.size() > en2.size(); }); // longer name first, i.e. 3C.2A1B2A has higher priority than 3C.2A1B
+        //     if (clade_data.size() == 1) {
+        //         tag = clade_data.front();
+        //     }
+        //     else if (clade_data.size() > 1) {
+        //         // if (std::find(clade_data.begin(), clade_data.end(), "2A1") != clade_data.end()) {
+        //         //     tag = "2A1"; // 2A1 has higher priority over 3C.2A
+        //         // }
+        //         // else if (std::find(clade_data.begin(), clade_data.end(), "2A2") != clade_data.end()) {
+        //         //     tag = "2A2"; // 2A2 has higher priority over 3C.2A
+        //         // }
+        //         // else {
+        //         AD_DEBUG(debug(), "multi-clades: {} (first is used)", clade_data);
+        //         tag = clade_data.front();
+        //         // }
+        //     }
+        //     if (tag != "UNKNOWN")
+        //         result = mColors.at(tag);
+        //     AD_DEBUG(debug(), "{:10s} {:50s} {:50s} {} {}", tag, aAntigen.name_full(), ref.seq_id(), clades_of_seq, result.fill);
+        // }
     }
     catch (std::exception& err) {
         AD_ERROR("ColoringByClade {}: {}", aAntigen.name_full(), err);
@@ -211,14 +235,14 @@ ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen
                         const auto pos_aa_s = aa_entry.to<std::string_view>();
                         const bool not_mark = pos_aa_s[0] == '!';
                         const size_t pos_start = not_mark ? 1 : 0;
-                        const auto pos1 = acmacs::seqdb::pos1_t{acmacs::string::from_chars<size_t>(pos_aa_s.substr(pos_start, pos_aa_s.size() - 1))};
-                        if (pos1 < acmacs::seqdb::pos1_t{1} || *pos1 > sequence.size() || (sequence[*pos1 - 1] == pos_aa_s.back()) == !not_mark) {
+                        const auto pos1 = acmacs::string::from_chars<size_t>(pos_aa_s.substr(pos_start, pos_aa_s.size() - 1));
+                        if (pos1 < 1 || pos1 > sequence.size() || (sequence[pos1 - 1] == pos_aa_s.back()) == !not_mark) {
                             tag_to_use.append(fmt::format(" {}", pos_aa_s));
                             aa_report.append(fmt::format(" [{}]", pos_aa_s));
                         }
                         else {
                             satisfied = false;
-                            aa_report.append(fmt::format(" ![{}]<-{}", pos_aa_s, sequence[*pos1 - 1]));
+                            aa_report.append(fmt::format(" ![{}]<-{}", pos_aa_s, sequence[pos1 - 1]));
                         }
                     });
                     if (satisfied) {
@@ -327,20 +351,20 @@ GeographicMapColoring::TagColor ColoringByLineageAndDeletionMutants::color(const
     exit(1);
 
     try {
-        const auto& seqdb = acmacs::seqdb::get();
-        if (const auto ref_2del = acmacs::seqdb::get().find_hi_name(aAntigen.name_full()); ref_2del && ref_2del.has_clade(seqdb, "2DEL2017")) {
-            AD_DEBUG(debug(), "2del {}", aAntigen.name_full());
-            return {"VICTORIA_2DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_2DEL") : ColoringData{mDeletionMutantColor}};
-        }
-        else if (const auto ref_3del = acmacs::seqdb::get().find_hi_name(aAntigen.name_full()); ref_3del && ref_3del.has_clade(seqdb, "3DEL2017")) {
-            AD_DEBUG(debug(), "3del {}", aAntigen.name_full());
-            return {"VICTORIA_3DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_3DEL") : ColoringData{mDeletionMutantColor}};
-        }
-        else {
-            const auto lineage = aAntigen.lineage().to_string();
-            AD_DEBUG(debug(), "{}  {}", lineage.substr(0, 3), aAntigen.name_full());
-            return {lineage, mColors.at(lineage)};
-        }
+        // const auto& seqdb = acmacs::seqdb::get();
+        // if (const auto ref_2del = acmacs::seqdb::get().find_hi_name(aAntigen.name_full()); ref_2del && ref_2del.has_clade(seqdb, "2DEL2017")) {
+        //     AD_DEBUG(debug(), "2del {}", aAntigen.name_full());
+        //     return {"VICTORIA_2DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_2DEL") : ColoringData{mDeletionMutantColor}};
+        // }
+        // else if (const auto ref_3del = acmacs::seqdb::get().find_hi_name(aAntigen.name_full()); ref_3del && ref_3del.has_clade(seqdb, "3DEL2017")) {
+        //     AD_DEBUG(debug(), "3del {}", aAntigen.name_full());
+        //     return {"VICTORIA_3DEL", mDeletionMutantColor.empty() ? mColors.at("VICTORIA_3DEL") : ColoringData{mDeletionMutantColor}};
+        // }
+        // else {
+        //     const auto lineage = aAntigen.lineage().to_string();
+        //     AD_DEBUG(debug(), "{}  {}", lineage.substr(0, 3), aAntigen.name_full());
+        //     return {lineage, mColors.at(lineage)};
+        // }
     }
     catch (...) {
         return {"UNKNOWN", {GREY50}};
