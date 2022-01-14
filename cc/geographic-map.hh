@@ -104,6 +104,8 @@ class GeographicMapColoring
     GeographicMapColoring(bool debug) : debug_{debug} {}
     virtual ~GeographicMapColoring();
 
+    virtual void prepare(const hidb::AntigenPList& /*antigens*/, std::string_view /*output_prefix*/) const {}
+
     virtual TagColor color(const hidb::Antigen& aAntigen) const = 0;
 
   protected:
@@ -130,11 +132,24 @@ class ColoringByContinent : public GeographicMapColoring
 
 // ----------------------------------------------------------------------
 
-class ColoringByClade : public GeographicMapColoring
+class ColoringUsingSeqdb : public GeographicMapColoring
 {
   public:
-    ColoringByClade(const std::map<std::string, std::string>& aCladeColor, bool debug = false) : GeographicMapColoring(debug), mColors{aCladeColor.begin(), aCladeColor.end()} {}
-    ColoringByClade(const TagToColor& aCladeColor, bool debug = false) : GeographicMapColoring(debug), mColors{aCladeColor.begin(), aCladeColor.end()} {}
+    using GeographicMapColoring::GeographicMapColoring;
+
+    void prepare(const hidb::AntigenPList& antigens, std::string_view output_prefix) const override;
+
+  private:
+
+}; // class ColoringByClade
+
+// ----------------------------------------------------------------------
+
+class ColoringByClade : public ColoringUsingSeqdb
+{
+  public:
+    ColoringByClade(const std::map<std::string, std::string>& aCladeColor, bool debug = false) : ColoringUsingSeqdb(debug), mColors{aCladeColor.begin(), aCladeColor.end()} {}
+    ColoringByClade(const TagToColor& aCladeColor, bool debug = false) : ColoringUsingSeqdb(debug), mColors{aCladeColor.begin(), aCladeColor.end()} {}
 
     TagColor color(const hidb::Antigen& aAntigen) const override;
 
@@ -169,13 +184,13 @@ class ColoringByLineage : public GeographicMapColoring
 
 // ----------------------------------------------------------------------
 
-class ColoringByLineageAndDeletionMutants : public GeographicMapColoring
+class ColoringByLineageAndDeletionMutants : public ColoringUsingSeqdb
 {
  public:
     ColoringByLineageAndDeletionMutants(const std::map<std::string, std::string>& aLineageColor, std::string aDeletionMutantColor = std::string{}, bool debug = false)
-        : GeographicMapColoring(debug), mColors(aLineageColor.begin(), aLineageColor.end()), mDeletionMutantColor{aDeletionMutantColor} {}
+        : ColoringUsingSeqdb(debug), mColors(aLineageColor.begin(), aLineageColor.end()), mDeletionMutantColor{aDeletionMutantColor} {}
     ColoringByLineageAndDeletionMutants(const TagToColor& aLineageColor, std::string aDeletionMutantColor = std::string{}, bool debug = false)
-        : GeographicMapColoring(debug), mColors(aLineageColor.begin(), aLineageColor.end()), mDeletionMutantColor{aDeletionMutantColor} {}
+        : ColoringUsingSeqdb(debug), mColors(aLineageColor.begin(), aLineageColor.end()), mDeletionMutantColor{aDeletionMutantColor} {}
 
     TagColor color(const hidb::Antigen& aAntigen) const override;
 
@@ -187,12 +202,12 @@ class ColoringByLineageAndDeletionMutants : public GeographicMapColoring
 
 // ----------------------------------------------------------------------
 
-class ColoringByAminoAcid : public GeographicMapColoring
+class ColoringByAminoAcid : public ColoringUsingSeqdb
 {
  public:
-    ColoringByAminoAcid(const rjson::value& settings, bool debug = false) : GeographicMapColoring(debug), settings_(settings) {}
+   ColoringByAminoAcid(const rjson::value& settings, bool debug = false) : ColoringUsingSeqdb(debug), settings_(settings) {}
 
-    TagColor color(const hidb::Antigen& aAntigen) const override;
+   TagColor color(const hidb::Antigen& aAntigen) const override;
 
  private:
     rjson::value settings_;
@@ -240,17 +255,17 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
 
     void prepare(acmacs::surface::Surface& aSurface) override;
 
-    void add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, const std::vector<std::string>& aPriority, std::string_view aStartDate, std::string_view aEndDate);
+    void add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, const std::vector<std::string>& aPriority, std::string_view aStartDate, std::string_view aEndDate, std::string_view output_prefix);
 
     // void add_points_from_hidb_colored_by_continent(const GeographicMapColoring::TagToColor& aContinentColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByContinent(aContinentColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
     // void add_points_from_hidb_colored_by_clade(const GeographicMapColoring::TagToColor& aCladeColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByClade(aCladeColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
     // void add_points_from_hidb_colored_by_lineage(const GeographicMapColoring::TagToColor& aLineageColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineage(aLineageColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
     // void add_points_from_hidb_colored_by_lineage_and_deletion_mutants(const GeographicMapColoring::TagToColor& aLineageColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineageAndDeletionMutants(aLineageColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
 
-    void add_points_from_hidb_colored_by_continent_old(const std::map<std::string, std::string>& aContinentColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByContinent(aContinentColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
-    void add_points_from_hidb_colored_by_clade_old(const std::map<std::string, std::string>& aCladeColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByClade(aCladeColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
-    void add_points_from_hidb_colored_by_lineage_old(const std::map<std::string, std::string>& aLineageColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineage(aLineageColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
-    void add_points_from_hidb_colored_by_lineage_and_deletion_mutants_old(const std::map<std::string, std::string>& aLineageColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineageAndDeletionMutants(aLineageColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
+    // void add_points_from_hidb_colored_by_continent_old(const std::map<std::string, std::string>& aContinentColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByContinent(aContinentColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
+    // void add_points_from_hidb_colored_by_clade_old(const std::map<std::string, std::string>& aCladeColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByClade(aCladeColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
+    // void add_points_from_hidb_colored_by_lineage_old(const std::map<std::string, std::string>& aLineageColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineage(aLineageColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
+    // void add_points_from_hidb_colored_by_lineage_and_deletion_mutants_old(const std::map<std::string, std::string>& aLineageColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByLineageAndDeletionMutants(aLineageColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
 
  private:
     std::string mVirusType;
@@ -337,6 +352,3 @@ class GeographicTimeSeriesWeekly : public GeographicTimeSeries
 };
 
 // ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:

@@ -1,6 +1,9 @@
+#include <cstdlib>
+
 #include "acmacs-base/log.hh"
 #include "acmacs-base/range.hh"
 #include "acmacs-base/counter.hh"
+#include "acmacs-base/read-file.hh"
 #include "acmacs-base/string-from-chars.hh"
 #include "acmacs-virus/virus-name-v1.hh"
 #include "acmacs-draw/surface-cairo.hh"
@@ -104,6 +107,20 @@ ColorOverride::TagColor ColoringByContinent::color(const hidb::Antigen& aAntigen
 
 // ----------------------------------------------------------------------
 
+void ColoringUsingSeqdb::prepare(const hidb::AntigenPList& antigens, std::string_view output_prefix) const
+{
+    fmt::memory_buffer out;
+    for (auto antigen: antigens)
+        fmt::format_to(std::back_inserter(out), "{}\n", antigen->name());
+    // there are duplicates
+    acmacs::file::write(fmt::format("{}names-to-match-in-seqdb.txt", output_prefix), fmt::to_string(out));
+
+    const auto command = fmt::format("seqdb ")
+    std::system
+} // ColoringUsingSeqdb::prepare
+
+// ----------------------------------------------------------------------
+
 ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) const
 {
     ColoringData result(GREY50);
@@ -151,6 +168,9 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
 
 ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen) const
 {
+    AD_ERROR("seqdb v3 is not available");
+    exit(1);
+
     ColoringData result(TRANSPARENT);
     std::string tag{"UNKNOWN"};
     try {
@@ -240,13 +260,14 @@ void GeographicMapWithPointsFromHidb::prepare(acmacs::surface::Surface& aSurface
 
 // ----------------------------------------------------------------------
 
-void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, const std::vector<std::string>& aPriority, std::string_view aStartDate, std::string_view aEndDate)
+void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, const std::vector<std::string>& aPriority, std::string_view aStartDate, std::string_view aEndDate, std::string_view output_prefix)
 {
       // std::cerr << "add_points_from_hidb_colored_by" << '\n';
     const auto& hidb = hidb::get(acmacs::virus::type_subtype_t{mVirusType});
     auto antigens = hidb.antigens()->date_range(aStartDate, aEndDate);
     AD_INFO("dates: {}..{} antigens: {}", aStartDate, aEndDate, antigens.size());
     AD_INFO(!aPriority.empty(), "priority: {} (the last in this list to be drawn on top of others)\n", aPriority);
+    aColoring.prepare(antigens, output_prefix);
 
     acmacs::Counter<std::string> tag_counter;
     for (auto antigen: antigens) {
@@ -272,7 +293,7 @@ void GeographicTimeSeries::draw(std::string_view aFilenamePrefix, const Geograph
 {
     for (const auto& slot : time_series_) {
         auto map = map_;        // make a copy!
-        map.add_points_from_hidb_colored_by(aColoring, aColorOverride, priority_, date::display(slot.first), date::display(slot.after_last));
+        map.add_points_from_hidb_colored_by(aColoring, aColorOverride, priority_, date::display(slot.first), date::display(slot.after_last), aFilenamePrefix);
         map.title().add_line(acmacs::time_series::text_name(slot));
         map.draw(fmt::format("{}{}.pdf", aFilenamePrefix, acmacs::time_series::numeric_name(slot)), aImageWidth);
     }
@@ -306,9 +327,3 @@ GeographicMapColoring::TagColor ColoringByLineageAndDeletionMutants::color(const
 } // ColoringByLineageAndDeletionMutants::color
 
 // ----------------------------------------------------------------------
-
-
-// ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:

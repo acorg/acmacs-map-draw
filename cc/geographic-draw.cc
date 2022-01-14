@@ -71,7 +71,7 @@ int draw(const Options& opt)
 
     auto settings = geographic_settings_default();
     for (auto fn : *opt.settings_files) {
-        AD_DEBUG(*opt.verbose, "reading settings from {}", fn);
+        AD_INFO(*opt.verbose, "reading settings from {}", fn);
         try {
             settings.update(rjson::parse_file(fn, rjson::remove_comments::yes));
         }
@@ -89,7 +89,7 @@ int draw(const Options& opt)
           // Single map
         std::cerr << "INFO: single map\n";
         GeographicMapWithPointsFromHidb geographic_map(subtype, settings["point_size_in_pixels"].to<double>(), settings["point_density"].to<double>(), Color(settings["continent_outline_color"].to<std::string_view>()), settings["continent_outline_width"].to<double>());
-        geographic_map.add_points_from_hidb_colored_by(*coloring, ColorOverride{}, make_list(settings["priority"]), start_date, end_date);
+        geographic_map.add_points_from_hidb_colored_by(*coloring, ColorOverride{}, make_list(settings["priority"]), start_date, end_date, "/tmp/geographic-draw-");
         set_title(geographic_map.title(), settings, true);
 
         acmacs::file::temp temp_file(".pdf");
@@ -195,6 +195,3 @@ void set_title(map_elements::v1::Title& aTitle, const rjson::value& aSettings, b
 } // set_title
 
 // ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:
