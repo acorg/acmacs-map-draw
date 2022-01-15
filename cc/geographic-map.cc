@@ -109,8 +109,8 @@ ColorOverride::TagColor ColoringByContinent::color(const hidb::Antigen& aAntigen
 
 void ColoringUsingSeqdb::prepare(const hidb::AntigenPList& antigens, std::string_view output_prefix) const
 {
-    const auto list_antigens_filename = fmt::format("{}names-to-match-in-seqdb.txt", output_prefix);
-    const auto seqdb_json_filename = fmt::format("{}names-to-match-in-seqdb.json", output_prefix);
+    const auto list_antigens_filename = fmt::format("{}.to-match.txt", output_prefix);
+    const auto seqdb_json_filename = fmt::format("{}.matched.json", output_prefix);
 
     fmt::memory_buffer out;
     for (auto antigen: antigens)
@@ -142,7 +142,7 @@ const rjson::value& ColoringUsingSeqdb::find_name(std::string_view name) const
 
 ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) const
 {
-    ColoringData result(GREY50);
+    ColoringData result(PINK, GREY50, 0);
     std::string tag{"UNKNOWN"};
     try {
         if (const auto& found = find_name(aAntigen.name()); !found.is_null()) {
@@ -168,36 +168,9 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
                 tag = clade_data.front();
                 // }
             }
-            if (tag != "UNKNOWN")
-                result = mColors.at(tag);
-            AD_DEBUG(debug(), "{:10s} {:50s} {:50s} {} {}", tag, aAntigen.name_full(), found["seq_id"], clades_of_seq, result.fill);
         }
-        // if (const auto ref = acmacs::seqdb::get().find_hi_name(aAntigen.name_full()); ref) {
-        //     tag = "SEQUENCED";
-        //     const auto& clades_of_seq = ref.seq_with_sequence(acmacs::seqdb::get()).clades;
-        //     std::vector<std::string_view> clade_data;
-        //     std::copy_if(clades_of_seq.begin(), clades_of_seq.end(), std::back_inserter(clade_data), [this](const auto& clade) { return this->mColors.find(clade) != this->mColors.end(); });
-        //     std::sort(std::begin(clade_data), std::end(clade_data),
-        //               [](const auto& en1, const auto& en2) { return en1.size() > en2.size(); }); // longer name first, i.e. 3C.2A1B2A has higher priority than 3C.2A1B
-        //     if (clade_data.size() == 1) {
-        //         tag = clade_data.front();
-        //     }
-        //     else if (clade_data.size() > 1) {
-        //         // if (std::find(clade_data.begin(), clade_data.end(), "2A1") != clade_data.end()) {
-        //         //     tag = "2A1"; // 2A1 has higher priority over 3C.2A
-        //         // }
-        //         // else if (std::find(clade_data.begin(), clade_data.end(), "2A2") != clade_data.end()) {
-        //         //     tag = "2A2"; // 2A2 has higher priority over 3C.2A
-        //         // }
-        //         // else {
-        //         AD_DEBUG(debug(), "multi-clades: {} (first is used)", clade_data);
-        //         tag = clade_data.front();
-        //         // }
-        //     }
-        //     if (tag != "UNKNOWN")
-        //         result = mColors.at(tag);
-        //     AD_DEBUG(debug(), "{:10s} {:50s} {:50s} {} {}", tag, aAntigen.name_full(), ref.seq_id(), clades_of_seq, result.fill);
-        // }
+        result = mColors.at(tag);
+        // AD_DEBUG(debug(), "{:10s} {:50s} {:50s} {} {}", tag, aAntigen.name_full(), found["seq_id"], clades_of_seq, result.fill);
     }
     catch (std::exception& err) {
         AD_ERROR("ColoringByClade {}: {}", aAntigen.name_full(), err);
@@ -335,17 +308,18 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const Geog
 void GeographicTimeSeries::draw(std::string_view aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const
 {
     for (const auto& slot : time_series_) {
+        const auto filename = fmt::format("{}{}", aFilenamePrefix, acmacs::time_series::numeric_name(slot));
         auto map = map_;        // make a copy!
-        map.add_points_from_hidb_colored_by(aColoring, aColorOverride, priority_, date::display(slot.first), date::display(slot.after_last), aFilenamePrefix);
+        map.add_points_from_hidb_colored_by(aColoring, aColorOverride, priority_, date::display(slot.first), date::display(slot.after_last), filename);
         map.title().add_line(acmacs::time_series::text_name(slot));
-        map.draw(fmt::format("{}{}.pdf", aFilenamePrefix, acmacs::time_series::numeric_name(slot)), aImageWidth);
+        map.draw(fmt::format("{}.pdf", filename), aImageWidth);
     }
 
 } // GeographicTimeSeries::draw
 
 // ----------------------------------------------------------------------
 
-GeographicMapColoring::TagColor ColoringByLineageAndDeletionMutants::color(const hidb::Antigen& aAntigen) const
+GeographicMapColoring::TagColor ColoringByLineageAndDeletionMutants::color(const hidb::Antigen& /*aAntigen*/) const
 {
     AD_ERROR("seqdb v3 is not available, see ColoringByAminoAcid::color for sample implementation using seqdb-v4");
     exit(1);

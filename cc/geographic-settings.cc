@@ -40,8 +40,9 @@ static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-
 
   "clade_color": {
     "?": "========== sequenced but not in any clade",
-    "":              {"fill": "grey50",          "outline": "black", "outline_width": 0},
-    "SEQUENCED":     {"fill": "yellow",          "outline": "black", "outline_width": 0},
+    "":              {"fill": "transparent",          "outline": "#808080", "outline_width": 1},
+    "UNKNOWN":       {"fill": "transparent",          "outline": "#808080", "outline_width": 1},
+    "SEQUENCED":     {"fill": "#ffff80",          "outline": "black", "outline_width": 0},
 
     "?": "========== H3",
     "3C.3":           {"fill": "cornflowerblue",  "outline": "black", "outline_width": 0},
@@ -54,8 +55,8 @@ static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-
     "3C.3B":             {"fill": "blue",            "outline": "black", "outline_width": 0},
 
     "?": "========== H1pdm",
-    "6B1":           {"fill": "blue",            "outline": "black", "outline_width": 0},
-    "6B2":           {"fill": "red",             "outline": "black", "outline_width": 0},
+    "6B.1":           {"fill": "blue",            "outline": "black", "outline_width": 0},
+    "6B.2":           {"fill": "red",             "outline": "black", "outline_width": 0},
 
     "?": "========== B/Yam",
     "Y2":            {"fill": "cornflowerblue",  "outline": "black", "outline_width": 0},
@@ -64,9 +65,9 @@ static const char* const SETTINGS_DEFAULT = R"({ "_":"-*- js-indent-level: 2 -*-
     "?": "========== B/Vic",
     "V1":             {"fill": "blue",            "outline": "black", "outline_width": 0},
     "V1A":            {"fill": "cornflowerblue",  "outline": "black", "outline_width": 0},
-    "V1B":            {"fill": "red",             "outline": "black", "outline_width": 0},
-    "2DEL2017":       {"fill": "#000080",         "outline": "black", "outline_width": 0},
-    "3DEL2017": {"fill": "#46f0f0",         "outline": "black", "outline_width": 0}
+    "V1A.1":            {"fill": "#000080",  "outline": "black", "outline_width": 0},
+    "V1A.2":            {"fill": "#46f0f0",  "outline": "black", "outline_width": 0},
+    "V1A.3":            {"fill": "#f046f0",  "outline": "black", "outline_width": 0}
   },
 
   "lineage_color": {
@@ -102,6 +103,3 @@ std::string geographic_settings_default_raw()
 } // geographic_settings_default_raw
 
 // ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:

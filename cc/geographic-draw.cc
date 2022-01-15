@@ -124,10 +124,16 @@ static inline GeographicMapColoring::TagToColor make_map(const rjson::value& aSo
 {
     GeographicMapColoring::TagToColor result;
     auto rjson_to_coloring_data = [](const rjson::object::value_type& entry) -> GeographicMapColoring::TagToColor::value_type {
-        if (!entry.first.empty() && (entry.first.front() == '?' || entry.first.back() == '?'))
+        if (!entry.first.empty() && (entry.first.front() == '?' || entry.first.back() == '?')) {
             return {entry.first, {Color("pink")}}; // comment field
-        else
-            return {entry.first, {Color(entry.second["fill"].to<std::string_view>()), Color(entry.second["outline"].to<std::string_view>()), entry.second["outline_width"].to<double>()}};
+        }
+        else {
+            return {entry.first,
+                    {Color(entry.second["fill"].get_or_default("transparent")),
+                     Color(entry.second["outline"].get_or_default("black")),
+                     entry.second["outline_width"].get_or_default(0.0)}
+            };
+        }
     };
     rjson::transform(aSource, std::inserter(result, result.end()), rjson_to_coloring_data);
     return result;
@@ -145,9 +151,12 @@ GeographicMapColoring* make_coloring(const rjson::value& aSettings)
     }
     else if (coloring_name == "clade") {
         rjson::value clade_color = aSettings["clade_color"];
-        // AD_DEBUG("clade_color {}", clade_color);
-        if (const auto& clade_color_override = aSettings["coloring"]["clade_color"]; !clade_color_override.is_null())
+        AD_DEBUG("clade_color {}", clade_color);
+        if (const auto& clade_color_override = aSettings["coloring"]["clade_color"]; !clade_color_override.is_null()) {
+            AD_DEBUG("clade_color_override: {}", clade_color_override);
             clade_color.update(clade_color_override);
+            AD_DEBUG("clade_color {}", clade_color);
+        }
         coloring = new ColoringByClade(make_map(clade_color), aSettings["coloring"]["debug"].get_or_default(false));
     }
     else if (coloring_name == "lineage") {
