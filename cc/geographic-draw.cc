@@ -89,7 +89,7 @@ int draw(const Options& opt)
           // Single map
         std::cerr << "INFO: single map\n";
         GeographicMapWithPointsFromHidb geographic_map(subtype, settings["point_size_in_pixels"].to<double>(), settings["point_density"].to<double>(), Color(settings["continent_outline_color"].to<std::string_view>()), settings["continent_outline_width"].to<double>());
-        geographic_map.add_points_from_hidb_colored_by(*coloring, ColorOverride{}, make_list(settings["priority"]), start_date, end_date, "/tmp/geographic-draw-");
+        geographic_map.add_points_from_hidb_colored_by(*coloring, ColorOverride{}, make_list(settings["priority"]), start_date, end_date, opt.subtype, "/tmp/geographic-draw-");
         set_title(geographic_map.title(), settings, true);
 
         acmacs::file::temp temp_file(".pdf");
@@ -111,7 +111,7 @@ int draw(const Options& opt)
         else
             throw std::runtime_error(fmt::format("Unsupported time series argument: {} (monthly or yearly or weekly expected)", *opt.time_series));
         set_title(time_series->title(), settings, false);
-        time_series->draw(opt.output_pdf, *coloring, ColorOverride{}, settings["output_image_width"].to<double>());
+        time_series->draw(opt.output_pdf, *coloring, ColorOverride{}, settings["output_image_width"].to<double>(), opt.subtype);
     }
 
     return 0;

@@ -104,7 +104,7 @@ class GeographicMapColoring
     GeographicMapColoring(bool debug) : debug_{debug} {}
     virtual ~GeographicMapColoring();
 
-    virtual void prepare(const hidb::AntigenPList& /*antigens*/, std::string_view /*output_prefix*/) const {}
+    virtual void prepare(const hidb::AntigenPList& /*antigens*/, std::string_view /*subtype*/, std::string_view /*output_prefix*/) const {}
 
     virtual TagColor color(const hidb::Antigen& aAntigen) const = 0;
 
@@ -137,7 +137,7 @@ class ColoringUsingSeqdb : public GeographicMapColoring
   public:
     using GeographicMapColoring::GeographicMapColoring;
 
-    void prepare(const hidb::AntigenPList& antigens, std::string_view output_prefix) const override;
+    void prepare(const hidb::AntigenPList& antigens, std::string_view subtype, std::string_view output_prefix) const override;
     const rjson::value& find_name(std::string_view name) const;
 
   private:
@@ -257,7 +257,7 @@ class GeographicMapWithPointsFromHidb : public GeographicMapDraw
 
     void prepare(acmacs::surface::Surface& aSurface) override;
 
-    void add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, const std::vector<std::string>& aPriority, std::string_view aStartDate, std::string_view aEndDate, std::string_view output_prefix);
+    void add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, const std::vector<std::string>& aPriority, std::string_view aStartDate, std::string_view aEndDate, std::string_view subtype, std::string_view output_prefix);
 
     // void add_points_from_hidb_colored_by_continent(const GeographicMapColoring::TagToColor& aContinentColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByContinent(aContinentColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
     // void add_points_from_hidb_colored_by_clade(const GeographicMapColoring::TagToColor& aCladeColor, const std::map<std::string, std::string>& aColorOverride, const std::vector<std::string>& aPriority, std::string aStartDate, std::string aEndDate) { add_points_from_hidb_colored_by(ColoringByClade(aCladeColor), ColorOverride(aColorOverride), aPriority, aStartDate, aEndDate); }
@@ -321,7 +321,7 @@ class GeographicTimeSeries
     virtual ~GeographicTimeSeries() = default;
 
     map_elements::v1::Title& title() { return map_.title(); }
-    void draw(std::string_view aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const;
+    void draw(std::string_view aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth, std::string_view subtype) const;
 
  private:
     GeographicMapWithPointsFromHidb map_;

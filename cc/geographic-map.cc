@@ -107,7 +107,7 @@ ColorOverride::TagColor ColoringByContinent::color(const hidb::Antigen& aAntigen
 
 // ----------------------------------------------------------------------
 
-void ColoringUsingSeqdb::prepare(const hidb::AntigenPList& antigens, std::string_view output_prefix) const
+void ColoringUsingSeqdb::prepare(const hidb::AntigenPList& antigens, std::string_view subtype, std::string_view output_prefix) const
 {
     const auto list_antigens_filename = fmt::format("{}.to-match.txt", output_prefix);
     const auto seqdb_json_filename = fmt::format("{}.matched.json", output_prefix);
@@ -118,7 +118,8 @@ void ColoringUsingSeqdb::prepare(const hidb::AntigenPList& antigens, std::string
     // there are duplicates
     acmacs::file::write(list_antigens_filename, fmt::to_string(out));
 
-    const auto command = fmt::format("seqdb --no-print --from '{}' --json '{}'", list_antigens_filename, seqdb_json_filename);
+    const auto command = fmt::format("seqdb --no-print --from '{}' --json '{}' {}", list_antigens_filename, seqdb_json_filename, subtype);
+    AD_INFO("$ {}", command);
     if (std::system(command.c_str()))
         throw std::runtime_error{AD_FORMAT("command \"{}\" failed", command)};
 
@@ -276,14 +277,14 @@ void GeographicMapWithPointsFromHidb::prepare(acmacs::surface::Surface& aSurface
 
 // ----------------------------------------------------------------------
 
-void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, const std::vector<std::string>& aPriority, std::string_view aStartDate, std::string_view aEndDate, std::string_view output_prefix)
+void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, const std::vector<std::string>& aPriority, std::string_view aStartDate, std::string_view aEndDate, std::string_view subtype, std::string_view output_prefix)
 {
       // std::cerr << "add_points_from_hidb_colored_by" << '\n';
     const auto& hidb = hidb::get(acmacs::virus::type_subtype_t{mVirusType});
     auto antigens = hidb.antigens()->date_range(aStartDate, aEndDate);
     AD_INFO("dates: {}..{} antigens: {}", aStartDate, aEndDate, antigens.size());
     AD_INFO(!aPriority.empty(), "priority: {} (the last in this list to be drawn on top of others)\n", aPriority);
-    aColoring.prepare(antigens, output_prefix);
+    aColoring.prepare(antigens, subtype, output_prefix);
 
     acmacs::Counter<std::string> tag_counter;
     for (auto antigen: antigens) {
@@ -305,12 +306,12 @@ void GeographicMapWithPointsFromHidb::add_points_from_hidb_colored_by(const Geog
 
 // ----------------------------------------------------------------------
 
-void GeographicTimeSeries::draw(std::string_view aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth) const
+void GeographicTimeSeries::draw(std::string_view aFilenamePrefix, const GeographicMapColoring& aColoring, const ColorOverride& aColorOverride, double aImageWidth, std::string_view subtype) const
 {
     for (const auto& slot : time_series_) {
         const auto filename = fmt::format("{}{}", aFilenamePrefix, acmacs::time_series::numeric_name(slot));
         auto map = map_;        // make a copy!
-        map.add_points_from_hidb_colored_by(aColoring, aColorOverride, priority_, date::display(slot.first), date::display(slot.after_last), filename);
+        map.add_points_from_hidb_colored_by(aColoring, aColorOverride, priority_, date::display(slot.first), date::display(slot.after_last), subtype, filename);
         map.title().add_line(acmacs::time_series::text_name(slot));
         map.draw(fmt::format("{}.pdf", filename), aImageWidth);
     }
