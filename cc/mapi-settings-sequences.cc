@@ -73,6 +73,3 @@ bool acmacs::mapi::v1::Settings::apply_compare_sequences()
 } // acmacs::mapi::v1::Settings::apply_compare_sequences
 
 // ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:

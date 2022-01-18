@@ -87,7 +87,7 @@ void ChartAccess::export_chart(std::string_view filename) const
 
 const acmacs::seqdb::subset& ChartAccess::match_seqdb() const
 {
-    AD_DEBUG("match_seqdb");
+    AD_WARNING("match_seqdb3");
     if (!matched_seqdb_) {
         auto antigens = chart().antigens();
         matched_seqdb_ = acmacs::seqdb::get().match(*antigens, chart().info()->virus_type(acmacs::chart::Info::Compute::Yes));

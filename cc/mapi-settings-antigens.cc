@@ -836,11 +836,13 @@ template <typename AgSr> acmacs::chart::PointIndexList acmacs::mapi::v1::Setting
     if (report) {
         if constexpr (std::is_same_v<AgSr, acmacs::chart::Antigens>) {
             AD_INFO("{} antigens selected with {}", indexes.size(), select_clause);
-            fmt::print(stderr, "{}", report_antigens(indexes, chart_draw(), report_threshold));
+            if (!indexes.empty())
+                fmt::print(stderr, "{}", report_antigens(indexes, chart_draw(), report_threshold));
         }
         else {
             AD_INFO("{} sera selected with {}", indexes.size(), select_clause);
-            fmt::print(stderr, "{}", report_sera(indexes, chart_draw(), report_threshold));
+            if (!indexes.empty())
+                fmt::print(stderr, "{}", report_sera(indexes, chart_draw(), report_threshold));
         }
     }
     return indexes;
@@ -1252,6 +1254,3 @@ bool acmacs::mapi::v1::Settings::color_according_to_aa_at_pos(const acmacs::char
 } // acmacs::mapi::v1::Settings::color_according_to_aa_at_pos
 
 // ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:
