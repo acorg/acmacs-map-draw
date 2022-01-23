@@ -348,9 +348,3 @@ bool acmacs::mapi::v1::Settings::apply_serum_coverage()
 } // acmacs::mapi::v1::Settings::apply_serum_coverage
 
 // ----------------------------------------------------------------------
-
-
-// ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:
