@@ -19,6 +19,7 @@
     ],
 
     "mapi": [
+        "/rotate",
         {"N": "title", "show": true, "lines": ["{lab} {virus-type/lineage} {assay-no-hi-cap} {table-date}     {stress}"]}
     ],
 
