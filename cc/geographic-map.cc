@@ -221,7 +221,10 @@ ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen
                     });
                     if (satisfied) {
                         result = rjson::get_or(apply_entry, "color", "pink");
+                        result.outline = Color{rjson::get_or(apply_entry, "outline", "transparent")};
+                        result.outline_width = Pixels{rjson::get_or(apply_entry, "outline_width", 0.0)};
                         tag = tag_to_use.substr(1); // remove leading space
+                        // AD_DEBUG("ColoringByAminoAcid {} {} {} {} {}", tag, result.fill, result.outline, result.outline_width, apply_entry);
                     }
                 }
             });
