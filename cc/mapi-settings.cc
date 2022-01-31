@@ -207,6 +207,3 @@ void acmacs::mapi::v1::Settings::update_env_upon_projection_change()
 } // acmacs::mapi::v1::Settings::update_env_upon_projection_change
 
 // ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:

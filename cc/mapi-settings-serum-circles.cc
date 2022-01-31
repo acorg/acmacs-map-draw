@@ -134,7 +134,7 @@ acmacs::chart::PointIndexList acmacs::mapi::v1::Settings::select_antigens_for_se
         acmacs::map_draw::select::filter::name_in(*chart.antigens(), antigen_indexes, serum->name());
     }
     else {
-        chart.set_homologous(acmacs::chart::find_homologous::all);
+        chart.set_homologous(acmacs::chart::find_homologous::all); // , nullptr, debug::yes);
         antigen_indexes = serum->homologous_antigens();
     }
     return antigen_indexes;
