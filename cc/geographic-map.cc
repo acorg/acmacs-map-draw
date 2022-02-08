@@ -188,7 +188,16 @@ ColorOverride::TagColor ColoringByClade::color(const hidb::Antigen& aAntigen) co
 
 ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen) const
 {
-    ColoringData result(TRANSPARENT);
+    ColoringData result(TRANSPARENT, BLACK, 1.0);
+    if (const auto& default_coloring = settings_["default"]; !default_coloring.is_null()) {
+        if (!default_coloring["color"].is_null())
+            result.fill = Color(default_coloring["color"].to<std::string_view>());
+        if (!default_coloring["outline"].is_null())
+            result.outline = Color(default_coloring["outline"].to<std::string_view>());
+        if (!default_coloring["outline_width"].is_null())
+            result.outline_width = Pixels{default_coloring["outline_width"].to<double>()};
+    }
+
     std::string tag{"UNKNOWN"};
     try {
         std::string aa_report;
@@ -229,7 +238,7 @@ ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen
                 }
             });
         }
-        AD_DEBUG(rjson::get_or(settings_, "report", false) || debug(), "ColoringByAminoAcid {}: {} <-- {} {}", aAntigen.name_full(), tag, "" /*aa_report*/, result.fill);
+        AD_DEBUG(rjson::get_or(settings_, "report", false) || debug(), "ColoringByAminoAcid {}: {} <-- {} fill:{} outline:{} outline_width:{}", aAntigen.name_full(), tag, "" /*aa_report*/, result.fill, result.outline, result.outline_width);
     }
     catch (std::exception& err) {
         AD_ERROR("ColoringByAminoAcid {}: {}", aAntigen.name_full(), err);
@@ -238,10 +247,10 @@ ColorOverride::TagColor ColoringByAminoAcid::color(const hidb::Antigen& aAntigen
         AD_ERROR("ColoringByAminoAcid {}: unknown exception", aAntigen.name_full());
     }
 
-    if (result.fill == TRANSPARENT) {
-        result.outline = 0xA0CCCCCC;
-        result.outline_width = Pixels{0.3};
-    }
+    // if (result.fill == TRANSPARENT) {
+    //     result.outline = 0xA0CCCCCC;
+    //     result.outline_width = Pixels{0.3};
+    // }
     return {tag, result};
 
 } // ColoringByAminoAcid::color
