@@ -66,9 +66,9 @@ void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList&
 {
     using namespace std::string_view_literals;
 
-    const auto label{fmt::format(fmt::runtime(rjson::v3::get_or(legend_data["label"sv], "use \"label\" in \"legend\""sv)),
+    const auto label{fmt::format(fmt::runtime(rjson::v3::get_or(substitute(legend_data["label"sv]), "use \"label\" in \"legend\""sv)),
                                  fmt::arg("count", indexes.size()))};
-    if (rjson::v3::read_bool(legend_data["replace"sv], false))
+    if (rjson::v3::read_bool(substitute(legend_data["replace"sv]), false))
         legend().remove_line(label);
 
     add_legend(indexes, style, label, legend_data);
@@ -80,7 +80,7 @@ void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList&
 void acmacs::mapi::v1::Settings::add_legend(const acmacs::chart::PointIndexList& indexes, const acmacs::PointStyleModified& style, std::string_view label, const rjson::v3::value& legend_data)
 {
     using namespace std::string_view_literals;
-    if (rjson::v3::read_bool(legend_data["show"sv], true) && (!indexes->empty() || rjson::v3::read_bool(legend_data["show_if_none_selected"sv], false))) { // show is true by default
+    if (rjson::v3::read_bool(substitute(legend_data["show"sv]), true) && (!indexes->empty() || rjson::v3::read_bool(substitute(legend_data["show_if_none_selected"sv]), false))) { // show is true by default
         legend().add_line(acmacs::color::Modifier{style.fill()}, acmacs::color::Modifier{style.outline()}, style.outline_width(), label);
     }
 
@@ -147,10 +147,3 @@ bool acmacs::mapi::v1::Settings::apply_title()
 } // acmacs::mapi::v1::Settings::apply_title
 
 // ----------------------------------------------------------------------
-
-
-
-// ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:
