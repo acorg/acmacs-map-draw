@@ -174,6 +174,8 @@ void acmacs::mapi::v1::Settings::update_env(env_put_antigen_serum_names epasn)
             setenv(fmt::format("ag-{}-full-name-with-passage", no), antigen->format("{name_full}"));
             setenv(fmt::format("ag-{}-abbreviated-name", no), antigen->format("{name_abbreviated}"));
             setenv(fmt::format("ag-{}-designation", no), antigen->format("{designation}"));
+            setenv(fmt::format("ag-{}-clades", no), antigen->format("{clades}"));
+            setenv(fmt::format("ag-{}-clade", no), antigen->format("{clade}")); // longest clade name
         }
 
         auto sera = chart.sera();
