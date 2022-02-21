@@ -185,6 +185,8 @@ void acmacs::mapi::v1::Settings::update_env(env_put_antigen_serum_names epasn)
             setenv(fmt::format("sr-{}-abbreviated-name-with-serum-id", no), serum->format("{name_full}{ }{serum_id}", acmacs::chart::collapse_spaces_t::yes));
             setenv(fmt::format("sr-{}-designation", no), serum->format("{designation}"));
             setenv(fmt::format("sr-{}-designation-without-serum-id", no), serum->format("{designation_without_serum_id}"));
+            setenv(fmt::format("sr-{}-clades", no), serum->format("{clades}"));
+            setenv(fmt::format("sr-{}-clade", no), serum->format("{clade}")); // longest clade name
         }
     }
 
