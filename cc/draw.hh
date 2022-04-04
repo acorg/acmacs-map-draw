@@ -191,6 +191,3 @@ class ChartDraw : public ChartSelectInterface
 }; // class ChartDraw
 
 // ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:

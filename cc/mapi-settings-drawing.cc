@@ -411,6 +411,3 @@ std::optional<map_elements::v2::Coordinates> acmacs::mapi::v1::Settings::read_co
 } // read_coordinates
 
 // ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:
