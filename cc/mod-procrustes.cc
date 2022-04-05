@@ -72,9 +72,3 @@ void ModProcrustesArrows::apply(ChartDraw& aChartDraw, const rjson::value& /*aMo
 } // ModProcrustesArrows::apply
 
 // ----------------------------------------------------------------------
-
-
-// ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:

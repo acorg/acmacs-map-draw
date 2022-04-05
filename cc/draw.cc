@@ -408,6 +408,3 @@ void ChartDraw::save(std::string_view aFilename, std::string_view aProgramName)
 } // ChartDraw::save
 
 // ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:
