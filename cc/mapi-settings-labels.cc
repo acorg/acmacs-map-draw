@@ -61,6 +61,3 @@ void acmacs::mapi::v1::Settings::add_label(size_t index, size_t index_base, cons
 } // acmacs::mapi::v1::Settings::add_label
 
 // ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:
