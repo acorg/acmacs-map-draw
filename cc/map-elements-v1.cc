@@ -328,6 +328,3 @@ void map_elements::v1::Point::draw(acmacs::draw::DrawElements& aDrawElements, co
 } // map_elements::v1::Point::draw
 
 // ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:

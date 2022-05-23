@@ -59,6 +59,3 @@ namespace map_elements::v2
 } // namespace map_elements::v2
 
 // ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:

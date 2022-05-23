@@ -421,6 +421,11 @@ namespace map_elements::v1
             mOutlineWidth = Pixels{aOutlineWidth};
             return *this;
         }
+        Circle& outline_width(Pixels aOutlineWidth)
+        {
+            mOutlineWidth = aOutlineWidth;
+            return *this;
+        }
         Circle& aspect(Aspect aAspect)
         {
             mAspect = aAspect;

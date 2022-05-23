@@ -96,6 +96,3 @@ acmacs::PointCoordinates map_elements::v2::Coordinates::get_not_transformed(cons
 
 
 // ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:
