@@ -98,7 +98,8 @@ PointDrawingOrder drawing_order_from(std::string_view order)
         return PointDrawingOrder::Raise;
     if (order == "lower")
         return PointDrawingOrder::Lower;
-    AD_WARNING("unrecognized drawing order: {}", order);
+    if (!order.empty())
+        AD_WARNING("unrecognized drawing order: {}", order);
     return PointDrawingOrder::NoChange;
 
 } // drawing_order_from
