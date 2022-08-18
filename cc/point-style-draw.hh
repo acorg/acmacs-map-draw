@@ -22,6 +22,3 @@ PointDrawingOrder drawing_order_from(std::string_view order);
 inline PointDrawingOrder drawing_order_from(const std::string& order) { return drawing_order_from(std::string_view{order}); }
 
 // ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:

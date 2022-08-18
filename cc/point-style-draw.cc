@@ -98,6 +98,7 @@ PointDrawingOrder drawing_order_from(std::string_view order)
         return PointDrawingOrder::Raise;
     if (order == "lower")
         return PointDrawingOrder::Lower;
+    AD_WARNING("unrecognized drawing order: {}", order);
     return PointDrawingOrder::NoChange;
 
 } // drawing_order_from
@@ -115,6 +116,3 @@ PointDrawingOrder drawing_order_from(const rjson::value& aSource)
 } // drawing_order_from
 
 // ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:

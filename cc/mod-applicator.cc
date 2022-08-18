@@ -898,6 +898,3 @@ Mods factory(ChartDraw& aChartDraw, const rjson::value& aMod, const rjson::value
 } // factory
 
 // ----------------------------------------------------------------------
-/// Local Variables:
-/// eval: (if (fboundp 'eu-rename-buffer) (eu-rename-buffer))
-/// End:
