@@ -135,6 +135,11 @@
         {"N": "procrustes-arrows", "chart": 1, "projection": 0, "match": "auto", "threshold": "$pc-arrows-threshold", "report": "$report-common", "report_longest_arrows": "$report-longest-arrows"}
     ],
 
+    "/pc-scaling": [
+        {"N": "title", "show": true, "remove-lines": true},
+        {"N": "procrustes-arrows", "scaling": true, "chart": 1, "projection": 0, "match": "auto", "threshold": "$pc-arrows-threshold", "report": "$report-common", "report_longest_arrows": "$report-longest-arrows"}
+    ],
+
     "/pc01": [
         {"N": "procrustes-arrows", "projection": 1, "threshold": "$pc-arrows-threshold", "report_longest_arrows": "$report-longest-arrows"}
     ],
