@@ -204,7 +204,7 @@ template <> struct fmt::formatter<acmacs::mapi::v1::Settings::time_series_data> 
 {
     template <typename FormatCtx> auto format(const acmacs::mapi::v1::Settings::time_series_data& value, FormatCtx& ctx)
     {
-        return format_to(ctx.out(), "time_series_data {{\n    filename_pattern: {}\n    title: {}\n    series: {}\n}}", //
+        return fmt::format_to(ctx.out(), "time_series_data {{\n    filename_pattern: {}\n    title: {}\n    series: {}\n}}", //
                          value.filename_pattern, value.title, value.series);
     }
 };
