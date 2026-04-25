@@ -12,7 +12,7 @@ TARGETS = \
   $(DIST)/map-hemisphering \
   $(DIST)/geographic-draw \
   $(DIST)/chart-layout-sequences \
-  $(DIST)/mod_acmacs.so
+  # $(DIST)/mod_acmacs.so # disabled - apxs compiler incompatibility
 
 ACMACS_MAP_DRAW_SOURCES =        \
   mapi-settings-antigens.cc      \
@@ -116,8 +116,6 @@ else
 endif
 APXS_CXXFLAGS = $(CXXFLAGS) -Wno-missing-field-initializers
 
-$(DIST)/mod_acmacs.so: $(BUILD)/.libs/apache-mod-acmacs.so
-	$(call symbolic_link,$^,$@)
 
 $(BUILD)/.libs/apache-mod-acmacs.so: cc/apache-mod-acmacs.cc | $(ACMACS_MAP_DRAW_LIB)
 	echo apxs does not not understand any file suffixes besides .c, so we have to use .c for C++
